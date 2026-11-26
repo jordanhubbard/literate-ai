@@ -60,6 +60,7 @@ from literate_ai.projects import (
     LoadedProject,
     ProjectConfigurationStore,
     ProjectError,
+    configured_catalog_path,
     contained_catalog_coordinates,
     discover_project,
 )
@@ -264,7 +265,13 @@ def _project_owned_generation_input_paths(
                 ),
             )
             for selector in selectors:
-                candidate = Path(selector.uri).as_posix()
+                candidate = (
+                    configured_catalog_path(
+                        root, root, selector.uri, kind=selector.kind
+                    )
+                    .relative_to(root)
+                    .as_posix()
+                )
                 if candidate in imported_paths:
                     continue
                 if any(

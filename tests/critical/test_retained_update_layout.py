@@ -10,6 +10,7 @@ from pathlib import Path
 from literate_ai.adapters.harness_inventory import legacy_shim_authority
 from literate_ai.adapters.project_updates import (
     ProjectUpdateError,
+    _project_owned_generation_input_paths,
     _retained_legacy_shim_authority_paths,
 )
 from literate_ai.adapters.retained_layout import (
@@ -112,6 +113,28 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
                 (
                     root / "litai/components/legacy-project-wrapper/implementation"
                 ).exists()
+            )
+
+    def test_project_owned_component_selectors_protect_current_catalog_inputs(self):
+        from literate_ai.projects import discover_project
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            self._contained_project(root)
+            shim = legacy_shim_authority({"commands": {}, "stages": []}, {"phases": []})
+            component = "components/legacy-project-wrapper/component.md"
+            (root / "litai" / component).write_text(shim[component])
+            protected = _project_owned_generation_input_paths(
+                discover_project(root), frozenset()
+            )
+            expected = {
+                "litai/workflows/legacy-adoption/workflow.md",
+                "litai/routing/legacy-adoption.json",
+                "litai/skills/specification-to-source/legacy-project-shim/SKILL.md",
+            }
+            self.assertTrue(expected <= protected, protected)
+            self.assertFalse(
+                {name.removeprefix("litai/") for name in expected} & protected
             )
 
     def test_missing_current_dependent_does_not_protect_obsolete_shim(self):

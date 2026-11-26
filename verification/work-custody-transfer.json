@@ -34,8 +34,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 23,
-      "preserved-for-reconciliation": 67
+      "merged": 25,
+      "preserved-for-reconciliation": 65
     },
     "snapshots": [
       {
@@ -325,9 +325,9 @@
         "base": "426b71ec4e56afb5d041df8ed0995c09bb20aae5",
         "commit": "86faf93d6f9cb68f178dada4e01acf65617cc746",
         "branch": "recovery/puck-20261126/go14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 7,
-        "remaining_paths": 4
+        "remaining_paths": 0
       },
       {
         "label": "goalguard1",
@@ -779,9 +779,9 @@
         "base": "ba755fb03e4d5137077604cf07eaa37d8a77a6d5",
         "commit": "8a166306bef87fb905fead2224524c546b70481d",
         "branch": "recovery/puck-20261126/wf14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 4,
-        "remaining_paths": 2
+        "remaining_paths": 0
       },
       {
         "label": "wheelinv1",
@@ -877,14 +877,18 @@
         "wi14",
         "sdpil1",
         "d5657",
-        "cudapos1"
+        "cudapos1",
+        "go14",
+        "wf14"
       ],
       "roadmap_delta_test_methods_identical": 4,
       "roadmap_delta_added_prose_lines_retained": 17,
       "hosted_pilot_prose_bytes_retained": 2465,
       "original_goals_retained_in_release": "1.4.0",
       "d5657": "Both proposed ADR blobs are identical to archived d56 drafts; accepted decisions and later metadata retained; merge tree unchanged.",
-      "cudapos1": "Normal source/test merge is unchanged; all old positive-signal prose remains, later reviewed-source next action retained; merge tree unchanged."
+      "cudapos1": "Normal source/test merge is unchanged; all old positive-signal prose remains, later reviewed-source next action retained; merge tree unchanged.",
+      "go14": "Normal merge has unchanged tree after retaining current review/driver pins. All 21 added observation lines already present verbatim.",
+      "wf14": "All three changed Python module ASTs identical to current files. Original 18 historical evidence lines, including full-suite timeout and pending native qualification, retained under WORKTREE-002."
     }
   },
   "checks": {
@@ -1030,6 +1034,29 @@
       "methods": 7,
       "seconds": 17.752,
       "scope": "Source controls for historical, contained and mixed catalogs, selected wrapper/source custody, missing dependents, invalid source layout and ambiguous duplicate authority. Installed continuation required."
+    },
+    "retained_root_update_regression": {
+      "status": "passed",
+      "methods": 7,
+      "seconds": 60.234,
+      "scope": "Contained generated-root update publication and rollback source controls after declared shim-catalog repair."
+    },
+    "installed_maintenance_retained_resume": {
+      "status": "failed",
+      "subject": "13cc2e2c389047636c2c630609bafafb56b161da",
+      "distribution": "sha256:3c1af1ab4dbabadbe2eb6b5510b82e064a5227eecec7514f24adb74b42a3566a",
+      "methods": 1,
+      "seconds": 5.185,
+      "original_fixture_reconstructed": false,
+      "error": "Flavor authoring reference is unavailable",
+      "diagnosis": "Unchanged fixture validates. Instrumented original apply preserves validator behavior and identifies retirement of litai/skills/specification-to-source/legacy-project-shim/SKILL.md: Component selector protection compares old logical URI to current roots without shared catalog resolution.",
+      "compiler_startup_failure": "Earlier launch encountered transient merge markers before discovery; zero installed cases ran. Startup log retained separately; no test failure relabeled."
+    },
+    "retained_component_selector_protection": {
+      "status": "passed",
+      "methods": 8,
+      "seconds": 31.949,
+      "scope": "Retained update source controls plus current catalog resolution of logical Component input selectors. Original source/index/HEAD/intent/receipt independently preserved after diagnostic apply rollback. Installed continuation remains pending."
     }
   },
   "remaining_requirements": [

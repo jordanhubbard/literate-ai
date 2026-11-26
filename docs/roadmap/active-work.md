@@ -29244,7 +29244,7 @@ coordinates. Integrate the existing contained-roadmap namespace contribution,
 retain current observation safeguards, and require an explicit reviewed queue
 resolution before application. Both failed receipts remain separate evidence.
 
-**Next action (in progress).** Reconcile the remaining 67 snapshots and verify the reference
+**Next action (in progress).** Reconcile the remaining 65 snapshots and verify the reference
 repair against the exact retained failed installed fixture. The repaired native-root
 run completed all 631 selected cases in 2,248.970 seconds, without failures or skips;
 the earlier failing run had stopped after executing 160 cases. Its source pin and
@@ -29277,10 +29277,27 @@ implementation path. A mixed catalog may retain root source while its wrapper
 Component lives beneath litai/. Do not rebaseline or renew that source merely to
 make update apply. Source regressions and a new immutable installed continuation
 remain required. Two additional unchanged-tree history reconciliations bring
-custody integration to 23 snapshots merged and 67 pending.
+custody integration to 25 snapshots merged and 65 pending.
 
 The seven retained-update source controls pass in 17.752 seconds. Read-only
 inspection of the original failed fixture now selects its wrapper Component,
 lock/audit and two shim Flavor files at their current contained coordinates;
 original source, Git state, intent and receipt still match. Installed verification
 with a new immutable subject remains required.
+
+**Selector protection continuation.** Subject `13cc2e2c3` protects current shim
+Flavor/Component/lock authority but update still retires the shim skill: the
+project-owned Component retains logical root URIs, and its protection scanner
+compares them directly with current contained catalog roots. The unchanged
+fixture validates; failure-only instrumentation of the original apply identifies
+the exact missing skill and preserves the original validator/refusal. Route those
+selectors through the existing configured catalog resolver, preserve its shadowing
+and safety checks, and qualify an additional source regression plus a new immutable
+installed continuation. The previous launch's transient compiler conflict occurred
+before test discovery and is retained separately. No application or reparent success
+is claimed. The seven contained root-update source tests also pass in 60.234 seconds.
+
+All eight retained-update source methods pass in 31.949 seconds after selector
+resolution. Read-only inspection now protects the original fixture’s three
+current workflow/routing/skill inputs as well as shim authority; its source, Git
+index/HEAD, intent and original receipt remain exact after the diagnostic rollback.
