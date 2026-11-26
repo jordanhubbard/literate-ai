@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "46a35323f459828dc5e2b330393fcb2fcb141a41",
+  "continued_subject": "6c6a9c04a6bb7b9f43e78bf487fd9bc7c1c7f330",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -34,8 +34,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 41,
-      "preserved-for-reconciliation": 49
+      "merged": 48,
+      "preserved-for-reconciliation": 42
     },
     "snapshots": [
       {
@@ -116,27 +116,33 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "3b39b7230ea3fb27497070d6f915f945993a255b",
         "branch": "recovery/puck-20261126/arproof1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 12,
-        "remaining_paths": 7
+        "remaining_paths": 0,
+        "reconciliation_commit": "9e83090ba78b516aecebbf6d62aa341c53956a95",
+        "tree_unchanged_from_first_parent": true
       },
       {
         "label": "artcust1",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "fd8882c82922e8628016f2da5d22baaf64dcfd90",
         "branch": "recovery/puck-20261126/artcust1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 14,
-        "remaining_paths": 7
+        "remaining_paths": 0,
+        "reconciliation_commit": "2d1a8ba9954541c0ef0ac59a6b1d8f4d74c9443e",
+        "tree_unchanged_from_first_parent": true
       },
       {
         "label": "artpub1",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "9ed9dceeca9b14981623c77a53588267762fe92b",
         "branch": "recovery/puck-20261126/artpub1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 13,
-        "remaining_paths": 6
+        "remaining_paths": 0,
+        "reconciliation_commit": "a483b5f809b7604b685678e0b7729a8bd4bde2e3",
+        "tree_unchanged_from_first_parent": true
       },
       {
         "label": "authoredgraph1",
@@ -215,9 +221,11 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "7ed268e039d5619cdc00ecbd792f112d673c6ac6",
         "branch": "recovery/puck-20261126/cgproj1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 5,
-        "remaining_paths": 4
+        "remaining_paths": 0,
+        "reconciliation_commit": "c0bd6aaf81a4f08a305f7d451fde14b3a185b90c",
+        "tree_unchanged_from_first_parent": true
       },
       {
         "label": "ciworkflow1",
@@ -514,9 +522,11 @@
         "base": "9213b250eceaa1eaaba03ceb8da3978391078413",
         "commit": "37affa4ffc7de896157f72f4c0b23215aa8b4d3a",
         "branch": "recovery/puck-20261126/pf14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 9,
-        "remaining_paths": 9
+        "remaining_paths": 0,
+        "reconciliation_commit": "6c6a9c04a6bb7b9f43e78bf487fd9bc7c1c7f330",
+        "tree_unchanged_from_first_parent": true
       },
       {
         "label": "pr312-profile",
@@ -677,9 +687,11 @@
         "base": "f34debb73b62f9fff59a138f86b3640d7be65183",
         "commit": "146e4fa3c73813f904c748c9f159fcae5cd5aeff",
         "branch": "recovery/puck-20261126/sdlcw",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 11,
-        "remaining_paths": 6
+        "remaining_paths": 0,
+        "reconciliation_commit": "1d22099bb607c5d9120ef434ebc711b0e41bba62",
+        "tree_unchanged_from_first_parent": true
       },
       {
         "label": "sdpil1",
@@ -724,9 +736,11 @@
         "base": "844b00b8e9f62145090ff00be7d6a5e1f9c7c350",
         "commit": "84b646d5fb6f958e84becd431f2e7326d147434b",
         "branch": "recovery/puck-20261126/shadow14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 6,
-        "remaining_paths": 4
+        "remaining_paths": 0,
+        "reconciliation_commit": "146108573215b2334045112970f2d970ecf34200",
+        "tree_unchanged_from_first_parent": true
       },
       {
         "label": "si14",
@@ -920,7 +934,14 @@
       "cancust1": "Retain current child-ownership lock/checks with safe no-waitid fallback and extra direct/bounded controls. Normal merge unchanged.",
       "arm14": "Keep original ARM PE/bundle controls plus later production catalog, script-launcher, explicit CXX, native SDK runtime image, MSVC and Windows descriptor/path identity checks. Normal merge unchanged.",
       "catcust1": "All 21 original test methods identical. Keep current descriptor/path stamp checks, syntax-only parse frames, clone PID ownership, nested staging and live role observations. Normal merge unchanged.",
-      "catplace1": "18 of 19 original test methods identical. The remaining ancestry assertion preserves paths/identities with POSIX normalization. Keep current nested/forward-skill staging and portable provenance checks. Normal merge unchanged."
+      "catplace1": "18 of 19 original test methods identical. The remaining ancestry assertion preserves paths/identities with POSIX normalization. Keep current nested/forward-skill staging and portable provenance checks. Normal merge unchanged.",
+      "shadow14": "Keep raw Git/filter/SSH and native filesystem safeguards plus later synchronization custody; portable scandir and Windows argv controls retained. Normal merge unchanged; 42 smoke and 14 critical sync methods pass.",
+      "cgproj1": "Keep captured projection behind current nominal Cargo/shared live owners. Ten of twelve original methods identical; later Flavor scope and early exact-closure refusal preserve isolation. Normal merge unchanged. Original isolated-parse suite: 13 passed, one pre-mutation fixture-path error; layout-aware test continuation remains pending.",
+      "sdlcw": "Four original checkpoint test methods identical, with extra source-import/cwd custody. Preserve required native gates and later qualified-wheel staging/exports. Normal merge unchanged. Seven checkpoint and three qualified-wheel controls pass.",
+      "arproof1": "Sixteen of seventeen original selection/artifact test methods identical at pre-compatibility subject c0bd6aaf8. Remaining test retains staged-byte binding while exercising implemented stable publication rather than obsolete blanket refusal. Preserve coverage-only, release-candidate and promotion refusals, declared policy base and current receiving-owner staging. Normal merge unchanged.",
+      "artcust1": "All eighteen original selection/artifact test methods identical before the additional ambient no-fetch override control. Preserve descriptor/path closure, sealed receiving-owner stage verification and original exact bytes. Normal merge unchanged.",
+      "artpub1": "Seventeen of eighteen original methods identical before the added ambient no-fetch override control. Publication test retains original checks and adds concurrent annotated-tag identity and independent fresh-checkout recovery. Normal merge unchanged.",
+      "pf14": "All eight original current-lock methods identical and pass. Original complete closure/error checks remain in canonical lock-binding readers; parsed observations remain request scoped and isolated frames restore ambient state. Preserve live registration/attempt custody and guarded return-CAS delivery. Normal merge unchanged."
     }
   },
   "checks": {
@@ -1179,10 +1200,73 @@
       "visual_finding": "Graph labels are cramped in captured desktop/mobile views; readability work remains.",
       "native_lifecycle_receipt_renewed": false,
       "release_qualification": false
+    },
+    "reconciled_shadow": {
+      "status": "passed",
+      "methods": 42,
+      "seconds": 50.798,
+      "log_sha256": "dee9ac9d74d8f9bfe1327e507ed2264662c9d8fa1c686520e207f89dc44dc116",
+      "scope": "Local shadow smoke controls; no remote service or publication acceptance.",
+      "report_sha256": "139c97ea3ccbfb9bc640251c1317243bc75e6cb60126b769a86cd6d83e86acbc"
+    },
+    "reconciled_shadow_sync": {
+      "status": "passed",
+      "methods": 14,
+      "seconds": 49.7,
+      "log_sha256": "1dbc7a41414d18859365b682d5a858377cd14837e010c45c4098f30d9ee9557f",
+      "scope": "Local synchronization custody controls.",
+      "report_sha256": "0e6bd0d5ed5ca11523471b90aa9e71a676b7a69c7848abec3ba777e33bc6ca67"
+    },
+    "reconciled_current_locks": {
+      "status": "passed",
+      "methods": 8,
+      "seconds": 5.839,
+      "log_sha256": "2e91e5b81751712c37bce499c9193390d2e7f759419890150588a478b0c89b06",
+      "scope": "Original current lock and complete input closure controls; no cached currentness authority.",
+      "report_sha256": "d9c840e308e454c350c4e981d80a0110b5b1eaccfbffb92dbd1d2bd965b0d90e"
+    },
+    "reconciled_checkpoints": {
+      "status": "passed",
+      "methods": 7,
+      "seconds": 5.844,
+      "log_sha256": "7dc06659c89540f7e23079910267eec79591090870f1d03c6f35f224f16105da",
+      "scope": "Original checkpoint controls and source import custody after cwd changes; no weakened required native gates.",
+      "report_sha256": "a3f6e3945dd3b9d53da2d7c767affa5bd4f58ab67f6fd0c8412472f4fa62230f"
+    },
+    "reconciled_qualified_wheel": {
+      "status": "passed",
+      "methods": 3,
+      "seconds": 6.325,
+      "log_sha256": "4041ea7985a6caa28d16c06505b31fb5e8286f14c1a0fd730b18872e1c2e38d8",
+      "scope": "Local qualified wheel installation source controls; not full native release qualification.",
+      "report_sha256": "ca34ec090ac41b8c5321ac72202f0898f965eac23763dfad4408c8e1af35dbb6"
+    },
+    "release_git_compatibility": {
+      "status": "passed",
+      "methods": 20,
+      "seconds": 86.537,
+      "log_sha256": "cba7dc56ddd5ad5455e27029fcdd121616716a98903b70b594fdb031d8614427",
+      "scope": "Git 2.43 no-fetch environment enforcement and real coverage artifact/publish/recovery fixture controls. Separate Native CI Git requirement unchanged; no hosted release publication.",
+      "report_sha256": "288d2ca1d3348ed4054d4bdd2ad8b2c3ad5f915c11142fc4ac1dee1fab5d0c19",
+      "subject": "ebb150b30",
+      "earlier_failures": "Original Git flag refusal in native producer, then exporter; both unmodified failing logs retained.",
+      "real_partial_clone_probe_sha256": "25976263ceaa89e977abbd8d223f3c8f20c4cee28f10c8ad448db3daa8155e11"
+    },
+    "reconciled_cargo_parses": {
+      "status": "failed",
+      "subject": "c0bd6aaf81a4f08a305f7d451fde14b3a185b90c",
+      "methods": 14,
+      "passed": 13,
+      "errors": 1,
+      "seconds": 1116.34,
+      "log_sha256": "7c80a738982d1bc419ed614f7f8f9dad087e6654a4d9df70b84fa031ba2f8379",
+      "report_sha256": "d75022bba67b4129a784e1819b708a34de64d991613b854dc586a463d3c96e5c",
+      "error": "FileNotFoundError before mutation: hard-coded root wrapper path differs from contained fixture. Layout-aware test repair/focused continuation pending.",
+      "scope": "Original full selected source suite and deadline retained; not a pass and not native/release acceptance."
     }
   },
   "remaining_requirements": [
-    "Reconcile the 49 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
+    "Reconcile the 42 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
   ],

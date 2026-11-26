@@ -29149,10 +29149,10 @@ qualification, admission and cache reuse remain open.
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
-- **Next action:** Reconcile the remaining 49 snapshots. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Next action:** Reconcile the remaining 42 snapshots. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
   - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
-  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 41 of 90 recovery snapshots merged; 49 remain preserved.
+  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 48 of 90 recovery snapshots merged; 42 remain preserved.
   - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
   - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
   - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
@@ -29257,3 +29257,20 @@ to allow fetching, preserving object/ref inventories and output absence. All 20
 release CI selection/artifact controls pass (86.537 seconds). Earlier native and
 exporter startup failures remain retained; Native CI's separate Git requirement
 is unchanged. These local controls do not establish hosted release acceptance.
+
+**Reconciled checkpoint, lock and release histories.** Five more normal merges
+retain identical source trees after deliberate conflict resolution. Original
+current-lock controls pass eight methods (5.839 seconds), checkpoint controls
+pass seven (5.844 seconds), and qualified-wheel installation passes three
+(6.325 seconds). Release artifact proof/custody/publication histories retain
+current receiving-owner staging, policy-base binding, exact annotated-tag identity
+and independent fresh-checkout recovery. Original blanket publication refusal is
+superseded by the tested stable-file publisher; unsupported promotion paths retain
+their refusals. These checks do not renew native or release acceptance.
+
+**Cargo source qualification remains open.** The original 14-case isolated-parse
+run at `c0bd6aaf8` completed in 1116.340 seconds: 13 passed and one errored before
+its first mutation. The test still selected the old root wrapper manifest while
+the actual fixture now contains that manifest under `litai/`. Its layout-aware
+coordinate repair and focused continuation remain pending. All original mutation,
+refusal-stage, independent recapture and closing-fence assertions are preserved.
