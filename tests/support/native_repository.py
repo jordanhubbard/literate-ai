@@ -67,9 +67,14 @@ class NativeRepositoryFixture(unittest.TestCase):
         ).stdout.strip()
 
     def cli(self, *args, success=True):
-        environment = {**os.environ, "LITAI_NO_SELF_UPDATE": "1"}
+        source = Path(__file__).resolve().parents[2] / "src"
+        environment = {
+            **os.environ,
+            "LITAI_NO_SELF_UPDATE": "1",
+            "PYTHONPATH": str(source),
+        }
         result = subprocess.run(
-            [sys.executable, "-m", "literate_ai.cli", "--json", *map(str, args)],
+            [sys.executable, "-P", "-m", "literate_ai.cli", "--json", *map(str, args)],
             cwd=self.root,
             env=environment,
             capture_output=True,
