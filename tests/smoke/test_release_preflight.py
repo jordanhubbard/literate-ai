@@ -15,6 +15,7 @@ class ReleasePreflightTests(unittest.TestCase):
     def test_parallel_validate_waits_for_preflight_and_preserves_standalone_scope(self):
         root = Path(__file__).resolve().parents[2]
         preflight = (
+            "schema-check",
             "repository-layout-check",
             "lint",
             "format-check",
@@ -25,6 +26,7 @@ class ReleasePreflightTests(unittest.TestCase):
         )
         expensive = ("python-check", "skills-check", "installed-e2e")
         for target, failing in (
+            ("validate", "schema-check"),
             ("validate", "openspec-check"),
             ("validate", "driver-review"),
             ("validate", "none"),
@@ -112,7 +114,13 @@ class ReleasePreflightTests(unittest.TestCase):
 
     def test_stale_authority_refuses_before_release_gate_runner(self):
         root = Path(__file__).resolve().parents[2]
-        for failing in ("driver-review", "runner-review", "documentation-review"):
+        preflight = (
+            "schema-check",
+            "driver-review",
+            "runner-review",
+            "documentation-review",
+        )
+        for failing in preflight:
             with (
                 self.subTest(failing=failing),
                 tempfile.TemporaryDirectory() as temporary,
@@ -120,7 +128,7 @@ class ReleasePreflightTests(unittest.TestCase):
                 directory = Path(temporary)
                 override = directory / "gates.mk"
                 bodies = []
-                for gate in ("driver-review", "runner-review", "documentation-review"):
+                for gate in preflight:
                     marker = str(directory / gate).encode("utf-8").hex()
                     code = (
                         "import pathlib,sys;"
