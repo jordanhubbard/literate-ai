@@ -10,6 +10,105 @@ from tests.support.fixtures_refined_conversion_custody import (
 
 
 class RefinedConversionNamespaceTests(RefinedConversionCustodyFixture):
+    def _native_hardlink_output(self):
+        makefile = self.target / "kit/Makefile"
+        makefile.write_text(
+            makefile.read_text().replace(
+                "all:\n\t@true\n",
+                "all:\n\t@printf retained > native-product\n"
+                "\t@ln native-product native-alias\n",
+            )
+        )
+
+    def test_original_native_hardlink_outputs_are_retired(self):
+        from literate_ai.adapters import retained_execution_workspace as native
+
+        self._native_hardlink_output()
+        complete = native._Run.complete
+        observed = []
+
+        def completed(state, process):
+            complete(state, process)
+            observed.extend(
+                (parts, value)
+                for parts, value in state.nodes.items()
+                if parts and parts[-1] in {"native-product", "native-alias"}
+            )
+
+        with mock.patch.object(native._Run, "complete", completed):
+            self.initialize()
+        self.assertTrue(observed)
+        self.assertTrue(all(value[1][-1] == 2 for _parts, value in observed))
+        self.assertFalse(list((self.target / "litai/_build").glob(".nx-*")))
+        self.assertEqual(
+            monorepo.check_installed_monorepo_components(self.target)["state"],
+            "current",
+        )
+
+    def test_foreign_hardlink_peer_bytes_are_preserved_after_original_unlink(self):
+        import os
+
+        from literate_ai.adapters import project_initialization as initialization
+        from literate_ai.adapters import retained_execution_workspace as native
+
+        self._native_hardlink_output()
+        remove = native._remove_entry
+        changed = []
+
+        def change_peer(root, relative, *args):
+            selected = root / relative
+            peer = None
+            if not changed and selected.name in {"native-product", "native-alias"}:
+                before = selected.stat()
+                peer = selected.with_name(
+                    "native-alias"
+                    if selected.name == "native-product"
+                    else "native-product"
+                )
+                self.assertEqual(peer.stat().st_ino, before.st_ino)
+            remove(root, relative, *args)
+            if peer is not None:
+                peer.write_bytes(b"tampered")
+                os.utime(peer, ns=(before.st_atime_ns, before.st_mtime_ns))
+                changed.append((peer, before.st_ino))
+
+        with (
+            mock.patch.object(native, "_remove_entry", change_peer),
+            self.assertRaises(initialization.ProjectInitializationError) as caught,
+        ):
+            self.initialize()
+        self.assertIn("native execution custody refused", caught.exception.message)
+        self.assertEqual(len(changed), 1)
+        peer, inode = changed[0]
+        self.assertEqual(peer.read_bytes(), b"tampered")
+        self.assertEqual(peer.stat().st_ino, inode)
+
+    def test_native_hardlink_group_with_external_peer_is_preserved(self):
+        import shlex
+
+        from literate_ai.adapters import project_initialization as initialization
+
+        self._native_hardlink_output()
+        external = self.base / "external-peer"
+        makefile = self.target / "kit/Makefile"
+        makefile.write_text(
+            makefile.read_text().replace(
+                "\t@ln native-product native-alias\n",
+                "\t@ln native-product native-alias\n"
+                f"\t@ln -f native-product {shlex.quote(str(external))}\n",
+            )
+        )
+        with self.assertRaises(initialization.ProjectInitializationError) as caught:
+            self.initialize()
+        self.assertIn("native execution custody refused", caught.exception.message)
+        self.assertEqual(external.read_bytes(), b"retained")
+        peers = list((self.target / "litai/_build").glob(".nx-*/source/kit/native-*"))
+        self.assertEqual(len(peers), 2)
+        self.assertTrue(
+            all(peer.stat().st_ino == external.stat().st_ino for peer in peers)
+        )
+        self.assertEqual(external.stat().st_nlink, 3)
+
     def test_actual_component_bundle_and_native_copy_stay_under_contained_runtime(self):
         stage = monorepo.stage_monorepo_components
         copy = monorepo.copy_retained_source_tree

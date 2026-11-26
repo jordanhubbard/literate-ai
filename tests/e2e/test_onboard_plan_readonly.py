@@ -435,12 +435,17 @@ class OnboardReadOnlyPlanTests(unittest.TestCase):
         )
         self.assertEqual(status, 0, applied)
         self.assertTrue(applied["ok"], applied)
-        self.assertTrue((root / "literate.project.json").is_file())
+        from literate_ai.projects import ProjectConfigurationStore
+
+        context = ProjectConfigurationStore.context(root)
+        self.assertTrue(context.manifest_path.is_file())
         baseline = json.loads(
-            (root / ".literate/legacy-harness-baseline.json").read_text()
+            context.framework_path(".literate/legacy-harness-baseline.json").read_text()
         )
         self.assertEqual(baseline["state"], "passed")
-        lift_shift = json.loads((root / ".literate/legacy-lift-shift.json").read_text())
+        lift_shift = json.loads(
+            context.framework_path(".literate/legacy-lift-shift.json").read_text()
+        )
         self.assertEqual(lift_shift["state"], "passed")
         implementation = root / lift_shift["implementation_directory"]
         for relative, content in original.items():

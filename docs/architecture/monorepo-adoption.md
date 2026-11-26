@@ -24,6 +24,14 @@ incomplete recovery and does not clear the root namespace, preserving concurrent
 files as well as changed quarantined inputs.
 Existing multi-root staging and receipt behavior is unchanged.
 
+Native commands own outputs in their original private execution workspace until
+the original completion boundary closes them. Cleanup can retire a complete
+hardlink group only when every link belongs to that workspace. It keeps an
+original file descriptor and verifies exact bytes and metadata around its own
+unlinks before accounting for the resulting peer link-count/change-time updates.
+Changed bytes, redirected names or external peers cause preservation and refusal;
+a saved path or failed runtime cannot issue fresh cleanup authority.
+
 Files beneath a selected root belong to that Component. Every remaining captured
 source file requires exactly one `shared_sources` assignment: `path` (a file or
 directory prefix), `owner` (Component name), and explicit `consumers` (other Component

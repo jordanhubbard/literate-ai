@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retire original native hardlink groups without mistaking an owned unlink for
+  foreign mutation. Verify peer bytes through the original descriptor, preserve
+  changed peers, and refuse groups with links outside the owned workspace.
+
 - Keep strict release Git observations and coverage producers usable with Git
   2.43 by enforcing the no-lazy-fetch environment guard, including when the
   calling environment would permit fetching missing objects.

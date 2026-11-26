@@ -8,6 +8,7 @@ state cannot be adopted for cleanup. Original application source is never retire
 
 from __future__ import annotations
 
+import hashlib
 import os
 import stat
 import subprocess
@@ -199,6 +200,27 @@ class _Run:
         self.nodes = self.snapshot()
         self.running = False
 
+    @staticmethod
+    def _file_digest(descriptor, expected):
+        def current():
+            node = os.fstat(descriptor)
+            if _value(node, (node.st_dev, node.st_ino)) != expected:
+                _fail("native hardlink descriptor changed; preserved")
+
+        current()
+        size = expected[1][3]
+        digest, offset = hashlib.sha256(), 0
+        while offset < size:
+            data = os.pread(descriptor, min(1024 * 1024, size - offset), offset)
+            if not data:
+                _fail("native hardlink bytes changed; preserved")
+            digest.update(data)
+            offset += len(data)
+        if os.pread(descriptor, 1, size):
+            _fail("native hardlink size changed; preserved")
+        current()
+        return digest.digest()
+
     def dispose(self):
         self.known()
         for parts, expected in tuple(self.nodes.items()):
@@ -225,9 +247,8 @@ class _Run:
                     finally:
                         os.close(descriptor)
         facts = {"/".join(p): _facts(v) for p, v in self.nodes.items()}
-        for parts in sorted(
-            (p for p in self.nodes if p), key=lambda p: (len(p), p), reverse=True
-        ):
+
+        def retire(parts):
             expected = self.nodes[parts]
 
             def guard(parts=parts, expected=expected):
@@ -241,6 +262,63 @@ class _Run:
             )
             del self.nodes[parts]
             del facts["/".join(parts)]
+
+        # A native producer can create hardlinks (Cargo does). Retire a complete
+        # original group together: our unlink changes the peers' ctime/nlink.
+        # Only a byte-verified original descriptor can explain that change.
+        groups = {}
+        for parts, value in self.nodes.items():
+            if parts and stat.S_ISREG(value[1][0]):
+                groups.setdefault(value[0], []).append(parts)
+        ordered = sorted(
+            (p for p in self.nodes if p), key=lambda p: (len(p), p), reverse=True
+        )
+        for parts in ordered:
+            if parts not in self.nodes or stat.S_ISDIR(self.nodes[parts][1][0]):
+                continue
+            expected = self.nodes[parts]
+            peers = groups.get(expected[0], ())
+            if not stat.S_ISREG(expected[1][0]) or expected[1][-1] == 1:
+                retire(parts)
+                continue
+            if len(peers) != expected[1][-1] or any(
+                self.nodes[peer] != expected for peer in peers
+            ):
+                _fail("native hardlink group has external peers; preserved")
+            with _access(self.path) as access:
+                descriptor = os.open(
+                    parts[-1],
+                    os.O_RDONLY | os.O_NOFOLLOW,
+                    dir_fd=access.directory(parts[:-1]),
+                )
+                try:
+                    digest = self._file_digest(descriptor, expected)
+                    for index, peer in enumerate(peers):
+                        retire(peer)
+                        remaining = peers[index + 1 :]
+                        if not remaining:
+                            break
+                        node = os.fstat(descriptor)
+                        after = _value(node, (node.st_dev, node.st_ino))
+                        if (
+                            after[0] != expected[0]
+                            or after[1][:5] != expected[1][:5]
+                            or node.st_nlink != len(remaining)
+                            or self._file_digest(descriptor, after) != digest
+                        ):
+                            _fail("native hardlink peer changed; preserved")
+                        for other in remaining:
+                            if _entry(access, other) != after:
+                                _fail("native hardlink name changed; preserved")
+                        for other in remaining:
+                            self.nodes[other] = after
+                            facts["/".join(other)] = _facts(after)
+                        expected = after
+                finally:
+                    os.close(descriptor)
+        for parts in ordered:
+            if parts in self.nodes:
+                retire(parts)
         self.known()
         from .qualification_workspace_namespace import (
             _require_original_directory_removal,
