@@ -32610,3 +32610,38 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
   Both revisions satisfy the same Component authority, so a Component-only filter
   cannot resolve this case. Current authenticated evidence or a reviewed explicit
   selector is still required; choosing an entry by recency is not a repair.
+
+### [ ] RETAINED-UNIT-PACKAGE-001 — Deliver per-unit retained tree packages and verified FreeBSD transport
+
+- **Priority:** P0
+- **Release target:** 1.4.0
+- **GitHub issue:** [#235](https://github.com/jordanhubbard/literate-ai/issues/235)
+- **Accepted decision:** [ADR 0052](../decisions/0052-per-unit-retained-tree-packages.md), explicitly approved by the directing user on 2026-11-01.
+- **Scheduling:** Immediate implementation priority ahead of Windows ARM64 work; existing qualification processes continue. No resolution or downstream unblock is claimed until the complete required path has decisive evidence.
+- **Owner:** Retained package front doors, canonical tree/package owners and authenticated PACKAGE transport; PROJECT Goals 1, 4 and 5; accepted ADR 0052; issue 235
+- **Direction:** The directing user explicitly approved ADR 0052 and requested immediate implementation of issue 235, which blocks another active downstream session. Prioritize this work ahead of Windows ARM64 development.
+- **Conclusion:** Implement the complete accepted ADR 0052 using canonical tree entry/projection/provider owners and live retained admission. Keep frozen aggregate packaging unchanged; decoding and upload never grant PACKAGE or LINK authority. Native and scale proof remain required before closure.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [ ] Introduce distinct versioned per-unit and package-set plans/results, bounded canonical descriptor shards and public schemas without changing legacy identities.
+  - [ ] Bind every actual admitted payload file, alias and required empty directory to one explicit unit owner; preserve shared structural geometry and exact output ownership.
+  - [ ] Extend the canonical tree owner with versioned composed projection for cross-unit target and ancestor closure; preserve standalone tree validation, alias/case rules and typed dependency DAG refusal.
+  - [ ] Construct and independently verify native per-unit archives through existing tree/package providers, binding complete source, Component lock, recipe, target, resolved BOM, license and provider provenance including alias-only units.
+  - [ ] Expose explicit opt-in read-only plan/inspect and live-owner execute/verify through existing retained/package front doors; preserve aggregate behavior and prior evidence on refusal.
+  - [ ] Integrate a versioned tree-aware PACKAGE worker envelope and real remote FreeBSD round trip, rechecking live owner, provider, target, runtime and LINK scope immediately before admission.
+  - [ ] Qualify the real retained tree beyond 100000 inputs with finite per-unit/set/shard, staging and transport budgets, measured peak memory/bytes/time, installed public lifecycle and exact integrated CI.
+- **Development progress, 2026-11-01 (not native qualification):**
+  - Canonical tree-entry shards and bounded content-addressed indexes now reuse the existing no-follow capture/materialization owner. Raw decode limits precede JSON parsing; capture checks metadata policy during inventory and exact descriptor geometry before payload streaming. Reopening checks actual cumulative totals before reading the next shard. Frozen standalone tree and aggregate package limits remain unchanged.
+  - Focused custody checks: 17 passed, including actual capture/relocation of 17000 additional files, exact symbolic/hardlink/empty-directory topology, corrupt descriptor refusal and budget refusals without CAS payload writes. An earlier descriptor-MIME failure is retained privately; explicit JSON MIME fixed it before fresh qualification.
+  - Mechanical unit definitions bind retained provenance, license, target, provider, ABI and version; the explicit output partition and typed dependency DAG refuse uncovered/duplicate owners and incompatible or cyclic edges. These values do not create a live admitted owner.
+  - Canonical composed projection and shared physical-stage verification preserve cross-unit aliases without copying dependency payload. Nine package checks passed, including real restored cross-unit inode identity and refusal of equal-byte hardlink flattening. Adjacent retained-input checks: four passed, one platform-specific skip. Complete graph descriptor transport, live construction, public selection and native/installed acceptance remain unfinished.
+  - Independent reviewers `review_pr239` and `review_worktree_discovery` approved the foundation, mechanical unit contracts and composed staging slices after the resource fixes. The scoped foundation review manifest is `bb0635852575ff49f69560ddd7fcadff99a170b6b0f97f62a964e7ad495536b6`; the composed staging/schema review manifest is `2feb51b72cc08fc4d9e462e0bf6de8ef52815089a67a5c3b4ded508e631bc43b`. These reviews exclude unfinished provider, live admission, transport and native qualification. The driver and documentation pins were refreshed through their canonical recording commands; complete local regression is running before commit/push. Full framework lint/format and schema catalog checks pass. Final integrated review and exact CI remain required before issue closure.
+- **Native provider constraint:** Ordinary `pkg create` infers hardlinks only within one archive and would copy an external target's bytes. The composed provider must instead bind an explicit native libarchive writer and verify the exact external hardlink header against the selected set. Native `pkg` metadata reopening alone is not topology evidence. Ordinary package installation is outside this decision's production scope and is not claimed. See the pinned upstream [pkg creation](https://github.com/freebsd/pkg/blob/74867a6ede7ba6ee27c92c5ceee927d7d4429f04/libpkg/pkg_create.c#L96-L224), [PAX hardlink writer](https://github.com/libarchive/libarchive/blob/348e5a2e27503f5bf114e298e2bd9ddcd59ab48e/libarchive/archive_write_set_format_pax.c#L1450-L1464), and [pkg manifest reopening](https://github.com/freebsd/pkg/blob/74867a6ede7ba6ee27c92c5ceee927d7d4429f04/libpkg/pkg.c#L1255-L1351). No native construction or remote LINK proof has been produced for this new path yet.
+- **Evidence:**
+  - [ ] Public selected-path qualification proves per-unit native archives and composed closure, with no fictitious generated or SDK producer authority.
+  - [ ] Regular files, symbolic file/directory aliases, hardlinks, required empty directories, cross-unit dependencies and alias-only provenance round trip exactly.
+  - [ ] Missing or overlapping owners, stale locks/receipts, forged/rehashed descriptors, missing dependency packages, wrong target/provider/license, namespace collisions, escapes and alias/dependency cycles refuse without changing prior usable packages.
+  - [ ] A real remote FreeBSD PACKAGE action carries live LINK and current producer/runtime scope; corrupted returned archives, changed custody and failed transport refuse canonical admission.
+  - [ ] A complete real tree beyond the former input ceiling remains within declared entry/byte/unit/edge/decode/staging/transfer bounds and retains measured resource evidence.
+  - [ ] Legacy aggregate identity/behavior controls, relevant complete regression, installed/native qualification and exact review/main CI pass; issue 235 remains open until decisive proof and green landing.

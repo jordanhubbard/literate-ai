@@ -240,7 +240,11 @@
     "urn:literate-ai:schema:v2:generated-test-suite",
     "literate-ai/generated-test-coverage-request@1",
     "literate-ai/public-callable-signature@1",
-    "literate-ai/generated-test-coverage-authority@1"
+    "literate-ai/generated-test-coverage-authority@1",
+    "literate-ai/native-tree-index@1",
+    "literate-ai/native-tree-shard@1",
+    "literate-ai/retained-unit-package-definition@1",
+    "literate-ai/retained-unit-package-plan@1"
   ],
   "read_paths": [
     {

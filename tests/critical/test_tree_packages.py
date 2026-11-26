@@ -15,15 +15,25 @@ from unittest import mock
 
 from literate_ai.adapters import tree_packaging
 from literate_ai.adapters.native_sdk_tree_custody import capture_native_sdk_tree
+from literate_ai.adapters.native_tree_shards import prepare_native_tree
 from literate_ai.application.packaging import PackagingError
 from literate_ai.contracts import canonical_identity
+from literate_ai.contracts.blobs import BlobRef
+from literate_ai.contracts.composed_tree_packages import ComposedTreePackageProjection
 from literate_ai.contracts.executable_components.packages import (
     PackageKind,
     PackagePlan,
 )
+from literate_ai.contracts.identity import ComponentCoordinate
 from literate_ai.contracts.native_sdk_trees import NativeSdkAlias
 from literate_ai.contracts.package_tree_inputs import PackageTreeInput
 from literate_ai.contracts.retained_project import RetainedProjectLimits
+from literate_ai.contracts.retained_unit_packages import (
+    RetainedUnitDependency,
+    RetainedUnitOwnership,
+    RetainedUnitPackageDefinition,
+)
+from literate_ai.contracts.retained_unit_partition import RetainedUnitPartition
 from literate_ai.contracts.tree_packages import TreePackagePlan, TreePackageResult
 from literate_ai.storage.cas import FileSystemCAS
 from tests.support import fixtures_test_package_adapters as fixtures
@@ -31,6 +41,86 @@ from tests.support import fixtures_test_package_adapters as fixtures
 
 @unittest.skipIf(os.name == "nt", "Tree TAR custody requires POSIX")
 class TreePackageTests(unittest.TestCase):
+    def test_composed_cross_unit_links_never_copy_dependency_payload(self):
+        old = self.plan.trees[0].tree
+        tree = prepare_native_tree(
+            old.directories, old.files, old.aliases, limits=self.limits
+        )
+        parameters = BlobRef(
+            canonical_identity({}).digest, 2, media_type="application/json"
+        )
+
+        def definition(name):
+            provenance = {
+                field: canonical_identity(field)
+                for field in RetainedUnitPackageDefinition.IDENTITY_FIELDS
+            }
+            provenance["payload_identity"] = tree.identity
+            return RetainedUnitPackageDefinition(
+                name,
+                ComponentCoordinate("test", name),
+                **provenance,
+                provider_parameters=parameters,
+                abi="FreeBSD:14:amd64",
+                version="1.0",
+            )
+
+        physical, aliases = definition("physical"), definition("aliases")
+        partition = RetainedUnitPartition(
+            tree,
+            tuple(sorted((physical, aliases), key=lambda value: value.identity.uri)),
+            (
+                RetainedUnitOwnership("bin/cc", "file", physical.identity),
+                RetainedUnitOwnership("bin/compiler", "hardlink", aliases.identity),
+                RetainedUnitOwnership("empty", "empty-directory", physical.identity),
+                RetainedUnitOwnership("public", "symlink", aliases.identity),
+            ),
+            (
+                RetainedUnitDependency(
+                    aliases.identity,
+                    physical.identity,
+                    "tree-link",
+                    physical.target_identity,
+                ),
+            ),
+            self.limits,
+            10,
+            20,
+            65536,
+        )
+        projection = ComposedTreePackageProjection(partition, 1000, 1024 * 1024)
+        stage = tree_packaging.materialize_composed_tree_package_set(
+            projection,
+            expected_tree_identity=tree.identity,
+            store=self.store,
+            parent=self.work,
+        )
+        self.assertEqual((stage / "public/compiler").read_bytes(), b"compiler")
+        self.assertEqual(
+            (stage / "bin/cc").stat().st_ino, (stage / "bin/compiler").stat().st_ino
+        )
+        self.assertTrue((stage / "empty").is_dir())
+        subset = {
+            value.path: value for value in projection.members_for(aliases.identity)
+        }
+        self.assertEqual(set(subset), {"bin", "bin/compiler", "public"})
+        self.assertEqual(subset["bin/compiler"].target, "bin/cc")
+        self.assertIsNone(subset["bin/compiler"].blob)
+        self.assertEqual(subset["public"].target, "bin")
+        with self.assertRaisesRegex(ValueError, "tree-link-dependency"):
+            ComposedTreePackageProjection(
+                replace(partition, dependencies=()), 1000, 1024 * 1024
+            )
+        with self.assertRaisesRegex(ValueError, "exact-output-partition"):
+            replace(partition, ownership=partition.ownership[:-1])
+        # A separately copied target has equal bytes but has lost admitted inode
+        # topology. The whole-set verifier must still reject that staging tree.
+        (stage / "bin/compiler").unlink()
+        (stage / "bin/compiler").write_bytes(b"compiler")
+        (stage / "bin/compiler").chmod(0o755)
+        with self.assertRaisesRegex(PackagingError, "topology"):
+            tree_packaging.verify_composed_tree_package_stage(projection, stage)
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory(prefix="tree-tar-test-")
         self.addCleanup(temporary.cleanup)
