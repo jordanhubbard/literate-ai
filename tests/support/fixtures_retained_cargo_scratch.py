@@ -49,6 +49,7 @@ def scratch_review_fixture(
     build_outputs=(),
     native_custody=None,
     prepare_project=None,
+    _layout=None,
 ):
     project = base / "converted"
     _legacy_project(project)
@@ -65,6 +66,7 @@ def scratch_review_fixture(
         flavor_selectors=_selectors(project),
         source_intelligence_provider="none",
         convert=True,
+        **({"_layout": _layout} if _layout is not None else {}),
     )
     if prepare_project is not None:
         prepare_project(project)

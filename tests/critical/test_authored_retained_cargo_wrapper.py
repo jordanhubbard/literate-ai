@@ -31,6 +31,7 @@ from literate_ai.adapters.lifecycle_lock import (
     ProjectLifecycleLockError,
     project_lifecycle_lock,
 )
+from literate_ai.adapters.project_scaffold_placement import ScaffoldLayout
 from literate_ai.adapters.retained_cargo_scratch_v2 import (
     reserve_retained_cargo_scratch_v2,
 )
@@ -238,7 +239,10 @@ class AuthoredRetainedCargoWrapperTests(unittest.TestCase):
     @contextmanager
     def contained_core(self):
         with tempfile.TemporaryDirectory() as directory:
-            with scratch_review_fixture(Path(directory).resolve(strict=True)) as old:
+            with scratch_review_fixture(
+                Path(directory).resolve(strict=True),
+                _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE,
+            ) as old:
                 root = old.project.root
                 # Capture real original consumer observations before creating a
                 # layout-only fixture. No renewal/migration admission is inferred.
