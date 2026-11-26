@@ -11,7 +11,7 @@ from literate_ai.contracts import (
     RepositoryLineage,
     RepositoryParentSelection,
 )
-from literate_ai.projects import LoadedProject
+from literate_ai.projects import LoadedProject, ProjectConfigurationStore
 from tests.support.fixtures_test_cli_component_locks import _run
 from tests.support.fixtures_test_component_lock_planning import _fixture
 
@@ -39,13 +39,18 @@ def initialize_current_component_lock_fixture(case, *, canonical_project=False):
             empty=True,
             parent_selection=RepositoryParentSelection.root(),
         )
+    catalog_root = (
+        ProjectConfigurationStore.context(case.root).framework_root
+        if canonical_project
+        else case.root
+    )
     if canonical_project:
         catalog = Path(temporary.name).resolve() / "catalog"
         _fixture(catalog)
-        onboarding = (case.root / "SKILL.md").read_bytes()
-        shutil.copytree(catalog, case.root, dirs_exist_ok=True)
-        (case.root / "SKILL.md").write_bytes(onboarding)
-        case.component, flavors = case.root / "greeting", case.root / "flavors"
+        onboarding = (catalog_root / "SKILL.md").read_bytes()
+        shutil.copytree(catalog, catalog_root, dirs_exist_ok=True)
+        (catalog_root / "SKILL.md").write_bytes(onboarding)
+        case.component, flavors = catalog_root / "greeting", catalog_root / "flavors"
         from literate_ai.contracts.authoring_markdown import (
             parse_authoring_markdown,
             render_authoring_markdown,
@@ -70,7 +75,7 @@ def initialize_current_component_lock_fixture(case, *, canonical_project=False):
             render_authoring_markdown(document, body)
         )
         for name in ("workflows/sample-host.md", "routing/sample-host.json"):
-            (case.root / name).write_bytes(
+            (catalog_root / name).write_bytes(
                 (Path(__file__).resolve().parents[2] / name).read_bytes()
             )
         for name in (
@@ -78,12 +83,12 @@ def initialize_current_component_lock_fixture(case, *, canonical_project=False):
             "workflows/host.json",
             "routing/default.json",
         ):
-            (case.root / name).unlink()
+            (catalog_root / name).unlink()
     else:
         case.component, flavors = _fixture(case.root)
     definition = json.loads(
         (
-            case.root / "literate.project.json"
+            ProjectConfigurationStore.context(case.root).manifest_path
             if canonical_project
             else Path(__file__).resolve().parents[2] / "literate.project.json"
         ).read_bytes()
@@ -93,11 +98,13 @@ def initialize_current_component_lock_fixture(case, *, canonical_project=False):
             (Path(__file__).resolve().parents[2] / "literate.project.json").read_bytes()
         )["test_receipt_policy"]
     definition["project_id"] = "typed-lock-fixture"
-    definition["component_roots"] = ["greeting"]
+    definition["component_roots"] = [case.component.relative_to(case.root).as_posix()]
+    if canonical_project:
+        definition["flavor_roots"] = [flavors.relative_to(case.root).as_posix()]
     definition["default_flavor_selectors"] = []
     definition["test_receipt_policy"]["suite_id"] = "typed-lock-fixture"
     definition["test_receipt_policy"]["minimum_test_count"] = 1
-    (case.root / "literate.project.json").write_text(json.dumps(definition))
+    (catalog_root / "literate.project.json").write_text(json.dumps(definition))
     case.project = LoadedProject(case.root, ProjectDefinition.from_dict(definition))
     selection = RepositoryParentSelection.root()
     if not canonical_project:

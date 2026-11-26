@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Bind retained release-policy inputs to the existing owner's declared root or
+  contained path, preserving exact byte identity, ambiguity refusal and normal
+  initialization/conversion eligibility checks.
+
 - Retire original native hardlink groups without mistaking an owned unlink for
   foreign mutation. Verify peer bytes through the original descriptor, preserve
   changed peers, and refuse groups with links outside the owned workspace.

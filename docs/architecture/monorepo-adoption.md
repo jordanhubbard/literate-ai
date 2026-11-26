@@ -32,6 +32,13 @@ unlinks before accounting for the resulting peer link-count/change-time updates.
 Changed bytes, redirected names or external peers cause preservation and refusal;
 a saved path or failed runtime cannot issue fresh cleanup authority.
 
+Retained planning binds its single release-policy input to the same declared
+coordinate as the existing release owner. Its exact raw identity and repeated
+custody checks apply at root and contained locations. Equal bytes at another path
+cannot replace configured authority, and a root policy cannot shadow a contained
+policy. The release owner's initialization/conversion eligibility checks remain
+part of the read.
+
 Files beneath a selected root belong to that Component. Every remaining captured
 source file requires exactly one `shared_sources` assignment: `path` (a file or
 directory prefix), `owner` (Component name), and explicit `consumers` (other Component
