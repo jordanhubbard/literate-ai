@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: allow contained nonnative reparent planning with historical baseline paths, require a matching initialization origin, and preserve native-profile and current-agent boundaries.
+
 - Project layout: qualify installed Component renewal, repeated source finalization and recovery while preserving retained application source and Git state.
 
 - Project layout: qualify installed macOS framework placement and repeated recovery with retained source and Git state preserved; complete containment remains pending.

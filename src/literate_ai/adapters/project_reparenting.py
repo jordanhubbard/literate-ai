@@ -77,9 +77,15 @@ def _require_existing_contained_parent_authority(project) -> None:
         CatalogImportError,
         read_contained_catalog_imports,
     )
-    from literate_ai.adapters.project_initialization import INITIALIZATION_BASELINE_FILE
+    from literate_ai.adapters.project_initialization import (
+        INITIALIZATION_BASELINE_FILE,
+        INITIALIZATION_ORIGIN_FILE,
+    )
     from literate_ai.adapters.project_updates import ProjectUpdateError, _read_contract
-    from literate_ai.contracts import ProjectInitializationBaseline
+    from literate_ai.contracts import (
+        ProjectInitializationBaseline,
+        ProjectInitializationOrigin,
+    )
     from literate_ai.projects import ProjectConfigurationStore
 
     try:
@@ -87,27 +93,26 @@ def _require_existing_contained_parent_authority(project) -> None:
             project.root, INITIALIZATION_BASELINE_FILE, ProjectInitializationBaseline
         )
         if baseline.profile != "native":
+            origin = _read_contract(
+                project.root, INITIALIZATION_ORIGIN_FILE, ProjectInitializationOrigin
+            )
+            if baseline.origin_identity != origin.identity:
+                raise ProjectUpdateError(
+                    "project.update_origin_mismatch",
+                    "initialization baseline does not bind the recorded origin",
+                )
             snapshot = ProjectConfigurationStore(project.root).read()
             imports = read_contained_catalog_imports(snapshot)
             recorded = FilesystemRepositoryLineageStore(project.root).load_optional()
+            # Baseline coordinates are initialization history, including
+            # already-migrated metadata and shared root integrations. Current
+            # project/agent coordinates and lineage own reparent eligibility.
             if recorded and (
                 (imports is not None and imports.imports and recorded[1].nodes)
                 or (
                     not recorded[1].nodes
                     and recorded[0] == RepositoryParentSelection.root()
                     and project.agent_skill == project.framework_root / "SKILL.md"
-                    and all(
-                        row.path.startswith("litai/")
-                        or row.path
-                        in {
-                            "AGENTS.md",
-                            "CLAUDE.md",
-                            "agents/openai.yaml",
-                            ".cursor/rules/literate-ai.mdc",
-                            "CHANGELOG.md",
-                        }
-                        for row in baseline.files
-                    )
                 )
             ):
                 return

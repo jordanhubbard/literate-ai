@@ -26575,6 +26575,20 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Reparent history/origin correction (source partial):** The actual installed
+  maintenance baseline rejects root and descendant reparent planning after normal
+  Component finalization. Eligibility now uses the current contained agent and
+  recorded parent lineage, with an explicit baseline/origin identity join.
+  Historical baseline filenames no longer masquerade as current placement
+  requirements; no historical record is rewritten by planning. Four source
+  controls exercise preserved historical metadata, root/descendant plan identity,
+  origin mismatch, native-profile refusal and unplaced-agent refusal. Existing
+  reparent and native-bootstrap regressions also pass (14 total, no skips).
+  All static checks pass
+  without source drift. Actual installed qualification of this correction and
+  the independently reproduced native-only update dispatch remain outstanding;
+  every original containment/platform/source/review/release acceptance remains open.
+
 - **Installed Component producer continuation (macOS partial):** The unchanged
   noneditable b45a48ac4 wheel executes public renewal for the original converted
   wrapper Component and repeated source finalization from a descendant directory.
