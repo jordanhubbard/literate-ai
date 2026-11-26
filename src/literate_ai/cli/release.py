@@ -178,7 +178,11 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
             )
         if args.release_command == "verify-published":
             return (
-                verify_published_release(Path(args.project), Path(args.prepared)),
+                verify_published_release(
+                    Path(args.project),
+                    Path(args.prepared),
+                    expected_tag_object=getattr(args, "expected_tag_object", None),
+                ),
                 0,
             )
         if args.release_command == "advance-default-branch":
@@ -461,6 +465,10 @@ def add_release_parser(commands: argparse._SubParsersAction) -> None:
     )
     verify_published.add_argument("prepared", help="prepared-release JSON")
     verify_published.add_argument("--project", default=".")
+    verify_published.add_argument(
+        "--expected-tag-object",
+        help="trusted tag_object_id from a strict tested-file publication receipt",
+    )
 
     advance = release_commands.add_parser(
         "advance-default-branch",

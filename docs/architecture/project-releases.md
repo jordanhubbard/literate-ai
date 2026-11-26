@@ -261,6 +261,30 @@ covered by the leftmost tier that can run it:
 3. by default, a successful exact-revision CI run is trusted to cover its declared
    platforms. The optional coverage contract below requires explicit action facts.
 
+Static release workers keep their checkout under
+`<workspace>/.litai-release-v2/<repository-identity>`. The worker requires a
+direct workspace, a managed namespace marker and a checkout owner that matches
+the complete repository identity. An older basename checkout remains outside
+that namespace. Plan for a full first bundle in the new location. Later runs
+send only commits the worker lacks and preserve ignored native caches. Git
+origin metadata sent to the worker omits URL authentication and query data.
+The opaque checkout identity retains address-significant SSH account information.
+
+The worker reserves the checkout before transfer and holds it through the
+native gate. It refuses dirty or unexpected Git state and protects ignored
+files that would collide with the requested revision. The fleet result keeps
+the first worker error and points to the evidence run for all checkout paths
+and reservation states. A missing terminal receipt leaves custody uncertain.
+
+To recover an uncertain reservation, first quiesce dispatch for that worker.
+Check the exact checkout path, owner, prepared revision and reservation token
+in that run's evidence. Confirm that transfer, checkout and native execution
+have ended using the worker's authorized process inspection. Preserve the
+matching reservation and any token-named bundle in operator quarantine before
+retrying the normal command. Escalate an unknown owner, redirected directory,
+dirty working tree or uncertain process. Preserve the checkout and its files
+for review.
+
 A runner proves a platform only through facts it declares or observes; a worker
 without a declared architecture cannot satisfy an architecture-qualified platform.
 An action's `argv` runs on Linux and macOS. Windows runners have no POSIX shell, so
@@ -269,13 +293,6 @@ covers a platform only when every action declares one, and otherwise leaves it t
 CI. Windows workers run their command through PowerShell over OpenSSH, with the
 same live-test environment as POSIX workers.
 
-Release gates never run in an operator's own checkout. Before each worker gate,
-`litai release` syncs a dedicated checkout at `<workspace>/release/<repository>`
-to the exact revision: the worker reports the revision it last synced, the
-controller sends a git bundle of only the commits it lacks over SCP, and the
-worker checks the revision out, removes untracked source files and keeps ignored
-caches such as `_build/`. The first sync sends the full history; later syncs send
-only new commits. The record pins the checkout path and keeps a sync transcript.
 The host gate and every worker platform's gates run concurrently, since each
 tier is a separate machine; the record still lists the host's runs first. A
 failing action is never retried on another tier. CI is optional while the host
@@ -376,6 +393,63 @@ waives a live check. An archive digest proves report integrity; existing qualifi
 release-file custody still owns deliverable bytes. A missing, stale or invalid
 strict proof never falls back to aggregate workflow success. Policies without the
 binding retain their existing serialization and aggregate behavior.
+
+### Tested file handoff to release check
+
+A project with a version 2 release policy can opt into a single staged release file by using
+`literate-ai/github-ci-coverage-binding@2` for `qualification.ci.coverage` and
+adding a `tested_file` object. The object declares the release `role`, a stage
+`path` beneath the project's ignored `_build/` directory, the mandatory CI
+`platform`, and the `action` that consumes the exact file. This binding owns
+release-file selection, so it cannot be combined with a local `artifact_gate`.
+
+The reviewed producer runs the declared test on the actual artifact and exports
+`literate-ai/release-ci-coverage@2`. Its `tested_artifacts` object includes the
+declared role and path, byte size, SHA-256 identity, supporting test job ID, and
+an environment identity observed during execution. The pilot derives that
+environment identity from its Python executable, interpreter and platform
+versions, and hosted image version when available. Build and test facts must
+agree before the pilot exports. The supporting job must have executed in this
+attempt and finished before export. A copied test job can supply version 1 action
+coverage. It cannot supply tested-file custody for a newer attempt.
+
+Stage the file from the tested job at the declared path before running
+`litai release check`. Use a staging directory separate from native build output
+when local qualification also runs. The check derives the existing qualified release-file
+manifest from the live proof, compares the staged size and digest, reobserves the
+selected run and archive, and checks the staged bytes again before recording.
+The effective repository policy and committed release policy and workflow must
+agree with the release plan's base. A missing file, incomplete export, older job,
+or coverage-only report blocks preparation under the version 2 binding.
+
+The single-file binding supports stable publication when the live CI proof covers the
+complete declared platform and action matrix. Use the same prepared checkout and
+supply the staged file on every publish attempt. The existing release-engineer
+authorization applies. The publisher compares the entire retained proof with fresh
+provider evidence, checks the prepared source and its base authority, and copies
+the qualified bytes into a private file before changing Git or GitHub.
+
+Publication retains the exact annotated tag object in a local Git ref bound to
+the prepared evidence before any remote write. It pushes that object and the
+exact commit with Git's atomic, ref-lease protections, then checks that Git and
+the configured GitHub repository report the retained object. The provider release stays in draft while the
+publisher uploads to its recorded release ID and reads back the exact bytes.
+Publication then updates that ID and reobserves the public release and file.
+Provider operations are separate requests. An unsuccessful or interrupted reply
+can leave a tag or draft. Rerun publication from the checkout that retains tag
+custody with the same prepared record and staged file to inspect and recover.
+An existing tag with a different annotation remains a collision even when it
+selects the same commit. An existing matching asset can be reused.
+An incompatible draft or asset must be resolved independently. The publisher
+never deletes, replaces, or overwrites it.
+
+For this profile, read-only `litai release verify-published` requires the prepared
+checkout and current CI evidence, along with the matching remote refs and downloaded
+asset. A fresh checkout of the prepared revision can use
+`--expected-tag-object OBJECT_ID` with the exact `tag_object_id` from a trusted
+publication receipt bound to that prepared identity. Local staged bytes are
+optional for readback. Coverage-only strict policies
+and the strict RC and release-line merge commands retain their promotion refusals.
 
 ## Versioned release lines
 

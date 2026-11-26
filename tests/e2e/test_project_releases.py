@@ -857,7 +857,7 @@ class ProjectReleaseTests(unittest.TestCase):
                 )
 
         with tempfile.TemporaryDirectory() as temporary:
-            parent = Path(temporary)
+            parent = Path(temporary).resolve()
             root, _ = self.initialize(parent)
             home = parent / "worker-home"
             operator = home / "ws"
@@ -868,7 +868,7 @@ class ProjectReleaseTests(unittest.TestCase):
                 worker_id="linux-worker",
                 kind=ExecutionWorkerKind.SSH,
                 endpoint="user@worker.invalid",
-                workspace="~/ws",
+                workspace=str(operator),
                 transport="ssh",
                 requirements=ExecutionRequirements(os_family="linux"),
             )
@@ -883,7 +883,6 @@ class ProjectReleaseTests(unittest.TestCase):
             self.write_record(root / "literate.release.json", policy)
             self.git(root, "commit", "-am", "Declare qualification")
             with (
-                patch.dict(project_releases.os.environ, {"HOME": str(home)}),
                 patch(
                     "literate_ai.project_releases.discover_project",
                     return_value=SimpleNamespace(
@@ -911,7 +910,6 @@ class ProjectReleaseTests(unittest.TestCase):
                     return_value=None,
                 ),
             ):
-                checkout = operator / "release" / root.name
                 for change in ("first", "second"):
                     if change == "second":
                         (root / "later.txt").write_text("later\n", encoding="utf-8")
@@ -919,6 +917,16 @@ class ProjectReleaseTests(unittest.TestCase):
                         self.git(root, "commit", "-m", "Later")
                     record = qualify_release(root, output=root / "_build/q.json")
                     self.assertEqual(record["coverage"][0]["tier"], "worker")
+                    checkouts = [
+                        path
+                        for path in (operator / ".litai-release-v2").iterdir()
+                        if path.is_dir()
+                    ]
+                    self.assertEqual(len(checkouts), 1)
+                    checkout = checkouts[0]
+                    self.assertFalse(
+                        (checkout / ".git/litai-release-reservation").exists()
+                    )
                     self.assertEqual(
                         self.git(checkout, "rev-parse", "HEAD"),
                         self.git(root, "rev-parse", "HEAD"),
@@ -935,7 +943,9 @@ class ProjectReleaseTests(unittest.TestCase):
                     (operator / "mine.txt").read_text(encoding="utf-8"),
                     "operator work\n",
                 )
-                self.assertFalse((checkout / ".git/litai-sync.bundle").exists())
+                self.assertEqual(
+                    list((checkout / ".git").glob("litai-sync-*.bundle")), []
+                )
 
             class HangingGateRunner(LocalRunner):
                 """The sync succeeds; the gate itself then exceeds its deadline."""
@@ -949,7 +959,6 @@ class ProjectReleaseTests(unittest.TestCase):
 
             # A gate that started and then hung failed; it never falls through.
             with (
-                patch.dict(project_releases.os.environ, {"HOME": str(home)}),
                 patch(
                     "literate_ai.project_releases.discover_project",
                     return_value=SimpleNamespace(
@@ -980,6 +989,27 @@ class ProjectReleaseTests(unittest.TestCase):
             ):
                 qualify_release(root, output=root / "_build/q.json")
             self.assertEqual(hung.exception.code, "release.gate_failed")
+            reservation = checkout / ".git/litai-release-reservation/token"
+            token = reservation.read_bytes()
+            with (
+                patch.object(
+                    project_releases,
+                    "remote_execute_arguments",
+                    lambda _worker, command, *_a, **_k: ("/bin/sh", "-c", command),
+                ),
+                self.assertRaises(ProjectReleaseError) as busy,
+            ):
+                project_releases._sync_worker_checkout(
+                    root,
+                    project_releases.ReleasePolicy.from_dict(policy),
+                    worker,
+                    self.git(root, "rev-parse", "HEAD"),
+                    LocalRunner(),
+                    windows=False,
+                    evidence_node=None,
+                )
+            self.assertEqual(busy.exception.code, "release.worker_checkout_busy")
+            self.assertEqual(reservation.read_bytes(), token)
 
     def test_artifact_gate_binds_checked_bytes_before_any_publication(self) -> None:
         from literate_ai.contracts import canonical_identity

@@ -206,6 +206,13 @@ def catalog_graph_from_args(args) -> dict[str, Any]:
     project = Path(getattr(args, "project", ".")).resolve()
     try:
         result = catalog_graph(project)
+    except CatalogImportError as exc:
+        code = (
+            exc.code
+            if exc.code.startswith("catalog.provenance_")
+            else "catalog.graph_error"
+        )
+        raise CliFailure(code, str(exc)) from exc
     except Exception as exc:
         raise CliFailure("catalog.graph_error", str(exc)) from exc
     return {"schema": CATALOG_GRAPH_SCHEMA, **result}

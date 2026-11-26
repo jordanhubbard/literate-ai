@@ -55,6 +55,7 @@ _CASE_SETS = {
                 "test_changed_or_mutable_package_bytes_refuse",
                 "test_real_packaged_process_recorder_reopens_after_cleanup",
                 "test_rehashed_parity_observations_cannot_preserve_a_false_pass",
+                "test_shared_case_inventory_reopens_all_diamond_suites",
             ],
         },
         {
@@ -151,6 +152,7 @@ _CASE_SETS = {
                 "test_genuine_cuda_evidence_after_attribution_is_retained",
                 "test_long_indented_source_finishes_within_inert_read_budget",
                 "test_metadata_filter_does_not_hide_original_prompt_injection",
+                "test_similar_identifiers_and_bytes_beyond_cuda_window_are_portable",
                 "test_vendor_attribution_does_not_imply_cuda_or_mutate_source",
             ],
         },
