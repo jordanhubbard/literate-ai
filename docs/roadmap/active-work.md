@@ -29329,3 +29329,21 @@ its installed origin differs. The canonical run reaches actual source metadata
 publication and refuses changed original role input (39.921s), followed by the
 poisoned closing-scope refusal. Capacity assertions are not reached; preserve the
 guard, original bounds and failed logs while diagnosing the actual source owner.
+
+**Authored-authority head remains active.** The current journaled publisher
+already fences every canonical replacement through original native and byte
+custody. Nineteen owner controls pass (6.950s), six actual readmission cases pass
+(10.475s), and two recovered inventory-to-Component/Flavor race controls also
+verify unchanged companion documents and retained recovery state (4.977s). The
+new protocol intentionally retains failed history instead of the old empty-
+history expectation. An initial assertion tried to rediscover a recovery-blocked
+project; final forensic assertions use the already observed paths.
+
+That protection does not establish the older head's separate authored-content
+preservation feature. Its recovered real test fails against current production
+planning in 3.228s: replacement shim identities differ from existing authored
+bytes. `head-authority496` also carries the baseline-summary ownership, referenced
+input fencing, additional source regressions and installed-console probe. Its
+merge remains uncommitted in `.worktrees/hand49`, with a preserved staged-index
+receipt. Port that behavior to the current declared scaffold coordinates and
+journal owner; do not discard the staged tests/probe or accept the partial merge.

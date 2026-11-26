@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "8921730f5889c3eb23af26abb09ac27bf21d8b91",
+  "continued_subject": "77ae49d42e08363b926bf45d9d60ea7156878da0",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -1010,6 +1010,14 @@
     "committed_head_counts": {
       "merged": 4,
       "preserved-for-reconciliation": 3
+    },
+    "pending_head_work": {
+      "label": "head-authority496",
+      "checkout": ".worktrees/hand49",
+      "head": "8921730f5889c3eb23af26abb09ac27bf21d8b91",
+      "merge_head": "1044bc65e186a0bd91351b7225547902dedf4896",
+      "pending_index_receipt_sha256": "7b5405927b87e73533deb48ec9ee2dcea49c4cb7e28d9a01be139bba3065e7d5",
+      "scope": "Uncommitted partial reconciliation only. Source conflicts currently resolved to current code, but authored-preservation implementation is still missing. Staged 484-line historical regression additions and 107-line installed probe must be retained and reconciled with modern namespace/journal owners. Do not commit this partial tree as a completed merge."
     }
   },
   "checks": {
@@ -1528,10 +1536,53 @@
       "secondary_error": "layout.role-inputs: read scope ended, inherited or exhausted while closing failed controls",
       "prior_startup": "Temporary checkout with canonical editable installation had two Git origins; zero cases in 0.031 seconds. Canonical rerun preserves the original case and policy bounds.",
       "scope": "Actual canonical source operation fails before committed disposition/capacity planning. No capacity, relocation or release pass inferred; guard and bounds preserved."
+    },
+    "readmission_publication_owner": {
+      "status": "passed",
+      "summary": {
+        "executed": 19,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 19,
+        "selected": 19,
+        "skipped": 0
+      },
+      "seconds": 6.95,
+      "report_sha256": "f74e8ac20fb0b814882f9e173f431056e99f4269acb39cf5231c5bac8cd8e58e",
+      "log_sha256": "89d8b604640f15aa6b3d49e4889e62998252a6027a70cd01791cbcc464e00506",
+      "scope": "Nineteen actual native publication-owner controls, including owner edits before the next write. Unchanged production journal owner; no new raw overwrite guard needed."
+    },
+    "readmission_publication_api": {
+      "status": "passed",
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "seconds": 10.475,
+      "report_sha256": "94ba190d8d82d9a64aacd82143d1f6c18fe9cb603cbb7d55a14107802a937b69",
+      "log_sha256": "de6f395da5c845d24657b762e0609093ee584ac2a902964a24c8891ca55c16da",
+      "scope": "Six actual legacy-layout readmission cases, including recovered component/flavor edits after inventory publication. Original writer refuses and preserves the edited inode/bytes.",
+      "additional_preservation_controls": {
+        "methods": 2,
+        "seconds": 4.977,
+        "log_sha256": "f314751e386309f05beb85b5e375b2fe7071b9d75cfab661c4c9d0066ae38d24",
+        "scope": "Also verify all companion old documents retain original bytes and a pending recovery marker remains. The first added assertion attempt re-resolved metadata via a recovery-blocked project and failed in test introspection; final assertions use already observed paths. All earlier logs retained. Final formatting is nonsemantic."
+      }
+    },
+    "recovered_authored_shim": {
+      "status": "failed; missing source behavior confirmed",
+      "seconds": 3.228,
+      "log_sha256": "2e98734470a76f745ad60d0bef5f0bc289845f11535ed1114b97297f75d2534e",
+      "production_sha256": "2274aa57fe65661db07c7c4d213e02d5e623c0291b8d555112a954cea7aaf8be",
+      "scope": "Recovered authored-shim preservation test from the pending historical head runs against canonical current production modules with matching installed origin. Actual readmission planning proposes different replacement identities for existing authored shim content. Not a startup/origin refusal and not an apply success."
     }
   },
   "remaining_requirements": [
-    "Reconcile the 37 preserved source snapshots and three remaining committed clean heads, retaining obsolete/superseded dispositions with evidence.",
+    "Reconcile the 37 preserved source snapshots and three remaining committed clean heads. Next, port head-authority496 authored-shim preservation and its reviewed baseline-summary ownership into current namespace-aware journaled readmission; retain its original regression/installed probes and modern recovery semantics.",
     "Complete resulting composed-source qualification. Fourteen Cargo cases pass at f0a5da8eb; later retained-release/fixture changes have their own bounded controls. Diagnose canonical source metadata publication role-input refusal before the recovered forest capacity assertions; do not weaken its guards or expand declared budgets.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
