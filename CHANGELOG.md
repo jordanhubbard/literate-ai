@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Retained SDK packages distinguish completed-command evidence from execution
+  grants. Commands still require unexpired authorization through teardown; later
+  retention checks live owners and fresh revocations without extending grants.
+
+- Worker failure diagnostics now include bounded nested cause locations while
+  omitting exception messages, local values and host paths.
+
 - Retained PACKAGE diagnostics: preserve authenticated worker failure frames and
   completed native guardian responses before reservation release. Bounded failure
   locations omit exception arguments and host paths; recovery records remain
