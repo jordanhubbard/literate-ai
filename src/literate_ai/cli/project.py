@@ -1124,6 +1124,24 @@ def project_source_intelligence_from_args(args) -> dict[str, Any]:
         raise CliFailure(exc.code, exc.message) from exc
 
 
+def project_layout_from_args(args) -> dict[str, Any]:
+    """Plan containment without entering any project or host mutation path."""
+    from literate_ai.adapters.project_layout_planning import (
+        ProjectLayoutPlanError,
+        plan_project_layout,
+    )
+
+    try:
+        return plan_project_layout(Path(args.project))
+    except (ProjectLayoutPlanError, ProjectError, ProjectUpdateError) as exc:
+        raise CliFailure(exc.code, str(exc)) from exc
+    except (OSError, ValueError, RuntimeError) as exc:
+        raise CliFailure(
+            "project.layout.invalid",
+            "project containment inputs could not be inspected safely",
+        ) from exc
+
+
 def agent_entrypoints_from_args(args) -> dict[str, Any]:
     """Audit owned delegates without changing source or adoption authority."""
     from literate_ai.adapters.agent_entrypoints import audit_agent_entrypoints
@@ -1673,6 +1691,7 @@ __all__ = [
     "project_ci_plan_from_args",
     "project_ci_verify_from_args",
     "project_guidance_from_args",
+    "project_layout_from_args",
     "project_peer_work_from_args",
     "project_source_intelligence_from_args",
     "project_test_receipt_from_args",

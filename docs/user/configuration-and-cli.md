@@ -2171,6 +2171,22 @@ litai project convert-stage advance --to retained --project .
 litai status --project .
 ```
 
+The retained receipt producer reads its inventory, baseline, parity, and
+lift-and-shift records from the selected framework directory's `.literate/`
+directory. In a partially placed legacy project that declares `litai/`, it
+still resolves the existing wrapper, retained implementation, and configured
+receipt path from the application root. An old root copy cannot supply a missing
+record. A declared retained layout still requires its own transition and
+requalification before legacy receipt production can proceed.
+
+A framework-directory change updates project authority. Renew the reviewed
+documentation and use the retained receipt producer to earn current evidence
+from the unchanged native commands. The prior receipt stays stale until the
+normal publication step. Component lock renewal, catalog provenance and update
+bases, scope refresh and readmission, shared host references, cache coordinates,
+and a recoverable migration transaction have separate owners. There is no
+public writer for canonical relocation.
+
 Failures preserve the harness's 8,192-character combined diagnostic budget through
 the CLI, plus a bounded headline allowance. Reported ENOSPC, disk-full and quota
 errors are prioritized ahead of ordinary output; both stream tails remain visible.
