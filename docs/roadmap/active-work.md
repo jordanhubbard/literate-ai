@@ -29016,11 +29016,15 @@ qualification, admission and cache reuse remain open.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removing redundant copies. Continue PROJECT-LAYOUT-001 first from the latest committed maintenance checkpoint; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
 - **Implementation:**
-  - [ ] Inventory all worktrees, sibling clones, refs, stashes, working changes and ignored evidence.
+  - [x] Inventory all worktrees, sibling clones, refs, stashes, working changes and ignored evidence.
   - [ ] Capture unique source and Git state in the owning repository, integrate active changes with explicit conflict resolution, and transfer custody to the continuing checkout.
-  - [ ] Remove redundant checkouts only after preservation and verify a single remaining checkout on the source host.
+  - [x] Remove redundant checkouts only after preservation and verify a single remaining checkout on the source host.
   - [ ] Resume actual installed update/reparent application and changed-parent qualification for PROJECT-LAYOUT-001, preserving existing holds.
 - **Evidence:**
-  - [ ] Verify every inventoried revision and recovery snapshot is reachable in the continuing repository, and check transferred artifact identities.
+  - [x] Verify every inventoried revision and recovery snapshot is reachable in the continuing repository, and check transferred artifact identities.
   - [ ] Verify the final worktree and sibling-directory inventory, clean tracked state and remote synchronization.
-  - [ ] Record the resumed layout test results without claiming complete containment or release qualification.
+  - [x] Record the resumed layout test results without claiming complete containment or release qualification.
+
+- **Custody and cleanup evidence:** [Transfer observation](../../verification/work-custody-transfer.json) binds all 269 original worktree revisions, 90 dirty recovery commits, 11 stashes and 1,488 reflog revisions. All 270 original index/staged/unstaged metadata files match their transfer hashes. The 90 recovery branches and seven otherwise unpushed heads are published. After independent source receipt acceptance, 268 redundant worktrees and one old separate clone were removed; 695 ignored/untracked paths and the legacy Git database remain preserved. The source host now has one registered framework checkout and no separate sibling clone.
+- **Integration boundary:** Three recovery histories merge normally with an unchanged source tree. The other 87 snapshots remain explicitly preserved for reconciliation, with exact commits, branch references and changed-path counts in the observation. Removal is not evidence that those changes were integrated or superseded.
+- **Continued layout qualification:** On the transferred committed subject, all 13 focused source update/reparent methods pass. The actual noneditable installed producer journey passes one method and all 32 commands in 147.431 seconds on Linux ARM64, preserving original source/Git and qualifying metadata migration, framework placement, producer renewal, repeated finalization and recovery. Actual installed update/reparent application and changed-parent cases remain next under PROJECT-LAYOUT-001. Full containment, the original supported-platform/source/installed/review gates and release acceptance remain open. The stale documentation authority review and prior source-timeout/storage holds remain intact.

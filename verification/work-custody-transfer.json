@@ -1,0 +1,887 @@
+{
+  "record_version": 1,
+  "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
+  "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
+  "continued_subject": "46a35323f459828dc5e2b330393fcb2fcb141a41",
+  "continuation_branch": "work/puck-takeover",
+  "inventory": {
+    "registered_worktrees": 269,
+    "dirty_recovery_commits": 90,
+    "stashes": 11,
+    "reflog_revisions": 1488,
+    "legacy_separate_clones": 1
+  },
+  "transfer": {
+    "all_worktree_and_snapshot_commits_verified": true,
+    "original_index_and_patch_files_verified": 270,
+    "snapshot_metadata_sha256": "9415671a24619ffc0719f5f9667ac3c14daea409e3e6b91cea2a906b1971f7dd",
+    "published_recovery_branches": 90,
+    "additional_published_heads": 7
+  },
+  "checkout_cleanup": {
+    "removed_worktrees": 268,
+    "removed_legacy_clones": 1,
+    "preserved_ignored_and_untracked_paths": 695,
+    "remaining_registered_checkouts": 1,
+    "framework_sibling_checkouts": 0,
+    "framework_symlink_aliases": 0,
+    "branch_gc_policy": {
+      "dry_run": true,
+      "candidates": 0,
+      "rejected": 76
+    },
+    "authorization": "Operator explicitly approved preservation, integration and redundant-checkout cleanup; no branch was declared merged merely by removing its checkout."
+  },
+  "reconciliation": {
+    "counts": {
+      "preserved-for-reconciliation": 87,
+      "merged": 3
+    },
+    "snapshots": [
+      {
+        "label": "acceptwrap1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "d26cdf2109c9978b04f8c07023c1adc85c9e4a6c",
+        "branch": "recovery/puck-20261126/acceptwrap1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 8,
+        "remaining_paths": 2
+      },
+      {
+        "label": "actionsel1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "b7a7bcf24d2d4fe4deb7c6e3249cd88b92daa3fc",
+        "branch": "recovery/puck-20261126/actionsel1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 6,
+        "remaining_paths": 4
+      },
+      {
+        "label": "actsel2",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "c98e172a0b2a27353edc24dfcce0285b119c04ca",
+        "branch": "recovery/puck-20261126/actsel2",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 6,
+        "remaining_paths": 4
+      },
+      {
+        "label": "actsel3",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "4de4c8c2b2fae975965b287ff4ddcb424ba279e0",
+        "branch": "recovery/puck-20261126/actsel3",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 6,
+        "remaining_paths": 4
+      },
+      {
+        "label": "actsel4",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "18dec4d764cc0a9b1a56ed1fd88ba936d4e29c9f",
+        "branch": "recovery/puck-20261126/actsel4",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 6,
+        "remaining_paths": 3
+      },
+      {
+        "label": "ad14",
+        "base": "dcd33ba4a31518c4508ef352770072d1869f9976",
+        "commit": "25f1879df668d4a3cc7ce75984354e586fbc2881",
+        "branch": "recovery/puck-20261126/ad14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 11,
+        "remaining_paths": 11
+      },
+      {
+        "label": "ar14",
+        "base": "1cbbf88f4f003b5ee7623c4134e470730ae4a69d",
+        "commit": "9ca37e2673e530af0422585af7becdfbd74bce19",
+        "branch": "recovery/puck-20261126/ar14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 4,
+        "remaining_paths": 3
+      },
+      {
+        "label": "arm14",
+        "base": "fa95e5e6edf7ac9827a7e8e6f5bd2d99d1c04950",
+        "commit": "1101fe0909f2b8106ae2339c1d7841221c03ecef",
+        "branch": "recovery/puck-20261126/arm14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 4,
+        "remaining_paths": 3
+      },
+      {
+        "label": "arproof1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "3b39b7230ea3fb27497070d6f915f945993a255b",
+        "branch": "recovery/puck-20261126/arproof1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 12,
+        "remaining_paths": 7
+      },
+      {
+        "label": "artcust1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "fd8882c82922e8628016f2da5d22baaf64dcfd90",
+        "branch": "recovery/puck-20261126/artcust1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 14,
+        "remaining_paths": 7
+      },
+      {
+        "label": "artpub1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "9ed9dceeca9b14981623c77a53588267762fe92b",
+        "branch": "recovery/puck-20261126/artpub1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 13,
+        "remaining_paths": 6
+      },
+      {
+        "label": "authoredgraph1",
+        "base": "49a96386d86279352b239c15dc448adbce892fba",
+        "commit": "89452e206df0a24479b95c5e2d5a98c89cf05a10",
+        "branch": "recovery/puck-20261126/authoredgraph1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 80,
+        "remaining_paths": 42
+      },
+      {
+        "label": "authoredgraph2",
+        "base": "743a57fa5f5d0bb192e061bebdda3182e570d097",
+        "commit": "09b7ec082dd759ab282576fc30744ab53fa960a0",
+        "branch": "recovery/puck-20261126/authoredgraph2",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 3,
+        "remaining_paths": 3
+      },
+      {
+        "label": "cancust1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "860542cd4a63343d7e58ac97ac3c6635acb0b043",
+        "branch": "recovery/puck-20261126/cancust1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 5,
+        "remaining_paths": 4
+      },
+      {
+        "label": "canstep1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "20bdd9c3547fd47ac072a1d631c37463ba67b792",
+        "branch": "recovery/puck-20261126/canstep1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 4,
+        "remaining_paths": 3
+      },
+      {
+        "label": "caseinv1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "6562a0bfc1e8d4b6686b6044bb5cc791d5ec1365",
+        "branch": "recovery/puck-20261126/caseinv1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 4,
+        "remaining_paths": 1
+      },
+      {
+        "label": "catcust1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "7bed3e76dc0e6384ea18790d53648d633f335c97",
+        "branch": "recovery/puck-20261126/catcust1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 4,
+        "remaining_paths": 3
+      },
+      {
+        "label": "catplace1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "d56ec9060c0c86de7ce1203e3b1c9cfba56ee5c2",
+        "branch": "recovery/puck-20261126/catplace1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 4,
+        "remaining_paths": 3
+      },
+      {
+        "label": "cg14b",
+        "base": "2b9c392d9bb869f31f95a04a4a7a867456dbc58e",
+        "commit": "96cf7add74048cd00fe213aa1ca42cf1c0b328bd",
+        "branch": "recovery/puck-20261126/cg14b",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 13,
+        "remaining_paths": 13
+      },
+      {
+        "label": "cgproj1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "7ed268e039d5619cdc00ecbd792f112d673c6ac6",
+        "branch": "recovery/puck-20261126/cgproj1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 5,
+        "remaining_paths": 4
+      },
+      {
+        "label": "ciworkflow1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "1f3679fe8573c31c3bc3801582eeeef9213a46c1",
+        "branch": "recovery/puck-20261126/ciworkflow1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 3,
+        "remaining_paths": 3
+      },
+      {
+        "label": "corigin1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "c3fa11b6244c917149393be7ac59fa5aae128207",
+        "branch": "recovery/puck-20261126/corigin1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 4,
+        "remaining_paths": 1
+      },
+      {
+        "label": "cq14",
+        "base": "0ddbc6cae1a2b8d5446d4fd08b6dadb68269a9f0",
+        "commit": "a3b9e4c3bd32dcef196dffbfc10195610927015e",
+        "branch": "recovery/puck-20261126/cq14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 1,
+        "remaining_paths": 1
+      },
+      {
+        "label": "cudapos1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "1ce51c9336a5401b0eaf8249b10bbbcaadd50a48",
+        "branch": "recovery/puck-20261126/cudapos1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 3,
+        "remaining_paths": 2
+      },
+      {
+        "label": "cwf14",
+        "base": "ff08e9ba20e62e87a1a538551f21332a68b61997",
+        "commit": "29891edd5db602bbc1520ff129f863c33f0f6f90",
+        "branch": "recovery/puck-20261126/cwf14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 2,
+        "remaining_paths": 1
+      },
+      {
+        "label": "d56",
+        "base": "1b676760ac1442a946383c999a709c451ea3bad0",
+        "commit": "785b09f7d4e99aa411570e3d9c041e36e19e1205",
+        "branch": "recovery/puck-20261126/d56",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 2,
+        "remaining_paths": 2
+      },
+      {
+        "label": "d5657",
+        "base": "1852d7c86e1a4796f20bcd054f963f21a533900a",
+        "commit": "99f4801a09757282188eee993f8675a83917e1ae",
+        "branch": "recovery/puck-20261126/d5657",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 5,
+        "remaining_paths": 5
+      },
+      {
+        "label": "execview1",
+        "base": "441ee05b35ecfa087dac4f9e1b1a876eb726cc1d",
+        "commit": "e0c20fba44eabfcc26261bb3e9a57187f50b9030",
+        "branch": "recovery/puck-20261126/execview1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 5,
+        "remaining_paths": 5
+      },
+      {
+        "label": "fc14",
+        "base": "9517459008b18f895c3c1440a088589f53f40122",
+        "commit": "a60a94afed1e5ff3127bf49bec8be116baa7658a",
+        "branch": "recovery/puck-20261126/fc14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 12,
+        "remaining_paths": 10
+      },
+      {
+        "label": "fexpiry1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "8c16b82497f9cd9f46e8a2439c6f14029d391f72",
+        "branch": "recovery/puck-20261126/fexpiry1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 5,
+        "remaining_paths": 2
+      },
+      {
+        "label": "fp14",
+        "base": "8eb8ed0a80ace4a3cd9980d1531b13c2547ef2b3",
+        "commit": "8f40eedb75659bef18f53b91c111c0f5e6d786f4",
+        "branch": "recovery/puck-20261126/fp14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 44,
+        "remaining_paths": 43
+      },
+      {
+        "label": "go14",
+        "base": "426b71ec4e56afb5d041df8ed0995c09bb20aae5",
+        "commit": "86faf93d6f9cb68f178dada4e01acf65617cc746",
+        "branch": "recovery/puck-20261126/go14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 7,
+        "remaining_paths": 4
+      },
+      {
+        "label": "goalguard1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "206ef10e77ea063fa06e45c03c85ca8f4be1c2d1",
+        "branch": "recovery/puck-20261126/goalguard1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 8,
+        "remaining_paths": 4
+      },
+      {
+        "label": "gp14",
+        "base": "26e44e07ec37d806e24a24f2fb15f63c2345e867",
+        "commit": "d9390b3848668301ac2725aa643d40e0b50711a7",
+        "branch": "recovery/puck-20261126/gp14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 13,
+        "remaining_paths": 9
+      },
+      {
+        "label": "gpupress1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "55e5264c613710480534d64fb7f047c16df8ba7e",
+        "branch": "recovery/puck-20261126/gpupress1",
+        "disposition": "merged",
+        "changed_paths": 3,
+        "remaining_paths": 0
+      },
+      {
+        "label": "labedge1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "1301588c4a7be4a600c092c7ac8ad9fc2dd75eb1",
+        "branch": "recovery/puck-20261126/labedge1",
+        "disposition": "merged",
+        "changed_paths": 15,
+        "remaining_paths": 0
+      },
+      {
+        "label": "labgraph1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "1fcf7bab45c810225bb0f74ed7416d1f32459167",
+        "branch": "recovery/puck-20261126/labgraph1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 31,
+        "remaining_paths": 18
+      },
+      {
+        "label": "labpin1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "a6adeb7cc2e2ae05cb88f4fc3ac7032248c72a3b",
+        "branch": "recovery/puck-20261126/labpin1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 15,
+        "remaining_paths": 7
+      },
+      {
+        "label": "laycatalog1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "3b2af06ea85f4bf93155f3e8ecafab013710476a",
+        "branch": "recovery/puck-20261126/laycatalog1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 32,
+        "remaining_paths": 26
+      },
+      {
+        "label": "laycust1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "4dbb045cb3b686fe2e5e1ebaab194cd8a358d066",
+        "branch": "recovery/puck-20261126/laycust1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 22,
+        "remaining_paths": 18
+      },
+      {
+        "label": "laygraph1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "a6c85f222a3b084d429b311e48118e5954927ad8",
+        "branch": "recovery/puck-20261126/laygraph1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 34,
+        "remaining_paths": 24
+      },
+      {
+        "label": "layjoin1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "7a7851cc6ee3006c1e59031700f4780ce697da6f",
+        "branch": "recovery/puck-20261126/layjoin1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 123,
+        "remaining_paths": 56
+      },
+      {
+        "label": "laymove1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "4fb1c950bc6f33df466da7b36a40349776b30c32",
+        "branch": "recovery/puck-20261126/laymove1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 22,
+        "remaining_paths": 18
+      },
+      {
+        "label": "laynext1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "ee321752cdbffbb47e38251780920bdea33427c1",
+        "branch": "recovery/puck-20261126/laynext1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 9,
+        "remaining_paths": 9
+      },
+      {
+        "label": "layout14",
+        "base": "2b9c392d9bb869f31f95a04a4a7a867456dbc58e",
+        "commit": "9a449c3ec6d49923e56b1e604f804dc04696abc6",
+        "branch": "recovery/puck-20261126/layout14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 28,
+        "remaining_paths": 28
+      },
+      {
+        "label": "layrefs1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "1b4dca5978c04ff6179aa64c11b1d75ed42a5eee",
+        "branch": "recovery/puck-20261126/layrefs1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 35,
+        "remaining_paths": 24
+      },
+      {
+        "label": "layrelease1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "f9a728fb2e5c7e6e54ca5aa2d882317dc896047f",
+        "branch": "recovery/puck-20261126/layrelease1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 37,
+        "remaining_paths": 26
+      },
+      {
+        "label": "layskill1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "5265b2c7e951c2cc4da445320a6fd83d01fb0524",
+        "branch": "recovery/puck-20261126/layskill1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 31,
+        "remaining_paths": 26
+      },
+      {
+        "label": "nativereadopt1",
+        "base": "441ee05b35ecfa087dac4f9e1b1a876eb726cc1d",
+        "commit": "0f5db42608cb25d4a3376377b01af1ba1ea1c46f",
+        "branch": "recovery/puck-20261126/nativereadopt1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 8,
+        "remaining_paths": 8
+      },
+      {
+        "label": "np14",
+        "base": "53696fdf5431a2ee5c9228ca0f1966a4f1f574fa",
+        "commit": "bd3197765925168137428ba33418ec6175dcc0cf",
+        "branch": "recovery/puck-20261126/np14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 200,
+        "remaining_paths": 200
+      },
+      {
+        "label": "nt14",
+        "base": "75125268c86915bd2e535a24cc58ad2a88878d8c",
+        "commit": "633e6d71c93c9c2f50867076db5150e599d7c54d",
+        "branch": "recovery/puck-20261126/nt14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 103,
+        "remaining_paths": 103
+      },
+      {
+        "label": "nv14",
+        "base": "75125268c86915bd2e535a24cc58ad2a88878d8c",
+        "commit": "fd99a412110ae0305b73ee8d56558a15a1c430aa",
+        "branch": "recovery/puck-20261126/nv14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 14,
+        "remaining_paths": 13
+      },
+      {
+        "label": "pf14",
+        "base": "9213b250eceaa1eaaba03ceb8da3978391078413",
+        "commit": "37affa4ffc7de896157f72f4c0b23215aa8b4d3a",
+        "branch": "recovery/puck-20261126/pf14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 9,
+        "remaining_paths": 9
+      },
+      {
+        "label": "pr312-profile",
+        "base": "d64f9c917dc6cc54e3036edae94e3254593b1b34",
+        "commit": "19e9bfbd7d445345f6b59cf60e6571a711054663",
+        "branch": "recovery/puck-20261126/pr312-profile",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 2,
+        "remaining_paths": 2
+      },
+      {
+        "label": "r353",
+        "base": "6b1f33d81a003b268ffc72a2be811e30d0cfa1ec",
+        "commit": "8cf4a1af0062a747b385dbf02a6741d5788dacd4",
+        "branch": "recovery/puck-20261126/r353",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 26,
+        "remaining_paths": 26
+      },
+      {
+        "label": "reljn1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "5175e2e0dd6411528cce97a475d4d441f9ee7b5f",
+        "branch": "recovery/puck-20261126/reljn1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 126,
+        "remaining_paths": 54
+      },
+      {
+        "label": "reljoin1",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "2332fa57d79af3109c9710dfa583fe66abe3fd14",
+        "branch": "recovery/puck-20261126/reljoin1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 100,
+        "remaining_paths": 45
+      },
+      {
+        "label": "relwheel1",
+        "base": "890a32be6ee41af904161d3c7102234adc707282",
+        "commit": "62709c04f538fe2d0e8fcd0daf2d143761cdec5b",
+        "branch": "recovery/puck-20261126/relwheel1",
+        "disposition": "merged",
+        "changed_paths": 3,
+        "remaining_paths": 0
+      },
+      {
+        "label": "rh14",
+        "base": "072d66e81eff85f58515a09d93d19528499a5ec1",
+        "commit": "785087a11eba66cf321b3f67c9cbdce084f6c18c",
+        "branch": "recovery/puck-20261126/rh14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 26,
+        "remaining_paths": 18
+      },
+      {
+        "label": "rmguard1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "22735143d8fd7caead991e7d767d76fdd2278ef2",
+        "branch": "recovery/puck-20261126/rmguard1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 12,
+        "remaining_paths": 9
+      },
+      {
+        "label": "sc14",
+        "base": "9213b250eceaa1eaaba03ceb8da3978391078413",
+        "commit": "fa04f7157f4abdd2061b917798d0524fca5cec5b",
+        "branch": "recovery/puck-20261126/sc14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 7,
+        "remaining_paths": 5
+      },
+      {
+        "label": "schpre1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "c198191df9a04579d9da242aad3ec9e0ac0bf837",
+        "branch": "recovery/puck-20261126/schpre1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 5,
+        "remaining_paths": 3
+      },
+      {
+        "label": "sdlcn2",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "ee18dafd6081eb35bb22d8a2f98e3b021745dccf",
+        "branch": "recovery/puck-20261126/sdlcn2",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 57,
+        "remaining_paths": 34
+      },
+      {
+        "label": "sdlcn3",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "915417cd31a415d3263f628e79028f833f36f834",
+        "branch": "recovery/puck-20261126/sdlcn3",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 80,
+        "remaining_paths": 46
+      },
+      {
+        "label": "sdlcn4",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "2428797d2c50fb2b295f4dfc198c8bde238a35bd",
+        "branch": "recovery/puck-20261126/sdlcn4",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 107,
+        "remaining_paths": 52
+      },
+      {
+        "label": "sdlcn5",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "849e866dcc1a61f216cb93d8d785d615982de2ba",
+        "branch": "recovery/puck-20261126/sdlcn5",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 113,
+        "remaining_paths": 52
+      },
+      {
+        "label": "sdlcn6",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "c5620d3be0ae0f578d10f513fa7e07f10977e4b1",
+        "branch": "recovery/puck-20261126/sdlcn6",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 95,
+        "remaining_paths": 43
+      },
+      {
+        "label": "sdlcn7",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "909035616185010722191c299f3e268267b584ff",
+        "branch": "recovery/puck-20261126/sdlcn7",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 100,
+        "remaining_paths": 48
+      },
+      {
+        "label": "sdlcq4",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "2312a6c815ae9cbeb71f918b58c169cc414b5247",
+        "branch": "recovery/puck-20261126/sdlcq4",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 69,
+        "remaining_paths": 37
+      },
+      {
+        "label": "sdlcq5",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "459cd654027a154d48b8ac456489d1213b445d53",
+        "branch": "recovery/puck-20261126/sdlcq5",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 77,
+        "remaining_paths": 37
+      },
+      {
+        "label": "sdlcw",
+        "base": "f34debb73b62f9fff59a138f86b3640d7be65183",
+        "commit": "146e4fa3c73813f904c748c9f159fcae5cd5aeff",
+        "branch": "recovery/puck-20261126/sdlcw",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 11,
+        "remaining_paths": 6
+      },
+      {
+        "label": "sdpil1",
+        "base": "af11434c90d58489a923114a8d8f0c7bdb1ebba0",
+        "commit": "001c8a33b8e1f618e3754d52aa874c63129291bb",
+        "branch": "recovery/puck-20261126/sdpil1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 1,
+        "remaining_paths": 1
+      },
+      {
+        "label": "sdsk1",
+        "base": "9ed5a266e5d07bb720292a067d7af50954a6bbd1",
+        "commit": "b599c6bd0e4c1b1ea6857f41102bb7775de0b240",
+        "branch": "recovery/puck-20261126/sdsk1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 9,
+        "remaining_paths": 8
+      },
+      {
+        "label": "sdsq1",
+        "base": "9ed5a266e5d07bb720292a067d7af50954a6bbd1",
+        "commit": "b10c2247e56085062424b0a33eafe8f452af788d",
+        "branch": "recovery/puck-20261126/sdsq1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 8,
+        "remaining_paths": 5
+      },
+      {
+        "label": "sh14",
+        "base": "dcd33ba4a31518c4508ef352770072d1869f9976",
+        "commit": "4dadd1f7821a549e1f91ebd5b65e9f2b429ab561",
+        "branch": "recovery/puck-20261126/sh14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 3,
+        "remaining_paths": 3
+      },
+      {
+        "label": "shadow14",
+        "base": "844b00b8e9f62145090ff00be7d6a5e1f9c7c350",
+        "commit": "84b646d5fb6f958e84becd431f2e7326d147434b",
+        "branch": "recovery/puck-20261126/shadow14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 6,
+        "remaining_paths": 4
+      },
+      {
+        "label": "si14",
+        "base": "dcd33ba4a31518c4508ef352770072d1869f9976",
+        "commit": "ded4a20f8c32aaa4431bc7cdfe2c6cd8b0988057",
+        "branch": "recovery/puck-20261126/si14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 1,
+        "remaining_paths": 1
+      },
+      {
+        "label": "tm14",
+        "base": "9213b250eceaa1eaaba03ceb8da3978391078413",
+        "commit": "f551c5f70ddc6cfeb57aeeae3f7dfa3dd88c816b",
+        "branch": "recovery/puck-20261126/tm14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 13,
+        "remaining_paths": 11
+      },
+      {
+        "label": "unit14",
+        "base": "fa95e5e6edf7ac9827a7e8e6f5bd2d99d1c04950",
+        "commit": "eb6fab913fd2773faeb2b96928410f4d23f9f3fd",
+        "branch": "recovery/puck-20261126/unit14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 26,
+        "remaining_paths": 19
+      },
+      {
+        "label": "ur14",
+        "base": "fa95e5e6edf7ac9827a7e8e6f5bd2d99d1c04950",
+        "commit": "fa51bb2b2e167f691eb8ebdfe8c946dc0e3ed6de",
+        "branch": "recovery/puck-20261126/ur14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 85,
+        "remaining_paths": 42
+      },
+      {
+        "label": "ux14",
+        "base": "fa95e5e6edf7ac9827a7e8e6f5bd2d99d1c04950",
+        "commit": "19eb541d767244b46592d4a31738db92a927b35e",
+        "branch": "recovery/puck-20261126/ux14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 69,
+        "remaining_paths": 35
+      },
+      {
+        "label": "wf14",
+        "base": "ba755fb03e4d5137077604cf07eaa37d8a77a6d5",
+        "commit": "8a166306bef87fb905fead2224524c546b70481d",
+        "branch": "recovery/puck-20261126/wf14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 4,
+        "remaining_paths": 2
+      },
+      {
+        "label": "wheelinv1",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "0b5d6ae8f0d4eadb70a3b209ec2c1191aa6c4437",
+        "branch": "recovery/puck-20261126/wheelinv1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 1,
+        "remaining_paths": 1
+      },
+      {
+        "label": "wheelinv2",
+        "base": "707978ce6dc6bf7aa6be2143e180aad9527e6cfb",
+        "commit": "b0f71eb4e26801662367aa4be35fd575af41d927",
+        "branch": "recovery/puck-20261126/wheelinv2",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 1,
+        "remaining_paths": 0
+      },
+      {
+        "label": "wi14",
+        "base": "7763e23de54a5c51a4a155b3bcdd8c724fb41e56",
+        "commit": "fff8ed5d888115a08ad6081b1df96c13e5ed9e8e",
+        "branch": "recovery/puck-20261126/wi14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 4,
+        "remaining_paths": 3
+      },
+      {
+        "label": "wkcust1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "fca64b921a19fd3438653daf5336474d998ddef9",
+        "branch": "recovery/puck-20261126/wkcust1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 129,
+        "remaining_paths": 58
+      },
+      {
+        "label": "workscope1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "9210d9b0a2e601c33d9e045db2245ff71ed3eb78",
+        "branch": "recovery/puck-20261126/workscope1",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 5,
+        "remaining_paths": 2
+      },
+      {
+        "label": "wse14",
+        "base": "426b71ec4e56afb5d041df8ed0995c09bb20aae5",
+        "commit": "aa1a8397074bf8123b632a68ae2b3f6d75c1b490",
+        "branch": "recovery/puck-20261126/wse14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 3,
+        "remaining_paths": 3
+      },
+      {
+        "label": "wt14",
+        "base": "b14fed8c0fc910ab302654abd8cfc49c53f469d5",
+        "commit": "405a24c3a6167cd56d7ba46b609d2ab1f8e44b51",
+        "branch": "recovery/puck-20261126/wt14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 52,
+        "remaining_paths": 52
+      },
+      {
+        "label": "ww14",
+        "base": "731c755bc274cf7b57a9d8a90ed6076541108251",
+        "commit": "72bef38e38d726a7626bae77d96b6455e2f5b211",
+        "branch": "recovery/puck-20261126/ww14",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 1,
+        "remaining_paths": 1
+      }
+    ]
+  },
+  "checks": {
+    "source": {
+      "platform": "Linux ARM64",
+      "cases": 13,
+      "failures": 0,
+      "modules": [
+        "tests.smoke.test_project_reparenting",
+        "tests.critical.test_project_layout_root_updates",
+        "tests.critical.test_project_layout_reparent_history"
+      ]
+    },
+    "installed": {
+      "platform": "Linux ARM64",
+      "subject": "46a35323f459828dc5e2b330393fcb2fcb141a41",
+      "distribution": "sha256:a33f1d8c290238215f081c148d17172c08af26b14da487a91f736aef6d50cc67",
+      "case": "tests.support.installed_framework_producer_journey",
+      "methods": 1,
+      "commands": 32,
+      "failures": 0,
+      "elapsed_seconds": 147.431,
+      "raw_receipt_sha256": "72306b7d714e183e5a043e50654f35f446dda978c2c5172c030e397fd2b29ac6",
+      "scope": "Actual noneditable wheel, real legacy initialization, metadata migration/recovery, framework placement, producer renewal, repeated finalization and recovery; not update/reparent application or complete containment."
+    }
+  },
+  "remaining_requirements": [
+    "Reconcile the 87 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
+    "Prioritize PROJECT-LAYOUT-001 actual installed update/reparent application and changed-parent cases.",
+    "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
+  ],
+  "preserved_holds": [
+    "project.documentation_authority_review_stale remains reported; no review marker, driver or release receipt was repinned.",
+    "Prior source-timeout and storage-cutover holds are not lifted by this custody observation."
+  ],
+  "release_qualification": false
+}
