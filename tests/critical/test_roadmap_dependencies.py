@@ -19,6 +19,7 @@ from literate_ai.application.roadmap_dependencies import (
     validate_roadmap_dependencies,
 )
 from literate_ai.application.roadmap_work import (
+    RoadmapWorkError,
     RoadmapWorkRecord,
     close_work,
     record_work,
@@ -129,11 +130,13 @@ class RoadmapDependencyTests(unittest.TestCase):
         # A would-be closing fence with an info string is still code content.
         validate_roadmap_dependencies("```text\n```not-a-close\n" + hidden + "```\n")
 
-    def test_legacy_edges_and_repeated_sections_are_not_lost(self):
+    def test_legacy_edges_remain_and_repeated_sections_refuse(self):
         content = item("AAA-001") + "- **Depends on:** BBB-001\n"
         content += item("BBB-001") + "- **Depends on:** AAA-001\n"
         self.assert_cycle(content, "AAA-001 -> BBB-001 -> AAA-001")
-        self.assert_cycle(content + item("AAA-001"), "AAA-001 -> BBB-001 -> AAA-001")
+        with self.assertRaises(RoadmapDependencyError) as caught:
+            validate_roadmap_dependencies(content + item("AAA-001"))
+        self.assertEqual(caught.exception.code, "roadmap.duplicate_work_id")
         self.assert_cycle(
             item("AAA-001", target="1.3.1") + "- **Depends on:** release:1.3.1:ready\n",
             "AAA-001 -> release:1.3.1:ready -> AAA-001",
@@ -163,6 +166,46 @@ class RoadmapDependencyTests(unittest.TestCase):
             record_work("# Queue\n", record)
         with self.assertRaises(RoadmapDependencyError):
             close_work(item("AAA-001", "AAA-001", state="x"), "AAA-001")
+
+    def test_work_id_is_exact_and_hidden_matches_do_not_reserve_it(self):
+        record = RoadmapWorkRecord(
+            "TASK-123",
+            "Work",
+            "P0",
+            "core",
+            "direction",
+            "conclusion",
+            (),
+            ("implement",),
+            ("qualify",),
+        )
+        content = (
+            item("TASK-123-EXTRA", state="x") + "\n<!--\n" + item("TASK-123") + "-->\n"
+        )
+        with self.assertRaises(RoadmapWorkError) as caught:
+            close_work(content, "TASK-123")
+        self.assertEqual(caught.exception.code, "roadmap_work.not_found")
+        recorded = record_work(content, record)
+        self.assertTrue(recorded.startswith(content.rstrip()))
+        self.assertTrue(recorded.endswith("  - [ ] qualify\n"))
+        with self.assertRaises(RoadmapWorkError) as caught:
+            record_work(content + "\n```markdown\n", record)
+        self.assertEqual(caught.exception.code, "roadmap_work.hidden_entry")
+
+    def test_close_changes_only_visible_marker_before_next_major_section(self):
+        content = (
+            "<!-- Example heading lives in a comment. -->\r\n"
+            "### [~] TASK-123 — Actual work\r\n"
+            "  - [x] Verified\r\n"
+            "~~~text <!-- literal in fence info\r\n"
+            "  - [ ] Example obligation\r\n"
+            "~~~\r\n"
+            "## Other program\r\n"
+            "  - [ ] Unrelated obligation\r\n"
+        )
+        self.assertEqual(
+            close_work(content, "TASK-123"), content.replace("[~]", "[x]", 1)
+        )
 
     def project(self, root, content, *, custom=False):
         queue = "docs/roadmap/custom.md" if custom else "docs/roadmap/active-work.md"

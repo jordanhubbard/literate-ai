@@ -35,6 +35,29 @@ class ReleaseRoadmapSummaryTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, "not targeted to 1.1"):
                         summarize(content, "1.1", require_all_open_targeted=True)
 
+    def test_prose_subheading_preserves_actual_acceptance(self) -> None:
+        content = (
+            "### [~] TASK-123 — Real goal\n- **Release target:** 1.4.0\n\n"
+            "### Verification instructions\n  - [~] Verify the `wheel`\n\n"
+            "~~~markdown\n  - [ ] Example only\n~~~\n"
+            "<!--\n  - [ ] Commented example only\n-->\n"
+        )
+        reported = summarize(content, "1.4")
+        self.assertFalse(reported["ready"])
+        self.assertEqual(reported["items"][0]["remaining"], ["Verify the `wheel`"])
+        with self.assertRaisesRegex(ValueError, "closed item has unchecked acceptance"):
+            summarize(content.replace("[~]", "[x]", 1), "1.4")
+
+    def test_release_target_cannot_be_borrowed_from_unrelated_prose(self) -> None:
+        content = (
+            "### [x] TASK-123 — No target declared here\n\n"
+            "<!--\n- **Release target:** 1.4.0\n-->\n\n"
+            "### Different program\n- **Release target:** 1.4.0\n"
+        )
+        result = summarize(content, "1.4")
+        self.assertEqual(result["items"], [])
+        self.assertFalse(result["ready"])
+
     def test_cli_reads_crlf_roadmap_without_mutating_it_and_refuses_false_closure(
         self,
     ) -> None:

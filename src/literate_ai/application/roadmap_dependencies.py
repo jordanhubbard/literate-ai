@@ -7,14 +7,32 @@ does not infer dependencies from arbitrary narrative or checkbox prose.
 from __future__ import annotations
 
 import re
+from bisect import bisect_right
 from collections.abc import Mapping
+from dataclasses import dataclass
 
 _ID = r"[A-Z][A-Z0-9-]{2,63}"
-_HEADING = re.compile(rf"^### \[[ x~]\] (?P<id>{_ID})(?=\s|$).*$", re.M)
+WORK_ID = re.compile(_ID)
+_HEADING = re.compile(
+    rf"^ {{0,3}}### \[(?P<state>[ x~])\] (?P<id>{_ID})(?=[ \t\r]|$).*$", re.M
+)
+_SECTION_HEADING = re.compile(r"^ {0,3}(?P<level>#{1,3})(?=[ \t\r]|$)", re.M)
+_OPEN_CHECKBOX = re.compile(
+    r"^[ \t]*- \[[ ~]\](?:[ \t](?P<text>[^\r\n]*))?(?=\r?$)", re.M
+)
+_PROSE_BOUNDARY = re.compile(
+    r"^[ \t]*(?:$|#{1,6}(?=[ \t]|$)|`{3,}|~{3,}|[-+*][ \t]|"
+    r"[0-9]+[.)][ \t]|>|<)"
+)
+_BACKTICKS = re.compile(r"`+")
+_MARKDOWN_TOKEN = re.compile(r"<!--|`+")
 _FIELD = re.compile(
-    r"^- \*\*(Depends on|Completion prerequisites|Release target):\*\*[ \t]*"
+    r"^- \*\*(Depends on|Completion prerequisites):\*\*[ \t]*"
     r"(.*(?:\n[ \t]+\S.*)*)$",
     re.M,
+)
+_RELEASE_TARGET = re.compile(
+    r"^- \*\*Release target:\*\*[ \t]*([^\r\n]*?)[ \t]*\r?$", re.M
 )
 _VERSION = r"[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?"
 _PHASES = ("ready", "prepared", "checked", "published", "verified", "synchronized")
@@ -31,48 +49,173 @@ class RoadmapDependencyError(ValueError):
         super().__init__(message)
 
 
+def _inline_code_ends(lines: list[str]) -> dict[int, int]:
+    """Match equal backtick runs within the same Markdown prose block."""
+    endings = {}
+    following: dict[int, int] = {}
+    offset = sum(map(len, lines))
+    for raw in reversed(lines):
+        offset -= len(raw)
+        line = raw.rstrip("\r\n")
+        for marker in reversed(list(_BACKTICKS.finditer(line))):
+            length = marker.end() - marker.start()
+            if length in following:
+                endings[offset + marker.start()] = following[length]
+            following[length] = offset + marker.end()
+        if _PROSE_BOUNDARY.match(line):
+            following.clear()
+    return endings
+
+
+def _escaped(line: str, offset: int) -> bool:
+    start = offset
+    while start > 0 and line[start - 1] == "\\":
+        start -= 1
+    return (offset - start) % 2 == 1
+
+
 def _visible(content: str) -> str:
+    """Mask Markdown examples without shifting original character offsets."""
     lines = []
     fence = None
     in_comment = False
-    for line in content.splitlines():
+    source = content.splitlines(keepends=True)
+    endings = _inline_code_ends(source)
+    literal_end = 0
+    offset = 0
+    for raw in source:
+        beginning = offset
+        offset += len(raw)
+        line = raw.rstrip("\r\n")
+        ending = raw[len(line) :]
         if fence is not None:
             if re.fullmatch(
                 rf" {{0,3}}{re.escape(fence[0])}{{{len(fence)},}}[ \t]*", line
             ):
                 fence = None
-            lines.append("")
+            lines.append(" " * len(line) + ending)
             continue
-        # A literal comment opener in a fenced example cannot hide later work.
-        visible = []
-        position = 0
+        if not in_comment:
+            marker = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
+            if marker and (marker[1][0] != "`" or "`" not in marker[2]):
+                fence = marker[1]
+                lines.append(" " * len(line) + ending)
+                continue
+        position = min(len(line), max(0, literal_end - beginning))
+        visible = [line[:position]]
         while position < len(line):
             if in_comment:
                 end = line.find("-->", position)
                 if end < 0:
+                    visible.append(" " * (len(line) - position))
                     break
+                visible.append(" " * (end + 3 - position))
                 position = end + 3
                 in_comment = False
             else:
-                start = line.find("<!--", position)
-                if start < 0:
+                token = _MARKDOWN_TOKEN.search(line, position)
+                if token is None:
                     visible.append(line[position:])
                     break
-                visible.append(line[position:start])
-                position = start + 4
-                in_comment = True
-        cleaned = "".join(visible)
-        marker = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", cleaned)
-        if marker and (marker[1][0] != "`" or "`" not in marker[2]):
-            fence = marker[1]
-            lines.append("")
-        else:
-            lines.append(cleaned)
-    return "\n".join(lines)
+                start = token.start()
+                escaped = _escaped(line, start)
+                if token[0] == "<!--" and not escaped:
+                    visible.append(line[position:start] + " " * 4)
+                    position = token.end()
+                    in_comment = True
+                else:
+                    if not escaped:
+                        literal_end = endings.get(beginning + start, 0)
+                    stop = max(token.end(), min(len(line), literal_end - beginning))
+                    visible.append(line[position:stop])
+                    position = stop
+        lines.append("".join(visible) + ending)
+    return "".join(lines)
+
+
+@dataclass(frozen=True, slots=True)
+class RoadmapSection:
+    state: str
+    state_offset: int
+    declarations: str
+    title: str | None
+    unchecked: tuple[str, ...]
+    release_target: str | None
+
+    @property
+    def complete(self) -> bool:
+        return self.state == "x" and not self.unchecked
+
+
+def roadmap_sections(content: str) -> dict[str, RoadmapSection]:
+    """Read visible typed work entries and preserve the original state offset.
+
+    Typed declarations belong to the heading's immediate section. An ordinary
+    level-three subheading can organize an item's acceptance checklist, which
+    remains in the item's body until the next typed item or higher heading.
+    """
+    visible = _visible(content)
+    headings = [
+        heading
+        for heading in _HEADING.finditer(visible)
+        # Comment masking must preserve the original delimiter of a typed ID.
+        if content[heading.end("id") : heading.end("id") + 1]
+        in {"", " ", "\t", "\r", "\n"}
+    ]
+    section_headings = list(_SECTION_HEADING.finditer(visible))
+    declarations_end = [part.start() for part in section_headings]
+    body_end = sorted(
+        [heading.start() for heading in headings]
+        + [part.start() for part in section_headings if part["level"] != "###"]
+    )
+    declarations_end.append(len(visible))
+    body_end.append(len(visible))
+    sections = {}
+    for heading in headings:
+        work_id = heading["id"]
+        if work_id in sections:
+            raise RoadmapDependencyError(
+                "roadmap.duplicate_work_id", f"duplicate visible work ID: {work_id}"
+            )
+        start = heading.start()
+        declarations = visible[
+            heading.end() : declarations_end[bisect_right(declarations_end, start)]
+        ]
+        targets = _RELEASE_TARGET.findall(declarations)
+        if len(targets) > 1:
+            raise RoadmapDependencyError(
+                "roadmap.duplicate_release_target",
+                f"{work_id}: expected at most one Release target",
+            )
+        end = body_end[bisect_right(body_end, start)]
+        title_text = content[heading.end("id") : heading.end()].removesuffix("\r")
+        unchecked = tuple(
+            content[item.start("text") : item.end("text")]
+            if item["text"] is not None
+            else ""
+            for item in _OPEN_CHECKBOX.finditer(visible, heading.end(), end)
+        )
+        sections[work_id] = RoadmapSection(
+            heading["state"],
+            heading.start("state"),
+            declarations,
+            title_text[3:]
+            if title_text.startswith(" — ") and len(title_text) > 3
+            else None,
+            unchecked,
+            targets[0] if targets else None,
+        )
+    return sections
 
 
 def validate_roadmap_dependencies(
     content: str, manifest: Mapping[str, object] | None = None
+) -> None:
+    validate_roadmap_sections(roadmap_sections(content), manifest)
+
+
+def validate_roadmap_sections(
+    sections: Mapping[str, RoadmapSection], manifest: Mapping[str, object] | None = None
 ) -> None:
     """Reject malformed typed references and cycles, irrespective of completion.
 
@@ -82,29 +225,17 @@ def validate_roadmap_dependencies(
     Manifest membership and exact Release target fields both create ready->goal
     edges, so omitting one declaration cannot conceal a release-gate cycle.
     """
-    visible = _visible(content)
-    headings = list(_HEADING.finditer(visible))
-    graph: dict[str, set[str]] = {}
-    sections = {}
-    for heading in headings:
-        work_id = heading["id"]
-        graph.setdefault(work_id, set())
-        following = re.search(r"^#{1,3} ", visible[heading.end() :], re.M)
-        end = heading.end() + following.start() if following else len(visible)
-        sections.setdefault(work_id, []).append(visible[heading.end() : end])
+    graph: dict[str, set[str]] = {work_id: set() for work_id in sections}
     releases: set[str] = set()
     strict: list[tuple[str, str]] = []
-    for work_id, bodies in sections.items():
-        fields = []
-        for section in bodies:
-            fields.extend(_FIELD.findall(section))
-        for field, value in fields:
+    for work_id, section in sections.items():
+        target = section.release_target
+        if target is not None and re.fullmatch(_VERSION, target):
+            releases.add(target)
+            graph.setdefault(f"release:{target}:ready", set()).add(work_id)
+        for field, value in _FIELD.findall(section.declarations):
             value = value.strip()
-            if field == "Release target":
-                if re.fullmatch(_VERSION, value):
-                    releases.add(value)
-                    graph.setdefault(f"release:{value}:ready", set()).add(work_id)
-            elif field == "Completion prerequisites":
+            if field == "Completion prerequisites":
                 if "\n" in value:
                     raise RoadmapDependencyError(
                         "roadmap.dependency_field_invalid",
