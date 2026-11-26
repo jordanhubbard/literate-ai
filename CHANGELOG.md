@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: migrate retained root projects that never imported a catalog without manufacturing import provenance; preserve strict catalog-history checks and exact rollback records.
+
 - Project layout: exercise noneditable installed native adoption while checking the complete application tree and Git state remain unchanged; record scoped macOS creation and discovery results.
 
 - Framework layout: read-only planning reuses bounded, private copies of parsed provenance while retaining native reads and currentness checks. Copy or storage limits preserve original parsing behavior. Source regressions and real-catalog admission checks pass; installed timing and complete platform qualification remain pending.

@@ -45,6 +45,7 @@ from literate_ai.adapters.retained_harness_receipts import (
     _load_retained_documents,
     _require_qualified_parity,
 )
+from literate_ai.adapters.update_merge import UpdateBases
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.documentation import _INLINE_LINK, extract_markdown_links
@@ -69,6 +70,8 @@ JOURNAL_SCHEMA = "literate-ai/project-layout-migration-journal@1"
 _JOURNAL = "literate-layout-migration"
 _RECORDS = tuple(".literate/" + name for name in sorted(_PRODUCERS))
 _SOURCES = (*_RECORDS, PROJECT_FILENAME)
+_IMPORTS = ".literate/imports.json"
+_REQUIRED_SOURCES = frozenset(_SOURCES) - {_IMPORTS}
 _LEGACY_RECEIPT = "verification/current.json"
 _LEGACY_RELEASE_POLICY = "literate.release.json"
 _PRODUCER_LOCKS = (
@@ -79,7 +82,11 @@ _PRODUCER_LOCKS = (
 
 def _ordered_sources(files: dict) -> tuple[str, ...]:
     additional = sorted(set(files) - set(_SOURCES))
-    return (*_RECORDS, *additional, PROJECT_FILENAME)
+    return (
+        *(path for path in _RECORDS if path in files),
+        *additional,
+        PROJECT_FILENAME,
+    )
 
 
 def _worktree(root: Path) -> Path:
@@ -313,7 +320,7 @@ def _read_selection(
     if os.path.lexists(git_dir / _JOURNAL):
         _fail("recovery_pending", "inspect or recover the existing migration journal")
     files = {item["path"]: item for item in inventory["members"]}
-    if not all(path in files for path in _SOURCES):
+    if not _REQUIRED_SOURCES <= files.keys():
         _fail(
             "migration_profile",
             "required retained-project producer records are missing",
@@ -323,8 +330,23 @@ def _read_selection(
     if state is None or state.project_id != snapshot.definition.project_id:
         _fail("migration_profile", "conversion authority does not own this project")
     _require_qualified_parity(_load_retained_documents(project))
-    _, lineage = FilesystemRepositoryLineageStore(root).load()
-    _contained_catalog_records(json.loads(_file(root / ".literate/imports.json")[1]))
+    parent, lineage = FilesystemRepositoryLineageStore(root).load()
+    if _IMPORTS in files:
+        _contained_catalog_records(json.loads(_file(root / _IMPORTS)[1]))
+    else:
+        bases = UpdateBases(root)
+        if (
+            parent.mode.value != "root"
+            or bases.scopes["catalog"]
+            or bases.sources
+            or place_forward_skills
+            or place_imported_catalogs
+        ):
+            _fail(
+                "migration_profile",
+                "missing catalog provenance permits only root metadata placement "
+                "without catalog history",
+            )
     definition = snapshot.definition
     receipt = definition.test_receipt
     if receipt == _LEGACY_RECEIPT:
@@ -371,7 +393,7 @@ def _read_selection(
                 definition = replace(
                     definition, **{field: (*getattr(definition, field), *placed_roots)}
                 )
-    selected = set(_SOURCES) | set(skill_coordinates)
+    selected = (set(_SOURCES) & files.keys()) | set(skill_coordinates)
     if receipt == _LEGACY_RECEIPT and receipt in files:
         selected.add(_LEGACY_RECEIPT)
     if place_release_policy:
@@ -745,7 +767,7 @@ def _load_journal(git_dir: Path, expected: str) -> tuple[Path, dict]:
             or canonical_identity(intent).uri != identity
             or plan["plan_identity"] != expected
             or canonical_identity(comparable).uri != expected
-            or not {*_SOURCES, *skill_coordinates, *release_paths}
+            or not {*_REQUIRED_SOURCES, *skill_coordinates, *release_paths}
             <= set(files)
             <= expected_paths
             or any(files[path]["from"] != files[path]["to"] for path in release_paths)
