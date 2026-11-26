@@ -167,8 +167,11 @@ class RetainedSdkPromotionTests(unittest.TestCase):
         self.assertFalse(evidence["release_authorized"])
         calls_after_live_run = tuple(batch_counts)
         custody_before_history = custody_snapshot(admission.store.root)
+        full_current_checks = 0
 
         def require_current():
+            nonlocal full_current_checks
+            full_current_checks += 1
             self.assertEqual(f.current, planning.plan)
             verify_retained_project_inputs(source, manifest)
             for snapshot in snapshots:
@@ -228,6 +231,10 @@ class RetainedSdkPromotionTests(unittest.TestCase):
                 component_lock_identities=(self.lock.identity,),
                 receipt_policy=policy,
             )
+        # Large native graphs still receive bounded per-record polling; full
+        # source and SDK authority is reopened at each historical phase edge.
+        self.assertGreaterEqual(full_current_checks, 2)
+        self.assertLessEqual(full_current_checks, 8)
         self.assertEqual(tuple(batch_counts), calls_after_live_run)
         self.assertEqual(len(self.producer_services), 2)
         self.assertEqual(custody_snapshot(admission.store.root), custody_before_history)
