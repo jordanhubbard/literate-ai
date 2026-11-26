@@ -34,8 +34,8 @@
   },
   "reconciliation": {
     "counts": {
-      "preserved-for-reconciliation": 87,
-      "merged": 3
+      "merged": 4,
+      "preserved-for-reconciliation": 86
     },
     "snapshots": [
       {
@@ -484,9 +484,9 @@
         "base": "53696fdf5431a2ee5c9228ca0f1966a4f1f574fa",
         "commit": "bd3197765925168137428ba33418ec6175dcc0cf",
         "branch": "recovery/puck-20261126/np14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 200,
-        "remaining_paths": 200
+        "remaining_paths": 0
       },
       {
         "label": "nt14",
@@ -875,7 +875,7 @@
     }
   },
   "remaining_requirements": [
-    "Reconcile the 87 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
+    "Reconcile the 86 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
     "Prioritize PROJECT-LAYOUT-001 actual installed update/reparent application and changed-parent cases.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
   ],
@@ -883,5 +883,6 @@
     "project.documentation_authority_review_stale remains reported; no review marker, driver or release receipt was repinned.",
     "Prior source-timeout and storage-cutover holds are not lifted by this custody observation."
   ],
-  "release_qualification": false
+  "release_qualification": false,
+  "resumed_original_working_state": "6ca69e404f672aaeb7107049b30c58e5e618305b"
 }

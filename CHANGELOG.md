@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: resolve retained Cargo consumer harness custody through the declared scaffold coordinates for legacy, mixed and contained projects.
+
 - Project layout: qualify installed root and descendant update/reparent planning on the original finalized migration fixture, preserving application source, Git and original authority/history.
 
 - Project layout: update contained initialized root projects through the normal template updater, keep planning and application placement consistent, and report actual framework changes while preserving source and Git state.

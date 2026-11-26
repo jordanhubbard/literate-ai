@@ -40,6 +40,7 @@ from literate_ai.adapters.retained_harness_receipts import (
 from literate_ai.adapters.retained_layout import RETAINED_LAYOUT_PATH
 from literate_ai.adapters.retained_layout_partition import _lineage
 from literate_ai.adapters.retained_python_review import RetainedPythonReviewedFiles
+from literate_ai.adapters.retained_scaffold_coordinates import retained_scaffold_path
 from literate_ai.contracts.identity import canonical_identity, canonical_json_bytes
 from literate_ai.projects import (
     PinnedInputClosure,
@@ -163,7 +164,7 @@ class _CurrentCargoConsumerWrapper(_UnsavableConsumerWrapper):
             }:
                 raise ValueError("retained.cargo.v2-wrapper-layout-changed")
         self._inputs.pin(
-            root / "litai.harness.mk",
+            retained_scaffold_path(root, "litai.harness.mk"),
             boundary=root,
             label="retained harness wrapper",
             expected_content=documents["wrapper"]["bytes"],
