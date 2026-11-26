@@ -872,6 +872,15 @@
       "elapsed_seconds": 147.431,
       "raw_receipt_sha256": "72306b7d714e183e5a043e50654f35f446dda978c2c5172c030e397fd2b29ac6",
       "scope": "Actual noneditable wheel, real legacy initialization, metadata migration/recovery, framework placement, producer renewal, repeated finalization and recovery; not update/reparent application or complete containment."
+    },
+    "shared_wrapper_source": {
+      "subject": "6783c5ee3ac12daef701ee48d1d9f33967e6b803",
+      "pattern": "tests/critical/test_*wrapper*.py",
+      "cases": 50,
+      "failures": 0,
+      "elapsed_seconds": 125.053,
+      "log_sha256": "f39353073f5f49f95cb7985ada8d4d0c6e913edae66bf576656cbeabd856ae64",
+      "scope": "Shared wrapper source regression only; original metadata-transition fixture explicitly requests historical layout, preserving all drift/refusal assertions. Native-root, installed final-candidate and release qualification remain separate."
     }
   },
   "remaining_requirements": [
