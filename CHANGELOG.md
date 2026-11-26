@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: exercise noneditable installed metadata migration and rollback with real initializer/harness records, early recovery-import checks, and retained source/Git preservation.
+
 - Project layout: include the internal Make-path encoder required to import migration recovery’s recorded-wrapper provider.
 
 - Project layout: migrate retained root projects that never imported a catalog without manufacturing import provenance; preserve strict catalog-history checks and exact rollback records.
