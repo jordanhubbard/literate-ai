@@ -40,6 +40,104 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def _contained_project(self, root):
+        from tests.support.fixtures_test_repository_initialization_e2e import (
+            initialize_root,
+        )
+
+        initialize_root(root)
+        self._project(root, "components/legacy-project-wrapper/implementation")
+        for name in (
+            ".literate/harness-inventory.json",
+            ".literate/legacy-lift-shift.json",
+            "components/legacy-project-wrapper/component.md",
+            "flavors/legacy-project-shim/flavor.md",
+            "flavors/legacy-project-shim/openspec/spec.md",
+            "workflows/legacy-adoption/workflow.md",
+            "routing/legacy-adoption.json",
+            "skills/specification-to-source/legacy-project-shim/SKILL.md",
+        ):
+            target = root / "litai" / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            (root / name).replace(target)
+
+    def test_contained_catalogs_preserve_shim_without_relocating_source(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            self._contained_project(root)
+            implementation = root / "components/legacy-project-wrapper/implementation"
+            before = implementation.stat()
+            wrapper = "litai/components/legacy-project-wrapper/"
+            (root / (wrapper + "component.lock.json")).write_bytes(b"lock fixture\n")
+            protected = _retained_legacy_shim_authority_paths(
+                root, preserve_evidence=True
+            )
+            self.assertEqual(
+                protected,
+                frozenset(
+                    {
+                        wrapper + "component.md",
+                        wrapper + "component.lock.json",
+                        "litai/flavors/legacy-project-shim/flavor.md",
+                        "litai/flavors/legacy-project-shim/openspec/spec.md",
+                    }
+                ),
+            )
+            self.assertEqual(implementation.stat(), before)
+            self.assertFalse(
+                (
+                    root / "litai/components/legacy-project-wrapper/implementation"
+                ).exists()
+            )
+
+    def test_mixed_catalogs_select_current_wrapper_and_keep_source_at_root(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            self._contained_project(root)
+            manifest = root / "litai/literate.project.json"
+            definition = json.loads(manifest.read_bytes())
+            definition["component_roots"].insert(0, "components")
+            manifest.write_text(json.dumps(definition))
+            protected = _retained_legacy_shim_authority_paths(root)
+            self.assertIn(
+                "litai/components/legacy-project-wrapper/component.md", protected
+            )
+            self.assertNotIn(
+                "components/legacy-project-wrapper/component.md", protected
+            )
+            self.assertTrue(
+                (root / "components/legacy-project-wrapper/implementation").is_dir()
+            )
+            self.assertFalse(
+                (
+                    root / "litai/components/legacy-project-wrapper/implementation"
+                ).exists()
+            )
+
+    def test_missing_current_dependent_does_not_protect_obsolete_shim(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            self._contained_project(root)
+            (root / "litai/routing/legacy-adoption.json").unlink()
+            self.assertEqual(_retained_legacy_shim_authority_paths(root), frozenset())
+
+    def test_duplicate_declared_shim_flavors_refuse_ambiguous_authority(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            self._contained_project(root)
+            manifest = root / "litai/literate.project.json"
+            definition = json.loads(manifest.read_bytes())
+            definition["flavor_roots"].append("other-flavors")
+            manifest.write_text(json.dumps(definition))
+            duplicate = root / "other-flavors/legacy-project-shim/flavor.md"
+            duplicate.parent.mkdir(parents=True)
+            duplicate.write_bytes(b"ambiguous fixture\n")
+            with self.assertRaises(ProjectUpdateError) as captured:
+                _retained_legacy_shim_authority_paths(root)
+            self.assertEqual(
+                captured.exception.code, "project.update_retained_layout_invalid"
+            )
+
     def test_update_preserves_shim_at_historical_coordinate(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()

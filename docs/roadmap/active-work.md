@@ -29224,7 +29224,7 @@ coordinates. Integrate the existing contained-roadmap namespace contribution,
 retain current observation safeguards, and require an explicit reviewed queue
 resolution before application. Both failed receipts remain separate evidence.
 
-**Next action (in progress).** Reconcile the remaining 69 snapshots and verify the reference
+**Next action (in progress).** Reconcile the remaining 67 snapshots and verify the reference
 repair against the exact retained failed installed fixture. The repaired native-root
 run completed all 631 selected cases in 2,248.970 seconds, without failures or skips;
 the earlier failing run had stopped after executing 160 cases. Its source pin and
@@ -29245,3 +29245,22 @@ The guard now selects the current framework queue and keeps preserved roadmap
 owners under that namespace, including through the existing observation reader.
 Actual installed continuation and any required explicit conflict resolution remain
 open; these source checks do not qualify application.
+
+**Retained shim continuation.** Immutable subject `080333899` passes both repaired
+documentation checks and an exact-file conflict review preserving ADOPT-002, then
+rolls back on a retained lock Flavor-selection mismatch. The original source,
+Git index/HEAD, intent and original receipt remain unchanged. Its retained-shim
+protection still tests root catalog dependents, which are absent after authority
+placement. Resolve those dependents and shim authority through the declared
+current catalogs, reject ambiguous duplicates and retain the recorded application
+implementation path. A mixed catalog may retain root source while its wrapper
+Component lives beneath litai/. Do not rebaseline or renew that source merely to
+make update apply. Source regressions and a new immutable installed continuation
+remain required. Two additional unchanged-tree history reconciliations bring
+custody integration to 23 snapshots merged and 67 pending.
+
+The seven retained-update source controls pass in 17.752 seconds. Read-only
+inspection of the original failed fixture now selects its wrapper Component,
+lock/audit and two shim Flavor files at their current contained coordinates;
+original source, Git state, intent and receipt still match. Installed verification
+with a new immutable subject remains required.

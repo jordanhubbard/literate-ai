@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Preserve retained shim authority and locks through declared current catalogs
+  during contained updates, retaining recorded application source coordinates.
+
 - Validate contained roadmap lifecycle and dependency authority under `litai/`
   while preserving root and separately declared application plans. Refuse
   cross-namespace queue substitution and retain lifecycle/evidence checks.

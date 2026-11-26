@@ -14,6 +14,8 @@ import unittest
 from pathlib import Path
 
 from literate_ai.adapters.user_paths import HostInstallLayout
+from literate_ai.contracts import ContentIdentity, ProjectUpdateFile
+from literate_ai.documentation import markdown_anchors
 from tests.support import installed_layout_migration_journey as metadata
 from tests.support import installed_native_adoption_journey as adoption
 from tests.support.installed_framework_maintenance_resume import file_state
@@ -226,8 +228,60 @@ class InstalledFrameworkMaintenanceJourney(unittest.TestCase):
                     self.assertEqual(snapshot(implementation), original_source)
                     self.assertEqual(file_state(project / ".git/index")[0], index)
                 self.assertEqual(identities[0], identities[1])
+                review_arguments = ()
+                preserved_queue = None
+                if operation == "update":
+                    # The retained native program still owns ADOPT-002. Review
+                    # this exact queue collision, binding the typed file inputs;
+                    # preserve its owner instead of silently closing the work.
+                    queue = "litai/docs/roadmap/active-work.md"
+                    conflicts = [
+                        row
+                        for row in result["framework"]["files"]
+                        if row["classification"] == "conflict"
+                    ]
+                    self.assertEqual([row["path"] for row in conflicts], [queue])
+                    item = ProjectUpdateFile.from_dict(conflicts[0])
+                    preserved_queue = file_state(project / queue)[0]
+                    self.assertIn(
+                        "adopt-002", markdown_anchors(preserved_queue.decode())
+                    )
+                    self.assertEqual(
+                        item.local_identity,
+                        ContentIdentity.parse_uri(
+                            "sha256:" + hashlib.sha256(preserved_queue).hexdigest()
+                        ),
+                    )
+                    review = self.root / f"{label_prefix}-queue-resolution.json"
+                    with review.open("x") as stream:
+                        json.dump(
+                            [
+                                {
+                                    "schema": (
+                                        "literate-ai/project-update-conflict-review@1"
+                                    ),
+                                    "path": queue,
+                                    "file_identity": item.identity.to_dict(),
+                                    "decision": "keep-local",
+                                    "rationale": (
+                                        "Retained native-rewrite-program.md still owns "
+                                        "ADOPT-002; preserve its queue until "
+                                        "implementation and acceptance."
+                                    ),
+                                }
+                            ],
+                            stream,
+                            indent=2,
+                        )
+                        stream.write("\n")
+                    review_arguments = ("--resolutions", str(review))
                 arguments = (
-                    ("update", str(project / "litai/components"), "--apply")
+                    (
+                        "update",
+                        str(project / "litai/components"),
+                        "--apply",
+                        *review_arguments,
+                    )
                     if operation == "update"
                     else ("reparent", "none", "--project", str(project), "--apply")
                 )
@@ -246,6 +300,7 @@ class InstalledFrameworkMaintenanceJourney(unittest.TestCase):
                     self.assertFalse(result["changed"])
                 else:
                     self.assertFalse(result["source_moved"])
+                    self.assertEqual(file_state(project / queue)[0], preserved_queue)
                 self.assertEqual(snapshot(implementation), original_source)
                 self.assertEqual(file_state(project / ".git/index")[0], index)
                 self.assertEqual(file_state(journal / "intent.json")[0], intent)

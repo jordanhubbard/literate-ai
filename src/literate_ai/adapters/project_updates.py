@@ -291,7 +291,7 @@ _LEGACY_HARNESS_INVENTORY_PATH = ".literate/harness-inventory.json"
 
 
 def _retained_legacy_shim_authority_paths(
-    root: Path, observation=None, *, preserve_evidence: bool = False
+    root: Path, observation=None, *, preserve_evidence: bool = False, project=None
 ) -> frozenset[str]:
     """Keep conversion-shim authority while retained legacy state still cites it.
 
@@ -320,6 +320,7 @@ def _retained_legacy_shim_authority_paths(
         .relative_to(root)
         .as_posix(),
     )
+    explicit_wrapper = False
     wrapper_component = LEGACY_WRAPPER_COMPONENT
     implementation = f"{LEGACY_WRAPPER_COMPONENT}/implementation"
     if lift_shift_path.is_file():
@@ -338,6 +339,7 @@ def _retained_legacy_shim_authority_paths(
             )
             if not isinstance(lift_shift, dict):
                 raise ValueError("lift-and-shift evidence must be an object")
+            explicit_wrapper = "wrapper_component" in lift_shift
             layout = resolve_structural_layout(
                 root, lift_shift, _observation=observation
             )
@@ -363,14 +365,58 @@ def _retained_legacy_shim_authority_paths(
                 "retained layout declaration is invalid or lacks "
                 "lift-and-shift evidence",
             ) from exc
-    for relative in (implementation, *_LEGACY_SHIM_DEPENDENT_PATHS):
-        candidate = root.joinpath(*Path(relative).parts)
+    if project is None and context.framework_root != root:
+        project = (
+            discover_project(root) if observation is None else observation.project(root)
+        )
+
+    def catalog_coordinate(relative):
+        if context.framework_root == root:
+            return relative
+        kind, suffix = relative.split("/", 1)
+        roots = getattr(
+            project.definition,
+            {
+                "components": "component_roots",
+                "flavors": "flavor_roots",
+                "workflows": "workflow_roots",
+                "routing": "routing_roots",
+                "skills": "skill_roots",
+            }[kind],
+        )
+        candidates = [
+            f"{catalog}/{suffix}"
+            for catalog in roots
+            if _project_path(root, f"{catalog}/{suffix}").is_file()
+        ]
+        if len(candidates) > 1:
+            raise ProjectUpdateError(
+                "project.update_retained_layout_invalid",
+                "retained shim authority is ambiguous in declared catalogs",
+            )
+        return candidates[0] if candidates else None
+
+    dependents = tuple(
+        catalog_coordinate(path) for path in _LEGACY_SHIM_DEPENDENT_PATHS
+    )
+    for relative in (implementation, *dependents):
+        if relative is None:
+            return frozenset()
+        candidate = _project_path(root, relative)
         if candidate.is_symlink() or not candidate.exists():
             return frozenset()
+    if context.framework_root != root and not explicit_wrapper:
+        # Mixed catalogs may retain application source beneath components/ while
+        # the producer has placed only the wrapper authority beneath litai/.
+        # Select its unique current declared manifest; never rebase source.
+        manifest = catalog_coordinate(f"{LEGACY_WRAPPER_COMPONENT}/component.md")
+        if manifest is None:
+            return frozenset()
+        wrapper_component = manifest.rsplit("/", 1)[0]
     authority_paths = {
         f"{wrapper_component}/component.md",
-        *_LEGACY_SHIM_FLAVOR_PATHS,
-    }
+        *(catalog_coordinate(path) for path in _LEGACY_SHIM_FLAVOR_PATHS),
+    } - {None}
     if preserve_evidence:
         wrapper = root / wrapper_component
         authority_paths.update(
@@ -770,7 +816,10 @@ class FilesystemProjectUpdateAdapter:
                 | frozenset(bases.scopes["catalog"])
                 | _project_owned_generation_input_paths(project, imported, observation)
                 | _retained_legacy_shim_authority_paths(
-                    root, observation, preserve_evidence=project.framework_root != root
+                    root,
+                    observation,
+                    preserve_evidence=project.framework_root != root,
+                    project=project,
                 )
                 | self._protected_paths
                 | frozenset(self._catalog_overrides)

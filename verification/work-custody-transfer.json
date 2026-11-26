@@ -34,8 +34,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 21,
-      "preserved-for-reconciliation": 69
+      "merged": 23,
+      "preserved-for-reconciliation": 67
     },
     "snapshots": [
       {
@@ -252,9 +252,9 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "1ce51c9336a5401b0eaf8249b10bbbcaadd50a48",
         "branch": "recovery/puck-20261126/cudapos1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 3,
-        "remaining_paths": 2
+        "remaining_paths": 0
       },
       {
         "label": "cwf14",
@@ -280,9 +280,9 @@
         "base": "1852d7c86e1a4796f20bcd054f963f21a533900a",
         "commit": "99f4801a09757282188eee993f8675a83917e1ae",
         "branch": "recovery/puck-20261126/d5657",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 5,
-        "remaining_paths": 5
+        "remaining_paths": 0
       },
       {
         "label": "execview1",
@@ -875,12 +875,16 @@
         "ar14",
         "sc14",
         "wi14",
-        "sdpil1"
+        "sdpil1",
+        "d5657",
+        "cudapos1"
       ],
       "roadmap_delta_test_methods_identical": 4,
       "roadmap_delta_added_prose_lines_retained": 17,
       "hosted_pilot_prose_bytes_retained": 2465,
-      "original_goals_retained_in_release": "1.4.0"
+      "original_goals_retained_in_release": "1.4.0",
+      "d5657": "Both proposed ADR blobs are identical to archived d56 drafts; accepted decisions and later metadata retained; merge tree unchanged.",
+      "cudapos1": "Normal source/test merge is unchanged; all old positive-signal prose remains, later reviewed-source next action retained; merge tree unchanged."
     }
   },
   "checks": {
@@ -998,7 +1002,34 @@
       "namespace_seconds": 9.733,
       "owner_guard_methods_passed": 4,
       "owner_guard_seconds": 0.446,
-      "scope": "Source controls for integrated PR493 namespace validation and selected queue replacement guard; installed continuation remains pending."
+      "scope": "Source controls for integrated PR493 namespace validation and selected queue replacement guard; installed continuation remains pending.",
+      "composed_dependency_methods_passed": 23,
+      "composed_dependency_seconds": 7.264
+    },
+    "installed_maintenance_owner_resume": {
+      "status": "failed",
+      "subject": "080333899c8927556a53bde00999574977ae9dd4",
+      "distribution": "sha256:8b9bade331f84ff20c176c8bced03191988bab565685568e3d782e4c20b1858d",
+      "cases": 1,
+      "seconds": 31.879,
+      "commands": 5,
+      "original_fixture_reconstructed": false,
+      "queue_review": "Exact typed conflict inputs, keep-local rationale preserving active ADOPT-002 owner",
+      "error": "Component lock Flavor selection cannot resolve into the effective catalog",
+      "preservation": {
+        "original_receipt": true,
+        "source": true,
+        "git_index": true,
+        "git_head": true,
+        "migration_intent": true
+      },
+      "scope": "References and queue resolution advance to validator; root-only retained shim protection exposed. No installed update/reparent success."
+    },
+    "retained_shim_declared_catalogs": {
+      "status": "passed",
+      "methods": 7,
+      "seconds": 17.752,
+      "scope": "Source controls for historical, contained and mixed catalogs, selected wrapper/source custody, missing dependents, invalid source layout and ambiguous duplicate authority. Installed continuation required."
     }
   },
   "remaining_requirements": [
