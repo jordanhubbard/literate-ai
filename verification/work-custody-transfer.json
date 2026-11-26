@@ -34,8 +34,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 4,
-      "preserved-for-reconciliation": 86
+      "merged": 17,
+      "preserved-for-reconciliation": 73
     },
     "snapshots": [
       {
@@ -43,9 +43,9 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "d26cdf2109c9978b04f8c07023c1adc85c9e4a6c",
         "branch": "recovery/puck-20261126/acceptwrap1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 8,
-        "remaining_paths": 2
+        "remaining_paths": 0
       },
       {
         "label": "actionsel1",
@@ -178,9 +178,9 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "6562a0bfc1e8d4b6686b6044bb5cc791d5ec1365",
         "branch": "recovery/puck-20261126/caseinv1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 4,
-        "remaining_paths": 1
+        "remaining_paths": 0
       },
       {
         "label": "catcust1",
@@ -223,27 +223,28 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "1f3679fe8573c31c3bc3801582eeeef9213a46c1",
         "branch": "recovery/puck-20261126/ciworkflow1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 3,
-        "remaining_paths": 3
+        "remaining_paths": 0
       },
       {
         "label": "corigin1",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "c3fa11b6244c917149393be7ac59fa5aae128207",
         "branch": "recovery/puck-20261126/corigin1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 4,
-        "remaining_paths": 1
+        "remaining_paths": 0
       },
       {
         "label": "cq14",
         "base": "0ddbc6cae1a2b8d5446d4fd08b6dadb68269a9f0",
         "commit": "a3b9e4c3bd32dcef196dffbfc10195610927015e",
         "branch": "recovery/puck-20261126/cq14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 1,
-        "remaining_paths": 1
+        "remaining_paths": 0,
+        "resolution": "Current source effects already present; generated crash output retained as an artifact and in original recovery history."
       },
       {
         "label": "cudapos1",
@@ -259,18 +260,19 @@
         "base": "ff08e9ba20e62e87a1a538551f21332a68b61997",
         "commit": "29891edd5db602bbc1520ff129f863c33f0f6f90",
         "branch": "recovery/puck-20261126/cwf14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 2,
-        "remaining_paths": 1
+        "remaining_paths": 0
       },
       {
         "label": "d56",
         "base": "1b676760ac1442a946383c999a709c451ea3bad0",
         "commit": "785b09f7d4e99aa411570e3d9c041e36e19e1205",
         "branch": "recovery/puck-20261126/d56",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 2,
-        "remaining_paths": 2
+        "remaining_paths": 0,
+        "resolution": "Original proposals remain reachable through the recovered-proposals historical index; current accepted decisions and pending acceptance boundaries are preserved."
       },
       {
         "label": "d5657",
@@ -304,9 +306,9 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "8c16b82497f9cd9f46e8a2439c6f14029d391f72",
         "branch": "recovery/puck-20261126/fexpiry1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 5,
-        "remaining_paths": 2
+        "remaining_paths": 0
       },
       {
         "label": "fp14",
@@ -709,9 +711,10 @@
         "base": "dcd33ba4a31518c4508ef352770072d1869f9976",
         "commit": "4dadd1f7821a549e1f91ebd5b65e9f2b429ab561",
         "branch": "recovery/puck-20261126/sh14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 3,
-        "remaining_paths": 3
+        "remaining_paths": 0,
+        "resolution": "Original proposals remain reachable through the recovered-proposals historical index; current accepted decisions and pending acceptance boundaries are preserved."
       },
       {
         "label": "shadow14",
@@ -727,9 +730,10 @@
         "base": "dcd33ba4a31518c4508ef352770072d1869f9976",
         "commit": "ded4a20f8c32aaa4431bc7cdfe2c6cd8b0988057",
         "branch": "recovery/puck-20261126/si14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 1,
-        "remaining_paths": 1
+        "remaining_paths": 0,
+        "resolution": "Original proposals remain reachable through the recovered-proposals historical index; current accepted decisions and pending acceptance boundaries are preserved."
       },
       {
         "label": "tm14",
@@ -781,9 +785,9 @@
         "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
         "commit": "0b5d6ae8f0d4eadb70a3b209ec2c1191aa6c4437",
         "branch": "recovery/puck-20261126/wheelinv1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 1,
-        "remaining_paths": 1
+        "remaining_paths": 0
       },
       {
         "label": "wheelinv2",
@@ -817,9 +821,9 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "9210d9b0a2e601c33d9e045db2245ff71ed3eb78",
         "branch": "recovery/puck-20261126/workscope1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 5,
-        "remaining_paths": 2
+        "remaining_paths": 0
       },
       {
         "label": "wse14",
@@ -844,11 +848,12 @@
         "base": "731c755bc274cf7b57a9d8a90ed6076541108251",
         "commit": "72bef38e38d726a7626bae77d96b6455e2f5b211",
         "branch": "recovery/puck-20261126/ww14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 1,
-        "remaining_paths": 1
+        "remaining_paths": 0
       }
-    ]
+    ],
+    "historical_proposals": "docs/history/decisions/recovered-proposals.md"
   },
   "checks": {
     "source": {
@@ -881,10 +886,18 @@
       "elapsed_seconds": 125.053,
       "log_sha256": "f39353073f5f49f95cb7985ada8d4d0c6e913edae66bf576656cbeabd856ae64",
       "scope": "Shared wrapper source regression only; original metadata-transition fixture explicitly requests historical layout, preserving all drift/refusal assertions. Native-root, installed final-candidate and release qualification remain separate."
+    },
+    "roadmap_source": {
+      "pattern": "tests/critical/test_roadmap_dependencies.py",
+      "cases": 23,
+      "failures": 0,
+      "elapsed_seconds": 1.215,
+      "log_sha256": "47fd4f7483d79a2257ba35d0e104dbeddfa4b12e03187f38b143e91343d64fa8",
+      "scope": "Original roadmap cycle/refusal/byte-preservation controls, selecting the declared canonical queue; rollback checks assert both legacy and contained output absence."
     }
   },
   "remaining_requirements": [
-    "Reconcile the 86 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
+    "Reconcile the 73 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
     "Prioritize PROJECT-LAYOUT-001 actual installed update/reparent application and changed-parent cases.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
   ],

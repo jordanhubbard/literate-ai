@@ -383,6 +383,8 @@ class RoadmapDependencyTests(unittest.TestCase):
             self.assertEqual(sentinel.read_bytes(), b"Existing user content\n")
             self.assertFalse((root / "literate.project.json").exists())
             self.assertFalse((root / "docs/roadmap/active-work.md").exists())
+            self.assertFalse((root / "litai/literate.project.json").exists())
+            self.assertFalse((root / "litai/docs/roadmap/active-work.md").exists())
 
     def test_project_authority_validation_rejects_manually_edited_cycle(self):
         from literate_ai.adapters.project_validation import (
@@ -398,7 +400,9 @@ class RoadmapDependencyTests(unittest.TestCase):
             RootParentProjectInitializationAdapter(
                 standard_binding_provider=lambda: None,
             ).initialize(root, empty=True, source_intelligence_provider="none")
-            queue = root / "docs/roadmap/active-work.md"
+            queue = ProjectConfigurationStore.context(root).framework_path(
+                "docs/roadmap/active-work.md"
+            )
             queue.write_text(item("AAA-001", "AAA-001"), encoding="utf-8")
             before = queue.read_bytes()
             with self.assertRaises(ProjectValidationError) as caught:
