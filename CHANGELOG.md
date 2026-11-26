@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Framework runtime: ship the original live-run context provider required by bounded subprocess adapters. Add an isolated installed-wheel layout journey that checks exact distribution origin and public CLI discovery; repaired-wheel qualification remains pending.
+
 - Framework layout: installed-project smoke checks now follow contained manifests, catalogs, Component selectors and release staging, while preserving application files and root agent delegates and using each project’s cache defaults. Source regressions pass; installed-wheel and platform qualification remain pending.
 
 Retain contained external-driver diagnostics through original project and file custody, preserve private or substituted state and original failures, and resolve rebuild fixture authority through canonical project context.
