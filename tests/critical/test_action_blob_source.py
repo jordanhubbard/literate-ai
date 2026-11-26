@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import threading
 import unittest
 from contextlib import contextmanager
@@ -105,6 +106,50 @@ class ActionBlobSourceTests(unittest.TestCase):
                 ).fetch(self.reference)
             self.assertEqual(raised.exception.code, "action_source.redirect_refused")
             self.assertEqual(len(requests), 1)
+
+    def test_streamed_archive_checks_budget_short_writes_and_mid_copy_cancellation(
+        self,
+    ):
+        content = b"retained archive bytes\x00" * 6000
+        reference = BlobRef(record_identity(content).digest, len(content))
+
+        class ShortSink(io.BytesIO):
+            def write(self, block):
+                return super().write(block[:1013])
+
+        with source_cas_server({blob_path(reference): content}) as (url, requests):
+            source = HttpActionBlobSource(url, self.deadline, allow_http=True)
+            output = ShortSink()
+            with self.assertRaises(ActionWireError):
+                source.copy_to(
+                    reference,
+                    output,
+                    maximum_bytes=reference.size - 1,
+                    admission_guard=lambda: None,
+                )
+            self.assertEqual(requests, [])
+            self.assertEqual(output.getvalue(), b"")
+            self.assertEqual(
+                source.copy_to(
+                    reference,
+                    output,
+                    maximum_bytes=reference.size,
+                    admission_guard=lambda: None,
+                ),
+                reference.size,
+            )
+            self.assertEqual(output.getvalue(), content)
+            cancelled_output = ShortSink()
+            with self.assertRaises(ActionWireError) as raised:
+                source.copy_to(
+                    reference,
+                    cancelled_output,
+                    maximum_bytes=reference.size,
+                    admission_guard=lambda: None,
+                    cancelled=lambda: cancelled_output.tell() > 0,
+                )
+            self.assertEqual(raised.exception.code, "action_source.cancelled")
+            self.assertEqual(cancelled_output.tell(), 1013)
 
     def test_plaintext_and_embedded_credentials_require_safe_configuration(self):
         for url in (

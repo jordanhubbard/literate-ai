@@ -168,12 +168,22 @@ class RetainedProjectExecutionWorkspace:
         native_sdk_authorize=None,
         native_sdk_record=None,
         allocation_owner: RetainedAllocationOwner | None = None,
+        receiver_context=None,
     ) -> None:
         if allow_host_execution is not True:
             raise RetainedProjectExecutionError(
                 "retained.execution.authorization-required"
             )
         plan.require_authorization(authorization)
+        if receiver_context is not None:
+            from literate_ai.adapters.retained_receiver_context import (
+                RetainedReceiverContext,
+            )
+
+            if not isinstance(receiver_context, RetainedReceiverContext):
+                raise TypeError("retained.receiver.live-measured-context-required")
+            receiver_context.require_plan(plan)
+        self._receiver_context = receiver_context
         if plan.profile.secondary_access is not None and not isinstance(
             allocation_owner, RetainedAllocationOwner
         ):
@@ -426,6 +436,8 @@ class RetainedProjectExecutionWorkspace:
         return result
 
     def _require_current_plan(self) -> None:
+        if self._receiver_context is not None:
+            self._receiver_context.require_plan(self.plan)
         current = self.current_plan()
         if not isinstance(current, RetainedProjectPlan) or current != self.plan:
             raise RetainedProjectExecutionError("retained.execution.plan-changed")
