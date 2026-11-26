@@ -17,6 +17,14 @@ from pathlib import Path
 from literate_ai._filesystem import path_is_link_or_reparse, require_safe_directory
 from literate_ai.adapters.builders._process import run_bounded_process
 from literate_ai.adapters.builders.python import BuildError
+from literate_ai.adapters.lifecycle_lock import (
+    project_lifecycle_lock,
+    project_lifecycle_lock_path,
+)
+from literate_ai.adapters.native_profile_git import (
+    NativeProfileGitBoundaryError,
+    require_native_profile_git_boundary,
+)
 from literate_ai.adapters.native_project_bootstrap import PROFILE, native_template_files
 from literate_ai.contracts import (
     ContentIdentity,
@@ -190,6 +198,13 @@ def _directories(root, selected, git_directory):
     return {str(path): _directory_node(path) for path in sorted(directories)}
 
 
+def _require_git_boundary(root, paths):
+    try:
+        require_native_profile_git_boundary(root, paths)
+    except NativeProfileGitBoundaryError as exc:
+        raise NativeProjectRemovalError("nested_git_boundary", str(exc)) from exc
+
+
 def _worktree(root, relative):
     path = root / relative
     require_safe_directory(path.parent, allow_missing=True)
@@ -330,6 +345,7 @@ class PreparedNativeRemoval:
     document: dict
     entries: dict
     index: dict
+    write_paths: tuple[str | Path, ...]
 
 
 def prepare_native_project_removal(
@@ -460,13 +476,18 @@ def prepare_native_project_removal(
             "transform_unsupported",
             "Selected Git content transforms are not qualified for removal",
         )
+    directories = _directories(root, selected, git_directory)
+    write_paths: tuple[str | Path, ...] = tuple(selected)
+    if states[MANIFEST]["worktree"] is not None:
+        write_paths += (project_lifecycle_lock_path(root),)
+    _require_git_boundary(root, write_paths)
     value = {
         "schema": SCHEMA,
         "root": str(root),
         "source_commit": revision,
         "current_head": head,
         "index_identity": canonical_identity(index).uri,
-        "directory_bindings": _directories(root, selected, git_directory),
+        "directory_bindings": directories,
         "git_directory": str(git_directory),
         "root_node": {
             key: value
@@ -491,7 +512,7 @@ def prepare_native_project_removal(
         "writes": False,
     }
     value["plan_identity"] = canonical_identity(value).uri
-    return PreparedNativeRemoval(value, selected, index)
+    return PreparedNativeRemoval(value, selected, index, write_paths)
 
 
 def plan_native_project_removal(
@@ -550,6 +571,7 @@ def _require_remaining(root, prepared, remaining):
                 "cleanup_pending",
                 "Git removal is incomplete; use the recorded recovery source and paths",
             )
+    _require_git_boundary(root, prepared.write_paths)
 
 
 def _remove_group(root, prepared, paths):
@@ -567,6 +589,7 @@ def _remove_group(root, prepared, paths):
         if mode == "--index":
             # Refresh copied/touched files' stat cache without staging bytes.
             before_refresh = _index(root)
+            _require_git_boundary(root, prepared.write_paths)
             _git(root, "add", "--refresh", "--", *selected)
             if _index(root) != before_refresh:
                 _fail("concurrent_index", "Index content changed during stat refresh")
@@ -597,6 +620,7 @@ def _remove_group(root, prepared, paths):
             _fail("patch_unavailable", "Exact native deletion patch is unavailable")
         # Both modes verify the exact indexed before-image under Git's lock.
         # Never restore an index entry or follow a newer HEAD with git rm.
+        _require_git_boundary(root, prepared.write_paths)
         _git(
             root,
             "apply",
@@ -629,9 +653,10 @@ def apply_native_project_removal(
     prepared = prepare_native_project_removal(root, source=source, only=only)
     if prepared.document["plan_identity"] != expected:
         _fail("plan_changed", "Native removal plan changed after review")
-    from contextlib import nullcontext
+    from contextlib import ExitStack
 
-    from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
+    def require_lock_path(path):
+        _require_git_boundary(root, (path,))
 
     with ProjectConfigurationStore.layout_lock(root):
         current = prepare_native_project_removal(root, source=source, only=only)
@@ -640,15 +665,18 @@ def apply_native_project_removal(
         # Missing-manifest recovery cannot rediscover an ancestor project or
         # create root lifecycle files. Its Git layout lock still owns publication.
         live = prepared.document["selected"][MANIFEST]["worktree"] is not None
-        lifecycle = (
-            project_lifecycle_lock(root, operation="native-remove")
-            if live
-            else nullcontext()
-        )
-        manifest_lock = (
-            ProjectConfigurationStore(root)._lock(root) if live else nullcontext()
-        )
-        with lifecycle, manifest_lock:
+        with ExitStack() as locks:
+            if live:
+                locks.enter_context(
+                    project_lifecycle_lock(
+                        root, operation="native-remove", require_path=require_lock_path
+                    )
+                )
+                locks.enter_context(
+                    ProjectConfigurationStore(root)._lock(
+                        root, require_path=require_lock_path
+                    )
+                )
             supporting = sorted(set(prepared.entries) - {MANIFEST})
             _require_remaining(root, prepared, set(prepared.entries))
             phase = "supporting-files"

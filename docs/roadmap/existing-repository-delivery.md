@@ -8,6 +8,153 @@
 user's implementation delegation and the target architecture. The baseline review
 is tied to `f34debb73b62f9fff59a138f86b3640d7be65183`, not to unfinished worktrees.
 
+## Stronger-model system review and implementation handoff
+
+Review date: 18 November 2026.
+
+The directing user requested a GPT-6.2-Astra review augmentation before a smaller,
+faster model implements its actionable conclusions. The [system assessment](../architecture/existing-repository-review.html)
+challenges the earlier findings against current source and retained executions;
+[the evidence index](../../verification/system-review-augmentation.json) records
+scope, measurements and limitations. This is a review/roadmap checkpoint, not a
+new source, installed-wheel, platform or release qualification.
+
+**Current execution instruction.** Qualify the reviewed corrections on one fresh
+source tree. The run for `cc5f8f30a4a6062a9d1a0a1c3872485019ef230c` selected
+3,228 cases and was interrupted after 13 minutes 16 seconds, with 362 passes
+and 29 skips recorded. A separate worker-management test exposed an omitted
+schema catalog entry on the same tree. The existing `version check --no-project`
+reproduced the refusal in 1.49 seconds and passed on the corrected source in
+2.41 seconds. Run that check before the full suite. Retain the interrupted
+result and start with a fresh checkpoint. For [issue 484](https://github.com/jordanhubbard/literate-ai/issues/484),
+34 focused tests passed after independent review found and the author fixed
+two failures in lock cleanup and checkpoint rollback. For
+[issue 485](https://github.com/jordanhubbard/literate-ai/issues/485), the
+corrected launcher exercised the intended code from both editable interpreters,
+including from a consumer with a conflicting package name. The reviewed
+artifact check binds one staged file to the producer’s actual test job.
+Installed qualification, hosted results and publication custody remain separate.
+
+Under work package F, retain an
+observed expired lease generation across clock rollback and later uncertain
+responses, then require the provider’s exact acknowledgement for cleanup. The
+stub-control suite passed all 44 worker cases. Older readers reject the new
+journal state, so recovery of a journal containing it requires a capable reader.
+Under CUDA-SIGNAL-001, bring forward the five missing toolkit, runtime-type
+and driver-call detections from [PR 410](https://github.com/jordanhubbard/literate-ai/pull/410)
+while retaining the current parser’s multiline attribution exclusions. These
+are source-inventory checks. They establish no execution on a GPU.
+
+Under work package G and RELEASE-CLOSURE-001, make the work writer and release
+sweep use the same visible goal sections and complete identifiers. In real Git
+fixtures the sweep accepted a checked example inside a fence or comment while
+the visible goal remained open. Public close could change a prefix-sharing goal
+or miss unchecked acceptance under a prose subheading. Recheck normal closure,
+the three refusals, duplicate visible identifiers and the complete 1.4 manifest.
+A read-only audit of the actual queue found identical dispositions with examples
+filtered, and close refused all 46 open goals. [Issue 486](https://github.com/jordanhubbard/literate-ai/issues/486)
+
+Under PROJECT-LAYOUT-001, verify that public work closure updates the declared
+framework queue when a host backlog contains the same ID. Preserve the host
+backlog byte for byte and refuse redirected or missing destinations.
+[Issue 487](https://github.com/jordanhubbard/literate-ai/issues/487)
+
+Under RELEASE-CANCEL-001, exercise the actual nested gate launcher. On macOS,
+interrupting a direct step reaped its finite child. Interrupting the same step
+under a bounded supervisor left the child alive under PID 1. A source-gate
+interruption also left the checkpoint runner and two workers alive until
+explicit cleanup. Verify cancellation through the outer entry point, exit
+status, terminal evidence and absence of owned descendants before retry.
+
+### Consolidated release work packages
+
+These refine existing 1.4 owners; they introduce no parallel goal manifest and
+retire none of the 81 existing release obligations. SDLC-001 owns this acceptance
+where an associated historical owner has another release target. Do not reopen
+completed SKILL-DISCOVERY-001 merely to track the remaining activation work.
+
+| Order / owner | Action and boundary | Acceptance before closure |
+| --- | --- | --- |
+| A — PROJECT-LAYOUT-001 / SDLC-001 | Close CP-4 and record the finite authority scopes for layout observation: application and distinct framework Git HEAD/index, current manifest, directory topology, producer provenance and unknown members. Apply the same scope/boundary review to existing update/removal writers before extending them. Use current owners rather than a universal snapshot service. | Real enclosing/nested/linked Git fixtures change one authority at a time; staged-only and during-observation drift refuse or change identity as appropriate. Preserve no-write behavior, native source, custom files, root modes and collisions. Renew independent source review and final composed qualification. |
+| B — CARGO-CUSTODY-PERF-001 / TEST-CACHE-001 | Separate pure identity projection from implicit recursive observation within the existing live Cargo owner. First test the chain `current_identity -> scope.identity -> scratch.context.identity -> require_unchanged`; retain the validating public accessor. Reuse captured immutable fields only inside the already bracketed operation, never a saved currentness verdict. | Paired runs show identical identities/refusals and count the exact observations removed. Preserve pre/post process, mutable callback, permission/revocation, lifetime, membership, namespace and tool checks. Report currentness and complete admission time separately; no optimization is accepted without a measured gain. |
+| C — TEST-CACHE-001 / TEST-PARALLEL-001 / SDLC-001 | Freeze the authored batch after independent boundary/counterexample review, run cheap guards, then the required complete source gate and one exact wheel. Share those wheel bytes across equivalent installed cells. Keep source qualification per CONTRIBUTING; whole-wheel qualification is a separate requirement, not universally a per-commit rule. | A candidate ledger names source/tree, selected inputs, test inventory, environment, wheel, superseding changes and invalidated cells. No failed/interrupted run becomes passing. Compare total lead time, summed runner envelopes, duplicate jobs and unknown time; scheduling, fixtures and custody costs remain separately measured. |
+| D — ORIGINAL-ADOPT-001 / ADOPT-CLI-001 / SDLC-001 | Prove the first useful governed native PR independently of legacy canonical-layout migration. Native adoption already leaves source and CI in place; do not serialize its value pilot behind the harder legacy migration writer. Exercise explicit skill loading first, then a host-required minimal discovery delegate only if needed. | Installed public onboarding, native defect/fix, base-policy CI observation, required-check failure/retry, upgrade and removal preserve the host's existing commands and exact external-file allowlist. Show which layer prevents merge/release and which only advises. Automatic activation needs actual host evidence; simulated transport and supplied guidance do not qualify it. |
+| E — RELEASE-CLOSURE-001 / existing release-artifact owners | Close the distinction between required CI cells and promoted binary custody. Strict coverage currently refuses publication, and its proof explicitly says `tested_artifacts: false`; do not enable it as if delivery were complete or weaken the refusal. Extend the existing artifact/release owner before claiming end-to-end promotion. | A controlled release target accepts the exact tested artifact and rejects substitution, changed source/environment/policy, stale attempts and interrupted export. Record tag/publication/readback and recovery responsibilities separately. Live publication remains separately authorized. Preserve legacy-policy compatibility explicitly; no silent fallback from strict coverage. |
+| F — COMMAND-WORKER-001 / WORKER-001 / RELEASE-CANCEL-001 | Keep static execution and managed lease allocation as backends of the existing dispatch contract. Make physical lease expiry a provider responsibility that survives controller death; retain logical drain/cancel, custody import and exact cleanup acknowledgement. Add a finite operator recovery path for every uncertain state. | Faults at allocate/reply, SSH start, result/import, import/ack and terminal release converge to a verified resource state or explicit bounded escalation without duplicate allocation or rerun. Stub expiry proves protocol only; actual provider TTL/termination remains unqualified until separately authorized and observed. |
+| G — SDLC-001 / RELEASE-INTEGRATION-005, coordinating AUD-STATE-001 | Produce one concise current execution projection from the existing queue/manifest; archive obsolete narrative while retaining IDs, links and unchecked acceptance. Reconcile stacked reviews by exact ancestry and unique diffs rather than treating every open PR as another implementation. | All 81 obligations retain their target/status/acceptance; the projection names one next action and blockers per active owner and refuses stale/duplicate IDs. Compare retained acceptance before/after archival. The 21 open heads already contained in this review base require disposition, not blind replay; non-ancestor heads still require semantic comparison. |
+| H — SDLC-001, coordinating existing capability/collateral owners | Keep native delivery's default path independent of generation, inverse conversion, SDK/media and dynamic allocation setup. Qualify optional capabilities through their existing profiles; publish evidence by source/artifact, language, OS, architecture and accelerator. Retain current-release obligations. | An unchanged native fixture completes its governed path without generation/media/provider setup or duplicate native execution. Optional imports may be deferred only with measured reliability/startup benefit and installed origin checks; the observed 0.39–0.47s import is not a release bottleneck. Actual activation and unsupported platform cells remain explicit. |
+
+A is the prerequisite for the current layout batch. B can be developed and measured
+independently; C consumes all reviewed changes before expensive qualification.
+D's fresh-native value pilot can run alongside the separate legacy migration and
+changed-version upgrade work. E and F preserve their existing custody dependencies.
+G is planning hygiene, not a new release-readiness authority. H changes defaults
+and evidence presentation, not the approved release scope. New implementation is
+left to the smaller-model handoff requested by the user.
+
+**Source-test origin in package C.** [Issue 485](https://github.com/jordanhubbard/literate-ai/issues/485) documents the reproducer. Reusing an editable interpreter from another
+worktree changed the result of the same public removal plan in a real Git fixture.
+The test parent imported the intended owner. A child CLI launched from the
+consumer imported the other worktree and exhibited its protection. Bind the
+child origin in the existing source-test invocation, or refuse the mismatch
+before recording a pass. Exercise a correct interpreter, a deliberately foreign
+editable interpreter and an installed wheel from outside the checkout. Preserve
+the installed path’s isolated imports and its separate qualification. This is a
+source-receipt integrity requirement under TEST-CACHE-001 and SDLC-001.
+
+**Native value pilot in package D.** A local installed journey exercised the
+host’s native test and public adoption, CI observation, revision update and
+removal. It took 22.673 seconds and added 15 framework files under `litai/`,
+with zero external changes from adoption and zero duplicate verifier jobs.
+The native defect and repair were real. GitHub transport and job identities
+were simulated. Keep actual hosted branch enforcement, failed native-job retry,
+automatic activation and a changed-version contained upgrade open.
+
+### Tracker and obsolete-instruction reconciliation
+
+The read-only refresh found 87 open issues and 48 open PRs. Twenty-one PR heads
+are ancestors of review base `8ba81d598`: 475, 471, 470, 465, 464, 463, 457,
+437, 435, 434, 431, 428, 425, 423, 416, 414, 413, 398, 391, 349 and 333.
+This is exact Git ancestry, not permission to merge/close, proof of resulting-main
+checks, or evidence that the other 27 reviews are obsolete. Retain each distinct
+review/evidence requirement in the integration owner; compare non-ancestor diffs
+before assigning a superseded disposition. Do not land every contained ancestor
+again merely to empty the forge queue.
+
+A follow-up compared all 27 remaining heads to the release base. Twenty-five
+trial merges conflicted. The two clean trials, PRs 473 and 474, both change
+the CI workflow. The histories contain 187 distinct commits, including 42
+repeat appearances across branches. PR 467 contains PRs 444 and 445, and
+PR 440 contains PR 401. PR 472’s single distinct commit has its Make and
+test file tree entries already present, its changelog and program section
+retained, and its former next action superseded by the observed early refusal.
+It needs no code replay onto this candidate. Actual forge disposition and
+resulting-main qualification remain with RELEASE-INTEGRATION-005.
+
+The following newer records lacked links across the current roadmap snapshot;
+reuse the named owners rather than creating a second backlog:
+
+| Records | Owner and disposition |
+| --- | --- |
+| [#469](https://github.com/jordanhubbard/literate-ai/issues/469) | SDLC-001 / RELEASE-INTEGRATION-005: inspect migration discovery's foreign-descriptor boundary; preserve native dependency trees. |
+| [#468](https://github.com/jordanhubbard/literate-ai/issues/468) | ORIGINAL-ADOPT-001 / NATIVE-CHILD-UPDATE-001: retain reviewed multi-boundary native revision and parent-integration acceptance. |
+| [#466](https://github.com/jordanhubbard/literate-ai/issues/466), [#461](https://github.com/jordanhubbard/literate-ai/issues/461), [PR 467](https://github.com/jordanhubbard/literate-ai/pull/467) | RETAINED-SDK-PUBLIC-001 / RELEASE-INTEGRATION-005: explicit SDK output custody, real UFS stability and FreeBSD prerequisite evidence. A proposed prerequisite change does not qualify a native cell. |
+| [#462](https://github.com/jordanhubbard/literate-ai/issues/462) | RETAINED-OBSERVATION-PERF-001 / SDLC-001: bound allocation by actual input size under existing byte ceilings; measure memory separately from wall time. |
+| [#455](https://github.com/jordanhubbard/literate-ai/issues/455), [#454](https://github.com/jordanhubbard/literate-ai/issues/454) | PACKAGE-001: preserve declared Python floor and actual importable package surface in installed artifacts. |
+| [#452](https://github.com/jordanhubbard/literate-ai/issues/452), [PR 453](https://github.com/jordanhubbard/literate-ai/pull/453) | NPM-PACKAGE-001 / NATIVE-SDK-001: ADR 0073 remains a proposal until reviewed; retain SDK composition request without inferring implementation. |
+| [PR 474](https://github.com/jordanhubbard/literate-ai/pull/474), [PR 473](https://github.com/jordanhubbard/literate-ai/pull/473) | RELEASE-INTEGRATION-005: review dependency-action updates and affected native cells; dependency automation is not acceptance. |
+| [PR 472](https://github.com/jordanhubbard/literate-ai/pull/472), [PR 471](https://github.com/jordanhubbard/literate-ai/pull/471), [PR 470](https://github.com/jordanhubbard/literate-ai/pull/470) | SDLC-001: compare to the contained PR 475 composition; preserve unique early-refusal and dependency-audit behavior. PR 472 is not an ancestor by head identity, so equivalence requires a diff. |
+| [PR 464](https://github.com/jordanhubbard/literate-ai/pull/464), [PR 463](https://github.com/jordanhubbard/literate-ai/pull/463), [PR 460](https://github.com/jordanhubbard/literate-ai/pull/460) | RELEASE-CLOSURE-001 / SDLC-001: keep exact-attempt CI and coverage requirements; the strict-promotion refusal remains open acceptance. |
+| [PR 459](https://github.com/jordanhubbard/literate-ai/pull/459), [PR 458](https://github.com/jordanhubbard/literate-ai/pull/458), [PR 457](https://github.com/jordanhubbard/literate-ai/pull/457), [PR 398](https://github.com/jordanhubbard/literate-ai/pull/398) | RELEASE-INTEGRATION-005 / SDLC-001: preserve portable native refusals, fixture bytes, custody and CUDA signal corrections; compare unique changes against the composed candidate. |
+
+Supersede the instruction that the skill behavior comparison is still pending:
+45 adjudicated supplied-guidance attempts are complete; automatic activation and
+larger-task replication remain open. Supersede the instruction to repair the old
+OpenSpec advisory as if it were still the current failure: upstream withdrew that
+advisory; exact B CI run `44381132281` passes. Keep both dependency audits and the
+separate unresolved GitGuardian disposition. The successful B and C source runs
+do not qualify the later combined candidate or its CP-4 correction.
+
 ## Evidence and outcome
 
 The [complete baseline review](../architecture/existing-repository-review.html)
@@ -36,6 +183,13 @@ runner-hours; the final job ended after 83m06s. The longest job spent 51m46s in
 conformance and 28m11s in installed-wheel verification. Queue/setup did not
 dominate that job. The historical 1.3.1 Windows exception remains an explicit
 coverage waiver, not a Windows pass.
+
+The review report distinguishes its 16 November baseline from later experiments.
+A status reconciliation on 18 November found an obsolete passage in the dated
+17 November update that still called the guidance comparison unfinished. The
+completed 45-attempt comparison is recorded in the report's later evidence
+section; automatic skill activation remains untested. This narrative correction
+changes no acceptance requirement, release goal, disposition or completion state.
 
 ## Consolidated ownership
 
@@ -91,11 +245,19 @@ outside `litai/`, no diff on repeat installation, safe upgrade/removal, every se
 fault detected, at least 50% fewer duplicate native jobs and at least 30% lower
 median release wall time. These are acceptance targets, not measured promises.
 
-For skill comparison use three tasks, current/alternative/no-skill arms, a pinned
-model/tool image, randomized order and at least five independent repetitions per
-cell. Measure activation, task success, unsafe actions, unnecessary steps, tokens,
-elapsed time and manual interventions. The review's instruction comparison is
-not a behavioral benchmark and does not satisfy this acceptance.
+The supplied-guidance behavioral comparison is complete: three tasks, three arms
+and five randomized repetitions per cell, with independent adjudication. Its
+configured model selector was held fixed; provider weights were not pinned.
+Current guidance and no optional skill both achieved 13/15 overall successes.
+Retain the measured evidence in the report. Remaining pilots exercise actual
+host activation and representative larger/platform-specific tasks, preserving
+the current/alternative/no-skill arms, held model/tool configuration, randomized
+order and at least five independent repetitions per cell where feasible. Record
+any provider-weight revision that is unavailable. Continue measuring activation,
+task success, unsafe actions, unnecessary steps, tokens, elapsed time and manual
+interventions. Do not rerun the completed cohort merely because an older progress
+paragraph called it pending; it remains bounded evidence rather than universal
+completion of that measurement contract.
 
 ## Recovery and scope boundaries
 

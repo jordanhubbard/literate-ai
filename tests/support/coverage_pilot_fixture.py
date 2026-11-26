@@ -32,7 +32,9 @@ print(json.dumps(value))
 
 
 class CoveragePilotFixture:
-    def __init__(self, root: Path, base: Path, framework: Path, git):
+    def __init__(
+        self, root: Path, base: Path, framework: Path, git, *, tested_file=None
+    ):
         self.root, self.base, self.framework, self.git = root, base, framework, git
         relative = Path(".github/qualifications/coverage_pilot")
         self.relative = relative
@@ -40,11 +42,31 @@ class CoveragePilotFixture:
         target.mkdir(parents=True, exist_ok=True)
         for name in ("native.py", "export.py", "policy.json"):
             shutil.copyfile(framework / relative / name, target / name)
+        if tested_file is not None:
+            policy_path = target / "policy.json"
+            policy = json.loads(policy_path.read_bytes())
+            policy["schema"] = "literate-ai/release-policy@2"
+            policy["default_branch"] = "main"
+            policy["qualification"]["ci"]["coverage"].update(
+                schema="literate-ai/github-ci-coverage-binding@2",
+                tested_file=tested_file,
+            )
+            content = json.dumps(policy, indent=2) + "\n"
+            policy_path.write_text(content, encoding="utf-8")
+            (root / "literate.release.json").write_text(content, encoding="utf-8")
+            project_path = root / "literate.project.json"
+            project = json.loads(project_path.read_bytes())
+            project["repository_policy"]["release_ci_workflow"] = (
+                "Native coverage pilot"
+            )
+            project_path.write_text(
+                json.dumps(project, indent=2) + "\n", encoding="utf-8"
+            )
+            workflow = Path(".github/workflows/ci-coverage-pilot.yml")
+            (root / workflow).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(framework / workflow, root / workflow)
         git(root, "add", ".")
         git(root, "commit", "-m", "Own native producer fixture")
-        self.head = git(root, "rev-parse", "HEAD")
-        self.tree = git(root, "rev-parse", "HEAD^{tree}")
-        self.branch = git(root, "branch", "--show-current")
         self.provider = base / "pilot-provider.json"
         binary = base / "pilot-bin"
         binary.mkdir()
@@ -59,7 +81,6 @@ class CoveragePilotFixture:
             + os.pathsep
             + os.environ["PATH"],
             PYTHONPATH=str(framework / "src"),
-            PILOT_HEAD=self.head,
             GITHUB_RUN_ID="201",
             GITHUB_RUN_ATTEMPT="2",
             GITHUB_REPOSITORY="jordanhubbard/literate-ai",
@@ -71,6 +92,13 @@ class CoveragePilotFixture:
         self.repo = "jordanhubbard/literate-ai"
         self.prefix = f"repos/{self.repo}"
         self.policy_path = target / "policy.json"
+        self.bind_candidate()
+
+    def bind_candidate(self):
+        self.head = self.git(self.root, "rev-parse", "HEAD")
+        self.tree = self.git(self.root, "rev-parse", "HEAD^{tree}")
+        self.branch = self.git(self.root, "branch", "--show-current")
+        self.environment["PILOT_HEAD"] = self.head
 
     def native(self, action, *, attempt=2, seed=False):
         return subprocess.run(
@@ -221,7 +249,24 @@ class CoveragePilotFixture:
             timeout=30,
         )
 
+    def complete_without_archive(self):
+        self._complete()
+        self.state["api"][
+            self.prefix + "/actions/runs/201/artifacts?per_page=100&page=1"
+        ] = {"total_count": 0, "artifacts": []}
+        self.write_state()
+
+    def _complete(self):
+        self.state["runs"][0].update(status="completed", conclusion="success")
+        self.observation.update(status="completed", conclusion="success")
+        self.jobs[-1].update(
+            status="completed",
+            conclusion="success",
+            completed_at="2026-11-17T00:10:30Z",
+        )
+
     def complete_and_archive(self):
+        self._complete()
         stream = io.BytesIO()
         with zipfile.ZipFile(stream, "w", zipfile.ZIP_DEFLATED) as archive:
             member = zipfile.ZipInfo(
@@ -246,13 +291,6 @@ class CoveragePilotFixture:
                 "head_sha": self.head,
             },
         }
-        self.state["runs"][0].update(status="completed", conclusion="success")
-        self.observation.update(status="completed", conclusion="success")
-        self.jobs[-1].update(
-            status="completed",
-            conclusion="success",
-            completed_at="2026-11-17T00:10:30Z",
-        )
         self.state["api"][
             self.prefix + "/actions/runs/201/artifacts?per_page=100&page=1"
         ] = {"total_count": 1, "artifacts": [artifact]}

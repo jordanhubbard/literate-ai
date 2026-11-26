@@ -12,7 +12,7 @@ import sys
 import tempfile
 import threading
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import deepcopy
@@ -20,7 +20,11 @@ from dataclasses import dataclass, fields, is_dataclass
 from enum import Enum
 from pathlib import Path
 
-from literate_ai._cache_lock import _is_windows, _windows_identity_matches
+from literate_ai._cache_lock import (
+    _is_windows,
+    _lock_cleanup_allowed,
+    _windows_identity_matches,
+)
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
     path_is_link_or_reparse,
@@ -682,7 +686,13 @@ class ProjectConfigurationStore:
             fcntl.flock(descriptor, fcntl.LOCK_UN)
 
     @contextmanager
-    def _lock(self, root: Path, *, manifest_path: Path | None = None) -> Iterator[None]:
+    def _lock(
+        self,
+        root: Path,
+        *,
+        manifest_path: Path | None = None,
+        require_path: Callable[[Path], None] | None = None,
+    ) -> Iterator[None]:
         path = (
             self.lock_path(root)
             if manifest_path is None
@@ -692,6 +702,8 @@ class ProjectConfigurationStore:
         locked = False
         opened: os.stat_result | None = None
         try:
+            if require_path is not None:
+                require_path(path)
             descriptor, locked, opened = self._open_and_acquire(path)
             yield
         except ProjectError:
@@ -706,8 +718,8 @@ class ProjectConfigurationStore:
                     except OSError:
                         pass
                 os.close(descriptor)
-            if opened is not None:
-                self._remove_idle_lock(path, opened)
+            if opened is not None and _lock_cleanup_allowed(path, require_path):
+                self._remove_idle_lock(path, opened, require_path=require_path)
 
     def _open_and_acquire(self, path: Path) -> tuple[int, bool, os.stat_result]:
         """Open the lock file, take the exclusive lock, and verify identity.
@@ -872,7 +884,13 @@ class ProjectConfigurationStore:
             if retry:
                 time.sleep(_LOCK_RETRY_SECONDS)
 
-    def _remove_idle_lock(self, path: Path, expected: os.stat_result) -> None:
+    def _remove_idle_lock(
+        self,
+        path: Path,
+        expected: os.stat_result,
+        *,
+        require_path: Callable[[Path], None] | None = None,
+    ) -> None:
         """Remove only the same unlocked inode when no waiter has acquired it."""
 
         flags = os.O_RDWR | getattr(os, "O_CLOEXEC", 0)
@@ -924,7 +942,7 @@ class ProjectConfigurationStore:
                 path, observed, descriptor, opened
             ):
                 return
-            if os.name != "nt":
+            if os.name != "nt" and _lock_cleanup_allowed(path, require_path):
                 path.unlink()
         except OSError:
             return
@@ -941,10 +959,14 @@ class ProjectConfigurationStore:
             # we just held (never a symlink) before removing it.
             try:
                 observed = path.lstat()
-                if not stat.S_ISLNK(observed.st_mode) and (
-                    self._same_file(expected, observed)
-                    if not (_is_windows() and expected.st_ino == 0)
-                    else True
+                if (
+                    not stat.S_ISLNK(observed.st_mode)
+                    and (
+                        self._same_file(expected, observed)
+                        if not (_is_windows() and expected.st_ino == 0)
+                        else True
+                    )
+                    and _lock_cleanup_allowed(path, require_path)
                 ):
                     path.unlink()
             except OSError:
