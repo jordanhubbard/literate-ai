@@ -24148,6 +24148,38 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] SHADOW-001 — Continuously qualify upstream branches through a separate shadow repository
 
+- **Current composition (in progress):** Recover the existing implementation from
+  PR #322 at `712b99fdf1227e9ed071543896aca947d0670713` onto the current delivery
+  source, preserving unrelated runtime and portability fixes. Before integration,
+  close the independent source-review findings: read-only Git custody must not
+  execute configured content filters or fsmonitor helpers, and metadata reads
+  must bind a bounded no-follow descriptor with closing identity checks. Apply
+  the current reparse/ancestor safety policy throughout the recovered paths.
+  Require real configured-helper and mutation/refusal controls, exact source
+  review and supported authority renewal. Existing historical CI does not
+  qualify this composition, and the mapped execution, repair/export and upstream
+  outcome acceptance criteria below remain unchecked.
+  Exercise allowed SSH transport with a test-owned upload-pack service instead
+  of rewriting a GitHub URL to a disallowed file transport. Preserve real Git
+  ref/object transfer and every existing assertion. Add a counterexample where
+  untrusted upstream SSH configuration must not override operator authentication
+  during remote inspection; isolate that inspection from upstream Git settings.
+  This local transport control does not qualify an actual forge round trip.
+  Scoped local progress: the bounded metadata reader has seven portable custody
+  controls; the recovered public CLI has 41 smoke passes without skips. Actual
+  Git counterexamples expose upstream-local SSH execution, clean-filter execution
+  during read-only status, and a staged foreign gitlink hidden by diff policy.
+  Remote inspection now uses a neutral bare context; creation and status use raw
+  blob plumbing and an exact mode/stage/path/object index inventory. Creation's
+  filter control first proves ordinary Git add executes the configured helper,
+  then verifies production construction preserves all three raw committed files
+  without invoking it. External manifest parents may be canonicalized while leaf
+  links still refuse. These are scoped repairs only: the sync transition and
+  reset path, final composition onto the latest delivery source, whole-module
+  review, current authority, native installed/forge evidence and the remaining
+  acceptance criteria are still open. No qualification or parent closure follows
+  from these local controls.
+
 - **Priority:** P1
 - **Release target:** 1.4.0
 - **GitHub issue:** [#311](https://github.com/jordanhubbard/literate-ai/issues/311)
