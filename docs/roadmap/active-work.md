@@ -31068,6 +31068,27 @@ complete; final 1.3.1 candidate and broader FreeBSD qualification remain separat
 - **Direction:** Reconcile open GitHub issue #117: repeated full distribution observation dominates installed FreeBSD preparation.
 - **Conclusion:** Investigate operation-scoped reuse and bounded revalidation while preserving exact member identity, live revocation, source and command custody; do not use process-global success caching.
 - **Depends on:** none
+- **Current action:** Derive only the opening hardlink groups and exact stamps from
+  the first complete retained-input inventory's genuine leaf observations. Preserve
+  every stream/root/descriptor check, final inventory and the independent fresh
+  hardlink topology observation strictly after that final inventory. The bounded
+  lexical LRU proposal is rejected: both full native verifications passed, but its
+  ordered baseline/candidate pair measured 54.744/55.861 seconds, showing no speed
+  improvement. The opening-only source passes 28 focused mutation, incomplete-group
+  and descriptor controls. One full native input-verification pair measures baseline
+  56.436 seconds wall / 56.432 CPU and candidate 45.758 wall / 45.755 CPU (about 18.9%
+  lower), with baseline-first filesystem-cache order uncontrolled. This is mechanism
+  timing evidence only. The fresh integrated source gate stopped after 1,575
+  passes, 87 declared skips and one new custom-observer test failure: that fixture
+  expected three source opens, but the unchanged conservative custom route performs
+  five (two full registration guards, two measurements and an independent authority
+  check). Independent baseline comparison confirmed those unchanged call paths. The
+  test-only correction passes all nine receiver controls, with no skips; its mutation
+  follows the second actual custom measurement so the independent final authority
+  check must reject it. The canonical two-read budget and every strict public refusal
+  assertion remain intact. Next qualify the integrated source, new installed
+  artifact, five-unit PACKAGE and original-byte cold VERIFY; no expired PACKAGE phase
+  or three-hour recovery is inferred from the earlier instrumented plan profile.
 - **Implementation:**
   - [ ] Measure the installed public SDK route and reduce redundant observation without weakening drift detection.
 - **Evidence:**
