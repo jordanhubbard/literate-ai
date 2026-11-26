@@ -119,7 +119,12 @@ class AgentSkillCatalog:
         skills: tuple[AgentSkill, ...],
         documents: Mapping[PurePosixPath, bytes],
         physical_paths: Mapping[PurePosixPath, Path],
+        reference_coordinates: Mapping[str, str] | None = None,
     ) -> None:
+        self._reference_coordinates = {
+            _logical_path(source): _logical_path(destination)
+            for source, destination in (reference_coordinates or {}).items()
+        }
         self.skills = skills
         self._documents = dict(documents)
         self._physical_paths = dict(physical_paths)
@@ -136,6 +141,7 @@ class AgentSkillCatalog:
         root_manifests: Iterable[Path] = (),
         validate_dependencies: bool = True,
         validate_references: bool = False,
+        reference_coordinates: Mapping[str, str] | None = None,
     ) -> AgentSkillCatalog:
         """Read bounded real files beneath declared roots without following links."""
 
@@ -149,6 +155,7 @@ class AgentSkillCatalog:
             physical_paths=physical,
             validate_dependencies=validate_dependencies,
             validate_references=validate_references,
+            reference_coordinates=reference_coordinates,
         )
 
     @classmethod
@@ -177,6 +184,7 @@ class AgentSkillCatalog:
         physical_paths: Mapping[PurePosixPath, Path] | None = None,
         validate_dependencies: bool = True,
         validate_references: bool = False,
+        reference_coordinates: Mapping[str, str] | None = None,
     ) -> AgentSkillCatalog:
         """Build the same authority from an installed-resource file map."""
 
@@ -275,6 +283,7 @@ class AgentSkillCatalog:
             skills=tuple(sorted(records, key=lambda item: str(item.logical_manifest))),
             documents=normalized,
             physical_paths=physical_paths or {},
+            reference_coordinates=reference_coordinates,
         )
         if validate_dependencies:
             catalog.validate_dependencies()
@@ -358,8 +367,15 @@ class AgentSkillCatalog:
             for token in _REFERENCE.findall(text):
                 if "://" in token:
                     continue
-                target = _resolve_reference(skill.logical_directory, token)
-                if target not in manifests:
+                target = _resolve_reference(
+                    skill.logical_directory,
+                    token,
+                    reject_escape=bool(self._reference_coordinates),
+                )
+                if (
+                    target is None
+                    or self._reference_coordinates.get(target, target) not in manifests
+                ):
                     unresolved.append((skill.name, token))
         return tuple(sorted(set(unresolved)))
 
@@ -671,15 +687,21 @@ def _is_relative(path: PurePosixPath, parent: PurePosixPath) -> bool:
     return True
 
 
-def _resolve_reference(directory: PurePosixPath, token: str) -> PurePosixPath:
+def _resolve_reference(
+    directory: PurePosixPath, token: str, *, reject_escape: bool
+) -> PurePosixPath | None:
     raw = token.replace("\\", "/")
-    parts = [] if raw.startswith("skills/") else list(directory.parts)
+    parts = (
+        [] if raw.startswith(("skills/", "litai/skills/")) else list(directory.parts)
+    )
     for part in PurePosixPath(raw).parts:
         if part in {"", "."}:
             continue
         if part == "..":
             if parts:
                 parts.pop()
+            elif reject_escape:
+                return None
             continue
         parts.append(part)
     return PurePosixPath(*parts)

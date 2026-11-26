@@ -67,6 +67,7 @@ from literate_ai.projects import (
     PinnedInputClosure,
     ProjectConfigurationStore,
     ProjectError,
+    configured_forward_skill_path,
     discover_project,
     project_boundary,
     specification_to_source_skill_paths,
@@ -332,7 +333,9 @@ def _pinned_reference_content(
     boundary: Path,
     label: str,
 ) -> bytes:
-    configured = component_root / reference.uri
+    configured = configured_forward_skill_path(
+        boundary, component_root, reference.uri, kind=reference.kind
+    )
     try:
         path = configured.resolve(strict=True)
     except OSError as exc:
@@ -359,9 +362,9 @@ def _pinned_reference_content(
 
 
 def _authored_flavor_reference_content(
-    flavor_root: Path, uri: str, *, boundary: Path
+    flavor_root: Path, uri: str, *, boundary: Path, kind: str
 ) -> bytes:
-    configured = flavor_root.joinpath(*PurePosixPath(uri).parts)
+    configured = configured_forward_skill_path(boundary, flavor_root, uri, kind=kind)
     try:
         path = configured.resolve(strict=True)
     except OSError as exc:
@@ -474,7 +477,9 @@ def _pin_definition_references(
             label=role.replace("-", "_"),
         )
         closure.pin(
-            root / reference.uri,
+            configured_forward_skill_path(
+                boundary, root, reference.uri, kind=reference.kind
+            ),
             boundary=boundary,
             label=f"{label_prefix}:{role}:{reference.kind}",
             expected_content=content,
@@ -1304,7 +1309,9 @@ def _referenced_skills(
             if catalog_cache is not None:
                 catalog_cache[project.root] = catalog_paths
     for reference in references:
-        configured_path = root / reference.uri
+        configured_path = configured_forward_skill_path(
+            boundary, root, reference.uri, kind=reference.kind
+        )
         path = configured_path.resolve()
         if (
             not path.is_relative_to(resolved_boundary)
@@ -1464,10 +1471,10 @@ def _load_legacy_flavor_entries(
                 authoring = parse_flavor_markdown(
                     manifest_content, source=definition_path.as_posix()
                 )
-                definition = authoring.resolve(
-                    lambda uri, flavor_root=root, project_root=boundary: (
+                definition = authoring.resolve_typed(
+                    lambda kind, uri, flavor_root=root, project_root=boundary: (
                         _authored_flavor_reference_content(
-                            flavor_root, uri, boundary=project_root
+                            flavor_root, uri, boundary=project_root, kind=kind
                         )
                     )
                 )

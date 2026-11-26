@@ -64,6 +64,7 @@ from literate_ai.projects import (
     PinnedInputClosure,
     PinnedInputClosureError,
     ProjectError,
+    configured_forward_skill_path,
     discover_project,
     documentation_files,
     source_to_specification_skill_paths,
@@ -528,7 +529,9 @@ def _validate_component_authoring(
                 admitted_cache["skills"] = cached
         admitted_skills = cached
         for selector in generation_skills:
-            selected = project.root.joinpath(*Path(selector.uri).parts).resolve()
+            selected = configured_forward_skill_path(
+                project.root, project.root, selector.uri, kind=selector.kind
+            ).resolve()
             if selected not in admitted_skills:
                 raise ProjectValidationError(
                     "generate.skill_not_cataloged",
@@ -538,7 +541,9 @@ def _validate_component_authoring(
 
         def resolve(selector: Any, label: str) -> ContentIdentity:
             base = project.root if selector.kind in global_kinds else manifest.parent
-            path = base.joinpath(*Path(selector.uri).parts)
+            path = configured_forward_skill_path(
+                project.root, base, selector.uri, kind=selector.kind
+            )
             selected = closure.pin(
                 path,
                 boundary=project.root,
