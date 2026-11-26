@@ -14,6 +14,7 @@ import tomllib
 from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path, PurePosixPath, PureWindowsPath
+from threading import Lock
 
 from literate_ai._filesystem import ensure_safe_directory, require_safe_directory
 from literate_ai.adapters.builders._process import run_bounded_process
@@ -35,7 +36,9 @@ from literate_ai.adapters.rust_library_acceptance import (
     RustLibraryAcceptance,
     capture_loaded_rust_library_verifier_inputs,
 )
+from literate_ai.application.native_root_run import LiveNativeRootRun
 from literate_ai.contracts.identity import ContentIdentity, canonical_identity
+from literate_ai.contracts.native_root_continuation import NativeRootRunBinding
 from literate_ai.contracts.rust_library_harness import (
     RustHarnessResolution,
     RustHarnessResolvedDependency,
@@ -107,6 +110,110 @@ def _result_values_differ(raw, oracle):
 def _require_results(raw, oracle):
     if _result_values_differ(raw, oracle):
         _refuse("result_mismatch")
+
+
+class _LiveRustHarnessOutcome:
+    """Original native observation held inside its executor, never a wire grant."""
+
+    __slots__ = (
+        "_seal",
+        "_pid",
+        "_lock",
+        "_active",
+        "_consumed",
+        "_run",
+        "_owner",
+        "_binding",
+        "_binding_uri",
+        "_result",
+        "_result_bytes",
+        "_observation",
+        "_observation_uri",
+        "_values_differ",
+        "_current",
+    )
+
+    def __init__(self):
+        raise TypeError("native outcomes come only from the original executor context")
+
+    def __copy__(self):
+        raise TypeError("a live native outcome cannot be copied")
+
+    def __deepcopy__(self, memo):
+        raise TypeError("a live native outcome cannot be copied")
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("a live native outcome cannot be serialized")
+
+    @property
+    def result(self):
+        return self._result
+
+    @property
+    def observation(self):
+        return self._observation
+
+    @property
+    def values_differ(self):
+        return self._values_differ
+
+    def _require_owner(self, original_run, continuation_owner):
+        if (
+            self._seal is not self
+            or self._pid != os.getpid()
+            or original_run is not self._run
+            or continuation_owner is not self._owner
+        ):
+            _refuse("outcome_owner")
+
+    def _require_data(self):
+        if not self._active:
+            _refuse("outcome_closed")
+        if (
+            self._binding.identity.uri != self._binding_uri
+            or self._observation_uri != canonical_identity(self._observation).uri
+            or type(self._result.returncode) is not int
+            or type(self._result.stdout) is not bytes
+            or type(self._result.stderr) is not bytes
+            or self._result_bytes
+            != (self._result.returncode, self._result.stdout, self._result.stderr)
+        ):
+            _refuse("outcome_changed")
+
+    def require_current(self, original_run, continuation_owner):
+        self._require_owner(original_run, continuation_owner)
+        try:
+            with self._lock:
+                self._require_data()
+                current = self._current
+            # Original native/tool/input and temporal callbacks never run under
+            # a private lock. The final active check closes callback revocation.
+            original_run.require_current()
+            current()
+            original_run.require_current()
+            with self._lock:
+                self._require_data()
+        except BaseException:
+            self.close()
+            raise
+
+    def consume_rejection(self, original_run, continuation_owner):
+        self.require_current(original_run, continuation_owner)
+        with self._lock:
+            self._require_data()
+            if self._consumed or not self._values_differ:
+                self._active = False
+                self._current = None
+                _refuse("outcome_consumed")
+            self._consumed = True
+        return self
+
+    def close(self):
+        if self._seal is not self or self._pid != os.getpid():
+            return
+        with self._lock:
+            self._active = False
+            self._current = None
 
 
 def _manifest(oracle, *, library_alias, library_directory):
@@ -354,6 +461,46 @@ def execute_rust_library_harness(
     evidence_root,
     allow_host_execution,
 ):
+    """Run the unchanged strict verifier; a wrong result never yields success."""
+    with _execute_rust_library_harness_core(
+        oracle,
+        stage=stage,
+        export=export,
+        library_manifest=library_manifest,
+        library_alias=library_alias,
+        cargo=cargo,
+        rustc=rustc,
+        cases_document=cases_document,
+        surface_document=surface_document,
+        environment=environment,
+        require_library_current=require_library_current,
+        record_bytes=record_bytes,
+        evidence_root=evidence_root,
+        allow_host_execution=allow_host_execution,
+    ) as (result, observation, _values_differ, _current):
+        yield result, observation
+
+
+@contextmanager
+def _execute_rust_library_harness_core(
+    oracle,
+    *,
+    stage,
+    export,
+    library_manifest,
+    library_alias,
+    cargo,
+    rustc,
+    cases_document,
+    surface_document,
+    environment,
+    require_library_current,
+    record_bytes,
+    evidence_root,
+    allow_host_execution,
+    _original_run=None,
+    _allow_values_rejection=False,
+):
     """Run only under the caller's current Standard acceptance authorization."""
     if allow_host_execution is not True or type(oracle) is not RustLibraryAcceptance:
         _refuse("authority_unavailable")
@@ -379,7 +526,11 @@ def execute_rust_library_harness(
         _refuse("tool_mismatch")
     cargo.require_command_unchanged()
     rustc.require_command_unchanged()
-    expires = time.monotonic() + declaration.timeout_seconds
+    timeout = declaration.timeout_seconds
+    if _original_run is not None:
+        _original_run.require_current()
+        timeout = _original_run.clamp_timeout(timeout)
+    expires = time.monotonic() + timeout
     commands = []
     with capture_loaded_rust_library_verifier_inputs(oracle) as inputs:
         roots = inputs.roots
@@ -491,6 +642,8 @@ def execute_rust_library_harness(
             )
 
         def current():
+            if _original_run is not None:
+                _original_run.require_current()
             if time.monotonic() >= expires:
                 _refuse("deadline")
             inputs.require_current()
@@ -504,6 +657,8 @@ def execute_rust_library_harness(
             # never restore ambient selection files or substitute commands.
             def remaining():
                 seconds = expires - time.monotonic()
+                if _original_run is not None:
+                    seconds = _original_run.clamp_timeout(seconds)
                 if seconds <= 0:
                     _refuse("deadline")
                 return seconds
@@ -540,7 +695,11 @@ def execute_rust_library_harness(
                 argv,
                 cwd=workspace,
                 environment=values,
-                timeout_seconds=expires - time.monotonic(),
+                timeout_seconds=(
+                    expires - time.monotonic()
+                    if _original_run is None
+                    else _original_run.clamp_timeout(expires - time.monotonic())
+                ),
                 stdout_limit_bytes=declaration.stdout_limit_bytes,
                 stderr_limit_bytes=declaration.stderr_limit_bytes,
                 terminate_descendants=True,
@@ -627,8 +786,12 @@ def execute_rust_library_harness(
         result = run(
             (str(executable), str(export), surface_document, cases_document), "execute"
         )
+        values_differ = False
         try:
-            _require_results(result.stdout, oracle)
+            if _allow_values_rejection:
+                values_differ = _result_values_differ(result.stdout, oracle)
+            else:
+                _require_results(result.stdout, oracle)
         finally:
             # A semantic rejection is actionable only while the exact native
             # executable, tools and library remain current. Drift overrides a
@@ -666,9 +829,83 @@ def execute_rust_library_harness(
             },
             "commands": commands,
         }
-        yield result, observation
-        native.require_unchanged()
-        current()
+
+        def require_native_current():
+            native.require_unchanged()
+            current()
+
+        try:
+            yield result, observation, values_differ, require_native_current
+        finally:
+            require_native_current()
+
+
+@contextmanager
+def _observe_rust_library_harness_outcome(
+    oracle,
+    *,
+    original_run,
+    run_binding,
+    continuation_owner,
+    approved_project_authority_identity,
+    **executor_inputs,
+):
+    """Hold one actual executor observation for the original root controller.
+
+    The controller must still join actual candidate and packaged-root custody.
+    These temporal and data bindings alone grant no host execution permission.
+    Matching observations, decoded records and exceptions cannot mint a holder.
+    """
+    if (
+        type(original_run) is not LiveNativeRootRun
+        or type(run_binding) is not NativeRootRunBinding
+        or type(continuation_owner) is not object
+        or type(approved_project_authority_identity) is not ContentIdentity
+    ):
+        _refuse("outcome_owner")
+    original_run.require_current()
+    run_binding.__post_init__()
+    approved_project_authority_identity.__post_init__()
+    definition, framework, lifecycle_policy = original_run.bindings
+    if (
+        run_binding.run_nonce != original_run.deadline.run_nonce
+        or run_binding.original_deadline_identity != original_run.deadline.identity
+        or run_binding.project_definition_identity != definition
+        or run_binding.framework_distribution_identity != framework
+        or run_binding.lifecycle_policy_identity != lifecycle_policy
+        or run_binding.project_authority_identity != approved_project_authority_identity
+        or run_binding.candidate_limit != original_run.policy.candidate_limit
+        or run_binding.oracle_identity != oracle.identity
+    ):
+        _refuse("outcome_binding")
+    original_run.deadline.require_policy(original_run.policy)
+    with _execute_rust_library_harness_core(
+        oracle,
+        **executor_inputs,
+        _original_run=original_run,
+        _allow_values_rejection=True,
+    ) as (result, observation, values_differ, current):
+        outcome = object.__new__(_LiveRustHarnessOutcome)
+        outcome._seal = outcome
+        outcome._pid = os.getpid()
+        outcome._lock = Lock()
+        outcome._active = True
+        outcome._consumed = False
+        outcome._run = original_run
+        outcome._owner = continuation_owner
+        outcome._binding = run_binding
+        outcome._binding_uri = run_binding.identity.uri
+        outcome._result = result
+        outcome._result_bytes = result.returncode, result.stdout, result.stderr
+        outcome._observation = observation
+        outcome._observation_uri = canonical_identity(observation).uri
+        outcome._values_differ = values_differ
+        outcome._current = current
+        try:
+            outcome.require_current(original_run, continuation_owner)
+            yield outcome
+        finally:
+            outcome.close()
 
 
 def verify_rust_harness_execution(reader, identity, *, oracle, library_alias, surface):

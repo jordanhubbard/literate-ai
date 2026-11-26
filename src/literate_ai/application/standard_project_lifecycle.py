@@ -2512,129 +2512,9 @@ class StandardProjectLifecycleService:
                 "standard_lifecycle.links_incomplete",
                 "project assembly requires every Component LINK result",
             )
-        from .release_artifacts import plan_standard_assembly_dependencies
-
-        artifact_graph, link_plan = self.artifact_assembler.assemble_project_artifacts(
-            component_lock,
-            execution_plan,
-            project_plan,
-            ordered,
+        root_integration = self._integrate_project_root(
+            component_lock, execution_plan, project_plan, ordered
         )
-        if not isinstance(artifact_graph, ArtifactBuildGraph) or not isinstance(
-            link_plan, ExactLinkPlan
-        ):
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.artifact_assembly_invalid",
-                "project artifact assembly must return a typed graph and link plan",
-            )
-        if link_plan not in artifact_graph.link_plans:
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.artifact_link_mismatch",
-                "project link plan must belong to the exact artifact graph",
-            )
-        if artifact_graph.assembly_dependencies != plan_standard_assembly_dependencies(
-            execution_plan, ordered
-        ):
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.assembly_dependencies_mismatch",
-                "artifact graph must bind exact locked late dependencies "
-                "and accepted providers",
-            )
-        package_plan, package_result = self.package_creator.create_project_package(
-            component_lock,
-            execution_plan,
-            project_plan,
-            artifact_graph,
-            link_plan,
-        )
-        if not isinstance(package_plan, PackagePlan) or not isinstance(
-            package_result, PackageResult
-        ):
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.package_creation_invalid",
-                "project package creation must return a typed plan and result",
-            )
-        if (
-            package_plan.component_lock_identity != component_lock.identity
-            or package_plan.artifact_graph_identity != artifact_graph.identity
-            or package_plan.link_plan_identity != link_plan.identity
-            or package_result.package_plan_identity != package_plan.identity
-        ):
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.package_creation_mismatch",
-                "project package must bind the exact lock, graph, link, and plan",
-            )
-        if self.project_finalizer is not None:
-            root_integration = self.project_finalizer.finalize(
-                component_lock,
-                project_plan,
-                artifact_graph,
-                package_plan,
-                package_result,
-            )
-            if not isinstance(root_integration, StandardRootIntegrationEvidence):
-                raise StandardProjectLifecycleError(
-                    "standard_lifecycle.finalization_invalid",
-                    "project finalizer must return typed verified root evidence",
-                )
-            if (
-                root_integration.component_lock_identity != component_lock.identity
-                or root_integration.execution_plan_identity != execution_plan.identity
-                or root_integration.project_build_plan_identity != project_plan.identity
-                or root_integration.artifact_graph != artifact_graph
-                or root_integration.link_plan != link_plan
-                or root_integration.package_plan != package_plan
-                or root_integration.package_result != package_result
-            ):
-                raise StandardProjectLifecycleError(
-                    "standard_lifecycle.finalization_mismatch",
-                    "project finalization differs from exact root package custody",
-                )
-        else:
-            root_test_identity = _require_identity(
-                self.root_integration_tester.test_root_integration(
-                    component_lock,
-                    execution_plan,
-                    project_plan,
-                    package_plan,
-                    package_result,
-                ),
-                "root generated integration test",
-            )
-            packaged_execution_identity = _require_identity(
-                self.packaged_project_executor.execute_packaged_project(
-                    component_lock,
-                    execution_plan,
-                    project_plan,
-                    package_plan,
-                    package_result,
-                ),
-                "packaged project execution",
-            )
-            independent_acceptance_identity = _require_identity(
-                self.independent_project_acceptor.accept_project_independently(
-                    component_lock,
-                    execution_plan,
-                    project_plan,
-                    package_plan,
-                    package_result,
-                    root_test_identity,
-                    packaged_execution_identity,
-                ),
-                "independent project acceptance",
-            )
-            root_integration = StandardRootIntegrationEvidence(
-                component_lock.identity,
-                execution_plan.identity,
-                project_plan.identity,
-                artifact_graph,
-                link_plan,
-                package_plan,
-                package_result,
-                root_test_identity,
-                packaged_execution_identity,
-                independent_acceptance_identity,
-            )
         publication_failed = False
         for uri in sorted(results):
             if uri in input_membership_identities and uri not in regenerate:
@@ -2769,6 +2649,143 @@ class StandardProjectLifecycleService:
             tuple(repair_chains[uri] for uri in sorted(repair_chains)),
             root_integration,
         )
+
+    def _integrate_project_root(
+        self,
+        component_lock: ComponentLock,
+        execution_plan: ComponentExecutionPlan,
+        project_plan: StandardProjectBuildPlan,
+        ordered: tuple[StandardNodeLifecycleResult, ...],
+    ) -> StandardRootIntegrationEvidence:
+        """Assemble, package, execute and independently accept one exact root.
+
+        No accepted source is published by this phase. A replacement must call
+        every operation again with its own complete node and package custody.
+        """
+        from .release_artifacts import plan_standard_assembly_dependencies
+
+        artifact_graph, link_plan = self.artifact_assembler.assemble_project_artifacts(
+            component_lock,
+            execution_plan,
+            project_plan,
+            ordered,
+        )
+        if not isinstance(artifact_graph, ArtifactBuildGraph) or not isinstance(
+            link_plan, ExactLinkPlan
+        ):
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.artifact_assembly_invalid",
+                "project artifact assembly must return a typed graph and link plan",
+            )
+        if link_plan not in artifact_graph.link_plans:
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.artifact_link_mismatch",
+                "project link plan must belong to the exact artifact graph",
+            )
+        if artifact_graph.assembly_dependencies != plan_standard_assembly_dependencies(
+            execution_plan, ordered
+        ):
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.assembly_dependencies_mismatch",
+                "artifact graph must bind exact locked late dependencies "
+                "and accepted providers",
+            )
+        package_plan, package_result = self.package_creator.create_project_package(
+            component_lock,
+            execution_plan,
+            project_plan,
+            artifact_graph,
+            link_plan,
+        )
+        if not isinstance(package_plan, PackagePlan) or not isinstance(
+            package_result, PackageResult
+        ):
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.package_creation_invalid",
+                "project package creation must return a typed plan and result",
+            )
+        if (
+            package_plan.component_lock_identity != component_lock.identity
+            or package_plan.artifact_graph_identity != artifact_graph.identity
+            or package_plan.link_plan_identity != link_plan.identity
+            or package_result.package_plan_identity != package_plan.identity
+        ):
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.package_creation_mismatch",
+                "project package must bind the exact lock, graph, link, and plan",
+            )
+        if self.project_finalizer is not None:
+            root_integration = self.project_finalizer.finalize(
+                component_lock,
+                project_plan,
+                artifact_graph,
+                package_plan,
+                package_result,
+            )
+            if not isinstance(root_integration, StandardRootIntegrationEvidence):
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.finalization_invalid",
+                    "project finalizer must return typed verified root evidence",
+                )
+            if (
+                root_integration.component_lock_identity != component_lock.identity
+                or root_integration.execution_plan_identity != execution_plan.identity
+                or root_integration.project_build_plan_identity != project_plan.identity
+                or root_integration.artifact_graph != artifact_graph
+                or root_integration.link_plan != link_plan
+                or root_integration.package_plan != package_plan
+                or root_integration.package_result != package_result
+            ):
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.finalization_mismatch",
+                    "project finalization differs from exact root package custody",
+                )
+        else:
+            root_test_identity = _require_identity(
+                self.root_integration_tester.test_root_integration(
+                    component_lock,
+                    execution_plan,
+                    project_plan,
+                    package_plan,
+                    package_result,
+                ),
+                "root generated integration test",
+            )
+            packaged_execution_identity = _require_identity(
+                self.packaged_project_executor.execute_packaged_project(
+                    component_lock,
+                    execution_plan,
+                    project_plan,
+                    package_plan,
+                    package_result,
+                ),
+                "packaged project execution",
+            )
+            independent_acceptance_identity = _require_identity(
+                self.independent_project_acceptor.accept_project_independently(
+                    component_lock,
+                    execution_plan,
+                    project_plan,
+                    package_plan,
+                    package_result,
+                    root_test_identity,
+                    packaged_execution_identity,
+                ),
+                "independent project acceptance",
+            )
+            root_integration = StandardRootIntegrationEvidence(
+                component_lock.identity,
+                execution_plan.identity,
+                project_plan.identity,
+                artifact_graph,
+                link_plan,
+                package_plan,
+                package_result,
+                root_test_identity,
+                packaged_execution_identity,
+                independent_acceptance_identity,
+            )
+        return root_integration
 
     def _dispatch_complete_node(
         self,

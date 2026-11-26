@@ -17,6 +17,7 @@ from literate_ai.application.component_generation_preparation import (
     PreparedComponentGenerationNode,
     prepare_component_generation_nodes,
 )
+from literate_ai.application.native_root_run import LiveNativeRootRun
 from literate_ai.application.source_generation_scheduling import (
     ComponentContextEvidenceRecorder,
     ComponentSourceGenerationRunner,
@@ -252,10 +253,23 @@ class StandardProjectApplicationService:
         | None = None,
         resume_candidates: Mapping[str, StandardNodeAcceptedCandidate] | None = None,
         max_parallelism: int = 1,
+        live_run: LiveNativeRootRun | None = None,
+        project_authority_identity: ContentIdentity | None = None,
     ) -> StandardProjectLifecycleResult:
         if not isinstance(prepared, PreparedExecutableProject):
             raise TypeError("prepared must be a PreparedExecutableProject")
-        return self.lifecycle.execute(
+        if (live_run is None) != (project_authority_identity is None):
+            raise TypeError("live run and project authority must occur together")
+        if live_run is not None:
+            if (
+                type(live_run) is not LiveNativeRootRun
+                or type(project_authority_identity) is not ContentIdentity
+            ):
+                raise TypeError(
+                    "live run requires its original owner and project authority"
+                )
+            live_run.require_current()
+        result = self.lifecycle.execute(
             prepared.execution_plan,
             component_lock=component_lock,
             invalidation=invalidation,
@@ -264,7 +278,18 @@ class StandardProjectApplicationService:
             source_generation_resume_candidates=source_generation_resume_candidates,
             resume_candidates=resume_candidates,
             max_parallelism=max_parallelism,
+            **(
+                {
+                    "live_run": live_run,
+                    "project_authority_identity": project_authority_identity,
+                }
+                if live_run is not None
+                else {}
+            ),
         )
+        if live_run is not None:
+            live_run.require_current()
+        return result
 
     @staticmethod
     def generate_sources(

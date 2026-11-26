@@ -96,6 +96,10 @@ from literate_ai.adapters.source_evidence_validation import (
 from literate_ai.application.artifact_graph import (
     create_package_plan,
 )
+from literate_ai.application.native_root_run import (
+    current_native_root_run,
+    native_root_timeout,
+)
 from literate_ai.application.standard_authorization import StandardAuthorizationInputs
 from literate_ai.application.standard_build_inputs import (
     StandardBuildInputError,
@@ -1847,7 +1851,7 @@ class LocalStandardLifecyclePorts:
             cwd=cwd,
             env=environment,
             text=True,
-            timeout=timeout_seconds,
+            timeout=native_root_timeout(timeout_seconds),
         )
         trace_subprocess(
             command,
@@ -6468,7 +6472,7 @@ class LocalStandardLifecyclePorts:
             cwd=custody.root,
             env=environment,
             text=True,
-            timeout=60,
+            timeout=native_root_timeout(60),
         )
         trace_subprocess(
             command,
@@ -6999,6 +7003,7 @@ class LocalStandardLifecyclePorts:
             child_environment = dict(scope.environment)
             observations: list[dict[str, object]] = []
             started = time.monotonic()
+            process_timeout = native_root_timeout(contract.process_timeout_seconds)
             with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
                 ownership = create_process_tree_ownership()
                 try:
@@ -7039,10 +7044,7 @@ class LocalStandardLifecyclePorts:
                             monitor_error.append(
                                 "persistent-service stderr exceeded its byte budget"
                             )
-                        elif (
-                            time.monotonic() - started
-                            > contract.process_timeout_seconds
-                        ):
+                        elif time.monotonic() - started > process_timeout:
                             monitor_error.append(
                                 "persistent-service acceptance exceeded its "
                                 "process deadline"
@@ -7092,7 +7094,7 @@ class LocalStandardLifecyclePorts:
                                     "persistent-service readiness probe did not pass "
                                     "before its deadline"
                                 ) from exc
-                            time.sleep(0.05)
+                            time.sleep(native_root_timeout(0.05))
                     for request in contract.requests:
                         self._check_service_process(
                             process,
@@ -7177,6 +7179,7 @@ class LocalStandardLifecyclePorts:
         *,
         phase: str = "acceptance",
     ) -> None:
+        current_native_root_run()
         self._check_service_output(stdout, stderr, contract)
         status = process.poll()
         if status is not None:
@@ -7267,7 +7270,9 @@ class LocalStandardLifecyclePorts:
             else min(probe.timeout_seconds, timeout_seconds)
         )
         try:
-            response = open_service_request(outbound, timeout=request_timeout)
+            response = open_service_request(
+                outbound, timeout=native_root_timeout(request_timeout)
+            )
         except urllib.error.HTTPError as error:
             response = error
         with response:
@@ -7422,6 +7427,7 @@ class LocalStandardLifecyclePorts:
             child_environment = dict(scope.environment)
             viewport_evidence: list[dict[str, object]] = []
             started = time.monotonic()
+            current_native_root_run()
             with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
                 ownership = create_process_tree_ownership()
                 try:
@@ -7461,7 +7467,7 @@ class LocalStandardLifecyclePorts:
                                 "browser-frontend readiness probe did not pass before "
                                 "its deadline"
                             )
-                        time.sleep(0.05)
+                        time.sleep(native_root_timeout(0.05))
                     for viewport in contract.viewports:
                         self._check_service_process(
                             process,
@@ -7516,7 +7522,9 @@ class LocalStandardLifecyclePorts:
     @staticmethod
     def _frontend_is_ready(readiness_url: str) -> bool:
         try:
-            with open_service_request(readiness_url, timeout=2) as response:
+            with open_service_request(
+                readiness_url, timeout=native_root_timeout(2)
+            ) as response:
                 response.read(1024)
                 return response.status < 400
         except urllib.error.HTTPError as error:
@@ -7611,6 +7619,7 @@ class LocalStandardLifecyclePorts:
             command = scope.argv
             child_environment = dict(scope.environment)
             started = time.monotonic()
+            current_native_root_run()
             with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
                 ownership = create_process_tree_ownership()
                 try:
@@ -8009,7 +8018,7 @@ class LocalStandardLifecyclePorts:
                             stdin=stdin_file,
                             stdout=stdout_file,
                             stderr=stderr_file,
-                            timeout=case.timeout_seconds,
+                            timeout=native_root_timeout(case.timeout_seconds),
                         )
                     except subprocess.TimeoutExpired as exc:
                         raise LocalStandardLifecycleError(
@@ -8448,7 +8457,7 @@ class LocalStandardLifecyclePorts:
                         _selected_entrypoint,
                     ),
                     text=True,
-                    timeout=60,
+                    timeout=native_root_timeout(60),
                 )
             if completed.returncode != 0:
                 raise LocalStandardLifecycleError(
@@ -8867,7 +8876,7 @@ class LocalStandardLifecyclePorts:
                         cwd=temporary,
                         env=dict(scope.environment),
                         text=True,
-                        timeout=60,
+                        timeout=native_root_timeout(60),
                     )
                 completed.native_sdk_execution_identity = scope.evidence_identity
             else:
@@ -8879,7 +8888,7 @@ class LocalStandardLifecyclePorts:
                     cwd=temporary,
                     env=environment,
                     text=True,
-                    timeout=60,
+                    timeout=native_root_timeout(60),
                 )
         finally:
             if not rust_v2:

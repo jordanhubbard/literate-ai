@@ -131,6 +131,10 @@ from literate_ai.application.library_artifacts import (
     project_cpp_library_layout,
     project_library_import_surface,
 )
+from literate_ai.application.native_root_run import (
+    LiveNativeRootRun,
+    activate_native_root_run,
+)
 from literate_ai.application.release_artifacts import StandardReleaseDeclaration
 from literate_ai.application.source_generation_scheduling import (
     ComponentSourceGenerationRunError,
@@ -3243,8 +3247,19 @@ class StandardProjectExecutionRequest:
     directory_custody_identity: ContentIdentity | None = None
     fresh_source: bool = False
     minimum_test_count: int = 1
+    live_run: LiveNativeRootRun | None = None
+    project_authority_identity: ContentIdentity | None = None
 
     def __post_init__(self) -> None:
+        if (self.live_run is None) != (self.project_authority_identity is None):
+            raise TypeError("live run and project authority must occur together")
+        if self.live_run is not None and (
+            type(self.live_run) is not LiveNativeRootRun
+            or type(self.project_authority_identity) is not ContentIdentity
+        ):
+            raise TypeError(
+                "live run requires its original owner and project authority"
+            )
         if not isinstance(self.planned, PlannedStandardProject):
             raise TypeError("planned must be a PlannedStandardProject")
         if not isinstance(self.source_root, Path):
@@ -3417,6 +3432,19 @@ class FilesystemStandardProjectRuntime:
         snapshot: LockedGenerationAuthoritySnapshot,
         request: StandardProjectExecutionRequest,
     ) -> ExecutedStandardProject:
+        """Propagate the original run through preparation and all runtime stages."""
+        if not isinstance(request, StandardProjectExecutionRequest):
+            raise TypeError("request must be a StandardProjectExecutionRequest")
+        if request.live_run is None:
+            return self._execute(snapshot, request)
+        with activate_native_root_run(request.live_run):
+            return self._execute(snapshot, request)
+
+    def _execute(
+        self,
+        snapshot: LockedGenerationAuthoritySnapshot,
+        request: StandardProjectExecutionRequest,
+    ) -> ExecutedStandardProject:
         """Prepare and execute one exact plan without exposing lifecycle assembly."""
 
         if not hasattr(snapshot, "authority") or not callable(
@@ -3425,6 +3453,12 @@ class FilesystemStandardProjectRuntime:
             raise TypeError("snapshot must provide locked generation authority")
         if not isinstance(request, StandardProjectExecutionRequest):
             raise TypeError("request must be a StandardProjectExecutionRequest")
+
+        def require_live_run():
+            if request.live_run is not None:
+                request.live_run.require_current()
+
+        require_live_run()
         cache = self.lifecycle_ports.shared_cache
         if cache is not None and cache.compiler_tool is not None:
             cache.require_unchanged()
@@ -3442,6 +3476,7 @@ class FilesystemStandardProjectRuntime:
             source_root=request.source_root,
             budget=request.budget,
         )
+        require_live_run()
         require_generated_coverage_capacity(
             (
                 getattr(node.recipe, "generated_test_coverage_authority", None)
@@ -3467,10 +3502,12 @@ class FilesystemStandardProjectRuntime:
             for uri, node in prepared.nodes_by_revision.items():
                 if uri in cache_memberships or uri in regenerate:
                     continue
+                require_live_run()
                 restored = self.source_cache_restorer.restore_prepared(
                     request.planned.execution_plan,
                     node,
                 )
+                require_live_run()
                 if restored is not None:
                     cache_memberships[uri] = restored
         if request.accepted_source_only:
@@ -3537,10 +3574,12 @@ class FilesystemStandardProjectRuntime:
                     or uri in regenerate
                 ):
                     continue
+                require_live_run()
                 restored = self.checkpoint_store.restore_prepared(
                     request.planned.execution_plan,
                     node,
                 )
+                require_live_run()
                 if restored is not None:
                     generator = self.application.lifecycle.generator
                     record_cache_key = getattr(
@@ -3553,6 +3592,15 @@ class FilesystemStandardProjectRuntime:
                             planned_cache_key(node),
                         )
                     source_resumes[uri] = restored
+        require_live_run()
+        live_arguments = (
+            {
+                "live_run": request.live_run,
+                "project_authority_identity": request.project_authority_identity,
+            }
+            if request.live_run is not None
+            else {}
+        )
         if source_resumes:
             lifecycle = self.application.rebuild(
                 prepared,
@@ -3562,6 +3610,7 @@ class FilesystemStandardProjectRuntime:
                 source_generation_resume_candidates=source_resumes,
                 resume_candidates=request.resume_candidates,
                 max_parallelism=request.max_parallelism,
+                **live_arguments,
             )
         else:
             lifecycle = self.application.rebuild(
@@ -3571,12 +3620,15 @@ class FilesystemStandardProjectRuntime:
                 source_cache_memberships=cache_memberships or None,
                 resume_candidates=request.resume_candidates,
                 max_parallelism=request.max_parallelism,
+                **live_arguments,
             )
+        require_live_run()
         snapshot.require_unchanged()
         request.planned.coding_cli.require_unchanged()
         if cache is not None and cache.compiler_tool is not None:
             cache.require_unchanged()
             cache.require_compiler_dependencies(cache.environment)
+        require_live_run()
         return ExecutedStandardProject(
             request.planned,
             prepared,
