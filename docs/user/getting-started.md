@@ -170,11 +170,22 @@ effective if the PR proposes fewer requirements. Initial policy introduction is
 unconfigured until accepted; an empty required-check view is never success.
 
 The command reads current GitHub metadata and starts no job. A zero exit status
-means this configured contract passed for the observed PR/run/attempt. Missing,
+means the required named jobs passed for the observed PR, run and attempt. Missing,
 skipped, failed and ambiguous required jobs do not pass. It supports open PRs in
 the same github.com repository and requires Git 2.45+ with the base policy objects
 present locally. These reads disable replacement objects and lazy fetching; a
-missing object is unavailable and requires explicit native Git recovery.
+missing base policy object requires explicit native Git recovery.
+
+The `literate-ai/native-ci-observation@1` result adds the optional
+`workflow_definition` field. Older reporters omit it. Current reporters return
+null until the base has an accepted policy. Otherwise it reports the
+base policy's workflow path, its base and head Git blob IDs when available,
+and `changed`, `unchanged` or `unavailable`. Send a changed or unavailable
+definition to the host's workflow owner for review when
+`native_review_required` is true. Required job outcomes, observation status
+and exit codes keep their existing meanings. The comparison covers one file.
+Review called workflows, actions, scripts and job checkouts separately.
+
 Retries may include provider-confirmed successful job rows for the current attempt
 whose execution occurred earlier. Required jobs available only in an older attempt,
 or without current-attempt confirmation, remain incomplete.
