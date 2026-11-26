@@ -29149,10 +29149,10 @@ qualification, admission and cache reuse remain open.
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
-- **Next action:** Reconcile the remaining 41 snapshots and complete composed Cargo source qualification. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Next action:** Reconcile the remaining 37 snapshots and three clean heads; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
   - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
-  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 49 of 90 recovery snapshots merged; 41 remain preserved.
+  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 53 of 90 recovery snapshots merged; 37 remain preserved. Four of seven additional committed heads are merged; three remain preserved.
   - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
   - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
   - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
@@ -29300,3 +29300,32 @@ context while exact retained source bytes and selected commands remain asserted;
 all nine onboarding controls pass (22.182 seconds). Earlier failed fixtures and
 their 978-entry byte/native inventories remain preserved. No saved runtime is
 readmitted and no platform, parent-transition or release gate is renewed.
+
+**Guarded receiver, SDK, cache and unit histories.** Four more normal merges
+retain identical trees. Local controls pass five package-worker cases (11.688s),
+thirteen SDK cases (67.876s), ten cache cases (1.025s), seventeen native tree
+cases (26.520s) and ten tree-package cases (1.378s). The full 14-case Cargo
+isolated-parse module passes at stable `f0a5da8eb` in 960.386 seconds, with its
+original mutation/refusal/isolation assertions and deadline intact. That run
+predates the later receiver repair and does not qualify the latest full release.
+
+**Contained retained release owner.** The canonical receiver fixture now uses
+default containment and actual acknowledged original-source adoption. That
+exposes a root-only retained policy reader. It now follows the existing release
+owner's exact declared coordinate, raw byte identity, ambiguity and conversion
+eligibility checks. The receiver module passes eight cases with its original
+macOS-only case skipped on Linux (318.297s); eleven release-policy cases pass
+(35.538s), including actual converted projects. The exact historical adapter
+still refuses that actual converted fixture (12.269s); its failed probe remains
+retained. Earlier fixture-path and missing-conversion diagnostic failures also
+remain recorded. No source or platform acceptance is inferred from skipped work.
+
+**Committed-head custody.** Four of seven clean heads are now ancestors. The
+command-renewal receipt remains historical, explicitly bound to `cbf4804e8` with
+`qualified=false` and `release_evidence=false`. The forest capacity recovery keeps
+the original 14 GiB policy and adds real shared-ledger pressure and positive
+exact-ceiling controls. A temporary-checkout attempt discovers no cases because
+its installed origin differs. The canonical run reaches actual source metadata
+publication and refuses changed original role input (39.921s), followed by the
+poisoned closing-scope refusal. Capacity assertions are not reached; preserve the
+guard, original bounds and failed logs while diagnosing the actual source owner.
