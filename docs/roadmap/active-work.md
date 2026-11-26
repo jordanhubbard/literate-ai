@@ -24274,11 +24274,16 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] CUDA-SIGNAL-001 — Keep vendor-only source attribution out of CUDA requirements
 
-- **Independent metadata review:** A separate authorized non-author reviewer approves exact source at `7a3658da5`, checks original byte/prompt/classification preservation, and passes all six inventory methods plus six additional C/XML close, attribution, unrelated-platform and bounded-input controls. [Review evidence](../../verification/cuda-metadata-independent-review.json) binds exact source/test hashes. This completes the source implementation after its focused and complete source gates; supported driver renewal follows the independent review. Noneditable installed and exact integration acceptance remain required.
+- **Independent metadata review:** A separate authorized non-author reviewer approves exact source at `7a3658da5`, checks original byte/prompt/classification preservation, and passes all six inventory methods plus six additional C/XML close, attribution, unrelated-platform and bounded-input controls. [Review evidence](../../verification/cuda-metadata-independent-review.json) binds the exact attribution-correction source and test hashes. That correction passed its focused and complete source gates. Positive-signal follow-up and noneditable installed and exact integration acceptance remain open.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#396](https://github.com/jordanhubbard/literate-ai/issues/396)
-- **Next action:** Complete noneditable installed and current-main/resulting-main qualification of the independently reviewed metadata correction; preserve source bytes, genuine CUDA signals and all predecessor failures. The source implementation is complete, while this release goal remains open.
+- **Next action:** Restore the five genuine toolkit, runtime-type and driver-call
+  signals reproduced independently from [PR 410](https://github.com/jordanhubbard/literate-ai/pull/410)
+  on the current source. Retain the reviewed multiline attribution filter and
+  bounded source inventory. Exercise positive, attribution-only and similarly
+  named portable controls before independent review and supported driver renewal,
+  then complete noneditable installed and current-main qualification.
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework inert source inventory and proposed Flavor evidence; PROJECT Goals 1, 2, 4 and 5
 - **Direction:** Include newly filed issue396 in 1.4.0: NVIDIA copyright/license attribution alone must not propose a CUDA accelerator requirement for portable source.
@@ -24301,6 +24306,15 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Historical metadata-gap reproduction:** Public inert inventory on the earlier frozen combined candidate proposed CUDA for a portable Rust identity function when only `SPDX-FileCopyrightText` names a CUDA team or `SPDX-License-Identifier` names a CUDA license. Both original byte digests remain unchanged. Vendor-name removal is implemented, but the metadata-exclusion part of the first implementation checkbox is not yet complete. Add a bounded attribution-only evidence view for CUDA detection, preserving exact original bytes, all other signal/classification behavior and genuine source/compiler/header/API evidence, including code after an inline block-comment close. The correction is now included in this reviewed union; its original frozen batch remains unchanged.
 
 - **Metadata correction development evidence:** The separate correction filters recognized SPDX/copyright lines only in the bounded CUDA evidence view, including wrapped C/XML attribution blocks and code following their closing delimiter. Other detectors, classification, prompt-injection observation and source hashes retain original input. New predecessor controls record nine failing metadata assertions before the correction. The final canonical inventory subset passes all 15 selected methods with no failures or skips, including static Rust/Python Flavor derivation, genuine CUDA evidence after attribution, unchanged digests and a bounded long-indentation control. Strict lint and formatting pass for both changed Python files. `verification/cuda-attribution-metadata-development.json` records exact source/report digests. The complete canonical source gate at correction `7f3486fd5` then passes 2,725 methods with 92 declared skips, no failures and no known failures (2,817 selected); it is development evidence, not release attestation. Subsequent independent review approved these exact bytes and renewed the narrow branch pin; noneditable/native and exact integration qualification remain open. No implementation or completion checkbox is advanced by this focused development result.
+
+- **Positive-signal follow-up under review:** The exact `8ba81d598` inventory
+  misses `CUDAToolkit`, `cudaError_t`, `cudaStream_t`, `cuModuleLoadData()` and
+  `cuModuleLoadDataEx()`. The candidate recognizes those explicit names and
+  keeps the existing attribution and classification paths. Sixteen focused
+  inventory methods pass, including exact source hashes, attribution containing
+  the newly recognized names, similar portable identifiers and the existing
+  evidence-window limit. Independent review, supported driver renewal and
+  complete composed qualification remain open.
 
 ### [x] SOURCE-PROMOTION-ROOT-001 — Expose explicit root lineage for standalone source promotion
 
