@@ -34,8 +34,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 17,
-      "preserved-for-reconciliation": 73
+      "merged": 21,
+      "preserved-for-reconciliation": 69
     },
     "snapshots": [
       {
@@ -97,9 +97,10 @@
         "base": "1cbbf88f4f003b5ee7623c4134e470730ae4a69d",
         "commit": "9ca37e2673e530af0422585af7becdfbd74bce19",
         "branch": "recovery/puck-20261126/ar14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 4,
-        "remaining_paths": 3
+        "remaining_paths": 0,
+        "resolution": "Source already retained; current release-goal membership, terminal evidence and authority pins preserved. Distinct historical Windows observation retained separately."
       },
       {
         "label": "arm14",
@@ -585,9 +586,10 @@
         "base": "9213b250eceaa1eaaba03ceb8da3978391078413",
         "commit": "fa04f7157f4abdd2061b917798d0524fca5cec5b",
         "branch": "recovery/puck-20261126/sc14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 7,
-        "remaining_paths": 5
+        "remaining_paths": 0,
+        "resolution": "Source already retained; current release-goal membership, terminal evidence and authority pins preserved. Distinct historical Windows observation retained separately."
       },
       {
         "label": "schpre1",
@@ -684,9 +686,10 @@
         "base": "af11434c90d58489a923114a8d8f0c7bdb1ebba0",
         "commit": "001c8a33b8e1f618e3754d52aa874c63129291bb",
         "branch": "recovery/puck-20261126/sdpil1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 1,
-        "remaining_paths": 1
+        "remaining_paths": 0,
+        "resolution": "Source already retained; current release-goal membership, terminal evidence and authority pins preserved. Distinct historical Windows observation retained separately."
       },
       {
         "label": "sdsk1",
@@ -803,9 +806,10 @@
         "base": "7763e23de54a5c51a4a155b3bcdd8c724fb41e56",
         "commit": "fff8ed5d888115a08ad6081b1df96c13e5ed9e8e",
         "branch": "recovery/puck-20261126/wi14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 4,
-        "remaining_paths": 3
+        "remaining_paths": 0,
+        "resolution": "Source already retained; current release-goal membership, terminal evidence and authority pins preserved. Distinct historical Windows observation retained separately."
       },
       {
         "label": "wkcust1",
@@ -853,7 +857,31 @@
         "remaining_paths": 0
       }
     ],
-    "historical_proposals": "docs/history/decisions/recovered-proposals.md"
+    "historical_proposals": "docs/history/decisions/recovered-proposals.md",
+    "proofs": {
+      "unchanged_tree_history_merges": [
+        "caseinv1",
+        "ciworkflow1",
+        "corigin1",
+        "cwf14",
+        "fexpiry1",
+        "wheelinv1",
+        "ww14"
+      ],
+      "reviewed_current_tree_resolutions": [
+        "acceptwrap1",
+        "workscope1",
+        "d56",
+        "ar14",
+        "sc14",
+        "wi14",
+        "sdpil1"
+      ],
+      "roadmap_delta_test_methods_identical": 4,
+      "roadmap_delta_added_prose_lines_retained": 17,
+      "hosted_pilot_prose_bytes_retained": 2465,
+      "original_goals_retained_in_release": "1.4.0"
+    }
   },
   "checks": {
     "source": {
@@ -897,7 +925,7 @@
     }
   },
   "remaining_requirements": [
-    "Reconcile the 73 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
+    "Reconcile the 69 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
     "Prioritize PROJECT-LAYOUT-001 actual installed update/reparent application and changed-parent cases.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
   ],

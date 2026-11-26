@@ -29127,37 +29127,58 @@ qualification, admission and cache reuse remain open.
 - **Priority:** P1
 - **Owner:** Framework integration and repository custody
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
-- **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removing redundant copies. Continue PROJECT-LAYOUT-001 first from the latest committed maintenance checkpoint; recovery snapshots remain unqualified until reviewed and verified.
+- **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001 first; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
 - **Implementation:**
   - [x] Inventory all worktrees, sibling clones, refs, stashes, working changes and ignored evidence.
-  - [ ] Capture unique source and Git state in the owning repository, integrate active changes with explicit conflict resolution, and transfer custody to the continuing checkout.
+  - [ ] Capture unique source and Git state, integrate active changes with explicit conflict resolution, and transfer custody to the continuing checkout.
   - [x] Remove redundant checkouts only after preservation and verify a single remaining checkout on the source host.
   - [ ] Resume actual installed update/reparent application and changed-parent qualification for PROJECT-LAYOUT-001, preserving existing holds.
 - **Evidence:**
   - [x] Verify every inventoried revision and recovery snapshot is reachable in the continuing repository, and check transferred artifact identities.
-  - [x] Verify the final worktree and sibling-directory inventory, clean tracked state and remote synchronization.
-  - [x] Record the resumed layout test results without claiming complete containment or release qualification.
+  - [x] Verify worktree/sibling inventory and synchronized clean source and continuation checkouts; initial synchronization binds `6783c5ee3`, with final synchronization rechecked after subsequent checkpoints.
+  - [x] Record resumed layout test results without claiming complete containment or release qualification.
 
-- **Custody and cleanup evidence:** [Transfer observation](../../verification/work-custody-transfer.json) binds all 269 original worktree revisions, 90 dirty recovery commits, 11 stashes and 1,488 reflog revisions. All 270 original index/staged/unstaged metadata files match their transfer hashes. The 90 recovery branches and seven otherwise unpushed heads are published. After independent source receipt acceptance, 268 redundant worktrees and one old separate clone were removed; 695 ignored/untracked paths and the legacy Git database remain preserved. The source host now has one registered framework checkout and no separate sibling clone.
-- **Integration boundary:** Three recovery histories merge normally with an unchanged source tree. The other 73 snapshots remain explicitly preserved for reconciliation, with exact commits, branch references and changed-path counts in the observation. Removal is not evidence that those changes were integrated or superseded.
-- **Continued layout qualification:** On the transferred committed subject, all 13 focused source update/reparent methods pass. The actual noneditable installed producer journey passes one method and all 32 commands in 147.431 seconds on Linux ARM64, preserving original source/Git and qualifying metadata migration, framework placement, producer renewal, repeated finalization and recovery. Actual installed update/reparent application and changed-parent cases remain next under PROJECT-LAYOUT-001. Full containment, the original supported-platform/source/installed/review gates and release acceptance remain open. The stale documentation authority review and prior source-timeout/storage holds remain intact.
+**Custody and cleanup.** [Transfer observation](../../verification/work-custody-transfer.json)
+binds all 269 original worktree revisions, 90 dirty recovery commits, 11 stashes,
+1,488 reflog revisions and 270 hash-matched original index/staged/unstaged files.
+All recovery branches and seven otherwise unpushed heads are published. After
+independent transfer acceptance, 268 redundant worktrees and one old clone were
+removed. The sole remaining source checkout retains 695 ignored/untracked paths
+and the legacy Git database; no separate framework sibling clone remains.
 
-- **Resumed active working state:** The latest original dirty integration is now joined at `6ca69e404`; its recovery commit remains published and reachable. The first focused native-root source run executes 160 cases: 159 pass and the genuine external-library receiving control fails because shared retained-consumer custody still pins the legacy root harness after canonical contained initialization.
-- **Integration repair (in progress):** The shared custody pin now uses the existing declared retained-scaffold coordinate resolver for that custody pin, matching the original document reader across legacy, mixed and contained projects; exact bytes, currentness and lifetime/receiving boundaries are unchanged. Lint and formatting pass. The original 160-case cohort now progresses beyond the missing-file setup failure into genuine receiving, while the separate shared-wrapper cohort runs in isolated checkpoint/output state. Both remain nonterminal; retain their original deadlines and record terminal results before claiming repair qualification. This is a PROJECT-LAYOUT-001 consumer integration defect, not permission to move retained application source or weaken the receiving oracle.
+**Integration state.** Twenty-one of the 90 recovery snapshots are now ancestors
+of the continuation branch; 69 remain preserved for explicit reconciliation.
+The latest original dirty integration joins at `6ca69e404`. Source-identical merges
+and reviewed conflict resolutions preserve later runtime code, original 1.4.0
+goals and terminal evidence. Four affected roadmap test methods and all 17 added
+prose lines were already present; the hosted pilot's complete 2,465-byte addition
+also remains present. Historical pin values are not restored. Generated crash
+output remains an artifact, and the distinct earlier Windows observation remains
+verbatim historical evidence in the custody record. Six original proposed designs
+are linked from the [historical proposal index](../history/decisions/recovered-proposals.md);
+current accepted ADRs and pending approval boundaries are preserved.
 
-- **Shared-wrapper fixture integration:** The separate cohort terminates after three passing methods and one fixture setup error: its metadata-transition control still unlinks a legacy root manifest although the shared initializer now produces contained projects. Preserve that control's historical-root-to-contained setup and every drift/refusal assertion by exposing the initializer's existing explicit legacy-fixture selector only for that case. Keep the shared fixture's default canonical path, including the genuine receiving control, unchanged.
+**Continued verification.** The transferred baseline passes 13 focused source
+update/reparent methods and one actual noneditable installed producer journey:
+all 32 commands pass in 147.431 seconds on Linux ARM64, covering metadata migration,
+framework placement, producer renewal, repeated finalization and recovery with
+source/Git preservation. The resumed working state exposed a legacy-root harness
+custody pin; `72e163f17` selects the existing declared retained-scaffold resolver.
+The shared-wrapper regression passes all 50 methods in 125.053 seconds after its
+historical transition fixture explicitly selects legacy initialization. Roadmap
+controls pass all 23 methods in 1.215 seconds after selecting the declared queue;
+cycle/refusal/byte-preservation assertions remain intact and rollback additionally
+checks contained outputs. Lint/format, authored/generated layout and public-export
+checks pass. The earlier missing-file and fixture setup failures remain retained;
+none is relabeled as a passing run.
 
-- **Shared-wrapper repair result:** All 50 maintained shared-wrapper controls pass in 125.053 seconds with the original fixture assertions intact. Source/continuation checkout synchronization at `6783c5ee3` is clean with zero ahead/behind and one remaining registered source checkout. The 160-case native-root run remains live under its original deadline; source wrapper success does not close that cohort or installed/full containment acceptance.
-
-- **Recovered proposal disposition:** Preserve four original proposed designs from the shadow/indexing recovery histories through a linked historical index and immutable original commits. Their old numbers overlap current decisions and pending branches; do not install them as new active ADRs, infer acceptance or replace the accepted shadow decision. Existing issues #311, #216, #137, #138 and #146 retain their own implementation/approval requirements. The generated Erlang crash output is retained as an artifact rather than authored source.
-
-- **Conflict-resolution evidence:** The acceptance-wrapper and work-scope recovery deltas have all four affected test-method ASTs identical in the current source, and all 17 added roadmap prose lines remain present. Resolve their older whole-file conflicts to those current versions rather than losing subsequent controls. The ADR 0056/0057 recovery contains earlier Proposed documents; retain the current explicitly Accepted decisions and preserve the original draft links in the historical proposal index.
-
-- **Recovery history consolidation:** Seventeen of the 90 recovery snapshots are now ancestors of the continuation branch; 73 remain preserved for explicit reconciliation. Seven additional normal merges have byte-identical resulting source trees, and the acceptance-wrapper/work-scope merges preserve all four already-identical test methods and all 17 added prose lines. The generated crash output stays an artifact. Six original proposed designs remain accessible through the [historical proposal index](../history/decisions/recovered-proposals.md); no accepted decision is replaced or downgraded.
-
-- **Roadmap cohort follow-up:** The first focused roadmap run terminates after 16 passes and one fixture-path error: the manually edited cycle test still writes the old root queue after canonical contained initialization. Select the queue through the declared ProjectContext and preserve the exact cycle refusal and byte-preservation assertions. Also check both legacy and contained queue/manifest locations in the existing failed-initialization rollback control.
-
-- **Roadmap regression result:** All 23 focused roadmap dependency controls pass in 1.215 seconds after selecting the actual declared queue. Existing cycle-refusal and exact-byte assertions remain intact, and failed initialization additionally proves absence of contained manifests and queues. Lint/format, authored/generated layout and public-export checks pass. The native-root cohort remains live and is not relabeled as passing.
-
-- **Metadata-only recovery resolutions:** ORIGINAL-ADOPT-001 and SOURCE-SCAN-DUPLICATES-001 remain in the original 1.4.0 manifest, their changelog additions remain present, and the scanner item already contains later terminal evidence. Preserve the current manifest, later queue state and authority pins rather than restoring historical pending flags or stale review identities. The hosted producer/retry addition is already present as one exact 2,465-byte prose block. Preserve the distinct earlier Windows observation verbatim in the custody record, with its historical scope; do not reinterpret it as current acceptance.
+**Next action (in progress).** Reconcile the remaining 69 snapshots while observing
+the original 160-case native-root run, which remains live under its original
+deadline. Do not restart a live run. Then continue actual installed update/reparent
+application and changed-parent cases under PROJECT-LAYOUT-001. Source/installed
+results at earlier immutable subjects do not qualify a later composed candidate.
+Full containment, original platform/source/installed/review gates and release
+acceptance remain open. The stale documentation authority review, prior
+source-timeout hold and storage-cutover hold remain intact; no driver, authority
+marker or release receipt is repinned by this custody work.
