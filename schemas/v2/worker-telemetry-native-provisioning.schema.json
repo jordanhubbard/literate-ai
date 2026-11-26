@@ -1,0 +1,449 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:literate-ai:schema:v2:worker-telemetry-native-provisioning",
+  "description": "Explicit operator native provider preparation and descriptive observation receipt selections. Schema validity never creates an original build/probe witness, execution admission, or live process target. Full current source/compiler/input/runtime/platform/receipt/ownership checks remain mandatory. Query messages cannot provision tools or choose commands/PIDs.",
+  "oneOf": [
+    {
+      "$ref": "urn:literate-ai:schema:v2:worker-telemetry-native-provisioning#/$defs/build_plan"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:worker-telemetry-native-provisioning#/$defs/provider_binding"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:worker-telemetry-native-provisioning#/$defs/namespace_initialization"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:worker-telemetry-native-provisioning#/$defs/build_planning"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:worker-telemetry-native-provisioning#/$defs/published"
+    }
+  ],
+  "$defs": {
+    "build_plan": {
+      "$id": "literate-ai/private-native-provider-build-plan@1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "source_identity",
+        "native_platform",
+        "compiler_identity",
+        "receiver_code_identity",
+        "namespace_identities",
+        "flags",
+        "maximum_dependencies",
+        "maximum_translation_unit_bytes",
+        "maximum_artifact_bytes",
+        "maximum_compiler_file_bytes",
+        "aggregate_storage_sandbox",
+        "toolchain_provenance",
+        "hermetic_linker_sdk_provenance",
+        "maximum_input_bytes",
+        "maximum_elapsed_seconds",
+        "execution_environment",
+        "native_qualification_required",
+        "observation_policy",
+        "selected_compiler",
+        "compiler_resource_directory",
+        "compiler_resource_identity",
+        "version_probe_timeout_seconds",
+        "version_probe_descendant_cleanup",
+        "maximum_input_aliases",
+        "maximum_input_alias_hops",
+        "maximum_input_alias_metadata_bytes",
+        "compiler_input_alias_policy"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/private-native-provider-build-plan@1"
+        },
+        "source_identity": {
+          "const": "sha256:602d4de7d5fd625ecbf1227397a0ef669fd4bfe31f0c8174fc025c8bdf0739ce"
+        },
+        "native_platform": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "system",
+            "release",
+            "kernel_build_identity",
+            "machine"
+          ],
+          "properties": {
+            "system": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "release": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "machine": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "kernel_build_identity": {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          }
+        },
+        "compiler_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "receiver_code_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "namespace_identities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "build",
+            "provider"
+          ],
+          "properties": {
+            "build": {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            },
+            "provider": {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          }
+        },
+        "flags": {
+          "const": [
+            "-std=gnu11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror"
+          ]
+        },
+        "maximum_dependencies": {
+          "const": 4096
+        },
+        "maximum_translation_unit_bytes": {
+          "const": 16777216
+        },
+        "maximum_artifact_bytes": {
+          "const": 2097152
+        },
+        "maximum_compiler_file_bytes": {
+          "const": 16777216
+        },
+        "aggregate_storage_sandbox": {
+          "const": false
+        },
+        "toolchain_provenance": {
+          "const": "current-host-compiler-and-retained-translation-unit"
+        },
+        "hermetic_linker_sdk_provenance": {
+          "const": false
+        },
+        "maximum_input_bytes": {
+          "const": 67108864
+        },
+        "maximum_elapsed_seconds": {
+          "const": 120
+        },
+        "execution_environment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "PATH",
+            "LC_ALL",
+            "LANG"
+          ],
+          "properties": {
+            "PATH": {
+              "type": "string",
+              "maxLength": 4096
+            },
+            "LC_ALL": {
+              "const": "C"
+            },
+            "LANG": {
+              "const": "C"
+            }
+          }
+        },
+        "native_qualification_required": {
+          "const": true
+        },
+        "observation_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "interval_ms",
+            "process_timeout_ms",
+            "output_limit_bytes"
+          ],
+          "properties": {
+            "interval_ms": {
+              "const": 1000
+            },
+            "process_timeout_ms": {
+              "const": 4000
+            },
+            "output_limit_bytes": {
+              "const": 98304
+            }
+          }
+        },
+        "selected_compiler": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "pattern": "^/[^\\u0000\\r\\n]*$"
+            }
+          ]
+        },
+        "compiler_resource_directory": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "pattern": "^/[^\\u0000\\r\\n]*$"
+            }
+          ]
+        },
+        "compiler_resource_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "minItems": 9,
+              "maxItems": 9,
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9223372036854775808,
+                    "maximum": 9223372036854775807
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "integer_decimal"
+                    ],
+                    "properties": {
+                      "integer_decimal": {
+                        "type": "string",
+                        "pattern": "^-?(0|[1-9][0-9]*)$",
+                        "maxLength": 64
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "version_probe_timeout_seconds": {
+          "const": 15
+        },
+        "version_probe_descendant_cleanup": {
+          "const": true
+        },
+        "maximum_input_aliases": {
+          "const": 64
+        },
+        "maximum_input_alias_hops": {
+          "const": 8
+        },
+        "maximum_input_alias_metadata_bytes": {
+          "const": 16384
+        },
+        "compiler_input_alias_policy": {
+          "const": "canonical-final-file-chains-regular-endpoints"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "compiler_resource_directory": {
+              "type": "null"
+            },
+            "compiler_resource_identity": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "compiler_resource_directory": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "pattern": "^/[^\\u0000\\r\\n]*$"
+            },
+            "compiler_resource_identity": {
+              "type": "array"
+            }
+          }
+        }
+      ]
+    },
+    "provider_binding": {
+      "$id": "literate-ai/private-worker-telemetry-native-provider@2",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "source_identity",
+        "artifact_identity",
+        "artifact_size_bytes",
+        "provision_identity",
+        "interval_ms",
+        "process_timeout_ms",
+        "output_limit_bytes"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/private-worker-telemetry-native-provider@2"
+        },
+        "source_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "artifact_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "artifact_size_bytes": {
+          "type": "integer",
+          "minimum": 64,
+          "maximum": 2097152
+        },
+        "provision_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "interval_ms": {
+          "const": 1000
+        },
+        "process_timeout_ms": {
+          "const": 4000
+        },
+        "output_limit_bytes": {
+          "const": 98304
+        }
+      }
+    },
+    "namespace_initialization": {
+      "$id": "literate-ai/worker-telemetry-native-initialization@1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "namespace_identities",
+        "created",
+        "provider_admitted",
+        "execution_authority"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/worker-telemetry-native-initialization@1"
+        },
+        "namespace_identities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "build",
+            "provider"
+          ],
+          "properties": {
+            "build": {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            },
+            "provider": {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          }
+        },
+        "created": {
+          "const": true
+        },
+        "provider_admitted": {
+          "const": false
+        },
+        "execution_authority": {
+          "const": false
+        }
+      }
+    },
+    "build_planning": {
+      "$id": "literate-ai/worker-telemetry-native-build-planning@1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "plan_identity",
+        "plan",
+        "provider_admitted",
+        "execution_authority"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/worker-telemetry-native-build-planning@1"
+        },
+        "plan_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "plan": {
+          "$ref": "urn:literate-ai:schema:v2:worker-telemetry-native-provisioning#/$defs/build_plan"
+        },
+        "provider_admitted": {
+          "const": false
+        },
+        "execution_authority": {
+          "const": false
+        }
+      }
+    },
+    "published": {
+      "$id": "literate-ai/private-native-provider-published@1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "artifact_identity",
+        "provision_identity",
+        "execution_authority",
+        "native_resource_provider"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/private-native-provider-published@1"
+        },
+        "artifact_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "provision_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "execution_authority": {
+          "const": false
+        },
+        "native_resource_provider": {
+          "$ref": "urn:literate-ai:schema:v2:worker-telemetry-native-provisioning#/$defs/provider_binding"
+        }
+      }
+    }
+  }
+}

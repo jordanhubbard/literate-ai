@@ -217,6 +217,7 @@ def run_owned_freebsd_attempt(
     stdout_limit_bytes=1024 * 1024,
     stderr_limit_bytes=65536,
     cleanup_timeout_milliseconds=5000,
+    observation_feed=None,
 ):
     """Run a privately registered command under a dedicated native reaper.
 
@@ -285,6 +286,8 @@ def run_owned_freebsd_attempt(
         raise FreeBsdOwnedAttemptError(
             "cancelled", guardian_pid=None, cleanup_verified=True
         )
+    observation_read = observation_write = native_observation = None
+    observation_buffer = None
     # The helper is stdlib-only; ignore ambient Python import paths and site hooks.
     supervisor = str(files("literate_ai").joinpath("freebsd_attempt_supervisor.py"))
     read_end, write_end = os.pipe()
@@ -295,37 +298,121 @@ def run_owned_freebsd_attempt(
     stopped, grace = None, None
     received_frame, frame_exit_deadline = False, None
 
+    def stop_observing():
+        nonlocal native_observation, observation_read
+        if native_observation is not None:
+            with suppress(Exception):
+                native_observation.close()
+            native_observation = None
+        if observation_read is not None:
+            with suppress(KeyError, OSError, ValueError):
+                selector.unregister(observation_read)
+            with suppress(OSError):
+                os.close(observation_read)
+            observation_read = None
+
     def stop(reason):
         nonlocal write_end, stopped, grace
         if stopped is None:
             stopped = reason
             grace = time.monotonic() + cleanup_timeout_milliseconds / 1000 + 2
+        stop_observing()
         if write_end is not None:
             os.close(write_end)
             write_end = None
 
     try:
+        if observation_feed is not None:
+            try:
+                from .worker_telemetry_native_feed import ActualNativeObservationFeed
+                from .worker_telemetry_native_probe_feed import NativeProviderProbeFeed
+
+                # Separate operator-PROVISION probes require their own original
+                # acknowledged build owner. Neither type accepts decoded owners,
+                # arbitrary callbacks or caller-selected process targets.
+                if type(observation_feed) not in (
+                    ActualNativeObservationFeed,
+                    NativeProviderProbeFeed,
+                ):
+                    raise TypeError("original native observation feed required")
+                native_observation = observation_feed.begin_original_runner(
+                    nonce, expires_at
+                )
+                observation_read, observation_write = os.pipe()
+                os.set_blocking(observation_read, False)
+                os.set_blocking(observation_write, False)
+                observed_document = {
+                    **document,
+                    "schema": protocol.OBSERVED_REQUEST_SCHEMA,
+                    "observation_binding": native_observation.binding,
+                }
+                observed_raw = json.dumps(
+                    observed_document, separators=(",", ":")
+                ).encode()
+                if len(observed_raw) > protocol.MAX_REQUEST_BYTES:
+                    raise ValueError(
+                        "optional observation envelope exceeds request policy"
+                    )
+                observation_buffer = bytearray()
+                raw = observed_raw
+            except Exception:
+                # Optional observation setup does not change execution admission.
+                if native_observation is not None:
+                    with suppress(Exception):
+                        native_observation.close()
+                for descriptor in (observation_read, observation_write):
+                    if descriptor is not None:
+                        with suppress(OSError):
+                            os.close(descriptor)
+                observation_read = observation_write = native_observation = None
         with tempfile.TemporaryFile(dir=staging_root) as request_file:
             request_file.write(raw)
             request_file.seek(0)
+            guardian_command = [
+                sys.executable,
+                "-I",
+                "-S",
+                supervisor,
+                "--control-fd",
+                str(read_end),
+            ]
+            if observation_write is not None:
+                guardian_command.extend(["--observation-fd", str(observation_write)])
             guardian = subprocess.Popen(
-                [sys.executable, "-I", "-S", supervisor, "--control-fd", str(read_end)],
+                guardian_command,
                 cwd=cwd,
                 env={"PATH": os.defpath, "LC_ALL": "C", "LANG": "C"},
                 stdin=request_file,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 close_fds=True,
-                pass_fds=(read_end,),
+                pass_fds=(read_end,)
+                if observation_write is None
+                else (read_end, observation_write),
                 start_new_session=True,
             )
         os.close(read_end)
         read_end = None
+        if observation_write is not None:
+            with suppress(OSError):
+                os.close(observation_write)
+            observation_write = None
+        if observation_read is not None:
+            try:
+                selector.register(observation_read, selectors.EVENT_READ, "observation")
+            except Exception:
+                stop_observing()
         for name in streams:
             pipe = getattr(guardian, name)
             os.set_blocking(pipe.fileno(), False)
             selector.register(pipe, selectors.EVENT_READ, name)
         while guardian.poll() is None or selector.get_map():
+            # Observation readiness is optional. A slow/nonreading observer
+            # cannot keep an already-exited guardian's completion loop alive.
+            if guardian.poll() is not None:
+                stop_observing()
+                if not selector.get_map():
+                    break
             if stopped is None:
                 try:
                     admission_guard()
@@ -347,6 +434,33 @@ def run_owned_freebsd_attempt(
                     cleanup_verified=False,
                 )
             for key, _events in selector.select(0.05):
+                if key.data == "observation":
+                    try:
+                        block = os.read(key.fd, protocol.MAX_OBSERVATION_BYTES)
+                        if not block:
+                            stop_observing()
+                            continue
+                        observation_buffer.extend(block)
+                        if len(observation_buffer) > 2 * protocol.MAX_OBSERVATION_BYTES:
+                            raise ValueError("observation pipe exceeded bounded frame")
+                        # Work is bounded by the fixed read/accumulator envelope.
+                        while b"\n" in observation_buffer:
+                            line, _, remaining = observation_buffer.partition(b"\n")
+                            observation_buffer[:] = remaining
+                            value = protocol._observation(
+                                bytes(line),
+                                nonce=nonce,
+                                guardian_pid=guardian.pid,
+                                binding=native_observation.binding,
+                            )
+                            observation_feed.push(
+                                native_observation, value, guardian_pid=guardian.pid
+                            )
+                    except BlockingIOError:
+                        pass
+                    except Exception:
+                        stop_observing()
+                    continue
                 block = os.read(key.fd, 65536)
                 if not block:
                     selector.unregister(key.fileobj)
@@ -363,6 +477,10 @@ def run_owned_freebsd_attempt(
                     stdout_limit_bytes,
                     stderr_limit_bytes,
                 )
+                # Retire the observational channel on any genuine terminal
+                # response, before interpreting cleanup or waiting for exit.
+                # The actual streams/guardian retain their original custody.
+                stop_observing()
                 received_frame = True
                 if not early[1]:
                     # An unsuccessful bounded cleanup deliberately leaves the
@@ -428,6 +546,10 @@ def run_owned_freebsd_attempt(
             "cleanup-unproven", guardian_pid=guardian.pid, cleanup_verified=False
         ) from exc
     finally:
+        stop_observing()
+        if observation_write is not None:
+            with suppress(OSError):
+                os.close(observation_write)
         # EOF requests cooperative native cleanup. Never SIGKILL this process:
         # even an unproven result must leave the kernel owner alive to drain.
         if write_end is not None:

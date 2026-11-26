@@ -27,6 +27,9 @@ from pathlib import Path
 
 REQUEST_SCHEMA = "literate-ai/freebsd-owned-attempt-request@2"
 LEGACY_REQUEST_SCHEMA = "literate-ai/freebsd-owned-attempt-request@1"
+OBSERVED_REQUEST_SCHEMA = "literate-ai/freebsd-owned-attempt-request@3"
+OBSERVATION_SCHEMA = "literate-ai/freebsd-owned-attempt-observation@1"
+MAX_OBSERVATION_BYTES = 2048
 RESPONSE_SCHEMA = "literate-ai/freebsd-owned-attempt-response@1"
 CHILD_CONTROL_ENVIRONMENT = "LITAI_FREEBSD_ATTEMPT_CONTROL"
 MAX_REQUEST_BYTES = 24 * 1024**2
@@ -209,7 +212,13 @@ def _request(content):
             "stderr_limit_bytes",
             "cleanup_timeout_milliseconds",
         }
-        or value["schema"] not in (REQUEST_SCHEMA, LEGACY_REQUEST_SCHEMA)
+        | (
+            {"observation_binding"}
+            if value.get("schema") == OBSERVED_REQUEST_SCHEMA
+            else set()
+        )
+        or value["schema"]
+        not in (REQUEST_SCHEMA, LEGACY_REQUEST_SCHEMA, OBSERVED_REQUEST_SCHEMA)
     ):
         raise ValueError("invalid attempt request")
     if (
@@ -217,6 +226,11 @@ def _request(content):
         or re.fullmatch("[0-9a-f]{32}", value["nonce"]) is None
     ):
         raise ValueError("invalid attempt correlation")
+    if value["schema"] == OBSERVED_REQUEST_SCHEMA and (
+        type(value["observation_binding"]) is not str
+        or re.fullmatch("[0-9a-f]{64}", value["observation_binding"]) is None
+    ):
+        raise ValueError("invalid observation binding")
     command = value["command"]
     environment = value["environment"]
     if (
@@ -284,18 +298,82 @@ def _emit(value):
         pass
 
 
+def _observation(content, *, nonce, guardian_pid, binding):
+    """Bounded mechanical frame comparison; this creates no live authority."""
+    if type(content) is not bytes or not 0 < len(content) <= MAX_OBSERVATION_BYTES:
+        raise ValueError("observation exceeds its byte bound")
+    value = json.loads(content, object_pairs_hook=_pairs)
+    if (
+        type(value) is not dict
+        or set(value)
+        != {
+            "schema",
+            "nonce",
+            "binding",
+            "guardian_pid",
+            "sequence",
+            "observed_at_ms",
+            "monotonic_ns",
+        }
+        or value["schema"] != OBSERVATION_SCHEMA
+        or value["nonce"] != nonce
+        or value["binding"] != binding
+        or type(value["guardian_pid"]) is not int
+        or value["guardian_pid"] != guardian_pid
+        or any(
+            type(value[name]) is not int or not 0 < value[name] <= 2**63 - 1
+            for name in ("sequence", "observed_at_ms", "monotonic_ns")
+        )
+    ):
+        raise ValueError("observation correlation differs")
+    return {
+        name: value[name]
+        for name in ("nonce", "binding", "sequence", "observed_at_ms", "monotonic_ns")
+    }
+
+
 class _Stopped(Exception):
     pass
 
 
-def supervise(control_fd, request, payload, expiry, monotonic_deadline):
+def supervise(
+    control_fd, request, payload, expiry, monotonic_deadline, observation_fd=None
+):
     if not stat.S_ISFIFO(os.fstat(control_fd).st_mode):
         raise ValueError("attempt cancellation requires a private pipe")
     os.set_blocking(control_fd, False)
+    if (request["schema"] == OBSERVED_REQUEST_SCHEMA) != (observation_fd is not None):
+        raise ValueError("explicit observed request/channel required together")
+    if observation_fd is not None:
+        separate = False
+        try:
+            observed_node = os.fstat(observation_fd)
+            control_node = os.fstat(control_fd)
+            separate = (observed_node.st_dev, observed_node.st_ino) != (
+                control_node.st_dev,
+                control_node.st_ino,
+            )
+            if not stat.S_ISFIFO(observed_node.st_mode) or not separate:
+                raise ValueError("observation requires its own private pipe")
+            os.set_blocking(observation_fd, False)
+            os.write(observation_fd, b"")  # Require its original writable end.
+        except Exception:
+            # Optional observation setup cannot prevent the actual admitted job.
+            # In particular never close an aliased cancellation descriptor.
+            if separate:
+                with suppress(OSError):
+                    os.close(observation_fd)
+            observation_fd = None
     reaper = _Reaper()  # No child has been created in this dedicated process.
     try:
         return _supervise_owned(
-            reaper, control_fd, request, payload, expiry, monotonic_deadline
+            reaper,
+            control_fd,
+            request,
+            payload,
+            expiry,
+            monotonic_deadline,
+            observation_fd,
         )
     finally:
         # Diagnostic allocation, pipe closing and response emission must never
@@ -308,9 +386,62 @@ def supervise(control_fd, request, payload, expiry, monotonic_deadline):
                 time.sleep(0.02)
 
 
-def _supervise_owned(reaper, control_fd, request, payload, expiry, monotonic_deadline):
+def _supervise_owned(
+    reaper,
+    control_fd,
+    request,
+    payload,
+    expiry,
+    monotonic_deadline,
+    observation_fd=None,
+):
     signalled = [0]
     child_read = child_write = None
+    observation_sequence = 0
+    next_observation = 0
+
+    def observe_actual_child(process):
+        nonlocal observation_fd, observation_sequence, next_observation
+        if observation_fd is None or time.monotonic() < next_observation:
+            return
+        next_observation = time.monotonic() + 1
+        try:
+            # A successful Popen alone does not prove kernel containment. Only
+            # this original acquired reaper with an actual live owned child may
+            # emit running observations. No process identifiers become public.
+            owned = reaper.status()
+            if process.poll() is not None or owned.children + owned.descendants < 1:
+                return
+            observation_sequence += 1
+            raw = (
+                json.dumps(
+                    {
+                        "schema": OBSERVATION_SCHEMA,
+                        "nonce": request["nonce"],
+                        "binding": request["observation_binding"],
+                        "guardian_pid": reaper.pid,
+                        "sequence": observation_sequence,
+                        "observed_at_ms": int(time.time() * 1000),
+                        "monotonic_ns": time.monotonic_ns(),
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode()
+                + b"\n"
+            )
+            if len(raw) > min(
+                MAX_OBSERVATION_BYTES, os.fpathconf(observation_fd, "PC_PIPE_BUF")
+            ):
+                return
+            # <= PIPE_BUF and nonblocking: an absent/slow observer never waits
+            # on execution or cleanup. Drop this sample when the pipe is full.
+            os.write(observation_fd, raw)
+        except BlockingIOError:
+            pass
+        except Exception:
+            with suppress(OSError):
+                os.close(observation_fd)
+            observation_fd = None
 
     def stop(signum, _frame):
         signalled[0] = signum
@@ -342,7 +473,7 @@ def _supervise_owned(reaper, control_fd, request, payload, expiry, monotonic_dea
     selector.register(control_fd, selectors.EVENT_READ, "control")
     try:
         environment = dict(request["environment"])
-        if request["schema"] == REQUEST_SCHEMA:
+        if request["schema"] in (REQUEST_SCHEMA, OBSERVED_REQUEST_SCHEMA):
             child_read, child_write = os.pipe()
             os.set_blocking(child_read, False)
             os.set_blocking(child_write, False)
@@ -388,6 +519,7 @@ def _supervise_owned(reaper, control_fd, request, payload, expiry, monotonic_dea
                 if process.poll() is not None:
                     break
                 boundary()
+                observe_actual_child(process)
                 for key, _events in selector.select(0.05):
                     if key.data in {"control", "child-control"}:
                         boundary()
@@ -410,6 +542,12 @@ def _supervise_owned(reaper, control_fd, request, payload, expiry, monotonic_dea
         # A Python failure cannot bypass native cleanup or abandon this reaper.
         reason = "supervisor-error"
     finally:
+        # End native observation before entering any cleanup operation. The
+        # original parent reader invalidates its own witness on this EOF.
+        if observation_fd is not None:
+            with suppress(OSError):
+                os.close(observation_fd)
+            observation_fd = None
         cleanup = _cleanup(reaper, request["cleanup_timeout_milliseconds"] / 1000)
         # Reaper cleanup may have harvested the direct child after cancellation.
         # A missing status never becomes a fabricated successful exit.
@@ -467,11 +605,19 @@ def _supervise_owned(reaper, control_fd, request, payload, expiry, monotonic_dea
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--control-fd", required=True, type=int)
+    parser.add_argument("--observation-fd", type=int)
     args = parser.parse_args()
     request, payload, expiry, monotonic_deadline = _request(
         sys.stdin.buffer.read(MAX_REQUEST_BYTES + 1)
     )
-    return supervise(args.control_fd, request, payload, expiry, monotonic_deadline)
+    return supervise(
+        args.control_fd,
+        request,
+        payload,
+        expiry,
+        monotonic_deadline,
+        args.observation_fd,
+    )
 
 
 if __name__ == "__main__":

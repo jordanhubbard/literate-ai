@@ -932,6 +932,9 @@ def _parser() -> JsonArgumentParser:
     worker_commands = worker.add_subparsers(
         dest="worker_command", required=True, parser_class=JsonArgumentParser
     )
+    from .worker_telemetry import add_telemetry_arguments
+
+    add_telemetry_arguments(worker_commands)
     from .worker_registry import add_registry_arguments
 
     add_registry_arguments(worker_commands)
@@ -3315,9 +3318,19 @@ def main(
     )
     scoped_retained_cargo = command == "project.retained-cargo"
     scoped_worker_health = command == "worker.health"
+    scoped_worker_telemetry = command in {
+        "worker.telemetry",
+        "worker.telemetry-initialize",
+        "worker.telemetry-native-initialize",
+        "worker.telemetry-native-plan",
+        "worker.telemetry-native-provision",
+    }
     scoped_agent_entrypoints = command == "project.agent-entrypoints"
     scoped_orchestration = (
-        scoped_orchestration or scoped_worker_health or scoped_agent_entrypoints
+        scoped_orchestration
+        or scoped_worker_health
+        or scoped_worker_telemetry
+        or scoped_agent_entrypoints
     )
     scoped_evidence = (
         command.startswith("project.")
@@ -3379,9 +3392,13 @@ def main(
                 "project.agent_entrypoints_read_only_options"
                 if scoped_agent_entrypoints
                 else (
-                    "worker.health_read_only_options"
-                    if scoped_worker_health
-                    else "orchestration.read_only_options"
+                    "worker.telemetry_scoped_options"
+                    if scoped_worker_telemetry
+                    else (
+                        "worker.health_read_only_options"
+                        if scoped_worker_health
+                        else "orchestration.read_only_options"
+                    )
                 ),
                 "read-only inspection does not admit MCP discovery "
                 "or debug-file output",

@@ -61,6 +61,10 @@ from literate_ai.adapters.action_tool_selectors import (
     encode_selector_response,
 )
 from literate_ai.adapters.cache.filesystem import _read_regular_file
+from literate_ai.adapters.worker_telemetry_context import (
+    begin_actual_operation_observation,
+    observation_lifetime,
+)
 from literate_ai.adapters.worker_tool_dependencies import (
     WorkerDependencyGraphLimitError,
 )
@@ -224,6 +228,7 @@ def _custody_failure_code(exc: BaseException) -> str:
     return f"action_capability.custody_unavailable.{kind}"
 
 
+@observation_lifetime
 def main(
     argv=None,
     *,
@@ -236,6 +241,7 @@ def main(
     | ConfiguredRetainedUnitPackageWorker
     | None = None,
     finalize_worker: ConfiguredFinalizeWorker | None = None,
+    telemetry_publisher=None,
 ) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--worker-identity-env", default="LITAI_ACTION_WORKER_IDENTITY")
@@ -250,10 +256,29 @@ def main(
     observations.add_argument("--describe-tools", action="store_true")
     observations.add_argument("--describe-tool-dependencies", action="store_true")
     observations.add_argument("--verify-tool-selectors", action="store_true")
+    observations.add_argument("--observe-telemetry", action="store_true")
+    # This is a literal private wrapper binding, never selected by wire input.
+    parser.add_argument("--telemetry-configuration", type=Path)
     # Read-only: stage a FINALIZE request and report the grant it needs.
     observations.add_argument("--describe-finalize-grant", action="store_true")
     parser.add_argument("--request-file", type=Path)
     args = parser.parse_args(argv)
+    if args.observe_telemetry:
+        if args.telemetry_configuration is None or args.request_file is not None:
+            sys.stdout.buffer.write(
+                canonical_json_bytes(
+                    {
+                        "schema": "literate-ai/worker-telemetry-refusal@1",
+                        "error": {"code": "worker_telemetry.not_configured"},
+                    }
+                )
+            )
+            return 2
+        # Observation takes no action capability, CAS/workspace owner or provider.
+        # The configured private wrapper supplies its path before any wire read.
+        from literate_ai.worker_telemetry_receiver import main as observe
+
+        return observe(["--configuration", str(args.telemetry_configuration)])
     capability = None
     measured = False
     describing = (
@@ -424,6 +449,10 @@ def main(
         if capability is not None:
             _require_capability(capability, deadline, expected_worker, **describe)
             measured = True
+        if not describing and not args.describe_finalize_grant:
+            begin_actual_operation_observation(
+                telemetry_publisher, request, deadline, capability
+            )
         if (
             args.describe_finalize_grant
             and request.action.kind is not LifecycleActionKind.FINALIZE

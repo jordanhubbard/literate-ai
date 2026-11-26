@@ -13,6 +13,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from .windows_job_accounting import read_original_job_accounting
+from .windows_job_numeric_feed import NumericJobFeed, NumericJobSample
+
 # -- Win32 Job Object primitives -------------------------------------------
 #
 # `CREATE_NEW_PROCESS_GROUP` (used by `process_group_options` below) only
@@ -181,13 +184,152 @@ class ProcessTreeOwnership:
         compare=False,
     )
 
-    def _claim_job(self) -> WindowsProcessTreeJob | None:
-        """Atomically transfer the live Job Object to exactly one caller."""
+    # Optional fact-only observation state is owned by the original runner.
+    # Neither the public numeric feed nor any reader receives this Job object.
+    _observation: tuple | None = field(
+        default=None, init=False, repr=False, compare=False
+    )
 
+    _runner_control: tuple | None = field(
+        default=None, init=False, repr=False, compare=False
+    )
+
+    def begin_windows_job_observation(self, feed: Any, control: tuple) -> bool:
+        """Opt in after successful bind, before starting any stream reader.
+
+        All optional setup failures leave legacy execution ownership unchanged.
+        Successful opt-in requires reader failures to wake the original runner;
+        they must never terminate/release this Job from a reader thread.
+        """
+        if (
+            type(feed) is not NumericJobFeed
+            or self._runner_control is not None
+            or type(control) is not tuple
+            or len(control) != 3
+            or any(type(event) is not threading.Event for event in control)
+        ):
+            return False
         with self._job_lock:
             job = self.job
-            self.job = None
-            return job
+        if job is None or job._closed:
+            return False
+        writer = feed.begin_original_writer()
+        # Allocate both immutable state tuples BEFORE publishing either mode.
+        # Optional allocation failure cannot strand an exclusive control guard
+        # when the bounded runner is still using its legacy wait/reader path.
+        runner_control = (os.getpid(), threading.get_ident(), *control)
+        observation = (
+            os.getpid(),
+            threading.get_ident(),
+            job,
+            feed,
+            writer,
+            read_original_job_accounting,
+            NumericJobSample,
+        )
+        # Preparation may race an ordinary pre-opt-in concurrent claim. Rejoin
+        # and publish the exclusive mode atomically with all future claims.
+        with self._job_lock:
+            accepted = (
+                self.job is job and not job._closed and self._runner_control is None
+            )
+            if accepted:
+                self._observation = observation
+                self._runner_control = runner_control
+        if not accepted:
+            writer.close()
+        return accepted
+
+    def take_windows_job_control_request(self) -> str | None:
+        """Only the original runner consumes coalesced foreign control requests."""
+        state = self._runner_control
+        if state is None or (os.getpid(), threading.get_ident()) != state[:2]:
+            return None
+        _pid, _thread, _wake, terminate, release = state
+        if terminate.is_set():
+            terminate.clear()
+            return "terminate"
+        if release.is_set():
+            release.clear()
+            return "release"
+        return None
+
+    def finish_windows_job_observation(self) -> None:
+        """End the handoff only after original-runner Job release is complete."""
+        with self._job_lock:
+            state = self._runner_control
+            if state is None:
+                return
+            if (os.getpid(), threading.get_ident()) != state[
+                :2
+            ] or self.job is not None:
+                return
+            self._runner_control = None
+
+    def sample_windows_job_observation(self) -> None:
+        """Push fixed-size Job counters on the sole original runner thread."""
+        state = self._observation
+        if state is None:
+            return
+        pid, thread, job, feed, writer, read, sample_type = state
+        if os.getpid() != pid or threading.get_ident() != thread:
+            return
+        try:
+            # No execution lock is held during a native query or feed push.
+            # On the opted-in path no reader is allowed to claim the Job.
+            if self.job is not job or job._closed:
+                raise ValueError("original Job lifetime ended")
+            value = read(job._kernel32, job._handle)
+            feed.push(
+                writer,
+                sample_type(
+                    feed.epoch,
+                    value.started_monotonic_ns,
+                    value.ended_monotonic_ns,
+                    value.observed_at_ms,
+                    value.cpu_time_ns,
+                    value.total_processes,
+                    value.active_processes,
+                ),
+            )
+        except Exception:
+            # Measurement failure disables only observation. The runner retains
+            # sole execution-control ownership until its ordinary cleanup.
+            self.close_windows_job_observation()
+
+    def close_windows_job_observation(self) -> None:
+        """Invalidate numeric access BEFORE any native Job claim/close."""
+        state = self._observation
+        if state is None:
+            return
+        if os.getpid() != state[0] or threading.get_ident() != state[1]:
+            return
+        self._observation = None
+        with suppress(Exception):
+            state[4].close()
+
+    def _claim_job(self, request: str) -> tuple[WindowsProcessTreeJob | None, bool]:
+        """Atomically transfer, or defer a foreign opt-in caller without transfer.
+
+        The recheck is INSIDE the same lock as opt-in publication. A caller
+        cannot observe legacy mode then claim after exclusive mode begins.
+        """
+        deferred = None
+        with self._job_lock:
+            state = self._runner_control
+            if state is not None and (os.getpid(), threading.get_ident()) != state[:2]:
+                deferred = state
+            else:
+                self.close_windows_job_observation()
+                job = self.job
+                self.job = None
+                return job, False
+        # No native control or observation callback runs under the job lock.
+        # Fixed original Events only coalesce a request and wake its runner.
+        _pid, _thread, wake, terminate, release = deferred
+        (terminate if request == "terminate" else release).set()
+        wake.set()
+        return None, True
 
     def bind(self, pid: int) -> None:
         """Assign the just-spawned root process to the job, if any.
@@ -201,6 +343,8 @@ class ProcessTreeOwnership:
         """
 
         with self._job_lock:
+            if self._runner_control is not None:
+                return
             job = self.job
             if job is None:
                 return
@@ -209,21 +353,24 @@ class ProcessTreeOwnership:
             self.job = None
         job.close()
 
-    def terminate(self) -> None:
-        """Terminate and close the Job Object once across concurrent callers."""
+    def _terminate_or_defer(self) -> bool:
+        job, deferred = self._claim_job("terminate")
+        if deferred:
+            return True
+        if job is not None:
+            try:
+                job.terminate()
+            finally:
+                job.close()
+        return False
 
-        job = self._claim_job()
-        if job is None:
-            return
-        try:
-            job.terminate()
-        finally:
-            job.close()
+    def terminate(self) -> None:
+        """Terminate once; opt-in foreign callers wake the original runner."""
+        self._terminate_or_defer()
 
     def release(self) -> None:
-        """Release the job handle without terminating anything."""
-
-        job = self._claim_job()
+        """Release once; opt-in foreign callers wake the original runner."""
+        job, _deferred = self._claim_job("release")
         if job is not None:
             job.close()
 
@@ -310,8 +457,11 @@ def terminate_process_tree(
                 process.kill()
         return
     if selected_platform == "nt":
-        if ownership is not None:
-            ownership.terminate()
+        if ownership is not None and ownership._terminate_or_defer():
+            # The original runner owns BOTH native Job and fallback termination
+            # for this opt-in lifetime. A foreign caller must not bypass the
+            # deferred claim by proceeding to taskkill/process.kill below.
+            return
         executable = windows_taskkill_executable(environment)
         if executable is not None:
             try:

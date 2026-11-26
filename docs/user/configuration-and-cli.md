@@ -154,6 +154,11 @@ litai worker remove
 litai worker test
 litai worker probe
 litai worker health
+litai worker telemetry
+litai worker telemetry-initialize
+litai worker telemetry-native-initialize
+litai worker telemetry-native-plan
+litai worker telemetry-native-provision
 litai worker provision
 litai worker provisioner command-help
 litai worker provisioner configure
@@ -2709,6 +2714,82 @@ DNS, connection refusal, timeout, unknown/changed host keys and authentication f
 remain distinct. One failure never suppresses peer results. A nonzero exit status means
 at least one worker failed or was unsupported. Tests do not alter host-key policy,
 install credentials, mutate workspaces, or publish hardware observations.
+
+### Worker telemetry (development)
+
+`worker telemetry` observes a finite authenticated batch over the selected
+worker's existing route. Private operator configuration supplies trust;
+`--operation` selects exact dispatch-request identities. A Node's action identity
+is separate metadata and can repeat across operations. Explicit
+`worker telemetry-initialize` creates an absent observation namespace; queries
+never initialize, repair or adopt observation state. Native and installed
+qualification and complete operator configuration tooling remain pending.
+
+The FreeBSD native resource path describes the original guardian process and its
+complete kernel-reaper descendants during **one actual native attempt**. Its
+`action-subtree` scope excludes shared receiver-parent work, CAS orchestration and
+the observer itself. These counters are not whole-PACKAGE or whole-job totals;
+unmatched attempts must not be summed into an inferred total. The counter epoch
+identifies the particular native attempt separately from the operation's owner.
+
+CPU time includes live-process and already-reaped-child time. CPU utilization
+uses an actual monotonic interval in basis points of one core and can exceed
+10,000. Memory is summed current process RSS, which can count shared pages more
+than once; it is neither peak RSS nor unique physical memory. Cached/coalesced
+samples retain their measurement timestamps. Missing measurements are unavailable,
+never fabricated zeros. Installed provider provisioning, byte attribution for
+I/O, host aggregates, other platforms and installed transport acceptance remain
+open.
+
+### Explicit FreeBSD observer preparation (development)
+
+On the actual FreeBSD worker, `worker telemetry-native-initialize` exclusively
+creates the absent private build and provider namespaces. Existing or partial
+roots refuse; this command does not adopt, overwrite or delete their contents.
+Run it through the worker's existing trusted route. It does not initialize a
+project, install a compiler, configure a receiver or grant execution permission.
+
+`worker telemetry-native-plan [--compiler /absolute/native/cc]` observes the
+current canonical reader source and selected native compiler, its actual resource
+header directory and the finite build/probe policy. It creates no build output.
+The optional compiler path selects one executable through canonical CXX discovery;
+it supplies no general flags or telemetry-query command/PID override. Copy the
+returned exact `plan_identity` to
+`worker telemetry-native-provision --acknowledge-plan sha256:...`, repeating the
+same `--compiler` selection when supplied. A changed selection refuses the old
+acknowledgment. Explicit preparation owns and bounds its compiler children;
+existing C++ discovery defaults and identities elsewhere remain unchanged.
+
+Provisioning pins current source and consumed header bytes through the bounded
+build/probe lifetime, and retains matching preprocessing observations and the
+exact preprocessed compilation input. Compiler-discovered file aliases are bound
+to their actual regular endpoints; directory aliases and noncanonical traversal
+targets refuse. The read-only plan binds the finite alias policy and limits;
+the actual build records the observed link, parent and endpoint closure. It then
+runs a fixed framework workload under a genuine native guardian, checks live child CPU
+and RSS and actual reaping, and publishes a new artifact/receipt directory
+exclusively. It keeps failed stages as evidence. Its receipt describes the
+current host compiler and retained translation unit; it does not claim a hermetic
+linker/SDK or whole-job accounting. Provider preparation cannot run from a query
+or select an existing job's PID.
+
+The returned `native_resource_provider` document is an explicit private provider
+version 2 selection for receiver configuration version 3. That receiver reopens
+and hashes its complete build/probe/guardian/provision evidence and the exact
+current source/artifact before using it. A saved receipt never restores an
+original build, native runner or action owner. Configuration version 1 retains
+its original behavior; the separate development version 2 artifact binding does
+not become a verified provision receipt implicitly. Receiver registration/scope,
+private key custody and the actual protected-parent reservation remain required.
+
+The complete 16-test module passed on FreeBSD with zero skips on the reviewed
+provider snapshot, including real build/probe/publication, authenticated
+CPU/RSS queries and post-native UNKNOWN, plus source/compiler/header/alias/artifact
+and descendant-timeout refusals. This verifies the reviewed development checkout.
+Installed operator/transport journeys and complete configuration tooling remain
+pending, alongside the other metrics, platform and complete-feature requirements
+above. Public schema registration and checks are a subsequent source change and
+are not covered by that earlier native snapshot.
 
 ### Standard lifecycle parallelism
 

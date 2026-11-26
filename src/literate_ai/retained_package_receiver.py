@@ -350,11 +350,31 @@ def _main(argv=None):
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--child", action="store_true")
     parser.add_argument("--config-identity")
+    parser.add_argument("--telemetry-configuration", type=Path)
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--describe", action="store_true")
     modes.add_argument("--describe-hardware", action="store_true")
     modes.add_argument("--read-return-blob", action="store_true")
+    modes.add_argument("--observe-telemetry", action="store_true")
     args = parser.parse_args(argv)
+    if args.observe_telemetry:
+        if args.telemetry_configuration is None or args.child or args.config_identity:
+            from literate_ai.contracts.identity import canonical_json_bytes
+
+            sys.stdout.buffer.write(
+                canonical_json_bytes(
+                    {
+                        "schema": "literate-ai/worker-telemetry-refusal@1",
+                        "error": {"code": "worker_telemetry.not_configured"},
+                    }
+                )
+            )
+            return 2
+        # The operator's literal receiver argv supplies this private binding.
+        # No execution registration, native provider or project owner is loaded.
+        from literate_ai.worker_telemetry_receiver import main as observe
+
+        return observe(["--configuration", str(args.telemetry_configuration)])
     try:
         if not sys.platform.startswith("freebsd"):
             raise ValueError("retained.receiver.native-freebsd-required")
@@ -365,6 +385,7 @@ def _main(argv=None):
                 or args.describe
                 or args.describe_hardware
                 or args.read_return_blob
+                or args.telemetry_configuration is not None
             ):
                 raise ValueError("retained.receiver.private-child-binding-differs")
             return _receive(config, [], owned_child=OwnedFreeBsdChild())
@@ -396,13 +417,23 @@ def _main(argv=None):
         worker.admit_request(
             request, deadline, _records, worker.worker.identity, capability
         )
-        with reserve_retained_receiver_attempt(
-            config.path,
-            request,
-            config.identity,
-            deadline,
-            preflight=worker.require_current,
-        ) as attempt:
+        from literate_ai.adapters.worker_telemetry_reservation import (
+            optional_protected_telemetry_publisher,
+        )
+
+        with (
+            optional_protected_telemetry_publisher(
+                args.telemetry_configuration
+            ) as publisher,
+            reserve_retained_receiver_attempt(
+                config.path,
+                request,
+                config.identity,
+                deadline,
+                preflight=worker.require_current,
+                observation_publisher=publisher,
+            ) as attempt,
+        ):
 
             def current_attempt():
                 attempt.require_current()
@@ -412,6 +443,12 @@ def _main(argv=None):
             # checks live authority at its execution boundaries; the parent's
             # frequent supervision polls retain the attempt and registration
             # fences without repeatedly reconstructing the entire public plan.
+            native_feed = None
+            if publisher is not None:
+                try:
+                    native_feed = publisher.native_feed_for_actual_parent(attempt)
+                except Exception:
+                    pass  # Optional observation cannot refuse actual execution.
             try:
                 result = run_owned_freebsd_attempt(
                     [
@@ -434,6 +471,7 @@ def _main(argv=None):
                     input_bytes=content,
                     stdout_limit_bytes=16 * 1024**2,
                     stderr_limit_bytes=65536,
+                    observation_feed=native_feed,
                 )
             except FreeBsdOwnedAttemptError as exc:
                 try:

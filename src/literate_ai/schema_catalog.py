@@ -298,6 +298,19 @@ _COMPATIBILITY_WRITE_CONTRACT_ALLOWLIST = frozenset(
         "urn:literate-ai:schema:v2:qualification-lifecycle-result",
         "literate-ai/evidence-ledger@1",
         "literate-ai/evidence-ledger-node@1",
+        "literate-ai/worker-telemetry-request@1",
+        "literate-ai/worker-telemetry-sample@1",
+        "literate-ai/worker-telemetry-response@1",
+        "literate-ai/worker-telemetry-scope@1",
+        "literate-ai/authenticated-worker-telemetry-request@1",
+        "literate-ai/authenticated-worker-telemetry-response@1",
+        "literate-ai/worker-telemetry-query-result@1",
+        "literate-ai/worker-telemetry-namespace-initialization@1",
+        "literate-ai/private-native-provider-build-plan@1",
+        "literate-ai/private-worker-telemetry-native-provider@2",
+        "literate-ai/worker-telemetry-native-initialization@1",
+        "literate-ai/worker-telemetry-native-build-planning@1",
+        "literate-ai/private-native-provider-published@1",
     }
 )
 _COMPATIBILITY_READ_PATH_ALLOWLIST = frozenset(
