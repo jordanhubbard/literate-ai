@@ -119,6 +119,53 @@ class HistoricalTransportRecoveryTests(unittest.TestCase):
 
 
 class FrameworkMergeTests(unittest.TestCase):
+    def test_serialized_update_base_cannot_bypass_last_write_guard(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            initial = UpdateBases(root)
+            initial.advance("framework", ".gitignore", BASE)
+            initial.write()
+            checkpoint = root / CHECKPOINT
+            original = checkpoint.read_bytes()
+            updated = UpdateBases(root)
+            updated.advance("framework", ".gitignore", THEIRS)
+            expected = updated.serialized()
+            self.assertNotEqual(expected, original)
+            self.assertEqual(checkpoint.read_bytes(), original)
+            guarded = []
+
+            def refuse(path):
+                guarded.append((path, path.read_bytes()))
+                raise ProjectUpdateError(
+                    "project.update_guard_refused", "guard refused"
+                )
+
+            with self.assertRaises(ProjectUpdateError) as refusal:
+                updated.write(before_write=refuse)
+            self.assertEqual(refusal.exception.code, "project.update_guard_refused")
+            self.assertEqual(guarded, [(checkpoint, original)])
+            self.assertEqual(checkpoint.read_bytes(), original)
+            self.assertFalse(updated.checkpoint_needs_rollback())
+
+            updated.write(
+                before_write=lambda path: guarded.append((path, path.read_bytes()))
+            )
+            self.assertEqual(checkpoint.read_bytes(), expected)
+            self.assertTrue(updated.checkpoint_needs_rollback())
+            updated.rollback(
+                before_write=lambda path: guarded.append((path, path.read_bytes())),
+                require_intended=True,
+            )
+            self.assertEqual(checkpoint.read_bytes(), original)
+            self.assertEqual(
+                guarded,
+                [
+                    (checkpoint, original),
+                    (checkpoint, original),
+                    (checkpoint, expected),
+                ],
+            )
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)

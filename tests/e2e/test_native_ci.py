@@ -257,6 +257,123 @@ class NativeCIJourneyTests(unittest.TestCase):
         )
         self.assertEqual(self.git("status", "--porcelain"), "")
 
+    def test_workflow_command_changes_are_reported_with_same_named_successes(self):
+        workflow = ".github/workflows/native.yml"
+        base = self.git("rev-parse", f"{self.base_revision}:{workflow}")
+        initial = self.observe("verified")["result"]
+        self.assertEqual(
+            initial["workflow_definition"],
+            {
+                "path": workflow,
+                "base_blob": base,
+                "head_blob": base,
+                "status": "unchanged",
+                "scope": "direct_workflow_file",
+                "native_review_required": False,
+            },
+        )
+        path = self.root / workflow
+        original = path.read_text()
+        path.write_text(
+            original.replace(
+                "python -m unittest discover -s tests", "python -m compileall -q src"
+            )
+        )
+        # The proposed policy points elsewhere. The accepted base still selects
+        # the workflow whose jobs and definition are observed.
+        manifest = self.root / "litai/literate.project.json"
+        policy = json.loads(manifest.read_text())
+        policy["repository_policy"]["native_ci"]["workflow"] = (
+            ".github/workflows/proposed.yml"
+        )
+        manifest.write_text(json.dumps(policy, indent=2) + "\n")
+        self.commit_head("Change both commands without renaming the checks")
+        head = self.git("rev-parse", f"{self.head}:{workflow}")
+        self.assertNotEqual(base, head)
+        result = self.observe("verified")["result"]
+        self.assertTrue(result["head_policy_changed"])
+        self.assertEqual(
+            result["workflow_definition"],
+            {
+                **initial["workflow_definition"],
+                "head_blob": head,
+                "status": "changed",
+                "native_review_required": True,
+            },
+        )
+        self.assertEqual(
+            [
+                (job["name"], job["observation_status"])
+                for job in result["required_jobs"]
+            ],
+            [("Native Linux", "success"), ("Native Windows", "success")],
+        )
+        self.assertIsNone(result["tested_tree_revision"])
+        self.assertFalse(result["admitted"])
+        self.assertFalse(result["release_qualification"])
+        self.assertEqual(result["merge_readiness"], "not_assessed")
+        self.assertEqual(
+            path.read_text(),
+            original.replace(
+                "python -m unittest discover -s tests", "python -m compileall -q src"
+            ),
+        )
+        self.assertEqual(self.git("status", "--porcelain"), "")
+
+    def commit_head(self, message):
+        self.git("add", ".")
+        self.git("commit", "-qm", message)
+        self.head = self.git("rev-parse", "HEAD")
+        self.pr["head"]["sha"] = self.head
+        self.run["headSha"] = self.head
+        self.jobs = [self.job(1, "Native Linux"), self.job(2, "Native Windows")]
+
+    def test_missing_and_nonregular_workflow_entries_leave_job_observation_visible(
+        self,
+    ):
+        workflow = ".github/workflows/native.yml"
+        path = self.root / workflow
+        base = self.git("rev-parse", f"{self.base_revision}:{workflow}")
+        path.unlink()
+        self.commit_head("Remove the workflow")
+        missing = self.head
+        expected = {
+            "path": workflow,
+            "base_blob": base,
+            "head_blob": None,
+            "status": "unavailable",
+            "scope": "direct_workflow_file",
+            "native_review_required": True,
+        }
+        result = self.observe("verified")["result"]
+        self.assertEqual(result["workflow_definition"], expected)
+        self.assertEqual(len(result["required_jobs"]), 2)
+
+        path.mkdir()
+        (path / "README").write_text("Directory, not a workflow\n")
+        self.commit_head("Replace the workflow with a tree")
+        result = self.observe("verified")["result"]
+        self.assertEqual(result["workflow_definition"], expected)
+
+        if os.name == "posix":
+            shutil.rmtree(path)
+            path.symlink_to("../../README.md")
+            self.commit_head("Replace the workflow with a symbolic link")
+            result = self.observe("verified")["result"]
+            self.assertEqual(result["workflow_definition"], expected)
+            path.unlink()
+        else:
+            shutil.rmtree(path)
+
+        path.write_bytes((self.seed.root / workflow).read_bytes())
+        self.commit_head("Restore the workflow")
+        self.pr["base"]["sha"] = missing
+        result = self.observe("verified")["result"]
+        self.assertEqual(
+            result["workflow_definition"],
+            {**expected, "base_blob": None, "head_blob": base},
+        )
+
     def test_base_policy_cannot_be_weakened_by_the_pr_or_first_adoption(self):
         manifest = self.root / "litai/literate.project.json"
         config = json.loads(manifest.read_text())
@@ -271,10 +388,14 @@ class NativeCIJourneyTests(unittest.TestCase):
         result = self.observe("incomplete")["result"]
         self.assertTrue(result["head_policy_changed"])
         self.assertEqual(len(result["required_jobs"]), 2)
-        self.pr["base"]["sha"] = self.bootstrap_revision
-        self.observe("unconfigured")
-        self.pr["base"]["sha"] = self.native_revision
-        self.observe("unconfigured")
+        for revision in (self.bootstrap_revision, self.native_revision):
+            self.pr["base"]["sha"] = revision
+            start = len(self.calls)
+            result = self.observe("unconfigured")["result"]
+            self.assertIsNone(result["workflow_definition"])
+            self.assertEqual(result["required_jobs"], [])
+            self.assertEqual(len(self.calls) - start, 1)
+            self.assertTrue(self.calls[-1][-1].endswith("/pulls/7"))
         self.pr["base"]["sha"] = self.base_revision
         self.git("update-index", "--assume-unchanged", "litai/literate.project.json")
         manifest.write_bytes(manifest.read_bytes() + b" ")
@@ -372,10 +493,14 @@ class NativeCIJourneyTests(unittest.TestCase):
         self.git("config", "remote.fixture-promisor.promisor", "true")
         self.git("config", "remote.fixture-promisor.partialclonefilter", "blob:none")
         objects = self.root / ".git/objects"
+        workflow_blob = self.git(
+            "rev-parse", self.base_revision + ":.github/workflows/native.yml"
+        )
         identities = [
             self.base_revision,
             self.git("rev-parse", self.base_revision + "^{tree}"),
             self.git("rev-parse", self.base_revision + ":litai/literate.project.json"),
+            workflow_blob,
         ]
         for identity in identities:
             with self.subTest(object=identity):
@@ -388,7 +513,15 @@ class NativeCIJourneyTests(unittest.TestCase):
                     if p.is_file()
                 }
                 try:
-                    self.observe("project.native_ci.source_unavailable")
+                    if identity == workflow_blob:
+                        result = self.observe("verified")["result"]
+                        definition = result["workflow_definition"]
+                        self.assertEqual(definition["status"], "unavailable")
+                        self.assertIsNone(definition["base_blob"])
+                        self.assertIsNone(definition["head_blob"])
+                        self.assertTrue(definition["native_review_required"])
+                    else:
+                        self.observe("project.native_ci.source_unavailable")
                     after = {
                         p.relative_to(objects): p.read_bytes()
                         for p in objects.rglob("*")

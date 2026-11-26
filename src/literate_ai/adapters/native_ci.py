@@ -92,6 +92,54 @@ def _git_text(root: Path, deadline: float, *arguments: str) -> str:
         raise NativeCIError("source_invalid", "Git metadata is not UTF-8") from exc
 
 
+def _regular_git_blob(
+    root: Path,
+    deadline: float,
+    revision: str,
+    path: str,
+    *,
+    policy: bool = False,
+) -> str | None:
+    entry = _git(
+        root,
+        deadline,
+        "ls-tree",
+        "-z",
+        "--full-tree",
+        revision,
+        "--",
+        f":(literal){path}",
+    )
+    if not entry:
+        return None
+    rows = entry.split(b"\0")
+    if len(rows) != 2 or rows[-1]:
+        _invalid("The selected Git tree entry is ambiguous")
+    metadata, separator, name = rows[0].partition(b"\t")
+    fields = metadata.split(b" ")
+    if separator != b"\t" or name != path.encode("utf-8") or len(fields) != 3:
+        _invalid("Git did not return the exact selected tree entry")
+    if fields[0] not in {b"100644", b"100755"} or fields[1] != b"blob":
+        if policy:
+            _invalid("The base policy must be one regular Git blob")
+        return None
+    return exact_git_revision(fields[2].decode("ascii", errors="strict"))
+
+
+def _workflow_blob(root: Path, deadline: float, revision: str, path: str) -> str | None:
+    try:
+        blob = _regular_git_blob(root, deadline, revision, path)
+        if (
+            blob is not None
+            and _git_text(root, deadline, "cat-file", "-t", blob) == "blob"
+        ):
+            return blob
+    except NativeCIError as exc:
+        if exc.code != "project.native_ci.source_unavailable":
+            raise
+    return None
+
+
 def _api(root: Path, deadline: float, endpoint: str) -> object:
     return read_json(
         root,
@@ -255,26 +303,12 @@ def _verify_project_ci(
     base_revision = pr["base"]["sha"]
     # Missing base objects are unknown; observation never fetches them.
     _git(root, deadline, "cat-file", "-e", f"{base_revision}^{{commit}}")
-    entry = _git(
-        root, deadline, "ls-tree", "-z", "--full-tree", base_revision, "--", manifest
+    base_blob = _regular_git_blob(root, deadline, base_revision, manifest, policy=True)
+    base_bytes = (
+        None
+        if base_blob is None
+        else _git(root, deadline, "cat-file", "blob", base_blob)
     )
-    base_bytes = None
-    if entry:
-        rows = entry.split(b"\0")
-        if len(rows) != 2 or rows[-1]:
-            _invalid("The base policy tree entry is ambiguous")
-        metadata, separator, name = rows[0].partition(b"\t")
-        fields = metadata.split(b" ")
-        if (
-            separator != b"\t"
-            or name != manifest.encode("utf-8")
-            or len(fields) != 3
-            or fields[0] not in {b"100644", b"100755"}
-            or fields[1] != b"blob"
-        ):
-            _invalid("The base policy must be one regular Git blob")
-        blob = exact_git_revision(fields[2].decode("ascii", errors="strict"))
-        base_bytes = _git(root, deadline, "cat-file", "blob", blob)
     policy = None
     if base_bytes is not None:
         definition = parse_project_configuration(base_bytes)
@@ -300,6 +334,7 @@ def _verify_project_ci(
         "policy_source_revision": base_revision,
         "policy_identity": canonical_identity(policy.to_dict()).uri if policy else None,
         "head_policy_changed": policy != current_policy.native_ci,
+        "workflow_definition": None,
         "associated_source_revision": head,
         "tested_tree_revision": None,
         "admitted": False,
@@ -316,6 +351,26 @@ def _verify_project_ci(
     }
     if policy is None:
         return report
+    base_workflow = _workflow_blob(root, deadline, base_revision, policy.workflow)
+    head_workflow = _workflow_blob(root, deadline, head, policy.workflow)
+    if base_workflow is None or head_workflow is None:
+        comparison = "unavailable"
+    elif base_workflow == head_workflow:
+        comparison = "unchanged"
+    else:
+        comparison = "changed"
+    report["workflow_definition"] = {
+        "path": policy.workflow,
+        "base_blob": base_workflow,
+        "head_blob": head_workflow,
+        "status": comparison,
+        "scope": "direct_workflow_file",
+        "native_review_required": comparison != "unchanged",
+    }
+    report["limitations"].append(
+        "The comparison covers the configured workflow file only. Review called "
+        "workflows, actions, scripts and job checkout selection separately."
+    )
     rows = workflow_runs(
         root,
         repository,
