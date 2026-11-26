@@ -18,15 +18,19 @@ def file_identity(path: Path) -> str:
         return "sha256:" + hashlib.file_digest(stream, "sha256").hexdigest()
 
 
-def release_file_path(root: Path, relative: object) -> Path:
+def release_file_parts(relative: object) -> list[str]:
     if not isinstance(relative, str) or not _PATH.fullmatch(relative):
         raise ValueError("release artifact path must be portable and relative")
     parts = relative.split("/")
     if any(part in {"", ".", ".."} for part in parts):
         raise ValueError("release artifact path contains traversal")
+    return parts
+
+
+def release_file_path(root: Path, relative: object) -> Path:
     root = root.resolve()
     path = root
-    for part in parts:
+    for part in release_file_parts(relative):
         path /= part
         if path.is_symlink():
             raise ValueError("release artifact path must not contain symlinks")
