@@ -1372,6 +1372,136 @@ def project_boundary(start: Path, *, legacy: Path) -> Path:
     return project.root if project is not None else legacy.resolve(strict=True)
 
 
+FORWARD_SKILL_ROOT = "skills/specification-to-source"
+CONTAINED_SKILL_ROOT = "litai/skills"
+CATALOG_PLACEMENT_ROOTS = {
+    "skill": "skills",
+    "flavor": "flavors",
+    "component": "components",
+    "workflow": "workflows",
+    "routing": "routing",
+}
+CATALOG_SOURCE_ROOTS = frozenset((*CATALOG_PLACEMENT_ROOTS.values(), "samples"))
+
+
+def catalog_placement_root(kind: str, coordinate: str) -> str | None:
+    if kind == "component" and coordinate.startswith(("samples/", "litai/samples/")):
+        return "samples"
+    return CATALOG_PLACEMENT_ROOTS.get(kind)
+
+
+def contained_catalog_coordinates(root: Path) -> dict[str, str]:
+    """Return only coordinates owned by a declared contained Skill import."""
+    store = ProjectConfigurationStore(root)
+    if store.context(root).framework_root == root:
+        return {}
+    snapshot = store.read()
+    enabled = {
+        name
+        for kind, primary in CATALOG_PLACEMENT_ROOTS.items()
+        for name in ((primary, "samples") if kind == "component" else (primary,))
+        if {name, f"litai/{name}"}.issubset(
+            getattr(snapshot.definition, f"{kind}_roots")
+        )
+    }
+    if not enabled:
+        return {}
+
+    from literate_ai.adapters.catalog_import import (
+        CatalogImportError,
+        read_contained_catalog_imports,
+    )
+
+    try:
+        imports = read_contained_catalog_imports(snapshot)
+    except CatalogImportError as exc:
+        raise ProjectError(exc.code, str(exc)) from exc
+    if imports is None:
+        raise ProjectError(
+            "project.skill_placement_missing",
+            "contained Skill import authority is absent",
+        )
+    coordinates = {}
+    for entry in imports.imports:
+        touched = {
+            catalog_placement_root(entry.kind, row.path)
+            for row in entry.files
+            if row.path.startswith("litai/")
+        }
+        if not touched.intersection(enabled):
+            continue
+        if len(touched) != 1:
+            raise ProjectError(
+                "project.skill_placement_conflict",
+                f"catalog has multiple placement roots: {entry.name}",
+            )
+        name = next(iter(touched))
+        prefix = f"litai/{name}/{entry.name}"
+        if any(
+            row.path != prefix and not row.path.startswith(prefix + "/")
+            for row in entry.files
+        ):
+            raise ProjectError(
+                "project.skill_placement_conflict",
+                f"catalog has mixed import ownership: {entry.name}",
+            )
+        for item in entry.files:
+            logical = item.path.removeprefix("litai/")
+            if logical in coordinates or os.path.lexists(root / logical):
+                raise ProjectError(
+                    "project.skill_placement_conflict",
+                    f"old-root or duplicate catalog file shadows authority: {logical}",
+                )
+            coordinates[logical] = item.path
+    return coordinates
+
+
+def configured_catalog_path(boundary: Path, base: Path, uri: str, *, kind: str) -> Path:
+    """Resolve an original typed URI through recorded catalog placement."""
+    configured = base / uri
+    if (
+        kind
+        not in {
+            "specification-to-source-skill",
+            "agent-skill",
+            "source-to-specification-skill",
+            "workflow",
+            "routing-policy",
+        }
+        or Path(uri).is_absolute()
+    ):
+        return configured
+    old = Path(os.path.abspath(configured))
+    if not old.is_relative_to(boundary):
+        return configured
+    relative = old.relative_to(boundary).as_posix()
+    if not relative.startswith(("skills/", "litai/skills/", "workflows/", "routing/")):
+        return configured
+    coordinates = contained_catalog_coordinates(boundary)
+    relative_base = (
+        base.relative_to(boundary).as_posix() if base.is_relative_to(boundary) else ""
+    )
+    if (
+        relative.startswith("litai/skills/")
+        and f"{relative_base}/flavor.md" in coordinates.values()
+    ):
+        relative = relative.removeprefix("litai/")
+        destination = coordinates.get(relative, relative)
+    else:
+        destination = coordinates.get(relative)
+    if destination is None:
+        return configured
+    selected = boundary / destination
+    try:
+        require_safe_directory(selected.parent, allow_missing=True)
+    except (UnsafeFilesystemPathError, OSError) as exc:
+        raise ProjectError(
+            "project.skill_placement_conflict",
+            f"contained Skill path is redirected: {destination}",
+        ) from exc
+    return selected
+
+
 def project_skill_catalog(project: LoadedProject) -> AgentSkillCatalog:
     """Return the one validated skill-taxonomy authority for a project."""
 
@@ -1385,6 +1515,11 @@ def project_skill_catalog(project: LoadedProject) -> AgentSkillCatalog:
             root_manifests=(project.agent_skill,),
             validate_dependencies=True,
             validate_references=True,
+            reference_coordinates={
+                old: new
+                for old, new in contained_catalog_coordinates(project.root).items()
+                if old.startswith("skills/")
+            },
         )
     except AgentSkillCatalogError as exc:
         raise ProjectError(exc.code, exc.message) from exc

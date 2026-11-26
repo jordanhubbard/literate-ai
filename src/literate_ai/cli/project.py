@@ -1124,6 +1124,59 @@ def project_source_intelligence_from_args(args) -> dict[str, Any]:
         raise CliFailure(exc.code, exc.message) from exc
 
 
+def project_layout_from_args(args) -> dict[str, Any]:
+    """Dispatch read-only inspection and explicitly acknowledged placement."""
+    from literate_ai.adapters.project_layout_migration import (
+        apply_legacy_layout_migration,
+        plan_legacy_layout_migration,
+        recover_legacy_layout_migration,
+    )
+    from literate_ai.adapters.project_layout_planning import (
+        ProjectLayoutPlanError,
+        plan_project_layout,
+    )
+
+    try:
+        project = Path(args.project)
+        if args.layout_command == "apply":
+            return apply_legacy_layout_migration(
+                project,
+                args.plan_identity,
+                acknowledge=args.acknowledge,
+                references=tuple(args.rewrite_reference),
+                place_forward_skills=args.place_forward_skills,
+                place_imported_catalogs=args.place_imported_catalogs,
+            )
+        if args.layout_command == "recover":
+            return recover_legacy_layout_migration(
+                project, args.plan_identity, acknowledge=args.acknowledge
+            )
+        if args.migration:
+            return plan_legacy_layout_migration(
+                project,
+                tuple(args.rewrite_reference),
+                place_forward_skills=args.place_forward_skills,
+                place_imported_catalogs=args.place_imported_catalogs,
+            )
+        if (
+            args.rewrite_reference
+            or args.place_forward_skills
+            or args.place_imported_catalogs
+        ):
+            raise ProjectLayoutPlanError(
+                "reference_authority",
+                "reference and Skill placement require --migration",
+            )
+        return plan_project_layout(project)
+    except (ProjectLayoutPlanError, ProjectError, ProjectUpdateError) as exc:
+        raise CliFailure(exc.code, str(exc)) from exc
+    except (OSError, ValueError, RuntimeError) as exc:
+        raise CliFailure(
+            "project.layout.invalid",
+            "project containment inputs could not be inspected safely",
+        ) from exc
+
+
 def agent_entrypoints_from_args(args) -> dict[str, Any]:
     """Audit owned delegates without changing source or adoption authority."""
     from literate_ai.adapters.agent_entrypoints import audit_agent_entrypoints
@@ -1673,6 +1726,7 @@ __all__ = [
     "project_ci_plan_from_args",
     "project_ci_verify_from_args",
     "project_guidance_from_args",
+    "project_layout_from_args",
     "project_peer_work_from_args",
     "project_source_intelligence_from_args",
     "project_test_receipt_from_args",
