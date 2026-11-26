@@ -29173,6 +29173,15 @@ checks contained outputs. Lint/format, authored/generated layout and public-expo
 checks pass. The earlier missing-file and fixture setup failures remain retained;
 none is relabeled as a passing run.
 
+**Next installed cell.** A fresh noneditable subject `de87bad35` is installed with
+distribution `sha256:77d3027a67cbac1584da97660f0a588e118c0ccc3ba0419f9222a03986b5502f`.
+Exercise real metadata/framework migration and producer finalization, then public
+update application and unchanged-parent reparent application with original source,
+Git index/HEAD, migration intent and installed-distribution preservation. This cell
+leaves its genuine resulting fixture available for inspection. Changed-parent
+application and complete supported-platform acceptance remain separate required
+steps; unchanged-parent success cannot substitute for them.
+
 **Next action (in progress).** Reconcile the remaining 69 snapshots while observing
 the original 160-case native-root run, which remains live under its original
 deadline. Do not restart a live run. Then continue actual installed update/reparent
