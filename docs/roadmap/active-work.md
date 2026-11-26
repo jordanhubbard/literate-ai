@@ -29167,8 +29167,8 @@ independent transfer acceptance, 268 redundant worktrees and one old clone were
 removed. The sole remaining source checkout retains 695 ignored/untracked paths
 and the legacy Git database; no separate framework sibling clone remains.
 
-**Integration state.** Twenty-one of the 90 recovery snapshots are now ancestors
-of the continuation branch; 69 remain preserved for explicit reconciliation.
+**Integration state.** 27 of the 90 recovery snapshots are now ancestors
+of the continuation branch; 63 remain preserved for explicit reconciliation.
 The latest original dirty integration joins at `6ca69e404`. Source-identical merges
 and reviewed conflict resolutions preserve later runtime code, original 1.4.0
 goals and terminal evidence. Four affected roadmap test methods and all 17 added
@@ -29244,7 +29244,7 @@ coordinates. Integrate the existing contained-roadmap namespace contribution,
 retain current observation safeguards, and require an explicit reviewed queue
 resolution before application. Both failed receipts remain separate evidence.
 
-**Next action (in progress).** Reconcile the remaining 65 snapshots and verify the reference
+**Next action (in progress).** Reconcile the remaining 63 snapshots and verify the reference
 repair against the exact retained failed installed fixture. The repaired native-root
 run completed all 631 selected cases in 2,248.970 seconds, without failures or skips;
 the earlier failing run had stopped after executing 160 cases. Its source pin and
@@ -29301,3 +29301,16 @@ All eight retained-update source methods pass in 31.949 seconds after selector
 resolution. Read-only inspection now protects the original fixture’s three
 current workflow/routing/skill inputs as well as shim authority; its source, Git
 index/HEAD, intent and original receipt remain exact after the diagnostic rollback.
+
+**Installed application passes.** Immutable subject `65ef424f2` (distribution
+`sha256:6fc486124715d7ee33fcfcb09d00b88ffad0fbe1a7542f8856ee431a91183e9a`)
+passes all ten public-command observations in 16.137 seconds on the exact original
+failed fixture. Both update and unchanged-parent reparent apply successfully;
+root/descendant plans agree, and original source, Git index/HEAD, migration intent,
+original failed receipt and installed distribution are preserved. The queue review
+binds the exact conflict inputs and preserves the still-active ADOPT-002 owner.
+No fixture reconstruction, producer rerun or authority repin is used. All earlier
+failures remain distinct evidence. Changed-parent application, complete containment,
+composed-candidate/platform/independent review and release acceptance remain open.
+Two action-selector histories reconcile with unchanged trees while preserving
+the final shared-workflow SDK selection repair and later native qualification gates.

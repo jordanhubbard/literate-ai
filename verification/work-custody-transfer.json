@@ -34,8 +34,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 25,
-      "preserved-for-reconciliation": 65
+      "merged": 27,
+      "preserved-for-reconciliation": 63
     },
     "snapshots": [
       {
@@ -70,18 +70,18 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "4de4c8c2b2fae975965b287ff4ddcb424ba279e0",
         "branch": "recovery/puck-20261126/actsel3",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 6,
-        "remaining_paths": 4
+        "remaining_paths": 0
       },
       {
         "label": "actsel4",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "18dec4d764cc0a9b1a56ed1fd88ba936d4e29c9f",
         "branch": "recovery/puck-20261126/actsel4",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 6,
-        "remaining_paths": 3
+        "remaining_paths": 0
       },
       {
         "label": "ad14",
@@ -879,7 +879,9 @@
         "d5657",
         "cudapos1",
         "go14",
-        "wf14"
+        "wf14",
+        "actsel4",
+        "actsel3"
       ],
       "roadmap_delta_test_methods_identical": 4,
       "roadmap_delta_added_prose_lines_retained": 17,
@@ -888,7 +890,9 @@
       "d5657": "Both proposed ADR blobs are identical to archived d56 drafts; accepted decisions and later metadata retained; merge tree unchanged.",
       "cudapos1": "Normal source/test merge is unchanged; all old positive-signal prose remains, later reviewed-source next action retained; merge tree unchanged.",
       "go14": "Normal merge has unchanged tree after retaining current review/driver pins. All 21 added observation lines already present verbatim.",
-      "wf14": "All three changed Python module ASTs identical to current files. Original 18 historical evidence lines, including full-suite timeout and pending native qualification, retained under WORKTREE-002."
+      "wf14": "All three changed Python module ASTs identical to current files. Original 18 historical evidence lines, including full-suite timeout and pending native qualification, retained under WORKTREE-002.",
+      "actsel4": "32 patched Python symbols match current ASTs. Preserve later native full-source workflow input and native-root archive gate. Merge tree unchanged.",
+      "actsel3": "30 patched Python symbols match current ASTs; sole differing function superseded by actsel4 shared/header/profile SDK selection repair and dedicated regression. Preserve final selector/tests and later gates. Merge tree unchanged."
     }
   },
   "checks": {
@@ -1057,11 +1061,30 @@
       "methods": 8,
       "seconds": 31.949,
       "scope": "Retained update source controls plus current catalog resolution of logical Component input selectors. Original source/index/HEAD/intent/receipt independently preserved after diagnostic apply rollback. Installed continuation remains pending."
+    },
+    "installed_maintenance_application_success": {
+      "status": "passed",
+      "platform": "Linux ARM64",
+      "subject": "65ef424f2da98f39b37c0bce8a0b3a542c410433",
+      "distribution": "sha256:6fc486124715d7ee33fcfcb09d00b88ffad0fbe1a7542f8856ee431a91183e9a",
+      "methods": 1,
+      "seconds": 16.137,
+      "public_commands": 10,
+      "original_failed_receipt_sha256": "35ceefc42eb7785b76f6855033b1304647e0ad4e8ee9a7300252e820ae02c259",
+      "continuation_receipt_sha256": "d567b823ef5ed7bd9c2b3b88631ac4e6f90bd58302447ad0f7977676ca63ee88",
+      "fixture_reconstructed": false,
+      "authority_repinned": false,
+      "source_git_index_head_intent_and_distribution_preserved": true,
+      "operations": [
+        "update apply with typed keep-local queue review",
+        "unchanged-parent reparent apply"
+      ],
+      "scope": "Exact original failed fixture after genuine migration/renewal/finalization. Root/descendant plans agree; actual update and unchanged-parent application pass. Changed-parent application, composed-candidate/platform/independent review and release acceptance remain open."
     }
   },
   "remaining_requirements": [
-    "Reconcile the 69 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
-    "Prioritize PROJECT-LAYOUT-001 actual installed update/reparent application and changed-parent cases.",
+    "Reconcile the 63 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
+    "Continue PROJECT-LAYOUT-001 changed-parent installed application and complete containment qualification; actual update and unchanged-parent application pass at their recorded immutable subject.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
   ],
   "preserved_holds": [
