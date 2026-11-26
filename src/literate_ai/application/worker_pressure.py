@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from itertools import pairwise
 
 from literate_ai.application.worker_capacity import CapacityHealth
 from literate_ai.contracts.worker_capacity import CapacityMetric, CapacityProbeStatus
@@ -218,6 +219,9 @@ def assess_worker_pressure(
                 policy.require_gpu,
             )
         )
+    elif not latest.gpus:
+        missing = CapacityMetric(CapacityProbeStatus.UNAVAILABLE)
+        findings.append(_unknown("gpu", missing, policy.require_gpu))
     else:
         latest_devices = latest.gpus
         bad = next(
@@ -237,15 +241,26 @@ def assess_worker_pressure(
         else:
             free = min(device.free_memory_bytes.value or 0 for device in latest_devices)
             low = free < policy.minimum_gpu_free_memory_bytes
+            gpu_health = CapacityHealth.HEALTHY
+            if low and workload_impact:
+                gpu_health, reason = CapacityHealth.WARNING, "gpu-memory-impact"
+            elif not any(
+                device.utilization_basis_points.value for device in latest_devices
+            ):
+                reason = "gpu-idle"
+            elif progress is None or any(
+                right < left for left, right in pairwise(progress)
+            ):
+                reason = "gpu-busy-progress-unknown"
+            elif stalled:
+                reason = "gpu-busy-no-observed-progress"
+            else:
+                reason = "gpu-busy-progressing"
             findings.append(
                 PressureFinding(
                     "gpu",
-                    CapacityHealth.WARNING
-                    if low and workload_impact
-                    else CapacityHealth.HEALTHY,
-                    "gpu-memory-impact"
-                    if low and workload_impact
-                    else "gpu-busy-progressing",
+                    gpu_health,
+                    reason,
                     policy.require_gpu,
                     free,
                     policy.minimum_gpu_free_memory_bytes,

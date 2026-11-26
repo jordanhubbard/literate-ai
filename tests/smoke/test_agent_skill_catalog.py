@@ -46,6 +46,30 @@ class AgentSkillCatalogTests(unittest.TestCase):
             )
         self.assertEqual(missing.exception.code, "agent_skill.reference_missing")
 
+    def test_recorded_placement_keeps_held_child_under_its_logical_parent(self):
+        original = "skills/agent/SKILL.md"
+        placed = "litai/skills/agent/SKILL.md"
+        held = "skills/agent/checkout/SKILL.md"
+        documents = {
+            placed: _skill("agent"),
+            held: _skill("checkout", "Follow `../SKILL.md`."),
+            "SKILL.md": _skill("root", f"Follow `{placed}`."),
+        }
+        catalog = AgentSkillCatalog.from_documents(
+            documents,
+            reference_coordinates={original: placed},
+            validate_references=True,
+        )
+        self.assertEqual(catalog.by_name("checkout").ancestors, ("root", "agent"))
+        self.assertEqual(catalog.by_name("agent").logical_manifest.as_posix(), original)
+        self.assertEqual(catalog.owner_for(placed).name, "agent")
+        with self.assertRaises(AgentSkillCatalogError) as alias:
+            AgentSkillCatalog.from_documents(
+                {**documents, original: documents[placed]},
+                reference_coordinates={original: placed},
+            )
+        self.assertEqual(alias.exception.code, "agent_skill.path_conflict")
+
     def test_repository_and_shipped_template_are_closed_catalogs(self) -> None:
         repository = Path(__file__).resolve().parents[2]
         framework = AgentSkillCatalog.discover(

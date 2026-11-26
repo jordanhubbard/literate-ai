@@ -16,7 +16,7 @@
         "compatibility": {
           "type": "object", "additionalProperties": false, "required": ["code", "message"],
           "properties": {
-            "code": {"type": "string", "pattern": "^(project\\.skill_|agent_skill\\.)"},
+            "code": {"type": "string", "pattern": "^(project\\.skill_|agent_skill\\.|project\\.update_layout_pending$)"},
             "message": {"type": "string", "minLength": 1}
           }
         },

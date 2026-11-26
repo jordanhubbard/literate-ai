@@ -153,10 +153,14 @@ class RetainedCargoWrapperContextV2:
     @property
     def identity(self):
         self.require_unchanged()
+        self.reviewed.require_unchanged()
+        return self._captured_identity()
+
+    def _captured_identity(self):
         return canonical_identity(
             {
                 "schema": "literate-ai/retained-cargo-wrapper-context@2",
-                "reviewed": self.reviewed.identity.uri,
+                "reviewed": self.reviewed._captured_identity().uri,
                 "revision": self.revision.uri,
                 "conversion": self.conversion.identity.uri,
                 "source_authority": self.source_authority.uri,

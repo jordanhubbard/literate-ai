@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add a read-only project containment plan that keeps retained application paths,
+  separates producer provenance and shared root integrations, and reports the
+  unresolved references and recovery dependencies before migration. Contained
+  native profiles can report that no legacy relocation is proposed. Planning
+  grants no apply or lifecycle qualification authority.
+
 - Reuse locally available exact parent commits during lineage and catalog reads.
   Keep mutable-reference refresh, bounded missing-commit fetches and current
   project/catalog checks. Refuse redirected or partial parent caches before

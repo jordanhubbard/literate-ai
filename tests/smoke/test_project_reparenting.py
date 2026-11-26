@@ -5,9 +5,6 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from literate_ai.adapters.project_initialization import (
-    FilesystemProjectInitializationAdapter,
-)
 from literate_ai.adapters.project_reparenting import (
     FilesystemRepositoryReparentAdapter,
     RepositoryReparentError,
@@ -17,39 +14,11 @@ from literate_ai.adapters.repository_lineage import (
     FilesystemRepositoryLineageStore,
 )
 from literate_ai.contracts import (
-    ProjectInitializationOrigin,
-    RepositoryLineage,
-    RepositoryParentSelection,
     RepositoryReparentDisposition,
 )
+from tests.support.fixtures_test_repository_initialization_e2e import initialize_root
 from tests.support.fixtures_test_repository_lineage import fixture
 from tests.support.fixtures_test_schema_catalog import SchemaCatalog
-
-
-def origin() -> ProjectInitializationOrigin:
-    return ProjectInitializationOrigin(
-        "https://example.test/literate-ai.git",
-        "a" * 40,
-        "literate-ai",
-        "0.2.0",
-    )
-
-
-def initialize_root(target: Path) -> None:
-    root = RepositoryParentSelection.root()
-    FilesystemProjectInitializationAdapter(
-        standard_binding_provider=lambda: None,
-        initialization_origin_provider=origin,
-        repository_lineage_resolver=lambda selection: RepositoryLineage(
-            selection, (), ()
-        ),
-    ).initialize(
-        target,
-        flavor_selectors=("+python", "+macos"),
-        source_intelligence_provider="none",
-        empty=True,
-        parent_selection=root,
-    )
 
 
 class RepositoryReparentTests(unittest.TestCase):

@@ -103,7 +103,11 @@ from literate_ai.contracts.native_sdks import (
     NativeSdkBuildRecipe,
 )
 from literate_ai.models import Locality, ModelEndpoint
-from literate_ai.projects import PinnedInputClosure, project_boundary
+from literate_ai.projects import (
+    PinnedInputClosure,
+    configured_catalog_path,
+    project_boundary,
+)
 from literate_ai.spec_map import (
     with_debug_skill_identities,
 )
@@ -168,7 +172,9 @@ def _read_reference(
     boundary: Path,
     label: str,
 ) -> bytes:
-    configured = root / reference.uri
+    configured = configured_catalog_path(
+        boundary, root, reference.uri, kind=reference.kind
+    )
     try:
         path = configured.resolve(strict=True)
     except OSError as exc:

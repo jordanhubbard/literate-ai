@@ -120,8 +120,10 @@ _TARGET_PATTERNS = (
         "cuda",
         "accelerator",
         re.compile(
-            r"(?i)\b(?:cuda|nvcc)\b|\bcuda(?:_runtime(?:_api)?)?\.h\b|"
-            r"\b(?:cuda[A-Z]\w*|cuInit|cuDeviceGet|cuMemAlloc|cuLaunchKernel)\s*\("
+            r"(?i)\b(?:cuda|nvcc|CUDAToolkit)\b|\bcuda(?:_runtime(?:_api)?)?\.h\b|"
+            r"\b(?-i:cudaError_t|cudaStream_t)\b|"
+            r"\b(?:cuda[A-Z]\w*|cuInit|cuDeviceGet|cuMemAlloc|cuLaunchKernel|"
+            r"(?-i:cuModuleLoadData(?:Ex)?))\s*\("
         ),
     ),
     ("metal", "accelerator", re.compile(r"(?i)\b(?:metal|metalperformance)\b")),

@@ -267,9 +267,11 @@ def capture_qualification_run(
         or ordered(item.generated_test_suite_identity for item in acceptances)
         != run.generated_test_suite_identities
         or ordered(
-            case.case_identity
-            for item in acceptances
-            for case in item.generated_tests.cases
+            {
+                case.case_identity
+                for item in acceptances
+                for case in item.generated_tests.cases
+            }
         )
         != run.generated_test_case_identities
         or sum(len(item.generated_tests.cases) for item in acceptances)

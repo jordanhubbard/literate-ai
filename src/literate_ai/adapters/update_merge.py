@@ -11,11 +11,15 @@ import hashlib
 import json
 import subprocess
 import tempfile
+from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path, PurePosixPath
 
 from literate_ai.contracts import ContentIdentity, ProjectUpdateClassification
-from literate_ai.projects import ProjectConfigurationStore
+from literate_ai.projects import (
+    ProjectConfigurationStore,
+    contained_catalog_coordinates,
+)
 
 CHECKPOINT = ".literate/update-bases.json"
 SCHEMA = "literate-ai/update-bases@1"
@@ -66,6 +70,7 @@ class UpdateBases:
         self.scopes: dict[str, dict[str, str]] = {"framework": {}, "catalog": {}}
         self.sources: dict[str, str] = {}
         self.created_directories: list[Path] = []
+        self._intended_content: bytes | None = None
         if self.original is None:
             return
         try:
@@ -127,16 +132,9 @@ class UpdateBases:
             self.retain(content)
             self.scopes[scope][path] = digest(content)
 
-    def write(self) -> None:
-        from .project_update_apply import _write_exact
+    def serialized(self) -> bytes:
         from .project_updates import ProjectUpdateError
 
-        path = safe_path(self.root, self.checkpoint)
-        observed = path.read_bytes() if path.is_file() else None
-        if observed != self.original:
-            raise ProjectUpdateError(
-                "project.update_base_changed", "update baseline changed; re-plan"
-            )
         content = (
             json.dumps(
                 {
@@ -157,17 +155,62 @@ class UpdateBases:
             raise ProjectUpdateError(
                 "project.update_base_oversized", "update baseline exceeds byte limit"
             )
+        return content
+
+    def write(self, *, before_write: Callable[[Path], None] | None = None) -> None:
+        from .project_update_apply import _write_exact
+        from .project_updates import ProjectUpdateError
+
+        path = safe_path(self.root, self.checkpoint)
+        observed = path.read_bytes() if path.is_file() else None
+        if observed != self.original:
+            raise ProjectUpdateError(
+                "project.update_base_changed", "update baseline changed; re-plan"
+            )
+        content = self.serialized()
         if content != self.original:
             parent = path.parent
             while parent != self.root and not parent.exists():
                 self.created_directories.append(parent)
                 parent = parent.parent
+            if before_write is not None:
+                before_write(path)
+                self._intended_content = content
             _write_exact(path, content)
 
-    def rollback(self) -> None:
+    def checkpoint_needs_rollback(self) -> bool:
+        """Check exact bytes even if the write raised after atomic replacement."""
+        from .project_updates import ProjectUpdateError
+
+        if self._intended_content is None:
+            return False
+        path = safe_path(self.root, self.checkpoint)
+        if path.is_file() and path.stat().st_size > MAX_BYTES:
+            raise ProjectUpdateError(
+                "project.update_base_oversized", "update baseline exceeds byte limit"
+            )
+        observed = path.read_bytes() if path.is_file() else None
+        if observed == self.original:
+            return False
+        if observed != self._intended_content:
+            raise ProjectUpdateError(
+                "project.update_base_changed", "update baseline changed before rollback"
+            )
+        return True
+
+    def rollback(
+        self,
+        *,
+        before_write: Callable[[Path], None] | None = None,
+        require_intended: bool = False,
+    ) -> None:
         from .project_update_apply import _write_exact
 
         path = safe_path(self.root, self.checkpoint)
+        if require_intended and not self.checkpoint_needs_rollback():
+            return
+        if before_write is not None:
+            before_write(path)
         if self.original is None:
             path.unlink(missing_ok=True)
         else:
@@ -282,10 +325,17 @@ def recover_bases(root, files, bases, reader=None, origin=None):
             groups[reference] = paths
     else:
         sources = dict(bases.sources)
-        if (root / CatalogImportsFile.PATH).is_file():
-            for imported in CatalogImportsFile.load(root).imports:
+        context = ProjectConfigurationStore.context(root)
+        if context.framework_path(CatalogImportsFile.PATH).is_file():
+            from .repository_updates import _required_imports
+
+            for imported in _required_imports(root).imports:
                 for file in imported.files:
                     sources.setdefault(file.path, imported.source.ref)
+        logical_skills = {
+            destination: source
+            for source, destination in contained_catalog_coordinates(root).items()
+        }
         for path, ref in sources.items():
             if not ref.startswith("git:"):
                 continue
@@ -294,7 +344,10 @@ def recover_bases(root, files, bases, reader=None, origin=None):
                 continue
             reference = historical(url, revision) if path in missing else None
             if reference is not None:
-                groups.setdefault(reference, set()).add(path)
+                coordinates = groups.setdefault(reference, set())
+                coordinates.add(path)
+                if path in logical_skills:
+                    coordinates.add(logical_skills[path])
     wanted = {identity.uri for identity in missing.values()}
     for reference, paths in groups.items():
         try:
