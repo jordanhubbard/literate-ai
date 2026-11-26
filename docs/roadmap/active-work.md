@@ -8642,6 +8642,13 @@ slice here before implementation so this file always names the resumable frontie
 
 ### [~] RELEASE-CLOSURE-001 — Make release closure executable and continuous
 
+- **Visible goal custody (in progress):** [Issue 486](https://github.com/jordanhubbard/literate-ai/issues/486)
+  binds release readiness and `work close` to the existing visible typed queue
+  headings. Fenced examples, HTML comments, prefix-sharing IDs and prose
+  subheadings must not change goal status or conceal unchecked acceptance.
+  Compare all current manifest dispositions and run the public close and sweep
+  controls before independent review and composed qualification.
+
 - **Priority:** P0
 - **Release target:** 1.4.0
 - **Historical scope:** The obsolete 0.10 recovery/candidate/publication instructions
@@ -24433,6 +24440,10 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] SDLC-001 — Make existing repository delivery the primary 1.4 adoption path
 
+- **Goal-state reconciliation:** Release work package G uses the shared visible
+  queue parser tracked under RELEASE-CLOSURE-001 and
+  [issue 486](https://github.com/jordanhubbard/literate-ai/issues/486). The current
+  81 manifest obligations and dispositions remain authority.
 - **Release target:** 1.4.0
 - **Detailed roadmap:** [Existing repository delivery](existing-repository-delivery.md)
 - **Decision:** [ADR 0074](../decisions/0074-existing-repository-delivery.md)

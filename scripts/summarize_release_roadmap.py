@@ -7,11 +7,8 @@ import json
 import re
 from pathlib import Path
 
+from literate_ai.application.roadmap_dependencies import roadmap_sections
 from literate_ai.contracts import canonical_identity
-from literate_ai.documentation import _visible_markdown_lines
-
-HEADING = re.compile(r"^### \[([ x~])\] ([A-Z][A-Z0-9-]{2,63}) — (.+)$", re.M)
-SECTION_HEADING = re.compile(r"^ {0,3}#{1,3}(?:[ \t]+.*)?$", re.M)
 
 
 def summarize(
@@ -20,41 +17,25 @@ def summarize(
     if re.fullmatch(r"[0-9]+\.[0-9]+(?:\.[0-9]+)?", release) is None:
         raise ValueError("release must be a major.minor or major.minor.patch version")
     line = ".".join(release.split(".")[:2])
-    target = re.compile(
-        r"^- \*\*Release target:\*\* " + re.escape(line) + r"(?:\.\d+)?(?=\D|$)", re.M
-    )
-    # Use visible Markdown only to locate section boundaries; retain the original
-    # titles and acceptance text (including inline code) in the report.
-    content = "\n".join(content.splitlines())
-    visible = "\n".join(_visible_markdown_lines(content))
-    headings = list(SECTION_HEADING.finditer(visible))
+    target = re.compile(re.escape(line) + r"(?:\.\d+)?(?=\D|$)")
     items = []
-    seen = set()
-    for index, boundary in enumerate(headings):
-        heading = HEADING.match(content, boundary.start())
-        if heading is None:
+    for work_id, section in roadmap_sections(content).items():
+        if section.title is None:
             continue
-        end = headings[index + 1].start() if index + 1 < len(headings) else len(content)
-        section = content[heading.end() : end]
-        state, work_id, title = heading.groups()
-        if work_id in seen:
-            raise ValueError(f"duplicate release work item: {work_id}")
-        seen.add(work_id)
-        remaining = re.findall(r"^\s+- \[[ ~]\] (.+)$", section, re.M)
-        if target.search(section) is None:
-            if require_all_open_targeted and (state != "x" or remaining):
+        if target.match(section.release_target or "") is None:
+            if require_all_open_targeted and not section.complete:
                 raise ValueError(
                     f"unresolved item is not targeted to {line}: {work_id}"
                 )
             continue
-        if state == "x" and remaining:
+        if section.state == "x" and section.unchecked:
             raise ValueError(f"closed item has unchecked acceptance: {work_id}")
         items.append(
             {
                 "id": work_id,
-                "title": title,
-                "closed": state == "x",
-                "remaining": remaining,
+                "title": section.title,
+                "closed": section.complete,
+                "remaining": list(section.unchecked),
             }
         )
     value = {
