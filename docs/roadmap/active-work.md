@@ -22366,6 +22366,14 @@ GitHub CI failure without relaxing identity checks.
 - **Release target:** 1.4.0
 - **GitHub issue:** [#7](https://github.com/jordanhubbard/literate-ai/issues/7) (migrated from NVIDIA-dev/literate-ai#483)
 - **Owner:** project worktree placement, peer survey, and evidence-preserving retirement
+- **Windows qualification follow-up (2026-11-01):** The native gate at
+  `7763e23de54a5c51a4a155b3bcdd8c724fb41e56` preserved a clean checkout but failed
+  worktree discovery when a native filesystem identifier exceeded canonical JSON's
+  signed 64-bit integer range. The preceding actual admitted-receiver integration
+  case passed. Preserve exact raw filesystem comparisons and represent only wide
+  observation-signature integers losslessly in the identity document; retain the
+  global canonical integer bounds. Native Windows discovery/audit checks and fresh
+  full regression are required before landing this correction.
 - **Direction:** Define one discoverable in-repository worktree location and migrate legacy peer-directory worktrees without losing useful commits, untracked data, locks, sessions, submodule state, or qualification evidence.
 - **Conclusion:** The completed 1.1 sibling-cleanup slice does not establish the complete reusable lifecycle contract. Add provider-neutral placement, exhaustive audit, resumable migration, and Git-aware removal while retaining fail-closed ambiguity handling.
 - **Depends on:** none
