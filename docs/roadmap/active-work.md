@@ -29147,185 +29147,81 @@ qualification, admission and cache reuse remain open.
 - **Priority:** P1
 - **Owner:** Framework integration and repository custody
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
-- **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001 first; recovery snapshots remain unqualified until reviewed and verified.
+- **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
+- **Next action:** Reconcile the remaining 59 snapshots. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
-  - [x] Inventory all worktrees, sibling clones, refs, stashes, working changes and ignored evidence.
-  - [ ] Capture unique source and Git state, integrate active changes with explicit conflict resolution, and transfer custody to the continuing checkout.
-  - [x] Remove redundant checkouts only after preservation and verify a single remaining checkout on the source host.
-  - [ ] Resume actual installed update/reparent application and changed-parent qualification for PROJECT-LAYOUT-001, preserving existing holds.
+  - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
+  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 31 of 90 recovery snapshots merged; 59 remain preserved.
+  - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
+  - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
+  - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
 - **Evidence:**
-  - [x] Verify every inventoried revision and recovery snapshot is reachable in the continuing repository, and check transferred artifact identities.
-  - [x] Verify worktree/sibling inventory and synchronized clean source and continuation checkouts; initial synchronization binds `6783c5ee3`, with final synchronization rechecked after subsequent checkpoints.
-  - [x] Record resumed layout test results without claiming complete containment or release qualification.
+  - [x] Verify every inventoried revision/recovery snapshot is reachable and transferred artifacts match their original hashes.
+  - [x] Record narrow source and installed outcomes with their immutable subjects; preserve every earlier failure and scope limitation.
+  - [ ] Complete final reconciliation, resulting-head checks and source-host synchronization before closing this handoff.
 
-**Custody and cleanup.** [Transfer observation](../../verification/work-custody-transfer.json)
-binds all 269 original worktree revisions, 90 dirty recovery commits, 11 stashes,
-1,488 reflog revisions and 270 hash-matched original index/staged/unstaged files.
-All recovery branches and seven otherwise unpushed heads are published. After
-independent transfer acceptance, 268 redundant worktrees and one old clone were
-removed. The sole remaining source checkout retains 695 ignored/untracked paths
-and the legacy Git database; no separate framework sibling clone remains.
+**Custody and cleanup.** The [transfer observation](../../verification/work-custody-transfer.json)
+binds 269 original worktree revisions, 90 published dirty recovery commits, 11
+stashes, 1,488 reflog revisions and 270 hash-matched original index/staged/unstaged
+files. Seven otherwise unpushed heads are published too. After independent transfer
+acceptance, 268 redundant worktrees and one legacy clone were removed. The sole
+source checkout retains 695 ignored/untracked paths and the legacy Git database;
+no separate framework sibling checkout or alias remains. Its clean registration
+and fast-forward synchronization were rechecked through `ecd6c20ca`; synchronize
+again after subsequent checkpoints. New large outputs use the mounted shared
+workspace volume, preserving existing checkout paths and failed-fixture nodes.
 
-**Integration state.** 29 of the 90 recovery snapshots are now ancestors
-of the continuation branch; 61 remain preserved for explicit reconciliation.
-The latest original dirty integration joins at `6ca69e404`. Source-identical merges
-and reviewed conflict resolutions preserve later runtime code, original 1.4.0
-goals and terminal evidence. Four affected roadmap test methods and all 17 added
-prose lines were already present; the hosted pilot's complete 2,465-byte addition
-also remains present. Historical pin values are not restored. Generated crash
-output remains an artifact, and the distinct earlier Windows observation remains
-verbatim historical evidence in the custody record. Six original proposed designs
-are linked from the [historical proposal index](../history/decisions/recovered-proposals.md);
-current accepted ADRs and pending approval boundaries are preserved.
+**Integration.** The latest original dirty integration joins at `6ca69e404`.
+Reviewed history merges retain newer runtime code, original 1.4.0 goals, terminal
+failures, native qualification gates and source custody. The current snapshot
+counts above are established by actual ancestry. Six original proposed designs
+remain in the [historical proposal index](../history/decisions/recovered-proposals.md),
+with current accepted ADRs and approval boundaries preserved. Generated crash
+output remains an artifact. The custody record retains each snapshot disposition,
+original Windows observation and the detailed equivalence/resolution proofs.
 
-**Continued verification.** The transferred baseline passes 13 focused source
-update/reparent methods and one actual noneditable installed producer journey:
-all 32 commands pass in 147.431 seconds on Linux ARM64, covering metadata migration,
-framework placement, producer renewal, repeated finalization and recovery with
-source/Git preservation. The resumed working state exposed a legacy-root harness
-custody pin; `72e163f17` selects the existing declared retained-scaffold resolver.
-The shared-wrapper regression passes all 50 methods in 125.053 seconds after its
-historical transition fixture explicitly selects legacy initialization. Roadmap
-controls pass all 23 methods in 1.215 seconds after selecting the declared queue;
-cycle/refusal/byte-preservation assertions remain intact and rollback additionally
-checks contained outputs. Lint/format, authored/generated layout and public-export
-checks pass. The earlier missing-file and fixture setup failures remain retained;
-none is relabeled as a passing run.
-
-**Next installed cell.** A fresh noneditable subject `de87bad35` is installed with
-distribution `sha256:77d3027a67cbac1584da97660f0a588e118c0ccc3ba0419f9222a03986b5502f`.
-Exercise real metadata/framework migration and producer finalization, then public
-update application and unchanged-parent reparent application with original source,
-Git index/HEAD, migration intent and installed-distribution preservation. This cell
-leaves its genuine resulting fixture available for inspection. Changed-parent
-application and complete supported-platform acceptance remain separate required
-steps; unchanged-parent success cannot substitute for them.
-
-**Installed application defect.** The new cell completes 25 commands in 104.615
-seconds and fails at actual update application: the updated contained README links
-to a future contained conversion decision although the exact baseline still records
-that unwritten dynamic decision at its original root path. Original source, Git
-HEAD/index, migration intent and installed distribution remain unchanged after
-rollback. The failed fixture and all phase evidence remain retained. Repair the
-shared template-reference projection using finite recorded current coordinates for
-unwritten resources; preserve declared current metadata coordinates, reject
-ambiguous resource mappings, and retain the graph validator and normal updater
-ownership/rollback boundaries. Do not move a dynamic decision or weaken validation
-to make the update pass. Requalify against the exact failed fixture with a new
-immutable installed subject, then continue unchanged and changed-parent application.
-
-**Update-reference source controls.** The new mixed/contained/legacy reference,
-ambiguous-resource and historical-metadata controls pass all five methods, and the
-seven existing canonical root-update controls also pass. The end-to-end legacy
-merge cohort stops during fixture initialization before the updater: it still
-constructs root-relative catalog declarations with the new contained default.
-Select the existing explicit legacy fixture mode for those original root-layout
-scenarios, retaining every original merge/rollback assertion and the separate
-canonical controls. Their original template doubles also need the current explicit
-profile/observation arguments; verify generated legacy profile and absence of a role
-observation rather than accepting arbitrary new arguments.
-
-**Exact failed-fixture continuation.** A separate immutable repair subject
-`c03c3375c` is installed with distribution
-`sha256:01689586603d359089f2a46285d46fe2fb9a2c9d2aa64dc28eddf122c1853c95`.
-The continuation binds the original failed receipt hash, original directory node,
-source/Git state and migration intent, and checks all four original update
-metadata identities before application. It performs no new migration, producer
-renewal, fixture reconstruction or authority repinning. Earlier planning-only
-maintenance code remains byte-identical; the new application and continuation
-cells have distinct filenames.
-
-**Continued installed refusal.** The immutable reference repair is exercised against
-the original failed fixture with its receipt, source, Git state and intent bound.
-It advances beyond the reference defect, then rolls back on an orphaned
-`ADOPT-002` roadmap owner. The queue replacement guard still uses root-only
-coordinates. Integrate the existing contained-roadmap namespace contribution,
-retain current observation safeguards, and require an explicit reviewed queue
-resolution before application. Both failed receipts remain separate evidence.
-
-**Next action (in progress).** Reconcile the remaining 61 snapshots and verify the reference
-repair against the exact retained failed installed fixture. The repaired native-root
-run completed all 631 selected cases in 2,248.970 seconds, without failures or skips;
-the earlier failing run had stopped after executing 160 cases. Its source pin and
-scope remain distinct from the later update-reference change. Continue actual
-installed update/reparent application and changed-parent cases under PROJECT-LAYOUT-001. Source/installed
-results at earlier immutable subjects do not qualify a later composed candidate.
-Full containment, original platform/source/installed/review gates and release
-acceptance remain open. The stale documentation authority review, prior
-source-timeout hold and storage-cutover hold remain intact; no driver, authority
-marker or release receipt is repinned by this custody work.
-
-The contained-roadmap contribution from PR #493 is integrated with the current
-prospective observation reader retained. Earlier contributor evidence remains
-scoped to its recorded subject; this composed candidate requires fresh checks.
-
-Fresh source checks pass 12 namespace methods and four queue-owner guard methods.
-The guard now selects the current framework queue and keeps preserved roadmap
-owners under that namespace, including through the existing observation reader.
-Actual installed continuation and any required explicit conflict resolution remain
-open; these source checks do not qualify application.
-
-**Retained shim continuation.** Immutable subject `080333899` passes both repaired
-documentation checks and an exact-file conflict review preserving ADOPT-002, then
-rolls back on a retained lock Flavor-selection mismatch. The original source,
-Git index/HEAD, intent and original receipt remain unchanged. Its retained-shim
-protection still tests root catalog dependents, which are absent after authority
-placement. Resolve those dependents and shim authority through the declared
-current catalogs, reject ambiguous duplicates and retain the recorded application
-implementation path. A mixed catalog may retain root source while its wrapper
-Component lives beneath litai/. Do not rebaseline or renew that source merely to
-make update apply. Source regressions and a new immutable installed continuation
-remain required. Two additional unchanged-tree history reconciliations bring
-custody integration to 25 snapshots merged and 65 pending.
-
-The seven retained-update source controls pass in 17.752 seconds. Read-only
-inspection of the original failed fixture now selects its wrapper Component,
-lock/audit and two shim Flavor files at their current contained coordinates;
-original source, Git state, intent and receipt still match. Installed verification
-with a new immutable subject remains required.
-
-**Selector protection continuation.** Subject `13cc2e2c3` protects current shim
-Flavor/Component/lock authority but update still retires the shim skill: the
-project-owned Component retains logical root URIs, and its protection scanner
-compares them directly with current contained catalog roots. The unchanged
-fixture validates; failure-only instrumentation of the original apply identifies
-the exact missing skill and preserves the original validator/refusal. Route those
-selectors through the existing configured catalog resolver, preserve its shadowing
-and safety checks, and qualify an additional source regression plus a new immutable
-installed continuation. The previous launch's transient compiler conflict occurred
-before test discovery and is retained separately. No application or reparent success
-is claimed. The seven contained root-update source tests also pass in 60.234 seconds.
-
-All eight retained-update source methods pass in 31.949 seconds after selector
-resolution. Read-only inspection now protects the original fixture’s three
-current workflow/routing/skill inputs as well as shim authority; its source, Git
-index/HEAD, intent and original receipt remain exact after the diagnostic rollback.
-
-**Installed application passes.** Immutable subject `65ef424f2` (distribution
+**Installed migrated-project maintenance.** Subject `65ef424f2` (distribution
 `sha256:6fc486124715d7ee33fcfcb09d00b88ffad0fbe1a7542f8856ee431a91183e9a`)
-passes all ten public-command observations in 16.137 seconds on the exact original
-failed fixture. Both update and unchanged-parent reparent apply successfully;
-root/descendant plans agree, and original source, Git index/HEAD, migration intent,
-original failed receipt and installed distribution are preserved. The queue review
-binds the exact conflict inputs and preserves the still-active ADOPT-002 owner.
-No fixture reconstruction, producer rerun or authority repin is used. All earlier
-failures remain distinct evidence. Changed-parent application, complete containment,
-composed-candidate/platform/independent review and release acceptance remain open.
-Two action-selector histories reconcile with unchanged trees while preserving
-the final shared-workflow SDK selection repair and later native qualification gates.
+passes ten public-command observations in 16.137 seconds against the exact original
+failed fixture after genuine migration, producer renewal and finalization. Update
+and unchanged-parent reparent apply successfully; root/descendant plans agree.
+Original source, raw Git index/HEAD, migration intent, original failed receipt and
+installed distribution remain exact. The typed queue review preserves the active
+ADOPT-002 owner. No fixture reconstruction, producer rerun or authority repin is
+used. Read-only parent README and agent-entrypoint audits pass; lifecycle admission
+is not claimed. Earlier reference, queue-owner, retained-shim and selector-retirement
+failures remain separate evidence in the custody observation.
 
-**Changed-parent continuation.** The untouched original installed parent journey
-passes canonical producer setup and actual root update, then refuses a real local
-contained parent's manifest because the immutable Git snapshot reader reads only
-root authority (one method, 30.119 seconds, 14 command observations). Source/index
-preservation assertions still pass. The shared resolve/catalog reader now selects
-one declared root or contained namespace, retains exact raw identities and catalog
-coordinates, and refuses duplicate/misplaced/link/submodule authority without a
-checkout. Six new and nine existing real-Git methods pass (15.817/8.559 seconds).
-A continuation binds the original retained failed parent/child fixture, original
-phase/report hashes and post-failure custody checkpoint; it performs no initializer,
-producer renewal or authority repin. Installed verification remains pending. The
-successful migrated fixture also passes read-only parent README and agent-entrypoint
-audits; lifecycle admission is not claimed. Two more unchanged-tree source-history
-reconciliations bring integration to 29 snapshots merged and 61 pending.
+**Changed-parent frontier.** The untouched recovered parent journey first fails
+at immutable Git parent discovery (14 commands, 30.119 seconds). The shared
+resolve/catalog reader now selects one declared root or contained authority,
+preserves raw manifest identities and catalog coordinates, and refuses duplicate,
+misplaced, linked or submodule authority without a checkout. Six new and nine
+existing real-Git tests pass (15.817/8.559 seconds). Installed subject `93c6766fb`
+(distribution `sha256:5eddc7f4df376a26777f7e34b6f71ac4f83a3ac673047bcfddd72c11c3be8eff`)
+then resumes the retained parent/child fixture: root/descendant plans agree and
+changed-parent application succeeds, with source/index/HEAD preserved and authority
+review explicitly required. The following inherited-update plan refuses missing
+catalog provenance (seven observations, 26.143 seconds). The successful parent
+transition remains in place and is independently bound to its typed identities;
+that refusal is the current frontier. This is a canonical producer fixture,
+separate from migrated-parent, native, other-platform and release acceptance.
+
+**Other retained verification.** The pre-updater native-root repair cohort passes
+631 cases without failures/skips in 2,248.970 seconds; it does not qualify later
+updater code. Shared-wrapper controls pass 50 cases. The eight retained-update
+controls pass after current catalog/selector protection; 12 namespace, four
+queue-owner and 23 composed dependency controls also pass at their recorded
+subjects. An earlier immutable noneditable producer journey passes 32 commands.
+The custody observation keeps exact subjects, times and limitations. No earlier
+source/installed result qualifies a later composed candidate automatically.
+
+**Remaining acceptance and holds.** Reconcile all remaining snapshot and committed
+branch differences; complete inherited/migrated parent transitions, full containment,
+independent review, original platform/source/installed gates and exact-head/
+resulting-main CI. Complete release acceptance remains separate. The stale
+documentation authority review, prior source-timeout hold and storage-cutover hold
+remain intact; no driver, authority marker or release receipt is silently repinned.
+[Earlier detailed handoff checkpoints](https://github.com/jordanhubbard/literate-ai/blob/93c6766fb4e49e41072a510c629abf0ffa6ad074/docs/roadmap/active-work.md)
+remain immutable history alongside the individual failed receipts.
