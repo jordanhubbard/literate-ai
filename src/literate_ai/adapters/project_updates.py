@@ -35,6 +35,7 @@ from literate_ai.adapters.retained_layout import (
     read_retained_layout_declaration,
     resolve_structural_layout,
 )
+from literate_ai.application.roadmap_paths import RoadmapPaths
 from literate_ai.contracts import (
     CatalogImportsFile,
     ContentIdentity,
@@ -47,7 +48,6 @@ from literate_ai.contracts import (
     canonical_json_bytes,
 )
 from literate_ai.documentation import (
-    _ACTIVE_WORK_PATH,
     DocumentationError,
     _roadmap_area,
     _roadmap_header_fields,
@@ -552,8 +552,11 @@ def _protect_dangling_roadmap_queue_owners(
     of applying it, so the operator resolves the collision explicitly.
     """
 
+    context = ProjectConfigurationStore.context(root)
+    relative = context.framework_root.relative_to(context.root).as_posix()
+    namespace = RoadmapPaths.for_framework(None if relative == "." else relative)
     active_work_index = next(
-        (index for index, item in enumerate(files) if item.path == _ACTIVE_WORK_PATH),
+        (index for index, item in enumerate(files) if item.path == namespace.queue),
         None,
     )
     if active_work_index is None:
@@ -567,7 +570,7 @@ def _protect_dangling_roadmap_queue_owners(
     upstream_active_work = (
         active_work_item.merged_text.encode("utf-8")
         if active_work_item.merged_text is not None
-        else upstream_content.get(_ACTIVE_WORK_PATH)
+        else upstream_content.get(namespace.queue)
     )
     if upstream_active_work is None:
         return files
@@ -577,11 +580,11 @@ def _protect_dangling_roadmap_queue_owners(
         return files
 
     for item in files:
-        if item.path == _ACTIVE_WORK_PATH:
+        if item.path == namespace.queue:
             continue
         if item.classification is not ProjectUpdateClassification.PRESERVED_DYNAMIC:
             continue
-        if _roadmap_area(item.path) is None:
+        if _roadmap_area(item.path, namespace) is None:
             continue
         content = _local_bytes(root, item.path, observation)
         if content is None:
@@ -593,6 +596,7 @@ def _protect_dangling_roadmap_queue_owners(
                 path=item.path,
                 value=fields["Owning queue item"],
                 active_work_anchors=upstream_anchors,
+                active_work_path=namespace.queue,
             )
         except (UnicodeError, DocumentationError):
             # Either the owner link is already invalid (a pre-existing defect the
