@@ -984,6 +984,14 @@
         "update-merge-reference-fixed2.log": "9b6e03c4a6fcea83c1040a4d849a703d4504802593f094326c08af6cba6693bf"
       },
       "scope": "Source regression only; installed verification against original failed fixture is pending."
+    },
+    "installed_maintenance_resume": {
+      "status": "failed",
+      "subject": "c03c3375c291fc356e09fc8a4ed3372f3f3840b1",
+      "fixture_reconstructed": false,
+      "original_receipt_sha256": "35ceefc42eb7785b76f6855033b1304647e0ad4e8ee9a7300252e820ae02c259",
+      "error": "documentation fragment is unavailable: litai/docs/roadmap/native-rewrite-program.md:4#adopt-002",
+      "scope": "Exact original failed-fixture continuation; reference repair advances, queue namespace guard defect blocks update; reparent not reached."
     }
   },
   "remaining_requirements": [

@@ -142,6 +142,40 @@ class InstalledFrameworkMaintenanceJourney(unittest.TestCase):
 
         journal = Path(placed["journal"])
         self.assertTrue(journal.is_relative_to(project / "litai/.literate"))
+        self.exercise_maintenance(
+            project=project,
+            launcher=launcher,
+            python=python,
+            distribution=distribution,
+            implementation=implementation,
+            original_source=original_source,
+            index=index,
+            head=head,
+            journal=journal,
+            identity=identity,
+        )
+
+    def exercise_maintenance(
+        self,
+        *,
+        project,
+        launcher,
+        python,
+        distribution,
+        implementation,
+        original_source,
+        index,
+        head,
+        journal,
+        identity,
+        original_update_framework=None,
+        label_prefix="maintenance",
+        receipt_name="maintenance-receipt.json",
+    ):
+        """Keep the same source/Git/history assertions for fresh and retained input."""
+        snapshot = adoption.InstalledNativeAdoptionJourney.snapshot
+        receipt_path = self.root / receipt_name
+        self.assertFalse(receipt_path.exists())
         intent = file_state(journal / "intent.json")[0]
         authority_paths = [
             project / "litai/literate.project.json",
@@ -166,12 +200,24 @@ class InstalledFrameworkMaintenanceJourney(unittest.TestCase):
                         else ("reparent", "none", "--project", str(selected))
                     )
                     result = self.cli(
-                        f"maintenance-{operation}-plan-{coordinate}",
+                        f"{label_prefix}-{operation}-plan-{coordinate}",
                         launcher,
                         *arguments,
                         cwd=self.root,
                     )["result"]
                     self.assertEqual(result["mode"], "read-only-plan")
+                    if operation == "update" and original_update_framework is not None:
+                        for key in (
+                            "baseline_identity",
+                            "project_identity",
+                            "previous_origin",
+                            "update_bases_identity",
+                        ):
+                            self.assertEqual(
+                                result["framework"][key],
+                                original_update_framework[key],
+                                key,
+                            )
                     identities.append(
                         result["plan_identity" if operation == "update" else "identity"]
                     )
@@ -186,7 +232,7 @@ class InstalledFrameworkMaintenanceJourney(unittest.TestCase):
                     else ("reparent", "none", "--project", str(project), "--apply")
                 )
                 result = self.cli(
-                    f"maintenance-{operation}-apply",
+                    f"{label_prefix}-{operation}-apply",
                     launcher,
                     *arguments,
                     cwd=self.root,
@@ -206,38 +252,42 @@ class InstalledFrameworkMaintenanceJourney(unittest.TestCase):
                 outcomes[operation] = result
             self.assertEqual(
                 self.run_command(
-                    "maintenance-head-after",
+                    f"{label_prefix}-head-after",
                     ["git", "--no-optional-locks", "rev-parse", "HEAD"],
                     project,
                 ).stdout,
                 head,
             )
             self.assertEqual(
-                self.probe(python, "maintenance-distribution-after"), distribution
+                self.probe(python, f"{label_prefix}-distribution-after"), distribution
             )
             passed = True
         finally:
-            (self.root / "maintenance-receipt.json").write_text(
-                json.dumps(
-                    {
-                        "record_version": 1,
-                        "installed_distribution": distribution,
-                        "fixture": str(self.root),
-                        "framework_plan_identity": identity,
-                        "migration_intent_sha256": hashlib.sha256(intent).hexdigest(),
-                        "original_source": original_source,
-                        "index_sha256": hashlib.sha256(index).hexdigest(),
-                        "maintenance_outcomes": outcomes,
-                        "commands": self.results,
-                        "passed": passed,
-                        "scope": (
-                            "Installed update and unchanged-parent application after "
-                            "real finalization; changed-parent and complete "
-                            "containment/platform/release acceptance remain open."
-                        ),
-                        "release_qualification": False,
-                    },
-                    indent=2,
+            with receipt_path.open("x") as stream:
+                stream.write(
+                    json.dumps(
+                        {
+                            "record_version": 1,
+                            "installed_distribution": distribution,
+                            "fixture": str(project.parent),
+                            "observation": str(self.root),
+                            "framework_plan_identity": identity,
+                            "migration_intent_sha256": hashlib.sha256(
+                                intent
+                            ).hexdigest(),
+                            "original_source": original_source,
+                            "index_sha256": hashlib.sha256(index).hexdigest(),
+                            "maintenance_outcomes": outcomes,
+                            "commands": self.results,
+                            "passed": passed,
+                            "scope": (
+                                "Installed update and unchanged-parent application "
+                                "after real finalization; changed-parent and complete "
+                                "containment/platform/release acceptance remain open."
+                            ),
+                            "release_qualification": False,
+                        },
+                        indent=2,
+                    )
+                    + "\n"
                 )
-                + "\n"
-            )

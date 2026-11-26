@@ -29206,6 +29206,24 @@ canonical controls. Their original template doubles also need the current explic
 profile/observation arguments; verify generated legacy profile and absence of a role
 observation rather than accepting arbitrary new arguments.
 
+**Exact failed-fixture continuation.** A separate immutable repair subject
+`c03c3375c` is installed with distribution
+`sha256:01689586603d359089f2a46285d46fe2fb9a2c9d2aa64dc28eddf122c1853c95`.
+The continuation binds the original failed receipt hash, original directory node,
+source/Git state and migration intent, and checks all four original update
+metadata identities before application. It performs no new migration, producer
+renewal, fixture reconstruction or authority repinning. Earlier planning-only
+maintenance code remains byte-identical; the new application and continuation
+cells have distinct filenames.
+
+**Continued installed refusal.** The immutable reference repair is exercised against
+the original failed fixture with its receipt, source, Git state and intent bound.
+It advances beyond the reference defect, then rolls back on an orphaned
+`ADOPT-002` roadmap owner. The queue replacement guard still uses root-only
+coordinates. Integrate the existing contained-roadmap namespace contribution,
+retain current observation safeguards, and require an explicit reviewed queue
+resolution before application. Both failed receipts remain separate evidence.
+
 **Next action (in progress).** Reconcile the remaining 69 snapshots and verify the reference
 repair against the exact retained failed installed fixture. The repaired native-root
 run completed all 631 selected cases in 2,248.970 seconds, without failures or skips;
