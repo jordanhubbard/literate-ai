@@ -2781,16 +2781,21 @@ worker; `recover` then explicitly registers it. An observed pending, absent or
 expired worker loses only its still-matching registration. An unfinished lookup,
 expired observation or release intent cannot authorize recovery. Observation is
 read-only at the provider but updates the local journal and may remove an invalid
-registration. `status` remains a local read without a provider call.
+registration. Once a ready reply is observed past its expiry, the journal retains
+`expired` for that allocation generation. A later lookup or clock rollback cannot
+make it eligible for registration again. `status` remains a local read without a
+provider call.
 
 `release` requires acknowledgement and removes the exact owned registration before
 asking the provider to release it. The request is durably saved first. A timeout,
 crash or pending provider reply leaves `releasing`; repeat the command to use the
 same idempotency key. A completed release retains a tombstone and never allocates
 again under that worker ID. Lookup after a failed release preserves that release
-intent. `--expired-only` requires an observed expiry in the past before the first
-release attempt. A changed registration, unrelated static worker or changed
-provider configuration is never deleted by this operation.
+intent. `--expired-only` requires a recorded past expiry before the first release
+attempt. A later absent or pending reply preserves that eligibility. Bare absence
+without an observed expiry still requires ordinary acknowledged release and an
+exact terminal acknowledgement from the provider. A changed registration, unrelated
+static worker or changed provider configuration is never deleted by this operation.
 
 Managed SSH dispatch observes the lease before each attempt and requires enough
 remaining lifetime for the full job deadline plus the actual remote runner's
