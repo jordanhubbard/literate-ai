@@ -50,13 +50,28 @@ def compose_retained_cargo_current_inputs_v2(
     ):
         raise TypeError("retained.importer.v2-consumer-tool-pair-required")
 
+    original_generation = native.provider.generation
+    original_prepared = original_generation.prepared
+    original_inputs = getattr(original_prepared, "qualified_library_inputs", None)
+
+    def require_original_inputs():
+        if (
+            native.provider.generation is not original_generation
+            or original_generation.prepared is not original_prepared
+            or getattr(original_prepared, "qualified_library_inputs", None)
+            is not original_inputs
+        ):
+            raise ValueError("retained.importer.v2-qualified-library-owner-changed")
+
     def guard():
+        require_original_inputs()
         reviewed.require_unchanged()
         native.require_unchanged()
         if separate_consumer:
             consumer_cargo.require_unchanged()
             consumer_rustc.require_unchanged()
         reviewed.require_unchanged()
+        require_original_inputs()
 
     guard()
     provider = native.provider
@@ -100,6 +115,19 @@ def compose_retained_cargo_current_inputs_v2(
         provider.lifecycle.driver,
         guard,
     )
-    result = RetainedCargoCurrentInputsV2(reviewed, current)
+    from .native_root_retained_ingress import read_native_root_retained_ingress
+
+    ingress = read_native_root_retained_ingress(native)
+    require_original_inputs()
+    result = RetainedCargoCurrentInputsV2(
+        reviewed,
+        current,
+        ingress,
+        **(
+            {"qualified_library_inputs": original_inputs}
+            if original_inputs is not None
+            else {}
+        ),
+    )
     result.preflight(max_plan_bytes=256 * 1024 * 1024)
     return result

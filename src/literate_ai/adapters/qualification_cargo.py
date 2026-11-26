@@ -20,6 +20,7 @@ def verify_qualification_cargo_build(
     current_commands=None,
     provider_materials=(),
     current_recipe=None,
+    current_provider_commands=None,
 ) -> None:
     """Bind all native phases and dependency bytes to the recorded build plan."""
 
@@ -119,6 +120,17 @@ def verify_qualification_cargo_build(
         mismatch()
     providers = provider_exports or {}
     commands = current_commands or {}
+    if current_provider_commands is not None:
+        commands = dict(commands)
+        from literate_ai.contracts.executable_components import ComponentCommandContract
+
+        if any(
+            type(command) is not ComponentCommandContract
+            or command.component_revision != revision
+            for revision, command in current_provider_commands.items()
+        ) or set(commands) & set(current_provider_commands):
+            mismatch()
+        commands.update(current_provider_commands)
     expected_native = any(
         commands[providers[value].component_revision].is_library
         for value in plan.provider_artifact_identities
@@ -183,7 +195,12 @@ def verify_qualification_cargo_build(
             plan=plan,
             target=target,
             provider_exports=providers,
-            current_commands=commands,
+            current_commands=current_commands or {},
+            **(
+                {"current_provider_commands": current_provider_commands}
+                if current_provider_commands is not None
+                else {}
+            ),
             provider_materials=provider_materials,
             current_recipe=current_recipe,
             record=reader.read_json(identity(artifact_files[native_path])),

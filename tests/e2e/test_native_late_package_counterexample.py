@@ -5,14 +5,13 @@ release qualification. It reuses the existing real Rust public lifecycle fixture
 and its explicitly synthetic editable-framework distribution observation. Neither
 native process output nor private oracle/native/tool/package custody is replaced.
 
-Desired ADR 0073 behavior is one fresh replacement after actual final packaged
-acceptance rejects a candidate that passed its actual early native check. Current
-code is expected RED because its bounded node loop has already returned. This
-file is isolated from the early-check safety checkpoint.
+ADR 0073 requires one fresh replacement after actual final packaged acceptance
+rejects a candidate that passed its actual early native check. This maintained
+regression explicitly selects the finite original-run policy and exercises the
+production controller. It remains separate from the early-check checkpoint.
 
-The missing shared original LOCAL run deadline remains an implementation/design
-gap. This counterexample proves the late-continuation boundary, not deadline
-propagation, held dependency support, clean qualification or replay.
+A passing run proves this late-continuation journey, not complete deadline
+qualification, held dependency support, installed qualification or closed replay.
 """
 
 from __future__ import annotations
@@ -25,8 +24,10 @@ import shlex
 import shutil
 import sys
 import tempfile
+import traceback
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -53,7 +54,7 @@ class NativeLatePackageCounterexampleTests(unittest.TestCase):
     def setUpClass(cls):
         native_fixtures.NativeCandidateRepairTests.setUpClass.__func__(cls)
 
-    def _run_late(self):
+    def _run_late(self, *, expect_success=True):
         """Copy the public fixture journey, without old node-chain assertions.
 
         Final package rejection must retain the old accepted v2 node observation,
@@ -74,10 +75,11 @@ class NativeLatePackageCounterexampleTests(unittest.TestCase):
 
         root = Path(tempfile.mkdtemp(prefix="native late package repair ")).resolve()
         self._late_success = False
+        retain_fixture = os.environ.get("LITAI_TEST_RETAIN_NATIVE_LATE_FIXTURE") == "1"
         self.addCleanup(
             lambda: (
                 shutil.rmtree(root)
-                if self._late_success
+                if self._late_success and not retain_fixture
                 else print(f"Retained late package fixture: {root}", file=sys.stderr)
             )
         )
@@ -143,6 +145,22 @@ class NativeLatePackageCounterexampleTests(unittest.TestCase):
             receipt=receipt,
             invoke=invoke,
         )
+        from literate_ai.contracts.native_root_continuation import NativeRootRunPolicy
+        from literate_ai.projects import ProjectConfigurationStore
+
+        store = ProjectConfigurationStore(project)
+        original_configuration = store.read()
+        store.update(
+            original_configuration,
+            replace(
+                original_configuration.definition,
+                native_root_run_policy=NativeRootRunPolicy(1800, 3),
+            ),
+        )
+        review_status, review = invoke(
+            ["project", "documentation-review", str(project), "--record"]
+        )
+        self.assertEqual(review_status, 0, review)
         oracle_before = fixture.oracle_path.read_bytes()
         agent = tools / "claude"
         body = agent.read_text().split("\n", 1)[1]
@@ -173,10 +191,10 @@ class NativeLatePackageCounterexampleTests(unittest.TestCase):
                 "--update-receipt",
             ]
         )
-        requests = [
-            json.loads(line)
-            for line in (root / "model-requests.jsonl").read_text().splitlines()
-        ]
+        request_log = root / "model-requests.jsonl"
+        if not request_log.exists():
+            self.assertEqual(status, 0, envelope)
+        requests = [json.loads(line) for line in request_log.read_text().splitlines()]
         self.assertEqual(fixture.oracle_path.read_bytes(), oracle_before)
         self.assertLessEqual(len(requests), 3)
         self.assertEqual(len({row["request"] for row in requests}), len(requests))
@@ -185,23 +203,76 @@ class NativeLatePackageCounterexampleTests(unittest.TestCase):
             self.assertNotIn("serde fixture", row["request"])
             self.assertNotIn(fixture.oracle.harness_content.decode(), row["request"])
         self.assertEqual((project / "verification/current.json").exists(), status == 0)
-        # Current production is expected to fail here AFTER two real verifier
-        # decisions. The caller independently checks those observations before
-        # reporting the precise missing-continuation counterexample.
-        self.assertEqual(status, 0, envelope)
+        # Require the complete real journey; neither an early native pass nor
+        # retained failure observations substitute for the final current receipt.
+        if expect_success:
+            self.assertEqual(status, 0, envelope)
+        else:
+            self.assertNotEqual(status, 0, envelope)
         return status, envelope, requests
 
-    def test_actual_early_pass_then_packaged_rejection_gets_one_fresh_replacement(self):
+    def _exercise_late(self, modes=("late", "correct"), *, expect_success=True):
         from literate_ai.adapters import rust_library_harness_execution as execution
+        from literate_ai.application import native_root_run
         from literate_ai.contracts.product_json import product_json_bytes
+        from tests.support.fixtures_native_root_mixed_observations import (
+            NativeRootMixedObservations,
+        )
 
         original_author = public_fixtures.author_public_project
         original_process = execution.run_bounded_process
         owners = []
         native = []
+        closures = []
+        original_close = native_root_run.LiveNativeRootRun.close
+
+        def observe_close(owner):
+            # Observe the original refusal before another finally block can
+            # report a closed owner. No message, native stream or case data is
+            # retained, and the original close always runs exactly once.
+            try:
+                error = sys.exception()
+                code = getattr(error, "code", None)
+                frames = (
+                    []
+                    if error is None or error.__traceback__ is None
+                    else [
+                        {
+                            "file": Path(frame.f_code.co_filename).name,
+                            "function": frame.f_code.co_name,
+                            "line": line,
+                        }
+                        for frame, line in traceback.walk_tb(error.__traceback__)
+                    ][-12:]
+                )
+                closures.append(
+                    {
+                        "exception_type": (
+                            None if error is None else type(error).__name__
+                        ),
+                        "code": code if isinstance(code, str) else None,
+                        "frames": frames,
+                    }
+                )
+            except Exception:
+                # Optional diagnostic collection must not replace the refusal
+                # or prevent its real owner from closing.
+                pass
+            finally:
+                result = original_close(owner)
+            return result
 
         def author(*args, **kwargs):
             project, component, fixture, tools = original_author(*args, **kwargs)
+            # Select this new fixture's existing supported verifier limit before
+            # command admission and the later canonical documentation review.
+            # Legacy fixtures retain 180 seconds; production limits are unchanged.
+            # All four native stages still share one original 1,800-second run.
+            fixture.author_oracle(
+                specification_identity=fixture.oracle.specification_set_identity,
+                library_manifest="source/Cargo.toml",
+                timeout_seconds=300,
+            )
             root = Path(args[0])
             owners.append(
                 {
@@ -225,14 +296,30 @@ class NativeLatePackageCounterexampleTests(unittest.TestCase):
             # Repr insertion AFTER LIBRARY's assignment preserves Rust source
             # quotes through the Python fixture's second parser.
             insertion = (
+                "_late_modes = " + repr(tuple(modes)) + "\n"
                 "_late_log = Path(" + repr(str(request_log)) + ")\n"
-                "if _late_log.exists() and "
-                "len(_late_log.read_text().splitlines()) == 1:\n"
+                "_late_ordinal = (len(_late_log.read_text().splitlines()) "
+                "if _late_log.exists() else 0)\n"
+                "_late_mode = (_late_modes[_late_ordinal - 1] "
+                "if 1 <= _late_ordinal <= len(_late_modes) else 'correct')\n"
+                "if _late_mode == 'late':\n"
                 "    LIBRARY = LIBRARY.replace("
                 + repr("pub fn answer(input: &str) -> String {")
                 + ", "
                 + repr(LATE_NATIVE_PREFIX)
-                + ", 1)\n\n"
+                + ", 1)\n"
+                "elif _late_mode == 'build-fail':\n"
+                "    LIBRARY = "
+                + repr('compile_error!("controlled generated build failure");\n')
+                + "\n\n"
+            )
+            # Only generated public test output changes for this mode. The
+            # private verifier and every returned process observation stay real.
+            self.assertEqual(body.count('"outcome": "passed"'), 1)
+            body = body.replace(
+                '"outcome": "passed"',
+                '"outcome": ("failed" if _late_mode == "test-fail" else "passed")',
+                1,
             )
             agent.write_text(body.replace(marker, insertion + marker, 1))
             return project, component, fixture, tools
@@ -273,6 +360,17 @@ class NativeLatePackageCounterexampleTests(unittest.TestCase):
                     "stdout_sha256": hashlib.sha256(result.stdout).hexdigest(),
                 }
             )
+            with (owners[0]["root"] / "native-events.jsonl").open("a") as stream:
+                stream.write(
+                    json.dumps(
+                        {
+                            key: value
+                            for key, value in native[-1].items()
+                            if key != "answer"
+                        }
+                    )
+                    + "\n"
+                )
             return result
 
         result = None
@@ -281,11 +379,13 @@ class NativeLatePackageCounterexampleTests(unittest.TestCase):
             with (
                 patch.object(public_fixtures, "author_public_project", author),
                 patch.object(execution, "run_bounded_process", observe_process),
+                patch.object(native_root_run.LiveNativeRootRun, "close", observe_close),
+                NativeRootMixedObservations(self) as continuation,
             ):
                 try:
-                    result = self._run_late()
+                    result = self._run_late(expect_success=expect_success)
                 except AssertionError as error:
-                    # The private journey expects final success. First prove
+                    # Check the configured real terminal outcome. First prove
                     # the genuine late-root boundary, then preserve its failure.
                     prior_assertion = error
             self.assertEqual(len(owners), 1)
@@ -294,6 +394,8 @@ class NativeLatePackageCounterexampleTests(unittest.TestCase):
                 owner["fixture"].oracle_path.read_bytes(), owner["oracle_bytes"]
             )
             observed = [(row["stage"], row["answer"]) for row in native]
+            if prior_assertion is not None:
+                raise prior_assertion
             self.assertEqual(
                 observed[:2], [("early-export", 42), ("final-package", 41)]
             )
@@ -303,55 +405,49 @@ class NativeLatePackageCounterexampleTests(unittest.TestCase):
                 .read_text()
                 .splitlines()
             ]
-            if prior_assertion is not None:
-                # This diagnoses only the intended current RED: both REAL
-                # native decisions happened, then no replacement was prepared.
-                self.assertEqual(len(requests), 1)
-                self.assertEqual(len(native), 2)
-                failures = sorted(owner["root"].glob("call-*.stderr"))
-                self.assertTrue(
-                    any(
-                        "component_acceptance.rust_harness_result_mismatch"
-                        in path.read_text()
-                        for path in failures
-                    )
-                )
-                self.assertFalse(
-                    (owner["project"] / "verification/current.json").exists()
-                )
-                raise AssertionError(
-                    "Actual early native acceptance passed42 and actual packaged "
-                    "acceptance rejected41, but the original run did not prepare "
-                    "the required fresh same-budget root replacement"
-                ) from prior_assertion
             self.assertIsNotNone(result)
             status, envelope, returned_requests = result
-            self.assertEqual(status, 0, envelope)
-            self.assertEqual(len(returned_requests), 2)
-            self.assertEqual(len(requests), 2)
-            self.assertEqual(
-                observed,
-                [
-                    ("early-export", 42),
-                    ("final-package", 41),
-                    ("early-export", 42),
-                    ("final-package", 42),
-                ],
-            )
+            if expect_success:
+                self.assertEqual(status, 0, envelope)
+            else:
+                self.assertNotEqual(status, 0, envelope)
+            self.assertEqual(len(returned_requests), len(modes))
+            self.assertEqual(len(requests), len(modes))
+            expected_native = []
+            for mode in modes:
+                if mode in {"late", "correct"}:
+                    expected_native.extend(
+                        [
+                            ("early-export", 42),
+                            ("final-package", 41 if mode == "late" else 42),
+                        ]
+                    )
+            self.assertEqual(observed, expected_native)
+            continuation.require(modes, expect_success, owner["project"], owner["root"])
             self._late_success = True
         finally:
-            # On current RED the private fixture retains its real source,
+            # On failure the private fixture retains its real source,
             # packages and observations. Keep a compact secret-free index there.
             # Do not record private case IDs, held-out inputs or full streams.
             if owners:
                 root = owners[0]["root"]
                 if root.is_dir():
+                    (root / "native-run-closures.json").write_text(
+                        json.dumps(closures, indent=2) + "\n"
+                    )
                     (root / "late-package-native-observations.json").write_text(
                         json.dumps(
                             {
                                 "schema": "literate-ai/late-package-counterexample@1",
                                 "scope": "controlled-provider source native behavior",
-                                "native": native,
+                                "native": [
+                                    {
+                                        key: value
+                                        for key, value in row.items()
+                                        if key != "answer"
+                                    }
+                                    for row in native
+                                ],
                                 "native_streams_replaced": False,
                                 "oracle_modified": (
                                     owners[0]["fixture"].oracle_path.read_bytes()
@@ -364,6 +460,15 @@ class NativeLatePackageCounterexampleTests(unittest.TestCase):
                         )
                         + "\n"
                     )
+
+    def test_actual_early_pass_then_packaged_rejection_gets_one_fresh_replacement(self):
+        self._exercise_late()
+
+    def test_actual_build_repair_then_package_repair_share_three_candidates(self):
+        self._exercise_late(("build-fail", "late", "correct"))
+
+    def test_actual_build_test_package_exhaustion_never_allocates_fourth(self):
+        self._exercise_late(("build-fail", "test-fail", "late"), expect_success=False)
 
 
 if __name__ == "__main__":

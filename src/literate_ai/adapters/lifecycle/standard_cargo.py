@@ -309,11 +309,39 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
         return destinations
 
     def _current_native_cargo_inputs(self, plan, providers):
+        owner = self._qualified_library_owner()
+        original = (
+            self._qualified_library_operation(owner) if owner is not None else None
+        )
+        original_current = owner.require_current if owner is not None else None
+        original_read = self.read_artifact_blob
+
+        def guarded_read(reference):
+            self._require_qualified_library_operation(owner, original)
+            content = original_read(reference)
+            self._require_qualified_library_operation(owner, original)
+            return content
+
+        external = self._qualified_library_data()
+        contracts = dict(self.contracts)
+        manifest_paths = {
+            revision: target.manifest for revision, target in self.cargo_targets.items()
+        }
+        if external is not None:
+            for contract in external.contracts:
+                if contract.component_revision.uri in contracts:
+                    raise LocalStandardLifecycleError(
+                        "external contract overlaps generated execution"
+                    )
+                contracts[contract.component_revision.uri] = contract
+            manifest_paths.update(dict(external.manifest_paths))
         if not any(
-            self._contract(item.component_revision).is_library for item in providers
+            contracts[item.component_revision.uri].is_library for item in providers
         ):
             return None
         inputs = self.build_execution_inputs(plan)
+        if owner is not None:
+            self._require_qualified_library_operation(owner, original)
         native = bind_native_cargo_inputs(
             consumer_revision=plan.component_revision,
             target_identity=self._contract(
@@ -321,15 +349,16 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             ).artifact_export.target_identity,
             providers=providers,
             available_exports=self._exports_by_identity,
-            contracts=self.contracts,
-            manifest_paths={
-                revision: target.manifest
-                for revision, target in self.cargo_targets.items()
-            },
+            contracts=contracts,
+            manifest_paths=manifest_paths,
             current_bindings=self.library_consumer_bindings(inputs.intent),
-            read_blob=self.read_artifact_blob,
+            read_blob=guarded_read if owner is not None else original_read,
         )
         validate_native_cargo_provider_locks(graph=native[0], sources=native[1])
+        if external is not None:
+            self._require_qualified_library_operation(owner, original)
+            original_current()
+            self._require_qualified_library_operation(owner, original)
         return native
 
     def _cargo_workspace_identity(self, plan, providers, contract, native):
@@ -404,7 +433,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             tuple(
                 item
                 for item in providers
-                if not self._contract(item.component_revision).is_library
+                if not self._provider_contract(item.component_revision).is_library
             )
         )
 
@@ -922,11 +951,33 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                             stdout=result.stdout.replace(token.encode(), b"<redacted>"),
                             stderr=result.stderr.replace(token.encode(), b"<redacted>"),
                         )
+                from literate_ai.application.native_root_failed_stage import (
+                    observe_native_root_process,
+                )
+
                 if result.returncode != 0:
-                    raise LocalStandardLifecycleError(
+                    error = LocalStandardLifecycleError(
                         f"Cargo command failed ({result.returncode}): "
                         f"{result.stderr.decode('utf-8', errors='replace').strip()}"
                     )
+                    observe_native_root_process(
+                        self,
+                        (*binding.command, *arguments),
+                        projected_manifest.parent,
+                        result.returncode,
+                        result.stdout,
+                        result.stderr,
+                        failure_error=error,
+                    )
+                    raise error
+                observe_native_root_process(
+                    self,
+                    (*binding.command, *arguments),
+                    projected_manifest.parent,
+                    result.returncode,
+                    result.stdout,
+                    result.stderr,
+                )
                 return result
 
             generate = run(
@@ -1005,6 +1056,22 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                 str(projected_manifest),
                 *build_target,
             )
+            from literate_ai.application.native_root_failed_stage import (
+                prepare_native_root_cargo_attribution,
+            )
+
+            native_arguments = (*build_arguments, "--message-format=json")
+            if prepare_native_root_cargo_attribution(
+                self,
+                metadata_document,
+                source,
+                projection,
+                projected_manifest,
+                native_arguments,
+                lock_bytes=lock_bytes,
+                native_evidence=native_evidence,
+            ):
+                build_arguments = native_arguments
             cache_observation = None
             if (
                 self.shared_cache is not None

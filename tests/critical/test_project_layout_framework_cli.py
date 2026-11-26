@@ -9,11 +9,14 @@ from __future__ import annotations
 import io
 import json
 import subprocess
+import sys
+import traceback
 import unittest
 from unittest.mock import patch
 
 from literate_ai.adapters import project_layout_framework_transaction as transaction
 from literate_ai.cli import dispatch
+from literate_ai.cli.errors import CliFailure
 from tests.critical import test_project_layout_recorded_composition as support
 
 
@@ -44,7 +47,16 @@ class FrameworkMigrationCliTests(unittest.TestCase):
 
     def invoke(self, project, operation, *arguments, path=None):
         output, error = io.StringIO(), io.StringIO()
+        causes = []
+        original_init = CliFailure.__init__
+
+        def capture_failure(instance, code, message, **kwargs):
+            original_init(instance, code, message, **kwargs)
+            if code == "project.layout.invalid" and sys.exception() is not None:
+                causes.append("".join(traceback.format_exception(sys.exception())))
+
         with (
+            patch.object(CliFailure, "__init__", capture_failure),
             patch.object(
                 dispatch,
                 "maybe_host_self_update",
@@ -72,7 +84,12 @@ class FrameworkMigrationCliTests(unittest.TestCase):
             )
         payload = output.getvalue() or error.getvalue()
         self.assertTrue(payload)
-        return status, json.loads(payload)
+        packet = json.loads(payload)
+        if causes:
+            # Test-only diagnostics from the original failure; never repeat a
+            # read or change the production CLI's sanitized wire response.
+            packet["test_original_exception"] = causes
+        return status, packet
 
     def plan(self, project):
         status, packet = self.invoke(project, "plan", "--migration")

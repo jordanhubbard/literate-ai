@@ -28,6 +28,10 @@ from literate_ai.adapters.authored_qualification_publication import (
     METADATA_BYTES,
     _read_published_authored_metadata,
 )
+from literate_ai.adapters.authored_retained_products import (
+    AuthoredRetainedProductSelection,
+    CurrentAuthoredRetainedProducts,
+)
 from literate_ai.adapters.exclusive_directory import directory_node
 from literate_ai.adapters.qualification_archive import reopen_qualification_archive
 from literate_ai.contracts.authored_qualification_reference import (
@@ -259,6 +263,51 @@ def _open_authored_retained_cargo_products_session(
         or type(binding) is not AuthoredRetainedCargoBinding
     ):
         raise TypeError("current authored plan and exact authored binding required")
+    selection = AuthoredRetainedProductSelection(
+        binding.evidence_store_id,
+        binding.provider_reference,
+        binding.selected_run_identity,
+        binding.exports,
+    )
+    with _open_authored_retained_products_session(
+        current,
+        selection,
+        configured_store_id=configured_store_id,
+        archive_payload=archive_payload,
+        native_sdk_inputs=native_sdk_inputs,
+        max_bytes=max_bytes,
+        _retain_publication=_retain_publication,
+        _cargo_compat=True,
+    ) as owner:
+        yield owner
+
+
+@contextmanager
+def _open_authored_retained_products_session(
+    current,
+    selection,
+    *,
+    configured_store_id,
+    archive_payload,
+    native_sdk_inputs=None,
+    max_bytes=DEFAULT_BYTES,
+    _retain_publication=False,
+    _cargo_compat=False,
+):
+    """Original all-run owner, shared by fixed Cargo and neutral entry points.
+
+    Selection is typed inert data. Current publication, projection and all-run
+    replay remain mandatory, including retirement and original owner expiry.
+    Neither entry point infers a provider origin from archive field presence.
+    """
+    if (
+        type(current) is not CurrentAuthoredQualificationPlan
+        or type(selection) is not AuthoredRetainedProductSelection
+        or type(_retain_publication) is not bool
+        or type(_cargo_compat) is not bool
+        or (_retain_publication and not _cargo_compat)
+    ):
+        raise TypeError("current authored plan and exact product selection required")
     if (
         type(max_bytes) is not int
         or not 0 < max_bytes <= DEFAULT_BYTES
@@ -266,10 +315,10 @@ def _open_authored_retained_cargo_products_session(
         or len(archive_payload) > max_bytes
     ):
         raise ValueError("retained.cargo.authored-archive-limit-invalid")
-    if configured_store_id != binding.evidence_store_id:
+    if configured_store_id != selection.evidence_store_id:
         raise ValueError("retained.cargo.authored-store-mismatch")
     current.require_unchanged()
-    expected = binding.provider_reference
+    expected = selection.provider_reference
     active = True
     try:
         with AuthoredPublicationFiles(current, writable=False) as files:
@@ -315,13 +364,13 @@ def _open_authored_retained_cargo_products_session(
                 selected = [
                     exports
                     for run, exports in membership.exports
-                    if run == binding.selected_run_identity
+                    if run == selection.selected_run_identity
                 ]
-                if len(selected) != 1 or selected[0] != binding.exports:
+                if len(selected) != 1 or selected[0] != selection.exports:
                     raise ValueError("retained.cargo.authored-selected-run-mismatch")
                 references = {
                     export.blob
-                    for manifest in binding.exports.graph.manifests
+                    for manifest in selection.exports.graph.manifests
                     for export in manifest.exports
                 }
                 if sum(item.size for item in references) > max_bytes:
@@ -344,6 +393,14 @@ def _open_authored_retained_cargo_products_session(
                         raise ValueError(
                             "retained.cargo.authored-original-products-required"
                         )
+                    if not _cargo_compat and (
+                        candidate.reader is not reader
+                        or candidate.reopened is not reopened
+                        or candidate.projection is not projection
+                    ):
+                        raise ValueError(
+                            "retained.authored.original-artifact-owner-changed"
+                        )
                     current.require_unchanged()
                     projection.require_unchanged()
                     metadata.require_unchanged()
@@ -358,13 +415,35 @@ def _open_authored_retained_cargo_products_session(
                     )
                     if latest != reference or latest_archive != archive:
                         raise ValueError("retained.cargo.authored-publication-changed")
+                    if not _cargo_compat and (
+                        candidate.reader is not reader
+                        or candidate.reopened is not reopened
+                        or candidate.projection is not projection
+                    ):
+                        raise ValueError(
+                            "retained.authored.original-artifact-owner-changed"
+                        )
 
-                owner = CurrentAuthoredRetainedCargoProducts(
+                owner_type = (
+                    CurrentAuthoredRetainedCargoProducts
+                    if _cargo_compat
+                    else CurrentAuthoredRetainedProducts
+                )
+                owner = owner_type(
                     reference,
-                    binding.selected_run_identity,
-                    binding.exports,
+                    selection.selected_run_identity,
+                    selection.exports,
                     blobs,
                     check,
+                    **(
+                        {
+                            "reader": reader,
+                            "reopened": reopened,
+                            "projection": projection,
+                        }
+                        if not _cargo_compat
+                        else {}
+                    ),
                 )
                 owner.require_unchanged()
                 if _retain_publication:

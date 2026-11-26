@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 from collections.abc import Callable, Mapping
+from contextlib import nullcontext
 from dataclasses import dataclass, replace
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -20,6 +21,7 @@ from literate_ai.adapters.dependencies import validate_cyclonedx_bom
 from literate_ai.adapters.intelligence import generated_source_tree_identity
 from literate_ai.adapters.models.coding_cli import (
     CodingCliGeneration,
+    CodingCliSelection,
     GenerationRecipe,
     _acceptance_argument_vectors,
     _acceptance_result_shape,
@@ -266,8 +268,27 @@ class CachedCodingCliSourceGenerationRunner:
             raise TypeError("workspace binding must be privately admitted")
         self.workspace_binding = workspace_binding
         self.generator = generator
+        self._original_source_generator = generator
+        # Pointer custody only; legacy/non-coding paths acquire no new probe.
+        self._original_coding_cli_selection = getattr(generator, "selection", None)
+        self._original_coding_cli_binding = (
+            ContentIdentity.parse_uri(
+                self._original_coding_cli_selection.tool_binding_identity
+            )
+            if type(self._original_coding_cli_selection) is CodingCliSelection
+            else None
+        )
+        self._original_coding_cli_guard = (
+            self._original_coding_cli_selection.require_unchanged
+            if type(self._original_coding_cli_selection) is CodingCliSelection
+            else None
+        )
         self.retained_source = retained_source
         self.cas = cas
+        self._original_candidate_cas = cas
+        self._original_candidate_cas_root = cas.root
+        self._original_candidate_blob_root = cas.blob_root
+        self._original_candidate_namespace_witness = cas.original_namespace_witness
         self.invocation_provider = invocation_provider
         self.assets_by_revision: dict[str, tuple[AuthoredBinaryAsset, ...]] = {}
         for asset in assets:
@@ -388,77 +409,103 @@ class CachedCodingCliSourceGenerationRunner:
                 "source_generation.recipe_invalid",
                 "prepared node recipe must be a GenerationRecipe",
             )
-        if self.workspace_binding is None:
-            self._require_fresh_workspace(prepared)
-        else:
-            self.workspace_binding.require_current(prepared, fresh=True)
-        invocation = self.invocation_provider(prepared)
-        if not isinstance(invocation, CodingCliSourceGenerationInvocation):
-            raise CachedCodingCliSourceGenerationError(
-                "source_generation.invocation_invalid",
-                "invocation provider must return a typed exact invocation",
+        from literate_ai.application.native_root_continuation import (
+            current_native_root_controller,
+        )
+
+        from .native_root_transport import begin_native_root_transport_capture
+
+        controller = current_native_root_controller()
+        native_capture = None
+        if (
+            controller is not None
+            and self.retained_source is None
+            and type(self._original_coding_cli_selection) is CodingCliSelection
+        ):
+            native_capture = begin_native_root_transport_capture(
+                controller, self, prepared
             )
-        self._require_invocation_matches_node(prepared, invocation)
-        if self.workspace_binding is not None:
-            self.workspace_binding.require_current(prepared, fresh=True)
-        if self.retained_source is not None:
-            key = self.planned_cache_key(prepared)
-            if self.assets_by_revision:
+        with native_capture.guarded() if native_capture is not None else nullcontext():
+            if self.workspace_binding is None:
+                self._require_fresh_workspace(prepared)
+            else:
+                self.workspace_binding.require_current(prepared, fresh=True)
+            invocation = self.invocation_provider(prepared)
+            if not isinstance(invocation, CodingCliSourceGenerationInvocation):
                 raise CachedCodingCliSourceGenerationError(
-                    "retained_source.assets_unsupported",
-                    "Retained input with separately materialized assets "
-                    "is not supported",
+                    "source_generation.invocation_invalid",
+                    "invocation provider must return a typed exact invocation",
                 )
+            self._require_invocation_matches_node(prepared, invocation)
+            if self.workspace_binding is not None:
+                self.workspace_binding.require_current(prepared, fresh=True)
+            if self.retained_source is not None:
+                key = self.planned_cache_key(prepared)
+                if self.assets_by_revision:
+                    raise CachedCodingCliSourceGenerationError(
+                        "retained_source.assets_unsupported",
+                        "Retained input with separately materialized assets "
+                        "is not supported",
+                    )
+                output = self._record(
+                    prepared,
+                    invocation,
+                    None,
+                    planned_request_identity=key.request_identity,
+                )
+                workspace = Path(prepared.workspace.locator)
+                for name, content in self.retained_source.files:
+                    destination = workspace / name
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    with destination.open("xb") as stream:
+                        stream.write(content)
+                self.retained_source.require_unchanged()
+                if self.workspace_binding is not None:
+                    self.workspace_binding.require_current(prepared)
+                self._candidate_cache_keys[output.candidate_identity.uri] = key
+                return output
+            stage_request = invocation.stage_request
+            bounded_prompt = self._bounded_prompt(prepared)
+            cache_key = self.generator.derivation_cache_key(
+                prepared.recipe,
+                execution_plan=invocation.execution_plan,
+                stage_request=stage_request,
+                bounded_prompt=bounded_prompt,
+            )
+            if self.workspace_binding is not None:
+                self.workspace_binding.require_current(prepared, fresh=True)
+            if native_capture is not None:
+                native_capture.require_current()
+            generation = self.generator.generate(
+                prepared.recipe,
+                output_root=Path(prepared.workspace.locator),
+                execution_plan=invocation.execution_plan,
+                stage_request=stage_request,
+                bounded_prompt=bounded_prompt,
+            )
+            if native_capture is not None:
+                native_capture.require_current()
+            if self.workspace_binding is not None:
+                self.workspace_binding.require_current(prepared)
             output = self._record(
                 prepared,
                 invocation,
-                None,
-                planned_request_identity=key.request_identity,
+                generation,
+                planned_request_identity=cache_key.request_identity,
+                **(
+                    {"native_transport_capture": native_capture}
+                    if native_capture is not None
+                    else {}
+                ),
             )
-            workspace = Path(prepared.workspace.locator)
-            for name, content in self.retained_source.files:
-                destination = workspace / name
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                with destination.open("xb") as stream:
-                    stream.write(content)
-            self.retained_source.require_unchanged()
             if self.workspace_binding is not None:
                 self.workspace_binding.require_current(prepared)
-            self._candidate_cache_keys[output.candidate_identity.uri] = key
+            self._candidate_cache_keys[output.candidate_identity.uri] = cache_key
+            self._pending_candidates[output.candidate_identity.uri] = (
+                output.candidate,
+                generation,
+            )
             return output
-        stage_request = invocation.stage_request
-        bounded_prompt = self._bounded_prompt(prepared)
-        cache_key = self.generator.derivation_cache_key(
-            prepared.recipe,
-            execution_plan=invocation.execution_plan,
-            stage_request=stage_request,
-            bounded_prompt=bounded_prompt,
-        )
-        if self.workspace_binding is not None:
-            self.workspace_binding.require_current(prepared, fresh=True)
-        generation = self.generator.generate(
-            prepared.recipe,
-            output_root=Path(prepared.workspace.locator),
-            execution_plan=invocation.execution_plan,
-            stage_request=stage_request,
-            bounded_prompt=bounded_prompt,
-        )
-        if self.workspace_binding is not None:
-            self.workspace_binding.require_current(prepared)
-        output = self._record(
-            prepared,
-            invocation,
-            generation,
-            planned_request_identity=cache_key.request_identity,
-        )
-        if self.workspace_binding is not None:
-            self.workspace_binding.require_current(prepared)
-        self._candidate_cache_keys[output.candidate_identity.uri] = cache_key
-        self._pending_candidates[output.candidate_identity.uri] = (
-            output.candidate,
-            generation,
-        )
-        return output
 
     @staticmethod
     def _bounded_prompt(
@@ -580,7 +627,10 @@ class CachedCodingCliSourceGenerationRunner:
         generation: CodingCliGeneration | None,
         *,
         planned_request_identity: ContentIdentity,
+        native_transport_capture=None,
     ) -> SourceGenerationRunOutput:
+        if native_transport_capture is not None:
+            native_transport_capture.require_current()
         recipe = prepared.recipe
         stage_request = invocation.stage_request
         final_stage = invocation.execution_plan.model_stages[-1]
@@ -738,6 +788,8 @@ class CachedCodingCliSourceGenerationRunner:
             code="source_generation.route_identity_invalid",
             label="final route decision",
         )
+        if native_transport_capture is not None:
+            native_transport_capture.retain(generation)
         stage_output_record = self.cas.put_manifest(
             retained.to_dict()
             if retained is not None

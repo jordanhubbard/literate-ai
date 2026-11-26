@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import argparse
 import json
+import runpy
 import subprocess
 import sys
 from pathlib import Path
@@ -18,8 +20,31 @@ from literate_ai.version import DISTRIBUTION_VERSION
 from scripts.build_plugin_bundle import build_release_plugins
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--native-root-archives", type=Path)
+    parser.add_argument("--require-native-root-qualification", action="store_true")
+    arguments = parser.parse_args([] if argv is None else argv)
+    native_arguments = []
+    if arguments.require_native_root_qualification:
+        if arguments.native_root_archives is None:
+            raise RuntimeError(
+                "selected release native cells require explicit local archives"
+            )
+        native_arguments.append("--require-native-root-qualification")
+    if arguments.native_root_archives is not None:
+        native_arguments.extend(
+            ["--native-root-archives", str(arguments.native_root_archives)]
+        )
     root = Path(__file__).resolve().parents[1]
+    native_pins = None
+    if arguments.native_root_archives is not None:
+        native_api = runpy.run_path(
+            str(root / "scripts/installed_native_root_inputs.py")
+        )
+        _native_inputs, native_pins = native_api["capture_inputs"](
+            root, arguments.native_root_archives
+        )
     revision = subprocess.run(
         ["git", "rev-parse", "HEAD"],
         cwd=root,
@@ -48,10 +73,18 @@ def main() -> int:
     shutil.copy2(built, wheel)
     wheel_identity = file_identity(wheel)
     subprocess.run(
-        [sys.executable, str(root / "scripts/wheel_smoke.py"), "--wheel", str(wheel)],
+        [
+            sys.executable,
+            str(root / "scripts/wheel_smoke.py"),
+            "--wheel",
+            str(wheel),
+            *native_arguments,
+        ],
         cwd=root,
         check=True,
     )
+    if native_pins is not None:
+        native_pins.require_unchanged()
     if file_identity(wheel) != wheel_identity:
         raise RuntimeError("wheel changed during qualification")
     plugins = build_release_plugins(repository=root, output=output)
@@ -85,10 +118,12 @@ def main() -> int:
     temporary.write_text(
         json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
+    if native_pins is not None:
+        native_pins.require_unchanged()
     temporary.replace(destination)
     print(json.dumps(value, sort_keys=True))
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

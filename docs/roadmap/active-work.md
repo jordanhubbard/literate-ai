@@ -26623,6 +26623,9 @@ implementation, policy weakening, qualification or issue closure is recorded her
   the independently reproduced native-only update dispatch remain outstanding;
   every original containment/platform/source/review/release acceptance remains open.
 
+- **Installed maintenance refusals (confirmed):** The b45a48ac4 wheel completes real framework placement, normal Component renewal and two finalizations, then both root and descendant reparent plans reject with `repository_reparent.native_profile_unsupported`, and update plans reject with `project.native_profile_required`. Application source and Git index remain unchanged after each independent command. Retain the exact finalized fixture and journals; fix current eligibility/dispatch without rewriting historical records or weakening native-profile checks. No new authority marker, driver or receipt is recorded.
+
+
 - **Installed Component producer continuation (macOS partial):** The unchanged
   noneditable b45a48ac4 wheel executes public renewal for the original converted
   wrapper Component and repeated source finalization from a descendant directory.
@@ -28354,12 +28357,12 @@ Source partial: converted framework-resource observation now includes the origin
 
 - **Historical combined-integration checkpoint:** Normal history composed independently reviewed PR414 `58bc1381` with the bootstrap/diagnostic/Cargo/runtime batch. Its eight non-assembly native-repair production files matched the contributor; Standard project assembly retained both the held runtime execution plan and the native candidate verifier, while runtime environment port bytes were unchanged. Independent review covered the original three-candidate budget, fresh single-root Rust-v2 custody, fixed-category feedback, private oracle boundaries, sealed export hashes and executable/tool closure after rejection. `verification/native-candidate-repair-integration-review.json` retains those exact source comparisons. This checkpoint and the contributor qualification below remain evidence for their original subjects.
 
-- **Current implementation audit:** PR414 checks native results during per-node
+- **Historical baseline implementation audit:** PR414 checks native results during per-node
   acceptance, before project artifact assembly, packaging and independent root
   acceptance. Its bounded node loop has already returned when actual packaged
   acceptance runs; no late rejection continues that same counter. The internal
-  rejection record does not bind a rejected root package, and no separate typed
-  acceptance-repair schema or packaged continuation/replay join is implemented.
+  rejection record does not bind a rejected root package. The new closed schema
+  foundation below still lacks its actual packaged continuation and replay joins.
   The existing v2 diagnostic was broadened to accept native ACCEPT rejection;
   restoring ADR 0073 requires preserving frozen v2 meanings through the new
   versioned route. Early-check source correctness is therefore a subset of this
@@ -28377,7 +28380,7 @@ Source partial: converted framework-resource observation now includes the origin
   The external source provider and framework-distribution observation remain
   controlled fixtures; these are not installed-framework qualification.
 
-- **Actual late-package counterexample:** A separate isolated source journey
+- **Original failing late-package counterexample:** A separate isolated source journey
   passes real early native acceptance with answer 42, then returns answer 41 in
   real final packaged acceptance. The original run fails after one source request
   with no replacement or current receipt. Both native processes exit zero;
@@ -28393,9 +28396,80 @@ Source partial: converted framework-resource observation now includes the origin
   copying, replay, mutation, expiry and closure cannot renew it. The
   [foundation record](../../verification/native-root-continuation-foundation-development.json)
   binds 38 passing source controls and the separately failing actual native
-  late-package regression. These foundations are not connected to CLI admission,
-  root orchestration, native/package custody, publication or closed replay yet;
-  the full implementation and qualification below remain open.
+  late-package regression. The original foundation did not connect these records
+  to runtime orchestration; it remains historical evidence for that subject.
+
+- **Original command wiring (development only):** Admit one explicit policy before
+  source indexing, retain original manifest bytes and native file identity, and
+  forward the same live owner across aggregate Components and runtime preparation.
+  Intersect model, build, native and source-index process waits with its remaining
+  lifetime; preserve finite cleanup allowances. Candidate and tracked receipt
+  publication rechecks closure after serialization and before committing a file.
+  Separate source controls cover same-byte manifest replacement, aggregate expiry,
+  real owned process termination, candidate cleanup and original receipt
+  preservation. A new allocation constraint claims each root once per original
+  run and accounts for pending candidates and preparation stops without buying a
+  new counter. The separate root repair preparation port retains original budgets
+  and uses changed requests and fresh workspaces without casting native rejection
+  into frozen v2 diagnostics. These parts still require connection to the shared
+  root controller and actual late packaged acceptance.
+
+- **Verifier custody development:** An internal executor context can retain an
+  original native outcome after strict complete inventory validation, while the
+  public strict executor continues to reject wrong values. Its process-local
+  holder requires current native, input, tool and original-run ownership and
+  one-shot consumption. The frozen strict-wrapper source snapshot passes all
+  thirteen existing actual native controls in 456.387 seconds; its source hashes
+  remain unchanged. Later explicit profile/decision guards have separate passing
+  source controls. The live factory, shared controller, actual late continuation,
+  dependency support, installed qualification and closed replay remain open.
+
+- **Runtime continuation integration (development in progress):** The shared
+  controller is connected to the original local runtime and both native stages.
+  Three source controls preserve the exact measured execution plan after current
+  replanning and refuse drift. The actual source journey passes that former
+  preparation refusal and reaches generated source and successful node execution;
+  its interrupted run does not establish native acceptance or continuation.
+  Review identified full verifier/source traversal nested inside each export-entry
+  callback. Four actual filesystem controls pass after moving complete fresh
+  checks to capture boundaries while retaining the original per-entry deadline:
+  a 32-file capture retains identical payloads with two full guards rather than
+  33. Source/verifier mutation, original expiry and later physical export mutation
+  still refuse. The legacy verifier method remains unchanged. The
+  [scoped development record](../../verification/native-root-live-controller-development.json)
+  leaves terminal-history handling, actual packaged replacement, commit-boundary
+  deadlines, qualified dependencies, installed runs and strict replay open.
+
+- **Integrated source controls:** All 153 native-root cases across eighteen
+  modules pass with no skips in 144.869 seconds. Seven terminal-history controls
+  retain completed node observations, distinguish newly allocated checkpoint
+  failure from prior history and preserve original errors during cleanup. Three
+  scheduler controls bound occupied BUILD/LINK capacity and polling by the same
+  original owner; three completion controls refuse success after callbacks close
+  it. Original policy/deadline records are retained for later closed replay.
+  These modeled and filesystem controls do not prove arbitrary running-future
+  cancellation or filesystem-cache commit atomicity. The separate actual source
+  journey reaches early native result 42 and packaged result 41, then fails with
+  `native_root_run.closed` after one request in 651.838 seconds. The first refusal
+  remains undiagnosed; neither deadline expiry nor successful replacement is
+  inferred. Retained source, finalizer/dependency eligibility, cache transaction
+  boundaries and the existing installed/replay/platform goals remain open.
+
+- **Retained-mode and operation-bound integration:** The current native-root
+  source cohort passes 160 cases without skips in 78.231 seconds. An explicit
+  original retained-source identity now reaches initial eligibility selection;
+  retained inputs remain outside generated repair, with existing authorization
+  and absent-marker behavior preserved. A later actual attempt records
+  `native_root_run.timeout_invalid` as the first refusal hidden by `closed`.
+  A maintained control reproduces the exhausted verifier remainder being clamped
+  before expiry checking. Correcting that ordering preserves a longer original
+  budget while refusing the expired operation before any probe or command.
+  All nineteen Rust-harness controls pass in 26.607 seconds. The new continuation
+  fixture explicitly selects the already-supported 300-second verifier limit
+  before admission; legacy fixture defaults remain 180 seconds, production
+  limits are unchanged and the single whole-run bound remains 1,800 seconds.
+  These 179 distinct source cases do not establish an actual successful late
+  replacement, cache transaction atomicity, installed qualification or release.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#405](https://github.com/jordanhubbard/literate-ai/issues/405)
@@ -28403,6 +28477,46 @@ Source partial: converted framework-resource observation now includes the origin
 - **Priority:** P1
 - **Owner:** Standard generated-candidate attempt chain and packaged independent acceptance; PROJECT Goals 1 and 4
 - **Direction:** Include issue 405: a generated native-library root result mismatch occurs outside the existing bounded candidate-repair loop.
+- **Resumed cleanup and guard integration:** The canonical serial native-root
+  cohort passes 182 controls without skips in 153.441 seconds. Initial custom
+  finalizers remain outside continuation eligibility; a later injection refuses
+  before delegation. Original callback/scope pairing removes a duplicate full
+  scan while retaining fresh guards. A closed original run now retires its exact
+  backend scope without another scan, preserving the original pipeline error.
+  The public context-stack reference is read-only so cleanup keeps its owned
+  stack. Independent source review found no concrete issue. The preceding real
+  native journey reached early 42 and packaged 41, then correctly refused the
+  verifier deadline after 843.528 seconds; a successful replacement is still
+  unproven. These are source development results, not installed or release gates.
+
+- **Complete controlled-provider source journey (2026-11-24):** The maintained
+  real Rust/Cargo counterexample now passes in 317.312 seconds: early result 42,
+  packaged result 41, a fresh request/workspace, early result 42 and final packaged
+  result 42, followed by the fixture's current receipt. Oracle bytes and native
+  streams remain unchanged. Original verifier closure now precedes diagnostic
+  bookkeeping; each actual replacement begins a fresh context-journal projection
+  while earlier CAS records remain durable. The selected original 1,800-second
+  run and 300-second verifier limits are unchanged. The
+  [exact scoped source record](../../verification/native-root-late-source-journey-development.json)
+  also binds 295 passing controller/history-reader controls and current static
+  gates. The provider and framework-distribution observation are controlled;
+  this supersedes the earlier source failure checkpoints, not installed identity,
+  full temporal qualification, held qualified inputs, strict closed replay,
+  two independent installed runs or platform/release acceptance. The parent goal
+  and its remaining acceptance boxes stay open.
+
+- **Mixed actual source budget controls (2026-11-24):** All three maintained
+  Rust/Cargo journeys pass in 1,154.766 seconds with no skips or failures: late
+  replacement; compiler rejection, packaged rejection and acceptance on the third
+  candidate; and build/test/package exhaustion without a fourth allocation or
+  publication. Actual compiler attribution and the complete zero-exit failed-test
+  protocol drive original-owner diagnostics without broadening ordinary repair
+  classification. The [historical exact-source record](../../verification/native-root-mixed-source-journeys-development.json)
+  retains its source hashes and controlled provider/distribution boundary. Later
+  replay/receiving changes have separate focused checks; complete closed replay,
+  actual public held-provider qualification, two clean installed runs and all
+  platform/release gates remain open. No parent or acceptance box is closed.
+
 - **Contributor alias and history:** `CANDIDATE-NATIVE-REPAIR-001` was the contributor's original work ID in [PR #414](https://github.com/jordanhubbard/literate-ai/pull/414). It is an alias of this current release-goal owner, not a second issue or independently scheduled deliverable. Both IDs retain the same issue #405 scope; the release-goal manifest continues to include NATIVE-ACCEPTANCE-REPAIR-001.
 - **Conclusion:** Implement the accepted connection from actual rejected root-package custody to the existing attempt chain. Reuse the shared three-total-candidate budget and changed-request/fresh-workspace rules; keep private oracle material, arbitrary native stderr, authority/custody/deadline failures and retained/original source outside repair eligibility. Preserve the existing rule that source-cache publication follows successful independent root acceptance. The early check, full packaged continuation, candidate qualification and resulting-main delivery are separate states; this goal remains open.
 - **Depends on:** none

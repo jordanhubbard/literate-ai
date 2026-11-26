@@ -85,6 +85,21 @@ PYTHON_TEST_WORKERS ?= auto
 PYTHON_TEST_WORKER_TIMEOUT ?= 3600
 WHEEL_WORKER_DIRECTORY ?=
 QUALIFIED_WHEEL_MANIFEST ?=
+NATIVE_ROOT_FIXTURE_ARCHIVES ?=
+RELEASE_NATIVE_ROOT_QUALIFICATION ?=
+ifneq ($(strip $(RELEASE_NATIVE_ROOT_QUALIFICATION)),)
+ifneq ($(strip $(RELEASE_NATIVE_ROOT_QUALIFICATION)),0)
+ifneq ($(strip $(RELEASE_NATIVE_ROOT_QUALIFICATION)),1)
+$(error RELEASE_NATIVE_ROOT_QUALIFICATION must be 0, 1, or empty)
+endif
+endif
+endif
+ifeq ($(strip $(RELEASE_NATIVE_ROOT_QUALIFICATION)),1)
+ifeq ($(strip $(NATIVE_ROOT_FIXTURE_ARCHIVES)),)
+$(error selected installed native release qualification requires NATIVE_ROOT_FIXTURE_ARCHIVES)
+endif
+endif
+NATIVE_ROOT_QUALIFICATION_SELECTED = $(or $(filter 1,$(RELEASE_NATIVE_ROOT_QUALIFICATION)),$(strip $(NATIVE_ROOT_FIXTURE_ARCHIVES)))
 RELEASE_QUALIFIED_WHEEL_MANIFEST ?= $(OBJ_DIR)/release-wheels/$(shell git rev-parse --verify HEAD)/manifest.json
 RELEASE_PLAN ?=
 RELEASE_PREPARED ?= $(OBJ_DIR)/release/prepared.json
@@ -274,7 +289,7 @@ test-receipt-current: python-version $(RUNTIME_PREREQUISITE) ## Require the curr
 	PYTHONPATH=src $(STEP) test-receipt-current -- $(RUN_PYTHON_COMMAND) -m literate_ai.cli project test-receipt require-current --project .
 
 wheel-check: python-version $(RUNTIME_PREREQUISITE) ## Build and smoke-test the installed wheel outside this checkout.
-	$(STEP) wheel-check -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",) $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
+	$(STEP) wheel-check -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",) $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",) $(if $(strip $(NATIVE_ROOT_FIXTURE_ARCHIVES)),--native-root-archives "$(NATIVE_ROOT_FIXTURE_ARCHIVES)",) $(if $(filter 1,$(RELEASE_NATIVE_ROOT_QUALIFICATION)),--require-native-root-qualification,)
 
 format: $(DEV_PREREQUISITE) ## Format Python source and tests.
 	$(RUFF) format src tests scripts $(SAMPLE_PYTHON)
@@ -344,7 +359,7 @@ release: python-version $(RUNTIME_PREREQUISITE) ## Check the exact plan in RELEA
 # Refuse stale review authority before native qualification. The ordered gate list
 # retains its later driver-review so intervening source drift still refuses.
 release-check: python-version $(RUNTIME_PREREQUISITE) schema-check driver-review runner-review documentation-review ## Preflight authority, then run resumable release gates.
-	BUILD_DIR="$(BUILD_DIR)" OBJ_DIR="$(OBJ_DIR)" QUALIFIED_WHEEL_MANIFEST="$(RELEASE_QUALIFIED_WHEEL_MANIFEST)" $(RUN_PYTHON_COMMAND) scripts/run_checkpointed_gates.py --state "$(RELEASE_CHECKPOINT)" --make "$(MAKE)" $(RELEASE_GATES)
+	BUILD_DIR="$(BUILD_DIR)" OBJ_DIR="$(OBJ_DIR)" QUALIFIED_WHEEL_MANIFEST="$(RELEASE_QUALIFIED_WHEEL_MANIFEST)" NATIVE_ROOT_FIXTURE_ARCHIVES="$(NATIVE_ROOT_FIXTURE_ARCHIVES)" RELEASE_NATIVE_ROOT_QUALIFICATION="$(RELEASE_NATIVE_ROOT_QUALIFICATION)" $(RUN_PYTHON_COMMAND) scripts/run_checkpointed_gates.py --state "$(RELEASE_CHECKPOINT)" --make "$(MAKE)" $(if $(NATIVE_ROOT_QUALIFICATION_SELECTED),--require-gate wheel-check,) $(RELEASE_GATES)
 
 release-check-reset: python-version $(RUNTIME_PREREQUISITE) ## Discard the diagnostic release checkpoint so the next run starts at gate one.
 	$(RUN_PYTHON_COMMAND) scripts/run_checkpointed_gates.py --state "$(RELEASE_CHECKPOINT)" --reset
@@ -352,4 +367,4 @@ release-check-reset: python-version $(RUNTIME_PREREQUISITE) ## Discard the diagn
 
 .PHONY: release-artifacts
 release-artifacts: python-version $(RUNTIME_PREREQUISITE) ## Qualify and retain exact wheel/plugin bytes for publication.
-	PYTHONPATH=src:. $(RUN_PYTHON_COMMAND) scripts/qualify_release_files.py
+	PYTHONPATH=src:. $(RUN_PYTHON_COMMAND) scripts/qualify_release_files.py $(if $(strip $(NATIVE_ROOT_FIXTURE_ARCHIVES)),--native-root-archives "$(NATIVE_ROOT_FIXTURE_ARCHIVES)",) $(if $(filter 1,$(RELEASE_NATIVE_ROOT_QUALIFICATION)),--require-native-root-qualification,)

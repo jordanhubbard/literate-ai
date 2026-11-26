@@ -442,6 +442,9 @@ class FilesystemStandardQualificationLifecyclePort:
         self.pipeline_model = pipeline_model
         self.project = project
         self.prepared = prepared
+        self._original_qualified_library_inputs = getattr(
+            prepared, "qualified_library_inputs", None
+        )
         self.binding = binding
         self.invalidation = invalidation
         self.workspaces = workspaces
@@ -529,6 +532,15 @@ class FilesystemStandardQualificationLifecyclePort:
     def require_current_authority(self) -> None:
         """Reopen provider authority before retained capture or final admission."""
 
+        original_inputs = self._original_qualified_library_inputs
+        if (
+            getattr(self.prepared, "qualified_library_inputs", None)
+            is not original_inputs
+        ):
+            raise FilesystemQualificationError(
+                "qualification.qualified_owner_changed",
+                "original qualified input owner changed",
+            )
         if self.authored_plan is not None:
             self.authored_plan.require_unchanged()
         self.prepared.locked_authority_snapshot.require_unchanged()
@@ -548,10 +560,42 @@ class FilesystemStandardQualificationLifecyclePort:
                 "independent acceptance authority changed during qualification",
             )
 
+        if original_inputs is not None:
+            from literate_ai.adapters.native_root_external_runtime import (
+                require_qualified_library_inputs,
+            )
+
+            require_qualified_library_inputs(
+                original_inputs, self.prepared.locked_authority_snapshot
+            )
+        if (
+            getattr(self.prepared, "qualified_library_inputs", None)
+            is not original_inputs
+        ):
+            raise FilesystemQualificationError(
+                "qualification.qualified_owner_changed",
+                "original qualified input owner changed",
+            )
+
     def execute(
         self,
         request: QualificationLifecycleRequest | AuthoredQualificationLifecycleRequest,
     ) -> QualificationLifecycleExecution:
+        from literate_ai.application.native_root_run import NativeRootRunError
+
+        try:
+            return self._execute_with_original_run(request)
+        except (NativeRootRunError, StandardLifecycleBindingError) as exc:
+            # The public qualification CLI already translates this boundary.
+            # Keep the original code/cause, including admission and exit checks.
+            raise FilesystemQualificationError(
+                exc.code, getattr(exc, "message", str(exc))
+            ) from exc
+
+    def _execute_with_original_run(self, request) -> QualificationLifecycleExecution:
+        from literate_ai.adapters.native_root_run_admission import (
+            admit_native_root_command,
+        )
         from literate_ai.contracts.authored_qualification_requests import (
             AuthoredQualificationLifecycleRequest,
         )
@@ -577,18 +621,55 @@ class FilesystemStandardQualificationLifecyclePort:
                     "authored requests cannot enter source-derived qualification",
                 )
             scope = nullcontext()
-        with scope, ExitStack() as namespaces:
-            if self.authored_oracles is not None:
-                namespaces.enter_context(
-                    self.workspaces.capture_authored_run(
-                        request.workspace_allocation_identity, request.run_identity
+        # The locked authority and outer clean allocation already exist. Admit
+        # each request before preparing its generated source/runtime workspaces,
+        # and keep that same owner through this request's retained capture.
+        # Authored here means authored specifications, not retained source.
+        admission = (
+            nullcontext()
+            if getattr(self.project.definition, "native_root_run_policy", None) is None
+            else admit_native_root_command(self.project, self.binding)
+        )
+        with admission as live_run:
+            if live_run is not None:
+                live_run.require_current()
+                self.require_current_authority()
+            with scope, ExitStack() as namespaces:
+                if self.authored_oracles is not None:
+                    namespaces.enter_context(
+                        self.workspaces.capture_authored_run(
+                            request.workspace_allocation_identity, request.run_identity
+                        )
                     )
+                result = (
+                    self._execute_current(request)
+                    if live_run is None
+                    else self._execute_current(request, live_run=live_run)
                 )
-            result = self._execute_current(request)
-        self.require_current_authority()
+            self.require_current_authority()
+            if live_run is not None:
+                live_run.require_current()
         return result
 
-    def _execute_current(self, request) -> QualificationLifecycleExecution:
+    def _execute_current(
+        self, request, *, live_run=None
+    ) -> QualificationLifecycleExecution:
+        def require_original_run():
+            if live_run is None:
+                return
+            from literate_ai.application.native_root_run import (
+                LiveNativeRootRun,
+                NativeRootRunError,
+                current_native_root_run,
+            )
+
+            if type(live_run) is not LiveNativeRootRun:
+                raise NativeRootRunError("owner_invalid")
+            if current_native_root_run() is not live_run:
+                raise NativeRootRunError("owner_mismatch")
+            live_run.require_current()
+
+        require_original_run()
         if request.force_regeneration is not True:
             raise FilesystemQualificationError(
                 "qualification.cache_bypass_required",
@@ -620,7 +701,9 @@ class FilesystemStandardQualificationLifecyclePort:
             binding=self.binding,
             independent_acceptance_oracle=self.acceptance_oracle,
             pipeline_model=self.pipeline_model,
+            **({"live_run": live_run} if live_run is not None else {}),
         )
+        require_original_run()
         if self.evidence_recorder is not None:
             adapter.runtime.lifecycle_ports.retain_evidence_with(self.evidence_recorder)
             indexer = adapter.runtime.application.lifecycle.indexer
@@ -645,10 +728,12 @@ class FilesystemStandardQualificationLifecyclePort:
                         if self.authored_plan is None
                         else self.authored_plan.plan.execution_plan.identity
                     ),
+                    **({"live_run": live_run} if live_run is not None else {}),
                 )
             )
         except FilesystemStandardRebuildError as exc:
             raise FilesystemQualificationError(exc.code, exc.message) from exc
+        require_original_run()
         roots = tuple(
             sorted(
                 (
@@ -722,7 +807,18 @@ class FilesystemStandardQualificationLifecyclePort:
                     candidate=node.source_output.candidate,
                     cas=FileSystemCAS(root / "candidate-cas", create=False),
                 )
+            if getattr(execution.lifecycle, "native_root_execution", None) is not None:
+                from literate_ai.adapters.native_root_capture import (
+                    capture_native_root_source_history,
+                )
+
+                capture_native_root_source_history(
+                    execution.lifecycle,
+                    self.evidence_recorder,
+                    cas=FileSystemCAS(root / "candidate-cas", create=False),
+                )
             snapshot.require_unchanged()
+        require_original_run()
         if self.retain_library_products:
             self.product_sources[request.run_identity.uri] = (
                 execution,
@@ -932,6 +1028,7 @@ class FilesystemStandardQualificationAdapter:
         max_capture_bytes: int = 256 * 1024 * 1024,
         pipeline_model: str | None = None,
         allow_legacy_inventory_policy: bool = False,
+        qualified_library_archive_reader=None,
     ) -> None:
         if type(retain_library_products) is not bool or (
             type(max_capture_bytes) is not int or max_capture_bytes <= 0
@@ -949,6 +1046,22 @@ class FilesystemStandardQualificationAdapter:
                 "product retention requires a library root Component",
             )
         self.max_capture_bytes = max_capture_bytes
+        self._original_qualified_library_inputs = getattr(
+            prepared, "qualified_library_inputs", None
+        )
+        self._qualified_library_archive_reader = (
+            self._original_qualified_library_archive_reader
+        ) = qualified_library_archive_reader
+        if (
+            retain_library_products
+            and self._original_qualified_library_inputs is not None
+            and not callable(qualified_library_archive_reader)
+        ):
+            raise FilesystemQualificationError(
+                "qualification.provider_archive_reader_required",
+                "portable external capture requires the original "
+                "explicit archive reader",
+            )
         self.library_captures: tuple[QualificationRunCapture, ...] = ()
         self.evidence_blobs: tuple[tuple[ContentIdentity, bytes], ...] = ()
         self.diagnostic_evidence_blobs: tuple[tuple[ContentIdentity, bytes], ...] = ()
@@ -981,7 +1094,93 @@ class FilesystemStandardQualificationAdapter:
             parity_verifier=self.parity,
         )
 
+    def _qualified_capture_data(self):
+        original = getattr(self, "_original_qualified_library_inputs", None)
+        lifecycle = self.lifecycle
+        prepared = getattr(lifecycle, "prepared", None)
+        reader = getattr(self, "_original_qualified_library_archive_reader", None)
+        if getattr(
+            prepared, "qualified_library_inputs", None
+        ) is not original or getattr(
+            self, "_qualified_library_archive_reader", None
+        ) is not getattr(self, "_original_qualified_library_archive_reader", None):
+            raise FilesystemQualificationError(
+                "qualification.qualified_owner_changed",
+                "original qualified capture inputs changed",
+            )
+        if original is None:
+            return None
+        from literate_ai.adapters.native_root_external_runtime import (
+            qualified_library_runtime_data,
+        )
+
+        data = qualified_library_runtime_data(
+            original, original._asset.component_revision
+        )
+        if (
+            self.lifecycle is not lifecycle
+            or getattr(lifecycle, "prepared", None) is not prepared
+            or getattr(prepared, "qualified_library_inputs", None) is not original
+            or getattr(self, "_original_qualified_library_inputs", None) is not original
+            or getattr(self, "_qualified_library_archive_reader", None) is not reader
+            or getattr(self, "_original_qualified_library_archive_reader", None)
+            is not reader
+        ):
+            raise FilesystemQualificationError(
+                "qualification.qualified_owner_changed",
+                "original qualified capture owner changed",
+            )
+        return data
+
+    def _capture_qualified_archives(self, recorder, original_inputs, original_reader):
+        if original_inputs is not getattr(
+            self, "_original_qualified_library_inputs", None
+        ) or original_reader is not getattr(
+            self, "_original_qualified_library_archive_reader", None
+        ):
+            raise FilesystemQualificationError(
+                "qualification.qualified_owner_changed",
+                "original archive capture origin changed",
+            )
+        external = self._qualified_capture_data()
+        if external is not None:
+            from literate_ai.adapters.native_root_external_archive import (
+                read_qualified_library_archives,
+            )
+
+            remaining = self.max_capture_bytes - recorder.retained_bytes
+            if remaining <= 0:
+                raise QualificationCaptureError("qualification.capture.byte-limit")
+            archives = read_qualified_library_archives(
+                original_inputs,
+                read_archive=original_reader,
+                max_archive_bytes=remaining,
+                max_records=100_000,
+                max_total_bytes=remaining,
+            )
+            self._qualified_capture_data()
+            for archive in archives:
+                if (
+                    recorder.remember_bytes(archive.payload).uri
+                    != archive.archive.identity
+                ):
+                    raise QualificationCaptureError(
+                        "qualification.capture.provider-archive-mismatch"
+                    )
+                recorder.remember_json(archive.to_dict())
+                for identity, payload in archive.records:
+                    if recorder.remember_bytes(payload) != identity:
+                        raise QualificationCaptureError(
+                            "qualification.capture.provider-archive-record-mismatch"
+                        )
+        self._qualified_capture_data()
+        return external
+
     def qualify(self, plan: QualificationLifecyclePlan) -> QualificationLifecycleResult:
+        original_inputs = getattr(self, "_original_qualified_library_inputs", None)
+        original_reader = getattr(
+            self, "_original_qualified_library_archive_reader", None
+        )
         self.library_captures = ()
         self.evidence_blobs = ()
         self.diagnostic_evidence_blobs = ()
@@ -989,6 +1188,7 @@ class FilesystemStandardQualificationAdapter:
         self.diagnostic_active_case = None
         self.lifecycle.diagnostic_active_case = None
         self.lifecycle.product_sources.clear()
+        self._qualified_capture_data()
         if plan.case_map != self.parity.case_map:
             raise FilesystemQualificationError(
                 "qualification.case_map_mismatch",
@@ -1020,6 +1220,9 @@ class FilesystemStandardQualificationAdapter:
                     ),
                 ):
                     recorder.remember_json(record.to_dict())
+                self._capture_qualified_archives(
+                    recorder, original_inputs, original_reader
+                )
                 pending = []
                 for run in result.runs:
                     execution, ports = self.lifecycle.product_sources[
@@ -1036,6 +1239,12 @@ class FilesystemStandardQualificationAdapter:
                         )
                     ports.project_package_custody(
                         integration.package_plan, integration.package_result
+                    )
+                    external = self._qualified_capture_data()
+                    external_exports = (
+                        set()
+                        if external is None
+                        else {item.identity for item in external.exports}
                     )
                     products = tuple(
                         sorted(
@@ -1054,10 +1263,18 @@ class FilesystemStandardQualificationAdapter:
                                 for manifest in integration.artifact_graph.manifests
                                 for export in manifest.exports
                                 if export.role == "library"
+                                and export.identity not in external_exports
                             ),
                             key=lambda item: item.artifact_export.identity.uri,
                         )
                     )
+                    if external is not None:
+                        products = tuple(
+                            sorted(
+                                (*products, *external.products),
+                                key=lambda item: item.artifact_export.identity.uri,
+                            )
+                        )
                     export_set = RetainedLibraryExportSet(
                         integration.artifact_graph,
                         integration.link_plan.identity,
@@ -1088,6 +1305,11 @@ class FilesystemStandardQualificationAdapter:
                         acceptances,
                         read_blob=ports.read_artifact_blob,
                         max_bytes=remaining,
+                        **(
+                            {"qualified_library_inputs": original_inputs}
+                            if original_inputs is not None
+                            else {}
+                        ),
                     )
                     remaining -= sum(ref.size for ref, _ in captured.blobs)
                     for _, payload in captured.blobs:

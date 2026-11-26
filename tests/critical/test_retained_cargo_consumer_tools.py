@@ -76,6 +76,12 @@ class RetainedCargoConsumerToolsTests(unittest.TestCase):
         # Test-only composition of existing synthetic qualification evidence.
         # Production callers use read_retained_provider_native, never these stubs.
         provider = SimpleNamespace(
+            # This controlled source-derived producer fixture explicitly has
+            # no native continuation policy. Missing current project metadata
+            # must never be interpreted as an absent policy in production.
+            project=SimpleNamespace(
+                definition=SimpleNamespace(native_root_run_policy=None)
+            ),
             require_unchanged=custody.require_unchanged,
             generation=SimpleNamespace(
                 prepared=SimpleNamespace(

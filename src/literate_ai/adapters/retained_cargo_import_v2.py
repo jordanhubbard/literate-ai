@@ -7,7 +7,7 @@ document or archive capture never supplies execution, exclusion or scratch right
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from literate_ai.adapters.qualification_archive import reopen_qualification_archive
 from literate_ai.adapters.qualification_capture import (
@@ -40,6 +40,12 @@ class RetainedCargoCurrentInputsV2:
 
     reviewed: RetainedCargoReviewedFilesV2
     current: RetainedCargoImportInputs
+    native_root_ingress: object | None = None
+    qualified_library_inputs: object | None = None
+    _original_qualified_library_inputs: object = field(
+        init=False, repr=False, compare=False
+    )
+    _original_native_root_ingress: object = field(init=False, repr=False, compare=False)
 
     def __post_init__(self):
         if (
@@ -47,14 +53,80 @@ class RetainedCargoCurrentInputsV2:
             or type(self.current) is not RetainedCargoImportInputs
         ):
             raise TypeError("retained.cargo.v2-current-inputs-required")
+        object.__setattr__(
+            self, "_original_native_root_ingress", self.native_root_ingress
+        )
+        object.__setattr__(
+            self, "_original_qualified_library_inputs", self.qualified_library_inputs
+        )
+
+    def _require_ingress_pointer(self):
+        if self.qualified_library_inputs is not self._original_qualified_library_inputs:
+            raise ValueError("retained.cargo.qualified-library-owner-changed")
+        from .native_root_external_qualification import (
+            require_current_qualified_library_selection,
+        )
+
+        require_current_qualified_library_selection(
+            self._original_qualified_library_inputs,
+            component_lock=self.current.authority.lock,
+        )
+        if self.native_root_ingress is not self._original_native_root_ingress:
+            raise ValueError("retained.cargo.native-root-ingress-changed")
+        if self.native_root_ingress is not None:
+            from .native_root_retained_ingress import (
+                NativeRootRetainedQualificationIngress,
+            )
+
+            if (
+                type(self.native_root_ingress)
+                is not NativeRootRetainedQualificationIngress
+            ):
+                raise TypeError("retained.cargo.native-root-ingress-invalid")
+        if self.native_root_ingress is not None and (
+            getattr(
+                self.native_root_ingress.context.preparation,
+                "_original_qualified_library_inputs",
+                None,
+            )
+            is not self._original_qualified_library_inputs
+        ):
+            raise ValueError("retained.cargo.qualified-library-owner-mismatch")
 
     def require_unchanged(self):
+        self._require_ingress_pointer()
         self.reviewed.require_unchanged()
         self.current.require_unchanged()
+        self._require_ingress_pointer()
+        if self._original_qualified_library_inputs is not None:
+            self._original_qualified_library_inputs.require_current()
+            self._require_ingress_pointer()
+        if self.native_root_ingress is not None:
+            from .native_root_retained_ingress import (
+                NativeRootRetainedQualificationIngress,
+            )
+
+            if (
+                type(self.native_root_ingress)
+                is not NativeRootRetainedQualificationIngress
+            ):
+                raise TypeError("retained.cargo.native-root-ingress-invalid")
+            self.native_root_ingress.require_unchanged()
         self.reviewed.require_unchanged()
+        self._require_ingress_pointer()
 
     def preflight(self, *, max_plan_bytes: int):
         self.require_unchanged()
+        plan = self._preflight_values(max_plan_bytes=max_plan_bytes)
+        self.require_unchanged()
+        return plan
+
+    def _preflight_values(self, *, max_plan_bytes: int):
+        """Pure declaration joins; a live caller must bracket these checks.
+
+        This performs no file reads, currentness decisions, package publication,
+        or admission. Public preflight retains its original two live guards.
+        """
         reviewed, current = self.reviewed, self.current
         binding = reviewed.binding
         native = binding.common
@@ -98,7 +170,6 @@ class RetainedCargoCurrentInputsV2:
             or plan.gates != current.current_gates
         ):
             raise ValueError("retained.cargo.gate-authority-mismatch")
-        self.require_unchanged()
         return reviewed.plan
 
 
@@ -155,6 +226,16 @@ def verify_retained_cargo_archive_v2(
         current_commands=provider.current_commands,
         current_profile=provider.current_profile,
         current_driver=provider.current_driver,
+        **(
+            {"qualified_library_inputs": current.qualified_library_inputs}
+            if current.qualified_library_inputs is not None
+            else {}
+        ),
+        **(
+            {"native_root_ingress": current.native_root_ingress}
+            if current.native_root_ingress is not None
+            else {}
+        ),
     )
     if (
         capture.exports != binding.exports

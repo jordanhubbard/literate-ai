@@ -6,6 +6,7 @@ import hashlib
 import re
 from collections.abc import Mapping
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
+from contextvars import copy_context
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
@@ -579,6 +580,7 @@ def schedule_source_generation_executions(
                         )
                     continue
                 future = executor.submit(
+                    copy_context().run,
                     execute_component_source_generation_node,
                     prepared,
                     candidate=candidates.get(uri),
