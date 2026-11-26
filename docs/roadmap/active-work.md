@@ -24206,6 +24206,14 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Contained work queue custody (in progress):** [Issue 487](https://github.com/jordanhubbard/literate-ai/issues/487)
+  reproduces `work close` mutating a committed application backlog even when
+  a distinct existing framework backlog contains the selected item. Bind the
+  existing work writer and reported path to the declared framework location.
+  Exercise distinct queues, missing or redirected queues, independent nested
+  Git and both public callers while preserving the conventional root profile.
+  The native bootstrap continues to omit a framework work queue.
+
 - **Ownership prerequisite (in progress):** [Issue 481](https://github.com/jordanhubbard/literate-ai/issues/481)
   records the shared provenance needed by future layout planning. Initialization
   baselines, framework/catalog update bases, imported authority, current topology,

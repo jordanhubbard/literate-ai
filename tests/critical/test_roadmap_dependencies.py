@@ -26,6 +26,7 @@ from literate_ai.application.roadmap_work import (
 from literate_ai.cli.errors import CliFailure
 from literate_ai.cli.work import work_from_args
 from literate_ai.documentation import DocumentationError, validate_documentation_graph
+from literate_ai.projects import ProjectConfigurationStore
 from literate_ai.release_contributions import (
     ReleaseContributionsError,
     _roadmap_release_goals,
@@ -254,9 +255,15 @@ class RoadmapDependencyTests(unittest.TestCase):
                 evidence=["qualify"],
                 completion_prerequisite=["BBB-001"],
             )
+            context = ProjectConfigurationStore.context(root)
+            observed_project = SimpleNamespace(
+                root=root,
+                manifest_path=context.manifest_path,
+                directory_binding=context.directory_binding,
+            )
             with patch(
                 "literate_ai.cli.work.ProjectConfigurationStore.discover",
-                return_value=SimpleNamespace(root=root),
+                return_value=observed_project,
             ):
                 with self.assertRaises(CliFailure):
                     work_from_args(args)
@@ -265,7 +272,7 @@ class RoadmapDependencyTests(unittest.TestCase):
             args.completion_prerequisite = ["AAA-001"]
             with patch(
                 "literate_ai.cli.work.ProjectConfigurationStore.discover",
-                return_value=SimpleNamespace(root=root),
+                return_value=observed_project,
             ):
                 result, status = work_from_args(args)
             self.assertEqual(status, 0)
