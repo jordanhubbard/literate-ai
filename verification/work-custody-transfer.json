@@ -906,5 +906,12 @@
     "Prior source-timeout and storage-cutover holds are not lifted by this custody observation."
   ],
   "release_qualification": false,
-  "resumed_original_working_state": "6ca69e404f672aaeb7107049b30c58e5e618305b"
+  "resumed_original_working_state": "6ca69e404f672aaeb7107049b30c58e5e618305b",
+  "historical_observations": [
+    {
+      "source_recovery": "fff8ed5d888115a08ad6081b1df96c13e5ed9e8e",
+      "scope": "Historical Windows checkpoint retained verbatim; no current native Windows acceptance or superseding failure is inferred.",
+      "queue_prose": "- **Windows qualification follow-up (2026-11-01):** The native gate at\n  `7763e23de54a5c51a4a155b3bcdd8c724fb41e56` preserved a clean checkout but failed\n  worktree discovery when a native filesystem identifier exceeded canonical JSON's\n  signed 64-bit integer range. The preceding actual admitted-receiver integration\n  case passed. Preserve exact raw filesystem comparisons and represent only wide\n  observation-signature integers losslessly in the identity document; retain the\n  global canonical integer bounds. Native Windows discovery/audit checks and fresh\n  full regression are required before landing this correction.\n"
+    }
+  ]
 }
