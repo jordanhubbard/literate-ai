@@ -29235,3 +29235,7 @@ Full containment, original platform/source/installed/review gates and release
 acceptance remain open. The stale documentation authority review, prior
 source-timeout hold and storage-cutover hold remain intact; no driver, authority
 marker or release receipt is repinned by this custody work.
+
+The contained-roadmap contribution from PR #493 is integrated with the current
+prospective observation reader retained. Earlier contributor evidence remains
+scoped to its recorded subject; this composed candidate requires fresh checks.

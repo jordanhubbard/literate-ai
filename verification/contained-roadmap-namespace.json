@@ -1,0 +1,189 @@
+{
+  "schema": "literate-ai/contained-roadmap-qualification@1",
+  "issue": "https://github.com/jordanhubbard/literate-ai/issues/492",
+  "main_base": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
+  "source_sha256": {
+    "src/literate_ai/application/roadmap_paths.py": "a882b5540d349859b28d5749ce137e8199608210c8216d159f6eeba9ebb0cec9",
+    "src/literate_ai/documentation.py": "145dc48f517cab27749382030e03484125d2fbc73072afa4dec77b89540de7d2",
+    "src/literate_ai/adapters/roadmap_dependencies.py": "4c13c03fc31f43018798165c0c9b157df9952796b2674dd5918fe8212c571fe3",
+    "src/literate_ai/adapters/project_validation.py": "0f4d8f334a6c39f7acb132fe4edd1d1de8abbc8772bc0e9a352281e12bc2ee75",
+    "tests/smoke/test_contained_roadmap.py": "e7a7127058aa8e9c40aae7ac8de19a01c8e67ad68836be14e53b7a74427939a3"
+  },
+  "source_checks": {
+    "new_adapter_regressions": 12,
+    "existing_documentation_cases": 10,
+    "existing_roadmap_dependency_cases": 20,
+    "lint": "passed",
+    "format": "passed",
+    "repository_layout": "passed",
+    "public_export": "passed",
+    "driver_review": "current",
+    "documentation_review": "current",
+    "final2_report_summary": {
+      "executed": 12,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 12,
+      "selected": 12,
+      "skipped": 0
+    },
+    "docs_report_summary": {
+      "executed": 10,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 10,
+      "selected": 10,
+      "skipped": 0
+    },
+    "dependencies2_report_summary": {
+      "executed": 20,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 20,
+      "selected": 20,
+      "skipped": 0
+    },
+    "initial_full_run": {
+      "selected": 2899,
+      "ran": 2669,
+      "passed": 2576,
+      "failed": 1,
+      "skipped": 91,
+      "stopped_after_first_failure": true,
+      "rustc": "1.99.1",
+      "failure": "Native retained-Cargo capture refuses 137 MiB libLLVM.dylib under the unchanged 128 MiB per-file bound.",
+      "report_summary": {
+        "executed": 2577,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 2576,
+        "selected": 2899,
+        "skipped": 91
+      }
+    },
+    "untouched_main_baseline": {
+      "base": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
+      "selected": 2,
+      "ran": 1,
+      "failed": 1,
+      "stopped_after_first_failure": true,
+      "same_failure": true
+    },
+    "rust195_native_control": {
+      "selected": 2,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "selection": "Existing stable-aarch64-apple-darwin/bin prepended to PATH only for the command; rustc 1.95.0",
+      "global_default_unchanged": "1.99.1",
+      "runtime_limits_unchanged": true
+    },
+    "full_rust195_run": {
+      "make_exit": 0,
+      "raw_unittest_ran": 2899,
+      "seconds": 3074.292,
+      "workers": 4,
+      "report_summary": {
+        "executed": 2807,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2807,
+        "selected": 2899,
+        "skipped": 92
+      },
+      "report_sha256": "059b646caeef2297466790abe15e19b9ed5b914ba2d65ad039e78ad1da867ec5",
+      "log_sha256": "5c33b6021305513b2af8b9be3d4da3dfa2de637fdf1e32e58060f8f2b15ed4cd",
+      "source_hashes_unchanged": true,
+      "cargo_control_outcomes": {
+        "passed": 2
+      }
+    },
+    "runner_review": "current",
+    "declared_verification": {
+      "exit": 1,
+      "counts": {
+        "fail": 1,
+        "pass": 1,
+        "skipped": 3
+      },
+      "gates": [
+        {
+          "detail": "project authority and documentation review",
+          "gate": "authority",
+          "state": "pass"
+        },
+        {
+          "detail": "no Component declares a committed lock to verify",
+          "gate": "locks",
+          "state": "skipped"
+        },
+        {
+          "detail": "project selects provider 'none'",
+          "gate": "source-intelligence",
+          "state": "skipped"
+        },
+        {
+          "artifacts": [],
+          "detail": "no declared HTML artifacts to verify",
+          "gate": "html-observability",
+          "state": "skipped"
+        },
+        {
+          "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+          "gate": "receipt",
+          "state": "fail"
+        }
+      ],
+      "boundary": "The reviewed driver authority changed. The existing native lifecycle receipt remains stale; this source test run is not used to manufacture its renewal."
+    }
+  },
+  "installed_qualification": {
+    "compatibility_base": "f3c71723b9e350b86df80f3d26c877d638fd78e7",
+    "composition_commit": "8fe9d4cece06b9d6be9589333d25373b8078863f",
+    "wheel_sha256": "191453637c890889f85b045fbdc1b7f672e8e587bad0521bc6cde9bff5c37b5e",
+    "wheel_bytes": 5189206,
+    "scope": "Noneditable development composition of the fix with existing contained writer; initializer-backed authored context fixture. Not native adoption, a release, or full migration acceptance.",
+    "report": {
+      "schema": "literate-ai/contained-roadmap-installed-probe@1",
+      "checks": [
+        {
+          "check": "initializer-backed authored contained fixture",
+          "state": "passed",
+          "scope": "context qualification, not migration or native-adoption acceptance"
+        },
+        {
+          "check": "public project validation with contained plan",
+          "state": "passed"
+        },
+        {
+          "check": "contained missing-header refusal",
+          "state": "passed"
+        },
+        {
+          "check": "cross-namespace owner refusal",
+          "state": "passed"
+        },
+        {
+          "check": "public close selects contained queue with same-ID host discriminator",
+          "state": "passed"
+        },
+        {
+          "check": "public record selects framework queue",
+          "state": "passed"
+        },
+        {
+          "check": "native source and host queue preserved",
+          "state": "passed"
+        }
+      ],
+      "native_runtime_qualified": false,
+      "global_cli_modified": false
+    }
+  },
+  "boundaries": [
+    "Writer custody issue #487 remains separate.",
+    "Original native-adoption bootstrap-tree-changed refusal reproduces without the fix; no native-adoption qualification claimed.",
+    "No global CLI upgrade, Standard rebind, update/reparent or native/runtime acceptance claimed.",
+    "The broader PROJECT-LAYOUT-001 release goal remains open."
+  ]
+}

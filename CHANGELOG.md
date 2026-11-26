@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Validate contained roadmap lifecycle and dependency authority under `litai/`
+  while preserving root and separately declared application plans. Refuse
+  cross-namespace queue substitution and retain lifecycle/evidence checks.
+
 - Project layout: keep update-template references bound to recorded dynamic resources in mixed layouts, and reject ambiguous locations without moving those resources.
 
 - Project layout: resolve retained Cargo consumer harness custody through the declared scaffold coordinates for legacy, mixed and contained projects.

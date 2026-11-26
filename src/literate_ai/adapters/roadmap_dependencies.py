@@ -10,6 +10,9 @@ from literate_ai.application.roadmap_dependencies import (
     RoadmapDependencyError,
     validate_roadmap_dependencies,
 )
+from literate_ai.application.roadmap_paths import RoadmapPaths
+
+_UNSELECTED = object()
 
 
 def require_project_roadmap_acyclic(
@@ -18,20 +21,19 @@ def require_project_roadmap_acyclic(
     *,
     additional_queue: str | None = None,
     _observation=None,
+    framework_directory: str | None | object = _UNSELECTED,
 ) -> None:
     """Validate an in-memory overlay, without creating or modifying any file."""
     from literate_ai.projects import ProjectConfigurationStore
 
     proposed = proposed or {}
-    context = ProjectConfigurationStore.context(root)
-    policy_coordinate = (
-        context.framework_path("literate.release.json").relative_to(root).as_posix()
-    )
-    conventional_queue = (
-        context.framework_path("docs/roadmap/active-work.md")
-        .relative_to(root)
-        .as_posix()
-    )
+    if framework_directory is _UNSELECTED:
+        context = ProjectConfigurationStore.context(root)
+        relative = context.framework_root.relative_to(context.root).as_posix()
+        framework_directory = None if relative == "." else relative
+    namespace = RoadmapPaths.for_framework(framework_directory)
+    policy_coordinate = namespace.release_policy
+    conventional_queue = namespace.queue
 
     def read(relative: str) -> bytes | None:
         if Path(relative).is_absolute() or ".." in Path(relative).parts:
