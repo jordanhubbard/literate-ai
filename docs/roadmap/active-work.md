@@ -26575,6 +26575,23 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Contained initialized-root updates (source partial):** Generated-profile
+  contained projects with no parent chain now use the ordinary three-way template
+  updater; minimal native profiles retain their existing policy and response.
+  Parent-follow/unpin requests on an explicit root refuse. Planning and application
+  now share the original scaffold placement calculation, and application refuses
+  a changed project definition before writing. This corrects the independently
+  reproduced native-only dispatch and the subsequent real rendering mismatch
+  between contained plans and root-coordinate application. Human summaries show
+  actual framework movement. Source controls exercise real apply, checkpoint
+  interruption/rollback, stale definition/upstream refusal, equal root/descendant
+  plans, selector refusal, source/index preservation and custom extension state.
+  All seven new controls, nine native template and eight native bootstrap
+  controls pass (24 total, no skips), along with all static gates and no source drift. Actual installed verification on the retained finalized
+  fixture, changed-parent/apply/platform journeys and every original full
+  containment/source/review/release acceptance remain open. No driver, receipt or
+  real documentation review is renewed.
+
 - **Reparent history/origin correction (source partial):** The actual installed
   maintenance baseline rejects root and descendant reparent planning after normal
   Component finalization. Eligibility now uses the current contained agent and

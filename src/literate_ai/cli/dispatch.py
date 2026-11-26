@@ -3242,6 +3242,18 @@ def _human_update_text(result: dict[str, Any]) -> str:
 
     if result.get("schema") == "literate-ai/composite-project-update@1":
         return _human_composite_update_text(result)
+    if result.get("schema") in {
+        "literate-ai/native-project-update@1",
+        "literate-ai/initialized-project-update@1",
+    }:
+        return _human_update_text(
+            {
+                **result["framework"],
+                "mode": result["mode"],
+                "application": result.get("application"),
+                "authority_review_required": result["authority_review_required"],
+            }
+        )
 
     counts = result.get("counts") or {}
     moving = _update_moving_counts(counts)

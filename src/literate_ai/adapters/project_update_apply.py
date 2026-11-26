@@ -32,6 +32,7 @@ from .project_updates import (
     _identity,
     _project_path,
     _read_contract,
+    _template_placement,
     _upstream_template,
 )
 
@@ -254,8 +255,29 @@ def apply_project_update(
     baseline_paths = {
         item.path for item in plan.files if item.baseline_identity is not None
     }
+    placement = None
+    if context.framework_root != root and profile != "native":
+        from literate_ai.projects import ProjectError, load_project
+
+        try:
+            project = (
+                load_project(root)
+                if _role_observation is None
+                else _role_observation.project(root)
+            )
+        except ProjectError as error:
+            raise ProjectUpdateError(error.code, str(error)) from error
+        if project is None or project.definition.identity != plan.project_identity:
+            raise ProjectUpdateError(
+                "project.update_project_changed",
+                "project definition changed after planning; re-plan before applying",
+            )
+        placement = _template_placement(project, profile=profile)
     upstream_content = _upstream_template(
-        baseline_paths, profile=profile, observation=_role_observation
+        baseline_paths,
+        profile=profile,
+        observation=_role_observation,
+        **({"placement": placement} if placement is not None else {}),
     )
     applied: list[str] = []
     adopted: list[str] = []

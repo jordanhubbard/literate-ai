@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: update contained initialized root projects through the normal template updater, keep planning and application placement consistent, and report actual framework changes while preserving source and Git state.
+
 - Project layout: allow contained nonnative reparent planning with historical baseline paths, require a matching initialization origin, and preserve native-profile and current-agent boundaries.
 
 - Project layout: qualify installed Component renewal, repeated source finalization and recovery while preserving retained application source and Git state.

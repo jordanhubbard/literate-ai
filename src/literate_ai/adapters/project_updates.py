@@ -390,6 +390,21 @@ def _retained_legacy_shim_authority_paths(
     )
 
 
+def _template_placement(project, *, profile):
+    """Use the same current scaffold projection for planning and application."""
+    if (
+        profile != "native"
+        and project.definition.framework_directory == "litai"
+        and project.agent_skill == project.framework_root / "SKILL.md"
+    ):
+        from .project_scaffold_placement import project_scaffold_placement
+
+        return project_scaffold_placement(
+            project.root, (*_TEMPLATE_FILES, *_STARTER_TEMPLATE_FILES, *_STARTER_DOCS)
+        )
+    return None
+
+
 def _upstream_template(
     baseline_paths: set[str],
     *,
@@ -685,17 +700,7 @@ class FilesystemProjectUpdateAdapter:
         bases = UpdateBases(root) if observation is None else observation.bases()
         baseline_by_path = {item.path: item.identity for item in baseline.files}
         baseline_by_path.update(bases.identities("framework"))
-        placement = None
-        if (
-            baseline.profile != "native"
-            and project.definition.framework_directory == "litai"
-            and project.agent_skill == project.framework_root / "SKILL.md"
-        ):
-            from .project_scaffold_placement import project_scaffold_placement
-
-            placement = project_scaffold_placement(
-                root, (*_TEMPLATE_FILES, *_STARTER_TEMPLATE_FILES, *_STARTER_DOCS)
-            )
+        placement = _template_placement(project, profile=baseline.profile)
         upstream_content = _upstream_template(
             set(baseline_by_path),
             profile=baseline.profile,

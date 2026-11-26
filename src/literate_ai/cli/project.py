@@ -609,8 +609,8 @@ def _attach_update_conflict_evidence(
         raise CliFailure(exc.code, exc.message) from exc
 
 
-def _update_native_project(args, project) -> dict[str, Any]:
-    """Use the ordinary three-way update owner for the minimal native profile."""
+def _update_contained_root_project(args, project) -> dict[str, Any]:
+    """Update contained root templates through the ordinary three-way owner."""
     from literate_ai.adapters.lifecycle_lock import (
         project_lifecycle_lock,
         project_lifecycle_lock_path,
@@ -632,24 +632,21 @@ def _update_native_project(args, project) -> dict[str, Any]:
         "record_work_items",
         "review_conflicts",
         "follow",
+        "follow_ref",
+        "unpin",
         "allow_minor",
         "allow_major",
     )
     if any(getattr(args, name, None) for name in unsupported):
         raise CliFailure(
             "project.native_update_options",
-            "Native template updates do not change parent selectors "
+            "Contained template updates do not change parent selectors "
             "or create generation work",
         )
     try:
         baseline = _read_contract(
             project.root, INITIALIZATION_BASELINE_FILE, ProjectInitializationBaseline
         )
-        if baseline.profile != "native":
-            raise ProjectUpdateError(
-                "project.native_profile_required",
-                "Contained root updates require the native bootstrap profile",
-            )
         adapter = FilesystemProjectUpdateAdapter()
         plan = adapter.plan(project.root)
         apply = bool(getattr(args, "apply", False))
@@ -670,7 +667,11 @@ def _update_native_project(args, project) -> dict[str, Any]:
         _require_native_update_git_boundary(project.root, paths)
         identity = canonical_identity(plan.to_dict()).uri
         value: dict[str, Any] = {
-            "schema": "literate-ai/native-project-update@1",
+            "schema": (
+                "literate-ai/native-project-update@1"
+                if baseline.profile == "native"
+                else "literate-ai/initialized-project-update@1"
+            ),
             "mode": "read-only-plan",
             "framework": plan.to_dict(),
             "plan_identity": identity,
@@ -687,13 +688,17 @@ def _update_native_project(args, project) -> dict[str, Any]:
         with ProjectConfigurationStore.layout_lock(project.root):
             _require_native_update_git_boundary(project.root, paths)
             with project_lifecycle_lock(
-                project.root, operation="native-update", require_path=require_lock_path
+                project.root,
+                operation="native-update"
+                if baseline.profile == "native"
+                else "framework-update",
+                require_path=require_lock_path,
             ):
                 current = adapter.plan(project.root)
                 if canonical_identity(current.to_dict()).uri != identity:
                     raise ProjectUpdateError(
                         "project.update_plan_changed",
-                        "Native update inputs changed before apply",
+                        "Contained update inputs changed before apply",
                     )
                 applied = apply_project_update(
                     plan,
@@ -751,7 +756,7 @@ def update_project_from_args(args) -> dict[str, Any]:
     except RepositoryLineageStoreError as exc:
         raise CliFailure(exc.code, exc.message) from exc
     if project.definition.framework_directory == "litai" and not selection.parents:
-        return _update_native_project(args, project)
+        return _update_contained_root_project(args, project)
     if not selection.parents:
         provider = _repository_fetch_provider(args)
         return {
