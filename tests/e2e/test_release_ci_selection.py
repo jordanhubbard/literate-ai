@@ -929,7 +929,10 @@ class ReleaseCISelectionTests(ReleaseFixture):
         refs = self.git_reference_inventory()
         context = releases._STRICT_CI_GIT_READS.get()
         output = self.base / "missing-source.json"
-        with self.assertRaises(releases.ProjectReleaseError):
+        with (
+            patch.dict(os.environ, {"GIT_NO_LAZY_FETCH": "0"}),
+            self.assertRaises(releases.ProjectReleaseError),
+        ):
             releases.check_release(self.root, plan_path, output=output, target="github")
         self.assertEqual(self.git_object_inventory(), before)
         self.assertEqual(self.git_reference_inventory(), refs)

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Keep strict release Git observations and coverage producers usable with Git
+  2.43 by enforcing the no-lazy-fetch environment guard, including when the
+  calling environment would permit fetching missing objects.
+
 - Include neutral retained-product test modules in existing Linux and macOS
   partitions, preserving exactly-once coverage, shard counts and deadlines.
 

@@ -1386,7 +1386,7 @@ def _require_strict_git_scope():
 
 
 def _git(
-    root: Path, *arguments: str, check: bool = True
+    root: Path, *arguments: str, check: bool = True, read_only: bool = False
 ) -> subprocess.CompletedProcess[str]:
     try:
         return run_with_tree_kill(
@@ -1395,8 +1395,8 @@ def _git(
                 "-C",
                 str(root),
                 *(
-                    ("--no-optional-locks", "--no-replace-objects", "--no-lazy-fetch")
-                    if _STRICT_CI_GIT_READS.get()
+                    ("--no-optional-locks", "--no-replace-objects")
+                    if _STRICT_CI_GIT_READS.get() or read_only
                     else ()
                 ),
                 *arguments,
@@ -1404,6 +1404,12 @@ def _git(
             check=check,
             text=True,
             timeout=30,
+            # Git 2.43 supports the environment guard but not its newer flag.
+            env=(
+                {**os.environ, "GIT_NO_LAZY_FETCH": "1"}
+                if _STRICT_CI_GIT_READS.get() or read_only
+                else None
+            ),
         )
     except (OSError, subprocess.SubprocessError) as exc:
         raise ProjectReleaseError(
@@ -1418,10 +1424,10 @@ def _git_snapshot(root: Path, *, read_only: bool = False) -> dict[str, object]:
             root,
             "--no-optional-locks",
             "--no-replace-objects",
-            "--no-lazy-fetch",
             "ls-files",
             "-v",
             "-z",
+            read_only=True,
         ).stdout
         if any(
             row and (row[0].islower() or row[0] == "S") for row in entries.split("\0")
@@ -1430,17 +1436,18 @@ def _git_snapshot(root: Path, *, read_only: bool = False) -> dict[str, object]:
                 "release.ci_coverage_source_stale",
                 "strict coverage refuses assume-unchanged or skip-worktree flags",
             )
-    prefix = (
-        ("--no-optional-locks", "--no-replace-objects", "--no-lazy-fetch")
-        if read_only
-        else ()
-    )
-    head = _git(root, *prefix, "rev-parse", "HEAD").stdout.strip()
-    branch = _git(root, *prefix, "symbolic-ref", "--short", "HEAD").stdout.strip()
+    head = _git(root, "rev-parse", "HEAD", read_only=read_only).stdout.strip()
+    branch = _git(
+        root, "symbolic-ref", "--short", "HEAD", read_only=read_only
+    ).stdout.strip()
     status = tuple(
         line
         for line in _git(
-            root, *prefix, "status", "--porcelain=v1", "--untracked-files=all"
+            root,
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=all",
+            read_only=read_only,
         ).stdout.splitlines()
         if line
     )
@@ -3701,10 +3708,8 @@ def _strict_ci_source(root: Path, policy: ReleasePolicy, snapshot: dict) -> str:
     def git(*arguments):
         return _git(
             root,
-            "--no-optional-locks",
-            "--no-replace-objects",
-            "--no-lazy-fetch",
             *arguments,
+            read_only=True,
         ).stdout
 
     def unique_object(pairs):

@@ -29245,3 +29245,15 @@ bounded and no-waitid ownership controls. Host-install/ARM source controls pass 
 methods (2.860 seconds), without native Windows acceptance. Additional unchanged-tree
 history reconciliations retain current wheel startup isolation, descriptor/Windows
 identity guards and staged catalog/portable provenance behavior.
+
+**Release Git compatibility.** On Sparky's Git 2.43 the release/coverage path
+refused an unsupported `--no-lazy-fetch` option before its artifact checks. The
+release owner and both native coverage producers now enforce the equivalent
+`GIT_NO_LAZY_FETCH=1` environment guard, preserving optional-lock and replacement
+object controls. A real partial-clone probe refuses a missing blob without a
+fetch, then retrieves it with fetching explicitly allowed. The original release
+control also refuses a promised missing commit when the ambient environment tries
+to allow fetching, preserving object/ref inventories and output absence. All 20
+release CI selection/artifact controls pass (86.537 seconds). Earlier native and
+exporter startup failures remain retained; Native CI's separate Git requirement
+is unchanged. These local controls do not establish hosted release acceptance.
