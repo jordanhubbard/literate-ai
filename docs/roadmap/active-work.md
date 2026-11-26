@@ -31262,6 +31262,43 @@ The dependency correction passed all three unchanged self-hosting checks (0 skip
 
 ### [ ] RETAINED-OBSERVATION-PERF-001 — Bound retained authority and native observation cost
 
+Current next action (in progress): independently review and qualify one-call
+canonical planning inside a genuine execution guard. The exact integrated
+planning/metadata candidate preserves admission checks but still performs at
+least four original-tree and four captured-tree verifications per workspace
+guard. Its source trace identifies at least 22 complete-tree checks between SDK
+input-descriptor publication and the first command; this is a static lower bound,
+not a measured live call stack. A bounded native descriptor observation confirms
+the original request remains active and has original-project source files open.
+Keep that original qualification attempt unchanged while developing the repair.
+
+The repair belongs to the existing retained runtime and observation authority.
+Derive the receiver and source-plan assertions from the immutable plan produced
+by the same fresh canonical preparation, bound to the original receiver,
+request, worker, registration, catalog, process and deadline. Every next guard
+prepares and measures a new nonce; custom callbacks keep independent source
+replanning. Preserve all direct original/captured byte verifications, tool, SDK,
+dependency, revocation, deadline and publication checks, including fresh closing
+registration/custody. Do not add a general verification cache. Test a coordinated
+change that is observed and restored before closing; closing bytes alone are
+insufficient. Never reuse observations across calls, restore an owner from JSON,
+or turn a plan value into admission.
+Require real source/profile/catalog/SDK-policy/registration mutation refusals,
+complete regression and an equivalent large native before/after comparison.
+The five-unit PACKAGE, original-byte VERIFY and negative controls remain pending;
+neither a source review nor a diagnostic observation completes those gates.
+
+Development controls pass six actual public-receiver cases on macOS, with no
+skips or failures. They preserve public execution/verification-plan equality,
+before/after publication mutation refusals, changed-then-restored source,
+profile, catalog, SDK-policy and registration refusals, independent replanning
+for cached/custom measurement callbacks, and copy/foreign-process refusal.
+An actual macOS platform observation composes with the same fresh canonical
+plan and refuses a subsequent source change. These are portable guard and local
+host-observation results, not native PACKAGE, SDK or release qualification.
+Independent source review, complete regression and installed large-tree
+comparison remain required; all implementation/evidence checkboxes stay open.
+
 The subsequent exact installed native attempt still reaches the unchanged
 3,600-second deadline before PACKAGE/LINK admission. Its correlated native
 diagnostic proves cleanup, no quarantine and canonical reservation release; the
@@ -31315,7 +31352,8 @@ measurements, not an uninstrumented release benchmark or accepted lifecycle.
 The first dependency-profile attempt refused retired inputs; its replacement
 captures a fresh verified diagnostic snapshot without repairing the retired run.
 
-Next in progress: read the wheel RECORD inventory directly in each fresh
+Earlier next action, completed by the direct-RECORD result below: read the wheel
+RECORD inventory directly in each fresh
 distribution observation, avoiding the metadata library existence prefilter.
 Every selected member still undergoes current byte verification; missing recorded
 members must refuse rather than disappear from the inventory. Keep the existing

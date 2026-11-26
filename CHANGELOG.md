@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained execution guards derive receiver and source-plan checks from the same
+  fresh canonical preparation. Each guard still measures a new nonce and keeps
+  all direct byte, dependency, SDK, tool, revocation and deadline checks. Custom
+  callbacks retain independent replanning; plan values grant no execution.
+
 - Retained receiver construction prepares its execution request once and reuses
   the same typed worker selection and plan. Capability publication, reservation
   and execution still reopen current authority; no preparation is cached.
