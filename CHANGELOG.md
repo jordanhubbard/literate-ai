@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Rerun checks when the project dependency authority cannot be resolved; a suite
+  name or unchanged test module alone no longer authorizes checkpoint reuse.
+
+- Prevent recursive Make dry-run, query and touch modes from recording unexecuted
+  release gates as successful or clearing retained repair progress.
+
+- Share one exact qualified wheel across release installation checks, with immutable
+  candidate selection, source/version/origin checks and staged byte verification.
+  Preserve independent source installation and all installed behavior checks.
+
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
   and package phases with preserved historical evidence.

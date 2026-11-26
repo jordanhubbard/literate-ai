@@ -14,12 +14,16 @@ import tempfile
 import time
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from pathlib import Path, PurePosixPath
 from threading import RLock
 
 from literate_ai.adapters.builders import run_bounded_process
 from literate_ai.adapters.html_publication import html_output_path, read_output
+from literate_ai.adapters.qualified_wheel_installation import (
+    export_qualified_wheel,
+    staged_qualified_wheel,
+)
 from literate_ai.contracts import canonical_identity
 from literate_ai.contracts.html_observability import HtmlArtifact
 from literate_ai.evidence_ledger import (
@@ -2194,6 +2198,11 @@ def _main() -> int:
         "--wheel", type=Path, help="qualify these already-built wheel bytes"
     )
     parser.add_argument(
+        "--qualified-wheel-manifest",
+        type=Path,
+        help="publish exact wheel custody for later checks after qualification passes",
+    )
+    parser.add_argument(
         "--worker-wheel-directory",
         type=Path,
         help="use reviewed dependency wheels for offline installs and worker export",
@@ -2241,9 +2250,23 @@ def _main() -> int:
     }
     with (
         _runtime_directory() as directory,
+        ExitStack() as candidate_inputs,
         ThreadPoolExecutor(max_workers=1, thread_name_prefix="wheel-html") as fixtures,
     ):
         root = Path(directory)
+        supplied_wheel = arguments.wheel
+        if arguments.qualified_wheel_manifest is not None and (
+            arguments.qualified_wheel_manifest.exists()
+            or arguments.qualified_wheel_manifest.is_symlink()
+        ):
+            selected = candidate_inputs.enter_context(
+                staged_qualified_wheel(repository, arguments.qualified_wheel_manifest)
+            )
+            if supplied_wheel is not None and file_identity(
+                supplied_wheel
+            ) != file_identity(selected):
+                raise RuntimeError("supplied wheel differs from the selected candidate")
+            supplied_wheel = selected
         worker_wheel_directory = None
         worker_dependency_inputs: dict[str, str] = {}
         dependency_install_arguments: tuple[str, ...] = ()
@@ -2270,7 +2293,7 @@ def _main() -> int:
         project_clean_source(repository, source)
         wheels = root / "wheels"
         wheels.mkdir()
-        if arguments.wheel is None:
+        if supplied_wheel is None:
             run(
                 sys.executable,
                 "-m",
@@ -2284,7 +2307,7 @@ def _main() -> int:
                 env=build_environment,
             )
         else:
-            supplied = arguments.wheel.resolve(strict=True)
+            supplied = supplied_wheel.resolve(strict=True)
             if (
                 not supplied.name.startswith(f"literate_ai-{declared_version}-")
                 or supplied.suffix != ".whl"
@@ -3204,6 +3227,14 @@ def _main() -> int:
             version=declared_version,
             expected_identity=tested_wheel_identity,
         )
+        if arguments.qualified_wheel_manifest is not None:
+            export_qualified_wheel(
+                repository,
+                retained_manifest,
+                arguments.qualified_wheel_manifest,
+                revision=git_revision,
+                version=declared_version,
+            )
         print(
             json.dumps(
                 {

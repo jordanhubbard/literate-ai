@@ -190,3 +190,26 @@ name the running test. Full macOS artifact names include their partition to avoi
 collisions. Self-update assertion failures include real pip output and installed
 source/bytecode diagnostics. Do not attach credentials or environment dumps.
 Keep public PR execution on GitHub-hosted runners, not personal developer Macs.
+
+## Reuse the candidate's wheel bytes
+
+`make release-check` selects one qualified wheel under
+`$(OBJ_DIR)/release-wheels/<exact-commit>/manifest.json`. `wheel-check` publishes
+that selection only after its checks pass. Subsequent installation checks stage
+and hash those same bytes, verify the clean source revision, declared version and
+embedded origin, then install into their own environments and run every check.
+They report `qualified_wheel_identity`; this shares an artifact, not test results
+or environment qualification. The source installation in `installed-e2e` and the
+native CI install/uninstall coverage remain separate.
+
+An existing candidate selection is immutable. Requalification uses its wheel
+again; a concurrent build cannot replace it with different bytes. A missing,
+changed or mismatched artifact fails closed. Preserve its evidence for inspection
+and choose a new `RELEASE_QUALIFIED_WHEEL_MANIFEST` path when deliberately creating
+a different candidate. Ordinary `make install` and standalone install checks keep
+their source-install behavior. For an explicit standalone reuse sequence, pass the
+same `QUALIFIED_WHEEL_MANIFEST` path to `wheel-check` and the installation checks.
+
+This does not reuse pre-CI results, waive signatures or trust checks, or establish
+another platform's qualification. Release evidence still requires the ordinary
+fresh, complete gate sequence; resumed repair checkpoints remain diagnostic.

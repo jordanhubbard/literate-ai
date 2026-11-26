@@ -606,6 +606,11 @@ def _assert_installed_parent_readme(
 def _main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repository", type=Path, required=True)
+    parser.add_argument(
+        "--qualified-wheel-manifest",
+        type=Path,
+        help="install the exact qualified wheel for this source instead of rebuilding",
+    )
     parser.add_argument("--live", action="store_true")
     parser.add_argument(
         "--coding-cli",
@@ -631,7 +636,11 @@ def _main() -> int:
     parent_source = f"{repository.as_uri()}#{_git(repository, 'rev-parse', 'HEAD')}"
     with _runtime_directory() as directory:
         root = Path(directory)
-        installed = install(prefix=root / ".local", source=repository)
+        installed = install(
+            prefix=root / ".local",
+            source=repository,
+            qualified_wheel_manifest=arguments.qualified_wheel_manifest,
+        )
         launcher = Path(installed["launcher"])
         project = root / "project"
         environment = dict(os.environ)
@@ -1053,6 +1062,9 @@ def _main() -> int:
                     "live": arguments.live,
                     "isolated_tool_bootstrap": arguments.isolated_tool_bootstrap,
                     "launcher": launcher.name,
+                    "qualified_wheel_identity": installed.get(
+                        "qualified_wheel_identity"
+                    ),
                     "project_profile": validated["result"]["profile"],
                     "starter_lock_current": locked["result"]["current"],
                     "starter_planned": bool(

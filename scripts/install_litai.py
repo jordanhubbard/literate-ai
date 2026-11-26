@@ -8,6 +8,7 @@ import os
 import shutil
 import subprocess
 import sys
+from contextlib import nullcontext
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -20,6 +21,9 @@ from literate_ai.adapters.host_install import (  # noqa: E402
 from literate_ai.adapters.host_self_update import (  # noqa: E402
     write_host_install_manifest,
 )
+from literate_ai.adapters.qualified_wheel_installation import (  # noqa: E402
+    staged_qualified_wheel,
+)
 from literate_ai.adapters.user_paths import (  # noqa: E402
     HostInstallLayout,
     resolve_host_paths,
@@ -27,6 +31,7 @@ from literate_ai.adapters.user_paths import (  # noqa: E402
 from literate_ai.bootstrap.host_install_requirements import (  # noqa: E402
     HOST_INSTALL_SBOM_RELATIVE_PATH,
 )
+from literate_ai.release_files import file_identity  # noqa: E402
 from literate_ai.remote_worker_bootstrap import (  # noqa: E402
     _create_python_environment as _create_private_environment,
 )
@@ -124,12 +129,28 @@ def _venv_python_is_usable(python: Path) -> bool:
     return probe.returncode == 0
 
 
-def install(*, prefix: Path, source: Path) -> dict[str, str]:
+def install(
+    *, prefix: Path, source: Path, qualified_wheel_manifest: Path | None = None
+) -> dict[str, str]:
     prefix = prefix.expanduser().resolve()
     source = source.resolve()
     if not (source / "pyproject.toml").is_file():
         raise RuntimeError(f"Literate AI source has no pyproject.toml: {source}")
     _require_clean_git_checkout(source)
+
+    selected = (
+        nullcontext(source)
+        if qualified_wheel_manifest is None
+        else staged_qualified_wheel(source, qualified_wheel_manifest)
+    )
+    with selected as installation_input:
+        result = _install_runtime(prefix, source, installation_input)
+        if qualified_wheel_manifest is not None:
+            result["qualified_wheel_identity"] = file_identity(installation_input)
+        return result
+
+
+def _install_runtime(prefix: Path, source: Path, installation_input: Path):
 
     layout = HostInstallLayout.for_prefix(prefix)
     environment = Path(layout.environment)
@@ -154,7 +175,7 @@ def install(*, prefix: Path, source: Path) -> dict[str, str]:
         "install",
         "--upgrade",
         "--force-reinstall",
-        str(source),
+        str(installation_input),
     )
 
     bin_dir = Path(layout.launcher).parent

@@ -76,6 +76,8 @@ PYTHON_TEST_VERBOSITY ?= 1
 PYTHON_TEST_WORKERS ?= auto
 PYTHON_TEST_WORKER_TIMEOUT ?= 3600
 WHEEL_WORKER_DIRECTORY ?=
+QUALIFIED_WHEEL_MANIFEST ?=
+RELEASE_QUALIFIED_WHEEL_MANIFEST ?= $(OBJ_DIR)/release-wheels/$(shell git rev-parse --verify HEAD)/manifest.json
 RELEASE_PLAN ?=
 RELEASE_PREPARED ?= $(OBJ_DIR)/release/prepared.json
 
@@ -121,10 +123,10 @@ dev-install: ## Install pinned Python contributor tools.
 endif
 
 install-check: python-version $(RUNTIME_PREREQUISITE) ## Install to a temporary PREFIX and verify init/validate/lock/plan.
-	$(STEP) install-check -- $(RUN_PYTHON_COMMAND) scripts/installed_project_smoke.py --repository "$(CURDIR)" --isolated-tool-bootstrap
+	$(STEP) install-check -- $(RUN_PYTHON_COMMAND) scripts/installed_project_smoke.py --repository "$(CURDIR)" --isolated-tool-bootstrap $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
 
 installed-project-e2e: python-version $(RUNTIME_PREREQUISITE) ## Prove an installed CLI can init, generate, build, test, and run hello.
-	$(STEP) installed-project-e2e -- $(RUN_PYTHON_COMMAND) scripts/installed_project_smoke.py --repository "$(CURDIR)" --live
+	$(STEP) installed-project-e2e -- $(RUN_PYTHON_COMMAND) scripts/installed_project_smoke.py --repository "$(CURDIR)" --live $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
 
 installed-e2e: python-version $(RUNTIME_PREREQUISITE) ## Offline installed-CLI/command-worker E2E; skipped when unchanged.
 	$(STEP) installed-e2e -- $(RUN_PYTHON_COMMAND) scripts/installed_e2e_gate.py --repository "$(CURDIR)" --build-root "$(OBJ_DIR)"
@@ -250,7 +252,7 @@ test-receipt-current: python-version $(RUNTIME_PREREQUISITE) ## Require the curr
 	PYTHONPATH=src $(STEP) test-receipt-current -- $(RUN_PYTHON_COMMAND) -m literate_ai.cli project test-receipt require-current --project .
 
 wheel-check: python-version $(RUNTIME_PREREQUISITE) ## Build and smoke-test the installed wheel outside this checkout.
-	$(STEP) wheel-check -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",)
+	$(STEP) wheel-check -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",) $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
 
 format: $(DEV_PREREQUISITE) ## Format Python source and tests.
 	$(RUFF) format src tests scripts $(SAMPLE_PYTHON)
@@ -310,7 +312,7 @@ release: python-version $(RUNTIME_PREREQUISITE) ## Check the exact plan in RELEA
 	PYTHONPATH=src $(RUN_PYTHON_COMMAND) -m literate_ai.cli release check "$(RELEASE_PLAN)" --project . --output "$(RELEASE_PREPARED)"
 
 release-check: python-version $(RUNTIME_PREREQUISITE) ## Run gates fail-fast; resume passed gates after a repair and reset after success.
-	BUILD_DIR="$(BUILD_DIR)" OBJ_DIR="$(OBJ_DIR)" $(RUN_PYTHON_COMMAND) scripts/run_checkpointed_gates.py --state "$(RELEASE_CHECKPOINT)" --make "$(MAKE)" $(RELEASE_GATES)
+	BUILD_DIR="$(BUILD_DIR)" OBJ_DIR="$(OBJ_DIR)" QUALIFIED_WHEEL_MANIFEST="$(RELEASE_QUALIFIED_WHEEL_MANIFEST)" $(RUN_PYTHON_COMMAND) scripts/run_checkpointed_gates.py --state "$(RELEASE_CHECKPOINT)" --make "$(MAKE)" $(RELEASE_GATES)
 
 release-check-reset: python-version $(RUNTIME_PREREQUISITE) ## Discard the diagnostic release checkpoint so the next run starts at gate one.
 	$(RUN_PYTHON_COMMAND) scripts/run_checkpointed_gates.py --state "$(RELEASE_CHECKPOINT)" --reset
