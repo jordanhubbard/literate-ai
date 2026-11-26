@@ -26575,6 +26575,23 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Installed framework placement/recovery (macOS partial):** The clean noneditable
+  b45a48ac4 wheel passes the 29-command real legacy-initializer journey through
+  metadata migration/recovery/reapplication, identical root and descendant
+  framework plans, framework application and two recoveries. Both plans are
+  applicable with no missing ownership proofs. Retained application source keeps
+  exact bytes, native identities, modes, ownership and modification times; Git
+  HEAD/raw index and installed distribution identity remain unchanged. The exact
+  distribution is sha256:31b409ca9088a43ba596de2310c776ecec2646893fc5f25fcccee011c794728f.
+  Application takes 819.572 seconds within the original 900-second command
+  deadline; recovery calls take 141.419 and 291.814 seconds. The managed test
+  passes without skips or source drift; lint, formatting (2744 files),
+  repository-layout and public-export checks also pass. Normal Component producer renewal/source
+  finalization, fresh documentation review, complete containment, update/reparent,
+  supported platforms and all original source/review/release acceptance remain
+  required. This fixture uses real current initializer producers in explicit
+  legacy-layout mode; it is not an upgrade from a historical released wheel.
+
 Source partial: converted framework-resource observation now includes the original native rewrite program rendered with the validated implementation coordinate. Original producer identity and code are pinned; resource availability alone cannot establish historical file ownership. Resource and source-proof cohorts pass 30 tests, and final static checks pass. Installed placement, full containment, and the original acceptance checklist remain outstanding.
 
 - **Reviewed-document source transition (source partial):** The finite original

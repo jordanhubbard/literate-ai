@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: qualify installed macOS framework placement and repeated recovery with retained source and Git state preserved; complete containment remains pending.
+
 - Project layout: recognize the original converted native rewrite program using its validated implementation path while retaining historical ownership checks.
 
 - Project layout: prove reviewed-document ownership, expire historical markers in migration plans and require fresh review without adopting body edits.
