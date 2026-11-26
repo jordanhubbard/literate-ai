@@ -11,6 +11,113 @@ from scripts.summarize_release_roadmap import summarize
 
 
 class ReleaseRoadmapSummaryTests(unittest.TestCase):
+    def execution_fixture(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        project = Path(temporary.name)
+        repository = Path(__file__).resolve().parents[2]
+        for name in ("literate.project.json", "literate.release.json"):
+            (project / name).write_bytes((repository / name).read_bytes())
+        queue = project / "docs/roadmap/active-work.md"
+        queue.parent.mkdir(parents=True)
+        queue.write_text(
+            "### [ ] TASK-123 — Await the integrated check\n"
+            "- **Release target:** 1.4.0\n"
+            "- **Owner:** Release verification\n"
+            "- **Next action:** Run the installed wheel check\n"
+            "  and reopen its receipt.\n"
+            "- **Completion prerequisites:** BLOCK-001, DONE-002, release:1.3.0:verified\n"
+            "- **Depends on:** External reviewer assignment still pending\n"
+            "  - [ ] Preserve all nine cases\n"
+            "### [~] BLOCK-001 — Verify the dependency\n"
+            "- **Release target:** 1.4.0\n"
+            "- **Owner:** Dependency verifier\n"
+            "\n~~~md\n- **Next action:** example only\n~~~\n\n"
+            "  - [~] Reopen the two-node archive\n"
+            "    using its declared reference.\n"
+            "### [x] DONE-002 — Historical approval\n"
+            "- **Release target:** 1.4.0\n"
+        )
+        manifest = queue.parent / "release-goals.json"
+        manifest.write_text(
+            json.dumps(
+                {
+                    "schema": "literate-ai/release-roadmap-goals@1",
+                    "roadmap": "docs/roadmap/active-work.md",
+                    "releases": {
+                        "1.4.0": [
+                            {"id": "TASK-123"},
+                            {"id": "BLOCK-001"},
+                            {"id": "DONE-002"},
+                        ],
+                        "1.3.0": [],
+                    },
+                }
+            )
+        )
+        command = [
+            sys.executable,
+            str(repository / "scripts/summarize_release_roadmap.py"),
+            "1.4.0",
+            "--execution-view",
+            "--project",
+            str(project),
+        ]
+        return queue, manifest, command
+
+    def test_execution_view_projects_next_actions_and_unverified_prerequisites(self):
+        queue, manifest, command = self.execution_fixture()
+        contents = (queue.read_bytes(), manifest.read_bytes())
+        result = subprocess.run(command, capture_output=True, text=True, timeout=25)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("3 goals · 1 closed · 2 open · 2 unchecked criteria", result.stdout)
+        self.assertIn("TASK-123\n  Owner: Release verification", result.stdout)
+        self.assertIn(
+            "Next action (declared): Run the installed wheel check and reopen its receipt.",
+            result.stdout,
+        )
+        self.assertIn(
+            "Unresolved prerequisites: BLOCK-001, release:1.3.0:verified (unverified)",
+            result.stdout,
+        )
+        self.assertIn(
+            "Legacy dependency context (unverified): External reviewer assignment",
+            result.stdout,
+        )
+        self.assertIn("BLOCK-001\n  Owner: Dependency verifier", result.stdout)
+        self.assertIn(
+            "First unchecked criterion: Reopen the two-node archive "
+            "using its declared reference.",
+            result.stdout,
+        )
+        self.assertNotIn("DONE-002", result.stdout)
+        self.assertNotIn("example only", result.stdout)
+        self.assertEqual((queue.read_bytes(), manifest.read_bytes()), contents)
+
+    def test_execution_view_refuses_stale_and_duplicate_authority(self):
+        queue, manifest, command = self.execution_fixture()
+        content, ledger = queue.read_text(), manifest.read_text()
+        for source, authority, expected in (
+            (content, ledger.replace('{"id": "DONE-002"}', '{"id": "TASK-123"}'),
+             "invalid-or-duplicate-goal-id"),
+            (content + "\n### [ ] TASK-123 — second owner\n", ledger,
+             "duplicate visible work ID"),
+            (content.replace("1.4.0", "1.5.0", 1), ledger,
+             "roadmap-release-target-mismatch"),
+            (content, ledger.replace('"1.3.0": []', '"1.4.0": []'),
+             "cannot read roadmap goal manifest"),
+            (content.replace("- **Owner:** Release verification",
+                             "- **Owner:** Release verification\n- **Owner:** Other"),
+             ledger, "duplicate Owner declaration"),
+        ):
+            with self.subTest(expected=expected):
+                queue.write_text(source)
+                manifest.write_text(authority)
+                result = subprocess.run(command, capture_output=True, text=True, timeout=25)
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertIn(expected, result.stderr)
+                self.assertEqual(result.stdout, "")
+
     def test_duplicate_owner_cannot_hide_in_another_release_or_untargeted_section(self):
         current = "### [ ] AUD-ONE — current\n- **Release target:** 1.4.0\n"
         for target in ("", "- **Release target:** 1.1.0\n"):

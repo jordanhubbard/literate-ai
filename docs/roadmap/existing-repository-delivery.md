@@ -149,7 +149,12 @@ A is the prerequisite for the current layout batch. B can be developed and measu
 independently; C consumes all reviewed changes before expensive qualification.
 D's fresh-native value pilot can run alongside the separate legacy migration and
 changed-version upgrade work. E and F preserve their existing custody dependencies.
-G is planning hygiene, not a new release-readiness authority. H changes defaults
+G's opt-in execution view reads the configured release goal manifest and its
+queue. Use `python scripts/summarize_release_roadmap.py 1.4.0 --execution-view`
+from the project root to see each open owner's stated next action or first
+unchecked criterion. Declared work and release dependencies retain their
+current authority, and external inputs remain unverified.
+H changes defaults
 and evidence presentation, not the approved release scope. New implementation is
 left to the smaller-model handoff requested by the user.
 
