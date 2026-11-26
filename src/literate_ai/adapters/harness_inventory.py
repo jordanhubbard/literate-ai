@@ -2175,6 +2175,11 @@ def render_harness_wrapper(
     return "\n".join(lines)
 
 
+def _make_path_value(value: str) -> str:
+    """Carry a literal filesystem dollar through Make's variable expansion."""
+    return value.replace("$", "$$")
+
+
 def _wrapper_recipe(
     entry: dict[str, object], *, legacy_root: Path | None = None
 ) -> str:

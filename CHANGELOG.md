@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: include the internal Make-path encoder required to import migration recovery’s recorded-wrapper provider.
+
 - Project layout: migrate retained root projects that never imported a catalog without manufacturing import provenance; preserve strict catalog-history checks and exact rollback records.
 
 - Project layout: exercise noneditable installed native adoption while checking the complete application tree and Git state remain unchanged; record scoped macOS creation and discovery results.
