@@ -1003,3 +1003,16 @@ The [dated report update](../architecture/existing-repository-review.html)
 contains per-task outcomes, usage, protocol/aggregate identities and limitations.
 This records a completed bounded measurement, not completion of SDLC-001 or its
 activation, governed-adoption, changed-version upgrade, platform or release gates.
+
+### Module scheduling after observing the complete tail
+
+TEST-PARALLEL-001 owns a small dispatch change justified by the completed parent
+module trace. Keep every module intact and preserve default order and serial
+barriers. Admit an explicit bounded `LITAI_TEST_PRIORITY` hint on test modules,
+stably ordering only contiguous nonserial segments; mark the observed expensive
+native-Cargo group. Successful qualification still requires every selected case;
+none is reused or independently split. Fail-fast may change which peers had
+started before a failure; validated outcomes and cleanup remain authoritative. Compare
+real subprocess dispatch and the next complete run against the fixed-duration
+[counterfactual replay](../../verification/module-priority-replay.json). The
+simulation is a candidate scheduling estimate, not achieved release latency.

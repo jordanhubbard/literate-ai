@@ -122,10 +122,31 @@ def module_groups(tests: Sequence[unittest.TestCase]) -> tuple[ModuleGroup, ...]
             cls, "LITAI_TEST_SERIAL", False
         ):
             serial.add(module)
-    return tuple(
+    groups = tuple(
         ModuleGroup(module, tuple(indices), module in serial)
         for module, indices in grouped.items()
     )
+    priorities = {}
+    for group in groups:
+        value = getattr(sys.modules.get(group.module), "LITAI_TEST_PRIORITY", 0)
+        if type(value) is not int or not 0 <= value <= 100:
+            raise ValueError(
+                "LITAI_TEST_PRIORITY must be an integer from 0 through 100"
+            )
+        priorities[group.module] = value
+    # Priority is only a dispatch hint. Preserve intact groups, source/case
+    # indices and every original serial barrier; ties retain discovery order.
+    ordered: list[ModuleGroup] = []
+    segment: list[ModuleGroup] = []
+    for group in groups:
+        if group.serial:
+            ordered.extend(sorted(segment, key=lambda g: -priorities[g.module]))
+            segment.clear()
+            ordered.append(group)
+        else:
+            segment.append(group)
+    ordered.extend(sorted(segment, key=lambda g: -priorities[g.module]))
+    return tuple(ordered)
 
 
 class ParallelSuite:

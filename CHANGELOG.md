@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Start the measured long native-Cargo test module earlier using an opt-in
+  bounded module priority. Default discovery order, intact case groups and serial
+  barriers remain. Failure can change which peers had started, while existing
+  fail-fast, source binding, cancellation and outcome checks remain authoritative.
+
 - Separate documentation-rendering dependencies from the OpenSpec CLI, so a
   documentation-only check installs only its own tools. Audit both locked graphs
   before their respective checks; full CI, Windows and release qualification keep

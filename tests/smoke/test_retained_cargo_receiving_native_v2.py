@@ -47,6 +47,10 @@ from tests.support import fixtures_retained_cargo_native_v2 as native_fixtures
 from tests.support.fixtures_retained_cargo_scratch import scratch_review_fixture
 from tests.support.fixtures_test_retained_cargo_import import blob
 
+# Completed module timing shows this intact group dominates the serial tail.
+# Start it early without changing its cases, fixture lifecycle or custody checks.
+LITAI_TEST_PRIORITY = 10
+
 
 @unittest.skipUnless(
     os.name != "nt" and all(shutil.which(x) for x in ("cargo", "rustc", "make", "git")),
