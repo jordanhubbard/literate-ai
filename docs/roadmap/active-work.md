@@ -29167,8 +29167,8 @@ independent transfer acceptance, 268 redundant worktrees and one old clone were
 removed. The sole remaining source checkout retains 695 ignored/untracked paths
 and the legacy Git database; no separate framework sibling clone remains.
 
-**Integration state.** 27 of the 90 recovery snapshots are now ancestors
-of the continuation branch; 63 remain preserved for explicit reconciliation.
+**Integration state.** 29 of the 90 recovery snapshots are now ancestors
+of the continuation branch; 61 remain preserved for explicit reconciliation.
 The latest original dirty integration joins at `6ca69e404`. Source-identical merges
 and reviewed conflict resolutions preserve later runtime code, original 1.4.0
 goals and terminal evidence. Four affected roadmap test methods and all 17 added
@@ -29244,7 +29244,7 @@ coordinates. Integrate the existing contained-roadmap namespace contribution,
 retain current observation safeguards, and require an explicit reviewed queue
 resolution before application. Both failed receipts remain separate evidence.
 
-**Next action (in progress).** Reconcile the remaining 63 snapshots and verify the reference
+**Next action (in progress).** Reconcile the remaining 61 snapshots and verify the reference
 repair against the exact retained failed installed fixture. The repaired native-root
 run completed all 631 selected cases in 2,248.970 seconds, without failures or skips;
 the earlier failing run had stopped after executing 160 cases. Its source pin and
@@ -29314,3 +29314,18 @@ failures remain distinct evidence. Changed-parent application, complete containm
 composed-candidate/platform/independent review and release acceptance remain open.
 Two action-selector histories reconcile with unchanged trees while preserving
 the final shared-workflow SDK selection repair and later native qualification gates.
+
+**Changed-parent continuation.** The untouched original installed parent journey
+passes canonical producer setup and actual root update, then refuses a real local
+contained parent's manifest because the immutable Git snapshot reader reads only
+root authority (one method, 30.119 seconds, 14 command observations). Source/index
+preservation assertions still pass. The shared resolve/catalog reader now selects
+one declared root or contained namespace, retains exact raw identities and catalog
+coordinates, and refuses duplicate/misplaced/link/submodule authority without a
+checkout. Six new and nine existing real-Git methods pass (15.817/8.559 seconds).
+A continuation binds the original retained failed parent/child fixture, original
+phase/report hashes and post-failure custody checkpoint; it performs no initializer,
+producer renewal or authority repin. Installed verification remains pending. The
+successful migrated fixture also passes read-only parent README and agent-entrypoint
+audits; lifecycle admission is not claimed. Two more unchanged-tree source-history
+reconciliations bring integration to 29 snapshots merged and 61 pending.

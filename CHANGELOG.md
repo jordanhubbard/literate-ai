@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Resolve inherited project and parent authority from declared root or `litai/`
+  locations in immutable Git snapshots; reject duplicate, misplaced and linked
+  metadata while preserving exact manifest identities and catalog coordinates.
+
 - Preserve retained shim authority and locks through declared current catalogs
   during contained updates, retaining recorded application source coordinates.
 

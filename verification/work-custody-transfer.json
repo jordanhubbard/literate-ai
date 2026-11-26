@@ -34,8 +34,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 27,
-      "preserved-for-reconciliation": 63
+      "merged": 29,
+      "preserved-for-reconciliation": 61
     },
     "snapshots": [
       {
@@ -696,18 +696,18 @@
         "base": "9ed5a266e5d07bb720292a067d7af50954a6bbd1",
         "commit": "b599c6bd0e4c1b1ea6857f41102bb7775de0b240",
         "branch": "recovery/puck-20261126/sdsk1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 9,
-        "remaining_paths": 8
+        "remaining_paths": 0
       },
       {
         "label": "sdsq1",
         "base": "9ed5a266e5d07bb720292a067d7af50954a6bbd1",
         "commit": "b10c2247e56085062424b0a33eafe8f452af788d",
         "branch": "recovery/puck-20261126/sdsq1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 8,
-        "remaining_paths": 5
+        "remaining_paths": 0
       },
       {
         "label": "sh14",
@@ -881,7 +881,9 @@
         "go14",
         "wf14",
         "actsel4",
-        "actsel3"
+        "actsel3",
+        "sdsk1",
+        "sdsq1"
       ],
       "roadmap_delta_test_methods_identical": 4,
       "roadmap_delta_added_prose_lines_retained": 17,
@@ -892,7 +894,9 @@
       "go14": "Normal merge has unchanged tree after retaining current review/driver pins. All 21 added observation lines already present verbatim.",
       "wf14": "All three changed Python module ASTs identical to current files. Original 18 historical evidence lines, including full-suite timeout and pending native qualification, retained under WORKTREE-002.",
       "actsel4": "32 patched Python symbols match current ASTs. Preserve later native full-source workflow input and native-root archive gate. Merge tree unchanged.",
-      "actsel3": "30 patched Python symbols match current ASTs; sole differing function superseded by actsel4 shared/header/profile SDK selection repair and dedicated regression. Preserve final selector/tests and later gates. Merge tree unchanged."
+      "actsel3": "30 patched Python symbols match current ASTs; sole differing function superseded by actsel4 shared/header/profile SDK selection repair and dedicated regression. Preserve final selector/tests and later gates. Merge tree unchanged.",
+      "sdsk1": "All seven patched Python symbols and full changelog/delivery additions already present. Preserve current review/driver pins. Normal merge tree unchanged.",
+      "sdsq1": "Both patched Python symbols and full changelog/delivery additions already present. Preserve default/module/serial/failure boundaries and simulation limitations. Normal merge tree unchanged."
     }
   },
   "checks": {
@@ -1080,10 +1084,34 @@
         "unchanged-parent reparent apply"
       ],
       "scope": "Exact original failed fixture after genuine migration/renewal/finalization. Root/descendant plans agree; actual update and unchanged-parent application pass. Changed-parent application, composed-candidate/platform/independent review and release acceptance remain open."
+    },
+    "post_maintenance_audits": {
+      "parent_readme": "unchanged; no parents",
+      "agent_entrypoints": "ready; all four delegates and contained agent skill current",
+      "writes": false,
+      "lifecycle_admitted": false
+    },
+    "installed_changed_parent_original": {
+      "status": "failed",
+      "subject": "65ef424f2da98f39b37c0bce8a0b3a542c410433",
+      "methods": 1,
+      "seconds": 30.119,
+      "public_commands": 14,
+      "original_journey_modified": false,
+      "failure": "repository_lineage.authority_missing: repository revision does not contain required authority: literate.project.json",
+      "scope": "Fresh canonical producer fixtures and actual root update pass. Real local changed-parent planning refuses the contained parent manifest; apply/inherited update not reached. Original source/index preservation assertions pass on the failed command."
+    },
+    "git_authority_namespaces": {
+      "status": "passed",
+      "new_methods": 6,
+      "new_seconds": 15.817,
+      "existing_methods": 9,
+      "existing_seconds": 8.559,
+      "scope": "Real Git root/contained resolution, exact raw manifest identity and catalog paths/bytes; missing, duplicate, misplaced and linked metadata refusals. The first new test launch failed during fixture setup on an omitted optional MCP root; original failure retained. Installed original-fixture continuation pending."
     }
   },
   "remaining_requirements": [
-    "Reconcile the 63 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
+    "Reconcile the 61 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
     "Continue PROJECT-LAYOUT-001 changed-parent installed application and complete containment qualification; actual update and unchanged-parent application pass at their recorded immutable subject.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
   ],

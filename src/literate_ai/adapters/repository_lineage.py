@@ -463,8 +463,10 @@ class GitRepositorySnapshotProvider:
     ) -> ResolvedRepositorySnapshot:
         with self._locked_repository(reference.repository_url) as repository:
             revision = self._resolve_revision(repository, reference)
-        manifest = self._blob(repository, revision, _PROJECT_FILE)
-        parent = self._blob(repository, revision, REPOSITORY_PARENT_FILE)
+        prefix, manifest = self._authority_manifest(repository, revision)
+        parent = self._authority_blob(
+            repository, revision, prefix + REPOSITORY_PARENT_FILE
+        )
         try:
             definition = parse_project_configuration(manifest)
         except ValueError as exc:
@@ -472,6 +474,7 @@ class GitRepositorySnapshotProvider:
                 "repository_lineage.authority_invalid",
                 f"repository project authority is invalid: {exc}",
             ) from exc
+        self._require_authority_location(definition, prefix)
         try:
             parent_selection = RepositoryParentSelection.from_dict(json.loads(parent))
         except (TypeError, ValueError, UnicodeError, json.JSONDecodeError) as exc:
@@ -536,7 +539,7 @@ class GitRepositorySnapshotProvider:
                 "repository_lineage.revision_changed",
                 "exact repository revision changed during catalog resolution",
             )
-        manifest = self._blob(repository, revision, _PROJECT_FILE)
+        prefix, manifest = self._authority_manifest(repository, revision)
         if (
             ContentIdentity(HashAlgorithm.SHA256, hashlib.sha256(manifest).hexdigest())
             != node.project_identity
@@ -552,6 +555,7 @@ class GitRepositorySnapshotProvider:
                 "repository_lineage.authority_invalid",
                 f"repository project authority is invalid: {exc}",
             ) from exc
+        self._require_authority_location(definition, prefix)
         roots = tuple(
             sorted(
                 set(
@@ -838,6 +842,89 @@ class GitRepositorySnapshotProvider:
             reference.requested_revision,
             code="repository_lineage.fetch_failed",
         )
+
+    def _authority_entry(self, repository, revision, path):
+        """Inspect immutable tracked names without checkout or link traversal."""
+        result = self._run(
+            repository, "ls-tree", "-z", "--full-tree", revision, "--", path
+        )
+        if result.returncode != 0:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_unavailable",
+                f"repository authority tree could not be read: {path}",
+            )
+        records = [row for row in result.stdout.split(b"\0") if row]
+        if not records:
+            return None
+        if len(records) == 1:
+            metadata, separator, name = records[0].partition(b"\t")
+            fields = metadata.split(b" ")
+            if separator and name == path.encode("utf-8") and len(fields) == 3:
+                return fields[0], fields[1]
+        raise GitRepositoryLineageError(
+            "repository_lineage.authority_invalid",
+            f"repository authority has an invalid Git tree record: {path}",
+        )
+
+    def _authority_blob(self, repository, revision, path):
+        for parent in reversed(PurePosixPath(path).parents):
+            if parent == PurePosixPath("."):
+                continue
+            entry = self._authority_entry(repository, revision, parent.as_posix())
+            if entry is None:
+                raise GitRepositoryLineageError(
+                    "repository_lineage.authority_missing",
+                    f"repository revision does not contain required authority: {path}",
+                )
+            if entry != (b"040000", b"tree"):
+                raise GitRepositoryLineageError(
+                    "repository_lineage.authority_unsafe",
+                    f"repository authority ancestor must be a tracked tree: {parent}",
+                )
+        entry = self._authority_entry(repository, revision, path)
+        if entry is None:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_missing",
+                f"repository revision does not contain required authority: {path}",
+            )
+        if entry not in {(b"100644", b"blob"), (b"100755", b"blob")}:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_unsafe",
+                f"repository authority must be a regular tracked file: {path}",
+            )
+        return self._blob(repository, revision, path)
+
+    def _authority_manifest(self, repository, revision):
+        root = self._authority_entry(repository, revision, _PROJECT_FILE)
+        directory = self._authority_entry(repository, revision, "litai")
+        if directory in {(b"120000", b"blob"), (b"160000", b"commit")}:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_unsafe",
+                "contained repository authority cannot cross a link or submodule",
+            )
+        contained = (
+            self._authority_entry(repository, revision, "litai/" + _PROJECT_FILE)
+            if directory == (b"040000", b"tree")
+            else None
+        )
+        if root is not None and contained is not None:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_ambiguous",
+                "root and contained repository project authority coexist",
+            )
+        prefix = "litai/" if contained is not None else ""
+        return prefix, self._authority_blob(
+            repository, revision, prefix + _PROJECT_FILE
+        )
+
+    @staticmethod
+    def _require_authority_location(definition, prefix):
+        expected = "litai/" if definition.framework_directory == "litai" else ""
+        if prefix != expected:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_invalid",
+                "repository project authority differs from its declared location",
+            )
 
     def _blob(self, repository: Path, revision: str, path: str) -> bytes:
         result = self._run(repository, "show", f"{revision}:{path}")
