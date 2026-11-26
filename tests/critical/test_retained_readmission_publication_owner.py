@@ -86,6 +86,29 @@ class RetainedReadmissionPublicationOwnerTests(unittest.TestCase):
         owner.rollback()
         self.assert_original()
 
+    def test_owner_edit_before_next_publication_is_never_overwritten(self):
+        owner = self.create()
+        self.publish(owner)
+        target = self.root / "b.json"
+        changed = b"concurrent owner edit before next write\n"
+        target.write_bytes(changed)
+        inode = target.stat().st_ino
+        with self.assertRaisesRegex(
+            publication.ReadmissionPublicationError, "foreign_node"
+        ):
+            self.publish(owner, name="b.json", content=b"must not overwrite owner\n")
+        self.assertEqual(target.read_bytes(), changed)
+        self.assertEqual(target.stat().st_ino, inode)
+        with self.assertRaisesRegex(
+            publication.ReadmissionPublicationError, "recovery_required"
+        ):
+            owner.rollback()
+        self.assertEqual(target.read_bytes(), changed)
+        self.assertEqual(target.stat().st_ino, inode)
+        first = self.root / "a.json"
+        self.assertEqual(first.read_bytes(), self.before["a.json"])
+        self.assertEqual(first.stat().st_ino, self.original["a.json"])
+
     def test_same_byte_foreign_node_survives_while_owned_companion_is_restored(self):
         owner = self.create()
         self.publish(owner)

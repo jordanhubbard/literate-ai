@@ -35,6 +35,54 @@ class ReadmissionPublicationTests(unittest.TestCase):
             worker_catalog_identity=None,
         )
 
+    def _owner_edit_after_inventory(self, relative):
+        from literate_ai.adapters.retained_readmission_publication import (
+            ACTIVE,
+            ReadmissionPublicationError,
+        )
+
+        paths = {
+            name: readmission._safe_path(self.root, name)
+            for name in self.plan["old_documents"]
+        }
+        before = {name: path.read_bytes() for name, path in paths.items()}
+        target = readmission._safe_path(self.root, relative)
+        changed = target.read_bytes() + b"\nConcurrent owner edit.\n"
+        write = readmission.FilesystemConversionAuthorityStore._atomic_write
+        observed = []
+
+        def publish(path, content):
+            result = write(path, content)
+            if Path(path) == readmission._safe_path(self.root, readmission.INVENTORY):
+                self.assertFalse(observed)
+                target.write_bytes(changed)
+                observed.append(target.stat().st_ino)
+            return result
+
+        with (
+            mock.patch.object(
+                readmission.FilesystemConversionAuthorityStore, "_atomic_write", publish
+            ),
+            self.assertRaises(ReadmissionPublicationError),
+        ):
+            self.apply()
+        self.assertEqual(len(observed), 1)
+        self.assertEqual(target.read_bytes(), changed)
+        self.assertEqual(target.stat().st_ino, observed[0])
+        self.assertEqual(
+            {name: paths[name].read_bytes() for name in before if name != relative},
+            {name: content for name, content in before.items() if name != relative},
+        )
+        self.assertTrue((self.root / ACTIVE).is_file())
+
+    def test_component_owner_edit_before_publication_is_preserved(self):
+        self._owner_edit_after_inventory(
+            self.plan["wrapper_component"] + "/component.md"
+        )
+
+    def test_flavor_owner_edit_before_publication_is_preserved(self):
+        self._owner_edit_after_inventory("flavors/legacy-project-shim/flavor.md")
+
     def test_failed_lock_writer_preserves_foreign_replacement(self):
         lock = self.root / self.plan["wrapper_component"] / "component.lock.json"
         foreign = b'{"foreign":"must survive failed lock publication"}\n'
