@@ -225,6 +225,9 @@
       },
       {
         "id": "RETAINED-PYTHON-BRIDGE-001"
+      },
+      {
+        "id": "ADOPT-BASELINE-COMMANDS-001"
       }
     ]
   }

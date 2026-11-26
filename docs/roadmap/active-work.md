@@ -33686,3 +33686,29 @@ independent review and the complete combined gate from test one.
 - **Evidence:**
   - [ ] Exercise a real retained Python consumer with an admitted committed-cache library through full public lifecycle and exact installed qualification.
   - [ ] Refuse cache, receipt, source, package-origin and consumer-scope drift while preserving existing Cargo and retained Python behavior.
+
+### [ ] ADOPT-BASELINE-COMMANDS-001 — Select reviewed baseline commands for a single adoption root
+
+- **Priority:** P1
+- **Release target:** 1.4.0
+- **GitHub issue:** [#207](https://github.com/jordanhubbard/literate-ai/issues/207)
+- **Owner:** Framework onboarding root-plan selection and baseline execution; PROJECT Goal 1
+- **Direction:** Issue #207 requests explicit baseline command selection for a Cargo workspace without editing Cargo.toml or splitting one repository into artificial Components. The issue is included in 1.4.0.
+- **Conclusion:** Extend the existing identity-bound root-plan command route to one selected root. Keep complete source ownership, real detected roots, explicit baseline acknowledgement, currentness and honest selected-command evidence; do not infer broader test coverage or invent skipped execution. Existing implicit and multi-root behavior remains supported.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Current action:** Implement and qualify the single-root override through both
+  the read-only plan and the actual quarantined baseline. Merely allowing one root
+  is insufficient: the converter otherwise redetects and executes the broad default
+  commands after the selected per-Component checks. Preserve every other detected
+  phase, record the replaced commands, and qualify only the explicitly selected
+  coverage. Focused qualification exposed a downstream bundle reader that still
+  requires two Components. Qualify its nonempty single-root support together with
+  a coherently rehashed empty-bundle refusal, then renew focused, full and installed
+  evidence. The failed development attempts do not establish issue completion.
+- **Implementation:**
+  - [ ] Support a nonempty explicitly selected root set, including a single repository root, through the existing reviewed plan and transaction.
+  - [ ] Document scoped Cargo baseline commands and unchanged stale-plan, source-ownership and execution requirements.
+- **Evidence:**
+  - [ ] Use a real public Cargo workspace adoption: the default broad test fails, the explicitly reviewed scoped test passes without manifest mutation or artificial splitting, and only selected commands are credited.
+  - [ ] Reject an empty selection, incomplete ownership, invalid or changed commands and stale acknowledgement before execution; renew focused/full/installed qualification and independent review before landing.
