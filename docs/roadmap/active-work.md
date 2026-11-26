@@ -31300,6 +31300,18 @@ The first failed directory, source checkout and installed wheel stay retained.
 
 **#129 qualified read-only catalog reuse:** Exact source `74417e1a` passes the full 2,265-case source suite (2,194 passed, 71 existing skips, zero failures), all installed-wheel assertions, 14 focused cases including actual in-operation mutations, and the forced lifecycle with 229 passing checks and no skips. The generated suite count is producer-bound; the declared conformance inventory and minimums are unchanged. Supported receipt update/check/require-current and all-gate verify pass on the metadata-only consolidated tree. The native Windows public lock check returns identical passing reports across both installations and restores its fixture; three-call medians are 35.172 seconds baseline and 28.187 candidate, with cache/order variation. Catalog captures fall from five to two; all ten input revalidations and four current authority-graph observations remain. See `verification/lock-check-catalog-qualification.json`. The next action is ordinary review CI and landing of this scoped improvement, then complete unchanged provided-worker native renewal before closing #129. No generator-diversity exemption, dependency, release, or native admission is claimed.
 
+The installed FreeBSD SSH per-unit PACKAGE retry now captures an actual Python
+frame chain during native SDK setup: `SDKRuntime.require_current` reaches the
+retained receiver capability measurement, which reconstructs the public execution
+plan, current project Component locks and full Flavor catalog. The native parent
+also invokes the complete worker currentness check while supervising the child.
+This demonstrates repeated catalog reconstruction at nested owning boundaries,
+not resource exhaustion or a proven formatting bottleneck. Retain the same
+one-hour execution deadline; design operation-scoped observation ownership that
+rechecks current bytes, membership, nearest-project context and revocation before
+using any retained authority. The active retry has produced real application,
+link, test and documentation outputs but has not earned final package admission.
+
 ### [x] RETAINED-PACKAGE-CONCURRENCY-001 — Diagnose parallel retained-package ancestor replacement
 
 - **GitHub issue:** [#140](https://github.com/jordanhubbard/literate-ai/issues/140)
@@ -32770,7 +32782,7 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
   - [x] Exercise a real source-built SDK above the former per-file and total bounds while preserving changed-source refusal.
 - **Evidence:**
   - [x] Pass the actual native SDK build, relocation and execution regression with a 144 MiB source resource and existing mutation controls.
-  - [ ] Obtain independent source review and pass full source, driver and documentation gates before commit and push.
+  - [x] Obtain independent source review and pass full source, driver and documentation gates before commit and push.
   - [ ] Install the exact new wheel and renew native source admission and SSH PACKAGE/LINK qualification; no failed setup is passing evidence.
 
 The source SDK regression passes both real-build and changed-source controls
@@ -32781,3 +32793,47 @@ unchanged security/custody checks. These byte quotas are not low-memory
 qualification. Full regression and exact installed/native renewal remain open.
 The reviewed original-adoption diagnostic-isolation repair is included in this
 batch so its full snapshot checks run with the SDK changes.
+
+Merged via [PR #248](https://github.com/jordanhubbard/literate-ai/pull/248) at
+`9213b250eceaa1eaaba03ceb8da3978391078413`. The complete source gate passes
+2546 tests with 79 declared skips; exact PR CI run `41402132846` passes.
+The installed native retry has acquired the 144 MiB SDK and produced application,
+link, test and documentation outputs; final SSH PACKAGE/LINK admission remains
+unproven. Exact-main qualification run `41412564494` is still pending.
+
+### [ ] DIAGNOSTIC-CACHE-CUSTODY-001 — Coordinate diagnostic output with canonical object-cache ownership
+
+- **Release target:** 1.4.0
+- **GitHub issue:** [#250](https://github.com/jordanhubbard/literate-ai/issues/250)
+
+- **Priority:** P1
+- **Owner:** Framework diagnostics and cache-directory custody; PROJECT goals 1 and 4
+- **Direction:** Accept issue 250 for release 1.4 and ensure diagnostics cannot prevent first execution with a fresh custom object root.
+- **Conclusion:** Write new spans only to canonical operator state, keyed by the exact selected object root; merge legacy object-root logs when reading. Preserve first-command/refusal diagnostics, explicit selection and read-only project snapshots without changing cache ownership or lock protocols.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Resolve telemetry roots with explicit request precedence and use an operator-state sink without mutating observed projects or caches.
+- **Evidence:**
+  - [ ] A public plan followed by first execution reuses a fresh custom object root; unrelated unmarked roots, symlink redirection and read-only source drift controls still refuse; independent review and full gates pass.
+
+Current diagnosis: diagnostic-only directory creation precedes the canonical
+object-cache marker and makes custom roots nonempty. Calling the existing
+initializer also creates project-local lock files, which would invalidate
+read-only original-adoption snapshots when diagnostics were directed outside
+the project. Resolve this ownership interaction before implementation.
+
+Independent design review selected an operator-state-only sink for new spans.
+This avoids cache lock migration and the nested-cache removal race of adjacent
+locks. Readers retain legacy object-root logs; current operator-state namespace
+selection remains diagnostic scope rather than authority. Literal-directory
+reporting supports archived logs. No cache adoption rule changes.
+
+The final reviewed source passes 32 focused cases in 33.100 seconds across
+cache custody, read-only onboard planning, original adoption and non-host lock
+health. These include retained first-command/refusal diagnostics, explicit root
+precedence, legacy and literal-directory reports, cleanup survival, source
+snapshot preservation and rejected redirected/unsafe log sinks. Reviewer
+`native_transport_review` approved the final scanner-independent source, including
+Python 3.12 resolution-loop refusal, portable run IDs and native file identity
+checks. Full regression and platform qualification remain pending.

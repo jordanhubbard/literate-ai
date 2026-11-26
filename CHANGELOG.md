@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Diagnostics: store new timing spans in operator state, keyed by the selected
+  object root, so first-command telemetry cannot poison custom caches. Reports
+  retain existing cache-local logs and honor explicit object-root selection.
+
 - Tests: isolate original-adoption CLI diagnostics while preserving complete
   project snapshots and recorded refusal telemetry.
 
