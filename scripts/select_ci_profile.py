@@ -44,6 +44,18 @@ _QUALIFICATION_FIXTURE_FILES = frozenset(
         "verification/windows-portable-fixtures-qualification.json",
     }
 )
+_SCHEMA_PREFLIGHT_FILES = frozenset(
+    {
+        ".github/workflows/ci.yml",
+        "Makefile",
+        "pyproject.toml",
+        "scripts/select_ci_profile.py",
+        "src/literate_ai/cli/dispatch.py",
+        "src/literate_ai/schema_catalog.py",
+        "src/literate_ai/version.py",
+        "src/literate_ai/version_check.py",
+    }
+)
 _FREEBSD_ACL_FILES = frozenset(
     {
         ".github/workflows/ci.yml",
@@ -138,7 +150,7 @@ def _changed_paths(
     revisions = (base_sha, head_sha) if push else (f"{base_sha}...{head_sha}",)
     try:
         completed = subprocess.run(
-            ("git", "diff", "--name-only", "-z", *revisions),
+            ("git", "diff", "--no-renames", "--name-only", "-z", *revisions),
             check=False,
             capture_output=True,
             timeout=30,
@@ -214,6 +226,21 @@ def select_full_qualification(
 ) -> bool:
     ordinary_pr = event == "pull_request" and not base_ref.startswith("release/")
     return not ordinary_pr and not _scoped_main_push(event, base_ref, changed_paths)
+
+
+def select_schema_preflight(
+    event: str, base_ref: str, changed_paths: tuple[str, ...] | None = None
+) -> bool:
+    """Check schema inputs once before qualification fans out."""
+    return (
+        select_full_qualification(event, base_ref, changed_paths)
+        or changed_paths is None
+        or any(
+            path in _SCHEMA_PREFLIGHT_FILES
+            or path.startswith(("schemas/", "tools/build_backend/"))
+            for path in changed_paths
+        )
+    )
 
 
 def select_freebsd_acl(
@@ -298,4 +325,8 @@ if __name__ == "__main__":
     print(
         "full_qualification="
         + str(select_full_qualification(event, base_ref, paths)).lower()
+    )
+    print(
+        "schema_preflight="
+        + str(select_schema_preflight(event, base_ref, paths)).lower()
     )

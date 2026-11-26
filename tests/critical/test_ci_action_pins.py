@@ -27,6 +27,38 @@ class CiActionPinTests(unittest.TestCase):
         spec.loader.exec_module(selector)
         return selector
 
+    def test_schema_check_precedes_fanout_on_relevant_paths_and_full_profiles(
+        self,
+    ) -> None:
+        selector = self.selector()
+        for path in (
+            "schemas/v2/index.json",
+            "schemas/v2/project-release.schema.json",
+            "src/literate_ai/schema_catalog.py",
+            "tools/build_backend/literate_ai_build_backend.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(
+                    selector.select_schema_preflight(
+                        "pull_request", "main", ("README.md", path)
+                    )
+                )
+        self.assertFalse(
+            selector.select_schema_preflight("pull_request", "main", ("README.md",))
+        )
+        self.assertFalse(
+            selector.select_schema_preflight("push", "refs/heads/main", ("README.md",))
+        )
+        self.assertTrue(selector.select_schema_preflight("pull_request", "main", None))
+        self.assertTrue(
+            selector.select_schema_preflight("workflow_dispatch", "main", ())
+        )
+        self.assertTrue(
+            selector.select_schema_preflight(
+                "pull_request", "release/1.4", ("README.md",)
+            )
+        )
+
     def test_change_scoped_profiles_are_narrow_and_fail_closed(self) -> None:
         selector = self.selector()
 
@@ -418,6 +450,8 @@ class CiActionPinTests(unittest.TestCase):
                 selector._changed_paths("before", "after", push=True), ("README.md",)
             )
             self.assertEqual(run.call_args.args[0][-2:], ("before", "after"))
+            # Retain the old path when a schema is moved out of its catalog.
+            self.assertIn("--no-renames", run.call_args.args[0])
             selector._changed_paths("before", "after")
             self.assertEqual(run.call_args.args[0][-1], "before...after")
             run.return_value = mock.Mock(returncode=128, stdout=b"")
@@ -435,7 +469,16 @@ class CiActionPinTests(unittest.TestCase):
 
     def test_workflow_runs_only_the_checks_owned_by_each_scoped_profile(self) -> None:
         workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
-        profile = workflow["jobs"]["profile"]["steps"][-1]
+        profile_steps = workflow["jobs"]["profile"]["steps"]
+        profile = next(step for step in profile_steps if step.get("id") == "select")
+        self.assertEqual(workflow["jobs"]["checks"]["needs"], "profile")
+        [schema_check] = [
+            step for step in profile_steps if "make schema-check" in step.get("run", "")
+        ]
+        self.assertEqual(
+            schema_check["if"], "steps.select.outputs.schema_preflight == 'true'"
+        )
+        self.assertLess(profile_steps.index(profile), profile_steps.index(schema_check))
         self.assertEqual(
             profile["env"]["CI_BASE_REF"], "${{ github.base_ref || github.ref }}"
         )
