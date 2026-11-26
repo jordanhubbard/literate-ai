@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained PACKAGE receivers: reuse parsed Component/Flavor catalogs within one
+  request while rechecking project context, complete catalog bytes and membership,
+  and selected lock inputs on every read.
+
 - Tests: isolate original-adoption CLI diagnostics while preserving complete
   project snapshots and recorded refusal telemetry.
 

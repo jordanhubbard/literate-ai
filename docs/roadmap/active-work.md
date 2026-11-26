@@ -29377,6 +29377,13 @@ small-fixture snapshot custody; it is not a full source-tree snapshot, canonical
 native catalog registration or Component action/package/lifecycle acceptance.
 Full-suite, installed and native qualification remain separate gates.
 
+A lock-reader test exposed an additional full-catalog graph case: declaring two
+Component directories directly as separate catalog roots gives both the local
+name `.` and makes lock planning refuse duplicate graph node IDs. The reader
+performance regression uses two real Components beneath one common catalog
+root; it does not repair or claim support for the separate-root graph case.
+Retain that case for the canonical catalog integration under issue #74.
+
 ### [x] RECEIPT-REFRESH-001 — Refresh the current project test receipt through the complete lifecycle
 
 - **Priority:** P1
@@ -31299,6 +31306,44 @@ The first failed directory, source checkout and installed wheel stay retained.
 **#129 prototype qualification and review:** Prototype `d8f84b98` passes the complete 2,264-case source suite (2,193 passes, 71 existing skips) and full installed-wheel harness. Native A/B calls retain identical passing reports and fixture restoration; three-call medians are 36.141 seconds baseline and 29.531 candidate with warm-cache/ordering variation. Catalog captures fall from five to two while ten input revalidations and four current authority graphs remain. This is scoped evidence, not a complete native-gate result. Review adds a cache-key control: changed requested Flavor roots must use fresh planning rather than be hidden by the captured catalog; its regression fails before the control and passes after. The root lifecycle correctly refuses the prototype's stale driver pin before execution. Record the reviewed final TCB pin through `review_lifecycle_driver.py`, renew documentation authority and qualify the corrected exact source before promotion. Retain all preceding wheel/source reports and lifecycle refusals.
 
 **#129 qualified read-only catalog reuse:** Exact source `74417e1a` passes the full 2,265-case source suite (2,194 passed, 71 existing skips, zero failures), all installed-wheel assertions, 14 focused cases including actual in-operation mutations, and the forced lifecycle with 229 passing checks and no skips. The generated suite count is producer-bound; the declared conformance inventory and minimums are unchanged. Supported receipt update/check/require-current and all-gate verify pass on the metadata-only consolidated tree. The native Windows public lock check returns identical passing reports across both installations and restores its fixture; three-call medians are 35.172 seconds baseline and 28.187 candidate, with cache/order variation. Catalog captures fall from five to two; all ten input revalidations and four current authority-graph observations remain. See `verification/lock-check-catalog-qualification.json`. The next action is ordinary review CI and landing of this scoped improvement, then complete unchanged provided-worker native renewal before closing #129. No generator-diversity exemption, dependency, release, or native admission is claimed.
+
+Next in progress: the lock-set reader reconstructs the entire catalog for each
+selected Component and across repeated receiver guard calls. A read-only profile
+of the actual frozen qualification fixture finds one selected lock, ten authored
+Components and one complete Flavor construction per call (0.488 instrumented
+seconds on the controller). Lock-set-only reuse therefore cannot improve that
+fixture. Extend parsed-catalog reuse to the receiver's request scope, with fresh
+direct-path, nearest-project, boundary and configured-root discovery on every
+access, plus unchanged full current byte/membership and selected lock/input
+checks. Clear parsed observations at scope exit; retain no cached success or
+cross-request authority. A context change forces fresh construction, and changed
+captured content refuses. Measure repeated public read construction counts and
+actual elapsed time before claiming native throughput or PACKAGE/LINK admission.
+The qualification deadline remains unchanged.
+
+The unchanged installed SSH retry reached the 3600-second action bound and
+returned `action_wire.expired` after 3604.533 seconds. Its native guardian
+diagnostic reports deadline refusal with `cleanup_verified: true` and no
+quarantine requirement; the receiver released its own reservation. Application,
+link, test and documentation outputs are partial evidence only. No PACKAGE or
+LINK admission was earned.
+
+The new request-scoped parsed-catalog candidate passes eleven real lock/catalog
+controls in 3.383 seconds, including changed Flavor bytes, added catalog members,
+redirected Flavor files, a newly invalid nearest project and selected-source
+drift. Independent source review preserves all owning checks. Three public
+lock-set reads of the exact frozen qualification inputs construct the Flavor
+catalog once instead of three times and load ten authorings instead of thirty;
+all six full catalog validation passes and the returned lock identity remain
+unchanged. Instrumented controller elapsed times are 1.691 and 1.321 seconds.
+These scoped measurements are not native throughput or release qualification.
+
+The scoped candidate also passes all 34 selected package/worker custody controls
+in 129.756 seconds, with two declared actual-FreeBSD-only skips. The eleven
+lock/catalog controls pass with selected-source mutation exercised inside the
+request scope. Canonical driver/documentation records are current after the
+independent source review. The complete fresh regression is next; neither
+controller controls nor source-import diagnostics qualify a native release.
 
 ### [x] RETAINED-PACKAGE-CONCURRENCY-001 — Diagnose parallel retained-package ancestor replacement
 

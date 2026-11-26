@@ -28,6 +28,9 @@ from literate_ai.adapters.freebsd_owned_attempt import (
     OwnedFreeBsdChild,
     run_owned_freebsd_attempt,
 )
+from literate_ai.adapters.locked_generation_authority import (
+    read_only_component_catalog_observations,
+)
 from literate_ai.adapters.retained_receiver_attempt import (
     reserve_retained_receiver_attempt,
 )
@@ -206,6 +209,11 @@ def _receive(config, mode, *, owned_child=None):
 
 
 def main(argv=None):
+    with read_only_component_catalog_observations():
+        return _main(argv)
+
+
+def _main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--child", action="store_true")
