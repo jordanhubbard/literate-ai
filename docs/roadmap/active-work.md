@@ -29149,10 +29149,10 @@ qualification, admission and cache reuse remain open.
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
-- **Next action:** Reconcile the remaining 42 snapshots. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Next action:** Repair original native hardlink retirement and reconcile the remaining 41 snapshots. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
   - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
-  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 48 of 90 recovery snapshots merged; 42 remain preserved.
+  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 49 of 90 recovery snapshots merged; 41 remain preserved.
   - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
   - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
   - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
@@ -29271,6 +29271,19 @@ their refusals. These checks do not renew native or release acceptance.
 **Cargo source qualification remains open.** The original 14-case isolated-parse
 run at `c0bd6aaf8` completed in 1116.340 seconds: 13 passed and one errored before
 its first mutation. The test still selected the old root wrapper manifest while
-the actual fixture now contains that manifest under `litai/`. Its layout-aware
-coordinate repair and focused continuation remain pending. All original mutation,
+the actual fixture now contains that manifest under `litai/`. The layout-aware
+coordinate repair uses the original reviewed binding; its focused continuation
+passes in 78.564 seconds. Full composed qualification remains open. All original mutation,
 refusal-stage, independent recapture and closing-fence assertions are preserved.
+
+**Reviewed single-root baseline history.** The recovered helper is byte-identical
+and its real Cargo control retains all assertions while explicitly selecting the
+current conversion profile. The normal merge changes no source bytes. Current
+onboarding qualification passes eight cases and fails the ninth (21.540 seconds):
+a real Cargo selected baseline reaches native execution, whose cleanup mistakes
+its own hardlink unlink for foreign mutation. Two focused reproductions preserve
+the actual failed fixtures. The `.rmeta` peer keeps its device/inode, mode, owner,
+size and mtime while its link count changes from two to one and its change time
+advances. Repair must account only for original owned retirement, preserve exact
+byte/metadata guards and refuse external peers; do not adopt post-failure state.
+The original rollback refusal and source/quarantine state remain preserved.

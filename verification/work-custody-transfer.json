@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "6c6a9c04a6bb7b9f43e78bf487fd9bc7c1c7f330",
+  "continued_subject": "31e48ed6d68e279860cc582bb89873dfe7323d58",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -34,8 +34,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 48,
-      "preserved-for-reconciliation": 42
+      "merged": 49,
+      "preserved-for-reconciliation": 41
     },
     "snapshots": [
       {
@@ -88,9 +88,11 @@
         "base": "dcd33ba4a31518c4508ef352770072d1869f9976",
         "commit": "25f1879df668d4a3cc7ce75984354e586fbc2881",
         "branch": "recovery/puck-20261126/ad14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 11,
-        "remaining_paths": 11
+        "remaining_paths": 0,
+        "reconciliation_commit": "92d859fe73df8970734399e607f0869b05c19870",
+        "tree_unchanged_from_first_parent": true
       },
       {
         "label": "ar14",
@@ -936,12 +938,13 @@
       "catcust1": "All 21 original test methods identical. Keep current descriptor/path stamp checks, syntax-only parse frames, clone PID ownership, nested staging and live role observations. Normal merge unchanged.",
       "catplace1": "18 of 19 original test methods identical. The remaining ancestry assertion preserves paths/identities with POSIX normalization. Keep current nested/forward-skill staging and portable provenance checks. Normal merge unchanged.",
       "shadow14": "Keep raw Git/filter/SSH and native filesystem safeguards plus later synchronization custody; portable scandir and Windows argv controls retained. Normal merge unchanged; 42 smoke and 14 critical sync methods pass.",
-      "cgproj1": "Keep captured projection behind current nominal Cargo/shared live owners. Ten of twelve original methods identical; later Flavor scope and early exact-closure refusal preserve isolation. Normal merge unchanged. Original isolated-parse suite: 13 passed, one pre-mutation fixture-path error; layout-aware test continuation remains pending.",
+      "cgproj1": "Keep captured projection behind current nominal Cargo/shared live owners. Ten of twelve original methods identical; later Flavor scope and early exact-closure refusal preserve isolation. Normal merge unchanged. Original isolated-parse suite: 13 passed, one pre-mutation fixture-path error; layout-aware test continuation remains pending. Layout-aware test path now uses the original reviewed binding. The failed mutation case passes separately with all original assertions (78.564 seconds); the failed full run is retained and full composed qualification remains open.",
       "sdlcw": "Four original checkpoint test methods identical, with extra source-import/cwd custody. Preserve required native gates and later qualified-wheel staging/exports. Normal merge unchanged. Seven checkpoint and three qualified-wheel controls pass.",
       "arproof1": "Sixteen of seventeen original selection/artifact test methods identical at pre-compatibility subject c0bd6aaf8. Remaining test retains staged-byte binding while exercising implemented stable publication rather than obsolete blanket refusal. Preserve coverage-only, release-candidate and promotion refusals, declared policy base and current receiving-owner staging. Normal merge unchanged.",
       "artcust1": "All eighteen original selection/artifact test methods identical before the additional ambient no-fetch override control. Preserve descriptor/path closure, sealed receiving-owner stage verification and original exact bytes. Normal merge unchanged.",
       "artpub1": "Seventeen of eighteen original methods identical before the added ambient no-fetch override control. Publication test retains original checks and adds concurrent annotated-tag identity and independent fresh-checkout recovery. Normal merge unchanged.",
-      "pf14": "All eight original current-lock methods identical and pass. Original complete closure/error checks remain in canonical lock-binding readers; parsed observations remain request scoped and isolated frames restore ambient state. Preserve live registration/attempt custody and guarded return-CAS delivery. Normal merge unchanged."
+      "pf14": "All eight original current-lock methods identical and pass. Original complete closure/error checks remain in canonical lock-binding readers; parsed observations remain request scoped and isolated frames restore ambient state. Preserve live registration/attempt custody and guarded return-CAS delivery. Normal merge unchanged.",
+      "ad14": "The single-root baseline inventory helper is byte-identical, with original source-membership guards in planning and post-quarantine conversion. Original real Cargo test differs only by selecting the explicit convert profile. Normal merge unchanged. Current onboarding suite then reports a genuine native hardlink retirement failure; this history is integrated but not behaviorally qualified."
     }
   },
   "checks": {
@@ -1263,10 +1266,37 @@
       "report_sha256": "d75022bba67b4129a784e1819b708a34de64d991613b854dc586a463d3c96e5c",
       "error": "FileNotFoundError before mutation: hard-coded root wrapper path differs from contained fixture. Layout-aware test repair/focused continuation pending.",
       "scope": "Original full selected source suite and deadline retained; not a pass and not native/release acceptance."
+    },
+    "cargo_mutation_path_repair": {
+      "status": "passed",
+      "subject": "df71346529e2b1abb3fd0d7a29f8e87d4f84bd2a",
+      "methods": 1,
+      "seconds": 78.564,
+      "log_sha256": "46e5c155f2854823c0d9310a94d161c0acd0e58be1c39d6fde870c656af63ae4",
+      "scope": "Only the original failed mutation method, after replacing a stale root path with the exact reviewed binding. No original refusal, mutation, recapture or closing-fence assertion changed. Not a full-suite or release pass."
+    },
+    "reconciled_onboarding": {
+      "status": "failed",
+      "methods": 9,
+      "passed": 8,
+      "failures": 1,
+      "seconds": 21.54,
+      "log_sha256": "0bd634c094ff7ab7435742c13e4c2727bbcb0668c2258714ea6c112bd15e17ae",
+      "failure": "Real selected Cargo baseline reaches native execution, then owned cleanup mistakes its own first hardlink unlink for foreign peer mutation; rollback refuses and preserves native state.",
+      "reproduction_seconds": [
+        9.853,
+        8.13
+      ],
+      "metadata_mismatch_sha256": "c4d4d64db06409180d6534ad17de693e46c353b88bbb0a03fb29cc1d8715e101",
+      "first_retained_fixture_sha256": "13370d8aa48a58b13574e450e18c016bcaebf0d4f20e2d86c51d7ca951e34fac",
+      "second_retained_fixture_sha256": "dbe4ca457324adc486fdd6778ed904716c1199af0638a5abfd0e72be94014b5d",
+      "observed": "Same device/inode, mode, uid, gid, size and mtime; st_nlink 2 to 1 and ctime changes after an original native hardlink unlink. No weakening of metadata guards or adoption of retained outputs performed.",
+      "scope": "Local actual Cargo build/test conversion. Existing failed cases and retained source/native namespaces are not relabeled as passes or reconstructed."
     }
   },
   "remaining_requirements": [
-    "Reconcile the 42 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
+    "Reconcile the 41 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
+    "Repair original native hardlink-group retirement without dropping byte/metadata checks or adopting external peers, then resume the failed onboarding qualification and full composed Cargo source qualification. Preserve both failed native fixtures and their source/quarantine state.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
   ],
