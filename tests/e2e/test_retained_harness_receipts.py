@@ -90,6 +90,44 @@ def _selectors(target: Path) -> tuple[str, ...]:
     )
 
 
+def _fixture_git(project: Path, *arguments: str) -> bytes:
+    """Use real fixture Git without host signing, hooks or repository routing."""
+    environment = dict(os.environ)
+    for name in (
+        "GIT_DIR",
+        "GIT_WORK_TREE",
+        "GIT_COMMON_DIR",
+        "GIT_INDEX_FILE",
+        "GIT_OBJECT_DIRECTORY",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+        "GIT_CONFIG",
+        "GIT_CONFIG_COUNT",
+        "GIT_CONFIG_PARAMETERS",
+        "GIT_TEMPLATE_DIR",
+    ):
+        environment.pop(name, None)
+    environment.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+    return subprocess.check_output(
+        [
+            "git",
+            "-c",
+            "commit.gpgsign=false",
+            "-c",
+            "core.fsmonitor=false",
+            "-c",
+            "core.hooksPath=" + str(project / ".git/fixture-no-hooks"),
+            "-c",
+            "init.defaultBranch=main",
+            "-C",
+            str(project),
+            *arguments,
+        ],
+        env=environment,
+        stderr=subprocess.STDOUT,
+        timeout=15,
+    )
+
+
 def _invoke(*arguments: str) -> tuple[int, dict[str, object]]:
     stdout = io.StringIO()
     stderr = io.StringIO()
@@ -160,9 +198,7 @@ class RetainedHarnessReceiptTests(unittest.TestCase):
                 return _invoke("--json", *arguments, "--project", str(project))
 
             def git(*arguments):
-                return subprocess.check_output(
-                    ["git", "-C", str(project), *arguments], timeout=15
-                )
+                return _fixture_git(project, *arguments)
 
             git("init", "-q", "-b", "main")
             git("add", ".")
@@ -268,9 +304,7 @@ class RetainedHarnessReceiptTests(unittest.TestCase):
             original = manifest.read_bytes()
 
             def git(*arguments):
-                return subprocess.check_output(
-                    ["git", "-C", str(project), *arguments], timeout=15
-                )
+                return _fixture_git(project, *arguments)
 
             git("init", "-q")
             git("add", ".")

@@ -26575,6 +26575,24 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Owned reference base transitions (source partial):** Approved metadata
+  reference rewrites now advance the original framework update base only when
+  its prior base or joined initialization origin/baseline binds the exact before
+  bytes. The new checkpoint is staged in the same acknowledged migration journal
+  with its reviewed digest. Historical initialization rows and existing blobs
+  remain; recovery restores the original checkpoint exactly. Custom documents,
+  locally edited framework files, active imports, and effective/shadowed/withheld
+  inheritance history cannot gain framework ownership through this transition.
+  Eight metadata controls and all eleven retained-harness regressions pass on
+  identical frozen source, together with lint, formatting, repository layout and
+  public export checks without drift. The original public migration case also
+  passes independently. A prior fixture Git commit timed out before migration;
+  fixture Git now isolates host signing/hooks/configuration with its original
+  deadline, without claiming that configuration caused the timeout. No authority
+  marker, driver or receipt is renewed. Reviewed-document and native-program
+  producer transitions, new immutable installed qualification, and every original
+  full containment/platform/source/review/release acceptance remain open.
+
 - **Original mixed-catalog publication (source partial):** The existing writer
   now joins mixed roots only for original baseline-recorded catalog files and
   original typed Component payloads. Unselected application files and inherited

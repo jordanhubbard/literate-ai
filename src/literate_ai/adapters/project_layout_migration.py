@@ -46,7 +46,13 @@ from literate_ai.adapters.retained_harness_receipts import (
     _require_qualified_parity,
 )
 from literate_ai.adapters.update_merge import UpdateBases
-from literate_ai.contracts import canonical_identity, canonical_json_bytes
+from literate_ai.contracts import (
+    CatalogImportsFile,
+    ProjectInitializationBaseline,
+    ProjectInitializationOrigin,
+    canonical_identity,
+    canonical_json_bytes,
+)
 from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.documentation import _INLINE_LINK, extract_markdown_links
 from literate_ai.projects import (
@@ -161,6 +167,57 @@ def _flush(directory: Path) -> None:
 
 def _write(path: Path, content: bytes, mode: int = 0o600) -> None:
     write_migration_file(path, content, mode)
+
+
+def _reference_framework_base_transition(root, files, rewritten, edits, documents):
+    """Build a current base only for original owned before-bytes, never review pins.
+
+    The caller stages this ordinary producer record with the reference edits in
+    the existing journal. Historical initialization rows and old blobs remain.
+    """
+    if not documents:
+        return None
+
+    def original_record(path):
+        raw = _file(root / path)[1]
+        if _identity(raw) != files[path]["identity"]:
+            _fail("plan_stale", f"reference producer changed during planning: {path}")
+        return raw
+
+    baseline = ProjectInitializationBaseline.from_dict(
+        json.loads(original_record(".literate/initialization-baseline.json"))
+    )
+    origin = ProjectInitializationOrigin.from_dict(
+        json.loads(original_record(".literate/initialization-origin.json"))
+    )
+    if baseline.origin_identity != origin.identity:
+        _fail(
+            "reference_authority", "reference initialization origin and baseline differ"
+        )
+    checkpoint = ".literate/update-bases.json"
+    old = original_record(checkpoint)
+    bases = UpdateBases.from_observed(root, rewritten.get(checkpoint, old))
+    initial = {row.path: row.identity.uri for row in baseline.files}
+    imported = set()
+    if _IMPORTS in files:
+        catalog = CatalogImportsFile.from_dict(json.loads(original_record(_IMPORTS)))
+        imported.update(
+            row.path
+            for item in (*catalog.imports, *catalog.decisions)
+            for row in item.files
+        )
+    changed = False
+    for path, content in documents.items():
+        before = bases.scopes["framework"].get(path, initial.get(path))
+        if (
+            path not in imported
+            and path not in bases.scopes["catalog"]
+            and path not in bases.sources
+            and before == edits[path]["from"]
+        ):
+            bases.advance("framework", path, content)
+            changed = True
+    return bases.serialized() if changed else None
 
 
 def _documentation_edits(
@@ -455,6 +512,13 @@ def _read_selection(
     edits, new_documents, required_references = _documentation_edits(
         project, references, files, moves, catalog_paths=place_imported_catalogs
     )
+    reference_bases = _reference_framework_base_transition(
+        root, files, rewritten, edits, new_documents
+    )
+    if reference_bases is not None:
+        checkpoint = ".literate/update-bases.json"
+        rewritten[checkpoint] = reference_bases
+        moves[checkpoint]["to"] = _identity(reference_bases)
     _require_worktree_members(root, (*moves, *edits))
     result = {
         "schema": SCHEMA,

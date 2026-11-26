@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: journal framework bases for approved reference rewrites while preserving custom files, inherited ownership and exact rollback.
+
 - Project layout: publish proven initialized catalogs beside retained roots, verify normal resolution before success and preserve recovery.
 
 - Project layout: preserve current imported catalog ownership when historical initialization snapshots record the same files.
