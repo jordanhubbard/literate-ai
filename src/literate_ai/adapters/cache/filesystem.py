@@ -10,11 +10,17 @@ import shutil
 import stat
 import tempfile
 import unicodedata
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 from typing import Protocol
 
+from literate_ai.adapters.cache._publication import (
+    CachePublicationTransaction,
+    cache_publication_transaction,
+)
 from literate_ai.adapters.dependencies import (
     CycloneDxBomError,
     validate_cyclonedx_bom,
@@ -76,6 +82,11 @@ _MAX_JSON_NODES = 200_000
 _SHA256_HEX = frozenset("0123456789abcdef")
 _PORTABLE_TARGET_ID = re.compile(r"^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$")
 _URN_SCHEMA = re.compile(r"^urn:literate-ai:schema:v[1-9][0-9]*:[a-z0-9][a-z0-9._-]*$")
+
+
+_CACHE_TRANSACTIONS: ContextVar[dict[int, CachePublicationTransaction] | None] = (
+    ContextVar("source_cache_transactions", default=None)
+)
 
 
 class SourceCacheError(RuntimeError):
@@ -223,12 +234,48 @@ class FileSystemSourceCache:
                 self._require_directory(directory)
         self.cas = FileSystemCAS(self.root / "cas", create=False)
 
+    @contextmanager
+    def _operation(
+        self,
+        *,
+        require_current: Callable[[], None] | None = None,
+        remaining: Callable[[], float] | None = None,
+    ) -> Iterator[CachePublicationTransaction]:
+        def select_constraint():
+            from literate_ai.application.native_root_run import current_native_root_run
+
+            owner = current_native_root_run()
+            return None if owner is None else (owner.require_current, owner.remaining)
+
+        with cache_publication_transaction(
+            self._io_root / "format.json",
+            require_current=require_current,
+            remaining=remaining,
+            select_constraint=(
+                select_constraint
+                if require_current is None and remaining is None
+                else None
+            ),
+        ) as transaction:
+            token = _CACHE_TRANSACTIONS.set(
+                {**(_CACHE_TRANSACTIONS.get() or {}), id(self): transaction}
+            )
+            try:
+                yield transaction
+            finally:
+                _CACHE_TRANSACTIONS.reset(token)
+
+    def _current_transaction(self) -> CachePublicationTransaction | None:
+        return (_CACHE_TRANSACTIONS.get() or {}).get(id(self))
+
     def publish(
         self,
         entry: AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry,
         *,
         caller_cas: FileSystemCAS,
         intelligence_attachments: Sequence[SourceIntelligenceAttachment] = (),
+        require_current: Callable[[], None] | None = None,
+        remaining: Callable[[], float] | None = None,
     ) -> ContentIdentity:
         """Verify a caller CAS, copy immutable objects, then publish membership last."""
 
@@ -238,6 +285,24 @@ class FileSystemSourceCache:
             StandardSourceAdmissionCacheEntry,
         }:
             raise TypeError("cache publication requires an accepted source entry")
+        if not self.writable or self.cas is None:
+            raise SourceCacheError(
+                "source-cache.write-disabled",
+                "this cache target was opened without write authority",
+            )
+        # Registration and original-owner selection precede serialization,
+        # equality, attachment iteration, and every other caller callback.
+        with self._operation(require_current=require_current, remaining=remaining):
+            return self._validate_publication_unlocked(
+                entry, caller_cas, intelligence_attachments
+            )
+
+    def _validate_publication_unlocked(
+        self,
+        entry: AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry,
+        caller_cas: FileSystemCAS,
+        intelligence_attachments: Sequence[SourceIntelligenceAttachment],
+    ) -> ContentIdentity:
         if isinstance(entry, StandardAcceptedSourceCacheEntry):
             try:
                 reparsed = StandardAcceptedSourceCacheEntry.from_dict(entry.to_dict())
@@ -290,6 +355,15 @@ class FileSystemSourceCache:
                 "source-cache.write-disabled",
                 "this cache target was opened without write authority",
             )
+        self._current_transaction().require_current()
+        return self._publish_unlocked(entry, caller_cas, attachments)
+
+    def _publish_unlocked(
+        self,
+        entry: AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry,
+        caller_cas: FileSystemCAS,
+        attachments: Sequence[SourceIntelligenceAttachment],
+    ) -> ContentIdentity:
         self._verify_entry_objects(entry, caller_cas)
         for attachment in attachments:
             self._verify_intelligence_attachment(
@@ -302,6 +376,7 @@ class FileSystemSourceCache:
             *(attachment.artifact for attachment in attachments),
         )
         for reference in references:
+            self._current_transaction().require_current()
             try:
                 stored = self.cas.put_file(
                     caller_cas.path_for(reference), media_type=reference.media_type
@@ -316,6 +391,7 @@ class FileSystemSourceCache:
                     "source-cache.object-copy-mismatch",
                     "a copied cache object changed identity or metadata",
                 )
+            self._current_transaction().require_current()
         self._verify_entry_objects(entry, self.cas)
         for attachment in attachments:
             self._verify_intelligence_attachment(
@@ -330,6 +406,14 @@ class FileSystemSourceCache:
         return entry.identity
 
     def intelligence_attachments(
+        self, source_tree_identity: ContentIdentity
+    ) -> tuple[SourceIntelligenceAttachment, ...]:
+        if not self.available:
+            return self._intelligence_attachments_unlocked(source_tree_identity)
+        with self._operation():
+            return self._intelligence_attachments_unlocked(source_tree_identity)
+
+    def _intelligence_attachments_unlocked(
         self, source_tree_identity: ContentIdentity
     ) -> tuple[SourceIntelligenceAttachment, ...]:
         """Return verified provider artifacts without changing source membership."""
@@ -396,6 +480,21 @@ class FileSystemSourceCache:
         return tuple(sorted(attachments, key=lambda item: item.identity.uri))
 
     def candidates(
+        self,
+        key: SourceDerivationCacheKey,
+        *,
+        component_lock_identity: ContentIdentity | None = None,
+    ) -> tuple[AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry, ...]:
+        if not self.available:
+            return self._candidates_unlocked(
+                key, component_lock_identity=component_lock_identity
+            )
+        with self._operation():
+            return self._candidates_unlocked(
+                key, component_lock_identity=component_lock_identity
+            )
+
+    def _candidates_unlocked(
         self,
         key: SourceDerivationCacheKey,
         *,
@@ -494,6 +593,14 @@ class FileSystemSourceCache:
     def published_entries(
         self,
     ) -> tuple[AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry, ...]:
+        if not self.available or self.cas is None:
+            return ()
+        with self._operation():
+            return self._published_entries_unlocked()
+
+    def _published_entries_unlocked(
+        self,
+    ) -> tuple[AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry, ...]:
         """Read every published entry, so one target can be promoted into another.
 
         Ordinary lookup is key-directed because that is how the lifecycle asks. Copying
@@ -519,9 +626,17 @@ class FileSystemSourceCache:
     def verified_published_entries(
         self,
     ) -> tuple[AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry, ...]:
+        if not self.available or self.cas is None:
+            return ()
+        with self._operation():
+            return self._verified_published_entries_unlocked()
+
+    def _verified_published_entries_unlocked(
+        self,
+    ) -> tuple[AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry, ...]:
         """Read entries that retain exact key membership and all referenced objects."""
 
-        entries = self.published_entries()
+        entries = self._published_entries_unlocked()
         verified: list[
             AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry
         ] = []
@@ -534,7 +649,7 @@ class FileSystemSourceCache:
             lookup_uri = key.accepted_source_lookup_identity.uri
             candidates = candidates_by_key.get(lookup_uri)
             if candidates is None:
-                candidates = self.candidates(key)
+                candidates = self._candidates_unlocked(key)
                 candidates_by_key[lookup_uri] = candidates
             if entry not in candidates:
                 if self._retired_membership(key, entry.identity):
@@ -641,7 +756,12 @@ class FileSystemSourceCache:
         )
 
     def retire_other_memberships(
-        self, key: SourceDerivationCacheKey, *, keep: ContentIdentity
+        self,
+        key: SourceDerivationCacheKey,
+        *,
+        keep: ContentIdentity,
+        require_current: Callable[[], None] | None = None,
+        remaining: Callable[[], float] | None = None,
     ) -> None:
         """Prune stale exact-key membership pointers after a deliberate override.
 
@@ -657,6 +777,14 @@ class FileSystemSourceCache:
         content.
         """
 
+        if not self.available or self.cas is None or not self.writable:
+            return self._validate_retirement_unlocked(key, keep=keep)
+        with self._operation(require_current=require_current, remaining=remaining):
+            self._validate_retirement_unlocked(key, keep=keep)
+
+    def _validate_retirement_unlocked(
+        self, key: SourceDerivationCacheKey, *, keep: ContentIdentity
+    ) -> None:
         if not isinstance(key, SourceDerivationCacheKey):
             raise TypeError("membership retirement requires a SourceDerivationCacheKey")
         if not isinstance(keep, ContentIdentity):
@@ -670,6 +798,11 @@ class FileSystemSourceCache:
             )
         if not self.available or self.cas is None:
             return
+        self._retire_other_memberships_unlocked(key, keep=keep)
+
+    def _retire_other_memberships_unlocked(
+        self, key: SourceDerivationCacheKey, *, keep: ContentIdentity
+    ) -> None:
         lookup_identity = key.accepted_source_lookup_identity
         key_directory = self.keys / lookup_identity.digest
         if key_directory.is_symlink():
@@ -721,7 +854,8 @@ class FileSystemSourceCache:
                     {**document, "schema": _RETIRED_MEMBERSHIP_SCHEMA}
                 ),
             )
-            membership.unlink()
+            transaction = self._current_transaction()
+            transaction.remove(membership, staging=self.staging)
             retired = True
         if retired:
             _fsync_directory(key_directory)
@@ -970,6 +1104,9 @@ class FileSystemSourceCache:
             )
 
     def _publish_immutable_bytes(self, destination: Path, content: bytes) -> None:
+        transaction = self._current_transaction()
+        if transaction is not None:
+            transaction.require_current()
         if not self.writable:
             raise SourceCacheError(
                 "source-cache.write-disabled",
@@ -993,6 +1130,8 @@ class FileSystemSourceCache:
                     "source-cache.immutable-collision",
                     "immutable cache path contains different bytes",
                 )
+            if transaction is not None:
+                transaction.require_current()
             return
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=".publish-", dir=self.staging
@@ -1003,12 +1142,17 @@ class FileSystemSourceCache:
                 output.write(content)
                 output.flush()
                 os.fsync(output.fileno())
+            if transaction is not None:
+                transaction.require_current()
             os.chmod(temporary, 0o600)
             try:
-                os.link(
-                    _native_filesystem_path(temporary),
-                    _native_filesystem_path(destination),
-                )
+                if transaction is None:
+                    os.link(
+                        _native_filesystem_path(temporary),
+                        _native_filesystem_path(destination),
+                    )
+                elif not transaction.link(temporary, destination):
+                    raise FileExistsError
             except FileExistsError:
                 if (
                     _read_regular_file(
@@ -1024,6 +1168,8 @@ class FileSystemSourceCache:
                     ) from None
             else:
                 _fsync_directory(destination.parent)
+            if transaction is not None:
+                transaction.require_current()
         finally:
             temporary.unlink(missing_ok=True)
 
@@ -1122,6 +1268,8 @@ class LegacyFileSystemV1SourceCache(FileSystemSourceCache):
         *,
         caller_cas: FileSystemCAS,
         intelligence_attachments: Sequence[SourceIntelligenceAttachment] = (),
+        require_current: Callable[[], None] | None = None,
+        remaining: Callable[[], float] | None = None,
     ) -> ContentIdentity:
         raise SourceCacheError(
             "source-cache.legacy-write-disabled",
@@ -1135,7 +1283,7 @@ class LegacyFileSystemV1SourceCache(FileSystemSourceCache):
             raise TypeError("intelligence lookup requires a source-tree identity")
         return ()
 
-    def candidates(
+    def _candidates_unlocked(
         self,
         key: SourceDerivationCacheKey,
         *,
@@ -1447,6 +1595,8 @@ class SourceCacheResolver:
         *,
         caller_cas: FileSystemCAS,
         intelligence_attachments: Sequence[SourceIntelligenceAttachment] = (),
+        require_current: Callable[[], None] | None = None,
+        remaining: Callable[[], float] | None = None,
     ) -> ContentIdentity:
         if not self.configuration.mode.can_write:
             raise SourceCacheError(
@@ -1459,10 +1609,20 @@ class SourceCacheResolver:
             entry,
             caller_cas=caller_cas,
             intelligence_attachments=intelligence_attachments,
+            **(
+                {"require_current": require_current, "remaining": remaining}
+                if require_current is not None or remaining is not None
+                else {}
+            ),
         )
 
     def retire_other_memberships(
-        self, key: SourceDerivationCacheKey, *, keep: ContentIdentity
+        self,
+        key: SourceDerivationCacheKey,
+        *,
+        keep: ContentIdentity,
+        require_current: Callable[[], None] | None = None,
+        remaining: Callable[[], float] | None = None,
     ) -> None:
         if not self.configuration.mode.can_write:
             raise SourceCacheError(
@@ -1471,7 +1631,15 @@ class SourceCacheResolver:
             )
         target_id = self.configuration.write_target_id
         assert target_id is not None
-        self.stores[target_id].retire_other_memberships(key, keep=keep)
+        self.stores[target_id].retire_other_memberships(
+            key,
+            keep=keep,
+            **(
+                {"require_current": require_current, "remaining": remaining}
+                if require_current is not None or remaining is not None
+                else {}
+            ),
+        )
 
 
 class SourceCacheMaterializer:

@@ -13,6 +13,7 @@ import secrets
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
+from contextvars import ContextVar
 from threading import Lock
 
 from literate_ai.contracts.identity import ContentIdentity
@@ -75,6 +76,7 @@ class LiveNativeRootRun:
         "_upstream",
         "_bindings",
         "_original_binding_uris",
+        "_claimed_roots",
     )
 
     def __init__(self):
@@ -171,6 +173,23 @@ class LiveNativeRootRun:
             self.close()
             raise
 
+    def _claim_root_sequence(self, root: ContentIdentity) -> None:
+        """Refuse a second candidate counter for an already admitted root.
+
+        This consumes no host-execution grant. A failed or closed sequence
+        cannot buy a fresh candidate allowance from the same original run.
+        """
+        self.require_current()
+        if type(root) is not ContentIdentity:
+            raise NativeRootRunError("binding_invalid")
+        root.__post_init__()
+        with self._lock:
+            if not self._active:
+                raise NativeRootRunError("closed")
+            if root.uri in self._claimed_roots:
+                raise NativeRootRunError("root_already_claimed")
+            self._claimed_roots.add(root.uri)
+
     def close(self) -> None:
         if self._seal is not self or self._pid != os.getpid():
             return
@@ -178,6 +197,41 @@ class LiveNativeRootRun:
             self._active = False
             self._check_current = None
             self._upstream = None
+
+
+_ACTIVE_NATIVE_ROOT_RUN: ContextVar[LiveNativeRootRun | None] = ContextVar(
+    "literate_ai_native_root_run", default=None
+)
+
+
+def current_native_root_run() -> LiveNativeRootRun | None:
+    """Return the active original constraint, never restore one from evidence."""
+    owner = _ACTIVE_NATIVE_ROOT_RUN.get()
+    if owner is not None:
+        owner.require_current()
+    return owner
+
+
+def native_root_timeout(operation_limit: float) -> float:
+    """Intersect an existing operation cap; no selection preserves its behavior."""
+    owner = current_native_root_run()
+    return operation_limit if owner is None else owner.clamp_timeout(operation_limit)
+
+
+@contextmanager
+def activate_native_root_run(owner: LiveNativeRootRun) -> Iterator[LiveNativeRootRun]:
+    """Propagate the same live owner within this context; grant no host authority."""
+    if type(owner) is not LiveNativeRootRun:
+        raise NativeRootRunError("owner_invalid")
+    previous = _ACTIVE_NATIVE_ROOT_RUN.get()
+    if previous is not None and previous is not owner:
+        raise NativeRootRunError("owner_mismatch")
+    owner.require_current()
+    token = _ACTIVE_NATIVE_ROOT_RUN.set(owner)
+    try:
+        yield owner
+    finally:
+        _ACTIVE_NATIVE_ROOT_RUN.reset(token)
 
 
 @contextmanager
@@ -245,6 +299,7 @@ def open_native_root_run(
     owner._upstream = original_remaining
     owner._bindings = bindings
     owner._original_binding_uris = original_binding_uris
+    owner._claimed_roots = set()
     try:
         owner.require_current()
         yield owner

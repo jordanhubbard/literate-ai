@@ -552,6 +552,21 @@ class FilesystemStandardQualificationLifecyclePort:
         self,
         request: QualificationLifecycleRequest | AuthoredQualificationLifecycleRequest,
     ) -> QualificationLifecycleExecution:
+        from literate_ai.application.native_root_run import NativeRootRunError
+
+        try:
+            return self._execute_with_original_run(request)
+        except (NativeRootRunError, StandardLifecycleBindingError) as exc:
+            # The public qualification CLI already translates this boundary.
+            # Keep the original code/cause, including admission and exit checks.
+            raise FilesystemQualificationError(
+                exc.code, getattr(exc, "message", str(exc))
+            ) from exc
+
+    def _execute_with_original_run(self, request) -> QualificationLifecycleExecution:
+        from literate_ai.adapters.native_root_run_admission import (
+            admit_native_root_command,
+        )
         from literate_ai.contracts.authored_qualification_requests import (
             AuthoredQualificationLifecycleRequest,
         )
@@ -577,18 +592,55 @@ class FilesystemStandardQualificationLifecyclePort:
                     "authored requests cannot enter source-derived qualification",
                 )
             scope = nullcontext()
-        with scope, ExitStack() as namespaces:
-            if self.authored_oracles is not None:
-                namespaces.enter_context(
-                    self.workspaces.capture_authored_run(
-                        request.workspace_allocation_identity, request.run_identity
+        # The locked authority and outer clean allocation already exist. Admit
+        # each request before preparing its generated source/runtime workspaces,
+        # and keep that same owner through this request's retained capture.
+        # Authored here means authored specifications, not retained source.
+        admission = (
+            nullcontext()
+            if getattr(self.project.definition, "native_root_run_policy", None) is None
+            else admit_native_root_command(self.project, self.binding)
+        )
+        with admission as live_run:
+            if live_run is not None:
+                live_run.require_current()
+                self.require_current_authority()
+            with scope, ExitStack() as namespaces:
+                if self.authored_oracles is not None:
+                    namespaces.enter_context(
+                        self.workspaces.capture_authored_run(
+                            request.workspace_allocation_identity, request.run_identity
+                        )
                     )
+                result = (
+                    self._execute_current(request)
+                    if live_run is None
+                    else self._execute_current(request, live_run=live_run)
                 )
-            result = self._execute_current(request)
-        self.require_current_authority()
+            self.require_current_authority()
+            if live_run is not None:
+                live_run.require_current()
         return result
 
-    def _execute_current(self, request) -> QualificationLifecycleExecution:
+    def _execute_current(
+        self, request, *, live_run=None
+    ) -> QualificationLifecycleExecution:
+        def require_original_run():
+            if live_run is None:
+                return
+            from literate_ai.application.native_root_run import (
+                LiveNativeRootRun,
+                NativeRootRunError,
+                current_native_root_run,
+            )
+
+            if type(live_run) is not LiveNativeRootRun:
+                raise NativeRootRunError("owner_invalid")
+            if current_native_root_run() is not live_run:
+                raise NativeRootRunError("owner_mismatch")
+            live_run.require_current()
+
+        require_original_run()
         if request.force_regeneration is not True:
             raise FilesystemQualificationError(
                 "qualification.cache_bypass_required",
@@ -620,7 +672,9 @@ class FilesystemStandardQualificationLifecyclePort:
             binding=self.binding,
             independent_acceptance_oracle=self.acceptance_oracle,
             pipeline_model=self.pipeline_model,
+            **({"live_run": live_run} if live_run is not None else {}),
         )
+        require_original_run()
         if self.evidence_recorder is not None:
             adapter.runtime.lifecycle_ports.retain_evidence_with(self.evidence_recorder)
             indexer = adapter.runtime.application.lifecycle.indexer
@@ -645,10 +699,12 @@ class FilesystemStandardQualificationLifecyclePort:
                         if self.authored_plan is None
                         else self.authored_plan.plan.execution_plan.identity
                     ),
+                    **({"live_run": live_run} if live_run is not None else {}),
                 )
             )
         except FilesystemStandardRebuildError as exc:
             raise FilesystemQualificationError(exc.code, exc.message) from exc
+        require_original_run()
         roots = tuple(
             sorted(
                 (
@@ -722,7 +778,18 @@ class FilesystemStandardQualificationLifecyclePort:
                     candidate=node.source_output.candidate,
                     cas=FileSystemCAS(root / "candidate-cas", create=False),
                 )
+            if getattr(execution.lifecycle, "native_root_execution", None) is not None:
+                from literate_ai.adapters.native_root_capture import (
+                    capture_native_root_source_history,
+                )
+
+                capture_native_root_source_history(
+                    execution.lifecycle,
+                    self.evidence_recorder,
+                    cas=FileSystemCAS(root / "candidate-cas", create=False),
+                )
             snapshot.require_unchanged()
+        require_original_run()
         if self.retain_library_products:
             self.product_sources[request.run_identity.uri] = (
                 execution,

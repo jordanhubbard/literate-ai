@@ -1962,6 +1962,7 @@ class GenerationExecutionPlanningAdapter:
         *,
         selection: CodingCliSelection | None = None,
         model: str | None = None,
+        approved_project_root: Path | None = None,
     ) -> GenerationExecutionPlan:
         """Compile one prepared node against that node's exact locked authority."""
 
@@ -1992,6 +1993,11 @@ class GenerationExecutionPlanningAdapter:
             ),
             selection=selection,
             model=model,
+            **(
+                {"approved_project_root": approved_project_root}
+                if approved_project_root is not None
+                else {}
+            ),
         )
 
     def plan_unlocked(
@@ -2024,6 +2030,7 @@ class GenerationExecutionPlanningAdapter:
         routing: bytes,
         selection: CodingCliSelection | None,
         model: str | None,
+        approved_project_root: Path | None = None,
     ) -> GenerationExecutionPlan:
         endpoint_name = selection.name if selection is not None else "validation"
         # Bind only the portable tool identity. The executable digest is already
@@ -2064,7 +2071,11 @@ class GenerationExecutionPlanningAdapter:
             routing_content=routing,
             endpoint=endpoint,
             generation_prompt=prepared.recipe.prompt(),
-            project_root=_nearest_project_root(),
+            project_root=(
+                _nearest_project_root()
+                if approved_project_root is None
+                else approved_project_root
+            ),
         )
         stage_ids = {item.stage_id for item in plan.model_stages}
         if any(

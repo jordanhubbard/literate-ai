@@ -55,6 +55,16 @@ class RetainedCargoCurrentInputsV2:
 
     def preflight(self, *, max_plan_bytes: int):
         self.require_unchanged()
+        plan = self._preflight_values(max_plan_bytes=max_plan_bytes)
+        self.require_unchanged()
+        return plan
+
+    def _preflight_values(self, *, max_plan_bytes: int):
+        """Pure declaration joins; a live caller must bracket these checks.
+
+        This performs no file reads, currentness decisions, package publication,
+        or admission. Public preflight retains its original two live guards.
+        """
         reviewed, current = self.reviewed, self.current
         binding = reviewed.binding
         native = binding.common
@@ -98,7 +108,6 @@ class RetainedCargoCurrentInputsV2:
             or plan.gates != current.current_gates
         ):
             raise ValueError("retained.cargo.gate-authority-mismatch")
-        self.require_unchanged()
         return reviewed.plan
 
 

@@ -17,6 +17,7 @@ from literate_ai.application.component_generation_preparation import (
     PreparedComponentGenerationNode,
     prepare_component_generation_nodes,
 )
+from literate_ai.application.native_root_run import LiveNativeRootRun
 from literate_ai.application.source_generation_scheduling import (
     ComponentContextEvidenceRecorder,
     ComponentSourceGenerationRunner,
@@ -252,10 +253,32 @@ class StandardProjectApplicationService:
         | None = None,
         resume_candidates: Mapping[str, StandardNodeAcceptedCandidate] | None = None,
         max_parallelism: int = 1,
+        live_run: LiveNativeRootRun | None = None,
+        project_authority_identity: ContentIdentity | None = None,
+        retained_source_identity: ContentIdentity | None = None,
     ) -> StandardProjectLifecycleResult:
         if not isinstance(prepared, PreparedExecutableProject):
             raise TypeError("prepared must be a PreparedExecutableProject")
-        return self.lifecycle.execute(
+        if (live_run is None) != (project_authority_identity is None):
+            raise TypeError("live run and project authority must occur together")
+        if retained_source_identity is not None:
+            if type(retained_source_identity) is not ContentIdentity:
+                raise TypeError("retained source identity must be a ContentIdentity")
+            retained_source_identity.__post_init__()
+            if live_run is None:
+                raise TypeError(
+                    "retained source identity requires its original live run"
+                )
+        if live_run is not None:
+            if (
+                type(live_run) is not LiveNativeRootRun
+                or type(project_authority_identity) is not ContentIdentity
+            ):
+                raise TypeError(
+                    "live run requires its original owner and project authority"
+                )
+            live_run.require_current()
+        result = self.lifecycle.execute(
             prepared.execution_plan,
             component_lock=component_lock,
             invalidation=invalidation,
@@ -264,7 +287,23 @@ class StandardProjectApplicationService:
             source_generation_resume_candidates=source_generation_resume_candidates,
             resume_candidates=resume_candidates,
             max_parallelism=max_parallelism,
+            **(
+                {
+                    "live_run": live_run,
+                    "project_authority_identity": project_authority_identity,
+                    **(
+                        {"retained_source_identity": retained_source_identity}
+                        if retained_source_identity is not None
+                        else {}
+                    ),
+                }
+                if live_run is not None
+                else {}
+            ),
         )
+        if live_run is not None:
+            live_run.require_current()
+        return result
 
     @staticmethod
     def generate_sources(
@@ -323,6 +362,7 @@ def assemble_standard_project_application_service(
     context_evidence_recorder: StandardContextEvidenceRecorder | None = None,
     candidate_repair_port: StandardCandidateRepairPort | None = None,
     generated_candidate_verifier: GeneratedCandidateVerifier | None = None,
+    native_root_continuation_factory: Callable | None = None,
     clock: Callable[[], datetime] = lambda: datetime.now(UTC),
 ) -> StandardProjectApplicationService:
     """Assemble the public Standard service without a CLI-private dependency."""
@@ -356,6 +396,11 @@ def assemble_standard_project_application_service(
             context_evidence_recorder=context_evidence_recorder,
             candidate_repair_port=candidate_repair_port,
             generated_candidate_verifier=generated_candidate_verifier,
+            **(
+                {"native_root_continuation_factory": native_root_continuation_factory}
+                if native_root_continuation_factory is not None
+                else {}
+            ),
             clock=clock,
         )
     )

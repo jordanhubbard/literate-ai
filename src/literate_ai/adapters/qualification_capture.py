@@ -211,12 +211,35 @@ class QualificationEvidenceReader:
         return value
 
 
+class _QualificationRunRuntimeMetadata:
+    __slots__ = ("_verified_lifecycle",)
+
+    @property
+    def verified_lifecycle(self):
+        return getattr(self, "_verified_lifecycle", None)
+
+
 @dataclass(frozen=True, slots=True)
-class QualificationRunCapture:
+class QualificationRunCapture(_QualificationRunRuntimeMetadata):
     run: QualificationLifecycleRunEvidence
     exports: RetainedLibraryExportSet
     acceptances: tuple[StandardComponentAcceptanceEvidence, ...]
     blobs: tuple[tuple[BlobRef, bytes], ...]
+    # Runtime metadata is deliberately not a dataclass field: construction,
+    # equality, repr, asdict, and archive identities retain these FOUR values.
+
+    def __getstate__(self):
+        # Preserve the original four-field slotted dataclass pickle state.
+        return [self.run, self.exports, self.acceptances, self.blobs]
+
+    def __setstate__(self, state):
+        if not isinstance(state, (list, tuple)) or len(state) != 4:
+            raise TypeError("qualification capture requires its four portable values")
+        for name, value in zip(
+            ("run", "exports", "acceptances", "blobs"), state, strict=True
+        ):
+            object.__setattr__(self, name, value)
+        object.__setattr__(self, "_verified_lifecycle", None)
 
 
 def capture_qualification_run(
@@ -792,6 +815,130 @@ def capture_lifecycle_records(
         recorder.remember_json(document)
 
 
+def _decode_qualification_node(data, *, read):
+    """Decode existing node data only; stage/source authority is not established."""
+    from literate_ai.application.standard_project_lifecycle import (
+        StandardNodeLifecycleResult,
+        StandardSourceCacheMembership,
+    )
+    from literate_ai.contracts.executable_components import (
+        ArtifactExport,
+        SourceGenerationNodeResult,
+        SourceGenerationRunOutput,
+    )
+    from literate_ai.contracts.standard_lifecycle_membership import (
+        StandardNodeFailureEvidence,
+    )
+
+    def identity(value):
+        return None if value is None else ContentIdentity.parse_uri(value)
+
+    def optional(value, decode):
+        return None if value is None else decode(value)
+
+    if data["schema"] != "literate-ai/standard-node-lifecycle-result@4":
+        raise QualificationCaptureError("qualification.capture.lifecycle-invalid")
+    arguments = {
+        name: identity(data[name])
+        for name in (
+            "component_revision",
+            "build_plan_identity",
+            "index_identity",
+            "authorization_identity",
+            "build_identity",
+            "test_identity",
+            "execution_identity",
+            "acceptance_identity",
+            "source_cache_publication_identity",
+            "source_admission_identity",
+        )
+    }
+    arguments.update(
+        source_generation=SourceGenerationNodeResult.from_dict(
+            data["source_generation"]
+        ),
+        source_output=optional(
+            data["source_output"], SourceGenerationRunOutput.from_dict
+        ),
+        exports=tuple(ArtifactExport.from_dict(item) for item in data["exports"]),
+        source_cache_membership=read(
+            data["source_cache_membership_identity"],
+            StandardSourceCacheMembership.from_dict,
+        ),
+        failure_code=data["failure_code"],
+        failure_evidence=optional(
+            data["failure_evidence"], StandardNodeFailureEvidence.from_dict
+        ),
+        build_evidence=optional(
+            data["build_evidence"], StandardBuildEvidence.from_dict
+        ),
+        generated_test_evidence=optional(
+            data["generated_test_evidence"],
+            StandardGeneratedTestExecutionEvidence.from_dict,
+        ),
+        execution_evidence=optional(
+            data["execution_evidence"], StandardExecutionEvidence.from_dict
+        ),
+        acceptance_evidence=optional(
+            data["acceptance_evidence"],
+            StandardComponentAcceptanceEvidence.from_dict,
+        ),
+    )
+    return StandardNodeLifecycleResult(**arguments)
+
+
+def reopen_qualification_node(
+    reader: QualificationEvidenceReader,
+    node_identity: ContentIdentity,
+):
+    """Reopen one exact typed historical node, without granting stage eligibility.
+
+    Referenced cache membership and every embedded field use the same decoder
+    and constructor invariants as positive lifecycle reopening. This is not
+    source, build, failed-stage, native or full-history verification.
+    """
+    from literate_ai.application.standard_project_lifecycle import (
+        StandardProjectLifecycleError,
+    )
+
+    if not isinstance(reader, QualificationEvidenceReader):
+        raise QualificationCaptureError("qualification.capture.reader-invalid")
+    if not isinstance(node_identity, ContentIdentity):
+        raise QualificationCaptureError("qualification.capture.identity-invalid")
+    decoded = {}
+
+    def read(reference, decode):
+        if reference is None:
+            return None
+        pinned = ContentIdentity.parse_uri(reference)
+        key = (pinned, decode)
+        if key in decoded:
+            return decoded[key]
+        record = decode(reader.read_json(pinned))
+        if record.identity != pinned:
+            raise QualificationCaptureError("qualification.capture.record-mismatch")
+        decoded[key] = record
+        return record
+
+    def node(data):
+        return _decode_qualification_node(data, read=read)
+
+    try:
+        return read(node_identity.uri, node)
+    except QualificationCaptureError:
+        raise
+    except (
+        AttributeError,
+        KeyError,
+        TypeError,
+        ValueError,
+        StandardProjectLifecycleError,
+    ) as exc:
+        raise QualificationCaptureError(
+            "qualification.capture.lifecycle-invalid"
+        ) from exc
+
+
 def reopen_qualification_lifecycle(
     reader: QualificationEvidenceReader,
     lifecycle_identity: ContentIdentity,
@@ -805,29 +952,18 @@ def reopen_qualification_lifecycle(
 
     from literate_ai.application.standard_project_lifecycle import (
         StandardComponentBuildPlan,
-        StandardNodeLifecycleResult,
         StandardProjectBuildPlan,
         StandardProjectLifecycleError,
         StandardProjectLifecycleResult,
-        StandardSourceCacheMembership,
     )
     from literate_ai.contracts.executable_components import (
-        ArtifactExport,
         CandidateAttemptChain,
         ComponentContextBenchmarkRecord,
         ForwardGenerationContextCacheReport,
-        SourceGenerationNodeResult,
-        SourceGenerationRunOutput,
         SourceGenerationScheduleResult,
     )
     from literate_ai.contracts.standard_lifecycle_membership import (
-        StandardNodeFailureEvidence,
         StandardProjectLifecycleMembership,
-    )
-    from literate_ai.contracts.standard_post_source_evidence import (
-        StandardBuildEvidence,
-        StandardExecutionEvidence,
-        StandardGeneratedTestExecutionEvidence,
     )
 
     if not isinstance(reader, QualificationEvidenceReader):
@@ -852,59 +988,8 @@ def reopen_qualification_lifecycle(
         decoded[key] = record
         return record
 
-    def optional(value, decode):
-        return None if value is None else decode(value)
-
     def node(data):
-        if data["schema"] != "literate-ai/standard-node-lifecycle-result@4":
-            raise QualificationCaptureError("qualification.capture.lifecycle-invalid")
-        arguments = {
-            name: identity(data[name])
-            for name in (
-                "component_revision",
-                "build_plan_identity",
-                "index_identity",
-                "authorization_identity",
-                "build_identity",
-                "test_identity",
-                "execution_identity",
-                "acceptance_identity",
-                "source_cache_publication_identity",
-                "source_admission_identity",
-            )
-        }
-        arguments.update(
-            source_generation=SourceGenerationNodeResult.from_dict(
-                data["source_generation"]
-            ),
-            source_output=optional(
-                data["source_output"], SourceGenerationRunOutput.from_dict
-            ),
-            exports=tuple(ArtifactExport.from_dict(item) for item in data["exports"]),
-            source_cache_membership=read(
-                data["source_cache_membership_identity"],
-                StandardSourceCacheMembership.from_dict,
-            ),
-            failure_code=data["failure_code"],
-            failure_evidence=optional(
-                data["failure_evidence"], StandardNodeFailureEvidence.from_dict
-            ),
-            build_evidence=optional(
-                data["build_evidence"], StandardBuildEvidence.from_dict
-            ),
-            generated_test_evidence=optional(
-                data["generated_test_evidence"],
-                StandardGeneratedTestExecutionEvidence.from_dict,
-            ),
-            execution_evidence=optional(
-                data["execution_evidence"], StandardExecutionEvidence.from_dict
-            ),
-            acceptance_evidence=optional(
-                data["acceptance_evidence"],
-                StandardComponentAcceptanceEvidence.from_dict,
-            ),
-        )
-        return StandardNodeLifecycleResult(**arguments)
+        return _decode_qualification_node(data, read=read)
 
     def build_plan(data):
         if data["schema"] != "literate-ai/standard-project-build-plan@1":
@@ -1049,10 +1134,17 @@ def reopen_qualification_products(
     )
     if root_product is None:
         raise QualificationCaptureError("qualification.capture.root-export-mismatch")
+    selected_lifecycle = None
     for member in result.runs:
         execution = reopen_qualification_run(
             reader, member, current_commands=commands, current_recipes=recipes
         )
+        if member.run_identity == run.run_identity:
+            if execution.lifecycle.identity != run.lifecycle_result_identity:
+                raise QualificationCaptureError(
+                    "qualification.capture.selected-lifecycle-mismatch"
+                )
+            selected_lifecycle = execution.lifecycle
         if {
             node.component_revision for node in execution.lifecycle.node_results
         } != set(recipes):
@@ -1142,7 +1234,7 @@ def reopen_qualification_products(
         StandardComponentAcceptanceEvidence.from_dict(reader.read_json(identity))
         for identity in run.acceptance_evidence_identities
     )
-    return capture_qualification_run(
+    captured = capture_qualification_run(
         run,
         exports,
         acceptances,
@@ -1151,6 +1243,12 @@ def reopen_qualification_products(
         ),
         max_bytes=max_package_bytes,
     )
+    if selected_lifecycle is None:
+        raise QualificationCaptureError(
+            "qualification.capture.selected-lifecycle-missing"
+        )
+    object.__setattr__(captured, "_verified_lifecycle", selected_lifecycle)
+    return captured
 
 
 def verify_qualification_parity(

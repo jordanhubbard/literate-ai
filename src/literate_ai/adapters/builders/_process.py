@@ -16,6 +16,7 @@ from literate_ai.adapters.worker_telemetry_processes import (
     register_original_process_launch,
     retire_original_process_observation,
 )
+from literate_ai.application.native_root_run import current_native_root_run
 from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
 
 from .._process_interrupt import (
@@ -118,6 +119,9 @@ def run_bounded_process(
     caps the ordinary relative execution timeout without restarting its budget.
     """
 
+    live_run = current_native_root_run()
+    if live_run is not None:
+        timeout_seconds = live_run.clamp_timeout(timeout_seconds)
     if timeout_seconds <= 0:
         raise ValueError("tool process timeout must be positive")
     if inactivity_timeout_seconds is not None and inactivity_timeout_seconds <= 0:
@@ -288,6 +292,9 @@ def run_bounded_process(
                 with state_lock:
                     inactive = now - last_activity[0]
                 total_remaining = timeout_seconds - elapsed
+                if live_run is not None:
+                    live_run.require_current()
+                    total_remaining = min(total_remaining, live_run.remaining())
                 if deadline_monotonic is not None:
                     total_remaining = min(total_remaining, deadline_monotonic - now)
                 inactive_remaining = (
@@ -398,6 +405,8 @@ def run_bounded_process(
                 stderr=result.stderr,
                 started_at=_started,
             )
+        if live_run is not None:
+            live_run.require_current()
         return result
     except KeyboardInterrupt:
         if terminate_descendants:

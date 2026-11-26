@@ -7,7 +7,13 @@
   original-run lifetime constraint. Preserve absent-policy project identities.
   The shipped policy selects 1,800 seconds and three candidates; reviewed longer
   finite policies retain the same original expiry and existing operation caps.
-  CLI admission, packaged continuation and closed replay remain implementation-open.
+  Development wiring now admits the original command lifetime before indexing,
+  forwards the same owner through aggregate Components and intersects owned
+  command waits with its remaining time. Candidate and tracked receipt writes
+  refuse closure at serialization and publication boundaries. A separate root
+  repair port preserves the original recipe and budgets while allocating a fresh
+  request and workspace. The shared root controller, packaged continuation and
+  closed replay remain implementation-open.
 
 - Native candidate repair: keep substituted case IDs or capabilities terminal
   even when they share the historical result-mismatch code. Bind early repair

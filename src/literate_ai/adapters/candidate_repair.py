@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import re
 from collections.abc import Mapping
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from literate_ai.adapters.generation_preparation import (
@@ -15,13 +15,33 @@ from literate_ai.application.component_generation_context import (
     PreparedComponentGenerationRequest,
 )
 from literate_ai.application.component_generation_preparation import (
+    ComponentGenerationWorkspaceDescriptor,
     PreparedComponentGenerationNode,
+)
+from literate_ai.application.native_root_repair_prompt import (
+    render_native_root_repair_prompt,
+)
+from literate_ai.application.native_root_run import (
+    LiveNativeRootRun,
+    current_native_root_run,
+)
+from literate_ai.application.source_generation_scheduling import (
+    validate_prepared_component_generation_node,
 )
 from literate_ai.contracts import ContentIdentity, HashAlgorithm
 from literate_ai.contracts.executable_components import (
     CandidateFailureClassification,
     CandidateRepairDiagnostic,
     SourceGenerationRunOutput,
+)
+from literate_ai.contracts.native_root_continuation import (
+    NativeRootAcceptanceRejection,
+    NativeRootCandidateAttempt,
+    NativeRootContinuationLedger,
+    NativeRootQualifiedDependencyBinding,
+    NativeRootRepairDiagnostic,
+    NativeRootRepairRequest,
+    NativeRootRunBinding,
 )
 from literate_ai.contracts.standard_lifecycle_membership import (
     StandardNodeFailureEvidence,
@@ -103,6 +123,34 @@ def _safe_diagnostic(failure: StandardNodeFailureEvidence, raw: str | None) -> s
     )
 
 
+@dataclass(frozen=True)
+class NativeRootRepairAllocation:
+    """Actual allocator report retained for terminal bookkeeping, never authority.
+
+    The raw allocation may not be a valid replacement. Optional records exist
+    only if construction completed; their presence does not grant execution.
+    """
+
+    generation_request: PreparedComponentGenerationRequest
+    workspace: ComponentGenerationWorkspaceDescriptor
+    prepared: PreparedComponentGenerationNode[object, object] | None = None
+    repair_request: NativeRootRepairRequest | None = None
+
+
+class AllocatedNativeRootRepairPreparationError(RuntimeError):
+    """Preparation failed after an actual allocator return; retain its evidence."""
+
+    def __init__(
+        self, allocation: NativeRootRepairAllocation, original_error: Exception
+    ):
+        self.native_root_repair_allocation = allocation
+        self.original_error = original_error
+        self.code = getattr(
+            original_error, "code", "native_root_repair.preparation_failed"
+        )
+        super().__init__(str(original_error))
+
+
 class FilesystemStandardCandidateRepairAdapter:
     """Retry allowlisted candidate rejection in a fresh sibling workspace."""
 
@@ -145,6 +193,198 @@ class FilesystemStandardCandidateRepairAdapter:
             ),
             failure.identity,
         )
+
+    def prepare_root_repair(
+        self,
+        original: PreparedComponentGenerationNode[object, object],
+        run_binding: NativeRootRunBinding,
+        predecessors: tuple[NativeRootCandidateAttempt, ...],
+        diagnostic: NativeRootRepairDiagnostic | CandidateRepairDiagnostic,
+        *,
+        live_run: LiveNativeRootRun,
+        project_authority_identity: ContentIdentity,
+        execution_plan_identity: ContentIdentity,
+        rejection: NativeRootAcceptanceRejection | None = None,
+        qualified_dependencies: tuple[NativeRootQualifiedDependencyBinding, ...] = (),
+    ) -> tuple[
+        PreparedComponentGenerationNode[object, object], NativeRootRepairRequest
+    ]:
+        """Prepare only after the controller consumed its original native witness.
+
+        Closed joins and this original live lifetime do not grant execution or
+        prove native eligibility. No legacy v2 chain is extended by this port.
+        Failure returns no candidate: the controller retains its actual prefix.
+        """
+        if type(live_run) is not LiveNativeRootRun:
+            raise TypeError("root repair requires the original live run")
+        live_run.require_current()
+        if current_native_root_run() is not live_run:
+            raise ValueError("root repair must retain the active original owner")
+        if type(run_binding) is not NativeRootRunBinding:
+            raise TypeError("root repair requires its typed original run binding")
+        validate_prepared_component_generation_node(original)
+        definition, framework, lifecycle_policy = live_run.bindings
+        run_binding.require_records(
+            live_run.policy,
+            live_run.deadline,
+            qualified_dependencies,
+            project_definition_identity=definition,
+            project_authority_identity=project_authority_identity,
+        )
+        recipe = getattr(original.recipe, "identity", None)
+        recipe_identity = (
+            recipe
+            if isinstance(recipe, ContentIdentity)
+            else ContentIdentity.parse_uri(recipe)
+            if isinstance(recipe, str)
+            else None
+        )
+        if (
+            type(execution_plan_identity) is not ContentIdentity
+            or run_binding.execution_plan_identity != execution_plan_identity
+            or run_binding.framework_distribution_identity != framework
+            or run_binding.lifecycle_policy_identity != lifecycle_policy
+            or run_binding.root_revision != original.plan.component_revision
+            or run_binding.component_lock_identity
+            != original.plan.component_graph_identity
+            or run_binding.original_recipe_identity != recipe_identity
+            or run_binding.original_generation_plan_identity != original.plan.identity
+            or run_binding.original_bounded_request_identity
+            != original.request.request.identity
+        ):
+            raise ValueError("root repair differs from original prepared authority")
+        if type(predecessors) is not tuple or not 1 <= len(predecessors) <= 2:
+            raise ValueError("root repair requires one or two actual predecessors")
+        if any(
+            type(attempt) is not NativeRootCandidateAttempt for attempt in predecessors
+        ):
+            raise TypeError("root repair requires typed actual predecessor attempts")
+        # Construction validates exact ordinals/prefix, no repeated allocation or
+        # request, and a retryable pending tail. Every history ID comes from the
+        # actual prefix; this pure check grants no authority over those records.
+        NativeRootContinuationLedger(
+            run_binding.identity,
+            predecessors,
+            tuple(
+                sorted(
+                    {
+                        p.legacy_node_chain_identity
+                        for p in predecessors
+                        if p.legacy_node_chain_identity is not None
+                    },
+                    key=lambda value: value.uri,
+                )
+            ),
+            "pending",
+            None,
+        )
+        if (
+            predecessors[0].bounded_generation_request_identity
+            != run_binding.original_bounded_request_identity
+            or predecessors[0].workspace_allocation_identity
+            != original.workspace.allocation_identity
+        ):
+            raise ValueError("root repair prefix changed the original candidate")
+        last = predecessors[-1]
+        native = type(diagnostic) is NativeRootRepairDiagnostic
+        if native:
+            if type(rejection) is not NativeRootAcceptanceRejection:
+                raise TypeError("native repair requires the exact typed rejection")
+            rejection.require_binding(run_binding)
+            diagnostic.require_rejection(rejection)
+            if (
+                rejection.candidate_ordinal != last.ordinal
+                or rejection.bounded_generation_request_identity
+                != last.bounded_generation_request_identity
+                or rejection.source_output_identity != last.source_output_identity
+                or rejection.workspace_allocation_identity
+                != last.workspace_allocation_identity
+                or rejection.node_lifecycle_result_identity
+                != last.node_lifecycle_result_identity
+                or rejection.packaged_binding != last.final_packaged_binding
+                or last.outcome
+                != (
+                    "package-rejected"
+                    if rejection.acceptance_scope == "packaged-root"
+                    else "native-precheck-rejected"
+                )
+                or last.failure_evidence_identity != rejection.identity
+                or last.diagnostic_identity != diagnostic.identity
+            ):
+                raise ValueError("native repair rejection changed the actual candidate")
+            failure_identity = rejection.identity
+        else:
+            if (
+                type(diagnostic) is not CandidateRepairDiagnostic
+                or rejection is not None
+                or diagnostic.component_revision != run_binding.root_revision
+                or diagnostic.phase
+                not in {StandardNodeFailurePhase.BUILD, StandardNodeFailurePhase.TEST}
+                or diagnostic.classification
+                is not CandidateFailureClassification.RETRYABLE
+                or diagnostic.code not in _RETRYABLE_CODES
+                or last.outcome != "node-rejected"
+                or last.failure_evidence_identity
+                != diagnostic.failure_evidence_identity
+                or last.diagnostic_identity != diagnostic.identity
+            ):
+                raise ValueError(
+                    "root repair requires an actual retryable build/test failure"
+                )
+            failure_identity = diagnostic.failure_evidence_identity
+        request, prompt = render_native_root_repair_prompt(
+            original.request, predecessors, diagnostic
+        )
+        live_run.require_current()
+        locator = Path(original.workspace.locator)
+        original_workspace = locator.resolve(strict=True)
+        if locator != original_workspace or not original_workspace.is_dir():
+            raise ValueError(
+                "root repair original workspace must retain its native path"
+            )
+        generation_request = PreparedComponentGenerationRequest(request, prompt)
+        workspace = FilesystemComponentWorkspaceAllocator(
+            original_workspace.parent
+        ).allocate(original.plan)
+        allocation = NativeRootRepairAllocation(generation_request, workspace)
+        try:
+            root_request = NativeRootRepairRequest(
+                run_binding.identity,
+                len(predecessors),
+                recipe_identity,
+                tuple(attempt.identity for attempt in predecessors),
+                diagnostic.identity,
+                rejection.identity if native else None,
+                request.identity,
+                workspace.allocation_identity,
+                "native-acceptance" if native else "node-build-test",
+                failure_identity,
+            )
+            allocation = replace(allocation, repair_request=root_request)
+            prepared = replace(
+                original, request=generation_request, workspace=workspace
+            )
+            allocation = replace(allocation, prepared=prepared)
+            validate_prepared_component_generation_node(prepared)
+            if (
+                workspace.locator == original.workspace.locator
+                or workspace.allocation_identity
+                in {attempt.workspace_allocation_identity for attempt in predecessors}
+            ):
+                raise ValueError("root repair must allocate a fresh workspace")
+            root_request.require_records(
+                run_binding, predecessors, diagnostic, rejection=rejection
+            )
+            live_run.require_current()
+            return prepared, root_request
+        except BaseException as error:
+            if isinstance(error, Exception):
+                raise AllocatedNativeRootRepairPreparationError(
+                    allocation, error
+                ) from error
+            # Preserve operator cancellation identity/type and control flow.
+            error.native_root_repair_allocation = allocation
+            raise
 
     def prepare_repair(
         self,
@@ -197,4 +437,8 @@ class FilesystemStandardCandidateRepairAdapter:
         )
 
 
-__all__ = ["FilesystemStandardCandidateRepairAdapter"]
+__all__ = [
+    "AllocatedNativeRootRepairPreparationError",
+    "FilesystemStandardCandidateRepairAdapter",
+    "NativeRootRepairAllocation",
+]

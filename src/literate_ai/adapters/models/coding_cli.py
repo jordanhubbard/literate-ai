@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 from collections.abc import Callable, Collection, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
@@ -54,6 +55,7 @@ from literate_ai.application.flavor_selection import (
 from literate_ai.application.flavor_selection import (
     apply_flavor_selectors as apply_ordered_flavor_selectors,
 )
+from literate_ai.application.native_root_run import current_native_root_run
 from literate_ai.application.skill_closure import (
     SkillClosureError,
     close_specification_to_source_skills,
@@ -4673,6 +4675,9 @@ def _run_bounded(
 ) -> _BoundedProcessResult:
     """Drain both streams concurrently and kill the process on the first overflow."""
 
+    live_run = current_native_root_run()
+    if live_run is not None:
+        timeout_seconds = live_run.clamp_timeout(timeout_seconds)
     child_environment = inherited_verbose_environment(environment)
     diagnostic_environment = {**child_environment, **(redaction_environment or {})}
     _started = datetime.now(UTC)
@@ -4738,8 +4743,26 @@ def _run_bounded(
     for reader in readers:
         reader.start()
     timed_out = False
+    execution_failed = False
     try:
-        returncode = process.wait(timeout=timeout_seconds)
+        if live_run is None:
+            returncode = process.wait(timeout=timeout_seconds)
+        else:
+            phase_started = time.monotonic()
+            while True:
+                live_run.require_current()
+                remaining = min(
+                    live_run.remaining(),
+                    timeout_seconds - (time.monotonic() - phase_started),
+                )
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(command, timeout_seconds)
+                try:
+                    returncode = process.wait(timeout=min(0.25, remaining))
+                    break
+                except subprocess.TimeoutExpired:
+                    continue
+            live_run.require_current()
     except subprocess.TimeoutExpired:
         timed_out = True
         _terminate_process(process, ownership)
@@ -4747,6 +4770,9 @@ def _run_bounded(
             returncode = process.wait(timeout=5)
         except subprocess.TimeoutExpired:
             returncode = -1
+    except BaseException:
+        execution_failed = True
+        raise
     finally:
         # A completed launcher may still own helpers and inherited pipe handles.
         # Retire its process tree before callers remove private provider state.
@@ -4761,6 +4787,8 @@ def _run_bounded(
                     pass
         for reader in readers:
             reader.join(timeout=1)
+        if execution_failed:
+            ownership.release()
 
     if timed_out:
         ownership.release()

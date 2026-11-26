@@ -982,6 +982,10 @@ class StandardProjectLifecycleResult:
     root_integration: StandardRootIntegrationEvidence | None = field(
         default=None, repr=False, compare=False
     )
+    # Separate new audit data; it never changes this lifecycle@4 identity.
+    native_root_execution: object | None = field(
+        default=None, repr=False, compare=False
+    )
 
     def __post_init__(self) -> None:
         if (self.root_integration is None) != (
@@ -1565,6 +1569,7 @@ class StandardProjectLifecycleService:
         context_evidence_recorder: StandardContextEvidenceRecorder | None = None,
         candidate_repair_port: StandardCandidateRepairPort | None = None,
         generated_candidate_verifier: GeneratedCandidateVerifier | None = None,
+        native_root_continuation_factory: Callable | None = None,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
     ) -> None:
         self.validator = validator
@@ -1592,6 +1597,7 @@ class StandardProjectLifecycleService:
         self.context_evidence_recorder = context_evidence_recorder
         self.candidate_repair_port = candidate_repair_port
         self.generated_candidate_verifier = generated_candidate_verifier
+        self.native_root_continuation_factory = native_root_continuation_factory
         self.clock = clock
 
     def _record_stage(
@@ -1659,7 +1665,148 @@ class StandardProjectLifecycleService:
             Mapping[str, ComponentNodeRecoveryCandidate] | None
         ) = None,
         cancellation: ComponentNodeCancellation | None = None,
+        live_run=None,
+        project_authority_identity: ContentIdentity | None = None,
+        retained_source_identity: ContentIdentity | None = None,
     ) -> StandardProjectLifecycleResult:
+        arguments = {
+            "component_lock": component_lock,
+            "invalidation": invalidation,
+            "prepared_nodes": prepared_nodes,
+            "source_cache_memberships": source_cache_memberships,
+            "source_generation_resume_candidates": source_generation_resume_candidates,
+            "resume_candidates": resume_candidates,
+            "max_parallelism": max_parallelism,
+            "component_worker_routing": component_worker_routing,
+            "worker_catalog": worker_catalog,
+            "component_node_dispatcher": component_node_dispatcher,
+            "component_node_recovery": component_node_recovery,
+            "cancellation": cancellation,
+        }
+        if retained_source_identity is not None:
+            if type(retained_source_identity) is not ContentIdentity:
+                raise TypeError("retained source identity must be a ContentIdentity")
+            retained_source_identity.__post_init__()
+            if live_run is None:
+                raise TypeError(
+                    "retained source identity requires its original live run"
+                )
+        if live_run is None:
+            if project_authority_identity is not None:
+                raise TypeError("project authority requires its original live run")
+            return self._execute(execution_plan, **arguments)
+        from literate_ai.application.native_root_continuation import (
+            execute_native_root_continuation,
+        )
+        from literate_ai.application.native_root_run import (
+            LiveNativeRootRun,
+            activate_native_root_run,
+        )
+
+        if (
+            type(live_run) is not LiveNativeRootRun
+            or type(project_authority_identity) is not ContentIdentity
+        ):
+            raise TypeError("original live run and approved project authority required")
+        live_run.require_current()
+        if self.native_root_continuation_factory is None:
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.native_root_factory_required",
+                "the original runtime must select native root continuation eligibility",
+            )
+        root = execution_plan.root_revision.uri
+        original_root = prepared_nodes.get(root)
+        if original_root is None:
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.preparation_incomplete",
+                "original root preparation required",
+            )
+        reused = (
+            any(
+                root in mapping
+                for mapping in (
+                    source_cache_memberships or {},
+                    source_generation_resume_candidates or {},
+                    resume_candidates or {},
+                )
+            )
+            and execution_plan.root_revision not in invalidation.regenerate
+        )
+        with activate_native_root_run(live_run):
+            with self.native_root_continuation_factory(
+                original_run=live_run,
+                approved_project_authority_identity=project_authority_identity,
+                component_lock=component_lock,
+                execution_plan=execution_plan,
+                prepared_root=original_root,
+                accepted_source_only=reused or component_worker_routing is not None,
+                retained_source=retained_source_identity,
+                **(
+                    {"project_finalizer": self.project_finalizer}
+                    if self.project_finalizer is not None
+                    else {}
+                ),
+            ) as scope:
+                if scope is None:
+                    result = self._execute(execution_plan, **arguments)
+                    live_run.require_current()
+                    return result
+                if self.candidate_repair_port is None:
+                    raise StandardProjectLifecycleError(
+                        "standard_lifecycle.native_root_repair_required",
+                        "eligible original root requires its bounded repair port",
+                    )
+
+                def pipeline(candidate):
+                    # The controller's one counter spans every ONE-candidate
+                    # private pass. The root's legacy range(3) is bypassed below.
+                    nodes = dict(prepared_nodes)
+                    nodes[root] = candidate
+                    return self._execute(
+                        execution_plan, **{**arguments, "prepared_nodes": nodes}
+                    )
+
+                return execute_native_root_continuation(
+                    scope,
+                    self.candidate_repair_port,
+                    pipeline,
+                    start_replacement=(
+                        lambda: self.checkpoint_recorder.start_replacement(
+                            execution_plan.identity, execution_plan.root_revision
+                        )
+                    )
+                    if self.checkpoint_recorder is not None
+                    else None,
+                )
+
+    def _execute(
+        self,
+        execution_plan: ComponentExecutionPlan,
+        *,
+        component_lock: ComponentLock,
+        invalidation: ComponentInvalidationDecision,
+        prepared_nodes: Mapping[str, PreparedComponentGenerationNode[object, object]],
+        source_cache_memberships: Mapping[
+            str, StandardSourceCacheMembership | StandardSourceAdmissionMembership
+        ]
+        | None = None,
+        source_generation_resume_candidates: Mapping[
+            str, SourceGenerationResumeCandidate
+        ]
+        | None = None,
+        resume_candidates: Mapping[str, StandardNodeAcceptedCandidate] | None = None,
+        max_parallelism: int = 1,
+        component_worker_routing: ComponentWorkerRouting | None = None,
+        worker_catalog: ExecutionWorkerCatalog | None = None,
+        component_node_dispatcher: ComponentNodeDispatcher | None = None,
+        component_node_recovery: (
+            Mapping[str, ComponentNodeRecoveryCandidate] | None
+        ) = None,
+        cancellation: ComponentNodeCancellation | None = None,
+    ) -> StandardProjectLifecycleResult:
+        from .native_root_run import current_native_root_run
+
+        original_native_run = current_native_root_run()
         if not isinstance(execution_plan, ComponentExecutionPlan):
             raise TypeError("execution_plan must be a ComponentExecutionPlan")
         if not isinstance(component_lock, ComponentLock):
@@ -2112,6 +2259,8 @@ class StandardProjectLifecycleService:
         pending = set(expected)
         with ThreadPoolExecutor(max_workers=max_parallelism) as pool:
             while pending or futures or pending_steps or pending_links:
+                if original_native_run is not None:
+                    original_native_run.require_current()
                 ready = sorted(
                     (
                         uri
@@ -2249,6 +2398,8 @@ class StandardProjectLifecycleService:
                     for uri, step in pending_steps.items()
                 ] + [(link_nodes[uri].identity.uri, uri, True) for uri in pending_links]
                 for _, uri, is_link in sorted(candidates):
+                    if original_native_run is not None:
+                        original_native_run.require_current()
                     if len(futures) >= max_parallelism:
                         break
                     if is_link:
@@ -2356,11 +2507,17 @@ class StandardProjectLifecycleService:
                     if pending_steps or pending_links:
                         # Capacity can be held by direct port callers outside this pool.
                         # Admission rechecks its finite deadline on each bounded retry.
-                        time.sleep(0.01)
+                        time.sleep(
+                            0.01
+                            if original_native_run is None
+                            else original_native_run.clamp_timeout(0.01)
+                        )
                     continue
                 completed, _ = wait(
                     tuple(futures),
-                    timeout=0.05 if waiting_for_capacity else None,
+                    timeout=(0.05 if waiting_for_capacity else None)
+                    if original_native_run is None
+                    else original_native_run.clamp_timeout(0.05),
                     return_when=FIRST_COMPLETED,
                 )
                 for future in sorted(completed, key=lambda item: futures[item]):
@@ -2512,6 +2669,178 @@ class StandardProjectLifecycleService:
                 "standard_lifecycle.links_incomplete",
                 "project assembly requires every Component LINK result",
             )
+        if original_native_run is not None:
+            original_native_run.require_current()
+        root_integration = self._integrate_project_root(
+            component_lock, execution_plan, project_plan, ordered
+        )
+        if original_native_run is not None:
+            original_native_run.require_current()
+        publication_failed = False
+        for uri in sorted(results):
+            if uri in input_membership_identities and uri not in regenerate:
+                continue
+            result = results[uri]
+            membership = result.source_cache_membership
+            if membership is None or result.source_output is None:
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.cache_publication_candidate_missing",
+                    "project-accepted cache miss requires its exact accepted source",
+                )
+            try:
+                if original_native_run is not None:
+                    original_native_run.require_current()
+                publication_identity = self._publish_accepted_result(
+                    result,
+                    planned[uri],
+                    regenerate=uri in regenerate,
+                )
+                if original_native_run is not None:
+                    original_native_run.require_current()
+                self._record_stage(
+                    execution_plan,
+                    generation_plans[uri],
+                    evidence_nodes[uri],
+                    result.source_output,
+                    StandardLifecycleStage.SOURCE_CACHE_PUBLICATION,
+                    publication_identity,
+                )
+                result = replace(
+                    result,
+                    source_cache_publication_identity=publication_identity,
+                )
+            except Exception as exc:
+                trace_exception("source-cache publication", exc)
+                failure = _failure(
+                    result.component_revision,
+                    StandardNodeFailurePhase.SOURCE_CACHE_PUBLICATION,
+                    membership.identity,
+                    exc,
+                    "source-cache-publication.failed",
+                )
+                result = self._cancelled(
+                    result.component_revision,
+                    result.source_generation,
+                    result.source_output,
+                    result.build_plan_identity,
+                    failure,
+                    exports=result.exports,
+                    index_identity=result.index_identity,
+                    authorization_identity=result.authorization_identity,
+                    build_identity=result.build_identity,
+                    test_identity=result.test_identity,
+                    execution_identity=result.execution_identity,
+                    source_admission_identity=result.source_admission_identity,
+                )
+                self._record_stage(
+                    execution_plan,
+                    generation_plans[uri],
+                    evidence_nodes[uri],
+                    result.source_output,
+                    StandardLifecycleStage.SOURCE_CACHE_PUBLICATION,
+                    failure.subject_identity,
+                    failure_code=failure.code,
+                )
+                publication_failed = True
+            results[uri] = result
+            if uri in repair_chains:
+                repair_chains[uri] = self._rebind_attempt_chain(
+                    repair_chains[uri], result
+                )
+            if publication_failed:
+                break
+        ordered = tuple(results[uri] for uri in sorted(results))
+        membership = assemble_standard_lifecycle_membership(
+            execution_plan,
+            ordered,
+            input_membership_identities=input_membership_identities,
+            forced_regeneration=frozenset(regenerate),
+            source_checkpoint_reuse=frozenset(source_resumes),
+        )
+        if publication_failed:
+            return StandardProjectLifecycleResult(
+                execution_plan.identity,
+                validation,
+                project_plan.identity,
+                schedule,
+                ordered,
+                membership,
+                None,
+                None,
+                None,
+                project_plan,
+                context_prompt_journal_identities=context_journals,
+                context_benchmark_records=context_benchmarks,
+                context_cache_report=context_cache_report,
+                candidate_attempt_chains=tuple(
+                    repair_chains[uri] for uri in sorted(repair_chains)
+                ),
+            )
+        if original_native_run is not None:
+            original_native_run.require_current()
+        admission = _require_identity(self.admitter.admit(ordered), "admission")
+        if original_native_run is not None:
+            original_native_run.require_current()
+        if context_cache_report is None:
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.context_evidence_required",
+                "successful project admission requires durable context evidence",
+            )
+        aggregate_receipt = create_standard_aggregate_receipt(
+            execution_plan,
+            membership,
+            admission,
+            context_journals,
+            tuple(item.identity for item in context_benchmarks),
+            context_cache_report.identity,
+            root_integration.identity,
+        )
+        if original_native_run is not None:
+            original_native_run.require_current()
+        receipt_identity = _require_identity(
+            self.receipt_issuer.issue(aggregate_receipt), "receipt"
+        )
+        if original_native_run is not None:
+            original_native_run.require_current()
+        if receipt_identity != aggregate_receipt.identity:
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.receipt_membership_mismatch",
+                "receipt issuer returned an identity outside aggregate membership",
+            )
+        result = StandardProjectLifecycleResult(
+            execution_plan.identity,
+            validation,
+            project_plan.identity if project_plan is not None else None,
+            schedule,
+            ordered,
+            membership,
+            admission,
+            aggregate_receipt,
+            receipt_identity,
+            project_plan,
+            root_integration.identity,
+            context_journals,
+            context_benchmarks,
+            context_cache_report,
+            tuple(repair_chains[uri] for uri in sorted(repair_chains)),
+            root_integration,
+        )
+        if original_native_run is not None:
+            original_native_run.require_current()
+        return result
+
+    def _integrate_project_root(
+        self,
+        component_lock: ComponentLock,
+        execution_plan: ComponentExecutionPlan,
+        project_plan: StandardProjectBuildPlan,
+        ordered: tuple[StandardNodeLifecycleResult, ...],
+    ) -> StandardRootIntegrationEvidence:
+        """Assemble, package, execute and independently accept one exact root.
+
+        No accepted source is published by this phase. A replacement must call
+        every operation again with its own complete node and package custody.
+        """
         from .release_artifacts import plan_standard_assembly_dependencies
 
         artifact_graph, link_plan = self.artifact_assembler.assemble_project_artifacts(
@@ -2565,6 +2894,13 @@ class StandardProjectLifecycleService:
                 "project package must bind the exact lock, graph, link, and plan",
             )
         if self.project_finalizer is not None:
+            from .native_root_continuation import current_native_root_controller
+
+            if current_native_root_controller() is not None:
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.native_root_finalizer_unsupported",
+                    "an active native root controller cannot delegate finalization",
+                )
             root_integration = self.project_finalizer.finalize(
                 component_lock,
                 project_plan,
@@ -2611,6 +2947,32 @@ class StandardProjectLifecycleService:
                 ),
                 "packaged project execution",
             )
+            from literate_ai.contracts.native_root_continuation import (
+                NativeRootPackageBinding,
+            )
+
+            from .native_root_continuation import current_native_root_controller
+
+            controller = current_native_root_controller()
+            if controller is not None:
+                controller.require_current()
+                controller.package_binding = NativeRootPackageBinding(
+                    artifact_graph.identity,
+                    link_plan.identity,
+                    package_plan.identity,
+                    package_result.identity,
+                    root_test_identity,
+                    packaged_execution_identity,
+                )
+                controller.scope.retain_package_context(
+                    project_plan,
+                    artifact_graph,
+                    link_plan,
+                    package_plan,
+                    package_result,
+                    root_test_identity,
+                    packaged_execution_identity,
+                )
             independent_acceptance_identity = _require_identity(
                 self.independent_project_acceptor.accept_project_independently(
                     component_lock,
@@ -2635,140 +2997,12 @@ class StandardProjectLifecycleService:
                 packaged_execution_identity,
                 independent_acceptance_identity,
             )
-        publication_failed = False
-        for uri in sorted(results):
-            if uri in input_membership_identities and uri not in regenerate:
-                continue
-            result = results[uri]
-            membership = result.source_cache_membership
-            if membership is None or result.source_output is None:
-                raise StandardProjectLifecycleError(
-                    "standard_lifecycle.cache_publication_candidate_missing",
-                    "project-accepted cache miss requires its exact accepted source",
-                )
-            try:
-                publication_identity = self._publish_accepted_result(
-                    result,
-                    planned[uri],
-                    regenerate=uri in regenerate,
-                )
-                self._record_stage(
-                    execution_plan,
-                    generation_plans[uri],
-                    evidence_nodes[uri],
-                    result.source_output,
-                    StandardLifecycleStage.SOURCE_CACHE_PUBLICATION,
-                    publication_identity,
-                )
-                result = replace(
-                    result,
-                    source_cache_publication_identity=publication_identity,
-                )
-            except Exception as exc:
-                trace_exception("source-cache publication", exc)
-                failure = _failure(
-                    result.component_revision,
-                    StandardNodeFailurePhase.SOURCE_CACHE_PUBLICATION,
-                    membership.identity,
-                    exc,
-                    "source-cache-publication.failed",
-                )
-                result = self._cancelled(
-                    result.component_revision,
-                    result.source_generation,
-                    result.source_output,
-                    result.build_plan_identity,
-                    failure,
-                    exports=result.exports,
-                    index_identity=result.index_identity,
-                    authorization_identity=result.authorization_identity,
-                    build_identity=result.build_identity,
-                    test_identity=result.test_identity,
-                    execution_identity=result.execution_identity,
-                    source_admission_identity=result.source_admission_identity,
-                )
-                self._record_stage(
-                    execution_plan,
-                    generation_plans[uri],
-                    evidence_nodes[uri],
-                    result.source_output,
-                    StandardLifecycleStage.SOURCE_CACHE_PUBLICATION,
-                    failure.subject_identity,
-                    failure_code=failure.code,
-                )
-                publication_failed = True
-            results[uri] = result
-            repair_chains[uri] = self._rebind_attempt_chain(repair_chains[uri], result)
-            if publication_failed:
-                break
-        ordered = tuple(results[uri] for uri in sorted(results))
-        membership = assemble_standard_lifecycle_membership(
-            execution_plan,
-            ordered,
-            input_membership_identities=input_membership_identities,
-            forced_regeneration=frozenset(regenerate),
-            source_checkpoint_reuse=frozenset(source_resumes),
-        )
-        if publication_failed:
-            return StandardProjectLifecycleResult(
-                execution_plan.identity,
-                validation,
-                project_plan.identity,
-                schedule,
-                ordered,
-                membership,
-                None,
-                None,
-                None,
-                project_plan,
-                context_prompt_journal_identities=context_journals,
-                context_benchmark_records=context_benchmarks,
-                context_cache_report=context_cache_report,
-                candidate_attempt_chains=tuple(
-                    repair_chains[uri] for uri in sorted(repair_chains)
-                ),
-            )
-        admission = _require_identity(self.admitter.admit(ordered), "admission")
-        if context_cache_report is None:
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.context_evidence_required",
-                "successful project admission requires durable context evidence",
-            )
-        aggregate_receipt = create_standard_aggregate_receipt(
-            execution_plan,
-            membership,
-            admission,
-            context_journals,
-            tuple(item.identity for item in context_benchmarks),
-            context_cache_report.identity,
-            root_integration.identity,
-        )
-        receipt_identity = _require_identity(
-            self.receipt_issuer.issue(aggregate_receipt), "receipt"
-        )
-        if receipt_identity != aggregate_receipt.identity:
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.receipt_membership_mismatch",
-                "receipt issuer returned an identity outside aggregate membership",
-            )
-        return StandardProjectLifecycleResult(
-            execution_plan.identity,
-            validation,
-            project_plan.identity if project_plan is not None else None,
-            schedule,
-            ordered,
-            membership,
-            admission,
-            aggregate_receipt,
-            receipt_identity,
-            project_plan,
-            root_integration.identity,
-            context_journals,
-            context_benchmarks,
-            context_cache_report,
-            tuple(repair_chains[uri] for uri in sorted(repair_chains)),
-            root_integration,
-        )
+        from .native_root_continuation import current_native_root_controller
+
+        controller = current_native_root_controller()
+        if controller is not None:
+            root_integration = controller.close_accepted_root(root_integration)
+        return root_integration
 
     def _dispatch_complete_node(
         self,
@@ -2988,6 +3222,32 @@ class StandardProjectLifecycleService:
         ],
     ]:
         """Run one candidate plus at most two exact, fresh replacement attempts."""
+
+        from .native_root_continuation import current_native_root_controller
+
+        controller = current_native_root_controller()
+        if (
+            controller is not None
+            and generation_plan.component_revision
+            == controller.scope.run_binding.root_revision
+        ):
+            generation, plan, result = yield from self._run_complete_node_once_steps(
+                execution_plan,
+                generation_plan,
+                prepared,
+                candidate,
+                source_cache_membership,
+                source_generation_resume,
+                provider_artifacts,
+                package_artifacts,
+                regenerate,
+                source_execution,
+                artifact_inputs,
+                execution_inputs,
+                accepted_build_providers,
+            )
+            controller.observe_node(prepared, generation, plan, result)
+            return generation, plan, result, prepared, None
 
         current = prepared
         attempts: list[CandidateAttempt] = []
@@ -4034,7 +4294,16 @@ class StandardProjectLifecycleService:
                         "standard_lifecycle.candidate_verification_evidence_missing",
                         "native candidate verification requires strict stage evidence",
                     )
-                failure = verifier.verify(plan, source_output, raw)
+                from .native_root_continuation import current_native_root_controller
+
+                controller = current_native_root_controller()
+                failure = (
+                    verifier.verify(plan, source_output, raw)
+                    if controller is None
+                    else verifier.verify_native_root(
+                        plan, source_output, raw, source_generation, controller
+                    )
+                )
                 if failure is not None:
                     if (
                         not isinstance(failure, StandardNodeFailureEvidence)

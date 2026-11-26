@@ -27077,8 +27077,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
   acceptance, before project artifact assembly, packaging and independent root
   acceptance. Its bounded node loop has already returned when actual packaged
   acceptance runs; no late rejection continues that same counter. The internal
-  rejection record does not bind a rejected root package, and no separate typed
-  acceptance-repair schema or packaged continuation/replay join is implemented.
+  rejection record does not bind a rejected root package. The new closed schema
+  foundation below still lacks its actual packaged continuation and replay joins.
   The existing v2 diagnostic was broadened to accept native ACCEPT rejection;
   restoring ADR 0073 requires preserving frozen v2 meanings through the new
   versioned route. Early-check source correctness is therefore a subset of this
@@ -27112,9 +27112,33 @@ implementation, policy weakening, qualification or issue closure is recorded her
   copying, replay, mutation, expiry and closure cannot renew it. The
   [foundation record](../../verification/native-root-continuation-foundation-development.json)
   binds 38 passing source controls and the separately failing actual native
-  late-package regression. These foundations are not connected to CLI admission,
-  root orchestration, native/package custody, publication or closed replay yet;
-  the full implementation and qualification below remain open.
+  late-package regression. The original foundation did not connect these records
+  to runtime orchestration; it remains historical evidence for that subject.
+
+- **Original command wiring (development only):** Admit one explicit policy before
+  source indexing, retain original manifest bytes and native file identity, and
+  forward the same live owner across aggregate Components and runtime preparation.
+  Intersect model, build, native and source-index process waits with its remaining
+  lifetime; preserve finite cleanup allowances. Candidate and tracked receipt
+  publication rechecks closure after serialization and before committing a file.
+  Separate source controls cover same-byte manifest replacement, aggregate expiry,
+  real owned process termination, candidate cleanup and original receipt
+  preservation. A new allocation constraint claims each root once per original
+  run and accounts for pending candidates and preparation stops without buying a
+  new counter. The separate root repair preparation port retains original budgets
+  and uses changed requests and fresh workspaces without casting native rejection
+  into frozen v2 diagnostics. These parts still require connection to the shared
+  root controller and actual late packaged acceptance.
+
+- **Verifier custody development:** An internal executor context can retain an
+  original native outcome after strict complete inventory validation, while the
+  public strict executor continues to reject wrong values. Its process-local
+  holder requires current native, input, tool and original-run ownership and
+  one-shot consumption. The frozen strict-wrapper source snapshot passes all
+  thirteen existing actual native controls in 456.387 seconds; its source hashes
+  remain unchanged. Later explicit profile/decision guards have separate passing
+  source controls. The live factory, shared controller, actual late continuation,
+  dependency support, installed qualification and closed replay remain open.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#405](https://github.com/jordanhubbard/literate-ai/issues/405)

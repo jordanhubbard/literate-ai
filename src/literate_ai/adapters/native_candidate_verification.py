@@ -10,6 +10,7 @@ import hashlib
 import shutil
 import tempfile
 from collections import deque
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
@@ -31,6 +32,7 @@ from literate_ai.adapters.rust_library_acceptance import (
     capture_loaded_rust_library_verifier_inputs,
 )
 from literate_ai.adapters.rust_library_harness_execution import (
+    _observe_rust_library_harness_outcome,
     _result_values_differ,
     execute_rust_library_harness,
 )
@@ -71,6 +73,187 @@ class _NativeCandidateVerifier:
         )
         object.__setattr__(self, "lock_identity", self.lock.identity)
         object.__setattr__(self, "oracle_identity", self.oracle.identity)
+
+    def verify_native_root(self, plan, output, evidence, source_generation, controller):
+        """Observe only the original opt-in controller's actual early native stage.
+
+        A failed-node subject names the actual observation. The controller must
+        still join its completed failed node and consume the held original
+        outcome before its backend can seal a typed rejection or allow repair.
+        """
+        from literate_ai.adapters.native_root_continuation import (
+            NativeRootCandidateStage,
+            _capture_native_root_export,
+        )
+        from literate_ai.application.native_root_continuation import (
+            current_native_root_controller,
+        )
+
+        if current_native_root_controller() is not controller:
+            raise ValueError("native precheck requires the original active controller")
+        scope = controller.scope
+        ports, oracle, lock = self.ports, self.oracle, self.lock
+        candidate, retained = controller.prepared_candidate, controller.contexts
+        if (
+            scope.ports is not ports
+            or scope.prepared_authority is not self.prepared
+            or type(oracle) is not RustLibraryAcceptance
+            or scope.run_binding.component_lock_identity != self.lock_identity
+            or scope.run_binding.oracle_identity != self.oracle_identity
+            or lock is not self.prepared.locked_authority_snapshot.authority.lock
+            or plan.component_revision != lock.root_revision
+        ):
+            raise ValueError(
+                "native precheck controller differs from original verifier"
+            )
+        scope.require_current()
+        stage_evidence = NativeRootCandidateStage(
+            candidate, source_generation, evidence
+        )
+        build, tests, execution, export_record = scope.require_candidate(
+            output, plan, stage_evidence
+        )
+        root = lock.root_revision
+        contract = ports._contract(root)
+        surface = contract.library_import_surface
+        target = ports.cargo_targets[root.uri]
+        compiler_owner = ports._rust_harness_compilers
+        if surface is None or compiler_owner is None or not target.library:
+            raise ValueError("native precheck has no exact Rust library owner")
+        compiler = LocalComponentToolBinding.from_observed_toolchain(
+            compiler_owner.require_compiler(target)
+        )
+        cargo = ports.tool_bindings[contract.library_acceptance_toolchain_identity.uri]
+        export = ports.artifact_path(export_record)
+        if compiler.command != target.rustc_command:
+            raise ValueError("native precheck compiler differs from approved target")
+
+        def authority_current():
+            if (
+                current_native_root_controller() is not controller
+                or controller.scope is not scope
+                or controller.prepared_candidate is not candidate
+                or controller.contexts is not retained
+                or scope.ports is not ports
+                or scope.prepared_authority is not self.prepared
+                or ports._contract(root) is not contract
+                or ports.independent_acceptance_oracle is not oracle
+                or oracle.identity != self.oracle_identity
+                or ports._rust_harness_compilers is not compiler_owner
+                or ports.cargo_targets.get(root.uri) is not target
+                or ports._planned_exports.get(root.uri) != export_record
+                or ports.artifact_path(export_record) != export
+                or ports.acceptance_stage_evidence(
+                    plan, tests.identity, execution.identity
+                )
+                != (build, tests, execution)
+            ):
+                raise ValueError("native precheck original stage custody changed")
+            scope.require_generated_source(candidate, source_generation, output)
+            # Source custody already closes a fresh full scope bracket. The
+            # executor observes the original native tools with its isolated
+            # environment and remaining deadline before/after each command.
+            cargo.require_command_unchanged()
+            compiler.require_command_unchanged()
+
+        files, export_custody = _capture_native_root_export(
+            export, scope.original_run, authority_current
+        )
+        archive = encode_directory_export(
+            files,
+            max_bytes=MAX_BUILD_ARCHIVE_BYTES,
+            max_entries=MAX_BUILD_ARCHIVE_FILES,
+        )
+        if (
+            len(archive) != export_record.blob.size
+            or "sha256:" + hashlib.sha256(archive).hexdigest()
+            != export_record.blob.identity
+        ):
+            raise ValueError("native precheck export differs from sealed build")
+        authority_current()
+
+        def current():
+            authority_current()
+            export_custody.require_unchanged()
+
+        current()
+        temporary = Path(
+            tempfile.mkdtemp(
+                prefix="litai-native-candidate-",
+                dir=Path(tempfile.gettempdir()).resolve(strict=True),
+            )
+        )
+        with ExitStack() as contexts:
+            contexts.callback(shutil.rmtree, temporary)
+            outcome = contexts.enter_context(
+                _observe_rust_library_harness_outcome(
+                    oracle,
+                    original_run=scope.original_run,
+                    run_binding=scope.run_binding,
+                    continuation_owner=scope.continuation_owner,
+                    approved_project_authority_identity=scope.run_binding.project_authority_identity,
+                    stage=temporary,
+                    export=export,
+                    library_manifest=export.joinpath(
+                        *PurePosixPath(target.manifest).parts
+                    ),
+                    library_alias=surface.package,
+                    cargo=cargo,
+                    rustc=compiler,
+                    cases_document=product_json_bytes(
+                        [
+                            {
+                                "case_id": c.case_id,
+                                "capability": c.capability,
+                                "arguments": c.arguments,
+                            }
+                            for c in oracle.cases
+                        ]
+                    ).decode(),
+                    surface_document=canonical_json_bytes(surface.to_dict()).decode(),
+                    environment=_child_process_environment({}),
+                    require_library_current=current,
+                    record_bytes=scope.retain_bytes,
+                    evidence_root=ports.object_root
+                    / "native-root-precheck"
+                    / output.identity.digest,
+                    allow_host_execution=True,
+                )
+            )
+            try:
+                subject = controller.observe_native_outcome(
+                    outcome,
+                    plan=plan,
+                    source_generation=source_generation,
+                    output=output,
+                    acceptance_evidence=evidence,
+                    acceptance_scope="node-native-precheck",
+                )
+                outcome.require_current(scope.original_run, scope.continuation_owner)
+                if outcome.values_differ is False:
+                    if subject is not None:
+                        raise ValueError("matching native result acquired a rejection")
+                    return None
+                if (
+                    outcome.values_differ is not True
+                    or type(subject) is not ContentIdentity
+                ):
+                    raise ValueError(
+                        "native rejection has no actual observation identity"
+                    )
+                # Transfer both executor lifetime and stage cleanup. The app
+                # creates the failed node, then consumes this SAME live outcome.
+                retained.enter_context(contexts.pop_all())
+                return StandardNodeFailureEvidence(
+                    root,
+                    StandardNodeFailurePhase.ACCEPT,
+                    _MISMATCH,
+                    subject,
+                    "independent native library public results differ "
+                    "from the approved contract",
+                )
+            finally:
+                current()
 
     def verify(self, plan, output, evidence):
         ports, oracle, lock = self.ports, self.oracle, self.lock
