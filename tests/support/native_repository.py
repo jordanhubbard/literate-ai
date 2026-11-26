@@ -12,6 +12,31 @@ import unittest
 from pathlib import Path
 
 
+def git_at(root, *args, content=None):
+    return subprocess.run(
+        ["git", "-C", str(root), *args],
+        input=content,
+        capture_output=True,
+        check=True,
+        timeout=20,
+    ).stdout
+
+
+def commit_independent_repository(root):
+    git_at(root, "init", "-q")
+    git_at(root, "add", ".")
+    git_at(
+        root,
+        "-c",
+        "user.name=Fixture",
+        "-c",
+        "user.email=fixture@example.test",
+        "commit",
+        "-qm",
+        "independent native checkout",
+    )
+
+
 class NativeRepositoryFixture(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()

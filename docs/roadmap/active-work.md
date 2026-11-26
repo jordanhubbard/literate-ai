@@ -24206,6 +24206,17 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Native update and removal custody (in progress):** [Issue 484](https://github.com/jordanhubbard/literate-ai/issues/484)
+  reproduces a previously reviewed removal deleting unchanged working files of a
+  newly independent Git checkout under `litai/`. Native update similarly replaces
+  child working files and update metadata. Check direct `.git` markers in the
+  ancestors of selected files and writer-owned metadata below the application
+  root during planning, apply and forward recovery. Recheck before Git refresh,
+  deletion, update publication and rollback. Exercise ordinary and linked nested
+  repositories, unsafe markers, late boundary changes, recovery and unrelated
+  repositories while preserving checkout registration and accepting the outer
+  worktree's own Git marker.
+
 - **Ownership prerequisite (in progress):** [Issue 481](https://github.com/jordanhubbard/literate-ai/issues/481)
   records the shared provenance needed by future layout planning. Initialization
   baselines, framework/catalog update bases, imported authority, current topology,
