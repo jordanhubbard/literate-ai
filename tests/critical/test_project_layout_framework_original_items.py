@@ -129,7 +129,12 @@ class OriginalInitializedItemTests(unittest.TestCase):
         )
         self.assertEqual(set(public["placements"]), {name})
         self.assertNotIn("litai/workflows/application.md", private.rewritten_contents)
-        self.assertFalse(public["applicable"])  # mixed catalog root remains guarded
+        self.assertFalse(
+            any(
+                row["owner"] == "initialized-catalog-resolver"
+                for row in public["required_owners"]
+            )
+        )
 
     def test_nearest_original_nested_skill_item_does_not_adopt_its_sibling(self):
         chosen = "skills/agent/align-workers/SKILL.md"
@@ -152,7 +157,12 @@ class OriginalInitializedItemTests(unittest.TestCase):
         self.assertNotIn(sibling, public["placements"])
         self.assertNotIn("litai/" + sibling, private.rewritten_contents)
         self.assertNotIn("skills/agent/", private.coordinate_map)
-        self.assertFalse(public["applicable"])  # original mixed-root resolver gate
+        self.assertFalse(
+            any(
+                row["owner"] == "initialized-catalog-resolver"
+                for row in public["required_owners"]
+            )
+        )
 
     def test_original_complete_item_does_not_adopt_new_current_package_members(self):
         logical = "flavors/os-base/flavor.md"

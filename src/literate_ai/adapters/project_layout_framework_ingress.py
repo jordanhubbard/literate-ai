@@ -81,6 +81,10 @@ from literate_ai.projects import ProjectConfigurationStore
 
 
 def _bind_original_ingress(imported_originals):
+    from literate_ai import projects as catalog_projects
+
+    catalog_resolver = catalog_projects.contained_catalog_coordinates
+    catalog_resolver_code = catalog_resolver.__code__
     namespace = globals()
     capture_recorded_wrapper_component_transitions = imported_originals[
         "capture_recorded_wrapper_component_transitions"
@@ -192,12 +196,18 @@ def _bind_original_ingress(imported_originals):
             (os, ("getpid",)),
             (hashlib, ("sha256",)),
             (weakref, ("ref",)),
+            (catalog_projects, ("contained_catalog_coordinates",)),
         )
         for name in names
     )
     bindings = {}
 
     def _check():
+        if catalog_resolver.__code__ is not catalog_resolver_code:
+            raise error_type(
+                "framework_observation_changed",
+                "original ingress catalog resolver code changed",
+            )
         for name, expected in bindings.items():
             if namespace.get(name) is not expected:
                 raise error_type(

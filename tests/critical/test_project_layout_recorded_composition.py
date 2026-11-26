@@ -16,6 +16,7 @@ from unittest.mock import patch
 
 from jsonschema import Draft202012Validator
 
+from literate_ai import projects
 from literate_ai.adapters import project_layout_component_transition as core
 from literate_ai.adapters import project_layout_framework_ingress as ingress
 from literate_ai.adapters import project_layout_framework_resources as resource_owner
@@ -207,8 +208,8 @@ class RecordedCompositionTests(unittest.TestCase):
         with self.assertRaises(ProjectLayoutPlanError):
             source.require_original_recorded_wrapper_source(wrapper)
 
-    def test_real_default_placement_and_rollback_preserve_retained_source(self):
-        project, _resources, _retained = self.fixture(without_imports=True)
+    @staticmethod
+    def initialize_git(project):
         for arguments in (
             ("init", "-q"),
             ("add", "."),
@@ -227,6 +228,10 @@ class RecordedCompositionTests(unittest.TestCase):
             subprocess.run(
                 ["git", *arguments], cwd=project.root, check=True, capture_output=True
             )
+
+    def test_real_default_placement_and_rollback_preserve_retained_source(self):
+        project, _resources, _retained = self.fixture(without_imports=True)
+        self.initialize_git(project)
         # The actual reader supplies the same finite header identity that apply
         # reobserves inside the original Root/Component fences.
         public, selected = ingress.read_existing_framework_authority(project.root)
@@ -290,20 +295,61 @@ class RecordedCompositionTests(unittest.TestCase):
         for path, content in original.items():
             self.assertEqual((project.root / path).read_bytes(), content)
 
-    def test_distinct_inherited_skill_keeps_its_original_mixed_catalog_blocker(self):
-        project, resources, _retained = self.fixture()
+    def test_inherited_skill_preserved_through_mixed_catalog_apply_and_recovery(self):
+        project, _resources, _retained = self.fixture()
+        self.initialize_git(project)
         before = (project.root / "skills/demo/SKILL.md").read_bytes()
-        public, selected = self.observe(project, resources)
-        self.assertFalse(public["applicable"])
-        self.assertNotIn("skills/demo/SKILL.md", public["placements"])
-        self.assertTrue(
-            any(
-                row["path"] == "skills"
-                and row["owner"] == "initialized-catalog-resolver"
-                for row in public["required_owners"]
+        original = dict(project.contents)
+        with ProjectConfigurationStore.layout_lock(project.root):
+            public, selected = ingress.read_existing_framework_authority(project.root)
+            self.addCleanup(ingress.close_observed_framework_selection, selected)
+            self.assertTrue(public["applicable"], public["required_owners"])
+            self.assertNotIn("skills/demo/SKILL.md", public["placements"])
+            result = transaction.apply_framework_authority(
+                selected, public["plan_identity"]
             )
+        self.assertTrue(result["applied"])
+        logical = "skills/specification-to-source/legacy-project-shim/SKILL.md"
+        self.assertEqual(
+            projects.contained_catalog_coordinates(project.root)[logical],
+            "litai/" + logical,
         )
+        self.assertEqual(
+            projects.configured_catalog_path(
+                project.root,
+                project.root,
+                logical,
+                kind="specification-to-source-skill",
+            ),
+            project.root / "litai" / logical,
+        )
+        destination = project.root / "litai/components/legacy-project-wrapper"
+        catalog = FilesystemLockedGenerationAuthorityReader().load_catalog(destination)
+        catalog.require_unchanged()
         self.assertEqual((project.root / "skills/demo/SKILL.md").read_bytes(), before)
+        with ProjectConfigurationStore.layout_lock(project.root):
+            recovered = transaction.recover_framework_authority(
+                project.root, public["plan_identity"]
+            )
+        self.assertTrue(recovered["rolled_back"])
+        for path, content in original.items():
+            self.assertEqual((project.root / path).read_bytes(), content)
+
+    def test_changed_normal_catalog_resolver_refuses_before_foreign_call(self):
+        project, resources, _retained = self.fixture()
+        before = dict(project.contents)
+        calls = []
+
+        def foreign(*args, **kwargs):
+            calls.append(True)
+            return {}
+
+        with patch.object(projects, "contained_catalog_coordinates", foreign):
+            with self.assertRaises(ProjectLayoutPlanError):
+                self.observe(project, resources)
+        self.assertEqual(calls, [])
+        for path, content in before.items():
+            self.assertEqual((project.root / path).read_bytes(), content)
 
     def test_changed_normal_store_constructor_refuses_before_foreign_call(self):
         project, resources, _retained = self.fixture()

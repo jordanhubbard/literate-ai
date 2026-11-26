@@ -26575,6 +26575,23 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Original mixed-catalog publication (source partial):** The existing writer
+  now joins mixed roots only for original baseline-recorded catalog files and
+  original typed Component payloads. Unselected application files and inherited
+  Skills keep their original coordinates; original item closure and private-file
+  refusals remain. Before the placed marker, the writer checks the actual normal
+  catalog resolver against moved initialized coordinates. Original resolver
+  identity/code is checked at observer entry and publication; a regression found
+  and corrected a late guard that had already invoked a foreign replacement.
+  Nine composition and eight ingress controls pass, with all static checks and
+  no source drift. Actual Git-backed apply, normal typed Component load and
+  rollback preserve the distinct inherited Skill and original captured bytes.
+  Historical execution records are explicitly modeled; this is source API/native
+  file evidence, not installed CLI, full containment or platform qualification.
+  Documentation producer/base transitions and all original broader acceptance
+  remain open. The Component writer's original Git/index-boundary requirement
+  and stale-observation refusals remain unchanged.
+
 - **Imported initialization snapshots (source partial):** A new regression
   reproduced false duplicate ownership when an inherited file also appeared in
   the initialization snapshot. The normal resolver now reads current import

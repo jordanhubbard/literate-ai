@@ -13,6 +13,7 @@ import stat
 import tempfile
 from pathlib import Path
 
+from literate_ai import projects
 from literate_ai._filesystem import require_safe_directory, stat_identity_value
 from literate_ai.adapters import project_layout_continuation as native
 from literate_ai.adapters import project_layout_migration as filesystem
@@ -45,6 +46,38 @@ _JOURNAL_V1 = "literate-ai/project-layout-framework-authority-journal@1"
 _JOURNAL_V2 = "literate-ai/project-layout-framework-authority-journal@2"
 _SCHEMA = _JOURNAL_V2
 _DIRECTORIES = ("before", "after", "directories", "coordination", "retired-source")
+_CATALOG_RESOLVER = projects.contained_catalog_coordinates
+_CATALOG_RESOLVER_CODE = _CATALOG_RESOLVER.__code__
+
+
+def _verify_catalog_publication(root, plan):
+    """Close actual normal resolver reads after native publication, before success."""
+    if (
+        projects.contained_catalog_coordinates is not _CATALOG_RESOLVER
+        or _CATALOG_RESOLVER.__code__ is not _CATALOG_RESOLVER_CODE
+    ):
+        _fail("original initialized catalog resolver changed during publication")
+    definition = projects.ProjectConfigurationStore(root).read().definition
+    mixed = {
+        name
+        for kind, primary in projects.CATALOG_PLACEMENT_ROOTS.items()
+        for name in ((primary, "samples") if kind == "component" else (primary,))
+        if name in getattr(definition, f"{kind}_roots")
+        and "litai/" + name in getattr(definition, f"{kind}_roots")
+    }
+    expected = {
+        source: row["destination"]
+        for source, row in plan["placements"].items()
+        if source.split("/", 1)[0] in mixed
+        and row["owner"] in {"initialized-file", "recorded-converter-file"}
+    }
+    if expected:
+        observed = _CATALOG_RESOLVER(root)
+        if any(
+            observed.get(source) != destination
+            for source, destination in expected.items()
+        ):
+            _fail("published initialized catalog does not resolve at its original URI")
 
 
 def _journal_directories(schema):
@@ -483,6 +516,8 @@ def apply_framework_authority(selection, expected):
                     for source, row in intent["entries"].items()
                 ):
                     _fail("framework action did not publish exactly")
+                _verify_catalog_publication(root, plan)
+                _current(root, journal, intent, lease, namespace)
                 filesystem._write(journal / "placed", _MARKERS["placed"])
                 filesystem._flush(journal)
                 _current(root, journal, intent, lease, namespace)

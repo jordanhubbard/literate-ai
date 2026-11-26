@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: publish proven initialized catalogs beside retained roots, verify normal resolution before success and preserve recovery.
+
 - Project layout: preserve current imported catalog ownership when historical initialization snapshots record the same files.
 
 - Project layout: resolve recorded initialized catalog coordinates in mixed roots while rejecting shadows, redirects and origin mismatch.

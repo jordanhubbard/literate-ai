@@ -15,6 +15,7 @@ from dataclasses import dataclass, replace
 from types import MappingProxyType
 from urllib.parse import unquote, urlsplit
 
+from literate_ai import projects
 from literate_ai._filesystem import stat_identity_value
 from literate_ai.adapters import (
     project_layout_recorded_wrapper_projection as wrapper_projector,
@@ -57,7 +58,10 @@ SCHEMA = "literate-ai/project-layout-framework-authority@1"
 _TEMPLATE = vars(ProjectScaffoldPlacement)["template_content"]
 _DELEGATE = vars(ProjectScaffoldPlacement)["plan_delegate"]
 _BOOTSTRAP = transitions.reviewed_bootstrap_transition
+_CATALOG_RESOLVER = projects.contained_catalog_coordinates
+_CATALOG_RESOLVER_CODE = _CATALOG_RESOLVER.__code__
 _FUNCTIONS = (
+    (projects, "contained_catalog_coordinates", _CATALOG_RESOLVER),
     (
         wrapper_source,
         "require_original_recorded_wrapper_source",
@@ -95,6 +99,8 @@ def _identity(content):
 
 
 def _renderer_current():
+    if _CATALOG_RESOLVER.__code__ is not _CATALOG_RESOLVER_CODE:
+        _fail("original initialized catalog resolver code changed")
     for cls, namespace, bases, mro in _CLASSES:
         actual = vars(cls)
         if (
@@ -814,6 +820,13 @@ def select_existing_framework_authority(
         }
         after[owner.destination] = owner.content
     definition = snapshot.definition
+    _origin, initialized_baseline, _origin_bytes, _baseline_bytes = (
+        original_framework_initialization(resources)
+    )
+    initialized_paths = {row.path for row in initialized_baseline.files}
+    component_payloads = {
+        path for endpoint in component_endpoints for path in endpoint.records
+    }
     if definition.agent_skill in moved:
         updates["agent_skill"] = moved[definition.agent_skill]
     for field in (
@@ -853,7 +866,22 @@ def select_existing_framework_authority(
                 rewritten_roots.append("litai/" + root)
             elif selected:
                 rewritten_roots.extend((root, "litai/" + root))
-                if field != "documentation_roots":
+                # Preserve unselected application/import files at their actual
+                # root. The normal resolver can join only original recorded
+                # initialized coordinates, with typed Component payloads kept
+                # under their own original producer transition.
+                supported = (
+                    field
+                    in {
+                        "skill_roots",
+                        "flavor_roots",
+                        "component_roots",
+                        "workflow_roots",
+                        "routing_roots",
+                    }
+                    and selected <= initialized_paths | component_payloads
+                )
+                if field != "documentation_roots" and not supported:
                     blockers.append(
                         {
                             "path": root,
