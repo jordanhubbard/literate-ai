@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap install uninstall install-check installed-project-e2e installed-e2e installed-e2e-status dev-install tools-install documentation-tools-install skill-evaluator-install skills-check repository-layout-check public-export-check python-version python-check source-intelligence-check provider-resolution-check source-admission-check remote-evidence-check inherited-session-check target-matrix-check native-toolchain-check samples samples-packages roundtrip-host samples-platform-regression migration-baseline-refresh test-receipt-current wheel-check format format-check lint openspec-check documentation-check documentation-review documentation-review-record driver-review driver-review-record doc-toolchain-bootstrap release-contributions release-contributions-check release-collateral-regenerate release-collateral-preflight release-collateral-publish plugin-bundle validate release release-check release-check-reset clean really-clean
+.PHONY: help bootstrap install uninstall install-check installed-project-e2e installed-e2e installed-e2e-status dev-install tools-install documentation-tools-install skill-evaluator-install skills-check repository-layout-check public-export-check python-version schema-check python-check source-intelligence-check provider-resolution-check source-admission-check remote-evidence-check inherited-session-check target-matrix-check native-toolchain-check samples samples-packages roundtrip-host samples-platform-regression migration-baseline-refresh test-receipt-current wheel-check format format-check lint openspec-check documentation-check documentation-review documentation-review-record driver-review driver-review-record doc-toolchain-bootstrap release-contributions release-contributions-check release-collateral-regenerate release-collateral-preflight release-collateral-publish plugin-bundle validate release release-check release-check-reset clean really-clean
 
 PREFIX ?=
 BUILD_DIR ?= $(CURDIR)/generated
@@ -175,6 +175,9 @@ public-export-check: python-version ## Reject tracked NVIDIA-internal references
 python-version: ## Require a supported system Python from PATH.
 	$(PYTHON_COMMAND) -c 'import sys; assert sys.version_info >= (3, 11), sys.version'
 
+schema-check: python-version $(RUNTIME_PREREQUISITE) ## Verify the source schema catalogs before qualification.
+	LITAI_NO_SELF_UPDATE=1 LITERATE_AI_SCHEMA_CATALOG_ROOT="$(CURDIR)/schemas" PYTHONPATH="$(CURDIR)/src" $(STEP) schema-check -- $(RUN_PYTHON_COMMAND) -P -m literate_ai.cli version check --no-project
+
 python-check: python-version $(DEV_PREREQUISITE) ## Validate the Python framework package.
 	$(RUN_PYTHON_COMMAND) -X pycache_prefix="$(OBJ_DIR)/pycache" -m compileall -q src tests
 	$(RUN_PYTHON_COMMAND) -m py_compile $(SAMPLE_PYTHON)
@@ -330,7 +333,7 @@ runner-review-record: python-version $(RUNTIME_PREREQUISITE) ## Re-pin the revie
 # parallel Make and indirect callers such as bootstrap. Explicit sibling goals
 # remain independently requested work under normal Make semantics.
 .PHONY: validate-preflight
-validate-preflight: repository-layout-check lint format-check openspec-check documentation-check driver-review runner-review ## Refuse cheap validation failures before the long workload.
+validate-preflight: schema-check repository-layout-check lint format-check openspec-check documentation-check driver-review runner-review ## Refuse cheap validation failures before the long workload.
 
 validate: validate-preflight ## Run every current repository gate.
 	$(MAKE) python-check skills-check installed-e2e
@@ -340,7 +343,7 @@ release: python-version $(RUNTIME_PREREQUISITE) ## Check the exact plan in RELEA
 
 # Refuse stale review authority before native qualification. The ordered gate list
 # retains its later driver-review so intervening source drift still refuses.
-release-check: python-version $(RUNTIME_PREREQUISITE) driver-review runner-review documentation-review ## Preflight authority, then run resumable release gates.
+release-check: python-version $(RUNTIME_PREREQUISITE) schema-check driver-review runner-review documentation-review ## Preflight authority, then run resumable release gates.
 	BUILD_DIR="$(BUILD_DIR)" OBJ_DIR="$(OBJ_DIR)" QUALIFIED_WHEEL_MANIFEST="$(RELEASE_QUALIFIED_WHEEL_MANIFEST)" $(RUN_PYTHON_COMMAND) scripts/run_checkpointed_gates.py --state "$(RELEASE_CHECKPOINT)" --make "$(MAKE)" $(RELEASE_GATES)
 
 release-check-reset: python-version $(RUNTIME_PREREQUISITE) ## Discard the diagnostic release checkpoint so the next run starts at gate one.
