@@ -268,6 +268,39 @@ def _retained_legacy_shim_authority_paths(root: Path) -> frozenset[str]:
     legitimately retires them.
     """
 
+    # Opt-in layout renewal uses current structural authority, not the stale
+    # lock/parity evidence an ordinary update/lock cycle is meant to replace.
+    # Legacy projects retain the exact original retirement/protection logic.
+    from .retained_layout import (
+        RETAINED_LAYOUT_FILE,
+        RetainedLayoutError,
+        resolve_retained_layout,
+    )
+
+    layout_path = root / RETAINED_LAYOUT_FILE
+    if layout_path.exists() or path_is_link_or_reparse(layout_path):
+        project = discover_project(root)
+        if project is None or project.root != root:
+            raise ProjectUpdateError(
+                "project.update_layout_invalid",
+                "retained layout requires its actual project root",
+            )
+        try:
+            layout = resolve_retained_layout(project)
+        except RetainedLayoutError as exc:
+            raise ProjectUpdateError(exc.code, exc.message) from exc
+        selected = {
+            layout.declaration.wrapper_component + "/component.md",
+            "flavors/legacy-project-shim/flavor.md",
+            "flavors/legacy-project-shim/openspec/spec.md",
+        }
+        return frozenset(
+            relative
+            for relative in selected
+            if (candidate := root.joinpath(*Path(relative).parts)).is_file()
+            and not path_is_link_or_reparse(candidate)
+        )
+
     inventory_path = root.joinpath(*Path(_LEGACY_HARNESS_INVENTORY_PATH).parts)
     if inventory_path.is_symlink() or not inventory_path.is_file():
         return frozenset()

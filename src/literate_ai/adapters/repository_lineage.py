@@ -38,6 +38,7 @@ from literate_ai.projects import parse_project_configuration
 
 REPOSITORY_PARENT_FILE = ".literate/repository-parent.json"
 REPOSITORY_LINEAGE_FILE = ".literate/repository-lineage.json"
+REPOSITORY_LINEAGE_LOCK_FILE = ".literate/repository-lineage.lock"
 _PROJECT_FILE = "literate.project.json"
 _MAX_AUTHORITY_BYTES = 16 * 1024 * 1024
 _MAX_GIT_DIAGNOSTIC_BYTES = 8 * 1024 * 1024
@@ -219,7 +220,7 @@ class FilesystemRepositoryLineageStore:
                 "repository-lineage metadata root must be a directory",
             )
         metadata.mkdir(parents=True, exist_ok=True)
-        lock = metadata / "repository-lineage.lock"
+        lock = self.root / REPOSITORY_LINEAGE_LOCK_FILE
         try:
             with exclusive_cache_lock(lock):
                 current_selection = self._optional(REPOSITORY_PARENT_FILE)
@@ -288,7 +289,7 @@ class FilesystemRepositoryLineageStore:
                 "repository_lineage.concurrent_change",
                 "repository-lineage evidence disappeared before rollback",
             )
-        lock = metadata / "repository-lineage.lock"
+        lock = self.root / REPOSITORY_LINEAGE_LOCK_FILE
         try:
             with exclusive_cache_lock(lock):
                 current_selection = self._optional(REPOSITORY_PARENT_FILE)

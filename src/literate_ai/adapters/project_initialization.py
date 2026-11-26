@@ -2355,6 +2355,21 @@ def render_starter_document(destination: str, *, converted: bool) -> str:
     return content
 
 
+_INITIALIZATION_DIRECTORIES = (
+    "components",
+    "samples",
+    "flavors",
+    "skills/specification-to-source",
+    "skills/source-to-specification",
+    "skills/agent",
+    "workflows",
+    "routing",
+    "mcps",
+    "docs",
+)
+_INITIALIZATION_EMPTY_CATALOGS = ("components", "samples", "mcps", "verification")
+
+
 class ProjectInitializationError(ValueError):
     """Stable canonical-project initialization or review-recording failure."""
 
@@ -3068,18 +3083,7 @@ class FilesystemProjectInitializationAdapter:
             # byte-for-byte untouched. Resume an interrupted scaffold without
             # quarantining its partial literate-ai evidence a second time (INIT-003).
             quarantine = _quarantine_existing_tree(resolved_target)
-        directories = (
-            "components",
-            "samples",
-            "flavors",
-            "skills/specification-to-source",
-            "skills/source-to-specification",
-            "skills/agent",
-            "workflows",
-            "routing",
-            "mcps",
-            "docs",
-        )
+        directories = _INITIALIZATION_DIRECTORIES
         resolved_target.mkdir(parents=True, exist_ok=True)
         _mkdir_exist_ok = convert
         for relative in directories:
@@ -3093,8 +3097,7 @@ class FilesystemProjectInitializationAdapter:
         # can also be empty when the initialized example lives under samples/.
         # docs/, flavors/, skills/, workflows/, and routing/ receive content.
         # See #207 and SUBMODULE-ORCH-001's clean-clone acceptance.
-        _GITKEEP_CANDIDATES = ("components", "samples", "mcps", "verification")
-        for relative in _GITKEEP_CANDIDATES:
+        for relative in _INITIALIZATION_EMPTY_CATALOGS:
             path = resolved_target.joinpath(*Path(relative).parts)
             if path.is_dir() and not any(path.iterdir()):
                 (path / ".gitkeep").write_text("", encoding="utf-8")

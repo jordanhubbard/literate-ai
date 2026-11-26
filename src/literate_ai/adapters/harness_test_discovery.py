@@ -378,7 +378,10 @@ def _pytest_test_command(
             continue
         parser = configparser.ConfigParser(interpolation=None)
         try:
-            parser.read(path, encoding="utf-8")
+            # Read through the supplied source-query surface so an opt-in
+            # complete layout can exclude framework metadata at project root.
+            # Ordinary Path callers retain the same UTF-8 INI interpretation.
+            parser.read_string(path.read_text(encoding="utf-8"), source=str(path))
         except (configparser.Error, OSError):
             continue
         if not parser.has_section(section):

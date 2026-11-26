@@ -148,6 +148,7 @@ def _capture_composed_native_tree(
     max_index_bytes=MAX_INDEX_BYTES,
     max_metadata_memory_bytes=1024 * 1024 * 1024,
     output_custody=None,
+    layout_custody=None,
     reserved_memory_bytes=0,
     budget_capture=False,
     retain_payloads=True,
@@ -171,7 +172,10 @@ def _capture_composed_native_tree(
     ):
         raise ValueError("tree.shards.invalid-memory-reservation")
     budget_capture = (
-        budget_capture or output_custody is not None or bool(reserved_memory_bytes)
+        budget_capture
+        or output_custody is not None
+        or layout_custody is not None
+        or bool(reserved_memory_bytes)
     )
     baseline = 16 * (max_descriptor_bytes + max_index_bytes)
     capture_memory = {"inventory": 0, "tree": 0, "pending": baseline}
@@ -218,7 +222,18 @@ def _capture_composed_native_tree(
         return observe
 
     def compose(directories, files, aliases, case_sensitive):
-        return prepare_native_tree(
+        if layout_custody is not None:
+            from .retained_layout_partition import _retained_layout_source_directories
+
+            directories = _retained_layout_source_directories(
+                layout_custody,
+                directories,
+                files,
+                aliases,
+                reserved_memory_bytes=reserved_memory_bytes
+                + capture_memory["inventory"],
+            )
+        tree = prepare_native_tree(
             directories,
             files,
             aliases,
@@ -234,6 +249,16 @@ def _capture_composed_native_tree(
                 else 0
             ),
         )
+        if layout_custody is not None:
+            from .retained_layout_partition import _require_retained_alias_partition
+
+            _require_retained_alias_partition(
+                layout_custody,
+                tree,
+                reserved_memory_bytes=reserved_memory_bytes
+                + capture_memory["inventory"],
+            )
+        return tree
 
     return _capture_native_tree(
         root,
@@ -248,6 +273,7 @@ def _capture_composed_native_tree(
         inventory_policy=inventory_policy,
         preflight_geometry=True,
         output_custody=output_custody,
+        layout_custody=layout_custody,
         reserved_memory_bytes=reserved_memory_bytes,
         capture_memory=capture_memory if budget_capture else None,
         retain_payloads=retain_payloads,
@@ -265,6 +291,7 @@ def _capture_native_tree(
     inventory_policy=None,
     preflight_geometry=False,
     output_custody=None,
+    layout_custody=None,
     reserved_memory_bytes=0,
     capture_memory=None,
     retain_payloads=True,
@@ -285,9 +312,19 @@ def _capture_native_tree(
         raise TypeError("hash-only tree observation requires no content store")
     if retain_payloads and store.root.is_relative_to(root):
         raise ValueError("SDK content store must be outside the captured tree")
-    # Only the separate HTML output owner can issue this finite observation.
-    # Old SDK callers have no exclusion selection and preserve complete capture.
-    if output_custody is not None:
+    # Exclusions require an original finite context from the owning boundary.
+    # Ordinary SDK callers have neither and retain complete capture.
+    if output_custody is not None and layout_custody is not None:
+        raise ValueError("tree.capture.conflicting-partition-owners")
+    if layout_custody is not None:
+        from .retained_layout_partition import _retained_layout_capture_selection
+
+        excluded_roots, excluded_files, revalidate_output = (
+            _retained_layout_capture_selection(
+                layout_custody, root, reserved_memory_bytes=reserved_memory_bytes
+            )
+        )
+    elif output_custody is not None:
         from .html_tree_output_initialization import _html_tree_capture_exclusions
 
         excluded_roots, excluded_files, revalidate_output = (
@@ -323,6 +360,8 @@ def _capture_native_tree(
 
     revalidate_owned_output()
     with _directory_access(root) as access:
+        if layout_custody is not None and access is None:
+            raise ValueError("retained.layout.native-source-owner-unavailable")
 
         def top_names():
             descriptor = None

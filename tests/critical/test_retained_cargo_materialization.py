@@ -1,11 +1,18 @@
 """Real archive-to-package transactions with foreign-state preservation."""
 
+import copy
+import hashlib
 import os
+import select
 import shutil
+import signal
 import tempfile
+import threading
+import time
 import unittest
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from literate_ai.adapters import retained_cargo_materialization as materialization
@@ -240,3 +247,116 @@ class RetainedCargoScratchCustodyTests(unittest.TestCase):
             self.assertEqual(output.read_bytes(), b"owned output")
             with self.assertRaisesRegex(ValueError, "scratch-operation-ended"):
                 inputs.require_unchanged(environment=environment)
+
+    def test_wrapper_context_lifetime_cannot_be_rearmed_copied_or_crossed(self):
+        def snapshot():
+            result = {}
+            for path in self.reviewed.project.root.rglob("*"):
+                node = path.lstat()
+                name = path.relative_to(self.reviewed.project.root).as_posix()
+                if path.is_symlink():
+                    content = os.fsencode(os.readlink(path))
+                elif path.is_file():
+                    content = path.read_bytes()
+                else:
+                    content = b""
+                result[name] = (node.st_mode, hashlib.sha256(content).hexdigest())
+            return result
+
+        with retained_cargo_wrapper_context_v2(self.reviewed) as context:
+            original_identity = context.identity
+            active_before = snapshot()
+            for copy_method in (copy.copy, copy.deepcopy):
+                with self.subTest(copy_method=copy_method.__name__):
+                    with self.assertRaisesRegex(TypeError, "not-copyable"):
+                        copy_method(context)
+            # A copied set of actual fields is data, not original issuance.
+            forged = object.__new__(type(context))
+            forged.__dict__.update(context.__dict__)
+            with self.assertRaisesRegex(ValueError, "wrapper-operation-ended"):
+                forged.require_unchanged()
+
+            thread_outcome = []
+
+            def foreign_thread():
+                try:
+                    context.require_unchanged()
+                except ValueError as exc:
+                    thread_outcome.append(str(exc))
+                else:
+                    thread_outcome.append("accepted foreign thread")
+
+            thread = threading.Thread(target=foreign_thread, daemon=True)
+            thread.start()
+            thread.join(timeout=10)
+            self.assertFalse(thread.is_alive(), "foreign-thread check did not finish")
+            self.assertEqual(
+                thread_outcome, ["retained.cargo.v2-wrapper-operation-ended"]
+            )
+            self.assertEqual(context.identity, original_identity)
+
+            if hasattr(os, "fork"):
+                read_fd, write_fd = os.pipe()
+                child = os.fork()
+                if child == 0:
+                    os.close(read_fd)
+                    try:
+                        context.require_unchanged()
+                    except ValueError as exc:
+                        outcome = str(exc).encode("utf-8")
+                    except BaseException as exc:
+                        outcome = (type(exc).__name__ + ": " + str(exc)).encode("utf-8")
+                    else:
+                        outcome = b"accepted foreign process"
+                    try:
+                        os.write(write_fd, outcome[:1024])
+                    finally:
+                        os._exit(0)
+                os.close(write_fd)
+                reaped = False
+                deadline = time.monotonic() + 10
+                try:
+                    ready = select.select([read_fd], [], [], 10)[0]
+                    self.assertTrue(ready, "forked source check did not report")
+                    outcome = os.read(read_fd, 1024)
+                    while time.monotonic() < deadline:
+                        observed, status = os.waitpid(child, os.WNOHANG)
+                        if observed == child:
+                            reaped = True
+                            break
+                        time.sleep(0.01)
+                    self.assertTrue(reaped, "forked source check did not exit")
+                    self.assertEqual(os.waitstatus_to_exitcode(status), 0)
+                    self.assertEqual(
+                        outcome, b"retained.cargo.v2-wrapper-operation-ended"
+                    )
+                finally:
+                    os.close(read_fd)
+                    if not reaped:
+                        observed, _ = os.waitpid(child, os.WNOHANG)
+                        if observed == 0:
+                            # This is our actual unreaped child: its PID cannot
+                            # be reused before waitpid, not a saved PID claim.
+                            os.kill(child, signal.SIGKILL)
+                            os.waitpid(child, 0)
+                self.assertEqual(context.identity, original_identity)
+            self.assertEqual(snapshot(), active_before)
+            lifetime = context._lifetime
+
+        retired_before = snapshot()
+        lifetime.active = True
+        try:
+            with self.assertRaisesRegex(ValueError, "wrapper-operation-ended"):
+                context.require_unchanged()
+            with self.assertRaisesRegex(ValueError, "wrapper-operation-ended"):
+                _ = context.identity
+            with self.assertRaisesRegex(ValueError, "wrapper-operation-ended"):
+                with scratch_owner.reserve_retained_cargo_scratch_v2(context):
+                    self.fail("retired wrapper context obtained scratch ownership")
+            object.__setattr__(context, "_lifetime", SimpleNamespace(active=True))
+            with self.assertRaisesRegex(ValueError, "wrapper-operation-ended"):
+                context.require_unchanged()
+        finally:
+            lifetime.active = False
+            object.__setattr__(context, "_lifetime", lifetime)
+        self.assertEqual(snapshot(), retired_before)

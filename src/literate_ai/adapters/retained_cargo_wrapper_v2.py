@@ -8,6 +8,9 @@ passed documents, this context's identity and serialized plans grant no rights.
 from __future__ import annotations
 
 import json
+import os
+import threading
+import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
 
@@ -38,6 +41,7 @@ from literate_ai.projects import (
 )
 
 _CREATION_KEY = object()
+_ISSUED_WRAPPERS = weakref.WeakKeyDictionary()
 _DOCUMENTS = (
     ("inventory", ".literate/harness-inventory.json"),
     ("baseline", ".literate/legacy-harness-baseline.json"),
@@ -164,7 +168,16 @@ class RetainedCargoWrapperContextV2:
         )
 
     def require_unchanged(self):
-        if not self._lifetime.active:
+        if type(self) is not RetainedCargoWrapperContextV2:
+            raise ValueError("retained.cargo.v2-wrapper-operation-ended")
+        issued = _ISSUED_WRAPPERS.get(self)
+        if (
+            issued is None
+            or issued[0] != os.getpid()
+            or issued[1] is not threading.current_thread()
+            or self._lifetime is not issued[2]
+            or not issued[2].active
+        ):
             raise ValueError("retained.cargo.v2-wrapper-operation-ended")
         reviewed = self.reviewed
         reviewed.require_unchanged()
@@ -237,7 +250,16 @@ def retained_cargo_wrapper_context_v2(reviewed: RetainedCargoReviewedFilesV2):
         documents = _load_retained_documents(project)
         _require_qualified_parity(documents)
         bindings = current_project_component_lock_bindings(project)
-        wrapper = project.root / "components/legacy-project-wrapper"
+        from .retained_layout import (
+            RETAINED_LAYOUT_FILE,
+            require_qualified_retained_layout,
+        )
+
+        wrapper = (
+            require_qualified_retained_layout(project).wrapper
+            if os.path.lexists(project.root / RETAINED_LAYOUT_FILE)
+            else project.root / "components/legacy-project-wrapper"
+        )
         selected = tuple((lock, c) for lock, c in bindings if c.root == wrapper)
         if len(selected) != 1:
             raise ValueError("retained.cargo.v2-current-wrapper-lock-required")
@@ -263,9 +285,11 @@ def retained_cargo_wrapper_context_v2(reviewed: RetainedCargoReviewedFilesV2):
             bindings=bindings,
             lifetime=lifetime,
         )
+        _ISSUED_WRAPPERS[context] = (os.getpid(), threading.current_thread(), lifetime)
         try:
             context.require_unchanged()
             yield context
             context.require_unchanged()
         finally:
+            _ISSUED_WRAPPERS.pop(context, None)
             lifetime.active = False

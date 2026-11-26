@@ -33546,6 +33546,15 @@ independent review and the complete combined gate from test one.
 - **Direction:** Issue #265 requests a supported retained implementation path outside the legacy wrapper, including a plain subdirectory or repository root and a chosen wrapper Component name. The directing user accepted newly filed issues for 1.4.
 - **Conclusion:** Extend PROJECT.md Goals 1, 4 and 6 with one authoritative retained-layout selection and a reviewed transactional relocation path. Preserve legacy defaults, source custody and lineage; invalidate stale receipts and require fresh qualification after movement. Edited evidence and symlink shims are not migration authority. Root placement and custom wrapper naming remain required design and acceptance scope.
 - **Depends on:** Trace current lift-and-shift path consumers; settle reviewed ownership and migration semantics; implement canonical resolution and transactional plan/apply; qualify installed journeys and rollback.
+- **Current action:** Implement accepted ADR 0057 as one integrated layout boundary:
+  a versioned declaration and shared structural/qualified resolver, finite original
+  versus framework root ownership, selected initial placement, descriptor-owned
+  relocation and explicit recoverable publication, then route all current consumers
+  through that authority. Preserve legacy wire identities and require fresh ordinary
+  locks, baseline/parity/readmission and receipts after movement. Author real public
+  relocation, renewal and interrupted/concurrent-recovery controls before independent
+  source review and native/installed qualification. Source authoring is in progress;
+  no implementation or evidence checkbox is complete.
 - **Completion prerequisites:** none
 - **Implementation:**
   - [ ] Trace every hard-coded wrapper/implementation path and establish one canonical resolver with backward-compatible legacy evidence.

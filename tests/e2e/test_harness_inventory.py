@@ -266,6 +266,535 @@ class ConvertHarnessSliceTests(unittest.TestCase):
                 self.assertEqual(completed.returncode, 0, completed.stderr)
                 self.assertTrue((legacy_root / sentinel).is_file())
 
+    @unittest.skipIf(
+        os.name == "nt", "POSIX layout owner; native Windows ownership is separate"
+    )
+    def test_retained_layout_source_program_moves_and_restores_original_custody(self):
+        from literate_ai.adapters.native_sdk_tree_custody import (
+            _capture_composed_native_tree,
+        )
+        from literate_ai.adapters.retained_layout_journal import _begin_layout_journal
+        from literate_ai.adapters.retained_layout_partition import (
+            observe_retained_layout_partition,
+        )
+        from literate_ai.adapters.retained_layout_transaction import (
+            _compile_relocation_transaction,
+        )
+        from literate_ai.contracts.identity import canonical_identity
+        from literate_ai.contracts.retained_layout import RetainedLayoutDeclaration
+        from literate_ai.contracts.retained_project import RetainedProjectLimits
+        from literate_ai.projects import load_project
+        from tests.support.fixtures_test_retained_harness_receipts import (
+            _legacy_project,
+            _selectors,
+        )
+
+        with tempfile.TemporaryDirectory(prefix="layout-source-") as directory:
+            base = Path(directory).resolve()
+            root = base / "project"
+            _legacy_project(root)
+            _adapter().initialize(
+                root,
+                flavor_selectors=_selectors(root),
+                source_intelligence_provider="none",
+                convert=True,
+                run_baseline=True,
+            )
+            source = root / "components/legacy-project-wrapper/implementation"
+            os.link(source / "app.py", source / "app-hard")
+            (source / "app-link").symlink_to("app.py")
+            (source / "empty").mkdir()
+            initial_nodes = {
+                name: (source / name).lstat().st_ino
+                for name in ("app.py", "app-hard", "empty")
+            }
+            original_container = source.lstat().st_ino
+            original_modes = {
+                name: stat.S_IMODE((source / name).lstat().st_mode)
+                for name in ("app.py", "app-hard", "empty")
+            }
+            limits = RetainedProjectLimits(10000, 16 * 1024**2, 64 * 1024**2)
+            with observe_retained_layout_partition(load_project(root)) as context:
+                compiled = _compile_relocation_transaction(
+                    context,
+                    RetainedLayoutDeclaration("components/renamed-wrapper", "retained"),
+                    limits=limits,
+                    case_sensitive=True,
+                )
+            program = compiled["source_operations"]
+            plan = compiled["source_plan"]
+            state = base / "private-state"
+            state.mkdir(mode=0o700)
+            with _begin_layout_journal(
+                root,
+                state_root=state,
+                plan_identity=canonical_identity(compiled),
+                intent=compiled,
+            ) as owner:
+                # This tests only the original source transaction. No layout is
+                # published and these metadata bytes cannot qualify a receipt.
+                owner.stage_metadata(
+                    "unpublished-layout-candidate.json", b"candidate\n"
+                )
+                for operation in program["create_directories"]:
+                    owner.create_directory(operation["path"], mode=operation["mode"])
+                for operation in program["move_leaves"]:
+                    owner.move(
+                        operation["source"],
+                        operation["destination"],
+                        expected_source=tuple(
+                            int(value) for value in operation["source_node"]
+                        ),
+                    )
+                for operation in program["remove_empty_source_directories"]:
+                    owner.remove_empty_source_directory(
+                        operation["path"],
+                        expected_source=tuple(
+                            int(value) for value in operation["source_node"]
+                        ),
+                    )
+                actual = _capture_composed_native_tree(
+                    root / "retained",
+                    store=None,
+                    limits=limits,
+                    case_sensitive=True,
+                    max_metadata_memory_bytes=1024**3,
+                    retain_payloads=False,
+                )
+                self.assertEqual(actual.identity.uri, plan["source_tree_identity"])
+                self.assertEqual(
+                    (root / "retained/app.py").lstat().st_ino, initial_nodes["app.py"]
+                )
+                self.assertEqual(
+                    (root / "retained/app-hard").lstat().st_ino,
+                    initial_nodes["app-hard"],
+                )
+                self.assertEqual(os.readlink(root / "retained/app-link"), "app.py")
+                self.assertTrue((root / "retained/empty").is_dir())
+                owner.rollback_removed_directories()
+                owner.rollback_moves()
+                owner.rollback_created_directories()
+                owner.retire_metadata_stage()
+                self.assertEqual(source.lstat().st_ino, original_container)
+                self.assertEqual(
+                    {name: (source / name).lstat().st_ino for name in initial_nodes},
+                    initial_nodes,
+                )
+                self.assertEqual(
+                    {
+                        name: stat.S_IMODE((source / name).lstat().st_mode)
+                        for name in original_modes
+                    },
+                    original_modes,
+                )
+                self.assertEqual(
+                    (source / "app.py").read_bytes(), b"print('retained')\n"
+                )
+                self.assertEqual((source / "app-hard").lstat().st_nlink, 2)
+                owner.retire_pending(
+                    publication_identity=canonical_identity(compiled),
+                    source_identity=actual.identity,
+                )
+            self.assertFalse((root / "retained").exists())
+            self.assertFalse((root / ".litai-retained-layout-pending.json").exists())
+            self.assertFalse(
+                any(
+                    path.name.startswith(".litai-layout-stage-")
+                    for path in root.iterdir()
+                )
+            )
+            self.assertEqual(os.readlink(source / "app-link"), "app.py")
+
+    @unittest.skipIf(
+        os.name == "nt", "POSIX finite layout observation; Windows owner is separate"
+    )
+    def test_retained_layout_root_plan_is_readonly_and_baseline_is_not_an_ignore_list(
+        self,
+    ):
+        from dataclasses import replace
+
+        from literate_ai.adapters.retained_layout import RetainedLayoutError
+        from literate_ai.adapters.retained_layout_planning import (
+            plan_retained_layout_relocation,
+        )
+        from literate_ai.contracts.identity import (
+            ContentIdentity,
+            HashAlgorithm,
+            canonical_json_bytes,
+        )
+        from literate_ai.contracts.project_initialization import (
+            ProjectInitializationBaseline,
+            ProjectInitializationBaselineFile,
+        )
+        from literate_ai.contracts.retained_layout import RetainedLayoutDeclaration
+        from literate_ai.contracts.retained_project import RetainedProjectLimits
+        from literate_ai.projects import load_project
+        from tests.support.fixtures_test_retained_harness_receipts import (
+            _legacy_project,
+            _selectors,
+        )
+
+        with tempfile.TemporaryDirectory(prefix="layout-plan-") as directory:
+            root = Path(directory).resolve() / "project"
+            _legacy_project(root)
+            _adapter().initialize(
+                root,
+                flavor_selectors=_selectors(root),
+                source_intelligence_provider="none",
+                convert=True,
+                run_baseline=True,
+            )
+            limits = RetainedProjectLimits(10000, 16 * 1024**2, 64 * 1024**2)
+
+            def snapshot():
+                result = {}
+                for path in root.rglob("*"):
+                    node = path.lstat()
+                    value = (
+                        node.st_dev,
+                        node.st_ino,
+                        node.st_mode,
+                        node.st_uid,
+                        node.st_gid,
+                        node.st_nlink,
+                        node.st_size,
+                        node.st_mtime_ns,
+                        node.st_ctime_ns,
+                    )
+                    if path.is_symlink():
+                        payload = os.readlink(path)
+                    elif path.is_file():
+                        payload = hashlib.sha256(path.read_bytes()).hexdigest()
+                    else:
+                        payload = None
+                    result[path.relative_to(root).as_posix()] = (value, payload)
+                return result
+
+            before = snapshot()
+            declaration = RetainedLayoutDeclaration("components/renamed-wrapper", ".")
+            result = plan_retained_layout_relocation(
+                load_project(root), declaration, limits=limits, case_sensitive=True
+            )
+            self.assertTrue(result["plan"]["root_existing_partition"])
+            self.assertEqual(
+                result["plan"]["declaration"]["implementation_directory"], "."
+            )
+            self.assertEqual(snapshot(), before)
+            for coordinate, directory_node in (
+                ("foreign.txt", False),
+                ("skills/source-to-specification/new-empty", True),
+            ):
+                with self.subTest(unselected_member=coordinate):
+                    selected = root / coordinate
+                    if directory_node:
+                        selected.mkdir()
+                    else:
+                        selected.write_bytes(b"foreign bytes\n")
+                    current = snapshot()
+                    with self.assertRaises(RetainedLayoutError) as caught:
+                        plan_retained_layout_relocation(
+                            load_project(root),
+                            declaration,
+                            limits=limits,
+                            case_sensitive=True,
+                        )
+                    self.assertEqual(
+                        caught.exception.code,
+                        "retained.layout.root_partition_collision",
+                    )
+                    self.assertEqual(snapshot(), current)
+                    selected.rmdir() if directory_node else selected.unlink()
+            baseline_path = root / ".literate/initialization-baseline.json"
+            baseline = ProjectInitializationBaseline.from_dict(
+                json.loads(baseline_path.read_bytes())
+            )
+            relative = "components/legacy-project-wrapper/implementation/Makefile"
+            actual = (root / relative).read_bytes()
+            forged = ProjectInitializationBaselineFile(
+                relative,
+                len(actual),
+                ContentIdentity(
+                    HashAlgorithm.SHA256, hashlib.sha256(actual).hexdigest()
+                ),
+            )
+            baseline_path.write_bytes(
+                canonical_json_bytes(
+                    replace(
+                        baseline,
+                        files=tuple(
+                            sorted(
+                                (*baseline.files, forged), key=lambda item: item.path
+                            )
+                        ),
+                    ).to_dict()
+                )
+                + b"\n"
+            )
+            current = snapshot()
+            observed = plan_retained_layout_relocation(
+                load_project(root),
+                RetainedLayoutDeclaration("components/renamed-wrapper", "retained"),
+                limits=limits,
+                case_sensitive=True,
+            )
+            self.assertIn(
+                "Makefile",
+                [
+                    item["path"]
+                    for item in observed["plan"]["source_inventory"]["files"]
+                ],
+            )
+            self.assertEqual(snapshot(), current)
+
+    @unittest.skipIf(os.name == "nt", "native POSIX retirement capture control")
+    def test_retained_layout_retirement_preserves_last_window_foreign_entries(self):
+        import shutil
+
+        from literate_ai.adapters import retained_layout_journal as journal
+        from literate_ai.adapters.retained_layout import RetainedLayoutError
+        from literate_ai.adapters.retained_layout_partition import (
+            observe_retained_layout_partition,
+        )
+        from literate_ai.adapters.retained_layout_transaction import (
+            _compile_relocation_transaction,
+        )
+        from literate_ai.contracts.identity import canonical_identity
+        from literate_ai.contracts.retained_layout import RetainedLayoutDeclaration
+        from literate_ai.contracts.retained_project import RetainedProjectLimits
+        from literate_ai.projects import load_project
+        from tests.support.fixtures_test_retained_harness_receipts import (
+            _legacy_project,
+            _selectors,
+        )
+
+        with tempfile.TemporaryDirectory(prefix="layout-retire-") as directory:
+            base = Path(directory).resolve()
+            template = base / "template"
+            _legacy_project(template)
+            _adapter().initialize(
+                template,
+                flavor_selectors=_selectors(template),
+                source_intelligence_provider="none",
+                convert=True,
+                run_baseline=True,
+            )
+            native_rename = journal._native_rename
+            for kind in (
+                "pending",
+                "created-directory",
+                "created-directory-empty",
+                "metadata-stage",
+            ):
+                with self.subTest(kind=kind):
+                    root = base / kind
+                    shutil.copytree(template, root, symlinks=True)
+                    state = base / (kind + "-state")
+                    state.mkdir(mode=0o700)
+                    with observe_retained_layout_partition(
+                        load_project(root)
+                    ) as context:
+                        compiled = _compile_relocation_transaction(
+                            context,
+                            RetainedLayoutDeclaration(
+                                "components/renamed-wrapper", "retained"
+                            ),
+                            limits=RetainedProjectLimits(
+                                10000, 16 * 1024**2, 64 * 1024**2
+                            ),
+                            case_sensitive=True,
+                        )
+                    injected = []
+                    target = None
+                    saved = root / "original-entry-preserved"
+                    expected_original = None
+
+                    def make_replacement_callback(target, saved, kind, injected):
+                        def replace_at_capture(
+                            source_parent,
+                            source_name,
+                            destination_name,
+                            destination_parent=None,
+                        ):
+                            if source_name == os.fsencode(target.name) and not injected:
+                                # Actual concurrent namespace mutation occurs AFTER
+                                # the caller's final compare, immediately before the
+                                # real native capture. No stat/rename result is fake.
+                                target.rename(saved)
+                                if kind == "pending":
+                                    target.write_bytes(b"foreign pending marker\n")
+                                else:
+                                    target.mkdir(mode=0o700)
+                                    if kind != "created-directory-empty":
+                                        (target / "foreign.txt").write_bytes(
+                                            b"foreign directory bytes\n"
+                                        )
+                                injected.append(target.lstat().st_ino)
+                            return native_rename(
+                                source_parent,
+                                source_name,
+                                destination_name,
+                                destination_parent,
+                            )
+
+                        return replace_at_capture
+
+                    with self.assertRaises(RetainedLayoutError) as caught:
+                        with journal._begin_layout_journal(
+                            root,
+                            state_root=state,
+                            plan_identity=canonical_identity(compiled),
+                            intent=compiled,
+                        ) as owner:
+                            if kind == "pending":
+                                target = root / ".litai-retained-layout-pending.json"
+                            elif kind.startswith("created-directory"):
+                                owner.create_directory("retained", mode=0o755)
+                                target = root / "retained"
+                            else:
+                                owner.stage_metadata(
+                                    "unpublished-layout-candidate.json",
+                                    b"actual staged bytes\n",
+                                )
+                                stages = [
+                                    path
+                                    for path in root.iterdir()
+                                    if path.name.startswith(".litai-layout-stage-")
+                                ]
+                                self.assertEqual(len(stages), 1)
+                                target = stages[0]
+                            expected_original = target.lstat().st_ino
+                            with patch.object(
+                                journal,
+                                "_native_rename",
+                                side_effect=make_replacement_callback(
+                                    target, saved, kind, injected
+                                ),
+                            ):
+                                if kind == "pending":
+                                    owner.retire_pending(
+                                        publication_identity=canonical_identity(
+                                            compiled
+                                        ),
+                                        source_identity=canonical_identity(
+                                            compiled["source_plan"]["source_inventory"]
+                                        ),
+                                    )
+                                elif kind.startswith("created-directory"):
+                                    owner.rollback_created_directories()
+                                else:
+                                    owner.retire_metadata_stage()
+                    self.assertEqual(
+                        caught.exception.code, "retained.layout.retirement_changed"
+                    )
+                    self.assertEqual(len(injected), 1)
+                    self.assertEqual(target.lstat().st_ino, injected[0])
+                    self.assertEqual(saved.lstat().st_ino, expected_original)
+                    if kind == "pending":
+                        self.assertEqual(
+                            target.read_bytes(), b"foreign pending marker\n"
+                        )
+                        self.assertEqual(
+                            json.loads(saved.read_bytes())["schema"],
+                            "literate-ai/retained-layout-pending@1",
+                        )
+                    else:
+                        if kind == "created-directory-empty":
+                            self.assertEqual(list(target.iterdir()), [])
+                        else:
+                            self.assertEqual(
+                                (target / "foreign.txt").read_bytes(),
+                                b"foreign directory bytes\n",
+                            )
+                        if kind == "metadata-stage":
+                            self.assertEqual(
+                                [path.read_bytes() for path in saved.iterdir()],
+                                [b"actual staged bytes\n"],
+                            )
+                    self.assertTrue(
+                        (root / ".litai-retained-layout-pending.json").exists()
+                    )
+
+    @unittest.skipIf(os.name == "nt", "original POSIX authority read/issuance control")
+    def test_retained_layout_issuance_never_rebases_changed_authority_reads(self):
+        from literate_ai.adapters import retained_layout_partition as partition
+        from literate_ai.adapters.retained_layout import RetainedLayoutError
+        from literate_ai.contracts.identity import canonical_json_bytes
+        from literate_ai.projects import load_project
+        from tests.support.fixtures_test_retained_harness_receipts import (
+            _legacy_project,
+            _selectors,
+        )
+
+        with tempfile.TemporaryDirectory(prefix="layout-authority-") as directory:
+            root = Path(directory).resolve() / "project"
+            _legacy_project(root)
+            _adapter().initialize(
+                root,
+                flavor_selectors=_selectors(root),
+                source_intelligence_provider="none",
+                convert=True,
+                run_baseline=True,
+            )
+            alternative = root / "alternative-source"
+            alternative.mkdir()
+            (alternative / "different.txt").write_bytes(b"new selected source\n")
+            cases = (
+                ".literate/legacy-lift-shift.json",
+                ".literate/initialization-baseline.json",
+                ".literate/initialization-origin.json",
+                "components/legacy-project-wrapper/component.md",
+            )
+            actual_framework_paths = partition._framework_paths
+            for relative in cases:
+                with self.subTest(authority=relative):
+                    path = root / relative
+                    original = path.read_bytes()
+                    if relative.endswith("component.md"):
+                        changed = (
+                            original + b"\n<!-- actual concurrent authority edit -->\n"
+                        )
+                    else:
+                        value = json.loads(original)
+                        if relative.endswith("legacy-lift-shift.json"):
+                            value["implementation_directory"] = "alternative-source"
+                        elif relative.endswith("initialization-baseline.json"):
+                            value["files"][0]["size"] += 1
+                        else:
+                            value["distribution_version"] = "0.2.1"
+                        changed = canonical_json_bytes(value) + b"\n"
+                    calls = []
+
+                    def mutate_after_real_read(
+                        *args, _calls=calls, _path=path, _changed=changed, **kwargs
+                    ):
+                        result = actual_framework_paths(*args, **kwargs)
+                        _calls.append(True)
+                        _path.write_bytes(_changed)
+                        return result
+
+                    try:
+                        with patch.object(
+                            partition,
+                            "_framework_paths",
+                            side_effect=mutate_after_real_read,
+                        ):
+                            with self.assertRaises(RetainedLayoutError) as caught:
+                                with partition.observe_retained_layout_partition(
+                                    load_project(root)
+                                ):
+                                    self.fail(
+                                        "changed authority minted a source context"
+                                    )
+                        self.assertEqual(
+                            caught.exception.code, "retained.layout.authority_changed"
+                        )
+                        self.assertEqual(calls, [True])
+                        self.assertEqual(path.read_bytes(), changed)
+                    finally:
+                        # Restore only this test-owned fixture between separate
+                        # fresh factory attempts. No production rollback does it.
+                        path.write_bytes(original)
+
     def test_refined_convert_installs_independent_retained_components(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory).resolve()

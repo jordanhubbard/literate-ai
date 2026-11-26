@@ -695,6 +695,16 @@ def _require_qualified_parity(documents: dict[str, dict[str, Any]]) -> None:
 def _implementation_root(
     project: LoadedProject, documents: dict[str, dict[str, Any]]
 ) -> Path:
+    from .retained_layout import RETAINED_LAYOUT_FILE, resolve_retained_layout
+
+    if os.path.lexists(project.root / RETAINED_LAYOUT_FILE):
+        layout = resolve_retained_layout(project)
+        if documents["lift_shift"]["value"] != layout.lift_shift:
+            _error(
+                "retained_receipt.layout_changed",
+                "retained layout changed during observation",
+            )
+        return layout.implementation
     lift_shift = documents["lift_shift"]["value"]
     assert isinstance(lift_shift, dict)
     raw = lift_shift.get("implementation_directory")
@@ -854,7 +864,13 @@ def _require_project_unchanged(
 def _current_wrapper_lock_identity(project: LoadedProject) -> ContentIdentity:
     """Require the converted project's own wrapper lock, not an ambient catalog lock."""
 
-    component = project.root.joinpath(*Path(_WRAPPER_COMPONENT_PATH).parts)
+    from .retained_layout import RETAINED_LAYOUT_FILE, resolve_retained_layout
+
+    component = (
+        resolve_retained_layout(project).wrapper
+        if os.path.lexists(project.root / RETAINED_LAYOUT_FILE)
+        else project.root.joinpath(*Path(_WRAPPER_COMPONENT_PATH).parts)
+    )
     if component.is_symlink() or not component.is_dir():
         _error(
             "retained_receipt.wrapper_component_missing",
@@ -879,15 +895,26 @@ def _retained_project_authority_observation(
 ) -> tuple[ContentIdentity, dict[str, Any]]:
     selected_documents = documents or _load_retained_documents(project)
     _require_qualified_parity(selected_documents)
+    from .retained_layout import RETAINED_LAYOUT_FILE, require_qualified_retained_layout
+
+    if os.path.lexists(project.root / RETAINED_LAYOUT_FILE):
+        require_qualified_retained_layout(project)
     selected_implementation = implementation or _implementation_root(
         project, selected_documents
     )
     inventory = selected_documents["inventory"]["value"]
     assert isinstance(inventory, dict)
     try:
-        source_tree = observe_retained_tree(
-            selected_implementation, inventory.get("source_scope")
-        )["source_tree"]
+        if os.path.lexists(project.root / RETAINED_LAYOUT_FILE):
+            from .retained_layout_partition import observe_retained_layout_tree
+
+            source_tree = observe_retained_layout_tree(
+                project, inventory.get("source_scope")
+            )
+        else:
+            source_tree = observe_retained_tree(
+                selected_implementation, inventory.get("source_scope")
+            )["source_tree"]
     except (OSError, ValueError) as exc:
         _error(
             "retained_receipt.source_authority_invalid",
