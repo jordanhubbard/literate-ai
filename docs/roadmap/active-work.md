@@ -26575,6 +26575,20 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Initialized mixed-catalog resolver (source partial):** The normal catalog
+  resolver reads relocated initialization-baseline coordinates joined to their
+  original origin, alongside the existing import channel. Seven controls qualify
+  original typed-URI resolution, absent imports without fabrication, preserved
+  root neighbors, unrecorded-file exclusion, origin mismatch, equal-byte shadows
+  and redirected old/new parents. Five existing catalog successor/recovery
+  controls pass, together with lint, formatting, repository layout and public
+  export checks without source drift. The original framework migration writer
+  still refuses mixed roots. Verify import-record/baseline overlap, then connect
+  that writer to the resolver and complete original documentation producer
+  transitions before rerunning the installed framework journey. This checkpoint
+  does not qualify installed migration, full containment or the release; all
+  original acceptance boxes remain open.
+
 - **Original initialized workflow/routing items (source partial):** The real
   installed f1d84cfe7 fixture passes metadata rollback/reapplication but its
   framework-authority plan safely refuses missing workflow/routing item proofs,

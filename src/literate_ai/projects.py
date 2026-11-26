@@ -1599,7 +1599,7 @@ def catalog_placement_root(kind: str, coordinate: str) -> str | None:
 
 
 def contained_catalog_coordinates(root: Path) -> dict[str, str]:
-    """Return only coordinates owned by a declared contained Skill import."""
+    """Resolve recorded initialized and imported contained catalog coordinates."""
     store = ProjectConfigurationStore(root)
     if store.context(root).framework_root == root:
         return {}
@@ -1612,6 +1612,75 @@ def contained_catalog_coordinates(root: Path) -> dict[str, str]:
     }
     if not enabled:
         return {}
+
+    mixed = {
+        name
+        for kind, primary in CATALOG_PLACEMENT_ROOTS.items()
+        for name in ((primary, "samples") if kind == "component" else (primary,))
+        if name in enabled and name in getattr(snapshot.definition, f"{kind}_roots")
+    }
+    coordinates = {}
+    if mixed:
+        # The original migration relocates baseline coordinates through its
+        # acknowledged writer. This is a resolver, never permission to move or
+        # adopt a neighboring file, nor a replacement for current input checks.
+        from literate_ai.adapters.project_updates import (
+            ProjectUpdateError,
+            _project_path,
+            _read_contract,
+        )
+        from literate_ai.contracts import (
+            ProjectInitializationBaseline,
+            ProjectInitializationOrigin,
+        )
+
+        baseline_path = _project_path(
+            store.context(root).framework_root, ".literate/initialization-baseline.json"
+        )
+        if baseline_path.exists():
+            try:
+                baseline = _read_contract(
+                    root,
+                    ".literate/initialization-baseline.json",
+                    ProjectInitializationBaseline,
+                )
+                origin = _read_contract(
+                    root,
+                    ".literate/initialization-origin.json",
+                    ProjectInitializationOrigin,
+                )
+            except ProjectUpdateError as exc:
+                raise ProjectError(
+                    "project.skill_placement_conflict",
+                    "initialized catalog evidence is unavailable or invalid",
+                ) from exc
+            if baseline.origin_identity != origin.identity:
+                raise ProjectError(
+                    "project.skill_placement_conflict",
+                    "initialized catalog origin and baseline differ",
+                )
+            for item in baseline.files:
+                if not item.path.startswith("litai/"):
+                    continue
+                logical = item.path.removeprefix("litai/")
+                if logical.split("/", 1)[0] not in mixed:
+                    continue
+                try:
+                    original = _project_path(root, logical)
+                    require_safe_directory(
+                        (root / item.path).parent, allow_missing=True
+                    )
+                except (ProjectUpdateError, UnsafeFilesystemPathError, OSError) as exc:
+                    raise ProjectError(
+                        "project.skill_placement_conflict",
+                        f"initialized catalog coordinate is redirected: {logical}",
+                    ) from exc
+                if logical in coordinates or os.path.lexists(original):
+                    raise ProjectError(
+                        "project.skill_placement_conflict",
+                        f"old-root or duplicate initialized catalog file: {logical}",
+                    )
+                coordinates[logical] = item.path
 
     from literate_ai.adapters.catalog_import import (
         CatalogImportError,
@@ -1626,18 +1695,17 @@ def contained_catalog_coordinates(root: Path) -> dict[str, str]:
         # A newly authored contained-only catalog is declared directly, without
         # invented parent imports. Mixed old/new imported catalogs still require
         # their original strict provenance mapping.
-        if all(
+        if coordinates or all(
             name not in getattr(snapshot.definition, f"{kind}_roots")
             for kind, primary in CATALOG_PLACEMENT_ROOTS.items()
             for name in ((primary, "samples") if kind == "component" else (primary,))
             if name in enabled
         ):
-            return {}
+            return coordinates
         raise ProjectError(
             "project.skill_placement_missing",
             "contained Skill import authority is absent",
         )
-    coordinates = {}
     for entry in imports.imports:
         touched = {
             catalog_placement_root(entry.kind, row.path)

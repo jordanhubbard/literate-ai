@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: resolve recorded initialized catalog coordinates in mixed roots while rejecting shadows, redirects and origin mismatch.
+
 - Project layout: recognize proven initialized workflow and routing items while preserving unknown payload and mixed catalog boundaries.
 
 - Project layout: verify a repaired installed SDK can recover the original failed metadata journal while preserving application source, Git state and unchanged archived history.
