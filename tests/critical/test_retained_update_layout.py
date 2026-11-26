@@ -44,7 +44,9 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             self._project(root, "components/legacy-project-wrapper/implementation")
-            protected = _retained_legacy_shim_authority_paths(root)
+            protected = _retained_legacy_shim_authority_paths(
+                root, preserve_evidence=False
+            )
             self.assertEqual(
                 protected,
                 frozenset(
@@ -68,7 +70,9 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
                         encoding="utf-8",
                     )
                     with self.assertRaises(ProjectUpdateError) as captured:
-                        _retained_legacy_shim_authority_paths(root)
+                        _retained_legacy_shim_authority_paths(
+                            root, preserve_evidence=False
+                        )
                     self.assertEqual(
                         captured.exception.code,
                         "project.update_retained_layout_invalid",
@@ -123,7 +127,7 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text("retained\n", encoding="utf-8")
             self.assertEqual(
-                _retained_legacy_shim_authority_paths(root),
+                _retained_legacy_shim_authority_paths(root, preserve_evidence=False),
                 frozenset(
                     {
                         f"{wrapper}/component.md",
@@ -137,7 +141,7 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
                 encoding="utf-8",
             )
             with self.assertRaises(ProjectUpdateError) as captured:
-                _retained_legacy_shim_authority_paths(root)
+                _retained_legacy_shim_authority_paths(root, preserve_evidence=False)
             self.assertEqual(
                 captured.exception.code, "project.update_retained_layout_invalid"
             )

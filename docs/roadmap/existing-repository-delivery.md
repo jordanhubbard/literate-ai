@@ -19,14 +19,26 @@ challenges the earlier findings against current source and retained executions;
 scope, measurements and limitations. This is a review/roadmap checkpoint, not a
 new source, installed-wheel, platform or release qualification.
 
-**Current execution instruction.** Qualify the reviewed corrections on one fresh
-source tree. The run for `cc5f8f30a4a6062a9d1a0a1c3872485019ef230c` selected
-3,228 cases and was interrupted after 13 minutes 16 seconds, with 362 passes
-and 29 skips recorded. A separate worker-management test exposed an omitted
-schema catalog entry on the same tree. The existing `version check --no-project`
-reproduced the refusal in 1.49 seconds and passed on the corrected source in
-2.41 seconds. Run that check before the full suite. Retain the interrupted
-result and start with a fresh checkpoint. For [issue 484](https://github.com/jordanhubbard/literate-ai/issues/484),
+**Current execution instruction.** Qualify one combined candidate from commit
+`91e06e9c4`. That parent’s fresh source run passed 3,148 tests with 101 declared skips
+and zero failures in 73 minutes 22 seconds. The subsequent wheel check
+refused an installed test inventory that omitted the new CUDA portability
+case. The combined candidate also adds the shared qualification diamond case.
+Source discovery found exactly those two additions across nine maintained
+scopes and 24 fixture classes, yielding 215 cases. The corrected installed
+diagnostics and CUDA cohorts passed 32 and 16 cases respectively. Removing
+a different expected method still made the installed check refuse.
+
+Check the schema catalog, interpreter origin and maintained case names before
+the next long run. Use the exact installed wheel for the executable check.
+Preserve the first wheel refusal and the interrupted successor. The earlier
+3,228-case run had revealed a catalog omission reproducible in 1.49 seconds.
+On the first 3,249-case attempt, a shared editable install pointed an isolated
+child at a different checkout after 360 passing tests and 29 skips. The
+packaging receiver detected it. The successful rerun used its own checkout
+environment and verified both import origins.
+
+For [issue 484](https://github.com/jordanhubbard/literate-ai/issues/484),
 34 focused tests passed after independent review found and the author fixed
 two failures in lock cleanup and checkpoint rollback. For
 [issue 485](https://github.com/jordanhubbard/literate-ai/issues/485), the
@@ -35,15 +47,41 @@ including from a consumer with a conflicting package name. The reviewed
 artifact check binds one staged file to the producer’s actual test job.
 Installed qualification, hosted results and publication custody remain separate.
 
+Use the combined local and hosted timeline for work packages C and E. In the
+1.2 lead-up 5.04 hours of previously unattributed time overlapped hosted jobs
+outside the local runs. A further 60.71 hours still lack either kind of
+observation. Windows CI failed on the exact tag 18 minutes after publication,
+as the release policy allowed hosted CI to be optional. Test the effect of a
+required prepublication cell failing or running late, including exact attempt
+and artifact selection. Post-tag failure belongs to recovery and readback.
+[Windows result](https://github.com/jordanhubbard/literate-ai/actions/runs/38234884516/job/114763068950)
+
+For work package E, bind the annotated Git tag object as well as its target
+commit and the tested artifact digest. An independent local Git receiver
+replaced the annotation after a push. The candidate accepted it because both
+Git and the provider double read back the replacement at the intended commit.
+Keep exact-object authorization through each provider mutation and through a
+retry. A matching object may resume. A different object at the same commit
+must stop the operation before the next write. Retain the normal push control.
+
+For work package C, include caller-wide permissions and job selection when
+deciding whether a reusable CI workflow is affected. A changed caller permission
+selected the broad ordinary matrix while skipping the SDK workflow. Exercise
+the affected cell or select it conservatively when the scope is ambiguous.
+The independently reviewed selector implements this fallback. All 26 independent
+selector tests passed, including caller-wide permissions. The hosted execution
+of the selected steps remains to be observed on the composed candidate.
+
 Under work package F, retain an
 observed expired lease generation across clock rollback and later uncertain
 responses, then require the provider’s exact acknowledgement for cleanup. The
 stub-control suite passed all 44 worker cases. Older readers reject the new
 journal state, so recovery of a journal containing it requires a capable reader.
-Under CUDA-SIGNAL-001, bring forward the five missing toolkit, runtime-type
-and driver-call detections from [PR 410](https://github.com/jordanhubbard/literate-ai/pull/410)
-while retaining the current parser’s multiline attribution exclusions. These
-are source-inventory checks. They establish no execution on a GPU.
+Under CUDA-SIGNAL-001, the independently reviewed source now retains the five
+missing toolchain, runtime-type and driver-call signals from
+[PR 410](https://github.com/jordanhubbard/literate-ai/pull/410), together with
+multiline attribution exclusions. Seven source tests passed on composed bytes.
+Installed and exact-head qualification remain open.
 
 Under work package G and RELEASE-CLOSURE-001, make the work writer and release
 sweep use the same visible goal sections and complete identifiers. In real Git
@@ -53,6 +91,15 @@ or miss unchecked acceptance under a prose subheading. Recheck normal closure,
 the three refusals, duplicate visible identifiers and the complete 1.4 manifest.
 A read-only audit of the actual queue found identical dispositions with examples
 filtered, and close refused all 46 open goals. [Issue 486](https://github.com/jordanhubbard/literate-ai/issues/486)
+
+Preserve complete acceptance text in the operator summary for package G. Its
+1.4 projection omitted wrapped lines on at least 34 unfinished checkboxes across
+TEST-CACHE-001, RELEASE-CLOSURE-001, WORKER-001 and WORKTREE-002. Changing a
+real continuation in a disposable copy changed the outstanding work while
+leaving the entire public report and its identity byte-identical. Require the
+summary to display the complete visible requirement and its identity to change
+when that requirement changes. Retain the 81 selected goals, the 46 open states
+and the existing exclusions for fenced examples and comments.
 
 Under PROJECT-LAYOUT-001, verify that public work closure updates the declared
 framework queue when a host backlog contains the same ID. Preserve the host
@@ -65,6 +112,20 @@ under a bounded supervisor left the child alive under PID 1. A source-gate
 interruption also left the checkpoint runner and two workers alive until
 explicit cleanup. Verify cancellation through the outer entry point, exit
 status, terminal evidence and absence of owned descendants before retry.
+
+The first three delivery priorities are the cheap source and interpreter checks
+in C, the contained native adoption and result-observation path in A and D,
+and exact promotion custody in E. The paired Cargo measurement in B kept all
+59 validations and saved 7.82 seconds in one run. Keep that implementation
+bounded and require repeated improvement before assigning it release-time credit.
+
+**Security check disposition.** PR 421's two occurrences refer to one incident
+on two commits. Both match the SHA-256 of the same public PyYAML module. PR 475's
+three reported values match three public Literate AI module files at the
+framework revision recorded by their evidence producer. Each comparison used the
+exact GitHub line linked by GitGuardian. Retain these five comparisons for
+incident-specific security review and keep both original check results visible.
+[Reproduction inputs and provider check IDs](../../verification/release-security-finding-provenance.json).
 
 ### Consolidated release work packages
 
@@ -107,8 +168,136 @@ host’s native test and public adoption, CI observation, revision update and
 removal. It took 22.673 seconds and added 15 framework files under `litai/`,
 with zero external changes from adoption and zero duplicate verifier jobs.
 The native defect and repair were real. GitHub transport and job identities
-were simulated. Keep actual hosted branch enforcement, failed native-job retry,
-automatic activation and a changed-version contained upgrade open.
+were simulated. The later hosted pilot below covers actual required checks and
+failed-job retry. Automatic activation and a changed-version contained upgrade remain open.
+
+A second installed pilot used the public ToolScheme v0.3.0 source at
+`b0a4d06db331a072681990cdb6773db0c0eaf551`, with its actual Makefile,
+C++ tests, release workflow and existing roadmap. The host had already run
+Linux and macOS on x86-64 and ARM64 and published the tag.
+[Main run](https://github.com/jordanhubbard/toolscheme/actions/runs/35908701993)
+and [tag run](https://github.com/jordanhubbard/toolscheme/actions/runs/35908702822).
+
+On a local clone, the installed intermediate framework wheel at `96c404e18`
+added 15 files under `litai/` in a 0.90-second plan and 1.66-second apply.
+The host's 1,683 native checks passed before and after adoption. A seeded
+integer-rendering defect failed eight existing checks. Repair restored the
+full native pass. A separate clone confirmed all 98 external filesystem entries
+retained their types, modes and contents through repeated adoption refusal,
+same-version update and removal. Removal preserved a one-byte framework lock
+under `litai/.litai-locks/` as its runtime-state policy declares. Both clones
+retained the host's original CI and roadmap. The four hosted platform jobs
+preceded adoption. The separate hosted CSV pilot below covers a governed PR.
+Changed-version upgrade remains open.
+
+For work package D, credit each pilot failure to the check that first caught it.
+With the same defect in an unadopted ToolScheme checkout, the host command
+failed the same eight checks and emitted identical diagnostics. It took
+29.29 seconds there and 29.16 seconds after adoption. This trial gives the
+framework zero additional application defects caught. For the governed pilot,
+record separately any wrong-commit, stale-attempt or substituted-artifact
+decision that native CI alone would accept, the time to feedback, and the
+number of repeated native jobs. A pilot can earn credit for consuming an exact
+existing result or avoiding a second build. Record zero when neither changes.
+
+In the installed native observer control, four distinct PR, failure and retry
+jobs executed. Observing those results added zero native jobs. In a separate
+local Git/provider experiment with a real built artifact, the release gate
+refused substituted bytes in 1.754 seconds, stale artifact size evidence in
+1.731 seconds and re-use of an earlier successful attempt in 1.522 seconds.
+The independently reviewed successor refused a replacement annotation pointing
+to the correct commit. A fresh verifier accepted the original using an
+operator-trusted object ID, and refused a missing or incorrect ID. These
+measurements cover the controlled promotion path. The later hosted consumer
+pilot observes native jobs separately. Final release qualification remains open.
+
+On a fresh clone of the same ToolScheme revision, source tree `c548bc608`
+planned native adoption without writes and separately completed the explicit
+`onboard adopt --profile convert` operation in 154.2 seconds. The original
+source, roadmap and CI workflow moved together under
+`components/legacy-project-wrapper/implementation/`. This opt-in effect is
+documented in the getting started guide and the conversion skill. These
+experiments satisfy the three implementation criteria of ADOPT-CLI-001.
+The release item remains open for its end-to-end evidence.
+
+### Hosted governed PR and partial retry
+
+The installed wheel from `96c404e18` observed a private draft PR through the
+actual GitHub API. Both required jobs ran Python 3.11 against the application's
+existing tests. The CSV parser failed on a UTF-8 byte-order mark on Linux and
+Windows. The native failure identified the parser defect. Its repair passed on
+both platforms. Strict branch protection required both GitHub Actions jobs,
+including for administrators. Across the four observations GitHub reported
+the merge state as blocked on failure and clean on success. The PR remained a
+draft throughout.
+
+A separate fixture test failed only on the first Windows attempt. Rerunning
+failed jobs kept the same source and run. GitHub gave the earlier Linux job
+a new row ID carrying the same runner and step timestamps. Windows ran
+again and passed. Four installed observations took 23.487 seconds in total
+and triggered zero additional native jobs. These counts exclude the two
+successful base-branch setup jobs. Eight PR job rows represent
+seven distinct native executions, spanning 90 summed job-seconds and 72
+seconds with at least one native job active. An earlier locally checked-out
+green revision was rejected against the newer green PR in 1.533 seconds.
+
+The pinned checkout action logged the Git commit actually tested by each of
+the seven native executions. All three PR heads were tested through a synthetic
+merge commit with the expected base and head parents. In each case its tree
+matched the proposed head tree exactly. The observer itself reported the
+tested tree as unknown. The independent log and Git object comparison supplies
+that evidence for this fixture.
+
+This satisfies the real hosted governed-PR and partial-retry pilot for package
+D. Continue with the changed-version contained upgrade, automatic skill
+activation and final-candidate qualification. The observer leaves tested
+artifact identity and merge authorization with their existing owners.
+[Hosted evidence and timing boundaries](../../verification/native-ci-hosted-governed-pr.json).
+
+### Show what changed in the workflow behind a required job
+
+In a real local Git fixture, an installed observer correctly reported a
+failing application test. Removing just the test step from the selected
+workflow kept the two required job names and their compile step. Compilation
+succeeded, the unchanged application test still failed, and the observer
+returned `verified` for the simulated successful jobs. Restoring the original
+workflow and repairing the application made both checks pass. GitHub responses
+were simulated in all three cases. The observer made no merge or release
+decision in any case.
+[Exact commits, workflow blobs and CLI results](../../verification/native-ci-workflow-definition-observation.json).
+
+Package D should show the base and head Git blob identities of the configured
+workflow and distinguish changed, unchanged and unavailable definitions. Keep
+the named job outcomes visible. Route a changed definition to the host's
+workflow review, and keep the initial unconfigured-policy path available.
+Changes to scripts and reusable workflows can also alter job behavior. Report
+the reach of the comparison explicitly. Exercise all three fixture cases
+without running duplicate native jobs or treating the report as merge approval.
+
+### Preserve a converted project's release process during migration
+
+A disposable project converted by the published 1.3.1 framework kept its
+canonical manifest profile, generated initialization baseline and release policy
+bytes through a partial move under `litai/`. The original `release state`
+reported a free main branch. The moved copy refused both state and plan with
+`release.native_profile_unsupported`. On each copy the two commands preserved
+working files, Git HEAD and the raw index.
+
+The original template policy also checks hosted contributions. In a second
+pair, both copies used the same explicit pre-release mode and local-only policy.
+The original produced a patch plan and the moved copy still refused. Keep the
+original tracker check for teams whose policy requires it. The minimal native
+bootstrap separately passed its existing release-refusal control.
+[Commands, exact results and fixture changes](../../verification/contained-converted-release-observation.json).
+
+Package A owns the placement decision and package E owns release authority.
+Use the initialization profile and the recorded placement when resolving the
+version manifest and the Component named by the gate. The same policy bytes
+can address different files after a move. Require a stale plan or a competing
+root file to refuse before a write. The migrated project must pass the same
+legitimate state, plan and local recovery checks as its predecessor and
+preserve host files through rollback. A native-only application continues to
+release with its own tooling.
 
 ### Tracker and obsolete-instruction reconciliation
 
@@ -130,6 +319,23 @@ test file tree entries already present, its changelog and program section
 retained, and its former next action superseded by the observed early refusal.
 It needs no code replay onto this candidate. Actual forge disposition and
 resulting-main qualification remain with RELEASE-INTEGRATION-005.
+
+**Exercise the action that an update changes.** In private trial merges onto
+source tree `c548bc60865bf754acafe5b9d45de355c82e2bb4`, applying PRs
+473 and 474 in either order produced the same tree. All three action references
+remained pinned and their declared inputs accepted the existing workflow arguments.
+
+The existing CI selector classified both PRs as policy-only. In the actual
+Bazel pin run, the new setup action was skipped while an unrelated FreeBSD ACL
+step ran for 66 seconds. The FreeBSD pin run exercised the changed action on
+14.3 for 325 seconds. Its separate 15.1 installed-SDK workflow is manual.
+The local selector reproduced the same matrix choices for a PR and a push to
+main. Under RELEASE-INTEGRATION-005 and SDLC-001, select an existing native
+cell that calls the changed action, then verify the step conclusion at the
+candidate revision. Keep the 15.1 SDK evidence separate and preserve full
+qualification for release refs. Unknown or shared workflow edits must retain
+broad coverage. [Bazel run](https://github.com/jordanhubbard/literate-ai/actions/runs/44261266692)
+and [FreeBSD run](https://github.com/jordanhubbard/literate-ai/actions/runs/44261298366).
 
 The following newer records lacked links across the current roadmap snapshot;
 reuse the named owners rather than creating a second backlog:
@@ -1338,7 +1544,8 @@ README change. A seeded overflow case fails real Cargo tests in both debug and
 release modes; checked addition repairs both. This is an owned local macOS ARM64
 fixture and uneven-coverage experiment, not a hosted governed PR or additional
 platform qualification. Original application bytes are restored after probing.
-A separate reviewed hosted Python pilot awaits publication authorization.
+At this checkpoint the hosted Python pilot was awaiting authorization. Its later
+[governed PR and partial retry](#hosted-governed-pr-and-partial-retry) exercised both platforms.
 
 The authentic installed 18d98aab3-to-8ada5c6 revision transition subsequently
 passes for both Python and Rust fixtures. Both distributions declare 1.4.0;

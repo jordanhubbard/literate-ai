@@ -4,6 +4,7 @@ import os
 import shutil
 import unittest
 from contextlib import ExitStack, nullcontext
+from pathlib import Path
 from unittest.mock import patch
 
 from literate_ai import projects
@@ -14,6 +15,7 @@ from literate_ai.adapters.component_lock_application import (
     ProjectComponentLockSetError,
     current_project_component_locks,
 )
+from literate_ai.adapters.project_validation import ProjectValidationError
 from literate_ai.adapters.retained_cargo_wrapper_v2 import RetainedCargoWrapperContextV2
 from tests.support.fixtures_current_component_locks import (
     initialize_current_component_lock_fixture,
@@ -169,11 +171,16 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
         self.addCleanup(fixture.doCleanups)
         initialize_retained_cargo_receiving_v2_fixture(fixture)
         self.fixture = fixture
-        self.callback_error = None
+        self.reviewed_binding = (
+            fixture.reviewed.project.root / (fixture.reviewed.document_paths[1])
+        )
+        self.on_provider_read = None
+        self.provider_reads = 0
 
         def read_current():
-            if self.callback_error is not None:
-                raise self.callback_error
+            self.provider_reads += 1
+            if self.on_provider_read is not None:
+                self.on_provider_read(self.provider_reads)
             return fixture.current
 
         materialized = receive_retained_cargo_fixture(
@@ -233,7 +240,7 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
                 error = observed
             return value, error, events, parser.call_count
 
-    def test_identity_keeps_seventeen_real_fences_and_only_reuses_parsing(self):
+    def test_identity_keeps_sixteen_explicit_fences_and_parse_isolation(self):
         before = _frames()
         baseline = self.observe(reuse=False)
         candidate = self.observe(reuse=True)
@@ -241,7 +248,7 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
         self.assertIsNone(candidate[1])
         self.assertEqual(candidate[0], baseline[0])
         self.assertEqual(candidate[2], baseline[2])
-        self.assertEqual(len([x for x in candidate[2] if x[0] == "enter"]), 17)
+        self.assertEqual(len([x for x in candidate[2] if x[0] == "enter"]), 16)
         self.assertGreater(candidate[3], 0)  # Each isolated observation starts cold.
         self.assertLess(candidate[3], baseline[3])
         self.assertEqual(_frames(), before)
@@ -296,22 +303,58 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
                     self.assertEqual(_frames(), (None, None))
             self.assertEqual(results[0], results[1])
 
-    def test_real_callback_failure_restores_nested_ambient_frames(self):
+    def test_callback_failures_restore_nested_ambient_frames(self):
         with (
             projects.read_only_project_configuration_parses(),
             catalogs.read_only_component_catalog_observations(),
         ):
             ambient = _frames()
-            self.callback_error = RuntimeError("original provider read failed")
-            try:
-                with self.assertRaises(RuntimeError) as observed:
-                    self.inputs.current_identity(environment=self.environment)
-                self.assertIs(observed.exception, self.callback_error)
-            finally:
-                self.callback_error = None
-            self.assertIs(_frames()[0], ambient[0])
-            self.assertIs(_frames()[1], ambient[1])
+            error = RuntimeError("original provider read failed")
+            for fail_at in (1, 2):
+                with self.subTest(fail_at=fail_at):
+
+                    def fail(ordinal, target=fail_at):
+                        if ordinal == target:
+                            raise error
+
+                    self.on_provider_read = fail
+                    self.provider_reads = 0
+                    try:
+                        with self.assertRaises(RuntimeError) as observed:
+                            self.inputs.current_identity(environment=self.environment)
+                        self.assertIs(observed.exception, error)
+                        self.assertEqual(self.provider_reads, fail_at)
+                    finally:
+                        self.on_provider_read = None
+                    self.assertIs(_frames()[0], ambient[0])
+                    self.assertIs(_frames()[1], ambient[1])
             self.inputs.current_identity(environment=self.environment)
+        self.assertEqual(_frames(), (None, None))
+
+    def test_closing_provider_callback_cannot_change_wrapper_component(self):
+        context = self.fixture.context
+        component = context.bindings[0][1].root / "component.md"
+        self.assertFalse(component.is_relative_to(context.workspace))
+        content = component.read_bytes()
+        changed = content + b"\nProvider changed the selected wrapper Component.\n"
+
+        def mutate(ordinal):
+            if ordinal == 2:
+                component.write_bytes(changed)
+
+        self.provider_reads = 0
+        self.on_provider_read = mutate
+        try:
+            with self.assertRaises(ProjectValidationError) as refusal:
+                self.inputs.current_identity(environment=self.environment)
+            self.assertEqual(
+                refusal.exception.code, "project.documentation_authority_review_stale"
+            )
+            self.assertEqual(self.provider_reads, 2)
+            self.assertEqual(component.read_bytes(), changed)
+        finally:
+            self.on_provider_read = None
+            component.write_bytes(content)
         self.assertEqual(_frames(), (None, None))
 
     def test_ended_actual_scratch_still_refuses_and_clears_isolated_frames(self):
@@ -319,3 +362,46 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "scratch-operation-ended"):
             self.inputs.current_identity(environment=self.environment)
         self.assertEqual(_frames(), (None, None))
+
+    def test_captured_projection_is_closed_against_cargo_home_mutation(self):
+        scope = self.inputs.scope
+        original = type(scope)._captured_identity
+        changed = Path(self.environment["CARGO_HOME"]) / "late-input"
+
+        def project(scope):
+            identity = original(scope)
+            changed.write_bytes(b"new member during projection\n")
+            return identity
+
+        try:
+            with (
+                patch.object(type(scope), "_captured_identity", project),
+                self.assertRaisesRegex(ValueError, "input-custody-changed"),
+            ):
+                self.inputs.current_identity(environment=self.environment)
+        finally:
+            changed.unlink(missing_ok=True)
+
+    def test_public_scope_identity_validates_wrapper_and_lifetime(self):
+        scope = self.inputs.scope
+        self.assertEqual(scope.identity, scope._captured_identity())
+        content = self.reviewed_binding.read_bytes()
+        owners_type = type(scope.owners)
+        owners_identity = owners_type.identity.fget
+
+        def mutate(owners):
+            identity = owners_identity(owners)
+            self.reviewed_binding.write_bytes(content + b"\n")
+            return identity
+
+        try:
+            with (
+                patch.object(owners_type, "identity", property(mutate)),
+                self.assertRaisesRegex(ValueError, "generation authority changed"),
+            ):
+                _ = scope.identity
+        finally:
+            self.reviewed_binding.write_bytes(content)
+        self.fixture.doCleanups()
+        with self.assertRaisesRegex(ValueError, "wrapper-operation-ended"):
+            _ = scope.identity

@@ -179,17 +179,19 @@ def migrate_retained_evidence(project_root: Path) -> AppliedRetainedEvidenceMigr
 
     migrated: list[str] = []
 
-    parity_path = project_root / _PARITY_PATH
+    context = ProjectConfigurationStore.context(project_root)
+    project_root = context.root
+    parity_path = context.framework_path(_PARITY_PATH)
     if parity_path.is_file():
         document = _read_json_document(parity_path)
         if document is not None:
             updated, changed = migrate_legacy_wrapper_parity_document(document)
             if changed:
                 parity_path.write_bytes(canonical_json_bytes(updated) + b"\n")
-                migrated.append(_PARITY_PATH)
+                migrated.append(parity_path.relative_to(project_root).as_posix())
 
-    inventory_path = project_root / _INVENTORY_PATH
-    lift_shift_path = project_root / _LIFT_SHIFT_PATH
+    inventory_path = context.framework_path(_INVENTORY_PATH)
+    lift_shift_path = context.framework_path(_LIFT_SHIFT_PATH)
     if inventory_path.is_file() and lift_shift_path.is_file():
         inventory_document = _read_json_document(inventory_path)
         lift_shift_document = _read_json_document(lift_shift_path)
@@ -203,7 +205,7 @@ def migrate_retained_evidence(project_root: Path) -> AppliedRetainedEvidenceMigr
                 )
                 if changed:
                     inventory_path.write_bytes(canonical_json_bytes(updated) + b"\n")
-                    migrated.append(_INVENTORY_PATH)
+                    migrated.append(inventory_path.relative_to(project_root).as_posix())
                     _rebind_receipt_policy_and_review(project_root, updated)
 
     return AppliedRetainedEvidenceMigration(migrated=tuple(migrated))
