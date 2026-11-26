@@ -80,6 +80,7 @@ def execute_local_retained_project(
     operator_environment=None,
     sdk_project=None,
     sdk_binding=None,
+    consume_admission=None,
 ):
     """Run one reviewed local plan and return its live retained admission.
 
@@ -88,6 +89,8 @@ def execute_local_retained_project(
     this local entry cannot substitute ambient SDK discovery for those bindings.
     """
     plan = planning.plan
+    if consume_admission is not None and not callable(consume_admission):
+        raise TypeError("retained.execution.admission-consumer-required")
     plan.require_authorization(authorization)
     if allow_host_execution is not True:
         raise RetainedProjectExecutionError("retained.execution.authorization-required")
@@ -257,6 +260,12 @@ def execute_local_retained_project(
             workspace, store, worker_evidence=platform.evidence()
         )
         admission.require_current()
+        if consume_admission is not None:
+            # Framework composition supplies this callable, never serialized
+            # input. Secondary views were finalized by admission; consumers use
+            # sealed CAS payloads and revalidate genuine SDK/package owners.
+            consume_admission(admission, workspace)
+            admission.require_current()
         return admission, workspace
     except Exception as exc:
         raise RetainedProjectExecutionError(

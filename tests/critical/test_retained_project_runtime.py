@@ -86,7 +86,18 @@ class RetainedProjectRuntimeTests(unittest.TestCase):
         )
 
     def test_real_complete_run_returns_live_admission_and_reopens_custody(self):
-        admission, workspace = self.run_project()
+        consumed = []
+
+        def consume(actual, live_workspace):
+            actual.require_current()
+            self.assertFalse(
+                (live_workspace.root / "command-diagnostics.json").exists()
+            )
+            self.assertTrue((live_workspace.outputs / "app.bin").is_file())
+            consumed.append((actual, live_workspace))
+
+        admission, workspace = self.run_project(consume_admission=consume)
+        self.assertEqual(consumed, [(admission, workspace)])
         admission.require_current()
         self.assertEqual(admission.receipt.passed, 1)
         self.assertFalse(admission.receipt.to_dict()["conversion_advanced"])
@@ -119,6 +130,21 @@ class RetainedProjectRuntimeTests(unittest.TestCase):
         )
         self.assertEqual(len(records[0]["observations"]), 2)
         self.assertFalse(records[0]["grants_admission"])
+
+    def test_failed_live_consumer_retains_completed_command_diagnostics(self):
+        runs = []
+
+        def refuse(admission, workspace):
+            admission.require_current()
+            runs.append(workspace.root)
+            raise ValueError("live package consumer refused")
+
+        with self.assertRaisesRegex(ValueError, "live package consumer refused"):
+            self.run_project(consume_admission=refuse)
+        self.assertEqual(len(runs), 1)
+        diagnostic = json.loads((runs[0] / "command-diagnostics.json").read_bytes())
+        self.assertFalse(diagnostic["admission"])
+        self.assertEqual(len(diagnostic["command_observations"]), 4)
 
     def test_secondary_policy_without_owner_refuses_before_platform_or_cache(self):
         f = self.fixture.fixture
