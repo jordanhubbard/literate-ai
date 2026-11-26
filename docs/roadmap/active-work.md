@@ -33353,6 +33353,7 @@ independent review and the complete combined gate from test one.
 - **Owner:** Framework core: adopted-project layout, inventory, updates, retained receipts and readmission
 - **Release target:** 1.4.0
 - **GitHub issue:** [#265](https://github.com/jordanhubbard/literate-ai/issues/265)
+- **Proposed design:** [ADR 0057](../decisions/0057-retained-implementation-layout-and-relocation.md) separates structural layout renewal from qualified lifecycle/package use and specifies descriptor-owned recovery. Directing-user design acceptance remains pending; no implementation or qualification is claimed.
 - **Direction:** Issue #265 requests a supported retained implementation path outside the legacy wrapper, including a plain subdirectory or repository root and a chosen wrapper Component name. The directing user accepted newly filed issues for 1.4.
 - **Conclusion:** Extend PROJECT.md Goals 1, 4 and 6 with one authoritative retained-layout selection and a reviewed transactional relocation path. Preserve legacy defaults, source custody and lineage; invalidate stale receipts and require fresh qualification after movement. Edited evidence and symlink shims are not migration authority. Root placement and custom wrapper naming remain required design and acceptance scope.
 - **Depends on:** Trace current lift-and-shift path consumers; settle reviewed ownership and migration semantics; implement canonical resolution and transactional plan/apply; qualify installed journeys and rollback.
