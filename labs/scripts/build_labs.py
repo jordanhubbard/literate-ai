@@ -7,6 +7,7 @@ import hashlib
 import html
 import json
 from pathlib import Path
+from typing import NamedTuple
 
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = """<!doctype html>
@@ -34,46 +35,134 @@ TEMPLATE = """<!doctype html>
 """
 
 
-def source_paths(lab: Path) -> list[Path]:
-    if (lab / "project/literate.project.json").exists():
-        project = lab / "project"
-        manifest = json.loads((project / "literate.project.json").read_text())
-        component = project / manifest["repository_policy"]["default_component"]
-        lock = json.loads((component / "component.lock.json").read_text())
-        inputs = [
-            component / "component.md",
-            lab / "lab.json",
-            lab / "main.js",
-            ROOT / "shared/lab.css",
-            ROOT / "shared/lab-runtime.js",
-            ROOT / "scripts/build_labs.py",
-            project / "literate.project.json",
-            component / "component.lock.json",
-        ]
-        for node in lock["nodes"]:
-            revision = node["revision"]
-            for ref in revision["authoring_inputs"] + [
-                revision["workflow_definition"],
-                revision["routing_policy"],
-            ]:
-                inputs.append(project / ref["uri"])
-        # These are exactly the explicitly selected catalog Flavors, not every
-        # catalog entry. The lock and rendered selection are verified separately.
-        for selector in manifest["default_flavor_selectors"]:
-            inputs.append(
-                project / "flavors" / selector.rsplit("/", 1)[-1] / "flavor.md"
-            )
-        return list(dict.fromkeys(inputs))
-    return [
-        lab / "component.md",
+class CanonicalLab(NamedTuple):
+    project: Path
+    component: Path
+    manifest_bytes: bytes
+    lock_bytes: bytes
+    manifest: dict
+    lock: dict
+
+
+def _project_file(root: Path, uri: str) -> Path:
+    relative = Path(uri)
+    path = root / relative
+    if (
+        relative.is_absolute()
+        or ".." in relative.parts
+        or "\\" in uri
+        or path.is_symlink()
+        or not path.resolve(strict=True).is_relative_to(root.resolve(strict=True))
+        or not path.is_file()
+    ):
+        raise ValueError(
+            f"project input must be a regular file inside its owner: {uri}"
+        )
+    return path
+
+
+def _canonical_lab(lab: Path) -> CanonicalLab:
+    manifest_path = _project_file(lab, "project/literate.project.json")
+    project = manifest_path.parent
+    manifest_bytes = manifest_path.read_bytes()
+    manifest = json.loads(manifest_bytes)
+    declared = manifest["repository_policy"]["default_component"]
+    lock_path = _project_file(project, f"{declared}/component.lock.json")
+    lock_bytes = lock_path.read_bytes()
+    return CanonicalLab(
+        project,
+        lock_path.parent,
+        manifest_bytes,
+        lock_bytes,
+        manifest,
+        json.loads(lock_bytes),
+    )
+
+
+def _authoring_references(revision: dict) -> list[dict]:
+    return revision["authoring_inputs"] + [
+        revision["workflow_definition"],
+        revision["routing_policy"],
+    ]
+
+
+def source_records(lab: Path, authority: CanonicalLab | None = None) -> list[dict]:
+    if authority is None and (lab / "project/literate.project.json").exists():
+        authority = _canonical_lab(lab)
+    common = [
         lab / "lab.json",
         lab / "main.js",
         ROOT / "shared/lab.css",
         ROOT / "shared/lab-runtime.js",
         ROOT / "scripts/build_labs.py",
-        ROOT.parent / "literate.project.json",
-        ROOT.parent / "flavors/lang-javascript/flavor.md",
     ]
+    if authority is None:
+        paths = [
+            lab / "component.md",
+            *common,
+            ROOT.parent / "literate.project.json",
+            ROOT.parent / "flavors/lang-javascript/flavor.md",
+        ]
+        bound = {}
+        observed = {}
+    else:
+        project, component = authority.project, authority.component
+        manifest_path = project / "literate.project.json"
+        lock_path = component / "component.lock.json"
+        paths = [
+            _project_file(component, "component.md"),
+            *common,
+            manifest_path,
+            lock_path,
+        ]
+        observed = {
+            manifest_path: authority.manifest_bytes,
+            lock_path: authority.lock_bytes,
+        }
+        bound = {}
+        for node in authority.lock["nodes"]:
+            revision = node["revision"]
+            references = [(project, ref) for ref in _authoring_references(revision)]
+            if (
+                node["target_flavor_selection"]["component_revision"]
+                == authority.lock["root_revision"]
+            ):
+                references.extend(
+                    (component, ref)
+                    for ref in revision["specifications"]
+                    if ref["uri"] == "component.md"
+                )
+            for base, ref in references:
+                path = _project_file(base, ref["uri"])
+                identity = ref["identity"]
+                digest = identity["digest"]
+                if (
+                    identity["algorithm"] != "sha256"
+                    or bound.get(path, digest) != digest
+                ):
+                    raise ValueError(f"invalid locked content reference: {ref['uri']}")
+                bound[path] = digest
+                paths.append(path)
+        # Flavor revisions identify resolved definitions, not raw Markdown bytes.
+        # Display the selected Flavor documents as source context.
+        for selector in authority.manifest["default_flavor_selectors"]:
+            paths.append(
+                _project_file(
+                    project, f"flavors/{selector.rsplit('/', 1)[-1]}/flavor.md"
+                )
+            )
+
+    records = []
+    for path in dict.fromkeys(paths):
+        relative = path.relative_to(ROOT.parent).as_posix()
+        raw = observed[path] if path in observed else path.read_bytes()
+        digest = hashlib.sha256(raw).hexdigest()
+        if path in bound and bound[path] != digest:
+            raise ValueError(f"locked content drift: {relative}")
+        records.append(
+            {"path": relative, "sha256": digest, "content": raw.decode("utf-8")}
+        )
+    return records
 
 
 def build_page(lab: Path) -> str:
@@ -100,14 +189,7 @@ def build_page(lab: Path) -> str:
         "language_selection": "Authored JavaScript; chosen manually, not resolved from a Flavor.",
         "available_flavor": "flavors/lang-javascript/flavor.md",
     }
-    config["sources"] = [
-        {
-            "path": path.relative_to(ROOT.parent).as_posix(),
-            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-            "content": path.read_bytes().decode("utf-8"),
-        }
-        for path in source_paths(lab)
-    ]
+    config["sources"] = source_records(lab)
     # JSON is data, never executable code; escape script end tags in source text.
     serialized = json.dumps(config, separators=(",", ":")).replace("<", "\\u003c")
     return TEMPLATE.format(
@@ -121,11 +203,11 @@ def build_page(lab: Path) -> str:
 
 
 def build_canonical_page(lab: Path, config: dict) -> str:
-    project = lab / "project"
-    manifest = json.loads((project / "literate.project.json").read_text())
-    component = project / manifest["repository_policy"]["default_component"]
-    lock = json.loads((component / "component.lock.json").read_text())
-    config["spec"] = (component / "component.md").read_text()
+    authority = _canonical_lab(lab)
+    manifest, lock = authority.manifest, authority.lock
+    sources = source_records(lab, authority)
+    config["sources"] = sources
+    config["spec"] = sources[0]["content"]
     config["canonical"] = True
     nodes, edges, known = [], [], set()
 
@@ -150,7 +232,7 @@ def build_canonical_page(lab: Path, config: dict) -> str:
             + coordinate["namespace"]
             + "/"
             + coordinate["name"]
-            + "; specification "
+            + "; specification set "
             + revision["specification_set_identity"]["digest"],
         )
         for slot in node["target_flavor_selection"]["slots"]:
@@ -165,17 +247,18 @@ def build_canonical_page(lab: Path, config: dict) -> str:
                     + selected,
                 )
                 edges.append([selected, identity])
-        for ref in revision["authoring_inputs"] + [
-            revision["workflow_definition"],
-            revision["routing_policy"],
-        ]:
+        for ref in _authoring_references(revision):
             ref_id = key(ref["identity"])
             label = (
                 ref["uri"].split("/")[-2]
                 if ref["uri"].endswith("SKILL.md")
                 else Path(ref["uri"]).stem
             )
-            add(ref_id, label, ref["kind"] + ": " + ref["uri"] + "; SHA-256 " + ref_id)
+            add(
+                ref_id,
+                label,
+                ref["kind"] + ": " + ref["uri"] + "; content SHA-256 " + ref_id,
+            )
             edges.append([ref_id, identity])
     for edge in lock["edges"]:
         edges.append([key(edge["source_revision"]), key(edge["target_revision"])])
@@ -196,18 +279,8 @@ def build_canonical_page(lab: Path, config: dict) -> str:
         "component_root": True,
         "documentation_root": True,
         "framework_version": "1.3.1",
-        "lock_sha256": hashlib.sha256(
-            (component / "component.lock.json").read_bytes()
-        ).hexdigest(),
+        "lock_sha256": hashlib.sha256(authority.lock_bytes).hexdigest(),
     }
-    config["sources"] = [
-        {
-            "path": path.relative_to(ROOT.parent).as_posix(),
-            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-            "content": path.read_bytes().decode("utf-8"),
-        }
-        for path in source_paths(lab)
-    ]
     serialized = json.dumps(config, separators=(",", ":")).replace("<", "\\u003c")
     template = (
         TEMPLATE.replace("Lesson flow (illustrative)", "Resolved authority graph")
@@ -236,8 +309,12 @@ def build_canonical_page(lab: Path, config: dict) -> str:
 
 def main() -> None:
     labs = sorted(ROOT.glob("[0-9][0-9]-*/lab.json"))
-    for manifest in labs:
-        (manifest.parent / "index.html").write_text(build_page(manifest.parent))
+    pages = [
+        (manifest.parent / "index.html", build_page(manifest.parent))
+        for manifest in labs
+    ]
+    for destination, page in pages:
+        destination.write_text(page, encoding="utf-8")
     print(f"built {len(labs)} standalone labs with exact source inspection")
 
 
