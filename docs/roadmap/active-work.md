@@ -26575,6 +26575,17 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Imported initialization snapshots (source partial):** A new regression
+  reproduced false duplicate ownership when an inherited file also appeared in
+  the initialization snapshot. The normal resolver now reads current import
+  provenance first and excludes those destinations from initialized ownership,
+  including historical initialization bytes preceding an inherited update.
+  Nine resolver controls and six existing declared-skill catalog controls pass,
+  together with lint, formatting, repository layout and public export checks
+  without source drift. Mixed-root migration publication and its normal-consumer
+  readback remain open, as do documentation producer transitions, installed/full
+  containment/platform/source/review and release qualification.
+
 - **Initialized mixed-catalog resolver (source partial):** The normal catalog
   resolver reads relocated initialization-baseline coordinates joined to their
   original origin, alongside the existing import channel. Seven controls qualify

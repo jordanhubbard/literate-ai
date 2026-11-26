@@ -1613,6 +1613,20 @@ def contained_catalog_coordinates(root: Path) -> dict[str, str]:
     if not enabled:
         return {}
 
+    from literate_ai.adapters.catalog_import import (
+        CatalogImportError,
+        read_contained_catalog_imports,
+    )
+
+    try:
+        imports = read_contained_catalog_imports(snapshot)
+    except CatalogImportError as exc:
+        raise ProjectError(exc.code, str(exc)) from exc
+    imported_paths = (
+        {row.path for entry in imports.imports for row in entry.files}
+        if imports is not None
+        else set()
+    )
     mixed = {
         name
         for kind, primary in CATALOG_PLACEMENT_ROOTS.items()
@@ -1660,7 +1674,10 @@ def contained_catalog_coordinates(root: Path) -> dict[str, str]:
                     "initialized catalog origin and baseline differ",
                 )
             for item in baseline.files:
-                if not item.path.startswith("litai/"):
+                # Initialization may snapshot inherited files. Their current
+                # import producer remains the owner, even after an update has
+                # changed bytes since the historical initialization snapshot.
+                if item.path in imported_paths or not item.path.startswith("litai/"):
                     continue
                 logical = item.path.removeprefix("litai/")
                 if logical.split("/", 1)[0] not in mixed:
@@ -1682,15 +1699,6 @@ def contained_catalog_coordinates(root: Path) -> dict[str, str]:
                     )
                 coordinates[logical] = item.path
 
-    from literate_ai.adapters.catalog_import import (
-        CatalogImportError,
-        read_contained_catalog_imports,
-    )
-
-    try:
-        imports = read_contained_catalog_imports(snapshot)
-    except CatalogImportError as exc:
-        raise ProjectError(exc.code, str(exc)) from exc
     if imports is None:
         # A newly authored contained-only catalog is declared directly, without
         # invented parent imports. Mixed old/new imported catalogs still require

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: preserve current imported catalog ownership when historical initialization snapshots record the same files.
+
 - Project layout: resolve recorded initialized catalog coordinates in mixed roots while rejecting shadows, redirects and origin mismatch.
 
 - Project layout: recognize proven initialized workflow and routing items while preserving unknown payload and mixed catalog boundaries.

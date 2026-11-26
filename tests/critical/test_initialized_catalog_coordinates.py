@@ -79,6 +79,51 @@ class InitializedCatalogCoordinateTests(unittest.TestCase):
             contained_catalog_coordinates(project.root), {logical: "litai/" + logical}
         )
 
+    def imported_baseline_overlap(self, *, historical=False):
+        project, logical = self.fixture()
+        entry = project.imports.imports[0]
+        record = entry.files[0]
+        destination = "litai/" + record.path
+        target = project.root / destination
+        target.parent.mkdir(parents=True, exist_ok=True)
+        (project.root / record.path).rename(target)
+        updated = replace(entry, files=(replace(record, path=destination),))
+        imports = replace(project.imports, imports=(updated,))
+        project.write(
+            "litai/.literate/imports.json",
+            canonical_json_bytes(imports.to_dict()) + b"\n",
+        )
+        original = b"historical imported bytes\n" if historical else target.read_bytes()
+        baseline = replace(
+            project.baseline,
+            files=tuple(
+                sorted(
+                    (
+                        *project.baseline.files,
+                        ProjectInitializationBaselineFile(
+                            destination,
+                            len(original),
+                            ContentIdentity.parse_uri(support.identity(original)),
+                        ),
+                    ),
+                    key=lambda row: row.path,
+                )
+            ),
+        )
+        project.write(
+            "litai/.literate/initialization-baseline.json",
+            canonical_json_bytes(baseline.to_dict()) + b"\n",
+        )
+        return project, {logical: "litai/" + logical, record.path: destination}
+
+    def test_imported_baseline_snapshot_keeps_original_import_resolution(self):
+        project, expected = self.imported_baseline_overlap()
+        self.assertEqual(contained_catalog_coordinates(project.root), expected)
+
+    def test_historical_imported_snapshot_does_not_override_current_import(self):
+        project, expected = self.imported_baseline_overlap(historical=True)
+        self.assertEqual(contained_catalog_coordinates(project.root), expected)
+
     def test_equal_byte_original_shadow_refuses(self):
         project, logical = self.fixture()
         content = (project.root / "litai" / logical).read_bytes()
