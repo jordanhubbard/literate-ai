@@ -816,3 +816,40 @@ worker intervals, not CPU, billed runner use or an attributed historical release
 critical path. The update preserves all remaining hosted, artifact-promotion,
 legacy-adoption, skill-comparison and native acceptance boundaries; no queue item
 is closed, moved or weakened by the narrative.
+
+
+### Observed hosted producer and interrupted-export recovery
+
+[PR 465](https://github.com/jordanhubbard/literate-ai/pull/465) supplied actual
+GitHub-hosted evidence on exact source `af11434c90d58489a923114a8d8f0c7bdb1ebba0`.
+[Attempt 1](https://github.com/jordanhubbard/literate-ai/actions/runs/44128504174/attempts/1)
+completed native Linux and Windows build/test jobs and a dependent exporter. The
+production adapter consumed all four cells using actual provider transport and
+verified the 820-byte uploaded archive, artifact `14349306208`, against digest
+`sha256:2fcb34e8005101a1320c4053dd724952168237d4fe6801bae678235ff484f5d8`.
+The first job start to last completion was 60 seconds; summed job envelopes were
+68 seconds (Linux 11, Windows 26, exporter 31). These fixture intervals measure
+neither a full framework release nor CPU or billed runner use.
+
+The bounded recovery experiment reran only this pilot workflow. Both native jobs
+finished before cancellation; the exporter was cancelled during dependency
+installation in attempt 2. This proves interrupted export, not interruption of a
+native build/test action. With that attempt terminal-cancelled, the unchanged
+production adapter refused coverage with `incomplete`, despite the retained
+attempt-1 success and archive. Failed-jobs retry created a fresh attempt-3
+exporter, job `134202153982`, while GitHub retained both native successes under
+new current-attempt job IDs with their original attempt-2 execution timestamps.
+[Attempt 3](https://github.com/jordanhubbard/literate-ai/actions/runs/44128504174/attempts/3)
+completed successfully, and actual adapter consumption again accepted all four
+cells. The new 821-byte archive, artifact `14349336871`, has digest
+`sha256:61a7834414e1c3b60457f53d58345e83504c744f4671e1319935a5a178f2a420`.
+The older source-review record's pending hosted fields describe its earlier
+checkpoint; these later observed results add evidence without changing its scope.
+
+The pilot demonstrates actual native Python execution on hosted Linux and Windows,
+artifact transfer and interrupted-export retry. It does not establish other
+languages, CPU/GPU targets, installed-consumer or consuming-repository public
+release qualification, binary artifact custody, strict promotion, deployment or
+recovery of a delivered application. Those existing acceptance requirements and
+all unresolved security findings remain in force; no roadmap goal is closed or
+weakened by this narrative.
