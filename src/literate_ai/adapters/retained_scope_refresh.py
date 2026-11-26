@@ -81,6 +81,17 @@ def _safe_path(root: Path, relative: str) -> Path:
     return current
 
 
+def _metadata_coordinate(root: Path, relative: str) -> str:
+    if not relative.startswith(".literate/"):
+        return relative
+    return (
+        ProjectConfigurationStore.context(root)
+        .framework_path(relative)
+        .relative_to(root)
+        .as_posix()
+    )
+
+
 def _identity(content: bytes) -> str:
     return "sha256:" + hashlib.sha256(content).hexdigest()
 
@@ -149,7 +160,7 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
         ".literate/legacy-lift-shift.json",
         "litai.harness.mk",
     ):
-        _safe_path(root, relative)
+        _safe_path(root, _metadata_coordinate(root, relative))
     state = FilesystemConversionAuthorityStore(root).load_optional()
     if state is None or state.project_id != project.definition.project_id:
         _fail(
@@ -205,8 +216,10 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
             name: data["identity"] for name, data in documents.items()
         },
         "preserved_metadata": {
-            relative: _identity(_safe_path(root, relative).read_bytes())
-            for relative in _PRESERVED_METADATA
+            coordinate: _identity(_safe_path(root, coordinate).read_bytes())
+            for coordinate in (
+                _metadata_coordinate(root, relative) for relative in _PRESERVED_METADATA
+            )
         },
         "source_members": members,
         "added": sorted(set(new_paths) - set(old_paths)),
@@ -255,7 +268,7 @@ def apply_retained_scope_refresh(
         if not plan["changes_required"]:
             return {**plan, "applied": False}
         root = project.root
-        inventory_path = _safe_path(root, INVENTORY)
+        inventory_path = _safe_path(root, _metadata_coordinate(root, INVENTORY))
         review_path = _safe_path(root, plan["authority_review"]["document"])
         manifest_path = ProjectConfigurationStore.manifest_path(root)
         before = {
@@ -272,7 +285,10 @@ def apply_retained_scope_refresh(
                 "plan_stale", "project metadata changed before publication; plan again"
             )
         history = _safe_path(
-            root, f"{HISTORY}/{expected_plan_identity.removeprefix('sha256:')}.json"
+            root,
+            _metadata_coordinate(
+                root, f"{HISTORY}/{expected_plan_identity.removeprefix('sha256:')}.json"
+            ),
         )
         history.parent.mkdir(parents=True, exist_ok=True)
         history_bytes = canonical_json_bytes(plan) + b"\n"
