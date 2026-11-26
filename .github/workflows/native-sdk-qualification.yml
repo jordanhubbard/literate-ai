@@ -1,6 +1,11 @@
 name: Native FreeBSD SDK qualification
 
 on:
+  workflow_call:
+    inputs:
+      candidate_revision:
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       candidate_revision:
@@ -18,10 +23,12 @@ jobs:
     timeout-minutes: 120
     env:
       CANDIDATE_REVISION: ${{ inputs.candidate_revision }}
+      PULL_REQUEST_HEAD: ${{ github.event.pull_request.head.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.11"
@@ -38,6 +45,15 @@ jobs:
                   target = target.parent
               assert shutil.disk_usage(target).free > 20 * 1024**3
           PY
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          if [ "$GITHUB_EVENT_NAME" != workflow_dispatch ]; then
+            test "$CANDIDATE_REVISION" = "$GITHUB_SHA"
+          fi
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            [[ "$PULL_REQUEST_HEAD" =~ ^[0-9a-f]{40}$ ]]
+            test "$(git rev-parse HEAD^2)" = "$PULL_REQUEST_HEAD"
+            export PULL_REQUEST_BASE="$(git rev-parse HEAD^1)"
+          fi
           git cat-file -e "$CANDIDATE_REVISION^{commit}"
           mkdir -p "$HOME/.worktrees/literate-ai" qualification-wheel
           git worktree add --detach "$HOME/.worktrees/literate-ai/native-sdk" "$CANDIDATE_REVISION"
@@ -57,6 +73,8 @@ jobs:
           (directory / "wheel.json").write_text(json.dumps({
               "revision": os.environ["CANDIDATE_REVISION"], "wheel": wheel.name,
               "qualification_harness_revision": os.environ["GITHUB_SHA"],
+              "pull_request_head": os.environ.get("PULL_REQUEST_HEAD") or None,
+              "pull_request_base": os.environ.get("PULL_REQUEST_BASE") or None,
               "sha256": hashlib.sha256(wheel.read_bytes()).hexdigest(),
               "test_source_sha256": hashlib.sha256((directory / "test-source.tar").read_bytes()).hexdigest(),
           }, indent=2))

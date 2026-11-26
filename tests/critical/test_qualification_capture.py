@@ -404,7 +404,7 @@ class QualificationCaptureTests(unittest.TestCase):
         )
         return producer, surface, oracle
 
-    def typed_product_fixture(self):
+    def typed_product_fixture(self, *, shared_cases=False):
         producer, surface, oracle = self.library_authority_fixture()
         qualification = lifecycle_fixtures.QualificationLifecycleRunnerTests()
         qualification.setUp()
@@ -482,8 +482,9 @@ class QualificationCaptureTests(unittest.TestCase):
             )
             suite = valid_suite()
             suite["recipe_identity"] = recipe.identity
-            for case in suite["cases"]:
-                case["case_id"] += "-" + node.plan.component_revision.digest[:12]
+            if not shared_cases:
+                for case in suite["cases"]:
+                    case["case_id"] += "-" + node.plan.component_revision.digest[:12]
             generated_suites[node.plan.component_revision] = json.dumps(suite).encode()
 
         generated_boms = {}
@@ -672,6 +673,44 @@ class QualificationCaptureTests(unittest.TestCase):
         )
         recorder.remember_json(result.to_dict())
         return result, captures, recorder.entries
+
+    def test_shared_case_inventory_reopens_all_diamond_suites(self):
+        result, captures, entries = self.typed_product_fixture(shared_cases=True)
+        reader = QualificationEvidenceReader(
+            entries, max_bytes=5_000_000, max_records=1000
+        )
+        for capture in captures:
+            run = capture.run
+            self.assertEqual(run.generated_test_total, 12)
+            self.assertEqual(len(run.generated_test_case_identities), 3)
+            self.assertEqual(len(run.generated_test_suite_identities), 4)
+            self.assertEqual(len(run.generated_test_evidence_identities), 4)
+            self.assertEqual(
+                len(
+                    {
+                        case.observation_identity
+                        for acceptance in capture.acceptances
+                        for case in acceptance.generated_tests.cases
+                    }
+                ),
+                12,
+            )
+            self.assertEqual(
+                reopen_qualification_products(
+                    reader,
+                    qualification_identity=result.identity,
+                    run_identity=run.run_identity,
+                    exports_identity=capture.exports.identity,
+                    component_lock=self.current_lock,
+                    oracle=self.current_oracle,
+                    current_recipes=self.current_recipes,
+                    current_commands=self.current_commands,
+                    current_profile=self.current_profile,
+                    current_driver=self.current_driver,
+                    max_package_bytes=4096,
+                ),
+                capture,
+            )
 
     def test_real_packaged_process_recorder_reopens_after_cleanup(self):
         import subprocess

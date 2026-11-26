@@ -398,21 +398,23 @@ def read_record(path):
     if (
         record["request_identity"] != canonical_identity(request).uri
         or record["status"]
-        not in ("uncertain", "ready", "registered", "releasing", "released")
+        not in ("uncertain", "ready", "registered", "expired", "releasing", "released")
         or request["worker_id"] != path.stem
         or not Path(string_value(record["catalog_path"], "catalog_path")).is_absolute()
     ):
         refuse("invalid_state", "Saved provisioning state is inconsistent.")
     if record["response"] is not None:
         validate_response(record["response"], request)
-    elif record["status"] in ("ready", "registered"):
-        refuse("invalid_state", "A ready worker requires a validated response.")
+    elif record["status"] in ("ready", "registered", "expired"):
+        refuse("invalid_state", "A known worker requires a validated response.")
     if "management" in record:
         from .worker_lease_management import validate_saved_management
 
         validate_saved_management(record)
-    elif record["status"] in ("releasing", "released"):
-        refuse("invalid_state", "Lease release requires its durable request.")
+    elif record["status"] in ("expired", "releasing", "released"):
+        refuse(
+            "invalid_state", "Lease expiry or release requires a durable observation."
+        )
     if "dispatch" in record:
         from .worker_lease_dispatch import validate_saved_dispatch
 

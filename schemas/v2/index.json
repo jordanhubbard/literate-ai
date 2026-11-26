@@ -87,7 +87,8 @@
         "literate-ai/release-publication-receipt@1",
         "literate-ai/release-published-verification@1",
         "literate-ai/release-qualification@1",
-        "literate-ai/release-ci-coverage@1"
+        "literate-ai/release-ci-coverage@1",
+        "literate-ai/release-ci-coverage@2"
       ]
     },
     {

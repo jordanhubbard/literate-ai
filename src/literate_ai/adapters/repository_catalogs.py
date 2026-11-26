@@ -41,7 +41,11 @@ _CATALOG_LAYOUT = (
     ("routing", "routing", "routing_roots", None),
 )
 _DERIVED_COMPONENT_FILE_NAMES = frozenset(
-    {"component.lock.json", ".component.lock.write.lock"}
+    {
+        "component.lock.json",
+        ".component.lock.write.lock",
+        ".component.operation.write.lock",
+    }
 )
 _DERIVED_COMPONENT_FILE_PREFIXES = ("component.resolution-audit.",)
 
@@ -50,8 +54,15 @@ def _component_file_is_inheritable(relative: tuple[str, ...]) -> bool:
     """Keep target/host qualification evidence under descendant ownership."""
 
     name = relative[-1]
-    return name not in _DERIVED_COMPONENT_FILE_NAMES and not any(
-        name.startswith(prefix) for prefix in _DERIVED_COMPONENT_FILE_PREFIXES
+    return (
+        name not in _DERIVED_COMPONENT_FILE_NAMES
+        and not any(
+            name.startswith(prefix) for prefix in _DERIVED_COMPONENT_FILE_PREFIXES
+        )
+        and not (
+            name.startswith(".component.resolution-audit.")
+            and name.endswith(".json.write.lock")
+        )
     )
 
 

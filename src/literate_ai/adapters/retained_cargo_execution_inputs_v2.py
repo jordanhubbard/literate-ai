@@ -57,13 +57,14 @@ class RetainedCargoExecutionInputsV2:
                         "retained.inputs.v2-ancestor-configuration-changed"
                     )
             self._configuration.require_unchanged()
-            self.scope.require_unchanged(environment=environment)
-            self.materialized.require_unchanged()
-            return canonical_identity(
+            # Project captured fields inside the live bookends. The closing
+            # materialization still reopens provider inputs and ends with a
+            # full scratch and wrapper check after that callback.
+            identity = canonical_identity(
                 {
                     "schema": "literate-ai/retained-cargo-execution-inputs@2",
                     "binding": self.materialized.files.reviewed.binding.identity.uri,
-                    "scope": self.scope.identity.uri,
+                    "scope": self.scope._captured_identity().uri,
                     "configuration": self._configuration.identity,
                     "present": [str(path) for path, state in self._states if state[2]],
                     "absent": [
@@ -71,6 +72,9 @@ class RetainedCargoExecutionInputsV2:
                     ],
                 }
             )
+            self.scope.require_unchanged(environment=environment)
+            self.materialized.require_unchanged()
+            return identity
 
     def require_metadata_paths(self, metadata, *, environment):
         """Require every source/manifest to resolve within captured input owners."""

@@ -20,6 +20,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 from literate_ai.contracts import canonical_identity
+from literate_ai.release_files import release_file_parts
 
 QUALIFICATION_RECORD_SCHEMA = "literate-ai/release-qualification@1"
 TIERS = ("local", "worker", "ci")
@@ -88,6 +89,45 @@ class QualificationAction:
 
 
 @dataclass(frozen=True, slots=True)
+class CITestedFile:
+    """Select an exact staged release file and the CI action that tested it."""
+
+    role: str
+    path: str
+    platform: str
+    action: str
+
+    @classmethod
+    def from_dict(cls, value: object) -> CITestedFile:
+        path = "qualification.ci.coverage.tested_file"
+        if (
+            not isinstance(value, dict)
+            or set(value) != {"role", "path", "platform", "action"}
+            or any(not isinstance(item, str) for item in value.values())
+            or not _ACTION.fullmatch(value["role"])
+            or not _PLATFORM.fullmatch(value["platform"])
+            or not _ACTION.fullmatch(value["action"])
+            or len(value["path"]) > 240
+        ):
+            _fail(path, "requires a role, staged path, platform, and test action")
+        try:
+            parts = release_file_parts(value["path"])
+        except ValueError as exc:
+            _fail(path, str(exc))
+        if len(parts) < 2 or parts[0] != "_build":
+            _fail(path, "staged file must be beneath _build")
+        return cls(value["role"], value["path"], value["platform"], value["action"])
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            "role": self.role,
+            "path": self.path,
+            "platform": self.platform,
+            "action": self.action,
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class CICoverageBinding:
     """Opt into the fixed coverage.json contract of one native CI producer.
 
@@ -97,16 +137,26 @@ class CICoverageBinding:
 
     artifact_name: str
     producer_job: str
+    tested_file: CITestedFile | None = None
 
     @classmethod
     def from_dict(cls, value: object) -> CICoverageBinding:
         path = "qualification.ci.coverage"
-        if (
-            not isinstance(value, dict)
-            or set(value) != {"schema", "artifact_name", "producer_job"}
-            or value.get("schema") != "literate-ai/github-ci-coverage-binding@1"
-        ):
+        if not isinstance(value, dict):
             _fail(path, "requires the versioned artifact_name and producer_job binding")
+        fields = {"schema", "artifact_name", "producer_job"}
+        schema = value.get("schema")
+        if schema == "literate-ai/github-ci-coverage-binding@2":
+            fields.add("tested_file")
+        elif schema != "literate-ai/github-ci-coverage-binding@1":
+            _fail(path, "unsupported coverage binding")
+        if set(value) != fields:
+            _fail(path, "coverage binding has missing or unknown fields")
+        tested_file = (
+            CITestedFile.from_dict(value["tested_file"])
+            if "tested_file" in fields
+            else None
+        )
         artifact = value["artifact_name"]
         if (
             not isinstance(artifact, str)
@@ -128,13 +178,18 @@ class CICoverageBinding:
             or any(not character.isprintable() for character in job)
         ):
             _fail(f"{path}.producer_job", "requires one exact printable job name")
-        return cls(artifact, job)
+        return cls(artifact, job, tested_file)
 
     def to_dict(self) -> dict[str, object]:
         return {
-            "schema": "literate-ai/github-ci-coverage-binding@1",
+            "schema": (
+                "literate-ai/github-ci-coverage-binding@2"
+                if self.tested_file is not None
+                else "literate-ai/github-ci-coverage-binding@1"
+            ),
             "artifact_name": self.artifact_name,
             "producer_job": self.producer_job,
+            **({"tested_file": self.tested_file.to_dict()} if self.tested_file else {}),
         }
 
     def artifact_for(self, attempt: int) -> str:
@@ -225,6 +280,17 @@ class ReleaseQualificationPolicy:
         if coverage is not None and not ci_platforms:
             _fail(
                 "qualification.ci.platforms", "coverage requires declared CI platforms"
+            )
+        tested_file = coverage.tested_file if coverage else None
+        if tested_file is not None and (
+            not mandatory
+            or tested_file.platform not in ci_platforms
+            or tested_file.platform not in platforms
+            or tested_file.action not in {action.name for action in actions}
+        ):
+            _fail(
+                "qualification.ci.coverage.tested_file",
+                "requires a mandatory CI platform and a configured test action",
             )
         return cls(platforms, actions, mandatory, ci_platforms, coverage)
 

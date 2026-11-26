@@ -12,7 +12,7 @@ import sys
 import tempfile
 import threading
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import deepcopy
@@ -20,7 +20,11 @@ from dataclasses import dataclass, fields, is_dataclass
 from enum import Enum
 from pathlib import Path
 
-from literate_ai._cache_lock import _is_windows, _windows_identity_matches
+from literate_ai._cache_lock import (
+    _is_windows,
+    _lock_cleanup_allowed,
+    _windows_identity_matches,
+)
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
     path_is_link_or_reparse,
@@ -682,7 +686,13 @@ class ProjectConfigurationStore:
             fcntl.flock(descriptor, fcntl.LOCK_UN)
 
     @contextmanager
-    def _lock(self, root: Path, *, manifest_path: Path | None = None) -> Iterator[None]:
+    def _lock(
+        self,
+        root: Path,
+        *,
+        manifest_path: Path | None = None,
+        require_path: Callable[[Path], None] | None = None,
+    ) -> Iterator[None]:
         path = (
             self.lock_path(root)
             if manifest_path is None
@@ -692,6 +702,8 @@ class ProjectConfigurationStore:
         locked = False
         opened: os.stat_result | None = None
         try:
+            if require_path is not None:
+                require_path(path)
             descriptor, locked, opened = self._open_and_acquire(path)
             yield
         except ProjectError:
@@ -706,8 +718,8 @@ class ProjectConfigurationStore:
                     except OSError:
                         pass
                 os.close(descriptor)
-            if opened is not None:
-                self._remove_idle_lock(path, opened)
+            if opened is not None and _lock_cleanup_allowed(path, require_path):
+                self._remove_idle_lock(path, opened, require_path=require_path)
 
     def _open_and_acquire(self, path: Path) -> tuple[int, bool, os.stat_result]:
         """Open the lock file, take the exclusive lock, and verify identity.
@@ -872,7 +884,13 @@ class ProjectConfigurationStore:
             if retry:
                 time.sleep(_LOCK_RETRY_SECONDS)
 
-    def _remove_idle_lock(self, path: Path, expected: os.stat_result) -> None:
+    def _remove_idle_lock(
+        self,
+        path: Path,
+        expected: os.stat_result,
+        *,
+        require_path: Callable[[Path], None] | None = None,
+    ) -> None:
         """Remove only the same unlocked inode when no waiter has acquired it."""
 
         flags = os.O_RDWR | getattr(os, "O_CLOEXEC", 0)
@@ -924,7 +942,7 @@ class ProjectConfigurationStore:
                 path, observed, descriptor, opened
             ):
                 return
-            if os.name != "nt":
+            if os.name != "nt" and _lock_cleanup_allowed(path, require_path):
                 path.unlink()
         except OSError:
             return
@@ -941,10 +959,14 @@ class ProjectConfigurationStore:
             # we just held (never a symlink) before removing it.
             try:
                 observed = path.lstat()
-                if not stat.S_ISLNK(observed.st_mode) and (
-                    self._same_file(expected, observed)
-                    if not (_is_windows() and expected.st_ino == 0)
-                    else True
+                if (
+                    not stat.S_ISLNK(observed.st_mode)
+                    and (
+                        self._same_file(expected, observed)
+                        if not (_is_windows() and expected.st_ino == 0)
+                        else True
+                    )
+                    and _lock_cleanup_allowed(path, require_path)
                 ):
                     path.unlink()
             except OSError:
@@ -1372,6 +1394,155 @@ def project_boundary(start: Path, *, legacy: Path) -> Path:
     return project.root if project is not None else legacy.resolve(strict=True)
 
 
+FORWARD_SKILL_ROOT = "skills/specification-to-source"
+CONTAINED_SKILL_ROOT = "litai/skills"
+CATALOG_PLACEMENT_ROOTS = {
+    "skill": "skills",
+    "flavor": "flavors",
+    "component": "components",
+    "workflow": "workflows",
+    "routing": "routing",
+}
+CATALOG_SOURCE_ROOTS = frozenset((*CATALOG_PLACEMENT_ROOTS.values(), "samples"))
+
+
+def catalog_placement_root(kind: str, coordinate: str) -> str | None:
+    if kind == "component" and coordinate.startswith(("samples/", "litai/samples/")):
+        return "samples"
+    return CATALOG_PLACEMENT_ROOTS.get(kind)
+
+
+def contained_catalog_coordinates(root: Path) -> dict[str, str]:
+    """Return only coordinates owned by a declared contained Skill import."""
+    store = ProjectConfigurationStore(root)
+    if store.context(root).framework_root == root:
+        return {}
+    snapshot = store.read()
+    enabled = {
+        name
+        for kind, primary in CATALOG_PLACEMENT_ROOTS.items()
+        for name in ((primary, "samples") if kind == "component" else (primary,))
+        if {name, f"litai/{name}"}.issubset(
+            getattr(snapshot.definition, f"{kind}_roots")
+        )
+    }
+    if not enabled:
+        return {}
+
+    from literate_ai.adapters.catalog_import import (
+        CatalogImportError,
+        read_contained_catalog_imports,
+    )
+
+    try:
+        imports = read_contained_catalog_imports(snapshot)
+    except CatalogImportError as exc:
+        raise ProjectError(exc.code, str(exc)) from exc
+    if imports is None:
+        raise ProjectError(
+            "project.skill_placement_missing",
+            "contained Skill import authority is absent",
+        )
+    coordinates = {}
+    for entry in imports.imports:
+        touched = {
+            catalog_placement_root(entry.kind, row.path)
+            for row in entry.files
+            if row.path.startswith("litai/")
+        }
+        if not touched.intersection(enabled):
+            continue
+        if len(touched) != 1:
+            raise ProjectError(
+                "project.skill_placement_conflict",
+                f"catalog has multiple placement roots: {entry.name}",
+            )
+        name = next(iter(touched))
+        prefix = f"litai/{name}/{entry.name}"
+        if any(
+            row.path != prefix and not row.path.startswith(prefix + "/")
+            for row in entry.files
+        ):
+            raise ProjectError(
+                "project.skill_placement_conflict",
+                f"catalog has mixed import ownership: {entry.name}",
+            )
+        for item in entry.files:
+            logical = item.path.removeprefix("litai/")
+            if logical in coordinates or os.path.lexists(root / logical):
+                raise ProjectError(
+                    "project.skill_placement_conflict",
+                    f"old-root or duplicate catalog file shadows authority: {logical}",
+                )
+            coordinates[logical] = item.path
+    return coordinates
+
+
+def configured_catalog_path(boundary: Path, base: Path, uri: str, *, kind: str) -> Path:
+    """Resolve an original typed URI through recorded catalog placement."""
+    configured = base / uri
+    if (
+        kind
+        not in {
+            "specification-to-source-skill",
+            "agent-skill",
+            "source-to-specification-skill",
+            "workflow",
+            "routing-policy",
+        }
+        or Path(uri).is_absolute()
+    ):
+        return configured
+    old = Path(os.path.abspath(configured))
+    if not old.is_relative_to(boundary):
+        return configured
+    relative = old.relative_to(boundary).as_posix()
+    if not relative.startswith(("skills/", "litai/skills/", "workflows/", "routing/")):
+        return configured
+    coordinates = contained_catalog_coordinates(boundary)
+    relative_base = (
+        base.relative_to(boundary).as_posix() if base.is_relative_to(boundary) else ""
+    )
+    if (
+        relative.startswith("litai/skills/")
+        and f"{relative_base}/flavor.md" in coordinates.values()
+    ):
+        relative = relative.removeprefix("litai/")
+        destination = coordinates.get(relative, relative)
+    else:
+        destination = coordinates.get(relative)
+    if destination is None:
+        return configured
+    selected = boundary / destination
+    try:
+        require_safe_directory(selected.parent, allow_missing=True)
+    except (UnsafeFilesystemPathError, OSError) as exc:
+        raise ProjectError(
+            "project.skill_placement_conflict",
+            f"contained Skill path is redirected: {destination}",
+        ) from exc
+    return selected
+
+
+def configured_component_coordinate(project: LoadedProject, coordinate: str) -> str:
+    """Resolve a moved imported Component named by an app-relative CLI argument."""
+    path = Path(coordinate)
+    if (
+        path.is_absolute()
+        or ".." in path.parts
+        or not path.parts
+        or path.parts[0] not in {"components", "samples"}
+    ):
+        return coordinate
+    relative = path if path.name == "component.md" else path / "component.md"
+    placement = contained_catalog_coordinates(project.root).get(relative.as_posix())
+    if placement is None:
+        return coordinate
+    return (
+        placement if path.name == "component.md" else Path(placement).parent.as_posix()
+    )
+
+
 def project_skill_catalog(project: LoadedProject) -> AgentSkillCatalog:
     """Return the one validated skill-taxonomy authority for a project."""
 
@@ -1385,6 +1556,11 @@ def project_skill_catalog(project: LoadedProject) -> AgentSkillCatalog:
             root_manifests=(project.agent_skill,),
             validate_dependencies=True,
             validate_references=True,
+            reference_coordinates={
+                old: new
+                for old, new in contained_catalog_coordinates(project.root).items()
+                if old.startswith("skills/")
+            },
         )
     except AgentSkillCatalogError as exc:
         raise ProjectError(exc.code, exc.message) from exc

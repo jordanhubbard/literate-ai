@@ -10,7 +10,7 @@
     {"$ref": "literate-ai/release-publication-receipt@1"},
     {"$ref": "literate-ai/release-published-verification@1"},
     {"$ref": "literate-ai/release-qualification@1"},
-    {"$ref": "literate-ai/release-ci-coverage@1"}
+    {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_coverage_report"}
   ],
   "$defs": {
     "ci_coverage_cell": {
@@ -69,6 +69,19 @@
         }
       }
     },
+    "ci_tested_file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "size", "identity", "job_id", "environment_identity"],
+      "properties": {
+        "role": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$"},
+        "path": {"type": "string", "maxLength": 240, "pattern": "^_build/(?:[A-Za-z0-9._-]+/)*[A-Za-z0-9._-]+$"},
+        "size": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+        "identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
+        "job_id": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+        "environment_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"}
+      }
+    },
     "ci_coverage_proof": {
       "type": "object",
       "additionalProperties": false,
@@ -98,9 +111,12 @@
         "tested_artifacts",
         "identity"
       ],
+      "if": {"properties": {"schema": {"const": "literate-ai/verified-ci-coverage@1"}}},
+      "then": {"properties": {"tested_artifacts": {"const": false}}},
+      "else": {"properties": {"tested_artifacts": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_tested_file"}}},
       "properties": {
         "schema": {
-          "const": "literate-ai/verified-ci-coverage@1"
+          "enum": ["literate-ai/verified-ci-coverage@1", "literate-ai/verified-ci-coverage@2"]
         },
         "repository_id": {
           "type": "integer",
@@ -207,7 +223,7 @@
           }
         },
         "tested_artifacts": {
-          "const": false
+          "oneOf": [{"const": false}, {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_tested_file"}]
         },
         "identity": {
           "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"
@@ -228,10 +244,14 @@
         "producer_job_id",
         "cells"
       ],
+      "if": {"properties": {"schema": {"const": "literate-ai/release-ci-coverage@2"}}},
+      "then": {"required": ["tested_artifacts"]},
+      "else": {"not": {"required": ["tested_artifacts"]}},
       "properties": {
         "schema": {
-          "const": "literate-ai/release-ci-coverage@1"
+          "enum": ["literate-ai/release-ci-coverage@1", "literate-ai/release-ci-coverage@2"]
         },
+        "tested_artifacts": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_tested_file"},
         "repository": {
           "type": "object",
           "additionalProperties": false,
@@ -351,8 +371,17 @@
             "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_coverage_cell"
           }
         }
-      },
-      "$id": "literate-ai/release-ci-coverage@1"
+      }
+    },
+    "ci_coverage_report_v1": {
+      "$id": "literate-ai/release-ci-coverage@1",
+      "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_coverage_report",
+      "properties": {"schema": {"const": "literate-ai/release-ci-coverage@1"}}
+    },
+    "ci_coverage_report_v2": {
+      "$id": "literate-ai/release-ci-coverage@2",
+      "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_coverage_report",
+      "properties": {"schema": {"const": "literate-ai/release-ci-coverage@2"}}
     },
     "ci_observation": {
       "type": [
@@ -394,8 +423,21 @@
             "coverage": {
               "type": "object", "additionalProperties": false,
               "required": ["schema", "artifact_name", "producer_job"],
+              "if": {"properties": {"schema": {"const": "literate-ai/github-ci-coverage-binding@2"}}},
+              "then": {"required": ["tested_file"]},
+              "else": {"not": {"required": ["tested_file"]}},
               "properties": {
-                "schema": {"const": "literate-ai/github-ci-coverage-binding@1"},
+                "schema": {"enum": ["literate-ai/github-ci-coverage-binding@1", "literate-ai/github-ci-coverage-binding@2"]},
+                "tested_file": {
+                  "type": "object", "additionalProperties": false,
+                  "required": ["role", "path", "platform", "action"],
+                  "properties": {
+                    "role": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$"},
+                    "path": {"type": "string", "maxLength": 240, "pattern": "^_build/(?:[A-Za-z0-9._-]+/)*[A-Za-z0-9._-]+$"},
+                    "platform": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualification_platform"},
+                    "action": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$"}
+                  }
+                },
                 "artifact_name": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._-]*)?\\{attempt\\}[A-Za-z0-9._-]*$"},
                 "producer_job": {"type": "string", "minLength": 1, "maxLength": 256}
               }
@@ -901,6 +943,7 @@
       ],
       "properties": {
         "schema": {"const": "literate-ai/release-plan@1"},
+        "authority_placement_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "policy_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "source_revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
         "source_branch": {"type": "string", "minLength": 1, "maxLength": 256},
@@ -963,6 +1006,7 @@
         "artifacts": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualified_release_files"},
         "authenticated_receipt_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "schema": {"const": "literate-ai/prepared-release@1"},
+        "authority_placement_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "plan_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "policy_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "base_revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
@@ -1044,6 +1088,7 @@
         "artifacts": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualified_release_files"},
         "authenticated_receipt_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "schema": {"const": "literate-ai/prepared-release@2"},
+        "authority_placement_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "plan_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "policy_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "base_revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
@@ -1136,6 +1181,7 @@
         "revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
         "version": {"type": "string", "minLength": 1, "maxLength": 128},
         "tag": {"type": "string", "minLength": 1, "maxLength": 320},
+        "tag_object_id": {"type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"},
         "remote": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
         "provider": {"type": ["string", "null"], "enum": ["github", null]},
         "provider_url": {"type": ["string", "null"], "maxLength": 4096},
@@ -1187,6 +1233,7 @@
         "revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
         "version": {"type": "string", "minLength": 1, "maxLength": 128},
         "tag": {"type": "string", "minLength": 1, "maxLength": 320},
+        "tag_object_id": {"type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"},
         "branch": {"type": "string", "minLength": 1, "maxLength": 255},
         "remote": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
         "remote_tag_revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
