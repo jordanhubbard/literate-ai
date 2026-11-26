@@ -29547,6 +29547,7 @@ Evidence: [exact wheel and native migration checkpoint](../../verification/stand
 
 ### [ ] ORIGINAL-ADOPT-001 — Bind original project authority without relocating source
 
+- **Release target:** 1.4.0
 - **GitHub issue:** [#22](https://github.com/jordanhubbard/literate-ai/issues/22)
 
 - **Priority:** P0
@@ -29557,11 +29558,13 @@ Evidence: [exact wheel and native migration checkpoint](../../verification/stand
 - **Implementation:**
   - [x] Define original initial authority semantics without changing existing wrapped/retained/drafted/qualified wire identities.
   - [x] Expose a reviewed in-place original-source plan/apply command over an already-authored canonical project; bind project authority and clean Git commit/tree without executing its build.
+  - [x] Isolate disposable CLI telemetry outside original-adoption test projects while retaining complete source snapshots and refusal diagnostics.
 - **Evidence:**
   - [x] Prove preserved source files, exact metadata-only writes, stale-plan refusal, collision/dirty/unsafe-root refusal and permanent refusal of regenerative conversion transitions.
   - [x] Run existing adoption and retained planning regression gates.
   - [ ] Run full regression and native/installed renewal gates.
   - [x] Initialize an actual native source project only after authoring and validation.
+  - [ ] Reproduce the telemetry collision, pass the complete original-adoption module, and complete a fresh full gate and exact-head CI for the fixture repair.
 
 **Partial evidence:** The managed Python gate passes all 22 adoption checks,
 including nine real Git/worktree and public-command original-adoption checks.
@@ -29598,6 +29601,22 @@ and proves the fixture still starts no maintenance/GC child. All ten original
 adoption checks pass; ordinary cleanup and source-integrity assertions remain
 strict. This test-only repair changes no production execution policy. Full
 renewal is still required; none of the interrupted runs is counted as passing.
+
+The separate Windows-identity source renewal failed after 2,315 tests
+(2,239 passed, one failure, 75 skipped): a deliberately refused public adoption
+plan appended disposable performance telemetry inside the complete source snapshot.
+The same refusal reproduces on integrated main before repair. Independent review
+identified test diagnostic-output isolation as the owner; production adoption and
+telemetry contracts stay unchanged. Preserve both failed runs. The fixture repair
+must retain the whole-project byte comparison and verify refusal telemetry outside
+that tree, then pass fresh module, full-suite and integration gates.
+
+All 12 original-adoption checks now pass with diagnostic output explicitly
+outside each test project. Complete project snapshots remain unchanged, and the
+refused custom-skill plan still records a failed `cli.project.adopt-original`
+span. Independent reviewer `review_pr239` approved the test isolation and exact
+stage assertion. A fresh full gate and exact-head CI remain required; the earlier
+failed and incomplete runs are not passing evidence.
 
 ### [x] LOCK-TARGET-001 — Verify the committed Component target
 

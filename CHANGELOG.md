@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Tests: isolate original-adoption CLI diagnostics while preserving complete
+  project snapshots and recorded refusal telemetry.
+
 - Retained packaging foundation: add bounded canonical tree shards and explicit
   unit ownership with typed dependencies. Preserve composed link topology and
   shared structural directories without copying another unit's payload. Public
