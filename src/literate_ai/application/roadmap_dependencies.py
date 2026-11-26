@@ -18,7 +18,7 @@ _HEADING = re.compile(
 )
 _SECTION_HEADING = re.compile(r"^ {0,3}(?P<level>#{1,3})(?=[ \t\r]|$)", re.M)
 _OPEN_CHECKBOX = re.compile(
-    r"^[ \t]*- \[[ ~]\](?:[ \t](?P<text>[^\r\n]*))?(?=\r?$)", re.M
+    r"^(?P<indent>[ \t]*)- \[[ ~]\](?:[ \t](?P<text>[^\r\n]*))?(?=\r?$)", re.M
 )
 _PROSE_BOUNDARY = re.compile(
     r"^[ \t]*(?:$|#{1,6}(?=[ \t]|$)|`{3,}|~{3,}|[-+*][ \t]|"
@@ -74,11 +74,12 @@ def _escaped(line: str, offset: int) -> bool:
     return (offset - start) % 2 == 1
 
 
-def _visible(content: str) -> str:
+def _visible(content: str) -> tuple[str, list[tuple[int, int]]]:
     """Mask Markdown examples without shifting original character offsets."""
     lines = []
+    comments = []
     fence = None
-    in_comment = False
+    comment_start = None
     source = content.splitlines(keepends=True)
     endings = _inline_code_ends(source)
     literal_end = 0
@@ -95,7 +96,7 @@ def _visible(content: str) -> str:
                 fence = None
             lines.append(" " * len(line) + ending)
             continue
-        if not in_comment:
+        if comment_start is None:
             marker = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
             if marker and (marker[1][0] != "`" or "`" not in marker[2]):
                 fence = marker[1]
@@ -104,14 +105,15 @@ def _visible(content: str) -> str:
         position = min(len(line), max(0, literal_end - beginning))
         visible = [line[:position]]
         while position < len(line):
-            if in_comment:
+            if comment_start is not None:
                 end = line.find("-->", position)
                 if end < 0:
                     visible.append(" " * (len(line) - position))
                     break
                 visible.append(" " * (end + 3 - position))
                 position = end + 3
-                in_comment = False
+                comments.append((comment_start, beginning + position))
+                comment_start = None
             else:
                 token = _MARKDOWN_TOKEN.search(line, position)
                 if token is None:
@@ -122,7 +124,7 @@ def _visible(content: str) -> str:
                 if token[0] == "<!--" and not escaped:
                     visible.append(line[position:start] + " " * 4)
                     position = token.end()
-                    in_comment = True
+                    comment_start = beginning + start
                 else:
                     if not escaped:
                         literal_end = endings.get(beginning + start, 0)
@@ -130,7 +132,61 @@ def _visible(content: str) -> str:
                     visible.append(line[position:stop])
                     position = stop
         lines.append("".join(visible) + ending)
-    return "".join(lines)
+    if comment_start is not None:
+        comments.append((comment_start, len(content)))
+    return "".join(lines), comments
+
+
+def _unchecked_acceptance(
+    content: str,
+    visible: str,
+    start: int,
+    end: int,
+    comments: list[tuple[int, int]],
+    comment_ends: list[int],
+) -> tuple[str, ...]:
+    def without_comments(start: int, end: int) -> str:
+        fragments = []
+        first = bisect_right(comment_ends, start)
+        for index in range(first, len(comments)):
+            hidden_start, hidden_end = comments[index]
+            if hidden_start >= end:
+                break
+            if hidden_start > start:
+                fragments.append(content[start:hidden_start])
+            start = max(start, hidden_end)
+        fragments.append(content[start:end])
+        return "".join(fragments)
+
+    unchecked = []
+    for item in _OPEN_CHECKBOX.finditer(visible, start, end):
+        fragments = []
+        if item["text"] is not None:
+            fragments.append(without_comments(*item.span("text")).rstrip())
+        # Markdown indents continuation by the list marker, not its checkbox.
+        minimum_indent = len(item["indent"].expandtabs(4)) + len("- ")
+        newline = visible.find("\n", item.end(), end)
+        while newline != -1:
+            start_of_line = newline + 1
+            newline = visible.find("\n", start_of_line, end)
+            stop = end if newline == -1 else newline
+            if stop > start_of_line and visible[stop - 1] == "\r":
+                stop -= 1
+            raw = content[start_of_line:stop]
+            line = raw.lstrip(" \t")
+            indentation = raw[: len(raw) - len(line)]
+            if (
+                len(indentation.expandtabs(4)) < minimum_indent
+                or _PROSE_BOUNDARY.match(raw)
+                or _PROSE_BOUNDARY.match(visible[start_of_line:stop])
+                or re.fullmatch(r"(?:[-*_][ \t]*){3,}", line)
+            ):
+                break
+            fragments.append(
+                without_comments(start_of_line + len(indentation), stop).strip()
+            )
+        unchecked.append(" ".join(part for part in fragments if part))
+    return tuple(unchecked)
 
 
 @dataclass(frozen=True, slots=True)
@@ -154,7 +210,8 @@ def roadmap_sections(content: str) -> dict[str, RoadmapSection]:
     level-three subheading can organize an item's acceptance checklist, which
     remains in the item's body until the next typed item or higher heading.
     """
-    visible = _visible(content)
+    visible, comments = _visible(content)
+    comment_ends = [end for _, end in comments]
     headings = [
         heading
         for heading in _HEADING.finditer(visible)
@@ -189,11 +246,8 @@ def roadmap_sections(content: str) -> dict[str, RoadmapSection]:
             )
         end = body_end[bisect_right(body_end, start)]
         title_text = content[heading.end("id") : heading.end()].removesuffix("\r")
-        unchecked = tuple(
-            content[item.start("text") : item.end("text")]
-            if item["text"] is not None
-            else ""
-            for item in _OPEN_CHECKBOX.finditer(visible, heading.end(), end)
+        unchecked = _unchecked_acceptance(
+            content, visible, heading.end(), end, comments, comment_ends
         )
         sections[work_id] = RoadmapSection(
             heading["state"],

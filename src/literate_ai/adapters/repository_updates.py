@@ -28,8 +28,14 @@ from literate_ai.contracts import (
     RepositoryParentSelection,
     RepositoryReparentPlan,
 )
-from literate_ai.projects import PROJECT_FILENAME, ProjectError, discover_project
+from literate_ai.projects import (
+    PROJECT_FILENAME,
+    ProjectConfigurationStore,
+    ProjectError,
+    discover_project,
+)
 
+from .catalog_import import CatalogImportError, read_contained_catalog_imports
 from .project_update_apply import _write_exact
 from .project_updates import _project_path
 from .project_validation import ProjectValidationError, validate_project
@@ -104,24 +110,34 @@ def _source_belongs_to_lineage(
     )
 
 
-def _previous_inherited_files(
-    root: Path,
-    lineage: RepositoryLineage,
-) -> dict[str, ContentIdentity]:
-    imports_path = root / CatalogImportsFile.PATH
-    if not imports_path.is_file():
+def _required_imports(root: Path) -> CatalogImportsFile:
+    store = ProjectConfigurationStore(root)
+    try:
+        snapshot = store.read()
+        if snapshot.definition.framework_directory is None:
+            path = root / CatalogImportsFile.PATH
+            imports = CatalogImportsFile.load(root) if path.is_file() else None
+        else:
+            imports = read_contained_catalog_imports(snapshot)
+    except (CatalogImportError, OSError, TypeError, ValueError) as exc:
+        raise RepositoryUpdateError(
+            "repository_update.provenance_invalid",
+            "inherited catalog provenance is invalid",
+        ) from exc
+    if imports is None:
         raise RepositoryUpdateError(
             "repository_update.provenance_missing",
             "inherited catalog provenance is missing; update cannot classify local "
             "authority safely",
         )
-    try:
-        imports = CatalogImportsFile.load(root)
-    except (OSError, TypeError, ValueError) as exc:
-        raise RepositoryUpdateError(
-            "repository_update.provenance_invalid",
-            "inherited catalog provenance is invalid",
-        ) from exc
+    return imports
+
+
+def _previous_inherited_files(
+    root: Path,
+    lineage: RepositoryLineage,
+) -> dict[str, ContentIdentity]:
+    imports = _required_imports(root)
     result: dict[str, ContentIdentity] = {}
     for imported in imports.imports:
         if not _source_belongs_to_lineage(imported.source, lineage):
@@ -280,7 +296,7 @@ def _retired_local_authority_paths(
     """Keep a retired imported item whole when any surviving file diverged."""
 
     prospective_keys = {(item.kind, item.name) for item in prospective.items}
-    current = CatalogImportsFile.load(root)
+    current = _required_imports(root)
     preserved: set[str] = set()
     for imported in current.imports:
         if (
@@ -304,7 +320,7 @@ def _updated_imports(
     *,
     excluded_paths: frozenset[str] = frozenset(),
 ) -> CatalogImportsFile:
-    current = CatalogImportsFile.load(root)
+    current = _required_imports(root)
     planned_imports = catalog_imports_for_plan(planned.catalogs)
     kept = tuple(
         imported
@@ -531,7 +547,7 @@ class FilesystemRepositoryUpdateAdapter:
         bases.remember_catalog(
             tuple(
                 imported
-                for imported in CatalogImportsFile.load(project.root).imports
+                for imported in _required_imports(project.root).imports
                 if _source_belongs_to_lineage(
                     imported.source, planned.contract.previous_lineage
                 )
@@ -621,7 +637,12 @@ class FilesystemRepositoryUpdateAdapter:
                 stat.S_IMODE(target.stat().st_mode) if target.is_file() else None,
             )
 
-        imports_path = _project_path(project.root, CatalogImportsFile.PATH)
+        imports_relative = (
+            project.context.framework_path(CatalogImportsFile.PATH)
+            .relative_to(project.root)
+            .as_posix()
+        )
+        imports_path = _project_path(project.root, imports_relative)
         try:
             previous_imports = imports_path.read_bytes()
             imports = _updated_imports(

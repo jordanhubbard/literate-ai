@@ -26,7 +26,14 @@ and 29 skips recorded. A separate worker-management test exposed an omitted
 schema catalog entry on the same tree. The existing `version check --no-project`
 reproduced the refusal in 1.49 seconds and passed on the corrected source in
 2.41 seconds. Run that check before the full suite. Retain the interrupted
-result and start with a fresh checkpoint. For [issue 484](https://github.com/jordanhubbard/literate-ai/issues/484),
+result and start with a fresh checkpoint. A subsequent 3,249-case run on tree
+`c548bc60865bf754acafe5b9d45de355c82e2bb4` stopped on its real packaging
+receiver after 360 passes, 29 skips and one error. During that run, a style
+check in another linked checkout ran `pip install -e .` into the same
+explicitly supplied environment. The parent imported the candidate through
+its source path, while an isolated child imported the other worktree. The
+receiver's identity check refused. Retain that check. Give the replacement
+run its own environment and check isolated import origins before and after. For [issue 484](https://github.com/jordanhubbard/literate-ai/issues/484),
 34 focused tests passed after independent review found and the author fixed
 two failures in lock cleanup and checkpoint rollback. For
 [issue 485](https://github.com/jordanhubbard/literate-ai/issues/485), the
@@ -35,15 +42,41 @@ including from a consumer with a conflicting package name. The reviewed
 artifact check binds one staged file to the producer’s actual test job.
 Installed qualification, hosted results and publication custody remain separate.
 
+Use the combined local and hosted timeline for work packages C and E. In the
+1.2 lead-up 5.04 hours of previously unattributed time overlapped hosted jobs
+outside the local runs. A further 60.71 hours still lack either kind of
+observation. Windows CI failed on the exact tag 18 minutes after publication,
+as the release policy allowed hosted CI to be optional. Test the effect of a
+required prepublication cell failing or running late, including exact attempt
+and artifact selection. Post-tag failure belongs to recovery and readback.
+[Windows result](https://github.com/jordanhubbard/literate-ai/actions/runs/38234884516/job/114763068950)
+
+For work package E, bind the annotated Git tag object as well as its target
+commit and the tested artifact digest. An independent local Git receiver
+replaced the annotation after a push. The candidate accepted it because both
+Git and the provider double read back the replacement at the intended commit.
+Keep exact-object authorization through each provider mutation and through a
+retry. A matching object may resume. A different object at the same commit
+must stop the operation before the next write. Retain the normal push control.
+
+For work package C, include caller-wide permissions and job selection when
+deciding whether a reusable CI workflow is affected. A changed caller permission
+selected the broad ordinary matrix while skipping the SDK workflow. Exercise
+the affected cell or select it conservatively when the scope is ambiguous.
+The independently reviewed selector implements this fallback. All 26 independent
+selector tests passed, including caller-wide permissions. The hosted execution
+of the selected steps remains to be observed on the composed candidate.
+
 Under work package F, retain an
 observed expired lease generation across clock rollback and later uncertain
 responses, then require the provider’s exact acknowledgement for cleanup. The
 stub-control suite passed all 44 worker cases. Older readers reject the new
 journal state, so recovery of a journal containing it requires a capable reader.
-Under CUDA-SIGNAL-001, bring forward the five missing toolkit, runtime-type
-and driver-call detections from [PR 410](https://github.com/jordanhubbard/literate-ai/pull/410)
-while retaining the current parser’s multiline attribution exclusions. These
-are source-inventory checks. They establish no execution on a GPU.
+Under CUDA-SIGNAL-001, the independently reviewed source now retains the five
+missing toolchain, runtime-type and driver-call signals from
+[PR 410](https://github.com/jordanhubbard/literate-ai/pull/410), together with
+multiline attribution exclusions. Seven source tests passed on composed bytes.
+Installed and exact-head qualification remain open.
 
 Under work package G and RELEASE-CLOSURE-001, make the work writer and release
 sweep use the same visible goal sections and complete identifiers. In real Git
@@ -53,6 +86,15 @@ or miss unchecked acceptance under a prose subheading. Recheck normal closure,
 the three refusals, duplicate visible identifiers and the complete 1.4 manifest.
 A read-only audit of the actual queue found identical dispositions with examples
 filtered, and close refused all 46 open goals. [Issue 486](https://github.com/jordanhubbard/literate-ai/issues/486)
+
+Preserve complete acceptance text in the operator summary for package G. Its
+1.4 projection omitted wrapped lines on at least 34 unfinished checkboxes across
+TEST-CACHE-001, RELEASE-CLOSURE-001, WORKER-001 and WORKTREE-002. Changing a
+real continuation in a disposable copy changed the outstanding work while
+leaving the entire public report and its identity byte-identical. Require the
+summary to display the complete visible requirement and its identity to change
+when that requirement changes. Retain the 81 selected goals, the 46 open states
+and the existing exclusions for fenced examples and comments.
 
 Under PROJECT-LAYOUT-001, verify that public work closure updates the declared
 framework queue when a host backlog contains the same ID. Preserve the host
@@ -65,6 +107,20 @@ under a bounded supervisor left the child alive under PID 1. A source-gate
 interruption also left the checkpoint runner and two workers alive until
 explicit cleanup. Verify cancellation through the outer entry point, exit
 status, terminal evidence and absence of owned descendants before retry.
+
+The first three delivery priorities are the cheap source and interpreter checks
+in C, the contained native adoption and result-observation path in A and D,
+and exact promotion custody in E. The paired Cargo measurement in B kept all
+59 validations and saved 7.82 seconds in one run. Keep that implementation
+bounded and require repeated improvement before assigning it release-time credit.
+
+**Security check disposition.** PR 421's two occurrences refer to one incident
+on two commits. Both match the SHA-256 of the same public PyYAML module. PR 475's
+three reported values match three public Literate AI module files at the
+framework revision recorded by their evidence producer. Each comparison used the
+exact GitHub line linked by GitGuardian. Retain these five comparisons for
+incident-specific security review and keep both original check results visible.
+[Reproduction inputs and provider check IDs](../../verification/release-security-finding-provenance.json).
 
 ### Consolidated release work packages
 
@@ -110,6 +166,55 @@ The native defect and repair were real. GitHub transport and job identities
 were simulated. Keep actual hosted branch enforcement, failed native-job retry,
 automatic activation and a changed-version contained upgrade open.
 
+A second installed pilot used the public ToolScheme v0.3.0 source at
+`b0a4d06db331a072681990cdb6773db0c0eaf551`, with its actual Makefile,
+C++ tests, release workflow and existing roadmap. The host had already run
+Linux and macOS on x86-64 and ARM64 and published the tag.
+[Main run](https://github.com/jordanhubbard/toolscheme/actions/runs/35908701993)
+and [tag run](https://github.com/jordanhubbard/toolscheme/actions/runs/35908702822).
+
+On a local clone, the installed intermediate framework wheel at `96c404e18`
+added 15 files under `litai/` in a 0.90-second plan and 1.66-second apply.
+The host's 1,683 native checks passed before and after adoption. A seeded
+integer-rendering defect failed eight existing checks. Repair restored the
+full native pass. A separate clone confirmed all 98 external filesystem entries
+retained their types, modes and contents through repeated adoption refusal,
+same-version update and removal. Removal preserved a one-byte framework lock
+under `litai/.litai-locks/` as its runtime-state policy declares. Both clones
+retained the host's original CI and roadmap. The four hosted platform jobs
+preceded adoption. A newly governed hosted PR and changed-version upgrade
+remain release acceptance.
+
+For work package D, credit each pilot failure to the check that first caught it.
+With the same defect in an unadopted ToolScheme checkout, the host command
+failed the same eight checks and emitted identical diagnostics. It took
+29.29 seconds there and 29.16 seconds after adoption. This trial gives the
+framework zero additional application defects caught. For the governed pilot,
+record separately any wrong-commit, stale-attempt or substituted-artifact
+decision that native CI alone would accept, the time to feedback, and the
+number of repeated native jobs. A pilot can earn credit for consuming an exact
+existing result or avoiding a second build. Record zero when neither changes.
+
+In the installed native observer control, four distinct PR, failure and retry
+jobs executed. Observing those results added zero native jobs. In a separate
+local Git/provider experiment with a real built artifact, the release gate
+refused substituted bytes in 1.754 seconds, stale artifact size evidence in
+1.731 seconds and re-use of an earlier successful attempt in 1.522 seconds.
+The independently reviewed successor refused a replacement annotation pointing
+to the correct commit. A fresh verifier accepted the original using an
+operator-trusted object ID, and refused a missing or incorrect ID. These
+measurements cover the controlled promotion path; the hosted consumer pilot
+and current release qualification remain open.
+
+On a fresh clone of the same ToolScheme revision, source tree `c548bc608`
+planned native adoption without writes and separately completed the explicit
+`onboard adopt --profile convert` operation in 154.2 seconds. The original
+source, roadmap and CI workflow moved together under
+`components/legacy-project-wrapper/implementation/`. This opt-in effect is
+documented in the getting started guide and the conversion skill. These
+experiments satisfy the three implementation criteria of ADOPT-CLI-001.
+The release item remains open for its end-to-end evidence.
+
 ### Tracker and obsolete-instruction reconciliation
 
 The read-only refresh found 87 open issues and 48 open PRs. Twenty-one PR heads
@@ -130,6 +235,23 @@ test file tree entries already present, its changelog and program section
 retained, and its former next action superseded by the observed early refusal.
 It needs no code replay onto this candidate. Actual forge disposition and
 resulting-main qualification remain with RELEASE-INTEGRATION-005.
+
+**Exercise the action that an update changes.** In private trial merges onto
+source tree `c548bc60865bf754acafe5b9d45de355c82e2bb4`, applying PRs
+473 and 474 in either order produced the same tree. All three action references
+remained pinned and their declared inputs accepted the existing workflow arguments.
+
+The existing CI selector classified both PRs as policy-only. In the actual
+Bazel pin run, the new setup action was skipped while an unrelated FreeBSD ACL
+step ran for 66 seconds. The FreeBSD pin run exercised the changed action on
+14.3 for 325 seconds. Its separate 15.1 installed-SDK workflow is manual.
+The local selector reproduced the same matrix choices for a PR and a push to
+main. Under RELEASE-INTEGRATION-005 and SDLC-001, select an existing native
+cell that calls the changed action, then verify the step conclusion at the
+candidate revision. Keep the 15.1 SDK evidence separate and preserve full
+qualification for release refs. Unknown or shared workflow edits must retain
+broad coverage. [Bazel run](https://github.com/jordanhubbard/literate-ai/actions/runs/44261266692)
+and [FreeBSD run](https://github.com/jordanhubbard/literate-ai/actions/runs/44261298366).
 
 The following newer records lacked links across the current roadmap snapshot;
 reuse the named owners rather than creating a second backlog:
