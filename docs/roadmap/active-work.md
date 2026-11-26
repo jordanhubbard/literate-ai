@@ -24477,6 +24477,29 @@ implementation, policy weakening, qualification or issue closure is recorded her
   fallback. Independent composition review and full qualification remain pending.
 
 
+- **Measured skill-metadata follow-up (in progress):** A bounded native-fixture
+  profile of one live v2 input-currentness call observes 17 project authority
+  validations, 68 catalog constructions and 4,352 skill-metadata parses. Metadata
+  parsing consumes 1.243 of 7.550 instrumented seconds; cumulative scopes nest.
+  Extend the existing operation-local project parsing frame with a bounded cache
+  of immutable metadata keyed by exact manifest bytes and logical source. Keep
+  all fresh directory/file reads, content hashes, name/dependency/reference
+  validation and closing custody checks. Do not cache currentness or failures.
+  Verify changed bytes, namespaces and caller-owned catalog state through the
+  public discovery surface, then compare alternating enabled/disabled live calls
+  on one fixture with equal identities and guard/read counts before independent
+  review and full composed qualification. This remains CARGO-CUSTODY-PERF-001;
+  no new gate or release-goal completion is implied.
+  A [paired native-fixture measurement](../../verification/skill-metadata-parsing-measurement.json)
+  now retains all 17 wrapper guards, 6,630 document reads and 4,352 manifest hashes
+  per call. Metadata parses fall from 4,352 to 667, including first observations
+  and uncached oversized manifests. Two ABBA blocks give four samples per arm: medians 3.795s
+  disabled and 3.472s enabled (8.5% observed reduction). This is one fixture on a
+  shared host, not a complete admission/release speedup. The first prototype's
+  copied-context race was independently reproduced, then repaired with a per-frame
+  lock. Public filesystem/concurrent-catalog controls pass; final lock/cap/lifetime
+  review and complete composed source/installed qualification remain open.
+
 ### [ ] WINDOWS-JOB-FALLBACK-001 — Avoid redundant Windows tree fallback after successful Job termination
 
 - **Priority:** P1

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Reuse immutable skill metadata for identical bytes within an existing project
+  parse scope. Bound retained syntax data and restore isolated frames; catalog
+  discovery, content hashing, dependency/reference checks and native custody
+  guards remain fresh.
+
 - Separate documentation-rendering dependencies from the OpenSpec CLI, so a
   documentation-only check installs only its own tools. Audit both locked graphs
   before their respective checks; full CI, Windows and release qualification keep

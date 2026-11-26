@@ -1003,3 +1003,25 @@ The [dated report update](../architecture/existing-repository-review.html)
 contains per-task outcomes, usage, protocol/aggregate identities and limitations.
 This records a completed bounded measurement, not completion of SDLC-001 or its
 activation, governed-adoption, changed-version upgrade, platform or release gates.
+
+### Repeated skill metadata parsing under native currentness
+
+CARGO-CUSTODY-PERF-001 owns the next bounded cost reduction. An instrumented
+single native-fixture currentness call rebuilds 68 catalogs while retaining its
+17 wrapper authority checks. Reuse only immutable parsed metadata for identical
+manifest bytes within the existing project-parse lifetime. Every read, namespace
+check, digest, dependency/reference decision and process boundary stays live.
+Bound entry count, individual key size and total retained key bytes, restore
+ambient frames after isolated calls, and fall back to uncached parsing at limits.
+Validate semantic drift/refusal and equivalent identities before any performance
+claim. A profiled call is not a release critical path or a paired speedup result.
+
+The [paired metadata observation](../../verification/skill-metadata-parsing-measurement.json)
+uses one real retained native fixture and toggles only the new syntax cache.
+All eight calls return the same identity and retain 17 wrapper guards, 6,630
+current document reads and 4,352 manifest hashes each. Four samples per arm show
+3.795s versus 3.472s median currentness time; 667 parses remain, including first
+observations and oversized manifests that bypass the 8 KiB admission limit. Keep the claim scoped:
+this is an 8.5% observed single-fixture reduction, not a release speedup or proof
+that more custody checks should be removed. Independent final review, memory/
+concurrency controls and full composed qualification remain prerequisites.
