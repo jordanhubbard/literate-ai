@@ -32781,3 +32781,25 @@ unchanged security/custody checks. These byte quotas are not low-memory
 qualification. Full regression and exact installed/native renewal remain open.
 The reviewed original-adoption diagnostic-isolation repair is included in this
 batch so its full snapshot checks run with the SDK changes.
+
+### [ ] SOURCE-SCAN-DUPLICATES-001 — Scan identical source content without duplicate finding identities
+
+- **Release target:** 1.4.0
+- **GitHub issue:** [#249](https://github.com/jordanhubbard/literate-ai/issues/249)
+
+- **Priority:** P1
+- **Owner:** Framework source security scanner
+- **Direction:** Accept issue 249 for release 1.4 and preserve source scanning across duplicate content paths.
+- **Conclusion:** Finding identities are content-addressed. Emit each content, rule and occurrence once with its deterministic first applicable path; retain distinct findings and blocking severity without changing valid existing identities.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Deduplicate exact content-rule-occurrence findings before constructing the report.
+- **Evidence:**
+  - [ ] Public scanner controls preserve deterministic identities, distinct findings and blocking policy; independent review and full framework gates pass.
+
+The public scanner regression passes all three controls. Independent reviewer
+`native_transport_review` approved the content/rule/occurrence deduplication and
+unchanged identity and policy semantics (scanner SHA-256
+`76da2fdb4b89383e39465f6c9fb02130115afe93ddff041dc643da56daff98b8`).
+Canonical driver and documentation reviews are current. Full regression is pending.

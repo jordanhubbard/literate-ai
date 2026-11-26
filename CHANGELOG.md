@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Source scanning: identical finding-bearing content at multiple paths no longer
+  crashes reports; distinct source content, rules and occurrences retain their
+  findings and blocking severity.
+
 - Tests: isolate original-adoption CLI diagnostics while preserving complete
   project snapshots and recorded refusal telemetry.
 
