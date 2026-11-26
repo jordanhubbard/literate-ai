@@ -2,18 +2,26 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
 import shutil
+import stat
 import tempfile
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
+from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
+    path_is_link_or_reparse,
+    require_safe_directory,
+    stat_is_link_or_reparse,
+)
 from literate_ai.adapters.builders._process import run_bounded_process
 from literate_ai.adapters.builders.python import BuildError
 from literate_ai.application.project_tracker import sanitize_git_url
@@ -25,13 +33,17 @@ from literate_ai.contracts.catalog_imports import (
     TransitiveAncestor,
 )
 from literate_ai.contracts.paths import canonical_relative_posix_path
+from literate_ai.contracts.project_initialization import ProjectInitializationOrigin
 from literate_ai.projects import (
     PROJECT_FILENAME,
+    ProjectConfigurationSnapshot,
     ProjectConfigurationStore,
     ProjectError,
 )
 
 _GIT_TIMEOUT_SECONDS = 300
+_ORIGIN_PATH = ".literate/initialization-origin.json"
+_MAX_PROVENANCE_BYTES = 64 * 1024 * 1024
 _GIT_FILE_PROTOCOL = ("-c", "protocol.file.allow=always")
 _GIT_SCHEMES = frozenset({"file", "git", "http", "https", "ssh"})
 
@@ -226,7 +238,7 @@ def _clone_git_source(
         local = Path(url).expanduser()
         if local.exists():
             url = local.resolve().as_uri()
-    clone_parent = Path(tempfile.mkdtemp(prefix="litai-c-"))
+    clone_parent = Path(tempfile.mkdtemp(prefix="litai-c-")).resolve()
     clone_root = clone_parent / "src"
     try:
         immutable = (
@@ -271,7 +283,14 @@ def _clone_git_source(
             )
             if paths is not None:
                 _run_git(
-                    ("git", "sparse-checkout", "set", "--cone", "--", *paths),
+                    (
+                        "git",
+                        "sparse-checkout",
+                        "set",
+                        "--cone",
+                        "--",
+                        *sorted({*paths, "litai/.literate"}),
+                    ),
                     cwd=clone_root,
                 )
             checkout = "FETCH_HEAD"
@@ -351,18 +370,134 @@ def _open_source(
     yield _resolve_local_source(source_spec)
 
 
-def _read_source_project(source_root: Path) -> tuple[str, str]:
+def _read_source_project(source_root: Path) -> ProjectConfigurationSnapshot:
     try:
-        snapshot = ProjectConfigurationStore(source_root).read()
+        return ProjectConfigurationStore(source_root).read()
     except ProjectError as exc:
         raise CatalogImportError(
             "catalog.import_source_invalid",
             f"source project manifest is invalid: {source_root}",
         ) from exc
-    return snapshot.definition.project_id, snapshot.content_identity.uri
 
 
-def _read_source_ancestors(source_root: Path) -> tuple[TransitiveAncestor, ...]:
+def _file_stamp(metadata: os.stat_result) -> tuple[int, ...]:
+    return (
+        metadata.st_dev,
+        metadata.st_ino,
+        metadata.st_mode,
+        metadata.st_size,
+        metadata.st_mtime_ns,
+        metadata.st_ctime_ns,
+    )
+
+
+def _provenance_bytes(
+    project: ProjectConfigurationSnapshot, relative: str
+) -> bytes | None:
+    selected = project.manifest_path.parent / relative
+    if project.definition.framework_directory is None:
+        return selected.read_bytes() if selected.exists() else None
+    try:
+        require_safe_directory(selected.parent, allow_missing=True)
+        try:
+            before = selected.lstat()
+        except FileNotFoundError:
+            old = project.root / relative
+            if old != selected and os.path.lexists(old):
+                raise CatalogImportError(
+                    "catalog.provenance_missing",
+                    "catalog provenance is absent from its declared location",
+                ) from None
+            return None
+        if (
+            stat_is_link_or_reparse(before)
+            or not stat.S_ISREG(before.st_mode)
+            or not 0 < before.st_size <= _MAX_PROVENANCE_BYTES
+        ):
+            raise ValueError("catalog metadata must be one bounded regular file")
+        flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_CLOEXEC", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+        with os.fdopen(os.open(selected, flags), "rb") as stream:
+            if _file_stamp(os.fstat(stream.fileno())) != _file_stamp(before):
+                raise ValueError("catalog metadata changed before reading")
+            content = stream.read(_MAX_PROVENANCE_BYTES + 1)
+        require_safe_directory(selected.parent)
+        if len(content) != before.st_size or _file_stamp(
+            selected.lstat()
+        ) != _file_stamp(before):
+            raise ValueError("catalog metadata changed during reading")
+        return content
+    except CatalogImportError:
+        raise
+    except (OSError, ValueError, UnsafeFilesystemPathError) as exc:
+        raise CatalogImportError(
+            "catalog.provenance_invalid",
+            f"cannot safely read catalog provenance: {relative}",
+        ) from exc
+
+
+def _catalog_provenance(
+    project: ProjectConfigurationSnapshot,
+) -> tuple[bytes | None, bytes | None]:
+    return (
+        _provenance_bytes(project, _ORIGIN_PATH),
+        _provenance_bytes(project, CatalogImportsFile.PATH),
+    )
+
+
+def _parse_provenance(
+    documents: tuple[bytes | None, bytes | None],
+    *,
+    contained: bool,
+) -> tuple[dict[str, Any] | None, CatalogImportsFile]:
+    origin_bytes, imports_bytes = documents
+    try:
+        origin = (
+            json.loads(origin_bytes.decode("utf-8"))
+            if origin_bytes is not None
+            else None
+        )
+        imports = (
+            json.loads(imports_bytes.decode("utf-8"))
+            if imports_bytes is not None
+            else {}
+        )
+        if contained:
+            if origin_bytes is not None:
+                ProjectInitializationOrigin.from_dict(origin)
+            if imports_bytes is not None and (
+                not isinstance(imports, dict)
+                or imports.get("schema") != CatalogImportsFile.SCHEMA
+                or not isinstance(imports.get("imports"), list)
+                or not isinstance(imports.get("decisions", []), list)
+            ):
+                raise ValueError("catalog provenance has an invalid record shape")
+        return origin, CatalogImportsFile.from_dict(imports)
+    except (KeyError, TypeError, ValueError, RecursionError) as exc:
+        raise CatalogImportError(
+            "catalog.provenance_invalid", "catalog provenance records are invalid"
+        ) from exc
+
+
+def _require_provenance_current(
+    project: ProjectConfigurationSnapshot,
+    documents: tuple[bytes | None, bytes | None],
+) -> None:
+    if (
+        _read_source_project(project.root) != project
+        or _catalog_provenance(project) != documents
+    ):
+        raise CatalogImportError(
+            "catalog.provenance_changed",
+            "catalog provenance changed during observation",
+        )
+
+
+def _read_source_ancestors(
+    origin: dict[str, Any] | None,
+    origin_bytes: bytes | None,
+    imports: CatalogImportsFile,
+) -> tuple[TransitiveAncestor, ...]:
     """
     Read the source project's own initialization-origin and imports.json to
     build its ancestor chain. The result is what we embed as transitive_ancestors
@@ -371,9 +506,8 @@ def _read_source_ancestors(source_root: Path) -> tuple[TransitiveAncestor, ...]:
     ancestors: list[TransitiveAncestor] = []
 
     # Root edge: initialization-origin.json → literate-ai
-    origin_path = source_root / ".literate" / "initialization-origin.json"
-    if origin_path.exists():
-        origin = json.loads(origin_path.read_text(encoding="utf-8"))
+    if origin is not None:
+        assert origin_bytes is not None
         repo_url = origin.get("repository_url", "")
         git_rev = origin.get("git_revision", "")
         dist_name = origin.get("distribution_name", "literate-ai")
@@ -381,11 +515,7 @@ def _read_source_ancestors(source_root: Path) -> tuple[TransitiveAncestor, ...]:
             f"git:{repo_url}@{git_rev}" if repo_url and git_rev else f"dist:{dist_name}"
         )
         # The project identity for literate-ai is derived from the origin record itself
-        import hashlib
-
-        origin_identity = (
-            "sha256:" + hashlib.sha256(origin_path.read_bytes()).hexdigest()
-        )
+        origin_identity = "sha256:" + hashlib.sha256(origin_bytes).hexdigest()
         ancestors.append(
             TransitiveAncestor(
                 project_id=dist_name,
@@ -395,7 +525,6 @@ def _read_source_ancestors(source_root: Path) -> tuple[TransitiveAncestor, ...]:
         )
 
     # Additional edges: source's own imports.json
-    imports = CatalogImportsFile.load(source_root)
     for imp in imports.imports:
         # Add the direct source and all its transitive ancestors
         src = imp.source
@@ -543,8 +672,6 @@ def _copy_item(
     overwrite: bool,
 ) -> list[CatalogImportFile]:
     """Copy item directory tree. Returns list of copied CatalogImportFile records."""
-    import hashlib
-
     src_dir = _source_item_dir(source_root, kind, name)
     dst_dir = _dest_item_dir(dest_root, kind, name)
 
@@ -559,15 +686,69 @@ def _copy_item(
         shutil.rmtree(dst_dir)
     shutil.copytree(src_dir, dst_dir, ignore=shutil.ignore_patterns(".git"))
 
-    # Build file records with content identities
+    return _catalog_item_files(dest_root, dst_dir)
+
+
+def _catalog_item_files(root: Path, item: Path) -> list[CatalogImportFile]:
     files: list[CatalogImportFile] = []
-    for file_path in sorted(dst_dir.rglob("*")):
+    for file_path in sorted(item.rglob("*")):
         if file_path.is_file():
             content = file_path.read_bytes()
             digest = hashlib.sha256(content).hexdigest()
-            rel = str(file_path.relative_to(dest_root))
+            rel = str(file_path.relative_to(root))
             files.append(CatalogImportFile(path=rel, identity=f"sha256:{digest}"))
     return files
+
+
+@contextmanager
+def _staged_contained_items(
+    project: ProjectConfigurationSnapshot,
+    items: list[tuple[str, str]],
+    documents: tuple[bytes | None, bytes | None],
+    imports: CatalogImportsFile,
+) -> Iterator[Path]:
+    """Finish source inspection before any existing destination mutation."""
+    recorded = {(item.kind, item.name): item.files for item in imports.imports}
+    with tempfile.TemporaryDirectory(prefix="litai-catalog-items-") as directory:
+        staging = Path(directory)
+        expected_items: list[tuple[Path, tuple[CatalogImportFile, ...]]] = []
+        for kind, name in items:
+            source = _source_item_dir(project.root, kind, name)
+            coordinate = source.relative_to(project.root)
+            roots = getattr(project.definition, f"{kind}_roots")
+            if not any(coordinate.is_relative_to(Path(root)) for root in roots):
+                raise CatalogImportError(
+                    "catalog.import_source_invalid",
+                    "selected item is outside the source's declared catalog roots",
+                )
+            try:
+                require_safe_directory(source)
+                target = staging / coordinate
+                shutil.copytree(
+                    source,
+                    target,
+                    symlinks=True,
+                    dirs_exist_ok=True,
+                    ignore=shutil.ignore_patterns(".git"),
+                )
+                if any(path_is_link_or_reparse(path) for path in target.rglob("*")):
+                    raise ValueError("contained catalog item crosses a link")
+            except (OSError, ValueError, UnsafeFilesystemPathError) as exc:
+                raise CatalogImportError(
+                    "catalog.import_source_invalid",
+                    "cannot safely stage the selected contained catalog item",
+                ) from exc
+            expected = recorded.get((kind, name))
+            if expected is not None:
+                expected_items.append((target, expected))
+        for target, expected in expected_items:
+            if set(expected) != set(_catalog_item_files(staging, target)):
+                raise CatalogImportError(
+                    "catalog.import_source_drift",
+                    "selected catalog item differs from its recorded import",
+                )
+        _require_provenance_current(project, documents)
+        yield staging
 
 
 # ── Public copy function ───────────────────────────────────────────────────────
@@ -608,8 +789,16 @@ def catalog_copy(
         )
     )
     with _open_source(source_spec, paths) as (source_root, ref):
-        source_project_id, source_project_identity = _read_source_project(source_root)
-        source_ancestors = _read_source_ancestors(source_root)
+        source_project = _read_source_project(source_root)
+        source_root = source_project.root
+        source_project_id = source_project.definition.project_id
+        source_project_identity = source_project.content_identity.uri
+        documents = _catalog_provenance(source_project)
+        origin, source_imports = _parse_provenance(
+            documents,
+            contained=source_project.definition.framework_directory is not None,
+        )
+        source_ancestors = _read_source_ancestors(origin, documents[0], source_imports)
 
         # DAG cycle check
         check_dag_safe(dest_root, source_project_id, source_ancestors)
@@ -624,22 +813,28 @@ def catalog_copy(
         imports_file = CatalogImportsFile.load(dest_root)
         copied: list[dict[str, Any]] = []
 
-        for kind, name in items:
-            files = _copy_item(source_root, dest_root, kind, name, overwrite)
-            new_import = CatalogImport(
-                kind=kind,
-                name=name,
-                source=CatalogImportSource(
-                    project_id=source_project_id,
-                    project_identity=source_project_identity,
-                    ref=ref,
-                    transitive_ancestors=source_ancestors,
-                ),
-                files=tuple(files),
-                copied_at=now,
-            )
-            imports_file = imports_file.with_import(new_import)
-            copied.append({"kind": kind, "name": name, "files": len(files)})
+        incoming = (
+            _staged_contained_items(source_project, items, documents, source_imports)
+            if source_project.definition.framework_directory is not None
+            else nullcontext(source_root)
+        )
+        with incoming as selected:
+            for kind, name in items:
+                files = _copy_item(selected, dest_root, kind, name, overwrite)
+                new_import = CatalogImport(
+                    kind=kind,
+                    name=name,
+                    source=CatalogImportSource(
+                        project_id=source_project_id,
+                        project_identity=source_project_identity,
+                        ref=ref,
+                        transitive_ancestors=source_ancestors,
+                    ),
+                    files=tuple(files),
+                    copied_at=now,
+                )
+                imports_file = imports_file.with_import(new_import)
+                copied.append({"kind": kind, "name": name, "files": len(files)})
 
         imports_file.save(dest_root)
         return {
@@ -656,19 +851,21 @@ def catalog_copy(
 def catalog_graph(project_root: Path) -> dict[str, Any]:
     """Build the provenance DAG for this project and return it as a structured dict."""
     try:
-        project_id = (
-            ProjectConfigurationStore(project_root).read().definition.project_id
-        )
-    except ProjectError as exc:
+        project = ProjectConfigurationStore.discover(project_root)
+        if project is None:
+            raise ValueError("catalog project is missing")
+    except (ProjectError, ValueError) as exc:
         raise CatalogImportError(
             "catalog.import_destination_invalid", "project manifest is invalid"
         ) from exc
+    project_id = project.definition.project_id
+    documents = _catalog_provenance(project)
+    contained = project.definition.framework_directory is not None
+    origin, imports = _parse_provenance(documents, contained=contained)
 
     # Root edge
     root_node: dict[str, Any] | None = None
-    origin_path = project_root / ".literate" / "initialization-origin.json"
-    if origin_path.exists():
-        origin = json.loads(origin_path.read_text(encoding="utf-8"))
+    if origin is not None:
         root_node = {
             "project_id": origin.get("distribution_name", "literate-ai"),
             "ref": "git:{}@{}".format(
@@ -678,7 +875,6 @@ def catalog_graph(project_root: Path) -> dict[str, Any]:
             "role": "framework-root",
         }
 
-    imports = CatalogImportsFile.load(project_root)
     edges: list[dict[str, Any]] = []
     nodes: dict[str, dict[str, Any]] = {}
 
@@ -726,6 +922,8 @@ def catalog_graph(project_root: Path) -> dict[str, Any]:
             }
         merged[key]["items"].extend(edge["items"])
 
+    if contained:
+        _require_provenance_current(project, documents)
     return {
         "project_id": project_id,
         "nodes": list(nodes.values()),

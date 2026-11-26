@@ -1,17 +1,21 @@
 """Tests for litai catalog copy DAG-safe composition."""
 
+import io
 import json
 import os
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from literate_ai.adapters.catalog_import import (
     CatalogImportError,
     _open_source,
     catalog_copy,
 )
+from literate_ai.cli import main
+from literate_ai.contracts.catalog_imports import CatalogImportsFile
 
 
 def make_project(directory: Path, project_id: str, *, with_origin: bool = True) -> Path:
@@ -81,6 +85,178 @@ def _git(root: Path, *arguments: str) -> str:
         env=environment,
     )
     return completed.stdout.strip()
+
+
+class ContainedCatalogProvenanceTests(unittest.TestCase):
+    def setUp(self) -> None:
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.root = Path(directory.name).resolve()
+        self.source = make_project(self.root / "source", "proj-src")
+        self.parent = make_project(self.root / "parent", "proj-parent")
+        add_flavor(self.parent, "inherited")
+        catalog_copy(self.source, str(self.parent), ["flavor:inherited"])
+        self.added = add_flavor(self.source, "app-relative")
+        self.destination = make_project(self.root / "destination", "proj-dst")
+
+    def _cli(self, *args: str) -> tuple[int, dict]:
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        status = main(["--json", *args], stdout=stdout, stderr=stderr)
+        return status, json.loads(stdout.getvalue() or stderr.getvalue())
+
+    def _place(self) -> Path:
+        manifest = self.source / "literate.project.json"
+        definition = json.loads(manifest.read_bytes())
+        definition["framework_directory"] = "litai"
+        framework = self.source / "litai"
+        framework.mkdir()
+        (framework / manifest.name).write_text(json.dumps(definition), encoding="utf-8")
+        manifest.unlink()
+        selected = framework / ".literate"
+        (self.source / ".literate").rename(selected)
+        return selected
+
+    def test_graph_and_copy_preserve_the_legacy_ancestry(self) -> None:
+        status, legacy = self._cli("catalog", "graph", "--project", str(self.source))
+        self.assertEqual(status, 0, legacy)
+        self.assertTrue(legacy["result"]["edges"])
+        catalog_copy(self.destination, str(self.source), ["flavor:app-relative"])
+        original = CatalogImportsFile.load(self.destination).imports[0]
+
+        self._place()
+        shadow = self.source / ".literate"
+        shadow.mkdir()
+        for path in ("initialization-origin.json", "imports.json"):
+            (shadow / path).write_text("untrusted old copy", encoding="utf-8")
+        status, contained = self._cli(
+            "catalog", "graph", "--project", str(self.added / "openspec")
+        )
+        self.assertEqual(status, 0, contained)
+        self.assertEqual(contained["result"], legacy["result"])
+        destination = make_project(self.root / "second", "proj-second")
+        status, result = self._cli(
+            "catalog",
+            "copy",
+            str(self.source),
+            "flavor:app-relative",
+            "--project",
+            str(destination),
+        )
+        self.assertEqual(status, 0, result)
+        placed = CatalogImportsFile.load(destination).imports[0]
+        self.assertEqual(placed.files, original.files)
+        self.assertEqual(
+            placed.source.transitive_ancestors, original.source.transitive_ancestors
+        )
+        self.assertFalse((self.source / "litai/flavors").exists())
+
+    def test_old_root_cannot_supply_missing_contained_provenance(self) -> None:
+        selected = self._place()
+        shadow = self.source / ".literate"
+        shadow.mkdir()
+        (selected / "imports.json").rename(shadow / "imports.json")
+        for args in (
+            ("graph", "--project", str(self.source)),
+            (
+                "copy",
+                str(self.source),
+                "flavor:app-relative",
+                "--project",
+                str(self.destination),
+            ),
+        ):
+            with self.subTest(args=args):
+                status, result = self._cli("catalog", *args)
+                self.assertNotEqual(status, 0, result)
+                self.assertIn("catalog.provenance_missing", json.dumps(result))
+        self.assertFalse((self.destination / "flavors/app-relative").exists())
+        self.assertFalse((self.destination / CatalogImportsFile.PATH).exists())
+
+    def test_source_provenance_drift_during_staging_leaves_destination_intact(
+        self,
+    ) -> None:
+        selected = self._place() / "imports.json"
+        destination = add_flavor(self.destination, "app-relative") / "flavor.md"
+        destination.write_text("must survive", encoding="utf-8")
+        from shutil import copytree
+
+        def drift(*args, **kwargs):
+            result = copytree(*args, **kwargs)
+            if args[0] == self.added:
+                selected.write_bytes(selected.read_bytes() + b" ")
+            return result
+
+        with patch(
+            "literate_ai.adapters.catalog_import.shutil.copytree", side_effect=drift
+        ):
+            with self.assertRaises(CatalogImportError) as raised:
+                catalog_copy(
+                    self.destination,
+                    str(self.source),
+                    ["flavor:app-relative"],
+                    overwrite=True,
+                )
+        self.assertEqual(raised.exception.code, "catalog.provenance_changed")
+        self.assertEqual(destination.read_text(), "must survive")
+        self.assertFalse((self.destination / CatalogImportsFile.PATH).exists())
+
+    def test_imported_item_copy_refuses_drift_before_any_destination_write(
+        self,
+    ) -> None:
+        self._place()
+        inherited = self.source / "flavors" / "inherited" / "flavor.md"
+        status, result = self._cli(
+            "catalog",
+            "copy",
+            str(self.source),
+            "flavor:inherited",
+            "--project",
+            str(self.destination),
+        )
+        self.assertEqual(status, 0, result)
+        retained = self.destination / inherited.relative_to(self.source)
+        original_file = retained.read_bytes()
+        recorded = self.destination / CatalogImportsFile.PATH
+        original_provenance = recorded.read_bytes()
+
+        inherited.write_bytes(b"changed inherited payload")
+        status, result = self._cli(
+            "catalog",
+            "copy",
+            str(self.source),
+            "flavor:app-relative",
+            "flavor:inherited",
+            "--overwrite",
+            "--project",
+            str(self.destination),
+        )
+        self.assertNotEqual(status, 0, result)
+        self.assertIn("catalog.import_source_drift", json.dumps(result))
+        self.assertFalse((self.destination / "flavors/app-relative").exists())
+        self.assertEqual(retained.read_bytes(), original_file)
+        self.assertEqual(recorded.read_bytes(), original_provenance)
+
+    def test_local_git_pin_copies_the_contained_provenance(self) -> None:
+        original = CatalogImportsFile.load(self.source).imports[0]
+        self._place()
+        _git(self.source, "init", "--quiet", "-b", "main")
+        _git(self.source, "config", "uploadpack.allowFilter", "true")
+        _git(self.source, "add", ".")
+        _git(self.source, "commit", "--quiet", "-m", "contained source")
+        commit = _git(self.source, "rev-parse", "HEAD")
+        result = catalog_copy(
+            self.destination,
+            f"git:{self.source.as_uri()}#{commit}",
+            ["flavor:app-relative"],
+        )
+        placed = CatalogImportsFile.load(self.destination).imports[0]
+        self.assertIn(
+            original.source.project_id,
+            [a.project_id for a in placed.source.transitive_ancestors],
+        )
+        self.assertTrue(placed.source.ref.endswith("@" + commit))
+        self.assertEqual(result["copied"][0]["name"], "app-relative")
 
 
 class GitCatalogSourceTests(unittest.TestCase):
