@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Framework layout: read-only planning reuses bounded, private copies of parsed provenance while retaining native reads and currentness checks. Copy or storage limits preserve original parsing behavior. Source regressions and real-catalog admission checks pass; installed timing and complete platform qualification remain pending.
+
 - Framework runtime: ship the original live-run context provider required by bounded subprocess adapters. Add an isolated installed-wheel layout journey that checks exact distribution origin and public CLI discovery; repaired-wheel qualification remains pending.
 
 - Framework layout: installed-project smoke checks now follow contained manifests, catalogs, Component selectors and release staging, while preserving application files and root agent delegates and using each project’s cache defaults. Source regressions pass; installed-wheel and platform qualification remain pending.

@@ -8,10 +8,17 @@ import os
 import re
 import shutil
 import stat
+import sys
 import tempfile
+import threading
 from collections.abc import Iterator
 from contextlib import contextmanager, nullcontext
+from contextvars import ContextVar
+from copy import Error as CopyError
+from copy import deepcopy
+from dataclasses import fields, is_dataclass
 from datetime import UTC, datetime
+from enum import Enum
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
@@ -599,7 +606,126 @@ def _contained_catalog_records(imports: dict[str, Any]) -> CatalogImportsFile:
     return CatalogImportsFile.from_dict(imports)
 
 
+_PROVENANCE_PARSE_MAX_ENTRIES = 8
+_PROVENANCE_PARSE_MAX_BYTES = 4 * 1024 * 1024
+_PROVENANCE_PARSE_MAX_NODES = 32768
+
+
+def _provenance_parse_size(key, value):
+    """Count private encoded/decoded data; unknown shapes bypass template reuse."""
+    pending = [key, value]
+    seen = set()
+    total = 0
+    while pending:
+        item = pending.pop()
+        if id(item) in seen:
+            continue
+        seen.add(id(item))
+        total += sys.getsizeof(item)
+        if (
+            total > _PROVENANCE_PARSE_MAX_BYTES
+            or len(seen) > _PROVENANCE_PARSE_MAX_NODES
+        ):
+            return None
+        if is_dataclass(item) and not isinstance(item, type):
+            storage = getattr(item, "__dict__", None)
+            if storage is not None:
+                if type(storage) is not dict:
+                    return None
+                pending.append(storage)
+            members = fields(item)
+            if len(pending) + len(seen) + len(members) > _PROVENANCE_PARSE_MAX_NODES:
+                return None
+            pending.extend(getattr(item, field.name) for field in members)
+        elif isinstance(item, dict):
+            if len(pending) + len(seen) + 2 * len(item) > _PROVENANCE_PARSE_MAX_NODES:
+                return None
+            pending.extend(item.keys())
+            pending.extend(item.values())
+        elif isinstance(item, (tuple, list, set, frozenset)):
+            if len(pending) + len(seen) + len(item) > _PROVENANCE_PARSE_MAX_NODES:
+                return None
+            pending.extend(item)
+        elif isinstance(item, Enum):
+            pending.append(item.value)
+        elif item is not None and not isinstance(item, (str, bytes, int, float, bool)):
+            return None
+        if len(pending) + len(seen) > _PROVENANCE_PARSE_MAX_NODES:
+            return None
+    return total
+
+
+class _ProvenanceParseTemplates:
+    def __init__(self):
+        self.templates = {}
+        self.retained_bytes = 4096
+        self.lock = threading.Lock()
+
+    def parse(self, key, parser):
+        with self.lock:
+            if key in self.templates:
+                try:
+                    return deepcopy(self.templates[key])
+                except (CopyError, RecursionError, MemoryError, TypeError):
+                    return parser()
+            value = parser()
+            if len(self.templates) < _PROVENANCE_PARSE_MAX_ENTRIES:
+                size = _provenance_parse_size(key, value)
+                if (
+                    size is not None
+                    and self.retained_bytes + size <= _PROVENANCE_PARSE_MAX_BYTES
+                ):
+                    try:
+                        first = deepcopy(value)
+                    except (CopyError, RecursionError, MemoryError, TypeError):
+                        return value
+                    self.templates[key] = value
+                    self.retained_bytes += size
+                    return first
+            return value
+
+
+_PROVENANCE_PARSES: ContextVar[_ProvenanceParseTemplates | None] = ContextVar(
+    "read_only_catalog_provenance_parses", default=None
+)
+
+
+@contextmanager
+def read_only_catalog_provenance_parses(*, isolated=False):
+    """Reuse bounded pure parsing only, never native reads or currentness checks."""
+    if not isolated and _PROVENANCE_PARSES.get() is not None:
+        yield
+        return
+    token = _PROVENANCE_PARSES.set(_ProvenanceParseTemplates())
+    try:
+        yield
+    finally:
+        _PROVENANCE_PARSES.reset(token)
+
+
 def _parse_provenance(
+    documents: tuple[bytes | None, bytes | None],
+    *,
+    contained: bool,
+) -> tuple[dict[str, Any] | None, CatalogImportsFile]:
+    templates = _PROVENANCE_PARSES.get()
+    if (
+        templates is None
+        or type(documents) is not tuple
+        or len(documents) != 2
+        or type(contained) is not bool
+        or any(item is not None and type(item) is not bytes for item in documents)
+        or sum(len(item) for item in documents if item is not None)
+        > _PROVENANCE_PARSE_MAX_BYTES
+    ):
+        return _parse_provenance_uncached(documents, contained=contained)
+    return templates.parse(
+        (contained, documents),
+        lambda: _parse_provenance_uncached(documents, contained=contained),
+    )
+
+
+def _parse_provenance_uncached(
     documents: tuple[bytes | None, bytes | None],
     *,
     contained: bool,
@@ -1227,4 +1353,5 @@ __all__ = [
     "catalog_copy",
     "catalog_graph",
     "check_dag_safe",
+    "read_only_catalog_provenance_parses",
 ]

@@ -188,6 +188,18 @@ def _input_closure_report(closure: PinnedInputClosure) -> dict[str, object]:
 
 
 def plan_from_args(args, *, _prepared=None) -> dict[str, Any]:
+    """Plan with private parsing templates; preserve every live input check."""
+    from literate_ai.adapters.catalog_import import read_only_catalog_provenance_parses
+    from literate_ai.projects import read_only_project_configuration_parses
+
+    with (
+        read_only_project_configuration_parses(),
+        read_only_catalog_provenance_parses(),
+    ):
+        return _plan_from_args_scoped(args, _prepared=_prepared)
+
+
+def _plan_from_args_scoped(args, *, _prepared=None) -> dict[str, Any]:
     """Resolve and verify every input without invoking a coding CLI."""
     from .repository_locks import repository_plan_from_args, selected_repository_root
 

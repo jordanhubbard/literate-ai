@@ -47,6 +47,40 @@ print(json.dumps({"package":str(package),"prefix":sys.prefix,"direct_url":direct
 """
 
 
+def isolated_layout_environment(root: Path) -> dict[str, str]:
+    home, temporary = root / "home", root / "tmp"
+    home.mkdir()
+    temporary.mkdir()
+    environment = {
+        name: os.environ[name]
+        for name in ("PATH", "SystemRoot", "WINDIR", "COMSPEC", "PATHEXT")
+        if name in os.environ
+    }
+    environment.update(
+        {
+            "HOME": str(home),
+            "USERPROFILE": str(home),
+            "TMPDIR": str(temporary),
+            "TMP": str(temporary),
+            "TEMP": str(temporary),
+            "XDG_CONFIG_HOME": str(home / "config"),
+            "XDG_CACHE_HOME": str(home / "cache"),
+            "XDG_DATA_HOME": str(home / "data"),
+            "XDG_STATE_HOME": str(home / "state"),
+            "LITAI_NO_SELF_UPDATE": "1",
+            "LITAI_TOOL_DIR": str(root / "tools"),
+            "PIP_CONFIG_FILE": os.devnull,
+            "PIP_NO_INPUT": "1",
+            "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_TERMINAL_PROMPT": "0",
+            "PYTHONDONTWRITEBYTECODE": "1",
+        }
+    )
+    return environment
+
+
 class InstalledProjectLayoutJourney(unittest.TestCase):
     def test_exact_noneditable_wheel_and_public_contained_discovery(self):
         source = Path(os.environ["LITAI_INSTALLED_LAYOUT_SOURCE"]).absolute()
@@ -55,36 +89,7 @@ class InstalledProjectLayoutJourney(unittest.TestCase):
         require_safe_directory(parent)
         self.root = Path(tempfile.mkdtemp(prefix="il-", dir=parent))
         print("retained installed layout fixture:", self.root, flush=True)
-        home, temporary = self.root / "home", self.root / "tmp"
-        home.mkdir()
-        temporary.mkdir()
-        self.environment = {
-            name: os.environ[name]
-            for name in ("PATH", "SystemRoot", "WINDIR", "COMSPEC", "PATHEXT")
-            if name in os.environ
-        }
-        self.environment.update(
-            {
-                "HOME": str(home),
-                "USERPROFILE": str(home),
-                "TMPDIR": str(temporary),
-                "TMP": str(temporary),
-                "TEMP": str(temporary),
-                "XDG_CONFIG_HOME": str(home / "config"),
-                "XDG_CACHE_HOME": str(home / "cache"),
-                "XDG_DATA_HOME": str(home / "data"),
-                "XDG_STATE_HOME": str(home / "state"),
-                "LITAI_NO_SELF_UPDATE": "1",
-                "LITAI_TOOL_DIR": str(self.root / "tools"),
-                "PIP_CONFIG_FILE": os.devnull,
-                "PIP_NO_INPUT": "1",
-                "PIP_DISABLE_PIP_VERSION_CHECK": "1",
-                "GIT_CONFIG_NOSYSTEM": "1",
-                "GIT_CONFIG_GLOBAL": os.devnull,
-                "GIT_TERMINAL_PROMPT": "0",
-                "PYTHONDONTWRITEBYTECODE": "1",
-            }
-        )
+        self.environment = isolated_layout_environment(self.root)
         self.results = []
         head = (
             self.run_command("source-head", ["git", "rev-parse", "HEAD"], source)
