@@ -70,8 +70,10 @@ from literate_ai.evidence_ledger import (
 )
 from literate_ai.perf import PerformanceRecorder
 from literate_ai.projects import (
+    PROJECT_FILENAME,
     ProjectConfigurationStore,
     ProjectError,
+    configured_component_coordinate,
     discover_project,
 )
 from literate_ai.release_qualification import (
@@ -708,10 +710,48 @@ def _project_root(selected: Path) -> Path:
             "release.project_not_found", "no literate.project.json found"
         )
     if project.definition.framework_directory is not None:
-        raise ProjectReleaseError(
-            "release.native_profile_unsupported",
-            "The contained native profile keeps release execution with native tooling",
+        from literate_ai.adapters.conversion_authority import (
+            ConversionAuthorityError,
+            FilesystemConversionAuthorityStore,
         )
+        from literate_ai.adapters.project_initialization import (
+            INITIALIZATION_BASELINE_FILE,
+        )
+        from literate_ai.adapters.project_updates import (
+            ProjectUpdateError,
+            _read_contract,
+        )
+        from literate_ai.contracts import ProjectInitializationBaseline
+
+        try:
+            baseline = _read_contract(
+                project.root,
+                INITIALIZATION_BASELINE_FILE,
+                ProjectInitializationBaseline,
+            )
+            conversion = FilesystemConversionAuthorityStore(
+                project.root
+            ).load_optional()
+        except (ConversionAuthorityError, ProjectUpdateError, ProjectError) as exc:
+            raise ProjectReleaseError(
+                "release.contained_profile_unavailable",
+                "contained release requires initialization and conversion authority",
+            ) from exc
+        if (
+            baseline.profile != "generated"
+            or conversion is None
+            or conversion.project_id != project.definition.project_id
+        ):
+            raise ProjectReleaseError(
+                "release.native_profile_unsupported",
+                "The contained native profile keeps release execution with "
+                "native tooling",
+            )
+        selected_policy = _release_policy_path(project.root)
+        if selected_policy.is_symlink() or not selected_policy.is_file():
+            raise ProjectReleaseError(
+                "release.policy_unavailable", "contained release policy is unavailable"
+            )
     return project.root
 
 
@@ -724,9 +764,21 @@ def _read_json(path: Path, *, code: str) -> object:
         raise ProjectReleaseError(code, f"cannot read canonical JSON: {path}") from exc
 
 
+def _release_policy_path(root: Path) -> Path:
+    context = ProjectConfigurationStore.context(root)
+    selected = context.framework_path(RELEASE_POLICY_FILE)
+    legacy = root / RELEASE_POLICY_FILE
+    if selected != legacy and os.path.lexists(legacy):
+        raise ProjectReleaseError(
+            "release.policy_ambiguous",
+            "application-root release policy shadows the declared contained policy",
+        )
+    return selected
+
+
 def load_release_policy(project: Path) -> tuple[Path, ReleasePolicy]:
     root = _project_root(project)
-    policy_path = root / RELEASE_POLICY_FILE
+    policy_path = _release_policy_path(root)
     policy = ReleasePolicy.from_dict(
         _read_json(policy_path, code="release.policy_unavailable")
     )
@@ -1014,7 +1066,11 @@ def set_release_state(
 
 
 def _binding_path(root: Path, relative: str) -> Path:
-    candidate = root.joinpath(*Path(relative).parts)
+    candidate = (
+        ProjectConfigurationStore.context(root).manifest_path
+        if relative == PROJECT_FILENAME
+        else root.joinpath(*Path(relative).parts)
+    )
     try:
         resolved_parent = candidate.parent.resolve(strict=True)
         resolved_root = root.resolve(strict=True)
@@ -1034,6 +1090,61 @@ def _binding_path(root: Path, relative: str) -> Path:
             "release.binding_unavailable", f"binding is not a regular file: {relative}"
         )
     return candidate
+
+
+def _version_binding_paths(root: Path, policy: ReleasePolicy) -> tuple[str, ...]:
+    return tuple(
+        _binding_path(root, item.path).relative_to(root).as_posix()
+        for item in (policy.version_authority, *policy.version_mirrors)
+    )
+
+
+def _release_placement_identity(root: Path, policy: ReleasePolicy) -> str | None:
+    policy_path = _release_policy_path(root)
+    if policy_path.parent == root:
+        return None
+    project = discover_project(root)
+    assert project is not None
+    gate_component = None
+    if policy.gate_argv[:2] == ("litai", "test") and len(policy.gate_argv) > 2:
+        declared = Path(policy.gate_argv[2]).as_posix()
+        framework = policy_path.parent.relative_to(root).as_posix()
+        if declared.startswith(
+            (
+                "components/",
+                "samples/",
+                f"{framework}/components/",
+                f"{framework}/samples/",
+            )
+        ):
+            try:
+                gate_component = configured_component_coordinate(project, declared)
+            except ProjectError as exc:
+                raise ProjectReleaseError(exc.code, exc.message) from exc
+            manifest = Path(gate_component)
+            if manifest.name != "component.md":
+                manifest /= "component.md"
+            selected = _binding_path(root, manifest.as_posix())
+            if selected.resolve(strict=True) != root / manifest:
+                raise ProjectReleaseError(
+                    "release.binding_unsafe", "release gate Component is redirected"
+                )
+    return canonical_identity(
+        {
+            "policy": policy_path.relative_to(root).as_posix(),
+            "version_bindings": _version_binding_paths(root, policy),
+            "gate_component": gate_component,
+        }
+    ).uri
+
+
+def _require_release_placement(root: Path, policy: ReleasePolicy, record: dict) -> None:
+    if record.get("authority_placement_identity") != _release_placement_identity(
+        root, policy
+    ):
+        raise ProjectReleaseError(
+            "release.plan_stale", "release authority placement changed after planning"
+        )
 
 
 def _pointer_parts(pointer: str) -> tuple[str, ...]:
@@ -1683,6 +1794,9 @@ def create_release_plan(
         result["contributions"] = contributions
     if release_line is not None:
         result["release_line"] = release_line
+    placement = _release_placement_identity(root, policy)
+    if placement is not None:
+        result["authority_placement_identity"] = placement
     result["identity"] = canonical_identity(result).uri
     return result
 
@@ -2051,8 +2165,7 @@ def advance_default_branch_version(
         "next_version": next_version,
         "changed_paths": sorted(
             {
-                policy.version_authority.path,
-                *(item.path for item in policy.version_mirrors),
+                *_version_binding_paths(root, policy),
                 *(str(path.relative_to(root)) for path in refreshed_documentation),
             }
         ),
@@ -2117,7 +2230,7 @@ def backport_commits(
     """
     root = _project_root(project)
     policy: ReleasePolicy | None = None
-    if (root / RELEASE_POLICY_FILE).is_file():
+    if _release_policy_path(root).is_file():
         _policy_root, policy = load_release_policy(root)
     authorization: dict[str, str | None] | None = None
     if policy is not None and policy.schema == RELEASE_POLICY_SCHEMA:
@@ -2481,6 +2594,7 @@ def prepare_release(
 ) -> dict[str, object]:
     plan = _load_record(plan_path, RELEASE_PLAN_SCHEMA)
     root, policy = load_release_policy(project)
+    _require_release_placement(root, policy, plan)
     _require_semver_release(policy)
     authorization: dict[str, str | None] | None = None
     if policy.schema == RELEASE_POLICY_SCHEMA:
@@ -2565,28 +2679,35 @@ def prepare_release(
         text = text.replace(policy.unreleased_heading, inserted, 1)
     changes = (*rendered, (changelog, text))
     created_line: str | None = None
-    try:
-        created_line = _ensure_release_line_checkout(
-            root, policy, plan, branch=str(snapshot["branch"])
-        )
-        _write_transaction(
-            tuple(
-                (path, updated)
-                for path, updated in changes
-                if path.read_text(encoding="utf-8") != updated
+    placement_lock = (
+        ProjectConfigurationStore.layout_lock(root)
+        if "authority_placement_identity" in plan
+        else nullcontext()
+    )
+    with placement_lock:
+        _require_release_placement(root, policy, plan)
+        try:
+            created_line = _ensure_release_line_checkout(
+                root, policy, plan, branch=str(snapshot["branch"])
             )
-        )
-        refreshed_documentation = (
-            _refresh_documentation_authority(root, policy)
-            if policy.documentation_authority_paths
-            else ()
-        )
-    except Exception:
-        if created_line is not None and policy.default_branch is not None:
-            _unwind_created_release_line(
-                root, default_branch=policy.default_branch, name=created_line
+            _write_transaction(
+                tuple(
+                    (path, updated)
+                    for path, updated in changes
+                    if path.read_text(encoding="utf-8") != updated
+                )
             )
-        raise
+            refreshed_documentation = (
+                _refresh_documentation_authority(root, policy)
+                if policy.documentation_authority_paths
+                else ()
+            )
+        except Exception:
+            if created_line is not None and policy.default_branch is not None:
+                _unwind_created_release_line(
+                    root, default_branch=policy.default_branch, name=created_line
+                )
+            raise
     cut = _plan_cut_branch(plan)
     result: dict[str, object] = {
         "schema": "literate-ai/release-preparation@1",
@@ -2600,8 +2721,7 @@ def prepare_release(
         "changed_paths": sorted(
             {
                 policy.changelog_path,
-                policy.version_authority.path,
-                *(item.path for item in policy.version_mirrors),
+                *_version_binding_paths(root, policy),
                 *(str(path.relative_to(root)) for path in refreshed_documentation),
             }
         ),
@@ -3620,7 +3740,7 @@ def _strict_ci_source(root: Path, policy: ReleasePolicy, snapshot: dict) -> str:
         ):
             raise ValueError("source/branch/clean state changed")
         tree = git("rev-parse", f"{snapshot['head']}^{{tree}}").strip()
-        paths = [root / RELEASE_POLICY_FILE]
+        paths = [_release_policy_path(root)]
         configuration = ProjectConfigurationStore.discover(root)
         if configuration is not None:
             if configuration.root.resolve() != root.resolve():
@@ -3973,6 +4093,7 @@ def _check_release(
 ) -> dict[str, object]:
     plan = _load_record(plan_path, RELEASE_PLAN_SCHEMA)
     root, policy = load_release_policy(project)
+    _require_release_placement(root, policy, plan)
     _require_semver_release(policy)
     authorization: dict[str, str | None] | None = None
     if policy.schema == RELEASE_POLICY_SCHEMA:
@@ -4048,8 +4169,7 @@ def _check_release(
     declared = frozenset(
         {
             policy.changelog_path,
-            policy.version_authority.path,
-            *(item.path for item in policy.version_mirrors),
+            *_version_binding_paths(root, policy),
             *policy.documentation_authority_paths,
             *((reviewed_documentation_path,) if reviewed_documentation_path else ()),
             *((test_receipt_path,) if test_receipt_path else ()),
@@ -4265,6 +4385,9 @@ def _check_release(
             "node_id": evidence_node.node_id,
         }
         result["schema"] = PREPARED_RELEASE_SCHEMA
+    if "authority_placement_identity" in plan:
+        _require_release_placement(root, policy, plan)
+        result["authority_placement_identity"] = plan["authority_placement_identity"]
     result["identity"] = canonical_identity(result).uri
     destination = _release_record_destination(root, output)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -4287,6 +4410,12 @@ def check_release(
 ) -> dict[str, object]:
     """Check one prepared release while retaining a fail-soft evidence closure."""
 
+    selected = discover_project(project.resolve(strict=True))
+    if selected is not None and selected.definition.framework_directory is not None:
+        root, policy = load_release_policy(project)
+        _require_release_placement(
+            root, policy, _load_record(plan_path, RELEASE_PLAN_SCHEMA)
+        )
     run = attach_run(project)
     if run is None:
         run = open_run(project, operation="release.check")
@@ -5319,8 +5448,7 @@ def _advance_default_branch_after_publish(
                 )
                 changed = sorted(
                     {
-                        policy.version_authority.path,
-                        *(item.path for item in policy.version_mirrors),
+                        *_version_binding_paths(worktree, policy),
                         *(
                             str(path.relative_to(worktree))
                             for path in refreshed_documentation
@@ -5398,6 +5526,7 @@ def publish_release(
         prepared_path, (PREPARED_RELEASE_SCHEMA, LEGACY_PREPARED_RELEASE_SCHEMA)
     )
     root, policy = load_release_policy(project)
+    _require_release_placement(root, policy, prepared)
     _require_supported_ci_promotion(policy, "release publication")
     _require_semver_release(policy)
     authorization: dict[str, str | None] | None = None
@@ -5642,6 +5771,7 @@ def verify_published_release(project: Path, prepared_path: Path) -> dict[str, ob
         prepared_path, (PREPARED_RELEASE_SCHEMA, LEGACY_PREPARED_RELEASE_SCHEMA)
     )
     root, policy = load_release_policy(project)
+    _require_release_placement(root, policy, prepared)
     _require_supported_ci_promotion(policy, "published-release coverage verification")
     _require_semver_release(policy)
     if policy.identity != prepared["policy_identity"]:

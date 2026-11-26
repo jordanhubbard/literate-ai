@@ -136,6 +136,51 @@ def publish_directory_between_owned_parents_exclusive(
     reservations and any rollback. Cross-device moves refuse; no copy, merge or
     deletion fallback can expose partial files or discard a concurrent change.
     """
+    _move_between_owned_parents(
+        source,
+        destination,
+        expected_source=expected_source,
+        expected_source_parent=expected_source_parent,
+        expected_destination_parent=expected_destination_parent,
+        node_at=directory_node,
+    )
+
+
+def move_file_between_owned_parents_exclusive(
+    source: Path,
+    destination: Path,
+    *,
+    expected_source: tuple[int, int, int],
+    expected_source_parent: tuple[int, int, int],
+    expected_destination_parent: tuple[int, int, int],
+) -> None:
+    """Move a direct regular file under the same no-replace custody protocol."""
+
+    def file_node(path: Path) -> tuple[int, int, int]:
+        node = path.lstat()
+        if stat_is_link_or_reparse(node) or not stat.S_ISREG(node.st_mode):
+            raise ValueError("retained.publication.file-unsafe")
+        return node.st_dev, node.st_ino, node.st_mode
+
+    _move_between_owned_parents(
+        source,
+        destination,
+        expected_source=expected_source,
+        expected_source_parent=expected_source_parent,
+        expected_destination_parent=expected_destination_parent,
+        node_at=file_node,
+    )
+
+
+def _move_between_owned_parents(
+    source: Path,
+    destination: Path,
+    *,
+    expected_source: tuple[int, int, int],
+    expected_source_parent: tuple[int, int, int],
+    expected_destination_parent: tuple[int, int, int],
+    node_at,
+) -> None:
     source, destination = Path(source), Path(destination)
     if (
         not source.is_absolute()
@@ -158,7 +203,7 @@ def publish_directory_between_owned_parents_exclusive(
             raise ValueError("retained.publication.parent-changed")
 
     guard()
-    if directory_node(source) != expected_source:
+    if node_at(source) != expected_source:
         raise ValueError("retained.publication.stage-changed")
     target_key = unicodedata.normalize("NFC", destination.name.casefold())
     for index, entry in enumerate(destination.parent.iterdir()):
@@ -200,5 +245,5 @@ def publish_directory_between_owned_parents_exclusive(
                 target_descriptor,
             )
     guard()
-    if directory_node(destination) != expected_source:
+    if node_at(destination) != expected_source:
         raise ValueError("retained.publication.published-node-changed")

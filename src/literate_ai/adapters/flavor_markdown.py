@@ -75,10 +75,14 @@ class FlavorMarkdownAuthoring:
 
     def resolve(self, read_reference: Callable[[str], bytes]) -> FlavorDefinition:
         """Resolve authored paths into the exact v2 machine contract."""
+        return self.resolve_typed(lambda _kind, uri: read_reference(uri))
 
+    def resolve_typed(
+        self, read_reference: Callable[[str, str], bytes]
+    ) -> FlavorDefinition:
         def reference(kind: str, uri: str) -> ContentReference:
             try:
-                content = read_reference(uri)
+                content = read_reference(kind, uri)
             except (OSError, ValueError) as exc:
                 raise FlavorMarkdownError(
                     "flavor_markdown.reference_unavailable",

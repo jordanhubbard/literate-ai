@@ -901,6 +901,7 @@
       ],
       "properties": {
         "schema": {"const": "literate-ai/release-plan@1"},
+        "authority_placement_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "policy_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "source_revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
         "source_branch": {"type": "string", "minLength": 1, "maxLength": 256},
@@ -963,6 +964,7 @@
         "artifacts": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualified_release_files"},
         "authenticated_receipt_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "schema": {"const": "literate-ai/prepared-release@1"},
+        "authority_placement_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "plan_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "policy_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "base_revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
@@ -1044,6 +1046,7 @@
         "artifacts": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualified_release_files"},
         "authenticated_receipt_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "schema": {"const": "literate-ai/prepared-release@2"},
+        "authority_placement_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "plan_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "policy_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
         "base_revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
