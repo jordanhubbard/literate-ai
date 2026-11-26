@@ -17,7 +17,11 @@ from literate_ai.contracts import (
     CatalogImportSource,
 )
 from literate_ai.project_authority_graph import project_authority_graph
-from tests.support.native_repository import NativeRepositoryFixture
+from tests.support.native_repository import (
+    NativeRepositoryFixture,
+    commit_independent_repository,
+    git_at,
+)
 
 
 class NativeTemplateUpdateTests(unittest.TestCase):
@@ -44,7 +48,7 @@ class NativeTemplateUpdateTests(unittest.TestCase):
             side_effect=lambda: dict(self.templates),
         ).start()
 
-    def update(self, *options):
+    def update(self, *options, success=True):
         stdout, stderr = io.StringIO(), io.StringIO()
         with patch.dict(os.environ, {"LITAI_NO_SELF_UPDATE": "1"}):
             status = main(
@@ -52,8 +56,161 @@ class NativeTemplateUpdateTests(unittest.TestCase):
                 stdout=stdout,
                 stderr=stderr,
             )
-        self.assertEqual(status, 0, stdout.getvalue() + stderr.getvalue())
-        return json.loads(stdout.getvalue())["result"]
+        self.assertEqual(
+            status, 0 if success else 2, stdout.getvalue() + stderr.getvalue()
+        )
+        if success:
+            return json.loads(stdout.getvalue())["result"]
+        return json.loads(stderr.getvalue())["error"]
+
+    def test_update_refuses_nested_profile_checkout_and_preserves_staged_edits(self):
+        relative = "litai/docs/adoption.md"
+        target = self.root / relative
+        original = target.read_bytes()
+        self.templates[relative] = original + b"\nNew upstream policy.\n"
+        checkpoint = self.root / "litai/.literate/update-bases.json"
+        recorded = checkpoint.read_bytes()
+        child = self.root / "litai"
+        self.assertEqual(self.update()["mode"], "read-only-plan")
+        commit_independent_repository(child)
+        staged = git_at(
+            child,
+            "hash-object",
+            "-w",
+            "--stdin",
+            content=original + b"\nChild staged policy.\n",
+        )
+        git_at(
+            child,
+            "update-index",
+            "--cacheinfo",
+            "100644",
+            staged.decode().strip(),
+            "docs/adoption.md",
+        )
+        index = git_at(child, "ls-files", "--stage")
+        status = git_at(child, "status", "--porcelain")
+        for args in ((), ("--apply",)):
+            error = self.update(*args, success=False)
+            self.assertEqual(error["code"], "project.native_update_nested_git")
+        self.assertEqual(git_at(child, "ls-files", "--stage"), index)
+        self.assertEqual(git_at(child, "status", "--porcelain"), status)
+        self.assertEqual(target.read_bytes(), original)
+        self.assertEqual(checkpoint.read_bytes(), recorded)
+        self.assertFalse((child / ".litai-locks").exists())
+        self.fixture.assert_original()
+
+    def test_unrelated_nested_checkout_does_not_block_selected_template_update(self):
+        child = self.root / "litai/unrelated"
+        child.mkdir()
+        (child / "notes.txt").write_bytes(b"Independent repository notes.\n")
+        commit_independent_repository(child)
+        relative = "litai/SKILL.md"
+        self.templates[relative] += b"\nNew upstream guidance.\n"
+        index = git_at(child, "ls-files", "--stage")
+        self.assertEqual(self.update()["mode"], "read-only-plan")
+        result = self.update("--apply")
+        self.assertEqual(result["application"]["applied"], [relative])
+        self.assertEqual((self.root / relative).read_bytes(), self.templates[relative])
+        self.assertEqual(git_at(child, "ls-files", "--stage"), index)
+        self.assertEqual(git_at(child, "status", "--porcelain"), b"")
+
+    def test_update_refuses_nested_checkpoint_even_without_template_changes(self):
+        child = self.root / "litai/.literate"
+        commit_independent_repository(child)
+        for args in ((), ("--apply",)):
+            error = self.update(*args, success=False)
+            self.assertEqual(error["code"], "project.native_update_nested_git")
+        self.assertEqual(git_at(child, "status", "--porcelain"), b"")
+
+    def test_new_checkpoint_boundary_rolls_back_only_earlier_owned_writes(self):
+        from literate_ai.adapters.update_merge import UpdateBases
+
+        relative = "litai/SKILL.md"
+        target = self.root / relative
+        previous = target.read_bytes()
+        self.templates[relative] = previous + b"\nNew upstream guidance.\n"
+        child = self.root / "litai/.literate"
+        checkpoint = child / "update-bases.json"
+        original = checkpoint.read_bytes()
+        advance = UpdateBases.advance
+        injected = False
+
+        def create_boundary(bases, scope, path, content):
+            nonlocal injected
+            advance(bases, scope, path, content)
+            if path == relative and not injected:
+                self.assertEqual(target.read_bytes(), self.templates[relative])
+                commit_independent_repository(child)
+                injected = True
+
+        with patch.object(UpdateBases, "advance", create_boundary):
+            error = self.update("--apply", success=False)
+        self.assertTrue(injected)
+        self.assertEqual(error["code"], "project.native_update_nested_git")
+        self.assertEqual(target.read_bytes(), previous)
+        self.assertEqual(checkpoint.read_bytes(), original)
+        self.assertEqual(git_at(child, "status", "--porcelain"), b"")
+
+    def test_interrupted_checkpoint_replace_rolls_back_template_and_metadata(self):
+        from literate_ai.adapters import project_update_apply
+
+        relative = "litai/SKILL.md"
+        target = self.root / relative
+        before = target.read_bytes()
+        self.templates[relative] += b"\nNew upstream guidance.\n"
+        checkpoint = self.root / "litai/.literate/update-bases.json"
+        original = checkpoint.read_bytes()
+        actual = project_update_apply._write_exact
+        interrupted = False
+
+        def write(path, content):
+            nonlocal interrupted
+            actual(path, content)
+            if path == checkpoint and not interrupted:
+                self.assertNotEqual(checkpoint.read_bytes(), original)
+                interrupted = True
+                raise OSError("interrupted after checkpoint replacement")
+
+        with patch.object(project_update_apply, "_write_exact", write):
+            self.update("--apply", success=False)
+        self.assertTrue(interrupted)
+        self.assertEqual(target.read_bytes(), before)
+        self.assertEqual(checkpoint.read_bytes(), original)
+
+    def test_late_lifecycle_boundary_keeps_child_owner_diagnostic(self):
+        from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock_path
+        from literate_ai.adapters.update_merge import UpdateBases
+
+        relative = "litai/SKILL.md"
+        target = self.root / relative
+        before = target.read_bytes()
+        self.templates[relative] += b"\nNew upstream guidance.\n"
+        checkpoint = self.root / "litai/.literate/update-bases.json"
+        original = checkpoint.read_bytes()
+        lifecycle = project_lifecycle_lock_path(self.root)
+        owner = lifecycle.with_name(lifecycle.name + ".owner.json")
+        child = self.root / "litai/.litai-locks"
+        advance = UpdateBases.advance
+        committed = None
+
+        def create_boundary(bases, scope, path, content):
+            nonlocal committed
+            advance(bases, scope, path, content)
+            if path == relative and committed is None:
+                commit_independent_repository(child)
+                committed = git_at(
+                    child, "show", "HEAD:" + owner.relative_to(child).as_posix()
+                )
+
+        with patch.object(UpdateBases, "advance", create_boundary):
+            error = self.update("--apply", success=False)
+        self.assertEqual(error["code"], "project.native_update_nested_git")
+        self.assertIsNotNone(committed)
+        self.assertEqual(owner.read_bytes(), committed)
+        self.assertEqual(git_at(child, "status", "--porcelain"), b"")
+        self.assertEqual(target.read_bytes(), before)
+        self.assertEqual(checkpoint.read_bytes(), original)
 
     def test_two_upgrades_keep_local_policy_and_advance_the_base(self):
         relative = "litai/docs/adoption.md"

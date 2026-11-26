@@ -49,6 +49,12 @@ def _expiry(value):
     return result
 
 
+def _observed_expired(response):
+    return response["status"] == "ready" and _expiry(
+        response["expires_at"]
+    ) <= datetime.now(UTC)
+
+
 def _request(value, record):
     request = contract_fields(
         value,
@@ -156,7 +162,7 @@ def require_recoverable_lease(record):
     management = record["management"]
     response = management["response"]
     if (
-        record["status"] in ("releasing", "released")
+        record["status"] in ("expired", "releasing", "released")
         or management["state"] != "complete"
         or response["status"] != "ready"
         or _expiry(response["expires_at"]) <= datetime.now(UTC)
@@ -299,13 +305,12 @@ def manage_lease(
         config, child = _configuration(config_path, environment, record)
         previous = record.get("management")
         release = previous["release_request"] if previous else None
-        if expired_only and release is None:
+        if expired_only and release is None and record["status"] != "expired":
             response = previous["response"] if previous else None
             if (
                 previous is None
                 or previous["state"] != "complete"
-                or response["status"] != "ready"
-                or _expiry(response["expires_at"]) > datetime.now(UTC)
+                or not _observed_expired(response)
             ):
                 refuse(
                     "lease_not_expired",
@@ -353,25 +358,28 @@ def manage_lease(
         current = WorkerProvisioner.from_dict(read_private(config_path))
         if replace(current, enabled=True) != replace(config, enabled=True):
             refuse("config_changed", "Lease configuration changed during management.")
+        # Expiration is durable for this allocation generation. Later lookups
+        # and clock changes cannot resurrect a previously observed expired lease.
+        expired = record["status"] == "expired" or _observed_expired(response)
         if response["status"] == "ready":
             record["response"] = response["provision_response"]
-            if release is None and record["status"] != "registered":
-                record["status"] = "ready"
-        elif response["status"] == "released":
+        if response["status"] == "released":
             record["status"] = "released"
             if "dispatch" in record:
                 record["dispatch"]["state"] = "released"
         elif release is None:
-            record["status"] = "uncertain"
+            if expired:
+                record["status"] = "expired"
+            elif response["status"] != "ready":
+                record["status"] = "uncertain"
+            elif record["status"] != "registered":
+                record["status"] = "ready"
         record["management"].update(state="complete", response=response)
         write_private(path, record, limit=3 * LIMIT)
         if (
             release is not None
+            or expired
             or response["status"] in ("pending", "absent", "released")
-            or (
-                response["status"] == "ready"
-                and _expiry(response["expires_at"]) <= datetime.now(UTC)
-            )
         ):
             _unregister_owned(record, **timing)
         require_deadline(deadline_monotonic)

@@ -112,6 +112,7 @@ litai project convert-stage advance
 litai project source-intelligence sync
 litai project source-intelligence check
 litai project identity migrate
+litai project layout plan
 litai project retained-scope refresh
 litai project retained-harness readmit
 litai project retained-cargo check
@@ -230,6 +231,46 @@ migrated before releasing. The policy declares every mirrored version field and
 separates read-only planning, local
 preparation, exact gate evidence, and explicitly authorized publication. See
 [Project release protocol](../architecture/project-releases.md).
+
+## Containment planning
+
+Run `litai --json project layout plan --project PATH` to inspect a legacy
+initialized project's prospective containment under `litai/`. The command uses
+existing project discovery, so a supported descendant selects its containing
+project; an independent nested project retains its own authority. It creates no
+plan cache, lock, receipt, host configuration or provider request. MCP discovery
+and debug-file output are refused. There is no apply option.
+
+The `literate-ai/project-layout-plan@1` result contains `mode`, `scope`,
+`project_id`, `profile`, `framework_directory`, `target`, `manifest`, `git_state`,
+`framework_git_state`,
+`producer_identities`, `members`, `topology`, `producer_coordinates`,
+`reference_edits`, `blockers`, `apply_supported`, `writes`, `qualification`,
+`planning_complete` and `plan_identity`. Git HEAD and staged-index observations
+are hashed for the application root and, when distinct, the framework directory.
+This includes a framework directory with its own nested Git repository. Both
+observations are checked again before returning. The identity binds captured content,
+modes, directory topology, producer records and decisions without inserting the
+operator's absolute project path. A future writer must recapture its inputs.
+
+File members distinguish retained application content, known whole-file authority,
+producer evidence, coordination candidates, shared root integrations and unresolved
+ownership. Independent initialization, imported-catalog and catalog/template-base
+signals remain separate. A prospective target is a planning observation, not
+relocation permission. Shared instructions and unknown files require owner
+decisions; path-bound locks, receipts and reviewed authority need their producing
+owners. The retained implementation keeps its application coordinate. Historical
+receipts are preserved rather than rewritten into new positive evidence.
+
+Exit 1 reports a well-formed plan with unresolved ownership, references or migration
+dependencies. Exit 2 refuses unavailable or malformed required provenance,
+inconsistent observations, unsafe topology, occupied targets or exceeded limits.
+Legacy observation currently permits at most 8,192 entries, 16 MiB per file and
+64 MiB total file content, and excludes Git administration from tree traversal.
+Already-contained native profiles report exit 0 for the narrower scope of proposing
+no legacy relocation: their framework directory is observed, while unrelated
+application outputs remain outside that scope. Every result has
+`apply_supported: false`, `writes: false` and `qualification: false`.
 
 ## Repository policy configuration
 
@@ -540,8 +581,8 @@ root-integration acceptance still remain.
 | `video build MANIFEST --output DIR --font FILE [--narration recorded\|say\|espeak]` | Render a new MP4, embedded subtitles, SRT, VTT, and integrity receipt; see [instructional videos](instructional-videos.md). |
 | `video verify RECEIPT [--manifest MANIFEST]` | Verify media integrity, caption timing, and optionally current source identity. |
 | `skills evaluate CORPUS [--project PATH] [--fire-threshold N] [--fragile-threshold N]` | Run a synthetic prompt corpus against the real skill catalog and classify each outcome as correct/misroute/over_greedy/fragile_pass -- a behavioral check that a skill's own description would distinguish it, distinct from validate's structural checks. |
-| `catalog graph [--project PATH]` | Inspect the repository provenance DAG rooted at Literate AI. |
-| `catalog copy SOURCE ITEM [ITEM ...] [--project PATH]` | Copy selected Flavor, Skill, or Component catalog items from another Literate AI project. Exact Git commit pins fetch shallow ancestry and selected catalog directories, requesting blob filtering from the server; initialize only relevant submodules at the selected snapshot. Servers without filtering may transfer extra bytes. Provenance retains the resolved commit. |
+| `catalog graph [--project PATH]` | Inspect the repository provenance DAG rooted at Literate AI. For a declared contained layout, discovery from an application subdirectory resolves the catalog provenance under `litai/.literate`. |
+| `catalog copy SOURCE ITEM [ITEM ...] [--project PATH]` | Copy selected Flavor, Skill, or Component catalog items from another Literate AI project. Exact Git commit pins fetch shallow ancestry and selected catalog directories, requesting blob filtering from the server; initialize only relevant submodules at the selected snapshot. Servers without filtering may transfer extra bytes. Provenance retains the resolved commit. A declared contained source uses `litai/.literate` for its provenance and the existing catalog paths relative to the application. Copy validates contained ancestry and checks any selected import against its recorded file identities using portable paths. The destination uses the legacy root layout. |
 | `clean [--project PATH]` | Remove only the marked host-specific `OBJ_DIR`. |
 | `really-clean [--project PATH]` | Ensure marked `OBJ_DIR` and generated-source `BUILD_DIR` are absent. This also removes deliberately tracked or uncommitted entries beneath `BUILD_DIR`. |
 | `component migrate COMPONENT\|PROJECT [--check\|--diff]` | Non-destructively project legacy `component.json` into readable `component.md`; project mode is one preflighted transaction, preserves every legacy file, and never overwrites authored prose. |
@@ -2171,6 +2212,22 @@ litai project convert-stage advance --to retained --project .
 litai status --project .
 ```
 
+The retained receipt producer reads its inventory, baseline, parity, and
+lift-and-shift records from the selected framework directory's `.literate/`
+directory. In a partially placed legacy project that declares `litai/`, it
+still resolves the existing wrapper, retained implementation, and configured
+receipt path from the application root. An old root copy cannot supply a missing
+record. A declared retained layout still requires its own transition and
+requalification before legacy receipt production can proceed.
+
+A framework-directory change updates project authority. Renew the reviewed
+documentation and use the retained receipt producer to earn current evidence
+from the unchanged native commands. The prior receipt stays stale until the
+normal publication step. Component lock renewal, catalog provenance and update
+bases, scope refresh and readmission, shared host references, cache coordinates,
+and a recoverable migration transaction have separate owners. There is no
+public writer for canonical relocation.
+
 Failures preserve the harness's 8,192-character combined diagnostic budget through
 the CLI, plus a bounded headline allowance. Reported ENOSPC, disk-full and quota
 errors are prioritized ahead of ordinary output; both stream tails remain visible.
@@ -2781,16 +2838,21 @@ worker; `recover` then explicitly registers it. An observed pending, absent or
 expired worker loses only its still-matching registration. An unfinished lookup,
 expired observation or release intent cannot authorize recovery. Observation is
 read-only at the provider but updates the local journal and may remove an invalid
-registration. `status` remains a local read without a provider call.
+registration. Once a ready reply is observed past its expiry, the journal retains
+`expired` for that allocation generation. A later lookup or clock rollback cannot
+make it eligible for registration again. `status` remains a local read without a
+provider call.
 
 `release` requires acknowledgement and removes the exact owned registration before
 asking the provider to release it. The request is durably saved first. A timeout,
 crash or pending provider reply leaves `releasing`; repeat the command to use the
 same idempotency key. A completed release retains a tombstone and never allocates
 again under that worker ID. Lookup after a failed release preserves that release
-intent. `--expired-only` requires an observed expiry in the past before the first
-release attempt. A changed registration, unrelated static worker or changed
-provider configuration is never deleted by this operation.
+intent. `--expired-only` requires a recorded past expiry before the first release
+attempt. A later absent or pending reply preserves that eligibility. Bare absence
+without an observed expiry still requires ordinary acknowledged release and an
+exact terminal acknowledgement from the provider. A changed registration, unrelated
+static worker or changed provider configuration is never deleted by this operation.
 
 Managed SSH dispatch observes the lease before each attempt and requires enough
 remaining lifetime for the full job deadline plus the actual remote runner's

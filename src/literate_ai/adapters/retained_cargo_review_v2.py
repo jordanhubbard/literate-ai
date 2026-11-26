@@ -48,6 +48,9 @@ class RetainedCargoReviewedFilesV2:
     @property
     def identity(self):
         self.require_unchanged()
+        return self._captured_identity()
+
+    def _captured_identity(self):
         return canonical_identity(
             {
                 "schema": "literate-ai/retained-cargo-reviewed-files@2",
