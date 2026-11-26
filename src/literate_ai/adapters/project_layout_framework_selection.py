@@ -25,6 +25,9 @@ from literate_ai.adapters import (
 )
 from literate_ai.adapters import project_scaffold_references as references
 from literate_ai.adapters import project_scaffold_transitions as transitions
+from literate_ai.adapters.project_initialization import (
+    DEFAULT_AUTHORITY_REVIEW_DOCUMENT,
+)
 from literate_ai.adapters.project_layout_component_transition import (
     require_original_component_transition,
 )
@@ -49,6 +52,7 @@ from literate_ai.adapters.project_scaffold_placement import (
     ScaffoldFile,
     ScaffoldLayout,
 )
+from literate_ai.application import project_authority as authority_review
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.documentation import extract_markdown_links
@@ -60,7 +64,14 @@ _DELEGATE = vars(ProjectScaffoldPlacement)["plan_delegate"]
 _BOOTSTRAP = transitions.reviewed_bootstrap_transition
 _CATALOG_RESOLVER = projects.contained_catalog_coordinates
 _CATALOG_RESOLVER_CODE = _CATALOG_RESOLVER.__code__
+_REVIEW_INVALIDATOR = authority_review.invalidate_authority_review
+_REVIEW_INVALIDATOR_CODE = _REVIEW_INVALIDATOR.__code__
+_REVIEW_INPUTS = (
+    authority_review.AUTHORITY_REVIEW_MARKER,
+    authority_review.AUTHORITY_REVIEW_PLACEHOLDER,
+)
 _FUNCTIONS = (
+    (authority_review, "invalidate_authority_review", _REVIEW_INVALIDATOR),
     (projects, "contained_catalog_coordinates", _CATALOG_RESOLVER),
     (
         wrapper_source,
@@ -99,6 +110,13 @@ def _identity(content):
 
 
 def _renderer_current():
+    if _REVIEW_INVALIDATOR.__code__ is not _REVIEW_INVALIDATOR_CODE:
+        _fail("original authority review invalidation producer code changed")
+    if (
+        authority_review.AUTHORITY_REVIEW_MARKER is not _REVIEW_INPUTS[0]
+        or authority_review.AUTHORITY_REVIEW_PLACEHOLDER is not _REVIEW_INPUTS[1]
+    ):
+        _fail("original authority review invalidation inputs changed")
     if _CATALOG_RESOLVER.__code__ is not _CATALOG_RESOLVER_CODE:
         _fail("original initialized catalog resolver code changed")
     for cls, namespace, bases, mro in _CLASSES:
@@ -606,6 +624,16 @@ def select_existing_framework_authority(
             for logical, destination in sorted(destinations.items())
         ),
     )
+    authority_relocated = (
+        any(proofs[name].source_path != target for name, target in destinations.items())
+        or any(
+            wrapper_entries[name].original_coordinate != target
+            for name, target in wrapper_destinations.items()
+        )
+        or bool(creations)
+        or any(component_selected(endpoint) for endpoint in component_endpoints)
+    )
+    review_transition = False
     placements, owned, resident, delegates, after = {}, {}, {}, {}, {}
     for logical, destination in sorted(destinations.items()):
         proof = proofs[logical]
@@ -651,6 +679,9 @@ def select_existing_framework_authority(
                 )
         else:
             rewritten = _TEMPLATE(renderer, logical, before, coordinate_map=coordinates)
+        if logical == DEFAULT_AUTHORITY_REVIEW_DOCUMENT and authority_relocated:
+            rewritten = _REVIEW_INVALIDATOR(rewritten)
+            review_transition = True
         for line, subject in _local_subjects(source, before):
             if subject not in coordinates and subject.rstrip("/") not in observations:
                 blockers.append(
@@ -1083,7 +1114,12 @@ def select_existing_framework_authority(
         "reference_edits": {},
         "owned_creations": creation_rows,
         "required_owners": blockers,
-        "renewal": ["normal destination producer currentness remains required"],
+        "renewal": ["normal destination producer currentness remains required"]
+        + (
+            ["documentation authority requires a fresh review after placement"]
+            if review_transition
+            else []
+        ),
         "applicable": bool(
             placements or owned or resident or delegates or creation_rows
         )

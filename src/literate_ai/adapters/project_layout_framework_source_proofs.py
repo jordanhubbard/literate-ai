@@ -16,8 +16,17 @@ from literate_ai.adapters.project_layout_framework_resources import (
 )
 from literate_ai.adapters.project_layout_planning import ProjectLayoutPlanError
 from literate_ai.adapters.update_merge import UpdateBases
+from literate_ai.application import project_authority as authority_review
 from literate_ai.contracts import ContentIdentity, canonical_identity
 from literate_ai.contracts.paths import canonical_relative_posix_path
+
+_REVIEW_DELEGATE = (
+    authority_review,
+    authority_review.invalidate_authority_review,
+    authority_review.invalidate_authority_review.__code__,
+    authority_review.AUTHORITY_REVIEW_MARKER,
+    authority_review.AUTHORITY_REVIEW_PLACEHOLDER,
+)
 
 
 def _fail(message):
@@ -66,6 +75,14 @@ _DATA_NAMESPACES = tuple(
 
 
 def _data_current():
+    module, delegate, code, marker, placeholder = _REVIEW_DELEGATE
+    if (
+        module.invalidate_authority_review is not delegate
+        or delegate.__code__ is not code
+        or module.AUTHORITY_REVIEW_MARKER is not marker
+        or module.AUTHORITY_REVIEW_PLACEHOLDER is not placeholder
+    ):
+        _fail("original authority review invalidation producer changed")
     for cls, values, bases, mro in _DATA_NAMESPACES:
         current = _data_namespace(cls)
         if (
@@ -252,7 +269,7 @@ def prove_initialized_framework_file(
         source_path, initial.get(source_path)
     )
     source_identity = _identity(content)
-    if base_identity != source_identity:
+    if base_identity is None:
         _fail("whole source differs from original initialization/framework base")
     ContentIdentity.parse_uri(base_identity)
     base = update_bases.blobs.get(base_identity)
@@ -261,9 +278,37 @@ def prove_initialized_framework_file(
         # match. Unknown historical preimages require the original update reader.
         base = resources.files[logical]
         if _identity(base) != base_identity:
-            _fail("historical base preimage unavailable from original owner")
-    if type(base) is not bytes or base != content or _identity(base) != base_identity:
+            from .project_initialization import DEFAULT_AUTHORITY_REVIEW_DOCUMENT
+
+            # A historical marker is data, never renewed review approval. The
+            # exact original baseline still binds all source bytes, and the
+            # independent initializer template must bind every non-marker byte.
+            if (
+                base_identity != source_identity
+                or logical != DEFAULT_AUTHORITY_REVIEW_DOCUMENT
+                or _REVIEW_DELEGATE[1](content) != base
+            ):
+                _fail("historical base preimage unavailable from original owner")
+            base = content
+    if type(base) is not bytes or _identity(base) != base_identity:
         _fail("framework base preimage does not bind current source")
+    review_marker_transition = False
+    if base != content:
+        from .project_initialization import DEFAULT_AUTHORITY_REVIEW_DOCUMENT
+
+        # Explicit review recording changes this token without advancing the
+        # framework store. Only marker-only differences from a proven original
+        # preimage are admitted, and placement expires the token rather than
+        # consuming it as approval. Every non-marker byte must remain identical.
+        if logical != DEFAULT_AUTHORITY_REVIEW_DOCUMENT:
+            _fail("whole source differs from original initialization/framework base")
+        try:
+            same_body = _REVIEW_DELEGATE[1](base) == _REVIEW_DELEGATE[1](content)
+        except ValueError:
+            _fail("historical review marker data is ambiguous")
+        if not same_body:
+            _fail("review document body differs from original framework base")
+        review_marker_transition = True
     document = {
         "domain": "initialized-framework-file-proof-v1",
         "project": snapshot.content_identity.uri,
@@ -278,6 +323,8 @@ def prove_initialized_framework_file(
         "initialization_origin": origin.identity.uri,
         "initialization_baseline": baseline.identity.uri,
     }
+    if review_marker_transition:
+        document["historical_review_marker_transition"] = True
     identity = canonical_identity(document).uri
     require_original_framework_resources(resources)
     values = (

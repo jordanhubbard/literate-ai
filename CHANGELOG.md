@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: prove reviewed-document ownership, expire historical markers in migration plans and require fresh review without adopting body edits.
+
 - Project layout: journal framework bases for approved reference rewrites while preserving custom files, inherited ownership and exact rollback.
 
 - Project layout: publish proven initialized catalogs beside retained roots, verify normal resolution before success and preserve recovery.

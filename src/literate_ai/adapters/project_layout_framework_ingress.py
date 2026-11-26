@@ -82,6 +82,9 @@ from literate_ai.projects import ProjectConfigurationStore
 
 def _bind_original_ingress(imported_originals):
     from literate_ai import projects as catalog_projects
+    from literate_ai.adapters.project_initialization import (
+        DEFAULT_AUTHORITY_REVIEW_DOCUMENT as review_document,
+    )
 
     catalog_resolver = catalog_projects.contained_catalog_coordinates
     catalog_resolver_code = catalog_resolver.__code__
@@ -662,7 +665,10 @@ def _bind_original_ingress(imported_originals):
                     continue
                 source = actual[0]
                 original = bases.scopes["framework"].get(source, initial.get(source))
-                if original != _identity(contents[source]):
+                if original is None or (
+                    original != _identity(contents[source])
+                    and logical != review_document
+                ):
                     continue
                 proofs.append(
                     _invoke(

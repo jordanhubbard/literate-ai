@@ -9,6 +9,7 @@ import shutil
 from pathlib import Path
 
 from literate_ai.cli import main
+from literate_ai.projects import ProjectConfigurationStore
 from tests.support.root_parent_adapter import root_parent_for_fixture_project
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -64,10 +65,10 @@ def copy_hello_component(target: Path) -> Path:
 
 
 def refresh_authority_review(target: Path) -> None:
-    manifest = json.loads((target / "literate.project.json").read_text())
+    manifest = ProjectConfigurationStore(target).read()
     documents = sorted(
         path
-        for root in manifest["documentation_roots"]
+        for root in manifest.definition.documentation_roots
         for path in (target / root).rglob("*.md")
     )
     assert documents

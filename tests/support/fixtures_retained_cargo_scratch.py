@@ -28,7 +28,7 @@ from literate_ai.contracts.retained_cargo_workspace_v2 import (
     RetainedCargoWorkspacePlanV2,
 )
 from literate_ai.contracts.retained_libraries import RetainedLibraryGatePolicy
-from literate_ai.projects import load_project
+from literate_ai.projects import ProjectConfigurationStore, load_project
 from tests.support.fixtures_test_retained_cargo_import import (
     RetainedCargoImportTests,
     blob,
@@ -72,8 +72,9 @@ def scratch_review_fixture(
     fixture = RetainedCargoImportTests() if fixture is None else fixture
     fixture.setUp()
     try:
+        context = ProjectConfigurationStore.context(project)
         implementation = json.loads(
-            (project / ".literate/legacy-lift-shift.json").read_bytes()
+            context.framework_path(".literate/legacy-lift-shift.json").read_bytes()
         )["implementation_directory"]
         common = replace(fixture.plan, workspace_root=implementation)
         budget = RetainedCargoInputBudget(1000, 4000, 64 * 1024**2, 128 * 1024**2)

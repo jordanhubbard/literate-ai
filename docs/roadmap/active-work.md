@@ -26575,6 +26575,25 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Reviewed-document source transition (source partial):** The finite original
+  initializer inventory now includes the default authority-review document.
+  Existing framework/base or initialization ownership remains mandatory. A legacy
+  identity-only preimage must match the independent template outside its marker;
+  a later marker-only change must match a known original preimage outside that
+  marker. Changed bodies, unknown history, duplicate markers and substituted
+  invalidation delegates/inputs refuse. The original observer now sends only a
+  known default review candidate through this strict proof when its marker hash
+  differs. Authority relocation proposes a pending marker and explicitly requires
+  fresh review; planning preserves the live original bytes and historical token.
+  No new review, driver or receipt is recorded. Fifty-two focused/integration
+  controls pass without skips or source drift, with matching source hashes and
+  all static checks green. Existing authority-file assertions now run against
+  contained fixtures through canonical context/store paths, preserving the
+  distinction between read-only file authority and full public validation.
+  Actual installed publication/recovery of this document, the native-program
+  producer, and all original full containment/platform/source/review/release
+  acceptance remain open.
+
 - **Owned reference base transitions (source partial):** Approved metadata
   reference rewrites now advance the original framework update base only when
   its prior base or joined initialization origin/baseline binds the exact before

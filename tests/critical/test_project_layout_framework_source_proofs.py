@@ -13,6 +13,7 @@ from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
+from literate_ai.adapters import project_layout_framework_ingress as ingress
 from literate_ai.adapters import project_layout_framework_resources as resources
 from literate_ai.adapters import project_layout_framework_source_proofs as production
 from literate_ai.adapters.project_layout_planning import (
@@ -20,6 +21,7 @@ from literate_ai.adapters.project_layout_planning import (
     ProjectLayoutPlanError,
 )
 from literate_ai.adapters.update_merge import UpdateBases
+from literate_ai.application import project_authority as authority_review
 from literate_ai.contracts import (
     ContentIdentity,
     ProjectInitializationBaselineFile,
@@ -33,14 +35,14 @@ def identity(content):
 
 
 class InitializedFrameworkProofTests(unittest.TestCase):
-    def fixture(self, *, retained=True, content=None):
+    def fixture(self, *, retained=True, content=None, logical="SKILL.md"):
         project, _observed, origin = support.framework_fixture(self)
         content = (
             resources.initialization._template_text("SKILL.md").encode()
             if content is None
             else content
         )
-        project.write("SKILL.md", content)
+        project.write(logical, content)
         project.baseline = replace(
             project.baseline,
             files=tuple(
@@ -48,7 +50,7 @@ class InitializedFrameworkProofTests(unittest.TestCase):
                     (
                         *project.baseline.files,
                         ProjectInitializationBaselineFile(
-                            "SKILL.md",
+                            logical,
                             len(content),
                             ContentIdentity.parse_uri(identity(content)),
                         ),
@@ -63,7 +65,7 @@ class InitializedFrameworkProofTests(unittest.TestCase):
         )
         if retained:
             bases = UpdateBases(project.root)
-            bases.advance("framework", "SKILL.md", content)
+            bases.advance("framework", logical, content)
             project.write("litai/.literate/update-bases.json", bases.serialized())
         project.refresh()
         project.inventory["retained_implementation"] = None
@@ -93,6 +95,138 @@ class InitializedFrameworkProofTests(unittest.TestCase):
         return production.prove_initialized_framework_file(
             project.snapshot, project.context, **arguments
         )
+
+    def review_fixture(self, *, retained, suffix=b""):
+        logical = resources.initialization.DEFAULT_AUTHORITY_REVIEW_DOCUMENT
+        template = resources.initialization.render_starter_document(
+            logical, converted=False
+        ).encode()
+        marker = b"<!-- literate-ai:authority-reviewed sha256:" + b"a" * 64 + b" -->"
+        content = (
+            template.replace(
+                authority_review.AUTHORITY_REVIEW_PLACEHOLDER.encode(), marker
+            )
+            + suffix
+        )
+        project, owner = self.fixture(
+            retained=retained, content=content, logical=logical
+        )
+        return project, owner, logical, content
+
+    def test_reviewed_original_with_retained_preimage_proves_ownership_only(self):
+        project, owner, logical, content = self.review_fixture(retained=True)
+        proof = self.prove(project, owner, logical=logical, source_path=logical)
+        self.assertEqual(proof.base_bytes, content)
+        self.assertNotEqual(owner.files[logical], content)
+        production.require_original_initialized_framework_file_proof(proof)
+
+    def test_identity_only_reviewed_preimage_needs_exact_original_template_body(self):
+        project, owner, logical, content = self.review_fixture(retained=False)
+        proof = self.prove(project, owner, logical=logical, source_path=logical)
+        self.assertEqual(proof.base_bytes, content)
+        project, owner, logical, _content = self.review_fixture(
+            retained=False, suffix=b"\nUnproved historical body.\n"
+        )
+        with self.assertRaises(ProjectLayoutPlanError):
+            self.prove(project, owner, logical=logical, source_path=logical)
+
+    def test_replaced_review_invalidator_never_runs_during_proof(self):
+        project, owner, logical, _content = self.review_fixture(retained=False)
+        calls = []
+
+        def foreign(_content):
+            calls.append(True)
+            return owner.files[logical]
+
+        with patch.object(authority_review, "invalidate_authority_review", foreign):
+            with self.assertRaises(ProjectLayoutPlanError):
+                self.prove(project, owner, logical=logical, source_path=logical)
+        self.assertEqual(calls, [])
+
+    def test_replaced_review_pattern_or_placeholder_never_runs(self):
+        project, owner, logical, _content = self.review_fixture(retained=False)
+        calls = []
+
+        class Foreign:
+            def finditer(self, _content):
+                calls.append("pattern")
+                return ()
+
+            def encode(self, *_args):
+                calls.append("placeholder")
+                return b"foreign"
+
+        for name in ("AUTHORITY_REVIEW_MARKER", "AUTHORITY_REVIEW_PLACEHOLDER"):
+            with self.subTest(name=name):
+                with patch.object(authority_review, name, Foreign()):
+                    with self.assertRaises(ProjectLayoutPlanError):
+                        self.prove(project, owner, logical=logical, source_path=logical)
+        self.assertEqual(calls, [])
+
+    def refreshed_owner(self, project, previous):
+        project.refresh()
+        project.inventory["retained_implementation"] = None
+        project.rehash()
+        observed = ProjectLayoutObservation(
+            project.snapshot,
+            project.context,
+            project.inventory,
+            project.observations,
+            project.contents,
+            project.bases,
+        )
+        with patch.object(
+            resources, "_read_current_origin", return_value=previous.origin
+        ):
+            return resources.observe_original_framework_resources(observed)
+
+    def test_later_review_marker_preserves_proven_body_ownership_only(self):
+        project, owner, logical, original = self.review_fixture(retained=True)
+        changed = original.replace(b"a" * 64, b"b" * 64)
+        project.write(logical, changed)
+        current = self.refreshed_owner(project, owner)
+        proof = self.prove(project, current, logical=logical, source_path=logical)
+        self.assertEqual(proof.source_bytes, changed)
+        self.assertEqual(proof.base_bytes, original)
+        production.require_original_initialized_framework_file_proof(proof)
+        self.assertEqual((project.root / logical).read_bytes(), changed)
+
+    def test_later_review_cannot_adopt_changed_document_body(self):
+        project, owner, logical, original = self.review_fixture(retained=True)
+        changed = original.replace(b"a" * 64, b"b" * 64) + b"\nLocal body edit.\n"
+        project.write(logical, changed)
+        current = self.refreshed_owner(project, owner)
+        with self.assertRaises(ProjectLayoutPlanError):
+            self.prove(project, current, logical=logical, source_path=logical)
+        self.assertEqual((project.root / logical).read_bytes(), changed)
+
+    def test_original_observer_acquires_later_marker_and_proposes_expiration(self):
+        project, owner, logical, original = self.review_fixture(retained=True)
+        changed = original.replace(b"a" * 64, b"b" * 64)
+        project.write(logical, changed)
+        current = self.refreshed_owner(project, owner)
+        observed = ProjectLayoutObservation(
+            project.snapshot,
+            project.context,
+            project.inventory,
+            project.observations,
+            project.contents,
+            project.bases,
+        )
+        with patch.object(
+            resources, "_read_current_origin", return_value=current.origin
+        ):
+            _public, selected = ingress.observe_existing_framework_authority(
+                observed, resources=current
+            )
+            self.addCleanup(ingress.close_observed_framework_selection, selected)
+            self.assertIn(logical, {proof.logical for proof in selected.source_proofs})
+            self.assertIn(
+                authority_review.AUTHORITY_REVIEW_PLACEHOLDER.encode(),
+                selected.rewritten_contents["litai/" + logical],
+            )
+            ingress.require_current_observed_framework_selection(selected)
+        self.assertEqual((project.root / logical).read_bytes(), changed)
 
     def test_standard_copy_cache_keeps_original_source_proof_current(self):
         project, owner = self.fixture()

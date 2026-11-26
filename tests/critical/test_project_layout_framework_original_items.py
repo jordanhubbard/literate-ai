@@ -11,6 +11,7 @@ from literate_ai.adapters import project_layout_framework_resources as resources
 from literate_ai.adapters import project_layout_framework_selection as production
 from literate_ai.adapters.project_layout_planning import ProjectLayoutObservation
 from literate_ai.adapters.update_merge import UpdateBases
+from literate_ai.application.project_authority import AUTHORITY_REVIEW_PLACEHOLDER
 from literate_ai.contracts import (
     ContentIdentity,
     ProjectInitializationBaselineFile,
@@ -75,6 +76,27 @@ class OriginalInitializedItemTests(unittest.TestCase):
             observations=project.observations,
         )
         return project, owner, files, public, private
+
+    def test_reviewed_document_projection_expires_marker_without_live_mutation(self):
+        logical = resources.initialization.DEFAULT_AUTHORITY_REVIEW_DOCUMENT
+        marker = b"<!-- literate-ai:authority-reviewed sha256:" + b"a" * 64 + b" -->"
+
+        def files(owner):
+            before = owner.files[logical].replace(
+                AUTHORITY_REVIEW_PLACEHOLDER.encode(), marker
+            )
+            return {logical: before}, (logical,)
+
+        project, _owner, original, public, private = self.fixture(files)
+        proposed = private.rewritten_contents["litai/" + logical]
+        self.assertIn(AUTHORITY_REVIEW_PLACEHOLDER.encode(), proposed)
+        self.assertNotIn(b"authority-reviewed", proposed)
+        self.assertIn(
+            "documentation authority requires a fresh review after placement",
+            public["renewal"],
+        )
+        self.assertEqual((project.root / logical).read_bytes(), original[logical])
+        self.assertIn(marker, private.original_contents[logical])
 
     def test_original_workflow_and_routing_items_include_flat_and_nested_forms(self):
         names = (

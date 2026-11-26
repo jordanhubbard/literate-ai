@@ -435,7 +435,6 @@ def observe_original_framework_resources(observation):
     files.update(
         (logical, _RENDER(logical, converted=converted).encode())
         for logical, _ in _STARTER_DOCS
-        if logical != initialization.DEFAULT_AUTHORITY_REVIEW_DOCUMENT
     )
     if sum(map(len, files.values())) > _MAX_BYTES:
         _fail("selected original resources exceed bound")

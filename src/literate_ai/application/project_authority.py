@@ -197,6 +197,20 @@ class ProjectAuthorityReview:
         }
 
 
+def invalidate_authority_review(content: bytes) -> bytes:
+    """Expire one historical review marker without issuing a replacement review."""
+    if type(content) is not bytes:
+        raise TypeError("authority review content must be bytes")
+    matches = list(AUTHORITY_REVIEW_MARKER.finditer(content))
+    if len(matches) > 1:
+        raise ValueError("duplicate authority review markers cannot be relocated")
+    if not matches:
+        return content
+    return AUTHORITY_REVIEW_MARKER.sub(
+        AUTHORITY_REVIEW_PLACEHOLDER.encode("utf-8"), content, count=1
+    )
+
+
 def review_project_authority(
     inventory: ProjectAuthorityInventory, *, required: bool = False
 ) -> ProjectAuthorityReview:
@@ -252,4 +266,5 @@ __all__ = [
     "ProjectAuthorityInventory",
     "ProjectAuthorityReview",
     "review_project_authority",
+    "invalidate_authority_review",
 ]
