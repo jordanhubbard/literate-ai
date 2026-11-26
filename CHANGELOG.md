@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: qualify installed root and descendant update/reparent planning on the original finalized migration fixture, preserving application source, Git and original authority/history.
+
 - Project layout: update contained initialized root projects through the normal template updater, keep planning and application placement consistent, and report actual framework changes while preserving source and Git state.
 
 - Project layout: allow contained nonnative reparent planning with historical baseline paths, require a matching initialization origin, and preserve native-profile and current-agent boundaries.

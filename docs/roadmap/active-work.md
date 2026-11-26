@@ -26575,6 +26575,23 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Installed maintenance corrections (macOS partial):** A fresh noneditable
+  07f28edc7 wheel passes all 13 commands against the exact finalized original
+  b45a48ac4 fixture that rejected both maintenance operations. Root/descendant
+  reparent and update plans now succeed with matching per-operation identities.
+  Every call preserves the original project/baseline/origin/checkpoint/lineage
+  files, root delegates and migration intent, including bytes and native file
+  metadata; retained application source and Git HEAD/raw index remain unchanged.
+  A cross-receipt check also matches all four source entries and the index digest
+  to the original initial metadata journey. The clean source checkout and
+  independently observed installed distribution remain unchanged. Distribution:
+  sha256:a49f66c6b6264123ae96f19e05a646a2b1b49d672acdc5d061fc1d1431bed165.
+  Managed installed and static checks pass without skips or source drift. The
+  fixture is resumed, not reconstructed or rebaselined. Actual update/reparent
+  application, changed-parent and supported-platform journeys, complete
+  containment and every original source/review/release acceptance remain open.
+  No driver, receipt or real documentation review is renewed.
+
 - **Contained initialized-root updates (source partial):** Generated-profile
   contained projects with no parent chain now use the ordinary three-way template
   updater; minimal native profiles retain their existing policy and response.
