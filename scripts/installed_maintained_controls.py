@@ -151,6 +151,7 @@ _CASE_SETS = {
                 "test_genuine_cuda_evidence_after_attribution_is_retained",
                 "test_long_indented_source_finishes_within_inert_read_budget",
                 "test_metadata_filter_does_not_hide_original_prompt_injection",
+                "test_similar_identifiers_and_bytes_beyond_cuda_window_are_portable",
                 "test_vendor_attribution_does_not_imply_cuda_or_mutate_source",
             ],
         },
