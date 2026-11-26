@@ -31,7 +31,7 @@ from literate_ai.adapters.retained_harness_receipts import (
 from literate_ai.application.project_authority import AUTHORITY_REVIEW_MARKER
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.operator_adoption import ConversionAuthorityStage
-from literate_ai.projects import ProjectConfigurationStore, load_project
+from literate_ai.projects import ProjectConfigurationStore, discover_project
 
 PLAN_SCHEMA = "literate-ai/retained-scope-refresh-plan@1"
 INVENTORY = ".literate/harness-inventory.json"
@@ -81,6 +81,17 @@ def _safe_path(root: Path, relative: str) -> Path:
     return current
 
 
+def _metadata_coordinate(root: Path, relative: str) -> str:
+    if not relative.startswith(".literate/"):
+        return relative
+    return (
+        ProjectConfigurationStore.context(root)
+        .framework_path(relative)
+        .relative_to(root)
+        .as_posix()
+    )
+
+
 def _identity(content: bytes) -> str:
     return "sha256:" + hashlib.sha256(content).hexdigest()
 
@@ -126,7 +137,9 @@ def _members(root: Path, paths: tuple[str, ...]) -> list[dict[str, Any]]:
 def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
     """Inspect exact old/new scope without running commands or writing files."""
 
-    project = load_project(selected)
+    project = discover_project(selected)
+    if project is None:
+        _fail("project_missing", "no canonical project is discoverable")
     root = project.root
     monorepo_refresh_required = False
     monorepo_path = root / ".literate" / "monorepo-components" / "installation.json"
@@ -149,7 +162,7 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
         ".literate/legacy-lift-shift.json",
         "litai.harness.mk",
     ):
-        _safe_path(root, relative)
+        _safe_path(root, _metadata_coordinate(root, relative))
     state = FilesystemConversionAuthorityStore(root).load_optional()
     if state is None or state.project_id != project.definition.project_id:
         _fail(
@@ -205,8 +218,10 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
             name: data["identity"] for name, data in documents.items()
         },
         "preserved_metadata": {
-            relative: _identity(_safe_path(root, relative).read_bytes())
-            for relative in _PRESERVED_METADATA
+            coordinate: _identity(_safe_path(root, coordinate).read_bytes())
+            for coordinate in (
+                _metadata_coordinate(root, relative) for relative in _PRESERVED_METADATA
+            )
         },
         "source_members": members,
         "added": sorted(set(new_paths) - set(old_paths)),
@@ -239,7 +254,9 @@ def apply_retained_scope_refresh(
             "acknowledgement_required",
             "scope and policy mutation requires acknowledgement",
         )
-    project = load_project(selected)
+    project = discover_project(selected)
+    if project is None:
+        _fail("project_missing", "no canonical project is discoverable")
     with project_lifecycle_lock(project.root, operation="retained-scope.refresh"):
         plan = plan_retained_scope_refresh(project.root)
         if plan["plan_identity"] != expected_plan_identity:
@@ -255,7 +272,7 @@ def apply_retained_scope_refresh(
         if not plan["changes_required"]:
             return {**plan, "applied": False}
         root = project.root
-        inventory_path = _safe_path(root, INVENTORY)
+        inventory_path = _safe_path(root, _metadata_coordinate(root, INVENTORY))
         review_path = _safe_path(root, plan["authority_review"]["document"])
         manifest_path = ProjectConfigurationStore.manifest_path(root)
         before = {
@@ -272,7 +289,10 @@ def apply_retained_scope_refresh(
                 "plan_stale", "project metadata changed before publication; plan again"
             )
         history = _safe_path(
-            root, f"{HISTORY}/{expected_plan_identity.removeprefix('sha256:')}.json"
+            root,
+            _metadata_coordinate(
+                root, f"{HISTORY}/{expected_plan_identity.removeprefix('sha256:')}.json"
+            ),
         )
         history.parent.mkdir(parents=True, exist_ok=True)
         history_bytes = canonical_json_bytes(plan) + b"\n"

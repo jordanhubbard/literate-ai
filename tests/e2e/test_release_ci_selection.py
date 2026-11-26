@@ -6,6 +6,7 @@ import io
 import json
 import os
 import platform
+import shlex
 import struct
 import subprocess
 import sys
@@ -1272,10 +1273,454 @@ class ReleaseCISelectionTests(ReleaseFixture):
         pilot.report.write_bytes(good_report)
         pilot.complete_and_archive()
         self.assertEqual(check()["artifacts"], checked["artifacts"])
-        with self.assertRaises(releases.ProjectReleaseError) as refused:
-            releases.publish_release(self.root, path, authorize_external_write=True)
-        self.assertEqual(
-            refused.exception.code, "release.ci_coverage_promotion_unsupported"
-        )
         self.assertEqual(self.git(self.root, "tag", "--list"), "")
         self.assertFalse(self.publications)
+
+    def test_public_json_check_keeps_controller_gate_output_in_its_evidence(self):
+        policy = self.root / "literate.release.json"
+        configured = json.loads(policy.read_bytes())
+        configured["provider"] = None
+        configured["gate"] = {
+            "argv": [sys.executable, "-c", "print('native gate output')"],
+            "timeout_seconds": 15,
+        }
+        self.write_record(policy, configured)
+        self.git(self.root, "commit", "-am", "Run a controller gate that writes stdout")
+        plan = releases.create_release_plan(
+            self.root, transition="patch", explicit_version=None
+        )
+        plan_file = self.base / "plan.json"
+        self.write_record(plan_file, plan)
+        releases.prepare_release(self.root, plan_file)
+        self.git(self.root, "commit", "-am", "Prepare the planned version")
+        checked = subprocess.run(
+            (
+                sys.executable,
+                "-IB",
+                "-m",
+                "literate_ai.cli",
+                "--json",
+                "release",
+                "check",
+                str(plan_file),
+                "--project",
+                str(self.root),
+                "--output",
+                str(self.base / "prepared.json"),
+            ),
+            env={
+                **os.environ,
+                "LITAI_NO_SELF_UPDATE": "1",
+                "GIT_ALLOW_PROTOCOL": "file",
+            },
+            cwd=self.root,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True,
+        )
+        result = json.loads(checked.stdout)["result"]
+        self.assertEqual(result["target"], {"kind": "legacy-local"})
+        transcript = Path(result["evidence"]["root"]) / result["gate"]["stdout_path"]
+        self.assertEqual(transcript.read_text(), "native gate output\n")
+
+    @unittest.skipIf(os.name == "nt", "Fixture uses a POSIX gh transport double")
+    def test_tested_file_joins_policy_at_the_contained_plan_base(self):
+        from literate_ai.release_ci_coverage import TESTED_FILE_PROOF_SCHEMA
+        from tests.support.coverage_pilot_fixture import CoveragePilotFixture
+
+        framework = Path(__file__).resolve().parents[2]
+        relative = "_build/ci-release/application.pyc"
+        CoveragePilotFixture(
+            self.root,
+            self.base,
+            framework,
+            self.git,
+            tested_file={
+                "role": "bytecode",
+                "path": relative,
+                "platform": "windows",
+                "action": "test",
+            },
+        )
+        legacy = self.git(self.root, "rev-parse", "HEAD")
+        contained = self.root / "litai"
+        contained.mkdir()
+        policy_path = self.root / "literate.release.json"
+        policy_path.rename(contained / policy_path.name)
+        manifest = self.root / "literate.project.json"
+        data = json.loads(manifest.read_bytes())
+        data["framework_directory"] = "litai"
+        manifest.unlink()
+        manifest = contained / manifest.name
+        self.write_record(manifest, data)
+        self.git(self.root, "add", ".")
+        self.git(self.root, "commit", "-m", "Place the release authority")
+        base = self.git(self.root, "rev-parse", "HEAD")
+        data["version"] = "1.2.4"
+        self.write_record(manifest, data)
+        self.git(self.root, "add", ".")
+        self.git(self.root, "commit", "-m", "Prepare a contained patch")
+        head = self.git(self.root, "rev-parse", "HEAD")
+        policy = releases.ReleasePolicy.from_dict(
+            json.loads((contained / policy_path.name).read_bytes())
+        )
+        artifact = self.root / relative
+        artifact.parent.mkdir(parents=True)
+        payload = b"fixture tested output\n"
+        artifact.write_bytes(payload)
+        file = {
+            "role": "bytecode",
+            "path": relative,
+            "size": len(payload),
+            "identity": "sha256:" + hashlib.sha256(payload).hexdigest(),
+        }
+        # Exercise the Git and staged-file join with a proof from the upstream
+        # observer boundary. The public CI tests exercise whole proof admission.
+        target = {
+            "ci": {
+                "coverage": {
+                    "schema": TESTED_FILE_PROOF_SCHEMA,
+                    "workflow_path": ".github/workflows/ci-coverage-pilot.yml",
+                    "tested_artifacts": file,
+                }
+            }
+        }
+
+        def join(source):
+            return releases._check_ci_tested_file(
+                self.root,
+                policy,
+                {"source_revision": source, "next_version": "1.2.4"},
+                {"head": head},
+                target,
+            )
+
+        self.assertEqual(join(base)["files"], [file])
+        with self.assertRaises(releases.ProjectReleaseError) as refused:
+            join(legacy)
+        self.assertEqual(refused.exception.code, "release.ci_coverage_source_stale")
+
+    @unittest.skipIf(os.name == "nt", "Fixture uses a POSIX gh transport double")
+    def test_publish_and_recover_the_exact_ci_tested_file(self):
+        from tests.support.coverage_pilot_fixture import CoveragePilotFixture
+
+        framework = Path(__file__).resolve().parents[2]
+        relative = "_build/ci-release/application.pyc"
+        pilot = CoveragePilotFixture(
+            self.root,
+            self.base,
+            framework,
+            self.git,
+            tested_file={
+                "role": "bytecode",
+                "path": relative,
+                "platform": "windows",
+                "action": "test",
+            },
+        )
+        state_path = self.base / "publication.json"
+        command_env = pilot.environment | {
+            "COVERAGE_PILOT_PUBLICATION": str(state_path),
+            "COVERAGE_PILOT_PUBLICATION_CODE": str(
+                framework / "tests/support/release_promotion_target.py"
+            ),
+            "COVERAGE_PILOT_PUBLICATION_GIT": str(self.remote),
+            "LITAI_NO_SELF_UPDATE": "1",
+        }
+        pilot.configure()
+        origin = subprocess.run(
+            [
+                sys.executable,
+                "-P",
+                "-c",
+                "from literate_ai import project_releases; "
+                "print(project_releases.__file__)",
+            ],
+            cwd=self.root,
+            env=command_env,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=20,
+        )
+        self.assertEqual(
+            Path(origin.stdout.strip()).resolve(),
+            framework / "src/literate_ai/project_releases.py",
+        )
+
+        def state(**changes):
+            old = json.loads(state_path.read_bytes()) if state_path.exists() else {}
+            old.update(changes)
+            self.write_record(state_path, old)
+            return old
+
+        def cli(*arguments, expect=None, suffix=(), project=None):
+            project = project or self.root
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-P",
+                    "-m",
+                    "literate_ai.cli",
+                    "--json",
+                    "release",
+                    *arguments,
+                    "--project",
+                    str(project),
+                    *suffix,
+                ],
+                cwd=project,
+                env=command_env,
+                text=True,
+                capture_output=True,
+                timeout=60,
+                check=False,
+            )
+            if expect is None:
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    result.stdout
+                    + result.stderr
+                    + self.git(self.root, "status", "--porcelain"),
+                )
+                return json.loads(result.stdout)["result"]
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(json.loads(result.stderr)["error"]["code"], expect)
+            return None
+
+        state()
+        release_plan = cli("plan", "--bump", "patch")
+        plan = self.base / "publication-plan.json"
+        self.write_record(plan, release_plan)
+        cli("prepare", str(plan))
+        self.git(self.root, "add", ".")
+        self.git(self.root, "commit", "-m", "Prepare tested-file release")
+        pilot.bind_candidate()
+        receipts = pilot.receipts()
+        candidate = self.root / relative
+        candidate.parent.mkdir()
+        tested_bytes = (
+            self.root / "_build/coverage-pilot/native/application.pyc"
+        ).read_bytes()
+        candidate.write_bytes(tested_bytes)
+        pilot.configure()
+        exported = pilot.export(receipts)
+        self.assertEqual(exported.returncode, 0, exported.stderr)
+        pilot.complete_and_archive()
+        prepared_path = self.base / "publication-prepared.json"
+        self.assertEqual(self.git(self.root, "status", "--porcelain"), "")
+        checked = cli(
+            "check", str(plan), "--target", "github", "--output", str(prepared_path)
+        )
+        canonical = json.loads(prepared_path.read_bytes())
+        checkout = checked["prepared_revision"]
+        self.assertEqual(checkout, pilot.head)
+        publish = ("publish", str(prepared_path), "--authorize-external-write")
+        verify = ("verify-published", str(prepared_path))
+        tag = checked["tag"]
+        branch_ref = f"refs/heads/{checked['branch']}"
+        tag_ref = f"refs/tags/{tag}"
+
+        cli(
+            "publish",
+            str(prepared_path),
+            expect="release.external_authorization_required",
+        )
+        cli(
+            "rc",
+            "--version",
+            "1.2.4-rc.1",
+            "--authorize-external-write",
+            expect="release.ci_coverage_promotion_unsupported",
+        )
+        cli(
+            "merge-pr",
+            "9",
+            "--authorize-external-write",
+            expect="release.ci_coverage_promotion_unsupported",
+        )
+        state(actor="stranger")
+        cli(*publish, expect="release.actor_unauthorized")
+        state(actor="release-admin")
+        cli(*publish, "--actor", "stranger", expect="release.actor_mismatch")
+        self.assertEqual(self.git(self.root, "tag", "--list"), "")
+
+        changed = bytes([tested_bytes[0] ^ 1]) + tested_bytes[1:]
+        candidate.write_bytes(changed)
+        cli(*publish, expect="release.artifacts_invalid")
+        candidate.write_bytes(tested_bytes)
+        missing = copy.deepcopy(canonical)
+        missing["target"].pop("ci")
+        missing.pop("identity")
+        missing["identity"] = canonical_identity(missing).uri
+        self.write_record(prepared_path, missing)
+        cli(*publish, expect="release.ci_coverage_incomplete")
+        stale = copy.deepcopy(canonical)
+        stale["target"]["ci"]["coverage"]["tested_artifacts"]["size"] += 1
+        stale.pop("identity")
+        stale["identity"] = canonical_identity(stale).uri
+        self.write_record(prepared_path, stale)
+        cli(*publish, expect="release.ci_coverage_stale")
+        self.write_record(prepared_path, canonical)
+
+        pilot.state["runs"][0]["attempt"] = 3
+        pilot.state["runs"][0].update(status="in_progress", conclusion="")
+        pilot.write_state()
+        # No older proof can be replayed when an attempt is now running.
+        cli(*publish, expect="release.ci_coverage_incomplete")
+        pilot.state["runs"][0].update(
+            attempt=2, status="completed", conclusion="success"
+        )
+        pilot.write_state()
+        self.assertEqual(self.git(self.root, "tag", "--list"), "")
+        self.assertEqual(self.git(self.remote, "tag", "--list"), "")
+        self.assertFalse(state().get("writes"))
+
+        # Git receive-pack sees a competing first writer after advertising no branch.
+        former = self.git(self.remote, "rev-parse", "refs/heads/main")
+        hook = self.root / ".git/hooks/pre-push"
+        hook.write_text(
+            f"#!/bin/sh\n git -C {shlex.quote(str(self.remote))} update-ref "
+            f"{shlex.quote(branch_ref)} {former}\n"
+        )
+        hook.chmod(0o700)
+        cli(*publish, expect="release.partial_git_publication")
+        hook.unlink()
+        self.assertEqual(self.git(self.remote, "rev-parse", branch_ref), former)
+        self.assertEqual(self.git(self.remote, "tag", "--list"), "")
+        self.assertFalse(state().get("writes"))
+        self.git(self.remote, "update-ref", "-d", branch_ref, former)
+
+        # A true Git receiver replaces only the annotated object. Git and the
+        # forge double then agree on the alien ref, still peeled to the same commit.
+        receiver_hook = self.remote / "hooks/post-receive"
+        receiver_hook.write_text(
+            "#!/bin/sh\n"
+            "while read -r old new ref; do\n"
+            f'  [ "$ref" = {shlex.quote(tag_ref)} ] || continue\n'
+            '  alien=$(git cat-file tag "$new" | '
+            "sed 's/^Release .*/Concurrent annotation/' | git mktag) || exit 1\n"
+            '  git update-ref "$ref" "$alien" "$new" || exit 1\n'
+            "done\n"
+        )
+        receiver_hook.chmod(0o700)
+        cli(*publish, expect="release.published_tag_mismatch")
+        receiver_hook.unlink()
+        tag_object = self.git(self.root, "rev-parse", tag_ref)
+        alien_object = self.git(self.remote, "rev-parse", tag_ref)
+        self.assertNotEqual(alien_object, tag_object)
+        self.assertEqual(
+            self.git(self.remote, "rev-parse", f"{tag_ref}^{{}}"), checkout
+        )
+        cli(*publish, expect="release.remote_tag_conflict")
+        # Replacing the ordinary local tag as well does not change retained custody.
+        self.git(self.root, "fetch", "origin", f"{tag_ref}:refs/litai/alien-control")
+        self.git(self.root, "update-ref", tag_ref, alien_object, tag_object)
+        cli(*publish, expect="release.remote_tag_conflict")
+        self.assertEqual(self.git(self.remote, "rev-parse", tag_ref), alien_object)
+        self.assertFalse(state().get("writes"))
+        self.git(self.remote, "update-ref", tag_ref, tag_object, alien_object)
+
+        state(wrong_tag=True)
+        cli(*publish, expect="release.published_tag_mismatch")
+        self.assertEqual(
+            self.git(self.remote, "rev-parse", f"{tag_ref}^{{}}"), checkout
+        )
+        self.assertFalse(state().get("writes"))
+        # Seed a conflicting concurrent attach and verify that recovery leaves it alone.
+        state(
+            wrong_tag=False,
+            alien_upload=True,
+            replace_original_after_staging=str(candidate),
+            expected_upload_digest=hashlib.sha256(tested_bytes).hexdigest(),
+        )
+        cli(*publish, expect="release.promotion_uncertain")
+        self.assertEqual(state()["writes"], ["draft", "attach"])
+        self.assertEqual(candidate.read_bytes(), b"substituted after private staging")
+        candidate.write_bytes(tested_bytes)
+        alien = self.base / "provider-asset"
+        self.assertEqual(alien.read_bytes(), b"concurrent alien state")
+        cli(*publish, expect="release.published_artifact_mismatch")
+        self.assertEqual(alien.read_bytes(), b"concurrent alien state")
+        self.assertEqual(state()["writes"], ["draft", "attach"])
+        # The fixture operator removes the alien asset independently of this command.
+        draft = state()["release"]
+        draft["assets"] = []
+        state(release=draft, alien_upload=False, lose_upload_reply=True, writes=[])
+        cli(*publish, expect="release.promotion_uncertain")
+        self.assertTrue(state()["release"]["isDraft"])
+        self.assertEqual(alien.read_bytes(), tested_bytes)
+        self.assertEqual(state()["writes"], ["attach"])
+        state(lose_upload_reply=False, lose_publish_reply=True)
+        cli(*publish, expect="release.promotion_uncertain")
+        self.assertFalse(state()["release"]["isDraft"])
+        state(lose_publish_reply=False)
+        alien.write_bytes(changed)
+        cli(*publish, expect="release.published_artifact_mismatch")
+        self.assertEqual(alien.read_bytes(), changed)
+        self.assertEqual(state()["writes"], ["attach", "publish"])
+        alien.write_bytes(tested_bytes)
+        published = cli(*publish)
+        self.assertEqual(published["prepared_release_identity"], canonical["identity"])
+        self.assertEqual(published["authorization"]["actor"], "release-admin")
+        self.assertEqual(published["revision"], checkout)
+        self.assertEqual(published["tag_object_id"], tag_object)
+        self.assertEqual(
+            published["provider_release"]["assets"][0]["digest"],
+            "sha256:" + hashlib.sha256(tested_bytes).hexdigest(),
+        )
+        self.assertEqual(state()["writes"], ["attach", "publish"])
+        self.assertEqual(self.git(self.remote, "rev-parse", branch_ref), checkout)
+
+        candidate.unlink()
+        verified = cli(*verify)
+        self.assertTrue(verified["remote_tag_annotated"])
+        self.assertEqual(verified["provider_release"], published["provider_release"])
+        self.assertEqual(verified["revision"], checkout)
+        self.assertEqual(verified["tag_object_id"], tag_object)
+        clean = self.base / "clean-verifier"
+        self.git(
+            self.base,
+            "clone",
+            "--branch",
+            checked["branch"],
+            "--",
+            str(self.remote),
+            str(clean),
+        )
+        cli(*verify, project=clean, expect="release.tag_custody_missing")
+        independent = cli(*verify, "--expected-tag-object", tag_object, project=clean)
+        self.assertEqual(independent, verified)
+        self.assertEqual(
+            self.git(clean, "for-each-ref", "refs/litai/tested-promotion/"), ""
+        )
+        cli(
+            *verify,
+            "--expected-tag-object",
+            alien_object,
+            project=clean,
+            expect="release.published_tag_mismatch",
+        )
+        cli(
+            *verify,
+            "--expected-tag-object",
+            alien_object,
+            expect="release.tag_custody_conflict",
+        )
+        self.git(self.remote, "update-ref", tag_ref, alien_object, tag_object)
+        cli(
+            *verify,
+            "--expected-tag-object",
+            tag_object,
+            project=clean,
+            expect="release.published_tag_mismatch",
+        )
+        self.git(self.remote, "update-ref", tag_ref, tag_object, alien_object)
+        alien.write_bytes(changed)
+        cli(*verify, expect="release.published_artifact_mismatch")
+        self.assertEqual(state()["writes"], ["attach", "publish"])
+        catalog = SchemaCatalog(V2_ROOT)
+        for row in (published, verified):
+            catalog.validate(row["schema"], row)

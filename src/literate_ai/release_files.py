@@ -3,10 +3,16 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import re
+import stat
+import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
+from literate_ai._filesystem import require_safe_directory, stat_is_link_or_reparse
 from literate_ai.contracts import canonical_identity
 
 SCHEMA = "literate-ai/qualified-release-files@1"
@@ -103,3 +109,48 @@ def validate_release_files(
             "release files differ from required roles or have duplicate names"
         )
     return value
+
+
+@contextmanager
+def staged_release_file(root: Path, item: dict[str, Any]) -> Iterator[Path]:
+    """Capture an exact already-validated manifest item into publisher custody."""
+    source = release_file_path(root, item["path"])
+    require_safe_directory(source.parent)
+    before = source.lstat()
+    if (
+        not stat.S_ISREG(before.st_mode)
+        or stat_is_link_or_reparse(before)
+        or before.st_size != item["size"]
+    ):
+        raise ValueError("qualified release file size or type changed")
+    flags = os.O_RDONLY | getattr(os, "O_BINARY", 0)
+    flags |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    with tempfile.TemporaryDirectory(prefix="litai-release-custody-") as directory:
+        staged = Path(directory) / source.name
+        digest = hashlib.sha256()
+        remaining = item["size"]
+        with (
+            os.fdopen(os.open(source, flags), "rb") as original,
+            staged.open("xb") as output,
+        ):
+            if os.fstat(original.fileno()) != before:
+                raise ValueError("qualified release file changed before staging")
+            while remaining:
+                data = original.read(min(1024 * 1024, remaining))
+                if not data:
+                    break
+                remaining -= len(data)
+                output.write(data)
+                digest.update(data)
+            if (
+                remaining
+                or original.read(1)
+                or "sha256:" + digest.hexdigest() != item["identity"]
+            ):
+                raise ValueError("qualified release file changed while staging")
+        require_safe_directory(source.parent)
+        observed = source.lstat()
+        if not os.path.samestat(before, observed):
+            raise ValueError("qualified release file was replaced while staging")
+        staged.chmod(0o400)
+        yield staged

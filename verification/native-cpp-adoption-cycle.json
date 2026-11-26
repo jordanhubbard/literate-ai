@@ -1,0 +1,91 @@
+{
+  "framework_source": "96c404e18c0235fb4903587f45b6324e01b6715a",
+  "installed_wheel_sha256": "1082a4b24a116eeb01d6cd5f301595f951957671bcf3051abb3e33c50a62fbd2",
+  "fixture": {
+    "project": "Confusion MDL interpreter",
+    "commit": "359f0c035024cc5c26a67699d4139a06960c1dee",
+    "tracked_files": 33,
+    "target": "macOS ARM64",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "gc_version": "8.2.12",
+    "native_command": "make -j1 with an external OBJDIR",
+    "executable": "Mach-O 64-bit executable arm64",
+    "oracle": "Feed <+ 20 22> and <QUIT> to the interpreter. Require 42 on the final output line. The pilot supplied this assertion. The host Makefile has no native test target."
+  },
+  "adoption": {
+    "plan_seconds": 0.904,
+    "apply_seconds": 1.823,
+    "contained_files_created": 15,
+    "external_files": [],
+    "same_version_update_tracked_files_unchanged": true,
+    "repeat_adopt_plan_error": "original_adoption.already-initialized"
+  },
+  "native_answers": {
+    "original": 42,
+    "adopted": 42,
+    "seeded_defect": 43,
+    "repaired": 42,
+    "removed": 42
+  },
+  "seeded_defect": {
+    "change": "Seed the C++ integer addition accumulator with one.",
+    "build_exit": 0,
+    "interpreter_exit": 0,
+    "oracle_exit": 1,
+    "framework_project_validate_exit": 0
+  },
+  "removal": {
+    "removed_tracked": 15,
+    "original_bytes_and_modes_preserved": true,
+    "tree_after_commit": "edfaf5492eac4900857514d35b3a95d7f4e35b74",
+    "tree_equals_original": true,
+    "warm_second_adoption": "original_adoption.already-initialized",
+    "cold_second_adoption": "original_adoption.already-initialized",
+    "warm": "Same-version update, then removal and a normal Git commit.",
+    "cold": "Removal and commit directly after adoption, without invoking update.",
+    "both_left": "One untracked litai/.litai-locks/<key>/lifecycle.lock. In each case the subsequent adoption plan refused."
+  },
+  "same_tree_observations": [
+    {
+      "condition": "pristine",
+      "tree": "edfaf5492eac4900857514d35b3a95d7f4e35b74",
+      "code": 0,
+      "error": null,
+      "writes": false,
+      "preserved": true
+    },
+    {
+      "condition": "empty-destination",
+      "tree": "edfaf5492eac4900857514d35b3a95d7f4e35b74",
+      "code": 2,
+      "error": "original_adoption.already-initialized",
+      "writes": null,
+      "preserved": true
+    },
+    {
+      "condition": "retained-lock",
+      "tree": "edfaf5492eac4900857514d35b3a95d7f4e35b74",
+      "code": 2,
+      "error": "original_adoption.already-initialized",
+      "writes": null,
+      "preserved": true
+    },
+    {
+      "condition": "host-file",
+      "tree": "edfaf5492eac4900857514d35b3a95d7f4e35b74",
+      "code": 2,
+      "error": "original_adoption.already-initialized",
+      "writes": null,
+      "preserved": true
+    }
+  ],
+  "operator_evidence_sha256": {
+    "original-files.json": "fa05f080f4a421b97261b70b7afc1e70686041f743b32c5c52182da6e9f940a5",
+    "steps.json": "994a35485406bf813cfb4426002df3818a02e48e67fb35d928e2655b200b5cd9",
+    "result.json": "69effa99336afaf989b77958c9f9e6f20e6b825fa67203a0a1eca200ddde066e",
+    "re-adoption.json": "0890a00ee9801e48480fc36daaa20bd4a484998c803bd2e21c2c5f518b6f8776",
+    "cold-removal-control.json": "0607268dc5d6aa9da79b11f4e3ce80f0daa0014d2a1d2fa627d17984477439d0",
+    "readoption-destination-controls.json": "dbc54d4b7dfe93c16c3e71803529fc731c869db065f4ff1952de48a2325d36fe"
+  },
+  "scope": "Local application build and installed adoption, update and removal. This fixture supplies no hosted, GPU, changed-version or final-candidate evidence."
+}

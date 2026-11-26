@@ -1,0 +1,54 @@
+{
+  "framework_checkout_sync_blob": "2748b22bca15b6e5aded08fe225a89414edeec87",
+  "production_entry": "src/literate_ai/project_releases.py::_sync_worker_checkout",
+  "selection": "Explicit release check --target local selects eligible private SSH workers. Default resolution without policy qualification or ci_targets falls back to the controller.",
+  "observed_static_fleet": {
+    "attempted": 7,
+    "prepare_failed_before_upload": 3,
+    "received_fixture_and_ran_native_test": 4,
+    "tests_per_successful_worker": 1,
+    "returned": "release.worker_sync_failed",
+    "selected_revision": "848312f4f690929a15cc9da0b17e6b304e7acc8e",
+    "reconstructed_bundle": {
+      "commits": 5,
+      "reachable_git_objects": 606,
+      "files_at_selected_head": 328
+    },
+    "commands_observed": [
+      "force-detached checkout",
+      "git clean -fdq",
+      "update of the origin configuration and release reference",
+      "make -f litai.harness.mk test"
+    ],
+    "prior_remote_contents": "unknown",
+    "prepared_release_record_written": false,
+    "release_tag_or_publication": false,
+    "operator_receipt_sha256": "4e8398b965d3d1282e785396f2304a7a73680eb071334da6ba3de89370b2f8b9"
+  },
+  "local_control": {
+    "scope": "Simulation of the SSH/SCP transport. Production POSIX sync and real local Git bundle, fetch, checkout and clean executed in a new disposable directory. The OS denied network access.",
+    "checkout_before": "pre-existing foreign Git repository with unpublished work and no release ref",
+    "previous_head": "b893aa04c30afe5b2c81d08e9de75111901af86f",
+    "first_project_head": "d0fed3f692233f0ca9f77c8e47caa744edf21782",
+    "second_project_head": "5752692e2d0c8f1e73db64047759cf027c750d27",
+    "syncs_succeeded": 2,
+    "same_destination_for_two_organizations": true,
+    "tracked_dirty_file_overwritten": true,
+    "untracked_file_removed": true,
+    "ignored_cache_preserved": true,
+    "sibling_preserved": true,
+    "origin_replaced": true,
+    "scope_limit": "This establishes a failure mode. The live workers had no retained preimage, so their previous contents are unknown."
+  },
+  "local_result_sha256": "f5c8e320b7f59edbaa9c868076922ed6d6fb7048e0a64463635548cdb7134755",
+  "reproducer_sha256": "f9d37b8af60ea2333809c184b23e2a4fd6da28d1eb3fa721937085322ef0fc83",
+  "limits": "Real SSH work confirmed command execution on four targets. Prior operator state is unknown. The deliberately seeded file loss and namespace collision were observed only on disposable local Git repositories.",
+  "local_origin_control": {
+    "scope": "OS-network-denied local production POSIX sync using synthetic URL userinfo only",
+    "copied_synthetic_userinfo_to_fixture_worker_config": true,
+    "worker_local_git_config_key": "remote.origin.url",
+    "actual_secret_used": false,
+    "no_live_credentials_or_fleet_observation": true
+  },
+  "local_origin_receipt_sha256": "2854eeda921cf852e95aeea9e3636bb21154c21ec9203f6633ea82f5543abf29"
+}

@@ -9,6 +9,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import unittest
 from contextlib import contextmanager
@@ -17,7 +18,7 @@ from importlib.resources import files
 from pathlib import Path
 from unittest import mock
 
-from literate_ai.adapters import _processes
+from literate_ai.adapters import _process_interrupt, _processes
 from literate_ai.adapters.action_dispatch_wire import (
     ActionDispatchDeadline,
     encode_action_request,
@@ -619,6 +620,105 @@ class _Process:
 
     def kill(self) -> None:
         self.killed = True
+
+
+@unittest.skipUnless(
+    os.name == "posix"
+    and sys.implementation.name == "cpython"
+    and hasattr(os, "waitid"),
+    "requires CPython POSIX child lifetime observation",
+)
+class PosixProcessRelayTests(unittest.TestCase):
+    def test_reaping_and_signal_delivery_share_child_lifetime_custody(self) -> None:
+        ownership = _processes.create_process_tree_ownership()
+        with subprocess.Popen(
+            [sys.executable, "-c", "import sys; sys.stdin.read()"],
+            stdin=subprocess.PIPE,
+            **ownership.popen_options,
+        ) as process:
+            waitid = os.waitid
+            checked = threading.Event()
+            waiting = threading.Event()
+            reaped = threading.Event()
+
+            def waiter() -> None:
+                if checked.wait(3):
+                    waiting.set()
+                    process.wait(timeout=3)
+                    reaped.set()
+
+            def observe_child(*args):
+                observation = waitid(*args)
+                process.stdin.close()
+                # The child exits between custody checking and attempted delivery.
+                # The real concurrent Popen waiter may reap only after delivery.
+                result = waitid(os.P_PID, process.pid, os.WEXITED | os.WNOWAIT)
+                self.assertEqual(result.si_pid, process.pid)
+                checked.set()
+                self.assertTrue(waiting.wait(3))
+                return observation
+
+            def observe_signal(pid, signum):
+                self.assertEqual((pid, signum), (process.pid, signal.SIGINT))
+                self.assertTrue(process._waitpid_lock.locked())
+                self.assertFalse(reaped.is_set())
+                self.assertIsNone(process.returncode)
+
+            thread = threading.Thread(target=waiter)
+            thread.start()
+            try:
+                with (
+                    mock.patch.object(os, "waitid", side_effect=observe_child),
+                    mock.patch.object(
+                        os, "killpg", side_effect=observe_signal
+                    ) as relay,
+                ):
+                    _process_interrupt.relay_process_interrupt(
+                        process, ownership=ownership, readers=[], grace_seconds=0.01
+                    )
+                    relay.assert_called_once_with(process.pid, signal.SIGINT)
+                    self.assertTrue(reaped.wait(3))
+                    _process_interrupt.relay_process_interrupt(
+                        process, ownership=ownership, readers=[], grace_seconds=0.01
+                    )
+                    relay.assert_called_once()
+            finally:
+                process.stdin.close()
+                checked.set()
+                thread.join(timeout=4)
+            self.assertEqual(process.returncode, 0)
+
+    def test_busy_waiter_refuses_relay_without_waiting_for_the_lock(self) -> None:
+        ownership = _processes.create_process_tree_ownership()
+        with subprocess.Popen(
+            [sys.executable, "-c", "import sys; sys.stdin.read()"],
+            stdin=subprocess.PIPE,
+            **ownership.popen_options,
+        ) as process:
+            parked = threading.Event()
+            real_wait = process._try_wait
+
+            def wait_until_child_exits(flags):
+                parked.set()
+                return real_wait(flags)
+
+            with mock.patch.object(
+                process, "_try_wait", side_effect=wait_until_child_exits
+            ):
+                waiter = threading.Thread(target=process.wait)
+                waiter.start()
+                try:
+                    self.assertTrue(parked.wait(3))
+                    with mock.patch.object(os, "killpg") as relay:
+                        _process_interrupt.relay_process_interrupt(
+                            process, ownership=ownership, readers=[], grace_seconds=0.01
+                        )
+                        relay.assert_not_called()
+                finally:
+                    process.stdin.close()
+                    waiter.join(timeout=3)
+                self.assertFalse(waiter.is_alive())
+                self.assertEqual(process.returncode, 0)
 
 
 class ProcessTreeTerminationTests(unittest.TestCase):

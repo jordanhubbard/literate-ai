@@ -109,6 +109,7 @@ def exclusive_cache_lock(
     timeout_seconds: float = _LOCK_TIMEOUT_SECONDS,
     on_locked: Callable[[int], None] | None = None,
     deadline_monotonic: float | None = None,
+    existing_only: bool = False,
 ) -> Iterator[None]:
     """Hold one same-host advisory lock until the publication decision is complete.
 
@@ -132,7 +133,10 @@ def exclusive_cache_lock(
     if deadline is not None and time.monotonic() >= deadline:
         raise CacheLockError(f"cache lock acquisition timed out: {lock_path}")
     try:
-        ensure_safe_directory(lock_path.parent)
+        if existing_only:
+            require_safe_directory(lock_path.parent)
+        else:
+            ensure_safe_directory(lock_path.parent)
     except UnsafeFilesystemPathError as exc:
         raise CacheLockError(f"cache lock ancestor is unsafe: {lock_path}") from exc
     try:
@@ -145,7 +149,9 @@ def exclusive_cache_lock(
         stat_is_link_or_reparse(existing) or not stat.S_ISREG(existing.st_mode)
     ):
         raise CacheLockError(f"cache lock is unsafe: {lock_path}")
-    flags = os.O_RDWR | os.O_CREAT | getattr(os, "O_BINARY", 0)
+    flags = os.O_RDWR | getattr(os, "O_BINARY", 0)
+    if not existing_only:
+        flags |= os.O_CREAT
     flags |= getattr(os, "O_NOFOLLOW", 0)
     try:
         descriptor = _open_lock_with_retry(
@@ -176,6 +182,8 @@ def exclusive_cache_lock(
         # exact race only after the descriptor proves the byte now exists, then
         # let ``_acquire`` wait for the peer's byte-range lock normally.
         if descriptor_metadata.st_size == 0:
+            if existing_only:
+                raise CacheLockError(f"existing cache lock is empty: {lock_path}")
             try:
                 os.write(descriptor, b"\0")
             except PermissionError:
@@ -191,14 +199,24 @@ def exclusive_cache_lock(
         locked = True
         if deadline is not None and time.monotonic() >= deadline:
             raise CacheLockError(f"cache lock acquisition timed out: {lock_path}")
+
+        def require_current() -> None:
+            _require_safe_ancestors(lock_path.parent)
+            try:
+                observed = lock_path.lstat()
+            except FileNotFoundError as exc:
+                raise CacheLockError(f"cache lock was retired: {lock_path}") from exc
+            if stat_is_link_or_reparse(observed) or not _identity_matches(
+                lock_path, observed, descriptor, descriptor_metadata
+            ):
+                raise CacheLockError(
+                    f"cache lock changed while acquiring it: {lock_path}"
+                )
+
+        require_current()
         if on_locked is not None:
             on_locked(descriptor)
-        _require_safe_ancestors(lock_path.parent)
-        observed = lock_path.lstat()
-        if stat_is_link_or_reparse(observed) or not _identity_matches(
-            lock_path, observed, descriptor, descriptor_metadata
-        ):
-            raise CacheLockError(f"cache lock changed while acquiring it: {lock_path}")
+            require_current()
         if deadline is not None and time.monotonic() >= deadline:
             raise CacheLockError(f"cache lock acquisition timed out: {lock_path}")
         yield

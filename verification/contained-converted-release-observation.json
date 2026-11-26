@@ -1,0 +1,116 @@
+{
+  "framework_tree": "d96fb0fa594e87fbbab1f398cb681ec3e5b097c4",
+  "framework_source": "src/literate_ai/project_releases.py",
+  "source_sha256": "d37ea05273aca353a02c2daa0dc0b6eb8278fca15a87a411f569158f90a19dbd",
+  "execution": "Real local Git, isolated editable source CLI and throwaway copies of a project converted by the published 1.3.1 framework. Commands read state and plan a patch.",
+  "fixture_revision": "3081023a60387f57abe986fb17f4b9878ec2c64b",
+  "original_policy_sha256": "c95dfe77fb34c508f89be00b8eea336e7ab04419c7b706a77a0bd32397b97a37",
+  "policy_version_coordinate": "literate.project.json",
+  "original_manifest": "literate.project.json",
+  "moved_manifest": "litai/literate.project.json",
+  "release_gate": [
+    "litai",
+    "test",
+    "samples/hello-component",
+    "--target",
+    "host"
+  ],
+  "manifest_profile": "canonical",
+  "initialization_profile": "generated (v1 default)",
+  "setup": {
+    "original": "Published conversion with its existing release policy and free main.",
+    "moved": "The same source revision after the partial contained migration, retaining the original release policy bytes.",
+    "-pre-release": "Set the selected manifest to pre-release mode targeting 1.0 in each disposable copy. The local origin cannot supply hosted contributions.",
+    "-local-policy": "On the pre-release pair, remove only the optional contributions section from each fixture policy to isolate the local planning path."
+  },
+  "results": [
+    {
+      "fixture": "original",
+      "operation": "release state",
+      "exit": 0,
+      "result": "passed",
+      "cli_envelope_sha256": "0898c21cfa1f46d47b7410a50a9db3d1e7670f63d9f06b09383bb21022c245d8"
+    },
+    {
+      "fixture": "original",
+      "operation": "release plan",
+      "exit": 2,
+      "result": "release.state_mismatch",
+      "cli_envelope_sha256": "7f46b690985f17c5ce4e5e099b84e98d77ba67efa13bd0c210eeaaefc67d52b3"
+    },
+    {
+      "fixture": "moved",
+      "operation": "release state",
+      "exit": 2,
+      "result": "release.native_profile_unsupported",
+      "cli_envelope_sha256": "8aad50a46f00051ac8a6cb9fa85649d2ece11f5e313b9ca6baafe3b446643efd"
+    },
+    {
+      "fixture": "moved",
+      "operation": "release plan",
+      "exit": 2,
+      "result": "release.native_profile_unsupported",
+      "cli_envelope_sha256": "0f657f8fe3aa89563e9cfd4a31421af238099a825ba08ff3ab9bce6ffefce2ff"
+    },
+    {
+      "fixture": "original-pre-release",
+      "operation": "release state",
+      "exit": 0,
+      "result": "passed",
+      "cli_envelope_sha256": "96f831d95beb7107ee6fa26e7b1330d3f565cb8bb29b5a56417c4bf83df8a6bd"
+    },
+    {
+      "fixture": "original-pre-release",
+      "operation": "release plan",
+      "exit": 2,
+      "result": "release.contributions_tracker_unsupported",
+      "cli_envelope_sha256": "da19a608863b71bd7a40291947b83a9a1234a89d3f6c0391faf8e2f090cd1b97"
+    },
+    {
+      "fixture": "moved-pre-release",
+      "operation": "release state",
+      "exit": 2,
+      "result": "release.native_profile_unsupported",
+      "cli_envelope_sha256": "8aad50a46f00051ac8a6cb9fa85649d2ece11f5e313b9ca6baafe3b446643efd"
+    },
+    {
+      "fixture": "moved-pre-release",
+      "operation": "release plan",
+      "exit": 2,
+      "result": "release.native_profile_unsupported",
+      "cli_envelope_sha256": "0f657f8fe3aa89563e9cfd4a31421af238099a825ba08ff3ab9bce6ffefce2ff"
+    },
+    {
+      "fixture": "original-local-policy",
+      "operation": "release state",
+      "exit": 0,
+      "result": "passed",
+      "cli_envelope_sha256": "96f831d95beb7107ee6fa26e7b1330d3f565cb8bb29b5a56417c4bf83df8a6bd"
+    },
+    {
+      "fixture": "original-local-policy",
+      "operation": "release plan",
+      "exit": 0,
+      "result": "passed",
+      "cli_envelope_sha256": "6fda32d7b71b86454323ff30db7cbea79cdf2e68d1b59b491c8518390d6d5030"
+    },
+    {
+      "fixture": "moved-local-policy",
+      "operation": "release state",
+      "exit": 2,
+      "result": "release.native_profile_unsupported",
+      "cli_envelope_sha256": "8aad50a46f00051ac8a6cb9fa85649d2ece11f5e313b9ca6baafe3b446643efd"
+    },
+    {
+      "fixture": "moved-local-policy",
+      "operation": "release plan",
+      "exit": 2,
+      "result": "release.native_profile_unsupported",
+      "cli_envelope_sha256": "0f657f8fe3aa89563e9cfd4a31421af238099a825ba08ff3ab9bce6ffefce2ff"
+    }
+  ],
+  "same_policy_within_each_pair": true,
+  "working_files_index_and_head_preserved_during_every_probe": true,
+  "native_profile_control": "tests.e2e.test_native_project_bootstrap.NativeProjectBootstrapTests.test_optional_legacy_owners_refuse_the_minimal_profile_before_work passed on the same source.",
+  "limits": "The paired local-policy success is experimental. The original policy still requires its configured contribution tracker. Release preparation, CI, provider writes, publication and deployment were not exercised."
+}
