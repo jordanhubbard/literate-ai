@@ -6,6 +6,7 @@ fixture's macOS platform selection are injected. No generated/native application
 publication or retained consumer runs here.
 """
 
+import sys
 import tempfile
 import unittest
 from contextlib import contextmanager
@@ -136,11 +137,14 @@ class AuthoredQualificationProjectionTests(unittest.TestCase):
     def test_borrowed_toolchain_plan_is_refused_before_yield(self):
         def substituted(*args, **kwargs):
             closure = project_locked_standard_toolchain_closure(*args, **kwargs)
+            foreign_plan = replace(
+                closure.execution_plan, planner_identity=canonical_identity("foreign")
+            )
             return replace(
                 closure,
+                execution_plan=foreign_plan,
                 record=replace(
-                    closure.record,
-                    execution_plan_identity=canonical_identity("foreign-plan"),
+                    closure.record, execution_plan_identity=foreign_plan.identity
                 ),
             )
 
@@ -193,11 +197,17 @@ class AuthoredQualificationProjectionTests(unittest.TestCase):
 
     def test_actual_selected_interpreter_byte_drift_refuses(self):
         with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
             with patch.object(
                 python_fixtures, "symlinks_followable", return_value=False
             ):
-                executable = python_fixtures._install_python_alias(
-                    Path(temporary), "python"
+                executable = python_fixtures._install_python_alias(root, "python")
+            if sys.platform == "darwin":
+                # The local Mach-O copy still needs the original standard library.
+                base = Path(sys._base_executable).resolve()
+                (root / "pyvenv.cfg").write_text(
+                    f"home = {base.parent}\ninclude-system-site-packages = false\n",
+                    encoding="utf-8",
                 )
             self.assertFalse(executable.is_symlink())
             tool = discover_python_toolchain(pinned_command=(str(executable),))

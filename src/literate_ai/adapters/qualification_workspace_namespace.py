@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import stat
+import sys
 from contextlib import ExitStack, contextmanager
 from pathlib import Path
 
@@ -53,6 +54,24 @@ def retire_qualification_workspace(path, identity, container, container_identity
             raise ValueError("qualification.authored.run_resources_not_retired")
 
 
+def _remove_owned_posix_directory(descriptor, parent, path):
+    os.rmdir(path.name, dir_fd=parent)
+    if os.fstat(descriptor).st_nlink == 0:
+        return
+    if sys.platform == "darwin":
+        import fcntl
+
+        # Darwin can retain the directory's link count on an open unlinked
+        # descriptor. A renamed descriptor instead reports its new pathname.
+        observed = fcntl.fcntl(descriptor, fcntl.F_GETPATH, bytes(1024))
+        if observed.split(b"\0", 1)[0] == os.fsencode(path):
+            try:
+                os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+            except FileNotFoundError:
+                return
+    raise ValueError("qualification.authored.run_resources_not_retired")
+
+
 def _retire_posix_run(path, identity, container, check):
     from literate_ai.adapters.retained_project_inputs import _DirectoryAccess
 
@@ -68,7 +87,7 @@ def _retire_posix_run(path, identity, container, check):
             raise ValueError("qualification.authored.scratch_owner_changed")
         count = 0
 
-        def remove_contents(descriptor, depth=0):
+        def remove_contents(descriptor, directory, depth=0):
             nonlocal count
             if depth > 128:
                 raise ValueError("qualification.authored.retirement_limit")
@@ -97,7 +116,8 @@ def _retire_posix_run(path, identity, container, check):
                                 raise ValueError(
                                     "qualification.authored.scratch_owner_changed"
                                 )
-                            remove_contents(child, depth + 1)
+                            child_path = directory / entry.name
+                            remove_contents(child, child_path, depth + 1)
                             check()
                             after = os.stat(
                                 entry.name, dir_fd=descriptor, follow_symlinks=False
@@ -109,11 +129,7 @@ def _retire_posix_run(path, identity, container, check):
                                 raise ValueError(
                                     "qualification.authored.scratch_owner_changed"
                                 )
-                            os.rmdir(entry.name, dir_fd=descriptor)
-                            if os.fstat(child).st_nlink != 0:
-                                raise ValueError(
-                                    "qualification.authored.run_resources_not_retired"
-                                )
+                            _remove_owned_posix_directory(child, descriptor, child_path)
                         finally:
                             os.close(child)
                     else:
@@ -121,14 +137,12 @@ def _retire_posix_run(path, identity, container, check):
                         os.unlink(entry.name, dir_fd=descriptor)
 
         check()
-        remove_contents(root)
+        remove_contents(root, path)
         check()
         current = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
         if (current.st_dev, current.st_ino) != identity:
             raise ValueError("qualification.authored.scratch_owner_changed")
-        os.rmdir(path.name, dir_fd=parent)
-        if os.fstat(root).st_nlink != 0:
-            raise ValueError("qualification.authored.run_resources_not_retired")
+        _remove_owned_posix_directory(root, parent, path)
         access.require_current()
 
 

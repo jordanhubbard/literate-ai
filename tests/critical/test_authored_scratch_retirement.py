@@ -5,6 +5,7 @@ containment or native Windows validation from a POSIX run.
 """
 
 import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -94,6 +95,45 @@ class AuthoredScratchRetirementTests(unittest.TestCase):
         self.assertTrue(self.scratch.active)
         self.assertEqual((self.scratch.path / "foreign").read_text(), "foreign")
         self.assertTrue(original.is_dir())
+
+    @unittest.skipUnless(sys.platform == "darwin", "Darwin held-directory retirement")
+    def test_retirement_refuses_rename_or_replacement_at_removal(self):
+        import fcntl
+
+        scratch = self.scratch
+        moved = scratch.path.with_name("moved")
+
+        def rename(name, *, dir_fd):
+            os.rename(name, moved.name, src_dir_fd=dir_fd, dst_dir_fd=dir_fd)
+
+        with self.subTest(operation="rename"):
+            with (
+                patch.object(namespace.os, "rmdir", rename),
+                self.assertRaisesRegex(ValueError, "run_resources_not_retired"),
+            ):
+                scratch.retire()
+            self.assertTrue(scratch.active)
+            self.assertTrue(moved.is_dir())
+
+        replacement = publication._FreshScratch(self.parent)
+        child = replacement.path / "nested"
+        child.mkdir()
+        get_path = fcntl.fcntl
+
+        def replace_after_observation(descriptor, command, buffer):
+            observed = get_path(descriptor, command, buffer)
+            self.assertFalse(child.exists())
+            child.mkdir()
+            return observed
+
+        with self.subTest(operation="replace"):
+            with (
+                patch.object(fcntl, "fcntl", replace_after_observation),
+                self.assertRaisesRegex(ValueError, "run_resources_not_retired"),
+            ):
+                replacement.retire()
+            self.assertTrue(replacement.active)
+            self.assertTrue(child.is_dir())
 
     @unittest.skipUnless(os.name == "posix", "POSIX descriptor retirement")
     def test_interrupted_retirement_preserves_live_owner_and_diagnostics(self):
