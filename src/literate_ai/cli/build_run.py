@@ -49,7 +49,12 @@ from literate_ai.project_source_index import (
     ProjectSourceIntelligenceError,
     require_lifecycle_project_index,
 )
-from literate_ai.projects import PROJECT_FILENAME, ProjectError, discover_project
+from literate_ai.projects import (
+    PROJECT_FILENAME,
+    ProjectError,
+    configured_component_coordinate,
+    discover_project,
+)
 
 from .errors import CliFailure
 from .execution_workers import (
@@ -84,10 +89,10 @@ def _project_root(path: str) -> Path:
 def _component_argument(args: Any, project: Any) -> str:
     explicit = getattr(args, "component", None)
     if explicit:
-        return explicit
+        return configured_component_coordinate(project, explicit)
     configured = project.definition.repository_policy.default_component
     if configured:
-        return configured
+        return configured_component_coordinate(project, configured)
     raise CliFailure(
         "project.default_component_missing",
         "component is required because repository_policy.default_component is null",

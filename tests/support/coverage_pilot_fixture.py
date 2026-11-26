@@ -20,6 +20,14 @@ GH_STUB = r"""import json,os,sys
 from pathlib import Path
 state=json.loads(Path(os.environ['COVERAGE_PILOT_PROVIDER']).read_text())
 args=sys.argv[1:]
+if os.environ.get("COVERAGE_PILOT_PUBLICATION") and (
+    args[0] == "release" or args[:2] == ["api", "user"]
+    or any("/git/" in arg or "/releases/" in arg for arg in args)
+):
+    from pathlib import Path
+    runpy_path=Path(os.environ["COVERAGE_PILOT_PUBLICATION_CODE"])
+    exec(compile(runpy_path.read_bytes(),str(runpy_path),"exec"))
+    sys.exit(0)
 if args[:2]==['workflow','list']: value=state['workflows']
 elif args[:2]==['run','list']: value=state['runs']
 else:
@@ -81,6 +89,7 @@ class CoveragePilotFixture:
             + os.pathsep
             + os.environ["PATH"],
             PYTHONPATH=str(framework / "src"),
+            PYTHONDONTWRITEBYTECODE="1",
             GITHUB_RUN_ID="201",
             GITHUB_RUN_ATTEMPT="2",
             GITHUB_REPOSITORY="jordanhubbard/literate-ai",

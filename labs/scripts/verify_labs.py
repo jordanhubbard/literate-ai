@@ -9,7 +9,7 @@ import re
 from html.parser import HTMLParser
 from pathlib import Path
 
-from build_labs import ROOT, build_page, source_paths
+from build_labs import ROOT, build_page, source_records
 
 
 class ConfigParser(HTMLParser):
@@ -40,24 +40,21 @@ def verify_lab(lab: Path, page: str | None = None) -> set[str]:
     parser.feed(page)
     assert parser.count == 1, "expected one inert source/config manifest"
     config = json.loads("".join(parser.chunks))
+    expected = source_records(lab)
     canonical = (lab / "project/literate.project.json").exists()
     if canonical:
         project = json.loads((lab / "project/literate.project.json").read_text())
         component = lab / "project" / project["repository_policy"]["default_component"]
-        assert config["spec"] == (component / "component.md").read_text()
-    else:
-        assert config["spec"] == (lab / "component.md").read_bytes().decode("utf-8")
-    expected_paths = [
-        path.relative_to(ROOT.parent).as_posix() for path in source_paths(lab)
-    ]
-    assert [s["path"] for s in config["sources"]] == expected_paths, (
-        "omitted or reordered source"
-    )
-    for source, path in zip(config["sources"], source_paths(lab), strict=True):
-        raw = path.read_bytes()
-        assert source["content"].encode("utf-8") == raw, f"abridged source: {path}"
-        assert source["sha256"] == hashlib.sha256(raw).hexdigest(), (
-            f"source digest drift: {path}"
+    assert config["spec"] == expected[0]["content"]
+    assert [source["path"] for source in config["sources"]] == [
+        source["path"] for source in expected
+    ], "omitted or reordered source"
+    for actual, source in zip(config["sources"], expected, strict=True):
+        assert actual["content"] == source["content"], (
+            f"abridged source: {source['path']}"
+        )
+        assert actual["sha256"] == source["sha256"], (
+            f"source digest drift: {source['path']}"
         )
     if canonical:
         lock = json.loads((component / "component.lock.json").read_text())

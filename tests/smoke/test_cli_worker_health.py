@@ -12,7 +12,7 @@ from unittest.mock import patch
 from literate_ai.adapters.worker_health import (
     inspect_worker_storage,
 )
-from literate_ai.application.worker_pressure import PressureSample
+from literate_ai.application.worker_pressure import GpuPressureSample, PressureSample
 from literate_ai.cli.dispatch import main
 from literate_ai.contracts import (
     CapacityMetric,
@@ -202,6 +202,62 @@ class WorkerHealthCliTests(unittest.TestCase):
         return patch(
             "literate_ai.cli.worker_health.inspect_worker_storage", side_effect=inspect
         )
+
+    def test_public_gpu_health_distinguishes_idle_busy_and_missing_samples(self):
+        self.config["pressure"] = {
+            "sustained_samples": 2,
+            "sample_interval_ms": 0,
+            "cpu_warning_basis_points": 8000,
+            "minimum_available_memory_bytes": 1024,
+            "maximum_paging_bytes_per_second": 100,
+            "minimum_gpu_free_memory_bytes": 512,
+            "require_cpu": True,
+            "require_memory": True,
+            "require_gpu": True,
+        }
+        self.write_config()
+
+        def measured(value):
+            return CapacityMetric(CapacityProbeStatus.MEASURED, value)
+
+        unknown = CapacityMetric(CapacityProbeStatus.UNAVAILABLE)
+        idle = GpuPressureSample("gpu", measured(0), measured(1024))
+        busy = GpuPressureSample("gpu", measured(7000), measured(1024))
+        for devices, expected_status, reason, health in (
+            ((idle,), 0, "gpu-idle", "healthy"),
+            ((busy,), 0, "gpu-busy-progress-unknown", "healthy"),
+            ((), 1, "probe-unavailable", "unknown"),
+        ):
+
+            def observe(_bindings, _policy, last=devices):
+                return tuple(
+                    PressureSample(
+                        index,
+                        measured(0),
+                        measured(4096),
+                        measured(0),
+                        unknown,
+                        unknown,
+                        inventory,
+                    )
+                    for index, inventory in enumerate(((idle,), last))
+                )
+
+            with (
+                self.subTest(reason=reason),
+                self.using_observer(self.observed, pressure_observer=observe),
+            ):
+                status, output = self.invoke("--json")
+                result = json.loads(output).get("result")
+                self.assertIsNotNone(result, output)
+                self.assertEqual(status, expected_status)
+                self.assertIsNone(result["assessment"].get("job_identity"))
+                gpu = next(
+                    item
+                    for item in result["pressure"]["findings"]
+                    if item["resource"] == "gpu"
+                )
+                self.assertEqual((gpu["reason"], gpu["health"]), (reason, health))
 
     def test_sustained_memory_pressure_holds_lifecycle_admission(self):
         self.config["pressure"] = {

@@ -1155,14 +1155,52 @@ def project_source_intelligence_from_args(args) -> dict[str, Any]:
 
 
 def project_layout_from_args(args) -> dict[str, Any]:
-    """Plan containment without entering any project or host mutation path."""
+    """Dispatch read-only inspection and explicitly acknowledged placement."""
+    from literate_ai.adapters.project_layout_migration import (
+        apply_legacy_layout_migration,
+        plan_legacy_layout_migration,
+        recover_legacy_layout_migration,
+    )
     from literate_ai.adapters.project_layout_planning import (
         ProjectLayoutPlanError,
         plan_project_layout,
     )
 
     try:
-        return plan_project_layout(Path(args.project))
+        project = Path(args.project)
+        if args.layout_command == "apply":
+            return apply_legacy_layout_migration(
+                project,
+                args.plan_identity,
+                acknowledge=args.acknowledge,
+                references=tuple(args.rewrite_reference),
+                place_forward_skills=args.place_forward_skills,
+                place_imported_catalogs=args.place_imported_catalogs,
+                place_release_policy=args.place_release_policy,
+            )
+        if args.layout_command == "recover":
+            return recover_legacy_layout_migration(
+                project, args.plan_identity, acknowledge=args.acknowledge
+            )
+        if args.migration:
+            return plan_legacy_layout_migration(
+                project,
+                tuple(args.rewrite_reference),
+                place_forward_skills=args.place_forward_skills,
+                place_imported_catalogs=args.place_imported_catalogs,
+                place_release_policy=args.place_release_policy,
+            )
+        if (
+            args.rewrite_reference
+            or args.place_forward_skills
+            or args.place_imported_catalogs
+            or args.place_release_policy
+        ):
+            raise ProjectLayoutPlanError(
+                "reference_authority",
+                "reference and Skill placement require --migration",
+            )
+        return plan_project_layout(project)
     except (ProjectLayoutPlanError, ProjectError, ProjectUpdateError) as exc:
         raise CliFailure(exc.code, str(exc)) from exc
     except (OSError, ValueError, RuntimeError) as exc:

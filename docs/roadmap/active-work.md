@@ -6232,6 +6232,11 @@ the reported failure.
 
 ### [ ] WORKER-001 — Route build, test, and run through declared execution workers
 
+Before further release-check fleet use, require repository-bound ownership of
+the exact sync destination. Preserve unmarked and foreign checkouts, including
+when two organizations use the same basename. Provide explicit controller-only
+selection. [Failure, affected paths and acceptance](existing-repository-delivery.md#preserve-existing-worker-checkouts-during-release-sync).
+
 - **Terminal managed RUN release (in progress):** [Issue 480](https://github.com/jordanhubbard/literate-ai/issues/480)
   adds an explicit operation-scoped release opt-in for an existing managed SSH
   allocation, after the exact acknowledgement guard in issue 479. Keep default,
@@ -8665,15 +8670,13 @@ slice here before implementation so this file always names the resumable frontie
   candidate closure; RELEASE-INTEGRATION-005 owns the current contribution sweep.
 - **Depends on:** RELEASE-015
 - **Completion prerequisites:** none
-- **Next action:** Complete the [review handoff's coverage-to-artifact boundary](existing-repository-delivery.md#consolidated-release-work-packages)
-  through the existing release/artifact owners. Strict CI coverage supports
-  qualification/check preparation and deliberately refuses publication; its
-  `tested_artifacts: false` evidence is not binary custody. Preserve that refusal
-  until exact tested-artifact promotion and recovery are qualified. The contribution
-  reader and early Make barrier are included in qualified B source `96c404e18`;
-  hosted CI `44381132281` passes. The old advisory was withdrawn upstream, not
-  repaired by this branch. Both audits and the unresolved separate GitGuardian
-  disposition remain. Renew all affected evidence for the final combined candidate.
+- **Next action:** Qualify the strict promotion path on the combined candidate.
+  A real local Git receiver and a simulated publication provider exercised the
+  tested file, exact attempt and annotated tag. Carry the authorized tag object
+  through retry and independent readback. Retain preparation-only behavior for
+  coverage evidence that lacks tested artifact bytes. Renew the current
+  contribution, collateral, hosted CI and security checks before release.
+  [Controlled promotion evidence](existing-repository-delivery.md#consolidated-release-work-packages)
 - **Implementation:**
   - [x] Archive obsolete historical execution with source/fixture comparison and
         the document-publication proof gap explicitly preserved.
@@ -8790,10 +8793,28 @@ slice here before implementation so this file always names the resumable frontie
 - **Conclusion:** The earlier proposal to make `litai adopt` a synonym for relocating `init --convert` is obsolete. Reuse `onboard adopt` and original-source admission for a contained, in-place native bootstrap. Preserve explicit conversion as an optional compatible operation; do not add a second converter or deprecate working tooling merely to change vocabulary.
 - **Depends on:** ORIGINAL-ADOPT-001, PROJECT-LAYOUT-001
 - **Implementation:**
-  - [ ] Route the primary public adoption plan/apply path through native bootstrap and show every external integration file before acknowledgement.
-  - [ ] Preserve explicit legacy conversion and document its source-layout effects.
-  - [ ] Update maintained documentation and skills to distinguish native adoption from optional conversion.
+  - [x] Route the primary public adoption plan/apply path through native bootstrap and show every external integration file before acknowledgement.
+  - [x] Preserve explicit legacy conversion and document its source-layout effects.
+  - [x] Update maintained documentation and skills to distinguish native adoption from optional conversion.
 - **Evidence:**
+  - On the same ToolScheme v0.3.0 input, the default public plan declared
+    zero external files. Native application created 15 contained files and
+    preserved the original native suite, CI and roadmap. Explicit conversion
+    completed on source tree `c548bc608` and moved the source, host roadmap and
+    CI configuration under the retained implementation. Eight native-bootstrap
+    tests passed on that source. The root skill, conversion skill and getting
+    started guide name both public paths. The changed-version upgrade remains
+    outstanding. [Pilot and acceptance](existing-repository-delivery.md)
+  - A private draft PR exercised strict Linux and Windows checks on GitHub.
+    The installed observer rejected the seeded CSV failure, verified the repair,
+    followed an actual failed-job retry and refused an older green checkout.
+    The four PR observations covered seven distinct native executions,
+    excluding two base-branch setup jobs. Observation added zero jobs. The changed-version upgrade remains outstanding.
+    [Hosted acceptance evidence](../../verification/native-ci-hosted-governed-pr.json)
+  - On a native macOS ARM64 C++ project, removal restored the original Git tree.
+    A retained lifecycle lock blocked a second adoption in both the cold and
+    updated checkout. Preserve host files and live lock owners while restoring
+    the complete cycle. [Evidence and acceptance](existing-repository-delivery.md#make-native-removal-followed-by-adoption-work-in-the-same-checkout)
   - [ ] Public CLI pilots preserve native source, build, tests and CI locations and prove repeat, failure, upgrade and removal behavior.
   - [ ] Legacy explicit conversion remains compatible; guidance and skill checks agree with actual defaults.
 
@@ -20704,6 +20725,12 @@ complete; final 1.3.1 candidate and broader FreeBSD qualification remain separat
   - [x] Measure native import startup: one baseline/deferred pair took 7.48/2.91 seconds;
         installed bytes stayed unchanged. See [the diagnostic record](../../verification/optional-project-import-development.json).
   - [ ] Run both maintained startup/MAC controls from the noneditable installed wheel with verified module origins and no checkout imports, then renew exact-candidate native wheel/full qualification.
+- **Installed intermediate evidence:** Both maintained controls passed with wheel
+  `1082a4b24a116eeb01d6cd5f301595f951957671bcf3051abb3e33c50a62fbd2`
+  from `96c404e18c0235fb4903587f45b6324e01b6715a` on macOS ARM64.
+  Its embedded revision and 504 imported framework modules matched the wheel.
+  The isolated child loaded the installed project CLI. Repeat both controls on
+  the exact release wheel before closing this item.
 - **Next action:** Resulting-main CI `42887279572` at exact merge `8f01fc77d` is verified terminal with all 27 jobs successful. Complete final configured lifecycle/receipt renewal and preserve the original gate evidence. The current root receipt remains stale; native installed startup/MAC controls and exact source/main matrices do not replace that final renewal.
 - **Original focused development:** Two import controls and seven CycloneDX tests
   pass through `make python-check`; the fresh-process regression fails against the
@@ -21487,7 +21514,15 @@ No software release or native success is claimed.
 - **Release target:** 1.4.0
 - **Curriculum scope:** The same development curriculum scope as DOCS-LABS-001.
 - **Release-manifest reconciliation:** Preserve this existing included requirement in the 1.4 manifest. Issue #159 is open in milestone 1.4.0; the parent remains unchecked. The earlier inline target annotation did not establish a deferral or remove the canonical curriculum acceptance below.
-- **Next action:** Convert every lab to independently resolvable canonical Components and explicit Flavor selections, then qualify actual locks, generation and browser lifecycle evidence in increasing complexity.
+- **Next action:** Qualify progressively richer independently buildable Component
+  graphs on the required published framework. The reviewed preview repair
+  checks raw source references against locked bytes and preserves structured
+  Flavor revision identity. All six Component locks retained their original
+  bytes. The supported 1.3.1 lock command renewed all six companion audits,
+  and fresh checks passed after each project moved to a different directory.
+  A genuine two-Component lock exposed a wrong edge field in the renderer.
+  The reviewed correction draws the provider-to-consumer edge from the stored
+  revision identities. Public application build and run acceptance remain open.
 - **User clarification:** Self-contained means no dependency on earlier labs or external repositories; all labs must use Literate AI. Start small, progressively add real Components/Flavors and other harness dimensions, and finish with a visually substantial composed capstone. A labels-only correction is not completion.
 - **Implementation:**
   - [x] Distinguish lesson roles from resolved Components across the shared lab shell; expose exact bundled sources and provenance.
@@ -21497,6 +21532,16 @@ No software release or native success is claimed.
 - **Evidence:**
   - [ ] Rebuild and structurally verify all six offline artifacts; reject changed embedded source or false graph/custody claims.
   - [ ] Actual desktop/mobile browser checks verify Grumpy Counter default, bounds, keyboard/pointer input, source parity, graph selection and offline behavior; authority and required repository checks pass.
+
+On the 18 November composed source, all six regenerated previews matched their
+tracked bytes. Offline Chromium at 1440 and 390 CSS pixels checked 15 source
+records and 239 arithmetic dots, with zero requests or page errors.
+A changed selected skill exposed a separate custody failure. The preview builder
+and verifier both passed while the page displayed the old locked digest and
+embedded different source bytes. The published framework rejected the stale
+skill pin. Require this counterexample to fail preview verification before
+closing the structural evidence criterion. All six current graphs contain one
+Component, no inter-Component edges and the same three selected Flavors.
 
 LAB-AUTHORITY-001 development checkpoint: six offline bundles and five tamper/refusal
 checks pass. Actual offline Chromium at 1440 and 390 pixels verifies pointer/keyboard
@@ -22051,7 +22096,14 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
   - [x] Reconcile pinned generation guidance with independently selected overlapping inputs while keeping verifier-owned expected answers private.
   - [ ] Complete the fresh installed registered-child journey and original refusal/recovery controls with its unchanged independent oracle.
 - **Evidence:**
-  - [ ] Pass singleton positive, invented/duplicate/missing input, false exemption, stale authority and private-oracle controls plus unchanged v1/default-domain coverage.
+  - [x] Pass singleton positive, invented/duplicate/missing input, false exemption, stale authority and private-oracle controls plus unchanged v1/default-domain coverage.
+    The 16 maintained generated-test and evidence controls passed against the
+    noneditable intermediate wheel from `96c404e18` with no skips. All 242
+    imported framework modules resolved inside its installed package. The
+    committed [installed journey](../../verification/zero-argument-installed-development.json)
+    separately records an actual generated library, one valid empty invocation,
+    the unchanged independent oracle, stale-registry refusal and recovery.
+    Renew the integrated candidate and required native/CI cells before closure.
   - [ ] Pass full regression, installed-wheel qualification and exact review/main CI before claiming issue 132 or dependent issue 48 complete.
 
 ### [x] RUST-ADOPTION-DETECT-001 — Detect Cargo workspaces ahead of incidental helper languages
@@ -22204,7 +22256,7 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
   - [x] Define strict integer limits and finite hard caps, preserve absent-policy serialization, and document the policy and compatibility trade-off.
   - [x] Propagate project limits through catalog traversal, revalidation, lock-input capture and project validation with observed/allowed diagnostics.
 - **Evidence:**
-  - [ ] Prove unchanged default refusals, opt-in loading beyond legacy ceilings, exact-bound refusal and policy drift; run affected schema/lock/validation regressions.
+  - [x] Prove unchanged default refusals, opt-in loading beyond legacy ceilings, exact-bound refusal and policy drift; run affected schema/lock/validation regressions.
   - [ ] Measure real retained FreeBSD catalogs: load time, memory, lock resolution, litai verify and project validation before declaring issue 234 complete.
 
 - **Development evidence:** The repaired 32-case lock/project/schema regression
@@ -22225,11 +22277,28 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
   verified. These measurements use the exact older installed framework
   distribution `sha256:c406baabf26004043ebc68bedf1beae473c7f57b62cc3396cc5d2b8ee184548a`;
   they are not qualification of the latest integrated commit.
-  The original public verify attempt hit its 900-second deadline and remains
-  failed evidence. A fresh independently reviewed native public verify attempt
-  now uses the directing user's 10,800-second bound and was confirmed live under
-  its kernel supervisor. Its result, native dependency evaluation, live retained
-  input admission and exact integrated release qualification remain pending.
+  The original public verify attempt timed out at 900 seconds. The retry
+  finished in 1,727.836 seconds with peak RSS of 948,920 KiB. Project and
+  documentation authority and both committed locks passed. The missing project
+  test receipt correctly failed verification. The terminal output SHA-256 is
+  `bc38e5e6dd652cb0c08e5158ce7c0e6624651ed17d88ec7f6e63166dd5037a8c`.
+  [Terminal ports measurement](https://github.com/jordanhubbard/literate-ai/issues/234#issuecomment-6606638264).
+
+- **Source-tree measurement and remaining acceptance.** The downstream
+  installed-wheel probe captured 115,250 regular source files in 75.96 seconds
+  and revalidated them in 19.09 seconds. It refused 40 oversized files and
+  excluded 138 tracked symlinks from generation authority. Its default-policy
+  control refused file 1,025. The consumer still needs an authored source
+  Component catalog for the full public lock, validate and verify journey.
+  Reuse the ports measurement and reproduce on the exact release candidate
+  when the consumer catalog and lifecycle evidence are available.
+  [Downstream receipt at its introducing commit](https://github.com/jordanhubbard/daemonarchy/blob/ecf6e7b0ae9d6561cdc90d8ccb2bd35e16ca4ebe/verification/framework-v2-scale-20261111.json).
+
+- **Bounded framework evidence.** On 18 November, all 21 cases passed across
+  `test_project_scale_limits`, `test_pinned_input_closure`,
+  `test_component_lock_planning`, `test_schema_catalog`, `test_project_verify`
+  and `test_schema_catalog_check_scope`. This closes the default and opt-in
+  framework evidence criterion. Complete source-catalog qualification remains open.
 
 ### [ ] HTTP-CACHE-REFERENCE-001 — Provide a bounded reference HTTP shared-cache service
 
@@ -23425,9 +23494,19 @@ independent review and the complete combined gate from test one.
 - **Release target:** 1.4.0
 - **GitHub issue:** [#280](https://github.com/jordanhubbard/literate-ai/issues/280)
 - **Accepted decision:** [ADR 0059](../decisions/0059-authenticated-read-only-worker-telemetry.md); explicit directing-user acceptance on 2026-11-03.
-- **Next action:** Complete the live observation permission/action-owner boundary, then compose existing authenticated transport, bounded collection and the installed/native journeys. The draft now includes response/sample framing and additive schemas, but no receiver or live feed. The initial request/metric/progress contracts below grant no observation or execution authority; the full accepted feed remains required.
+- **Next action:** Connect the accepted observation protocol to the live
+  action owner. Verify authentication, bounded sampling and attribution on a
+  named remote action. Retain the existing pressure command for host health.
+  An aligned Linux worker reported GPU capacity in two consecutive samples.
+  The earlier controller labeled those samples `gpu-busy-progressing` with
+  no action identity. The reviewed classifier returned `gpu-idle` in a later
+  observation on that worker. Controlled samples also cover a disappearing
+  GPU. These observations leave live action progress and I/O unqualified.
 
-- **Planning verification:** Proposed ADR 0059 and this intake have independent source/design approval. The previous two-design, pre-integration checkpoint and passing fresh consolidated gate are recorded under [RETAINED-TREE-EXPLORER-001](#retained-tree-explorer-001-publish-hierarchical-retained-tree-html-information-cards). The current source audit distinguishes pressure probes and discrete action attestations from the missing telemetry feed; it claims no live telemetry or job-attribution qualification. The directing user explicitly accepted ADR 0059 on 2026-11-03; every implementation/evidence item remains open.
+- **Planning verification:** The accepted ADR and its intake have independent
+  design review. The earlier consolidated gate is recorded under
+  [RETAINED-TREE-EXPLORER-001](#retained-tree-explorer-001-publish-hierarchical-retained-tree-html-information-cards).
+  The outstanding implementation and evidence are listed below.
 
 - **Contract foundation in progress:** `contracts/worker_telemetry.py` adds a closed
   data-only request binding controller/catalog/registration/worker/observation-scope
@@ -23529,7 +23608,15 @@ independent review and the complete combined gate from test one.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Document current confirmed live progress and I/O surfaces and narrow actual gaps.
+  - [x] Document current confirmed live progress and I/O surfaces and narrow actual gaps.
+    The public health command sampled an aligned Linux worker three times.
+    It reported host CPU load, available memory, GPU memory and storage capacity.
+    Progress and queue depth are unavailable in the pressure collector. The
+    Linux installed controls separately measured counters for one originally
+    launched process. Neither surface supplies an authenticated remote action's
+    progress or network/disk totals. Two further classifier controls belong
+    to this owner: idle GPU samples with unavailable progress must avoid a
+    progress claim, and a disappearing GPU must return an explicit status.
   - [ ] Review necessary versioned telemetry contract/rate/authentication design under ADR 0006 before implementation, then compose existing transport with bounded safe observations.
 - **Evidence:**
   - [ ] Real live-worker action/stage/state and network/disk/cpu/memory observations with declared unsupported values, not invented measurements.
@@ -24051,7 +24138,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [x] Add a typed read-only rename plan and acknowledged compare-and-swap apply with durable rename lineage.
   - [x] Expose the operation through the project CLI and document retained-source renewal and interruption behavior.
 - **Evidence:**
-  - [ ] Resolve the original exact PR421-head GitGuardian finding (two reported secrets) and retain accepted security evidence; successful main CI alone does not resolve that check.
+  - [ ] Obtain accepted security disposition for the original PR 421 check on two occurrences of incident 39939690. Both flagged values reproduce as the SHA-256 of PyYAML 6.0.3’s published `yaml/tokens.py`. The check remains failed on head `de035d6ead11`. [Exact public-source comparisons](../../verification/release-security-finding-provenance.json).
   - [x] Exercise normal migration, stale plan, changed conversion/source, metadata path and concurrent change refusals.
   - [x] Verify historical bytes remain unchanged, old receipts refuse, and fresh renamed retained qualification succeeds.
   - [x] Run current framework Python, formatting, lint and required review gates.
@@ -24245,12 +24332,27 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Release target:** 1.4.0
 - **Completion prerequisites:** none
 - **Accepted implementation direction:** [ADR 0071](../decisions/0071-derived-project-litai-directory.md) specifies the shared project context, finite root integrations and recoverable migration. [ADR 0074](../decisions/0074-existing-repository-delivery.md) records the subsequent explicit user delegation to implement the review recommendations in this release.
-- **Next action:** Close the independently reproduced CP-4 nested framework
-  Git-index omission and renew exact-source review before the combined full gate.
-  The correction passes all 14 focused public layout cases; the previous full
-  gate was interrupted and is not qualification for these bytes. Then qualify
-  the public read-only containment plan in [#483](https://github.com/jordanhubbard/literate-ai/issues/483), consuming the independent producer provenance in [#481](https://github.com/jordanhubbard/literate-ai/issues/481) before an acknowledged migration writer. Keep application coordinates and existing ProjectContext discovery; expose shared ownership, reference, renewal and writer-fencing blockers rather than claiming relocation readiness.
-- **Current implementation boundary:** `project layout plan --project PATH` has a fixed `litai/` target and emits a bounded exact-input report without creating locks, caches, host configuration, receipts or provider work. Validate the real legacy conversion, independent import/update-base signals, mixed retained wrapper, custom root integrations, changed inputs, unsafe topology and destination collisions through the public front door. This is a step toward the existing migration acceptance, not a new goal or a substitute for apply/recovery and installed/native qualification.
+- **Next action:** Qualify the corrected nested-index and public metadata
+  migration paths on the combined release candidate. Continue the ownership
+  and reference transitions for imported Skills, Flavors and Components on
+  the original converted-project fixture. Preserve host integrations,
+  unclassified members and Git boundaries on both apply and recovery.
+  Restore release state and planning for converted projects after migration.
+  Revalidate both paths selected by the release policy, the version manifest
+  and the sample passed to its test gate. Preserve the host's changelog,
+  independently owned root files and the refusal for a minimal native project.
+  [Paired public CLI evidence](../../verification/contained-converted-release-observation.json).
+- **Current implementation boundary:** The reviewed writer moved 13 identified
+  metadata files in a disposable project converted by the published 1.3.1
+  framework, including the declared test receipt. It preserved seven
+  application files, host integrations, Git HEAD and index. An ordinary
+  retained receipt and lock renewal restored verification after a real
+  inherited Flavor update through a private parent mirror. Recovery refused
+  a new independent Git directory, separate Gitfile and nested Git directory
+  at the placed destination. The remaining inventory includes 147 authority
+  paths needing reference transitions, 145 unclassified paths, six shared
+  integrations, three path-bound evidence transitions and two lock placements.
+  These counts belong to this fixture and stage of the migration.
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework core: derived-project layout, onboarding, lifecycle, templates and documentation; PROJECT Goals 1, 4 and 6
 - **Direction:** Require all Literate AI files in every derived project to live beneath a project-local litai/ subdirectory; include this requirement in the release currently in progress (1.4.0).
@@ -24274,11 +24376,20 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework qualification derivation and captured evidence; PROJECT Goals 1 and 4
 - **Direction:** Include issue #392 in 1.4.0: identical valid raw generated cases across distinct Components must not reject a complete all-node run.
-- **Conclusion:** Retain unique content-addressed raw case membership while preserving all node suites, execution observations and actual test counts. The reporter is preparing this bounded fix alongside #345; do not duplicate that contribution.
+- **Conclusion:** Retain unique content-addressed raw case membership while preserving all node suites, execution observations and actual test counts. Shawn Edwards implemented the derivation and capture changes and a nine-execution regression on the contributor checkpoint.
+  [Original contribution](https://github.com/NVShawn/literate-ai/commit/7fab630a760c8ecd7175b5f856603bd209d7ae9e)
+  contains the two membership changes alongside independent native Rust work.
+  Reconcile those changes and the maintained case-inventory tests on the release
+  candidate, and preserve the contribution’s attribution.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Reconcile the contributor fix in derivation and capture membership without weakening per-suite uniqueness, node completeness, failed-suite refusal or existing unique-run identities.
+  - [x] Reconcile the contributor fix in derivation and capture membership without weakening per-suite uniqueness, node completeness, failed-suite refusal or existing unique-run identities.
+    The composed candidate includes the two contributor changes and their
+    regression. An independent run passed 11 cases. An installed candidate
+    retained nine executions across three suites and three raw definitions;
+    the four-node replay retained twelve executions and three definitions.
+    The integrated release gate and native qualification remain open.
 - **Evidence:**
   - [ ] Reproduce the nine-execution/three-raw-case diamond and qualify capture/replay, missing or failed provider refusal, per-suite duplicate refusal, installed/native and integrated gates.
 
@@ -24308,12 +24419,12 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#396](https://github.com/jordanhubbard/literate-ai/issues/396)
-- **Next action:** Restore the five genuine toolkit, runtime-type and driver-call
-  signals reproduced independently from [PR 410](https://github.com/jordanhubbard/literate-ai/pull/410)
-  on the current source. Retain the reviewed multiline attribution filter and
-  bounded source inventory. Exercise positive, attribution-only and similarly
-  named portable controls before independent review and supported driver renewal,
-  then complete noneditable installed and current-main qualification.
+- **Next action:** Run installed and integrated qualification of the reviewed
+  CUDA detector. The composed source includes the five toolkit, runtime-type and
+  driver-call cases from [PR 410](https://github.com/jordanhubbard/literate-ai/pull/410).
+  The source and tests match the independently reviewed bytes. The seven
+  inventory tests passed on the composed source, and the independent public
+  inventory check exercised five attribution, lookalike and real-code controls.
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework inert source inventory and proposed Flavor evidence; PROJECT Goals 1, 2, 4 and 5
 - **Direction:** Include newly filed issue396 in 1.4.0: NVIDIA copyright/license attribution alone must not propose a CUDA accelerator requirement for portable source.
@@ -24321,7 +24432,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Remove vendor-only CUDA inference and exclude source attribution metadata from CUDA evidence; retain explicit CUDA source suffix, compiler/toolchain, runtime and driver evidence through bounded inert analysis.
+  - [x] Remove vendor-only CUDA inference and exclude source attribution metadata from CUDA evidence; retain explicit CUDA source suffix, compiler/toolchain, runtime and driver evidence through bounded inert analysis.
   - [x] Add original portable-source and genuine-CUDA regressions with exact byte/digest preservation and unchanged sensitive, generated, binary and test classification precedence.
 - **Evidence:**
   - [x] Reconcile the retained predecessor failure and source-preserving negative/positive inventory controls with the actual corrected PR398 candidate. A locally qualified development variant remains on `fix/cuda-source-signals`; its passing suite is not contributor-head acceptance.
@@ -24477,6 +24588,15 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] SDLC-001 — Make existing repository delivery the primary 1.4 adoption path
 
+- **GitHub issue:** [#488](https://github.com/jordanhubbard/literate-ai/issues/488)
+  tracks static release-checkout ownership admission before worker synchronization. The retained real-Git,
+  local-transport reproduction overwrites foreign work at the old basename path;
+  prior live-worker contents remain unknown. The recovered successor guard passes
+  nine local controls, including SSH-account separation, password-syntax refusal
+  before worker access and a PowerShell command-shape check, while both
+  native Windows cases are skipped on macOS. Exact combined source, installed and
+  native-platform qualification remain open. The earlier fleet-access stop remains
+  in force pending the operator's separate read-only inspection authorization.
 - **Goal-state reconciliation:** Release work package G uses the shared visible
   queue parser tracked under RELEASE-CLOSURE-001 and
   [issue 486](https://github.com/jordanhubbard/literate-ai/issues/486). The current
@@ -24485,11 +24605,13 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Detailed roadmap:** [Existing repository delivery](existing-repository-delivery.md)
 - **Decision:** [ADR 0074](../decisions/0074-existing-repository-delivery.md)
 - **Tracker reconciliation:** [Current issue/PR ownership and dispositions](existing-repository-delivery.md#current-tracker-reconciliation) maps the previously unlinked current-forge requests to existing owners; historical forge numbers remain distinct.
-- **Next action.** Complete the fresh source and installed qualification of the
-  independently reviewed native writer, test-origin and release artifact checks.
-  Reconcile visible goal identity under [issue 486](https://github.com/jordanhubbard/literate-ai/issues/486)
-  in the next batch. The [release work packages](existing-repository-delivery.md#consolidated-release-work-packages)
-  retain the lease-expiry, selective CUDA, native adoption and final-release obligations.
+- **Next action.** Qualify the composed native writers, isolated child
+  interpreter, release promotion and visible-goal checks on the exact source
+  and installed wheel. The shared parser and contained queue writer have
+  focused coverage for [issue 486](https://github.com/jordanhubbard/literate-ai/issues/486)
+  and [issue 487](https://github.com/jordanhubbard/literate-ai/issues/487).
+  The [release work packages](existing-repository-delivery.md#consolidated-release-work-packages)
+  retain changed-version adoption, provider expiry and final candidate qualification.
 
 - **Current batch at `96c404e18`:** The fresh macOS source gate passes 3,096
   tests with 101 declared skips; the exact committed wheel passes 182 whole-wheel
@@ -24563,6 +24685,17 @@ implementation, policy weakening, qualification or issue closure is recorded her
   through existing owners. Retain the completed 45-attempt supplied-guidance
   evidence; actual host activation remains separate. Reconcile review ancestry
   before replaying open work. This is one execution contract, not another queue.
+- **Evidence reconciliation, 18 November.** An independent count matched all
+  81 manifest IDs to exactly one visible current goal and all 184 outstanding
+  checkboxes to the operator report before the three evidence criteria below
+  were checked. The standalone lease suite passed all 36 tests on this
+  composition, including lost allocation/release replies, concurrent releases,
+  different lease replies, expiry and retained cleanup intent. The system review
+  records native and simulated platform evidence separately and reports the
+  45-attempt supplied-guidance comparison, including one aborted trial.
+  These three evidence checks leave the integrated worker, skill activation
+  and final candidate qualifications open.
+
 - **Implementation:**
   - [ ] Reconcile duplicate IDs and obsolete execution guidance with explicit historical dispositions.
   - [ ] Deliver contained native onboarding, safe upgrade and removal through existing project owners.
@@ -24570,11 +24703,18 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Complete command worker reconciliation, release and expiry while retaining static workers.
   - [ ] Qualify platform cells and skill activation, optional generation and deployment recovery boundaries.
 - **Evidence:**
-  - [ ] A unique-ID roadmap and current release manifest retain every unfinished acceptance obligation.
+  - [x] A unique-ID roadmap and current release manifest retain every unfinished acceptance obligation.
   - [ ] Public native adoption pilots preserve application files and CI and prove repeat, failure, upgrade and removal behavior.
-  - [ ] Deterministic timing controls reject double counting and stale qualification; compare measured native jobs and wall time.
-  - [ ] Stub worker lifecycle tests prove lost replies, duplicates, expiry and cleanup failure behavior.
-  - [ ] Record platform-specific and skill behavioral evidence separately from source inspection and simulation.
+  - [x] Deterministic timing controls reject double counting and stale qualification; compare measured native jobs and wall time.
+    On tree `d96fb0fa5`, 12 timing cases, two exact run/attempt cases and
+    four checkpoint-reuse cases passed. The same ToolScheme defect took
+    29.29 seconds with the host's existing Make test and 29.16 seconds after
+    adoption. In the separate installed observer pilot, four native PR and
+    retry jobs ran, with zero extra native jobs from observation. The later
+    hosted pilot confirmed configured protection and partial retry. Overall
+    release-time improvement still requires measurement.
+  - [x] Stub worker lifecycle tests prove lost replies, duplicates, expiry and cleanup failure behavior.
+  - [x] Record platform-specific and skill behavioral evidence separately from source inspection and simulation.
 
 ### [ ] CARGO-CUSTODY-PERF-001 — Bound redundant native Cargo input custody work
 
@@ -24764,14 +24904,19 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] RUNTIME-CAPABILITY-ENV-001 — Bind declared runtime capability variables to accepted provider artifacts
 
-- **Installed control coverage (in progress):** Run all nine maintained runtime capability cases from the canonical noneditable wheel installation with the same origin, candidate-byte and fixed-inventory checks as diagnostic controls. Keep actual fixture provider execution distinct from the separately required generated graph, other native platforms and exact integration.
+- **Installed control coverage:** The canonical wheel at `96c404e18` passed
+  all nine maintained runtime capability controls with verified installed
+  module origins. The four runtime owners and test module in the current
+  candidate match those proven files byte for byte. All nine source controls
+  passed again. Final release wheel, generated-graph and native platform
+  qualification remain open.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#422](https://github.com/jordanhubbard/literate-ai/issues/422)
 - **Next action (in progress):** Qualify the final combined source and installed candidate, then finish native Windows/macOS and exact published-head/resulting-main qualification. Independent non-author review, nine focused runtime controls and strict static gates pass; the canonical driver pin is renewed after that review. Preserve the completed native Linux development evidence and full curriculum scope.
 
 
-- **Combined integration evidence:** The normal source union retains all four production files byte-identically to PR423 `a7482175e`. Independent review covers held-plan/currentness and input scope, EXECUTE-only direct-consumer aliases, portable names/collisions, late projection after overrides, admitted provider paths, package relocation/escape refusal and unchanged serialized toolchain identity. All nine maintained runtime controls pass without skips on native macOS; they execute real fixture provider processes, including after original build roots are removed, but do not claim model generation or a complete generated graph. Canonical driver/documentation renewal follows that review; lint/format, layout, public export and runner checks pass. See `verification/runtime-capability-integration-review.json`. Complete combined source/installed and exact integration gates remain open.
+- **Combined integration evidence:** The earlier source union retained all four production files byte-identically to PR423 `a7482175e`. Independent review covers held-plan/currentness and input scope, EXECUTE-only direct-consumer aliases, portable names/collisions, late projection after overrides, admitted provider paths, package relocation/escape refusal and unchanged serialized toolchain identity. All nine maintained runtime controls pass without skips on native macOS; they execute real fixture provider processes, including after original build roots are removed, but do not claim model generation or a complete generated graph. Canonical driver/documentation renewal follows that review; lint/format, layout, public export and runner checks pass. See `verification/runtime-capability-integration-review.json`. Complete combined source/installed and exact integration gates remain open.
 
 - **Priority:** P0
 - **Owner:** Framework Standard runtime provider environment; issue #422; LAB-AUTHORITY-001
@@ -24782,8 +24927,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Project late runtime capability aliases from exact locked runtime edges while preserving original source, artifact and execution authority.
-  - [ ] Preserve existing generic bindings, phase separation, portable names and collision/currentness refusals without adding permissions or changing closed wire records.
+  - [x] Project late runtime capability aliases from exact locked runtime edges while preserving original source, artifact and execution authority.
+  - [x] Preserve existing generic bindings, phase separation, portable names and collision/currentness refusals without adding permissions or changing closed wire records.
 - **Evidence:**
   - [ ] Retain the real installed force-regeneration counterexample and unchanged verifier oracles; generated consumer uses the exact declared variable.
   - [ ] Pass focused collision, ambient-variable, phase/consumer scoping and stale-authority controls, complete source gates, independent non-author review before driver repin, and an actual corrected installed generated graph journey plus native/exact-head/main verification.
