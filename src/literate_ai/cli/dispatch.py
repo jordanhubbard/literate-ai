@@ -511,15 +511,18 @@ def _add_retained_project_arguments(parser, *, execution_options=False) -> None:
         help="validate retained project and inputs read-only; grants no admission",
     )
     parser.add_argument(
+        "--retain-promotion-evidence",
+        action="store_true",
+        help=(
+            "capture additive historical receipt-promotion facts "
+            "during the authorized live run"
+        ),
+    )
+    parser.add_argument(
         "--authorize-retained-project",
         help="exact reviewed retained-project plan identity",
     )
     if execution_options:
-        parser.add_argument(
-            "--retain-promotion-evidence",
-            action="store_true",
-            help="capture complete promotion assertions during this authorized run",
-        )
         _promotion_budget_arguments(parser)
         parser.add_argument(
             "--allow-host-execution",

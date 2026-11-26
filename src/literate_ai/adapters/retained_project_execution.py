@@ -170,6 +170,7 @@ class RetainedProjectExecutionWorkspace:
         native_sdk_record_many=None,
         allocation_owner: RetainedAllocationOwner | None = None,
         receiver_context=None,
+        capture_promotion_evidence=False,
     ) -> None:
         if allow_host_execution is not True:
             raise RetainedProjectExecutionError(
@@ -260,6 +261,10 @@ class RetainedProjectExecutionWorkspace:
         self._failed = False
         self._test_reports: list[RetainedProjectVerifiedTestReport] = []
         self._acceptance_observations = []
+        if type(capture_promotion_evidence) is not bool:
+            raise TypeError("retained.promotion.explicit-capture-option-required")
+        self._promotion_contexts = [] if capture_promotion_evidence else None
+        self._promotion_context_bytes = 0
         self._configured_test_policy = test_receipt_policy
         self._native_sdks = None
         self._native_sdk_authorize = native_sdk_authorize
@@ -485,6 +490,71 @@ class RetainedProjectExecutionWorkspace:
     @property
     def dependency_identity(self) -> ContentIdentity:
         return self._dependencies.identity
+
+    def _promotion_context(
+        self,
+        observation,
+        *,
+        command,
+        cwd,
+        environment,
+        dependency_document=None,
+        filesystem_dependency_document=None,
+    ):
+        if self._promotion_contexts is None:
+            raise ValueError("retained.promotion.live-capture-not-selected")
+        from literate_ai.adapters.retained_sdk_command_context import (
+            retained_sdk_command_context,
+        )
+
+        ordinary = isinstance(observation, RetainedProjectCommandObservation)
+        key = (
+            canonical_identity(observation.action.to_dict())
+            if ordinary
+            else observation.case_identity
+        )
+        context = retained_sdk_command_context(
+            platform="freebsd"
+            if sys.platform.startswith("freebsd")
+            else "windows"
+            if sys.platform == "win32"
+            else "macos"
+            if sys.platform == "darwin"
+            else sys.platform,
+            workspace_root=self.root,
+            argv=command,
+            cwd=cwd,
+            environment=environment,
+            substitutions=self._command_replacements(),
+            plan=self.plan,
+            manifest=self.manifest,
+            output_manifest=observation.output_manifest
+            if ordinary
+            else self._output_manifest,
+            acceptance_policy=self._acceptance_policy,
+            command_identity=key,
+            phase=observation.action.stage if ordinary else "accept",
+        )
+        row = {
+            "observation_identity": observation.identity.uri,
+            "command_identity": key.uri,
+            "context": context,
+            "dependency_document": self._dependencies.to_dict()
+            if ordinary
+            else dependency_document,
+            "filesystem_dependency_document": filesystem_dependency_document,
+        }
+        # A run has a bounded additional metadata inventory, separate from its streams.
+        from literate_ai.contracts import canonical_json_bytes
+
+        encoded = canonical_json_bytes(row)
+        if (
+            len(encoded) > 16 * 1024**2
+            or self._promotion_context_bytes + len(encoded) > 32 * 1024**2
+        ):
+            raise ValueError("retained.promotion.live-context-budget")
+        self._promotion_context_bytes += len(encoded)
+        self._promotion_contexts.append(row)
 
     def _sdk_command_scope(
         self, argv, *, tool, cwd, environment, action_identity, phase
@@ -800,6 +870,13 @@ class RetainedProjectExecutionWorkspace:
                 sdk_scope.evidence_identities if sdk_scope is not None else (),
             )
             self._observations.append(observation)
+            if self._promotion_contexts is not None:
+                self._promotion_context(
+                    observation,
+                    command=command,
+                    cwd=self.objects,
+                    environment=environment,
+                )
             if result.returncode != 0 or self._output_bytes > _TOTAL_OUTPUT_BYTES:
                 raise RetainedProjectExecutionError(
                     "retained.execution.command-failed", self.observations
@@ -908,6 +985,9 @@ class RetainedProjectExecutionWorkspace:
                         if self._native_sdks is not None
                         else None,
                         case_parent=self.objects,
+                        record_context=self._promotion_context
+                        if self._promotion_contexts is not None
+                        else None,
                     )
                 )
             return observation

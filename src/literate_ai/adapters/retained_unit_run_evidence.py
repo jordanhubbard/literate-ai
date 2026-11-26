@@ -27,6 +27,7 @@ def retain_retained_unit_run_evidence(
     *,
     maximum_bytes,
     maximum_memory_bytes,
+    maximum_document_bytes=64 * 1024**2,
     admission_guard=lambda: None,
     metadata_poll_guard=None,
 ):
@@ -37,6 +38,8 @@ def retain_retained_unit_run_evidence(
         or not 1 <= maximum_bytes <= 512 * 1024**2
         or type(maximum_memory_bytes) is not int
         or not 1 <= maximum_memory_bytes <= 16 * 1024**3
+        or type(maximum_document_bytes) is not int
+        or not 1 <= maximum_document_bytes <= 64 * 1024**2
     ):
         raise ValueError("retained.unit.bounded-run-evidence-required")
     if not callable(admission_guard):
@@ -57,7 +60,7 @@ def retain_retained_unit_run_evidence(
     total, references = 0, {}
 
     def check_budget(size, digest):
-        if not 0 <= size <= 64 * 1024**2:
+        if not 0 <= size <= maximum_document_bytes:
             raise ValueError("retained.unit.run-evidence-document-policy-exceeded")
         if digest not in references and (
             total + size > maximum_bytes
@@ -82,7 +85,9 @@ def retain_retained_unit_run_evidence(
         poll()
         if reference is None:
             reference = retained_unit_metadata_reference(
-                store, identity, maximum_bytes=min(maximum_bytes, 64 * 1024**2)
+                store,
+                identity,
+                maximum_bytes=min(maximum_bytes, maximum_document_bytes),
             )
         if (
             reference.identity != identity.uri

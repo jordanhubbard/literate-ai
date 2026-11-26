@@ -222,15 +222,33 @@ class RetainedProjectAcceptanceTests(unittest.TestCase):
             self.execute()
 
     def test_native_dependency_drift_is_rejected_after_actual_command(self):
-        before = canonical_identity("before")
-        after = canonical_identity("after")
+        before = acceptance.retained_export_dependency_document(
+            self.outputs, self.manifest, self.plan, self.environment
+        )
+        after = json.loads(json.dumps(before))
+        # Model only external dependency observation drift at the adapter seam.
+        # The owned compiled export still executes through the real process owner.
+        after["observation"]["components"][0]["version"] = "changed dependency"
+        self.assertNotEqual(canonical_identity(before), canonical_identity(after))
+        documents = iter((before, after))
+        observed = []
         with patch.object(
-            acceptance,
-            "retained_export_dependency_identity",
-            side_effect=(before, after),
-        ):
-            with self.assertRaisesRegex(ValueError, "native-dependencies-changed"):
-                self.execute()
+            acceptance, "run_bounded_process", wraps=acceptance.run_bounded_process
+        ) as command:
+
+            def observe(*args, **kwargs):
+                self.assertEqual(command.call_count, len(observed))
+                document = next(documents)
+                observed.append(document)
+                return document
+
+            with patch.object(
+                acceptance, "retained_export_dependency_document", side_effect=observe
+            ):
+                with self.assertRaisesRegex(ValueError, "native-dependencies-changed"):
+                    self.execute()
+            command.assert_called_once()
+        self.assertEqual(observed, [before, after])
 
     def test_actual_program_output_budget_is_enforced(self):
         self.case = replace(self.case, argv=("spam", "unused"))

@@ -12,7 +12,7 @@ from literate_ai.adapters.builders import run_bounded_process
 from literate_ai.adapters.builders._process import BoundedProcessResult
 from literate_ai.adapters.lifecycle.standard_local import LocalComponentToolBinding
 from literate_ai.adapters.retained_project_dependencies import (
-    retained_export_dependency_identity,
+    retained_export_dependency_document,
 )
 from literate_ai.adapters.retained_project_filesystem import (
     RetainedFilesystemObservation,
@@ -190,6 +190,7 @@ def verify_retained_acceptance_action(
     require_current: Callable[[], None],
     command_scope=None,
     case_parent: Path | None = None,
+    record_context=None,
 ):
     policy.require_profile(plan.profile, plan.component_locks)
     cases = tuple(case for case in policy.cases if case.action_id == action_id)
@@ -220,16 +221,18 @@ def verify_retained_acceptance_action(
                     **environment,
                     **{key: str(cwd) for key in ("HOME", "TMPDIR", "TMP", "TEMP")},
                 }
-            before = retained_export_dependency_identity(
+            before_document = retained_export_dependency_document(
                 outputs, manifest, plan, environment
             )
-            case_before = (
-                before
+            before = canonical_identity(before_document)
+            case_before_document = (
+                before_document
                 if filesystem is None
-                else retained_export_dependency_identity(
+                else retained_export_dependency_document(
                     outputs, manifest, plan, case_environment
                 )
             )
+            case_before = canonical_identity(case_before_document)
             arguments = tuple(
                 arg.replace("{output_root}", str(outputs)) for arg in case.argv
             )
@@ -277,16 +280,18 @@ def verify_retained_acceptance_action(
                     terminate_descendants=True,
                 )
             require_current()
-            after = retained_export_dependency_identity(
+            after_document = retained_export_dependency_document(
                 outputs, manifest, plan, environment
             )
-            case_after = (
-                after
+            after = canonical_identity(after_document)
+            case_after_document = (
+                after_document
                 if filesystem is None
-                else retained_export_dependency_identity(
+                else retained_export_dependency_document(
                     outputs, manifest, plan, case_environment
                 )
             )
+            case_after = canonical_identity(case_after_document)
             if before != after or case_before != case_after:
                 raise ValueError("retained.acceptance.native-dependencies-changed")
             try:
@@ -321,6 +326,17 @@ def verify_retained_acceptance_action(
                     else None,
                 )
             )
+            if record_context is not None:
+                record_context(
+                    observations[-1],
+                    command=command,
+                    cwd=cwd,
+                    environment=case_environment,
+                    dependency_document=before_document,
+                    filesystem_dependency_document=case_before_document
+                    if filesystem is not None
+                    else None,
+                )
             if (result.returncode, result.stdout, result.stderr) != (
                 case.expected_exit,
                 case.expected_stdout,

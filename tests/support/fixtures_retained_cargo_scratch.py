@@ -41,9 +41,14 @@ from tests.support.fixtures_test_retained_harness_receipts import (
 
 
 @contextmanager
-def scratch_review_fixture(base):
+def scratch_review_fixture(base, *, include_provider=False):
     project = base / "converted"
     _legacy_project(project)
+    if include_provider:
+        # Capture the independently reviewed after-state in real adoption;
+        # archive tests must not alter retained source after its baseline.
+        (project / "Cargo.toml").write_bytes(b"workspace")
+        (project / "Cargo.lock").write_bytes(b"lock")
     (project / ".gitignore").write_text("pkgs/\ncargo-output/\n")
     subprocess.run(
         ["git", "init", "-q", str(project)],
@@ -147,6 +152,6 @@ def scratch_review_fixture(base):
             gate_policy_path="review/policy.json",
             test_inventory_path="review/tests.json",
         )
-        yield reviewed
+        yield (reviewed, fixture) if include_provider else reviewed
     finally:
         fixture.doCleanups()

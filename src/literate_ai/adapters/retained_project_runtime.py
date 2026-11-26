@@ -86,7 +86,7 @@ def execute_local_retained_project(
     sdk_project=None,
     sdk_binding=None,
     consume_admission=None,
-    promotion_evidence_consumer=None,
+    capture_promotion_evidence=False,
     promotion_evidence_policy=None,
 ):
     """Run one reviewed local plan and return its live retained admission.
@@ -110,7 +110,7 @@ def execute_local_retained_project(
         sdk_project=sdk_project,
         sdk_binding=sdk_binding,
         consume_admission=consume_admission,
-        promotion_evidence_consumer=promotion_evidence_consumer,
+        capture_promotion_evidence=capture_promotion_evidence,
         promotion_evidence_policy=promotion_evidence_policy,
     )
 
@@ -154,23 +154,19 @@ def _execute_retained_project(
     sdk_project=None,
     sdk_binding=None,
     consume_admission=None,
-    promotion_evidence_consumer=None,
+    capture_promotion_evidence=False,
     promotion_evidence_policy=None,
     receiver_context=None,
 ):
     plan = planning.plan
-    if promotion_evidence_consumer is not None and not callable(
-        promotion_evidence_consumer
-    ):
-        raise TypeError("retained.promotion.callable-evidence-consumer-required")
     if promotion_evidence_policy is not None:
-        from literate_ai.adapters.retained_receipt_promotion_evidence import (
-            RetainedPromotionReadPolicy,
+        from literate_ai.adapters.retained_promotion_evidence import (
+            HistoricalReadPolicy,
         )
 
-        if promotion_evidence_consumer is None:
-            raise ValueError("retained.promotion.evidence-consumer-required")
-        if type(promotion_evidence_policy) is not RetainedPromotionReadPolicy:
+        if capture_promotion_evidence is not True:
+            raise ValueError("retained.promotion.explicit-capture-required")
+        if type(promotion_evidence_policy) is not HistoricalReadPolicy:
             raise TypeError("retained.promotion.typed-read-policy-required")
     if consume_admission is not None and not callable(consume_admission):
         raise TypeError("retained.execution.admission-consumer-required")
@@ -347,6 +343,7 @@ def _execute_retained_project(
         component_locks=component_locks,
         allocation_owner=allocation,
         receiver_context=receiver_context,
+        capture_promotion_evidence=capture_promotion_evidence,
         **sdk_arguments,
     )
     try:
@@ -356,24 +353,32 @@ def _execute_retained_project(
             workspace, store, worker_evidence=platform.evidence()
         )
         admission.require_current()
+        if capture_promotion_evidence:
+            from literate_ai.adapters.retained_promotion_evidence import (
+                retain_retained_promotion_evidence,
+            )
+            from literate_ai.adapters.retained_receipt_promotion_evidence import (
+                _issued_capture,
+            )
+
+            with _issued_capture(admission, workspace) as scope:
+                admission.promotion_evidence_reference = (
+                    retain_retained_promotion_evidence(
+                        admission,
+                        workspace,
+                        admission_guard=receiver_context.require_current
+                        if receiver_context is not None
+                        else None,
+                        _scope=scope,
+                        policy=promotion_evidence_policy,
+                    )
+                )
         if consume_admission is not None:
             # Framework composition supplies this callable, never serialized
             # input. Secondary views were finalized by admission; consumers use
             # sealed CAS payloads and revalidate genuine SDK/package owners.
             consume_admission(admission, workspace)
             admission.require_current()
-        if promotion_evidence_consumer is not None:
-            from literate_ai.adapters.retained_receipt_promotion_evidence import (
-                _issued_capture,
-                capture_retained_receipt_promotion_evidence,
-            )
-
-            with _issued_capture(admission, workspace) as scope:
-                reference = capture_retained_receipt_promotion_evidence(
-                    scope, policy=promotion_evidence_policy
-                )
-                promotion_evidence_consumer(reference)
-                admission.require_native_package_scope()
         return admission, workspace
     except Exception as exc:
         raise RetainedProjectExecutionError(

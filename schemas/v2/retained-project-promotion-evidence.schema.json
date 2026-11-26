@@ -1,0 +1,548 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:literate-ai:schema:v2:retained-project-promotion-evidence-contracts",
+  "$ref": "urn:literate-ai:schema:v2:retained-project-promotion-evidence-contracts#/$defs/record",
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "retained_receipt_identity",
+        "planning_evidence",
+        "accepted_run_evidence",
+        "historical_admission",
+        "command_contexts",
+        "admission_issued",
+        "release_authorized"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/retained-project-promotion-evidence@1"
+        },
+        "retained_receipt_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "planning_evidence": {
+          "allOf": [
+            {
+              "$ref": "urn:literate-ai:schema:v1:blob-ref"
+            },
+            {
+              "properties": {
+                "media_type": {
+                  "const": "application/json"
+                }
+              }
+            }
+          ]
+        },
+        "accepted_run_evidence": {
+          "allOf": [
+            {
+              "$ref": "urn:literate-ai:schema:v1:blob-ref"
+            },
+            {
+              "properties": {
+                "media_type": {
+                  "const": "application/json"
+                }
+              }
+            }
+          ]
+        },
+        "historical_admission": {
+          "$ref": "urn:literate-ai:schema:v2:retained-project-historical-admission-contracts#/$defs/record"
+        },
+        "command_contexts": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "observation_identity",
+              "command_identity",
+              "context",
+              "dependency_document",
+              "filesystem_dependency_document"
+            ],
+            "properties": {
+              "observation_identity": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "command_identity": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "context": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "schema",
+                  "platform",
+                  "workspace_root",
+                  "argv",
+                  "cwd",
+                  "environment",
+                  "substitutions"
+                ],
+                "properties": {
+                  "schema": {
+                    "const": "literate-ai/retained-sdk-command-context@1"
+                  },
+                  "platform": {
+                    "enum": [
+                      "freebsd",
+                      "linux",
+                      "macos",
+                      "windows"
+                    ]
+                  },
+                  "workspace_root": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 65536,
+                    "pattern": "^[^\\x00]*$"
+                  },
+                  "argv": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 4096,
+                    "items": {
+                      "type": "string",
+                      "minLength": 0,
+                      "maxLength": 65536,
+                      "pattern": "^[^\\x00]*$"
+                    }
+                  },
+                  "cwd": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 65536,
+                    "pattern": "^[^\\x00]*$"
+                  },
+                  "environment": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "LANG",
+                      "LC_ALL",
+                      "PYTHONNOUSERSITE",
+                      "PYTHONDONTWRITEBYTECODE",
+                      "HOME",
+                      "TMPDIR",
+                      "TMP",
+                      "TEMP",
+                      "PATH"
+                    ],
+                    "properties": {
+                      "LANG": {
+                        "const": "C"
+                      },
+                      "LC_ALL": {
+                        "const": "C"
+                      },
+                      "PYTHONNOUSERSITE": {
+                        "const": "1"
+                      },
+                      "PYTHONDONTWRITEBYTECODE": {
+                        "const": "1"
+                      },
+                      "HOME": {
+                        "type": "string",
+                        "maxLength": 65536,
+                        "pattern": "^[^\\x00]*$"
+                      },
+                      "TMPDIR": {
+                        "type": "string",
+                        "maxLength": 65536,
+                        "pattern": "^[^\\x00]*$"
+                      },
+                      "TMP": {
+                        "type": "string",
+                        "maxLength": 65536,
+                        "pattern": "^[^\\x00]*$"
+                      },
+                      "TEMP": {
+                        "type": "string",
+                        "maxLength": 65536,
+                        "pattern": "^[^\\x00]*$"
+                      },
+                      "PATH": {
+                        "type": "string",
+                        "maxLength": 65536,
+                        "pattern": "^[^\\x00]*$"
+                      },
+                      "SystemRoot": {
+                        "type": "string",
+                        "maxLength": 65536,
+                        "pattern": "^[^\\x00]*$"
+                      },
+                      "LD_LIBRARY_PATH": {
+                        "type": "string",
+                        "maxLength": 65536,
+                        "pattern": "^[^\\x00]*$"
+                      },
+                      "DYLD_LIBRARY_PATH": {
+                        "type": "string",
+                        "maxLength": 65536,
+                        "pattern": "^[^\\x00]*$"
+                      }
+                    }
+                  },
+                  "substitutions": {
+                    "type": "object",
+                    "maxProperties": 1024,
+                    "propertyNames": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256,
+                      "pattern": "^\\{(?:(?:input|object|output)_root|secondary_account|secondary_(?:view|fixture):[^\\x00]+)\\}$"
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "minLength": 0,
+                      "maxLength": 65536,
+                      "pattern": "^[^\\x00]*$"
+                    },
+                    "required": [
+                      "{input_root}",
+                      "{object_root}",
+                      "{output_root}"
+                    ]
+                  }
+                },
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "platform": {
+                          "const": "windows"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "environment": {
+                          "properties": {
+                            "LD_LIBRARY_PATH": false,
+                            "DYLD_LIBRARY_PATH": false
+                          },
+                          "required": [
+                            "SystemRoot"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "platform": {
+                          "const": "linux"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "environment": {
+                          "properties": {
+                            "SystemRoot": false,
+                            "DYLD_LIBRARY_PATH": false
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "platform": {
+                          "const": "freebsd"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "environment": {
+                          "properties": {
+                            "SystemRoot": false,
+                            "DYLD_LIBRARY_PATH": false
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "platform": {
+                          "const": "macos"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "environment": {
+                          "properties": {
+                            "SystemRoot": false,
+                            "LD_LIBRARY_PATH": false
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependency_document": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "schema",
+                      "plan_identity",
+                      "manifest_identity",
+                      "environment_identity",
+                      "observation"
+                    ],
+                    "properties": {
+                      "schema": {
+                        "const": "literate-ai/retained-native-dependency-observation@1"
+                      },
+                      "plan_identity": {
+                        "type": "string",
+                        "pattern": "^sha256:[0-9a-f]{64}$"
+                      },
+                      "manifest_identity": {
+                        "type": "string",
+                        "pattern": "^sha256:[0-9a-f]{64}$"
+                      },
+                      "environment_identity": {
+                        "type": "string",
+                        "pattern": "^sha256:[0-9a-f]{64}$"
+                      },
+                      "observation": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "components",
+                          "edges"
+                        ],
+                        "properties": {
+                          "components": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "bom-ref"
+                              ],
+                              "properties": {
+                                "bom-ref": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
+                            }
+                          },
+                          "edges": {
+                            "type": "array",
+                            "minItems": 0,
+                            "items": {
+                              "type": "array",
+                              "minItems": 2,
+                              "maxItems": 2,
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "schema",
+                      "plan_identity",
+                      "output_manifest_identity",
+                      "environment_identity",
+                      "observation"
+                    ],
+                    "properties": {
+                      "schema": {
+                        "const": "literate-ai/retained-export-dependency-observation@1"
+                      },
+                      "plan_identity": {
+                        "type": "string",
+                        "pattern": "^sha256:[0-9a-f]{64}$"
+                      },
+                      "output_manifest_identity": {
+                        "type": "string",
+                        "pattern": "^sha256:[0-9a-f]{64}$"
+                      },
+                      "environment_identity": {
+                        "type": "string",
+                        "pattern": "^sha256:[0-9a-f]{64}$"
+                      },
+                      "observation": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "components",
+                          "edges"
+                        ],
+                        "properties": {
+                          "components": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "bom-ref"
+                              ],
+                              "properties": {
+                                "bom-ref": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
+                            }
+                          },
+                          "edges": {
+                            "type": "array",
+                            "minItems": 0,
+                            "items": {
+                              "type": "array",
+                              "minItems": 2,
+                              "maxItems": 2,
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "filesystem_dependency_document": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "schema",
+                      "plan_identity",
+                      "output_manifest_identity",
+                      "environment_identity",
+                      "observation"
+                    ],
+                    "properties": {
+                      "schema": {
+                        "const": "literate-ai/retained-export-dependency-observation@1"
+                      },
+                      "plan_identity": {
+                        "type": "string",
+                        "pattern": "^sha256:[0-9a-f]{64}$"
+                      },
+                      "output_manifest_identity": {
+                        "type": "string",
+                        "pattern": "^sha256:[0-9a-f]{64}$"
+                      },
+                      "environment_identity": {
+                        "type": "string",
+                        "pattern": "^sha256:[0-9a-f]{64}$"
+                      },
+                      "observation": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "components",
+                          "edges"
+                        ],
+                        "properties": {
+                          "components": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "bom-ref"
+                              ],
+                              "properties": {
+                                "bom-ref": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
+                            }
+                          },
+                          "edges": {
+                            "type": "array",
+                            "minItems": 0,
+                            "items": {
+                              "type": "array",
+                              "minItems": 2,
+                              "maxItems": 2,
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "dependency_document": {
+                      "properties": {
+                        "schema": {
+                          "const": "literate-ai/retained-native-dependency-observation@1"
+                        }
+                      }
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "filesystem_dependency_document": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "admission_issued": {
+          "const": false
+        },
+        "release_authorized": {
+          "const": false
+        }
+      },
+      "description": "Additive original-live capture. Structural validation never rehydrates an owner or establishes identity joins, environment reconstruction, graph reachability, byte budgets or release authority; complete canonical verification remains mandatory.",
+      "$id": "literate-ai/retained-project-promotion-evidence@1"
+    }
+  }
+}
