@@ -148,6 +148,7 @@ SDLC catalog (verbs unchanged; grouped for flow):
     litai graph [show | rebalance]
     litai project validate | documentation-update | documentation-review
     litai project agent-entrypoints [PATH]
+    litai project layout plan [--project PATH]
     litai project tracker inspect | peer-work | parent checkout | ci-plan
     litai project retained-cargo check | materialize | admit
     litai project test-receipt run-retained | promote-retained | update | check
@@ -375,6 +376,7 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             project_ci_plan_from_args,
             project_ci_verify_from_args,
             project_guidance_from_args,
+            project_layout_from_args,
             project_lifecycle_from_args,
             project_peer_work_from_args,
             project_source_intelligence_from_args,
@@ -389,6 +391,11 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         if args.project_command == "agent-entrypoints":
             report = agent_entrypoints_from_args(args)
             return report, 0 if report["ready"] else 1
+        if args.project_command == "layout":
+            report = project_layout_from_args(args)
+            if args.layout_command != "plan" or args.migration:
+                return report, 0
+            return report, 0 if report["planning_complete"] else 1
         if args.project_command == "ci-plan":
             return project_ci_plan_from_args(args), 0
         if args.project_command == "ci":
@@ -2040,6 +2047,25 @@ def _parser() -> JsonArgumentParser:
     )
     project_validate = project_commands.add_parser("validate")
     project_validate.add_argument("path", nargs="?", default=".")
+    project_layout = project_commands.add_parser(
+        "layout", help="plan or apply acknowledged legacy framework placement"
+    )
+    layout_commands = project_layout.add_subparsers(
+        dest="layout_command", required=True, parser_class=JsonArgumentParser
+    )
+    layout_plan = layout_commands.add_parser("plan")
+    layout_plan.add_argument("--project", default=".")
+    layout_plan.add_argument("--migration", action="store_true")
+    layout_plan.add_argument("--rewrite-reference", action="append", default=[])
+    for operation in ("apply", "recover"):
+        layout_action = layout_commands.add_parser(operation)
+        layout_action.add_argument("--project", default=".")
+        layout_action.add_argument("--plan-identity", required=True)
+        layout_action.add_argument("--acknowledge", action="store_true")
+        if operation == "apply":
+            layout_action.add_argument(
+                "--rewrite-reference", action="append", default=[]
+            )
     project_guidance = project_commands.add_parser(
         "guidance", help="project configured policy for one repository operation"
     )
@@ -3467,12 +3493,14 @@ def main(
     scoped_worker_health = command == "worker.health"
     scoped_agent_entrypoints = command == "project.agent-entrypoints"
     scoped_native_ci = command == "project.ci"
+    scoped_layout = command == "project.layout"
     scoped_tree_render = command == "render.tree"
     scoped_orchestration = (
         scoped_orchestration
         or scoped_worker_health
         or scoped_agent_entrypoints
         or scoped_native_ci
+        or scoped_layout
         or scoped_tree_render
         or scoped_retained_promotion
     )
@@ -3542,7 +3570,9 @@ def main(
             or getattr(args, "debug", None) not in {None, "-"}
         ):
             raise CliFailure(
-                "project.native_ci.read_only_options"
+                "project.layout.read_only_options"
+                if scoped_layout
+                else "project.native_ci.read_only_options"
                 if scoped_native_ci
                 else "project.agent_entrypoints_read_only_options"
                 if scoped_agent_entrypoints

@@ -14,6 +14,7 @@ import platform
 import py_compile
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -88,6 +89,9 @@ def receipt(output: Path) -> int:
                 "os_family",
                 "cpu_architecture",
                 "output_sha256",
+                "output_size",
+                "output_path",
+                "environment_identity",
                 "policy_sha256",
             )
         )
@@ -99,6 +103,12 @@ def receipt(output: Path) -> int:
         raise ValueError("Native policy changed between execution and recording")
     if facts[0]["revision"] != os.environ["PILOT_HEAD"]:
         raise ValueError("Native checkout differs from the captured PR head")
+    artifact = (output / "application.pyc").read_bytes()
+    if (
+        facts[0]["output_size"] != len(artifact)
+        or facts[0]["output_sha256"] != hashlib.sha256(artifact).hexdigest()
+    ):
+        raise ValueError("Native file changed after testing")
     value = {"schema": "literate-ai/native-coverage-pilot-job@1", "actions": facts}
     encoded = json.dumps(value, sort_keys=True, separators=(",", ":"))
     if len(encoded.encode()) > 8192:
@@ -119,34 +129,12 @@ def main() -> int:
     output.mkdir(parents=True, exist_ok=True)
     if args.action == "receipt":
         return receipt(output)
-    source = output / "application.py"
     # An interrupted or failed retry must not leave a prior success marker.
     for name in (
         ("build.json", "test.json") if args.action == "build" else ("test.json",)
     ):
         (output / name).unlink(missing_ok=True)
-    if args.action == "build":
-        source.write_text(
-            "def answer():\n    return 6 * 7\n\n"
-            "if __name__ == '__main__':\n    print(answer())\n",
-            encoding="utf-8",
-        )
-        py_compile.compile(
-            str(source), cfile=str(output / "application.pyc"), doraise=True
-        )
-    else:
-        if os.environ.get("PILOT_SEED_FAILURE") == "1":
-            raise RuntimeError("Explicit pilot failure: rerun failed jobs to recover")
-        # Execution really consumes the bytecode produced by the native build.
-        result = subprocess.run(
-            [sys.executable, str(output / "application.pyc")],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            check=True,
-        )
-        if result.stdout.strip() != "42":
-            raise RuntimeError("Native fixture produced the wrong answer")
+    source = output / "application.py"
     artifact = output / "application.pyc"
     repository = Path(__file__).resolve().parents[3]
 
@@ -167,13 +155,71 @@ def main() -> int:
             check=True,
         ).stdout.strip()
 
+    def checkout():
+        if git("status", "--porcelain=v1", "--untracked-files=no"):
+            raise ValueError("Native execution requires committed source")
+        revision, tree = (
+            git("rev-parse", "HEAD^{commit}"),
+            git("rev-parse", "HEAD^{tree}"),
+        )
+        if revision != os.environ["PILOT_HEAD"]:
+            raise ValueError("Native checkout differs from the captured PR head")
+        return revision, tree, hashlib.sha256(policy_blob()).hexdigest()
+
+    revision, tree, policy_sha256 = checkout()
+    output_path = artifact.relative_to(repository).as_posix()
+    with Path(sys.executable).open("rb") as executable:
+        interpreter = hashlib.file_digest(executable, "sha256").hexdigest()
+    environment = {
+        "interpreter": interpreter,
+        "implementation": platform.python_implementation(),
+        "version": platform.python_version(),
+        "platform": platform.platform(),
+        "image": os.environ.get("ImageVersion"),
+    }
+    environment_identity = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(environment, sort_keys=True, separators=(",", ":")).encode(
+                "utf-8"
+            )
+        ).hexdigest()
+    )
+    if args.action == "build":
+        source.write_text(
+            "def answer():\n    return 6 * 7\n\n"
+            "if __name__ == '__main__':\n    print(answer())\n",
+            encoding="utf-8",
+        )
+        py_compile.compile(str(source), cfile=str(artifact), doraise=True)
+        tested_bytes = artifact.read_bytes()
+    else:
+        if os.environ.get("PILOT_SEED_FAILURE") == "1":
+            raise RuntimeError("Explicit pilot failure: rerun failed jobs to recover")
+        # Execution really consumes the bytecode produced by the native build.
+        tested_bytes = artifact.read_bytes()
+        with tempfile.TemporaryDirectory(prefix="native-coverage-test-") as directory:
+            tested = Path(directory) / artifact.name
+            tested.write_bytes(tested_bytes)
+            result = subprocess.run(
+                [sys.executable, "-I", str(tested)],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                check=True,
+            )
+        if result.stdout.strip() != "42" or artifact.read_bytes() != tested_bytes:
+            raise RuntimeError("Native fixture output failed or changed during testing")
+
+    if checkout() != (revision, tree, policy_sha256):
+        raise ValueError("Native source or policy changed during execution")
     facts = {
         "schema": "literate-ai/native-coverage-pilot-action@1",
         "action": args.action,
-        "policy_sha256": hashlib.sha256(policy_blob()).hexdigest(),
+        "policy_sha256": policy_sha256,
         "argv": list(sys.orig_argv),
-        "revision": git("rev-parse", "HEAD^{commit}"),
-        "tree": git("rev-parse", "HEAD^{tree}"),
+        "revision": revision,
+        "tree": tree,
         "run_id": os.environ.get("GITHUB_RUN_ID"),
         "attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
         "os_family": {"Darwin": "macos", "Windows": "windows", "Linux": "linux"}.get(
@@ -181,7 +227,10 @@ def main() -> int:
         ),
         "cpu_architecture": platform.machine().lower(),
         "python": platform.python_version(),
-        "output_sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
+        "output_sha256": hashlib.sha256(tested_bytes).hexdigest(),
+        "output_size": len(tested_bytes),
+        "output_path": output_path,
+        "environment_identity": environment_identity,
         "exit_status": 0,
     }
     # A completed action alone is not a provider-bound coverage report. The

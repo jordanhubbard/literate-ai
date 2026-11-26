@@ -227,15 +227,18 @@ def read_retained_layout_declaration(
 ) -> RetainedLayoutDeclaration | None:
     """Read a direct declaration, or report that legacy authority applies."""
 
+    from literate_ai.projects import ProjectConfigurationStore, ProjectError
+
     root = Path(project_root).absolute()
-    path = root / RETAINED_LAYOUT_PATH
     try:
         require_safe_directory(root)
+        context = ProjectConfigurationStore.context(root)
+        path = context.framework_path(RETAINED_LAYOUT_PATH)
         ancestry = _declaration_directory_ancestry(path.parent)
         before = path.lstat()
     except FileNotFoundError:
         return None
-    except (OSError, UnsafeFilesystemPathError) as exc:
+    except (OSError, ProjectError, UnsafeFilesystemPathError) as exc:
         raise RetainedLayoutError("retained layout path is unsafe") from exc
     if path_is_link_or_reparse(path) or not stat.S_ISREG(before.st_mode):
         raise RetainedLayoutError("retained layout must be one direct regular file")
