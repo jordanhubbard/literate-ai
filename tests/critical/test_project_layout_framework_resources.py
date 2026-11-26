@@ -56,6 +56,75 @@ def framework_fixture(test):
 
 
 class FrameworkResourceTests(unittest.TestCase):
+    def converted_fixture(self):
+        from tests.critical.test_project_layout_recorded_wrapper_source import (
+            RecordedWrapperSourceTests,
+        )
+
+        helper = RecordedWrapperSourceTests("runTest")
+        self.addCleanup(helper.doCleanups)
+        return helper.fixture()
+
+    def test_converted_native_program_uses_original_actual_source_coordinate(self):
+        from literate_ai.adapters.project_layout_framework_source_proofs import (
+            prove_initialized_framework_file,
+        )
+
+        project, owner, retained = self.converted_fixture()
+        original = dict(project.contents)
+        logical = "docs/roadmap/native-rewrite-program.md"
+        self.assertTrue(owner.converted)
+        self.assertEqual(
+            owner.files[logical],
+            production.harness.render_native_rewrite_roadmap(
+                implementation_directory=retained.layout.implementation_directory
+            ).encode(),
+        )
+        self.assertEqual(owner.roles[logical], "framework")
+        # Current resource availability cannot create historical ownership.
+        self.assertNotIn(logical, project.contents)
+        with self.assertRaises(ProjectLayoutPlanError):
+            prove_initialized_framework_file(
+                project.snapshot,
+                project.context,
+                logical=logical,
+                source_path=logical,
+                resources=owner,
+                update_bases=project.bases,
+                contents=project.contents,
+                observations=project.observations,
+            )
+        production.require_current_framework_resources(owner)
+        for path, content in original.items():
+            self.assertEqual((project.root / path).read_bytes(), content)
+
+    def test_changed_native_program_producer_refuses_without_foreign_call(self):
+        _project, owner, _retained = self.converted_fixture()
+        calls = []
+
+        def foreign(**_kwargs):
+            calls.append(True)
+            return "foreign"
+
+        with patch.object(production.harness, "render_native_rewrite_roadmap", foreign):
+            with self.assertRaises(ProjectLayoutPlanError):
+                production.require_current_framework_resources(owner)
+        self.assertEqual(calls, [])
+
+    def test_changed_native_program_code_expires_original_resource_owner(self):
+        _project, owner, _retained = self.converted_fixture()
+
+        def foreign(*, implementation_directory):
+            return "foreign"
+
+        original = production._NATIVE_PROGRAM.__code__
+        try:
+            production._NATIVE_PROGRAM.__code__ = foreign.__code__
+            with self.assertRaises(ProjectLayoutPlanError):
+                production.require_current_framework_resources(owner)
+        finally:
+            production._NATIVE_PROGRAM.__code__ = original
+
     def test_original_resource_inventory_and_exact_profile_no_project_writes(self):
         project, observed, origin = framework_fixture(self)
         before = dict(project.contents)

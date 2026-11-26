@@ -26575,6 +26575,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+Source partial: converted framework-resource observation now includes the original native rewrite program rendered with the validated implementation coordinate. Original producer identity and code are pinned; resource availability alone cannot establish historical file ownership. Resource and source-proof cohorts pass 30 tests, and final static checks pass. Installed placement, full containment, and the original acceptance checklist remain outstanding.
+
 - **Reviewed-document source transition (source partial):** The finite original
   initializer inventory now includes the default authority-review document.
   Existing framework/base or initialization ownership remains mandatory. A legacy

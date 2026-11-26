@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: recognize the original converted native rewrite program using its validated implementation path while retaining historical ownership checks.
+
 - Project layout: prove reviewed-document ownership, expire historical markers in migration plans and require fresh review without adopting body edits.
 
 - Project layout: journal framework bases for approved reference rewrites while preserving custom files, inherited ownership and exact rollback.

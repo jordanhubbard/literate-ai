@@ -15,6 +15,7 @@ from pathlib import Path
 from types import MappingProxyType
 
 from literate_ai._filesystem import require_safe_directory, stat_is_link_or_reparse
+from literate_ai.adapters import harness_inventory as harness
 from literate_ai.adapters import project_initialization as initialization
 from literate_ai.adapters.project_layout_planning import (
     ProjectLayoutPlanError,
@@ -55,6 +56,8 @@ _FUNCTIONS = tuple(
 _INCLUDE = initialization._include_template_file
 _RENDER = initialization.render_starter_document
 _ORIGIN = initialization.discover_installed_initialization_origin
+_NATIVE_PROGRAM = harness.render_native_rewrite_roadmap
+_NATIVE_PROGRAM_CODE = _NATIVE_PROGRAM.__code__
 _MAX_BYTES = 64 * 1024**2
 
 
@@ -67,6 +70,11 @@ def _identity(content):
 
 
 def _initializer_current():
+    if (
+        vars(harness).get("render_native_rewrite_roadmap") is not _NATIVE_PROGRAM
+        or _NATIVE_PROGRAM.__code__ is not _NATIVE_PROGRAM_CODE
+    ):
+        _fail("original native rewrite program producer changed")
     if vars(initialization).get("__file__") != _INITIALIZER_FILE or any(
         vars(initialization).get(name) is not value for name, value in _FUNCTIONS
     ):
@@ -436,6 +444,10 @@ def observe_original_framework_resources(observation):
         (logical, _RENDER(logical, converted=converted).encode())
         for logical, _ in _STARTER_DOCS
     )
+    if converted:
+        files["docs/roadmap/native-rewrite-program.md"] = _NATIVE_PROGRAM(
+            implementation_directory=layout.implementation_directory
+        ).encode()
     if sum(map(len, files.values())) > _MAX_BYTES:
         _fail("selected original resources exceed bound")
     roles = {
