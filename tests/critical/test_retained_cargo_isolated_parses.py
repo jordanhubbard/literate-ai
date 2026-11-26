@@ -453,8 +453,7 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
     ):
         context = self.fixture.context
         paths = [
-            context.reviewed.project.root
-            / "components/legacy-project-wrapper/component.md",
+            context.bindings[0][1].root / "component.md",
             next(iter(context.bindings[0][1]._flavors)).path,
         ]
         # Selected payloads are independently closed after catalog checks.
