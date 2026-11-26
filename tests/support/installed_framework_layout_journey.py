@@ -22,6 +22,9 @@ class InstalledFrameworkLayoutJourney(unittest.TestCase):
     cli = metadata.InstalledLayoutMigrationJourney.cli
     probe = metadata.InstalledLayoutMigrationJourney.probe
 
+    def after_framework_apply(self, project, launcher, plan):
+        """Allow an explicit installed cell to exercise placed producers."""
+
     def test_installed_framework_placement_after_metadata_rollback(self):
         helper = metadata.InstalledLayoutMigrationJourney(
             "test_real_legacy_metadata_public_migration_and_recovery"
@@ -135,6 +138,7 @@ class InstalledFrameworkLayoutJourney(unittest.TestCase):
             adoption.InstalledNativeAdoptionJourney.snapshot(implementation),
             source_before,
         )
+        self.after_framework_apply(project, launcher, plan)
         for repeat in range(2):
             recovered = self.cli(
                 f"framework-recover-{repeat}",

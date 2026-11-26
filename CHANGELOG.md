@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: qualify installed Component renewal, repeated source finalization and recovery while preserving retained application source and Git state.
+
 - Project layout: qualify installed macOS framework placement and repeated recovery with retained source and Git state preserved; complete containment remains pending.
 
 - Project layout: recognize the original converted native rewrite program using its validated implementation path while retaining historical ownership checks.

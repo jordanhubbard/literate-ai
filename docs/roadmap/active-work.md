@@ -26575,6 +26575,21 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Installed Component producer continuation (macOS partial):** The unchanged
+  noneditable b45a48ac4 wheel executes public renewal for the original converted
+  wrapper Component and repeated source finalization from a descendant directory.
+  Renewal publishes through the normal producer; both finalizations recreate
+  normal preparations and report the destination lock and resolution audit as
+  current. The original source Component manifest is absent while its retained
+  native implementation remains present. The same journey then recovers twice
+  and checks exact application source bytes/native metadata, original framework
+  files, Git HEAD/raw index and installed distribution identity. The managed
+  installed cell passes all 27 commands; static checks also pass without skips or source drift. This is
+  actual installed CLI/native-file evidence on an explicit legacy-layout fixture,
+  not a historical released-wheel upgrade, fresh documentation review, native
+  application rebuild, full containment, supported-platform or release acceptance.
+  Update/reparent qualification and all seven original acceptance boxes remain open.
+
 - **Installed framework placement/recovery (macOS partial):** The clean noneditable
   b45a48ac4 wheel passes the 29-command real legacy-initializer journey through
   metadata migration/recovery/reapplication, identical root and descendant
