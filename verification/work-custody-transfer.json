@@ -34,8 +34,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 34,
-      "preserved-for-reconciliation": 56
+      "merged": 41,
+      "preserved-for-reconciliation": 49
     },
     "snapshots": [
       {
@@ -107,9 +107,9 @@
         "base": "fa95e5e6edf7ac9827a7e8e6f5bd2d99d1c04950",
         "commit": "1101fe0909f2b8106ae2339c1d7841221c03ecef",
         "branch": "recovery/puck-20261126/arm14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 4,
-        "remaining_paths": 3
+        "remaining_paths": 0
       },
       {
         "label": "arproof1",
@@ -161,18 +161,18 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "860542cd4a63343d7e58ac97ac3c6635acb0b043",
         "branch": "recovery/puck-20261126/cancust1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 5,
-        "remaining_paths": 4
+        "remaining_paths": 0
       },
       {
         "label": "canstep1",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "20bdd9c3547fd47ac072a1d631c37463ba67b792",
         "branch": "recovery/puck-20261126/canstep1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 4,
-        "remaining_paths": 3
+        "remaining_paths": 0
       },
       {
         "label": "caseinv1",
@@ -188,18 +188,18 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "7bed3e76dc0e6384ea18790d53648d633f335c97",
         "branch": "recovery/puck-20261126/catcust1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 4,
-        "remaining_paths": 3
+        "remaining_paths": 0
       },
       {
         "label": "catplace1",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "d56ec9060c0c86de7ce1203e3b1c9cfba56ee5c2",
         "branch": "recovery/puck-20261126/catplace1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 4,
-        "remaining_paths": 3
+        "remaining_paths": 0
       },
       {
         "label": "cg14b",
@@ -370,9 +370,9 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "1fcf7bab45c810225bb0f74ed7416d1f32459167",
         "branch": "recovery/puck-20261126/labgraph1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 31,
-        "remaining_paths": 18
+        "remaining_paths": 0
       },
       {
         "label": "labpin1",
@@ -834,9 +834,9 @@
         "base": "426b71ec4e56afb5d041df8ed0995c09bb20aae5",
         "commit": "aa1a8397074bf8123b632a68ae2b3f6d75c1b490",
         "branch": "recovery/puck-20261126/wse14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 3,
-        "remaining_paths": 3
+        "remaining_paths": 0
       },
       {
         "label": "wt14",
@@ -888,7 +888,14 @@
         "labpin1",
         "actionsel1",
         "actsel2",
-        "schpre1"
+        "schpre1",
+        "wse14",
+        "labgraph1",
+        "canstep1",
+        "cancust1",
+        "arm14",
+        "catcust1",
+        "catplace1"
       ],
       "roadmap_delta_test_methods_identical": 4,
       "roadmap_delta_added_prose_lines_retained": 17,
@@ -906,7 +913,14 @@
       "labpin1": "All six rendered configs differ only in embedded renderer source; 90 current embedded contents/digests match actual tracked files. Preserve corrected provider/consumer lock-edge fields and current renderer pins. Merge tree unchanged.",
       "actionsel1": "All 23 original test methods AST-identical; final actsel4 supersedes initial routing with detected-task preservation, all-row unknown fallback and shared/unknown SDK selection. Normal merge unchanged.",
       "actsel2": "All 25 original test methods AST-identical; final actsel4 supersedes intermediate fallback/SDK behavior. Normal merge unchanged.",
-      "schpre1": "Schema preflight and prerequisites present. Fifteen original test methods identical; endpoint and unknown-workflow controls superseded by explicit PR merge-base and broad routing regressions. Normal merge unchanged."
+      "schpre1": "Schema preflight and prerequisites present. Fifteen original test methods identical; endpoint and unknown-workflow controls superseded by explicit PR merge-base and broad routing regressions. Normal merge unchanged.",
+      "wse14": "Eight patched startup/record-boundary helpers identical. Current main retains sanitized seed/build/install plus later qualification controls. Existing 1.4 goal and bounded completed native evidence retained. Normal merge unchanged.",
+      "labgraph1": "Original score provider, real typed dependency, lock and matching resolution audit integrated. Preview rebuilt with current renderer; shared browser fixture reads actual lock count and explicitly checks Cathedral two-node/one-edge graph. Native lifecycle receipt not renewed; cramped labels remain a diagnostic finding.",
+      "canstep1": "Retain current CPython waitpid lock and waitable-child verification, original direct/bounded cleanup cases, additional no-waitid coverage and unchanged cleanup deadlines. Normal merge unchanged.",
+      "cancust1": "Retain current child-ownership lock/checks with safe no-waitid fallback and extra direct/bounded controls. Normal merge unchanged.",
+      "arm14": "Keep original ARM PE/bundle controls plus later production catalog, script-launcher, explicit CXX, native SDK runtime image, MSVC and Windows descriptor/path identity checks. Normal merge unchanged.",
+      "catcust1": "All 21 original test methods identical. Keep current descriptor/path stamp checks, syntax-only parse frames, clone PID ownership, nested staging and live role observations. Normal merge unchanged.",
+      "catplace1": "18 of 19 original test methods identical. The remaining ancestry assertion preserves paths/identities with POSIX normalization. Keep current nested/forward-skill staging and portable provenance checks. Normal merge unchanged."
     }
   },
   "checks": {
@@ -1141,10 +1155,34 @@
       "predecessor": "Original exactly-once coverage test failed after 13 methods: two neutral retained-product modules lacked shard ownership.",
       "repair": "Add non-Cargo retained-module family to the existing non-native Cargo partitions on both Linux and macOS Python 3.11/3.14, preserving shard counts, deadlines and every original test assertion.",
       "scope": "Local CI policy/source coverage controls; no hosted/native matrix success inferred."
+    },
+    "reconciled_interrupts": {
+      "status": "passed",
+      "methods": 5,
+      "seconds": 23.884,
+      "scope": "Actual local nested direct/bounded subprocess interrupt cleanup, including no-waitid fallback; original cleanup/deadlines preserved."
+    },
+    "reconciled_host_install": {
+      "status": "passed",
+      "methods": 9,
+      "seconds": 2.86,
+      "scope": "Source host-install/ARM image and bundle controls, not native Windows acceptance."
+    },
+    "recovered_cathedral_graph": {
+      "source_integrity_methods": 6,
+      "source_integrity_seconds": 0.2,
+      "offline_bundles_verified": 6,
+      "provider_queries_passed": 3,
+      "canonical_lock_audit_check": "current; semantically verified",
+      "desktop_mobile_browser": "passed; 1440 and 390 widths, two Components/one edge, provider selection, source parity and offline checks",
+      "actual_media_cases_passed": 10,
+      "visual_finding": "Graph labels are cramped in captured desktop/mobile views; readability work remains.",
+      "native_lifecycle_receipt_renewed": false,
+      "release_qualification": false
     }
   },
   "remaining_requirements": [
-    "Reconcile the 56 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
+    "Reconcile the 49 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
   ],

@@ -29149,10 +29149,10 @@ qualification, admission and cache reuse remain open.
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
-- **Next action:** Reconcile the remaining 56 snapshots. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Next action:** Reconcile the remaining 49 snapshots. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
   - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
-  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 34 of 90 recovery snapshots merged; 56 remain preserved.
+  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 41 of 90 recovery snapshots merged; 49 remain preserved.
   - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
   - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
   - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
@@ -29233,3 +29233,15 @@ without shard ownership. Their family now belongs to the existing non-native
 retained partitions on Linux/macOS 3.11 and 3.14. All 35 policy methods pass in
 4.837 seconds; exactly-once coverage assertions, shard counts and deadlines are
 unchanged. The original 13-method failing run remains retained.
+
+**Further source integration.** Recovered Cathedral work now includes its authored
+score provider and real two-Component dependency graph. The canonical lock/audit
+check, six source-integrity controls, three provider queries, desktop/mobile offline
+browser checks and ten actual audio/recording cases pass. The preview uses current
+source pins. Captures show cramped graph labels, so readability remains an explicit
+finding; native lifecycle receipts are not renewed by these source/browser checks.
+Current interrupt cleanup passes five methods (23.884 seconds), including direct,
+bounded and no-waitid ownership controls. Host-install/ARM source controls pass nine
+methods (2.860 seconds), without native Windows acceptance. Additional unchanged-tree
+history reconciliations retain current wheel startup isolation, descriptor/Windows
+identity guards and staged catalog/portable provenance behavior.
