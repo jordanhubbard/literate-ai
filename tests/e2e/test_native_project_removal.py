@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import errno
 import io
 import json
 import os
+import select
 import shutil
 import subprocess
 import sys
@@ -76,6 +78,196 @@ class NativeProjectRemovalTests(unittest.TestCase):
 
     def recovery(self, plan):
         return tuple(plan["recovery_argv"][4:])
+
+    def commit(self, message):
+        self.git(
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@example.test",
+            "commit",
+            "-qm",
+            message,
+        )
+
+    def readopt(self):
+        plan = self.cli("onboard", "adopt", self.root)["result"]
+        self.cli(
+            "onboard",
+            "adopt",
+            self.root,
+            "--apply",
+            "--acknowledge",
+            "--expect-plan",
+            plan["plan_identity"],
+        )
+        self.git("add", "litai")
+        self.commit("fresh native adoption")
+
+    @unittest.skipUnless(os.name == "posix", "native directory retirement")
+    def test_cold_and_warm_removal_allow_repeated_public_adoption(self):
+        original_tree = self.git("rev-parse", "HEAD^^{tree}")
+        for update in (False, True):
+            with self.subTest(update=update):
+                if update:
+                    self.cli("update", self.root, "--apply")
+                    self.assertTrue((self.root / "litai/.litai-locks").is_dir())
+                result = self.apply(self.plan())["result"]
+                self.assertEqual(result["runtime_cleanup"]["state"], "retired")
+                self.assertFalse((self.root / "litai").exists())
+                self.commit("remove framework profile")
+                self.assertEqual(self.git("write-tree"), original_tree)
+                self.assertEqual(self.git("status", "--porcelain"), "")
+                self.readopt()
+
+    @unittest.skipUnless(os.name == "posix", "native directory retirement")
+    def test_exact_legacy_retry_preserves_foreign_slot_and_runtime_contents(self):
+        plan = self.plan()
+        recovery = self.recovery(plan)
+        slot = Path(plan["runtime_cleanup"]["retirement_slot"])
+        slot.write_bytes(b"unowned entry")
+        result = self.apply(plan)["result"]
+        self.assertEqual(
+            result["runtime_cleanup"]["reason"], "retirement-slot-occupied"
+        )
+        self.assertEqual(slot.read_bytes(), b"unowned entry")
+        self.commit("tracked removal with lock residue")
+        self.cli("onboard", "adopt", self.root, success=False)
+        slot.unlink()
+        host_file = self.root / "litai/host-settings"
+        host_file.write_bytes(b"native application data")
+        result = self.apply(self.plan(*recovery), *recovery)["result"]
+        self.assertEqual(result["runtime_cleanup"]["state"], "retained")
+        self.assertEqual(host_file.read_bytes(), b"native application data")
+        host_file.unlink()
+        result = self.apply(self.plan(*recovery), *recovery)["result"]
+        self.assertEqual(result["runtime_cleanup"]["state"], "retired")
+        self.assertFalse((self.root / "litai").exists())
+        self.readopt()
+
+    def test_process_with_active_lifecycle_lock_preserves_worktree_and_index(self):
+        from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
+
+        baseline = self.git("write-tree")
+        with project_lifecycle_lock(self.root, operation="test-current-owner"):
+            plan = self.plan()
+            active = self.root / "litai/.litai-locks"
+            (owner,) = active.glob("*/lifecycle.lock.owner.json")
+            contents = owner.read_bytes()
+            response = self.apply(plan, success=False)
+            self.assertEqual(response["error"]["code"], "lifecycle.project_locked")
+            self.assertEqual(owner.read_bytes(), contents)
+            self.assertEqual(self.git("write-tree"), baseline)
+        self.assertFalse(owner.exists())
+
+    @unittest.skipUnless(os.name == "posix", "native directory retirement")
+    def test_cross_device_refusal_is_a_retryable_retained_runtime(self):
+        from literate_ai.adapters import native_project_removal as removal
+
+        plan = self.plan()
+        with patch.object(
+            removal,
+            "publish_directory_between_owned_parents_exclusive",
+            side_effect=OSError(errno.EXDEV, "different volumes"),
+        ):
+            result = removal.apply_native_project_removal(
+                self.root, expected=plan["plan_identity"], acknowledge=True
+            )
+        self.assertEqual(result["runtime_cleanup"]["state"], "retained")
+        self.assertFalse((self.root / "litai/literate.project.json").exists())
+        self.assertTrue((self.root / "litai/.litai-locks").exists())
+        self.commit("removal with retained lock")
+        recovery = self.recovery(plan)
+        result = self.apply(self.plan(*recovery), *recovery)["result"]
+        self.assertEqual(result["runtime_cleanup"]["state"], "retired")
+
+    @unittest.skipUnless(os.name == "posix", "native directory retirement")
+    def test_interruption_after_move_reports_the_bounded_slot_for_disposition(self):
+        from literate_ai.adapters import native_project_removal as removal
+
+        plan = self.plan()
+        real = removal.publish_directory_between_owned_parents_exclusive
+
+        def move_then_interrupt(*args, **kwargs):
+            real(*args, **kwargs)
+            raise InterruptedError("interrupted after exclusive move")
+
+        with patch.object(
+            removal,
+            "publish_directory_between_owned_parents_exclusive",
+            side_effect=move_then_interrupt,
+        ):
+            result = removal.apply_native_project_removal(
+                self.root, expected=plan["plan_identity"], acknowledge=True
+            )
+        state = result["runtime_cleanup"]
+        self.assertEqual(state["state"], "retired-with-resource")
+        slot = Path(state["retirement_slot"])
+        (archived,) = slot.glob(".litai-locks/*/lifecycle.lock")
+        before = archived.stat()
+        self.commit("profile removed before runtime disposition")
+        self.readopt()
+        result = self.apply(self.plan())["result"]["runtime_cleanup"]
+        self.assertEqual(result["reason"], "retirement-slot-occupied")
+        self.assertTrue(os.path.samestat(before, archived.stat()))
+        self.assertEqual(archived.read_bytes(), b"\0")
+
+    @unittest.skipUnless(os.name == "posix", "native directory retirement")
+    def test_open_legacy_waiter_cannot_enter_the_readopted_project(self):
+        from literate_ai.adapters.lifecycle_lock import (
+            project_lifecycle_lock,
+            project_lifecycle_lock_path,
+        )
+
+        lock = project_lifecycle_lock_path(self.root)
+        with project_lifecycle_lock(self.root, operation="warm-legacy-slot"):
+            original = lock.stat()
+        program = """
+import sys
+from pathlib import Path
+from literate_ai import _cache_lock as locks
+
+acquire = locks._acquire
+def pause_open_descriptor(*args, **kwargs):
+    print("opened", flush=True)
+    assert sys.stdin.readline() == "continue\\n"
+    return acquire(*args, **kwargs)
+locks._acquire = pause_open_descriptor
+try:
+    with locks.exclusive_cache_lock(
+        Path(sys.argv[1]), on_locked=lambda _fd: print("owner entered")
+    ):
+        raise AssertionError("stale lock was admitted")
+except locks.CacheLockError:
+    print("stale lock refused")
+"""
+        with subprocess.Popen(
+            [sys.executable, "-I", "-c", program, str(lock)],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        ) as waiter:
+            try:
+                self.assertTrue(select.select([waiter.stdout], [], [], 10)[0])
+                self.assertEqual(waiter.stdout.readline().strip(), "opened")
+                self.assertEqual(
+                    self.apply(self.plan())["result"]["runtime_cleanup"]["state"],
+                    "retired",
+                )
+                self.commit("remove former lifecycle authority")
+                self.readopt()
+                with project_lifecycle_lock(self.root, operation="new-owner"):
+                    self.assertNotEqual(lock.stat().st_ino, original.st_ino)
+                    owner = lock.with_suffix(".lock.owner.json")
+                    before = owner.read_bytes()
+                    output, error = waiter.communicate("continue\n", timeout=10)
+                    self.assertEqual(waiter.returncode, 0, error)
+                    self.assertEqual(output.strip(), "stale lock refused")
+                    self.assertEqual(owner.read_bytes(), before)
+            finally:
+                if waiter.poll() is None:
+                    waiter.kill()
 
     def test_nested_git_repository_blocks_existing_plan_and_recovery(self):
         plan = self.plan()

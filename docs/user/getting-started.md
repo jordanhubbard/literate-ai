@@ -191,8 +191,12 @@ litai onboard remove path/to/existing --apply --acknowledge --expect-plan PLAN_I
 ```
 
 Removal stages deletions of unchanged owned files without making a commit. It
-preserves customized documents, untracked files, runtime caches and coordination
-files. Modified authority metadata or staged edits require explicit disposition
+preserves customized documents, application files and runtime caches. When the
+only remaining content is the exact idle lifecycle lock, removal can retire it
+using a bounded slot in the worktree's Git administration directory. An active
+lifecycle owner blocks tracked removal. Foreign contents, a conflicting slot or
+a filesystem that refuses the move leave an explicit retained runtime result.
+Modified authority metadata or staged edits require explicit disposition
 before proceeding. Review the native Git diff and commit it through the host
 repository's usual process. This command supports the minimal committed Git
 profile; it does not remove a conversion or generation profile.
@@ -205,6 +209,11 @@ lock or an unstaged remaining file whose index entry is absent. Resolve those
 states through native Git before inspecting a new plan. It does not restore an
 index entry over a concurrent writer's staged change. It never restores
 working-tree bytes or guesses a previous operation from repository history.
+Use the original `recovery_argv` even after committing a legacy removal when
+the exact lock-only directory remains. A reported retirement slot may hold
+resources after an interruption. Inspect and dispose of that slot explicitly
+before retrying retirement. Adoption still requires an absent
+destination.
 
 Conversion is an explicit alternative that installs the larger generation and
 retained-harness profile and may relocate source:
