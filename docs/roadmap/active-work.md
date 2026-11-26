@@ -29007,3 +29007,20 @@ qualification, admission and cache reuse remain open.
     qualification archive, schema and wire-version regressions. Lint, formatting,
     layout and public-export checks pass. Clean installed and actual application
     qualification remain open.
+
+### [ ] HANDOFF-001 — Consolidate active framework work into one checkout and continue layout qualification
+
+- **Priority:** P1
+- **Owner:** Framework integration and repository custody
+- **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
+- **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removing redundant copies. Continue PROJECT-LAYOUT-001 first from the latest committed maintenance checkpoint; recovery snapshots remain unqualified until reviewed and verified.
+- **Depends on:** none
+- **Implementation:**
+  - [ ] Inventory all worktrees, sibling clones, refs, stashes, working changes and ignored evidence.
+  - [ ] Capture unique source and Git state in the owning repository, integrate active changes with explicit conflict resolution, and transfer custody to the continuing checkout.
+  - [ ] Remove redundant checkouts only after preservation and verify a single remaining checkout on the source host.
+  - [ ] Resume actual installed update/reparent application and changed-parent qualification for PROJECT-LAYOUT-001, preserving existing holds.
+- **Evidence:**
+  - [ ] Verify every inventoried revision and recovery snapshot is reachable in the continuing repository, and check transferred artifact identities.
+  - [ ] Verify the final worktree and sibling-directory inventory, clean tracked state and remote synchronization.
+  - [ ] Record the resumed layout test results without claiming complete containment or release qualification.
