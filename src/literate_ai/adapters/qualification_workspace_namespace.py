@@ -254,7 +254,7 @@ def _remove_windows_run_contents(path, check):
 
 
 @contextmanager
-def hold_qualification_workspace_namespace(path):
+def hold_qualification_workspace_namespace(path, *, read_only=False):
     """Retain actual ancestor identities until the run owner releases custody.
 
     POSIX reuses the bounded retained-input directory owner, without its optional
@@ -262,6 +262,13 @@ def hold_qualification_workspace_namespace(path):
     sharing disabled and compares current names through the same native API.
     Neither branch serializes handles or restores an owner from saved metadata.
     """
+
+    if type(read_only) is not bool:
+        raise TypeError("qualification.authored.namespace_read_only_selection_invalid")
+    if read_only:
+        with _hold_read_only_qualification_namespace(path) as current:
+            yield current
+        return
 
     path = Path(path).absolute()
     require_safe_directory(path)
@@ -312,3 +319,107 @@ def hold_qualification_workspace_namespace(path):
             require_current()
         finally:
             active = False
+
+
+@contextmanager
+def _hold_read_only_qualification_namespace(path):
+    """Read/name custody through the ORIGINAL native owner; no execution grant.
+
+    Windows opens and inspects each ancestor BEFORE descending. No path-based
+    full-ancestry reader runs before those no-write/no-delete handles exist.
+    This does not freeze descendant contents or certify a mapped-drive policy.
+    """
+    if os.name != "nt":
+        with hold_qualification_workspace_namespace(path) as current:
+            yield current
+        return
+    path = Path(path)
+    if (
+        not path.is_absolute()
+        or ".." in path.parts
+        or len(path.parts) > 129
+        or len(str(path).encode("utf-8")) > 32768
+    ):
+        raise ValueError("qualification.authored.readonly_namespace_path_invalid")
+    from literate_ai._cache_lock import _Kernel32Windows
+
+    kernel = _Kernel32Windows()
+    open_native, native_identity, close_native = (
+        kernel.open_reparse_aware,
+        kernel.file_identity,
+        kernel.close,
+    )
+    held, active, primary = [], True, None
+    ancestors = (*reversed(path.parents), path)
+
+    def inspect(ancestor):
+        node = ancestor.lstat()
+        if stat_is_link_or_reparse(node) or not stat.S_ISDIR(node.st_mode):
+            raise ValueError("qualification.authored.readonly_namespace_unsafe")
+
+    def current():
+        if not active:
+            raise ValueError("qualification.authored.workspace_owner_expired")
+        for ancestor, handle, expected in held:
+            inspect(ancestor)
+            if native_identity(handle) != expected:
+                raise ValueError("qualification.authored.readonly_namespace_changed")
+            probe = open_native(str(ancestor), share_delete=False, share_write=False)
+            probe_error = None
+            try:
+                inspect(ancestor)
+                if native_identity(probe) != expected:
+                    raise ValueError(
+                        "qualification.authored.readonly_namespace_changed"
+                    )
+            except BaseException as error:
+                probe_error = error
+                raise
+            finally:
+                try:
+                    close_native(probe)
+                except BaseException as error:
+                    if probe_error is None:
+                        raise
+                    BaseException.add_note(
+                        probe_error,
+                        "closing native readonly probe failed: " + type(error).__name__,
+                    )
+
+    try:
+        for ancestor in ancestors:
+            # Earlier ancestors remain held with neither write nor delete
+            # sharing, so a later path open cannot select a replaced prefix.
+            handle = open_native(str(ancestor), share_delete=False, share_write=False)
+            held.append((ancestor, handle, None))
+            held[-1] = (ancestor, handle, native_identity(handle))
+            inspect(ancestor)
+        current()
+        yield current
+        current()
+    except BaseException as error:
+        primary = error
+        raise
+    finally:
+        active = False
+        cleanup = None
+        for _ancestor, handle, _expected in reversed(held):
+            try:
+                close_native(handle)
+            except BaseException as error:
+                if primary is not None:
+                    BaseException.add_note(
+                        primary,
+                        "closing native readonly namespace failed: "
+                        + type(error).__name__,
+                    )
+                elif cleanup is None:
+                    cleanup = error
+                else:
+                    BaseException.add_note(
+                        cleanup,
+                        "closing another native namespace failed: "
+                        + type(error).__name__,
+                    )
+        if primary is None and cleanup is not None:
+            raise cleanup

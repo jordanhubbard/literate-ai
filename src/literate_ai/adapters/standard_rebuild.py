@@ -18,6 +18,7 @@ from literate_ai.application.component_generation_context import (
 from literate_ai.application.component_generation_scheduling import (
     ComponentInvalidationDecision,
 )
+from literate_ai.application.native_root_run import LiveNativeRootRun
 from literate_ai.contracts import (
     ContentIdentity,
     ProjectTestReceipt,
@@ -97,6 +98,34 @@ class FilesystemStandardRebuildError(RuntimeError):
 ProjectAuthorityValidator = Callable[[Path], ContentIdentity]
 
 
+def _require_native_root_run(project, binding, live_run):
+    """Check the original opaque constraint; never mint execution permission."""
+    policy = getattr(project.definition, "native_root_run_policy", None)
+    if (policy is None) != (live_run is None):
+        raise FilesystemStandardRebuildError(
+            "standard_rebuild.native_root_run_required",
+            "selected native root policy and original live run must occur together",
+        )
+    if live_run is None:
+        return
+    if type(live_run) is not LiveNativeRootRun:
+        raise TypeError("live_run must be the original LiveNativeRootRun")
+    live_run.require_current()
+    if live_run.policy.identity != policy.identity or (
+        binding is not None
+        and live_run.bindings
+        != (
+            project.definition.identity,
+            binding.distribution.identity,
+            binding.policy.identity,
+        )
+    ):
+        raise FilesystemStandardRebuildError(
+            "standard_rebuild.native_root_run_mismatch",
+            "original live run differs from current project or Standard binding",
+        )
+
+
 @dataclass(frozen=True, slots=True)
 class FilesystemStandardRebuildRequest:
     prepared: PreparedLockedGeneration
@@ -111,10 +140,13 @@ class FilesystemStandardRebuildRequest:
     # Live caller constraint, not another field in the legacy wire request. The
     # existing wire already binds the actual execution plan selected below.
     expected_execution_plan_identity: ContentIdentity | None = None
+    live_run: LiveNativeRootRun | None = None
 
     project_runtime: ContainedProjectRuntime | None = None
 
     def __post_init__(self) -> None:
+        if self.live_run is not None and type(self.live_run) is not LiveNativeRootRun:
+            raise TypeError("live_run must be the original LiveNativeRootRun")
         if (
             self.project_runtime is not None
             and type(self.project_runtime) is not ContainedProjectRuntime
@@ -184,6 +216,7 @@ class FilesystemStandardRebuildAdapter:
         shared_cache: BoundSharedCache | None = None,
         action_workers: CommandActionWorkerPool | None = None,
         action_execution: BoundActionExecution | None = None,
+        live_run: LiveNativeRootRun | None = None,
     ) -> None:
         if not isinstance(project, LoadedProject):
             raise TypeError("project must be a LoadedProject")
@@ -204,6 +237,8 @@ class FilesystemStandardRebuildAdapter:
                 "standard_rebuild.binding_mismatch",
                 "resolved Standard binding differs from project authority",
             )
+        _require_native_root_run(project, binding, live_run)
+        self.live_run = live_run
         self.project = project
         self.binding = binding
         self.runtime = runtime
@@ -233,6 +268,9 @@ class FilesystemStandardRebuildAdapter:
         if retained_source is not None:
             retained_source.require_authorization(retained_source_authorization)
 
+    def _require_live_run(self) -> None:
+        _require_native_root_run(self.project, self.binding, self.live_run)
+
     def _require_action_configuration(self) -> None:
         if self.action_execution is not None:
             try:
@@ -256,6 +294,12 @@ class FilesystemStandardRebuildAdapter:
     ) -> FilesystemStandardRebuildResult:
         if not isinstance(request, FilesystemStandardRebuildRequest):
             raise TypeError("request must be a FilesystemStandardRebuildRequest")
+        if request.live_run is not self.live_run:
+            raise FilesystemStandardRebuildError(
+                "standard_rebuild.native_root_run_mismatch",
+                "rebuild request must retain the adapter's exact original live run",
+            )
+        self._require_live_run()
         self._require_project_runtime(request)
         prepared = request.prepared
         snapshot = prepared.locked_authority_snapshot
@@ -302,8 +346,10 @@ class FilesystemStandardRebuildAdapter:
             validated,
             (snapshot.authority.lock.identity,),
         )
+        self._require_live_run()
         planned = self.runtime.plan(snapshot)
         self._require_project_runtime(request)
+        self._require_live_run()
         if (
             request.expected_execution_plan_identity is not None
             and planned.execution_plan.identity
@@ -314,6 +360,7 @@ class FilesystemStandardRebuildAdapter:
                 "current execution plan differs from the acknowledged plan",
             )
         readiness = self.runtime.production_readiness(planned)
+        self._require_live_run()
         if not readiness.ready:
             raise FilesystemStandardRebuildError(
                 "standard_rebuild.runtime_unready",
@@ -422,6 +469,7 @@ class FilesystemStandardRebuildAdapter:
             }
         )
         try:
+            self._require_live_run()
             self._require_project_runtime(request)
             execution = self.runtime.execute(
                 snapshot,
@@ -438,6 +486,20 @@ class FilesystemStandardRebuildAdapter:
                     worker_source_selectors=request.source_selectors,
                     directory_custody_identity=request.directory_custody_identity,
                     fresh_source=self.retained_source is not None,
+                    **(
+                        {
+                            "live_run": self.live_run,
+                            "project_authority_identity": project_revision,
+                        }
+                        if self.live_run is not None
+                        else {}
+                    ),
+                    **(
+                        {"retained_source_identity": self.retained_source.identity}
+                        if self.live_run is not None
+                        and self.retained_source is not None
+                        else {}
+                    ),
                     minimum_test_count=max(
                         self.binding.policy.minimum_test_count,
                         self.project.definition.test_receipt_policy.minimum_test_count
@@ -461,6 +523,7 @@ class FilesystemStandardRebuildAdapter:
             # Project-level remote phases (PACKAGE, FINALIZE) run outside the
             # per-Component failure capture; keep their typed refusal.
             raise FilesystemStandardRebuildError(exc.code, str(exc)) from exc
+        self._require_live_run()
         self._require_project_runtime(request)
         if not execution.lifecycle.successful:
             failures = tuple(
@@ -497,6 +560,7 @@ class FilesystemStandardRebuildAdapter:
             )
         if self.retained_source is not None:
             self.retained_source.require_unchanged()
+        self._require_live_run()
         receipt_policy = self.project.definition.test_receipt_policy
         if receipt_policy is None:
             raise FilesystemStandardRebuildError(
@@ -547,6 +611,7 @@ class FilesystemStandardRebuildAdapter:
                 source_cache_decision_identity=evidence["source-cache-decision"],
                 source_cache_lifecycle_identity=evidence["source-cache-lifecycle"],
             )
+            self._require_live_run()
             receipt_update = (
                 update_project_test_receipt_finalized_value(
                     self.project,
@@ -561,6 +626,7 @@ class FilesystemStandardRebuildAdapter:
                 getattr(exc, "code", "standard_rebuild.receipt_invalid"),
                 getattr(exc, "message", str(exc)),
             ) from exc
+        self._require_live_run()
         return FilesystemStandardRebuildResult(
             project_revision,
             lifecycle_request,
@@ -689,6 +755,7 @@ def assemble_filesystem_standard_rebuild_adapter(
     authority_validator: ProjectAuthorityValidator = (
         validated_project_authority_identity
     ),
+    live_run: LiveNativeRootRun | None = None,
 ) -> FilesystemStandardRebuildAdapter:
     """Compose every production Standard host capability behind one adapter."""
 
@@ -707,6 +774,7 @@ def assemble_filesystem_standard_rebuild_adapter(
         raise TypeError("project must be a LoadedProject")
     if not isinstance(prepared, PreparedLockedGeneration):
         raise TypeError("prepared must be a PreparedLockedGeneration")
+    _require_native_root_run(project, None, live_run)
     if action_workers is not None:
         action_workers.deadline.remaining()
         if (
@@ -733,6 +801,7 @@ def assemble_filesystem_standard_rebuild_adapter(
             "standard_rebuild.binding_mismatch",
             "supplied Standard binding differs from project authority",
         )
+    _require_native_root_run(project, selected_binding, live_run)
     selected_binding.require_unchanged()
     project_authority_identity = authority_validator(project.root)
     if retained_source is not None:
@@ -958,17 +1027,34 @@ def assemble_filesystem_standard_rebuild_adapter(
         accepted_source_retained_review_identity=retained_review,
         project_authority_identity=project_authority_identity,
         native_sdk_inputs=prepared.native_sdk_inputs,
+        **(
+            {"qualified_library_inputs": prepared.qualified_library_inputs}
+            if prepared.qualified_library_inputs is not None
+            else {}
+        ),
         **({"retained_source": retained_source} if retained_source is not None else {}),
     )
     planning = FilesystemStandardProjectPlanningAdapter(
         coding_cli_selector=lambda: source_generation.generator.selection,
         model_selector=source_generation.model_selector,
         native_sdk_inputs=prepared.native_sdk_inputs,
+        **(
+            {"qualified_library_inputs": prepared.qualified_library_inputs}
+            if prepared.qualified_library_inputs is not None
+            else {}
+        ),
     )
     snapshot = prepared.locked_authority_snapshot
     candidate_cas = FileSystemCAS(candidate_cas_root)
     assets = admit_locked_authored_assets(snapshot, cas=candidate_cas)
     planned = planning.plan(snapshot, assets=assets)
+    if prepared.qualified_library_inputs is not None and (
+        remote_build or remote_test or remote_execute or remote_finalize
+    ):
+        raise FilesystemStandardRebuildError(
+            "standard_rebuild.external_libraries_require_local_runtime",
+            "qualified providers require their original local receiving owners",
+        )
     if remote_build and remote_test and remote_execute and remote_finalize:
         # No Component or root command runs on this host, so derive every locked tool
         # identity, command and dependency from the admitted worker that will
@@ -1053,11 +1139,21 @@ def assemble_filesystem_standard_rebuild_adapter(
             model_selector=source_generation.model_selector,
             coding_cli=source_generation.generator.selection.name,
             native_sdk_inputs=prepared.native_sdk_inputs,
+            **(
+                {"qualified_library_inputs": prepared.qualified_library_inputs}
+                if prepared.qualified_library_inputs is not None
+                else {}
+            ),
         ),
         source_trees=source_trees,
         indexer=indexer,
         independent_acceptance_oracle=independent_acceptance_oracle,
         native_sdk_inputs=prepared.native_sdk_inputs,
+        **(
+            {"qualified_library_inputs": prepared.qualified_library_inputs}
+            if prepared.qualified_library_inputs is not None
+            else {}
+        ),
         shared_cache=shared_cache,
     )
     configuration, caches = _resolved_source_cache(project, source_cache_root)
@@ -1249,6 +1345,7 @@ def assemble_filesystem_standard_rebuild_adapter(
                     else action_execution.finalize_grant_wait_seconds
                 ),
             )
+    _require_native_root_run(project, selected_binding, live_run)
     return FilesystemStandardRebuildAdapter(
         project=project,
         binding=selected_binding,
@@ -1260,6 +1357,7 @@ def assemble_filesystem_standard_rebuild_adapter(
         shared_cache=shared_cache,
         action_workers=action_workers,
         action_execution=action_execution,
+        **({"live_run": live_run} if live_run is not None else {}),
     )
 
 

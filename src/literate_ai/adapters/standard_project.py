@@ -131,6 +131,10 @@ from literate_ai.application.library_artifacts import (
     project_cpp_library_layout,
     project_library_import_surface,
 )
+from literate_ai.application.native_root_run import (
+    LiveNativeRootRun,
+    activate_native_root_run,
+)
 from literate_ai.application.release_artifacts import StandardReleaseDeclaration
 from literate_ai.application.source_generation_scheduling import (
     ComponentSourceGenerationRunError,
@@ -240,8 +244,10 @@ class FilesystemStandardProjectPlanningAdapter:
         coding_cli_selector: Callable[[], CodingCliSelection] = select_coding_cli,
         model_selector: LockedComponentModelSelectionAdapter | None = None,
         native_sdk_inputs=None,
+        qualified_library_inputs=None,
     ) -> None:
         self.native_sdk_inputs = native_sdk_inputs
+        self.qualified_library_inputs = qualified_library_inputs
         self.coding_cli_selector = coding_cli_selector
         self.model_selector = model_selector or LockedComponentModelSelectionAdapter()
 
@@ -271,6 +277,11 @@ class FilesystemStandardProjectPlanningAdapter:
         if not isinstance(snapshot, LockedGenerationAuthoritySnapshot):
             raise TypeError("snapshot must be a LockedGenerationAuthoritySnapshot")
         snapshot.require_unchanged()
+        from literate_ai.adapters.native_root_external_runtime import (
+            require_qualified_library_inputs,
+        )
+
+        require_qualified_library_inputs(self.qualified_library_inputs, snapshot)
         if assets is None:
             assets = authored_assets_from_lock(snapshot.authority.lock)
         from literate_ai.adapters.native_sdk_generation import (
@@ -3243,8 +3254,29 @@ class StandardProjectExecutionRequest:
     directory_custody_identity: ContentIdentity | None = None
     fresh_source: bool = False
     minimum_test_count: int = 1
+    live_run: LiveNativeRootRun | None = None
+    project_authority_identity: ContentIdentity | None = None
+    # Eligibility metadata only; retained-source authority stays upstream.
+    retained_source_identity: ContentIdentity | None = None
 
     def __post_init__(self) -> None:
+        if (self.live_run is None) != (self.project_authority_identity is None):
+            raise TypeError("live run and project authority must occur together")
+        if self.live_run is not None and (
+            type(self.live_run) is not LiveNativeRootRun
+            or type(self.project_authority_identity) is not ContentIdentity
+        ):
+            raise TypeError(
+                "live run requires its original owner and project authority"
+            )
+        if self.retained_source_identity is not None:
+            if type(self.retained_source_identity) is not ContentIdentity:
+                raise TypeError("retained source identity must be a ContentIdentity")
+            self.retained_source_identity.__post_init__()
+            if self.live_run is None:
+                raise TypeError(
+                    "retained source identity requires its original live run"
+                )
         if not isinstance(self.planned, PlannedStandardProject):
             raise TypeError("planned must be a PlannedStandardProject")
         if not isinstance(self.source_root, Path):
@@ -3380,7 +3412,23 @@ class FilesystemStandardProjectRuntime:
         *,
         assets: tuple[AuthoredBinaryAsset, ...] | None = None,
     ) -> PlannedStandardProject:
-        return self.planning.plan(snapshot, assets=assets)
+        planned = self.planning.plan(snapshot, assets=assets)
+        current_plan = getattr(
+            self.lifecycle_ports, "_checked_runtime_execution_plan", None
+        )
+        held = current_plan() if callable(current_plan) else None
+        if held is None:
+            return planned
+        if (
+            not isinstance(held, ComponentExecutionPlan)
+            or not isinstance(planned.execution_plan, ComponentExecutionPlan)
+            or planned.execution_plan != held
+        ):
+            raise ValueError("current plan differs from original projected toolchain")
+        # Replanning revalidates current authority and CLI observations, but
+        # must not replace the plan owned by the measured runtime projection.
+        # Keep that exact plan and its node plans through preparation/execution.
+        return replace(planned, execution_plan=held)
 
     def prepare(
         self,
@@ -3417,6 +3465,19 @@ class FilesystemStandardProjectRuntime:
         snapshot: LockedGenerationAuthoritySnapshot,
         request: StandardProjectExecutionRequest,
     ) -> ExecutedStandardProject:
+        """Propagate the original run through preparation and all runtime stages."""
+        if not isinstance(request, StandardProjectExecutionRequest):
+            raise TypeError("request must be a StandardProjectExecutionRequest")
+        if request.live_run is None:
+            return self._execute(snapshot, request)
+        with activate_native_root_run(request.live_run):
+            return self._execute(snapshot, request)
+
+    def _execute(
+        self,
+        snapshot: LockedGenerationAuthoritySnapshot,
+        request: StandardProjectExecutionRequest,
+    ) -> ExecutedStandardProject:
         """Prepare and execute one exact plan without exposing lifecycle assembly."""
 
         if not hasattr(snapshot, "authority") or not callable(
@@ -3425,6 +3486,12 @@ class FilesystemStandardProjectRuntime:
             raise TypeError("snapshot must provide locked generation authority")
         if not isinstance(request, StandardProjectExecutionRequest):
             raise TypeError("request must be a StandardProjectExecutionRequest")
+
+        def require_live_run():
+            if request.live_run is not None:
+                request.live_run.require_current()
+
+        require_live_run()
         cache = self.lifecycle_ports.shared_cache
         if cache is not None and cache.compiler_tool is not None:
             cache.require_unchanged()
@@ -3442,6 +3509,7 @@ class FilesystemStandardProjectRuntime:
             source_root=request.source_root,
             budget=request.budget,
         )
+        require_live_run()
         require_generated_coverage_capacity(
             (
                 getattr(node.recipe, "generated_test_coverage_authority", None)
@@ -3467,10 +3535,12 @@ class FilesystemStandardProjectRuntime:
             for uri, node in prepared.nodes_by_revision.items():
                 if uri in cache_memberships or uri in regenerate:
                     continue
+                require_live_run()
                 restored = self.source_cache_restorer.restore_prepared(
                     request.planned.execution_plan,
                     node,
                 )
+                require_live_run()
                 if restored is not None:
                     cache_memberships[uri] = restored
         if request.accepted_source_only:
@@ -3537,10 +3607,12 @@ class FilesystemStandardProjectRuntime:
                     or uri in regenerate
                 ):
                     continue
+                require_live_run()
                 restored = self.checkpoint_store.restore_prepared(
                     request.planned.execution_plan,
                     node,
                 )
+                require_live_run()
                 if restored is not None:
                     generator = self.application.lifecycle.generator
                     record_cache_key = getattr(
@@ -3553,6 +3625,19 @@ class FilesystemStandardProjectRuntime:
                             planned_cache_key(node),
                         )
                     source_resumes[uri] = restored
+        require_live_run()
+        live_arguments = (
+            {
+                "live_run": request.live_run,
+                "project_authority_identity": request.project_authority_identity,
+            }
+            if request.live_run is not None
+            else {}
+        )
+        if request.retained_source_identity is not None:
+            live_arguments["retained_source_identity"] = (
+                request.retained_source_identity
+            )
         if source_resumes:
             lifecycle = self.application.rebuild(
                 prepared,
@@ -3562,6 +3647,7 @@ class FilesystemStandardProjectRuntime:
                 source_generation_resume_candidates=source_resumes,
                 resume_candidates=request.resume_candidates,
                 max_parallelism=request.max_parallelism,
+                **live_arguments,
             )
         else:
             lifecycle = self.application.rebuild(
@@ -3571,12 +3657,15 @@ class FilesystemStandardProjectRuntime:
                 source_cache_memberships=cache_memberships or None,
                 resume_candidates=request.resume_candidates,
                 max_parallelism=request.max_parallelism,
+                **live_arguments,
             )
+        require_live_run()
         snapshot.require_unchanged()
         request.planned.coding_cli.require_unchanged()
         if cache is not None and cache.compiler_tool is not None:
             cache.require_unchanged()
             cache.require_compiler_dependencies(cache.environment)
+        require_live_run()
         return ExecutedStandardProject(
             request.planned,
             prepared,
@@ -3698,6 +3787,7 @@ def assemble_standard_lifecycle_ports(
     independent_acceptance_oracle: object | None = None,
     browser_driver: object | None = None,
     native_sdk_inputs=None,
+    qualified_library_inputs=None,
     bazel_cache_arguments: tuple[str, ...] = (),
     shared_cache: BoundSharedCache | None = None,
     clock: Callable[[], datetime] = lambda: datetime.now(UTC),
@@ -3767,6 +3857,8 @@ def assemble_standard_lifecycle_ports(
         "native_sdk_inputs": native_sdk_inputs,
         "clock": clock,
     }
+    if qualified_library_inputs is not None:
+        port_arguments["qualified_library_inputs"] = qualified_library_inputs
     if toolchain_closure.bazel_targets:
         ports = StandardBazelLifecyclePorts(
             **port_arguments,
@@ -3813,6 +3905,7 @@ def assemble_filesystem_standard_project_runtime(
     independent_acceptance_oracle: object | None = None,
     browser_driver: object | None = None,
     native_sdk_inputs=None,
+    qualified_library_inputs=None,
     bazel_cache_arguments: tuple[str, ...] = (),
     shared_cache: BoundSharedCache | None = None,
     candidate_verification_authority: PreparedLockedGeneration | None = None,
@@ -3831,6 +3924,11 @@ def assemble_filesystem_standard_project_runtime(
         independent_acceptance_oracle=independent_acceptance_oracle,
         browser_driver=browser_driver,
         native_sdk_inputs=native_sdk_inputs,
+        **(
+            {"qualified_library_inputs": qualified_library_inputs}
+            if qualified_library_inputs is not None
+            else {}
+        ),
         bazel_cache_arguments=bazel_cache_arguments,
         shared_cache=shared_cache,
         clock=clock,
@@ -3890,6 +3988,15 @@ def assemble_filesystem_standard_project_runtime(
             candidate_verification_authority, ports
         )
 
+    def native_root_continuation_factory(**arguments):
+        from literate_ai.adapters.native_root_continuation import (
+            _native_root_continuation,
+        )
+
+        return _native_root_continuation(
+            candidate_verification_authority, ports, **arguments
+        )
+
     application = assemble_standard_project_application_service(
         ports=ports,
         generator=register_source_generator(generator, registry),
@@ -3901,15 +4008,28 @@ def assemble_filesystem_standard_project_runtime(
             ports.failure_diagnostics
         ),
         generated_candidate_verifier=candidate_verifier,
+        native_root_continuation_factory=native_root_continuation_factory,
         clock=clock,
     )
     return FilesystemStandardProjectRuntime(
         planning
         or FilesystemStandardProjectPlanningAdapter(
-            native_sdk_inputs=native_sdk_inputs
+            native_sdk_inputs=native_sdk_inputs,
+            **(
+                {"qualified_library_inputs": qualified_library_inputs}
+                if qualified_library_inputs is not None
+                else {}
+            ),
         ),
         node_preparation
-        or LockedComponentNodePreparationAdapter(native_sdk_inputs=native_sdk_inputs),
+        or LockedComponentNodePreparationAdapter(
+            native_sdk_inputs=native_sdk_inputs,
+            **(
+                {"qualified_library_inputs": qualified_library_inputs}
+                if qualified_library_inputs is not None
+                else {}
+            ),
+        ),
         registry,
         ports,
         application,
@@ -3985,6 +4105,16 @@ def compose_filesystem_standard_source_cache(
         context_evidence_recorder=runtime.context_evidence_recorder,
         candidate_repair_port=runtime.application.lifecycle.candidate_repair_port,
         generated_candidate_verifier=runtime.application.lifecycle.generated_candidate_verifier,
+        **(
+            {
+                "native_root_continuation_factory": (
+                    runtime.application.lifecycle.native_root_continuation_factory
+                )
+            }
+            if runtime.application.lifecycle.native_root_continuation_factory
+            is not None
+            else {}
+        ),
         clock=runtime.application.lifecycle.clock,
     )
     return replace(
@@ -4021,6 +4151,15 @@ def compose_filesystem_standard_lifecycle_checkpoints(
         context_evidence_recorder=runtime.context_evidence_recorder,
         candidate_repair_port=lifecycle.candidate_repair_port,
         generated_candidate_verifier=lifecycle.generated_candidate_verifier,
+        **(
+            {
+                "native_root_continuation_factory": (
+                    lifecycle.native_root_continuation_factory
+                )
+            }
+            if lifecycle.native_root_continuation_factory is not None
+            else {}
+        ),
         clock=lifecycle.clock,
     )
     return replace(runtime, application=application, checkpoint_store=store)
@@ -4116,6 +4255,77 @@ def _coding_cli_generation_stderr_limit_bytes() -> int:
     return value
 
 
+def project_standard_source_invocation(
+    snapshot,
+    execution_plan,
+    node,
+    *,
+    selection,
+    project_authority_identity=None,
+    approved_project_root: Path | None = None,
+) -> CodingCliSourceGenerationInvocation:
+    """Project exact source invocation data without owner, allocation or execution.
+
+    Producer defaults retain their existing ambient workflow-root behavior.
+    Closed replay must supply an independently approved absolute project root;
+    this explicit mode never selects workflow extensions from the caller's CWD.
+    Selection is caller-held metadata, never discovered from archive contents.
+    """
+    if approved_project_root is not None and (
+        not isinstance(approved_project_root, Path)
+        or not approved_project_root.is_absolute()
+        or ".." in approved_project_root.parts
+    ):
+        raise ValueError("approved source replay project root must be absolute")
+    planner = GenerationExecutionPlanningAdapter()
+    recipe = node.recipe
+    execution = planner.plan_node(
+        snapshot,
+        node,
+        selection=selection,
+        model=recipe.model_for(selection.name),
+        **(
+            {"approved_project_root": approved_project_root}
+            if approved_project_root is not None
+            else {}
+        ),
+    )
+    prior = {
+        "component_revision": node.plan.component_revision.uri,
+        "source_generation_request_identity": node.request.request.identity.uri,
+        "component_generation_plan_identity": node.plan.identity.uri,
+        "context_manifest_identity": (
+            node.request.request.context_manifest_identity.uri
+        ),
+        "workspace_allocation_identity": node.workspace.allocation_identity.uri,
+        "recipe_identity": recipe.identity,
+        "generation_key_identity": node.plan.generation_key.identity.uri,
+        "required_entrypoints": list(recipe.all_required_entrypoints),
+        "direct_public_interface_identities": [
+            item.uri
+            for item in (node.plan.generation_key.direct_public_interface_identities)
+        ],
+    }
+    if project_authority_identity is not None:
+        prior["project_authority_identity"] = project_authority_identity.uri
+    request = {
+        "stage_id": execution.model_stages[-1].stage_id,
+        "prior_stage_outputs": {"plan": prior},
+        "input_identity": canonical_identity(prior).to_dict(),
+    }
+    return CodingCliSourceGenerationInvocation.create(
+        execution,
+        request,
+        application_root_revision_identity=(execution_plan.root_revision),
+        readiness_identity=canonical_identity(
+            {
+                "standard-source-readiness": node.plan.component_revision.uri,
+                "execution_plan": execution_plan.identity.uri,
+            }
+        ),
+    )
+
+
 class FilesystemStandardSourceGenerationAdapter:
     """Prepare and run a locked source-only Standard project on the local host."""
 
@@ -4130,6 +4340,7 @@ class FilesystemStandardSourceGenerationAdapter:
         model_selector: LockedComponentModelSelectionAdapter | None = None,
         project_authority_identity: ContentIdentity | None = None,
         native_sdk_inputs=None,
+        qualified_library_inputs=None,
     ) -> None:
         if not isinstance(generator, CodingCliSourceGenerator):
             raise TypeError("generator must be a CodingCliSourceGenerator")
@@ -4152,6 +4363,7 @@ class FilesystemStandardSourceGenerationAdapter:
             )
         self.project_authority_identity = project_authority_identity
         self.native_sdk_inputs = native_sdk_inputs
+        self.qualified_library_inputs = qualified_library_inputs
 
     @classmethod
     def from_environment(
@@ -4167,6 +4379,7 @@ class FilesystemStandardSourceGenerationAdapter:
         accepted_source_retained_review_identity: ContentIdentity | None = None,
         project_authority_identity: ContentIdentity | None = None,
         native_sdk_inputs=None,
+        qualified_library_inputs=None,
         retained_source=None,
     ) -> FilesystemStandardSourceGenerationAdapter:
         """Select and guard the host coding CLI behind the filesystem boundary."""
@@ -4235,6 +4448,11 @@ class FilesystemStandardSourceGenerationAdapter:
             ),
             project_authority_identity=project_authority_identity,
             native_sdk_inputs=native_sdk_inputs,
+            **(
+                {"qualified_library_inputs": qualified_library_inputs}
+                if qualified_library_inputs is not None
+                else {}
+            ),
         )
 
     def generate(
@@ -4266,11 +4484,21 @@ class FilesystemStandardSourceGenerationAdapter:
             coding_cli_selector=lambda: self.generator.selection,
             model_selector=self.model_selector,
             native_sdk_inputs=self.native_sdk_inputs,
+            **(
+                {"qualified_library_inputs": self.qualified_library_inputs}
+                if self.qualified_library_inputs is not None
+                else {}
+            ),
         ).plan(snapshot, assets=assets)
         node_adapter = LockedComponentNodePreparationAdapter(
             model_selector=self.model_selector,
             coding_cli=planned.coding_cli.name,
             native_sdk_inputs=self.native_sdk_inputs,
+            **(
+                {"qualified_library_inputs": self.qualified_library_inputs}
+                if self.qualified_library_inputs is not None
+                else {}
+            ),
         )
         prepared = StandardProjectApplicationService.prepare(
             planned.execution_plan,
@@ -4412,53 +4640,20 @@ class FilesystemStandardSourceGenerationAdapter:
         snapshot: LockedGenerationAuthoritySnapshot,
         execution_plan: ComponentExecutionPlan,
     ) -> Callable[[object], CodingCliSourceGenerationInvocation]:
-        planner = GenerationExecutionPlanningAdapter()
+        # Capture this adapter's admitted project before any per-node callbacks.
+        # A caller's working directory cannot select another workflow extension.
+        approved_project_root = self.project_root
 
         def provide(node: object) -> CodingCliSourceGenerationInvocation:
-            recipe = node.recipe
-            execution = planner.plan_node(
+            return project_standard_source_invocation(
                 snapshot,
+                execution_plan,
                 node,
                 selection=self.generator.selection,
-                model=recipe.model_for(self.generator.selection.name),
-            )
-            prior = {
-                "component_revision": node.plan.component_revision.uri,
-                "source_generation_request_identity": node.request.request.identity.uri,
-                "component_generation_plan_identity": node.plan.identity.uri,
-                "context_manifest_identity": (
-                    node.request.request.context_manifest_identity.uri
+                project_authority_identity=getattr(
+                    self, "project_authority_identity", None
                 ),
-                "workspace_allocation_identity": node.workspace.allocation_identity.uri,
-                "recipe_identity": recipe.identity,
-                "generation_key_identity": node.plan.generation_key.identity.uri,
-                "required_entrypoints": list(recipe.all_required_entrypoints),
-                "direct_public_interface_identities": [
-                    item.uri
-                    for item in (
-                        node.plan.generation_key.direct_public_interface_identities
-                    )
-                ],
-            }
-            if getattr(self, "project_authority_identity", None) is not None:
-                prior["project_authority_identity"] = (
-                    self.project_authority_identity.uri
-                )
-            request = {
-                "stage_id": execution.model_stages[-1].stage_id,
-                "prior_stage_outputs": {"plan": prior},
-                "input_identity": canonical_identity(prior).to_dict(),
-            }
-            return CodingCliSourceGenerationInvocation.create(
-                execution,
-                request,
-                application_root_revision_identity=(execution_plan.root_revision),
-                readiness_identity=canonical_identity(
-                    {
-                        "standard-source-readiness": node.plan.component_revision.uri,
-                        "execution_plan": execution_plan.identity.uri,
-                    }
-                ),
+                approved_project_root=approved_project_root,
             )
 
         return provide
@@ -4488,4 +4683,5 @@ __all__ = [
     "compose_filesystem_standard_lifecycle_checkpoints",
     "project_locked_standard_toolchain_closure",
     "project_standard_toolchain_closure",
+    "project_standard_source_invocation",
 ]

@@ -1331,6 +1331,7 @@ def _create_promoted_project(
     parent_selection: RepositoryParentSelection | None,
     promotion_parent=None,
     static_intake_review: object | None = None,
+    native_root_policy=None,
 ) -> dict[str, object]:
     """Create one complete, disposable-source-ready project from an accepted set."""
 
@@ -1340,6 +1341,14 @@ def _create_promoted_project(
     from literate_ai.source_to_specification.static_intake import StaticIntakeReview
 
     from .project import init_project_from_args
+
+    original_native_policy = None
+    if native_root_policy is not None:
+        from .native_root_promotion_policy import PinnedNativeRootPromotionPolicy
+
+        if type(native_root_policy) is not PinnedNativeRootPromotionPolicy:
+            raise TypeError("original native root promotion policy input required")
+        original_native_policy = native_root_policy.value
 
     if static_intake_review is not None and (
         not isinstance(static_intake_review, StaticIntakeReview)
@@ -2072,11 +2081,18 @@ def _create_promoted_project(
             )
         project_store = ProjectConfigurationStore(staging)
         project_snapshot = project_store.read()
+        if native_root_policy is not None:
+            native_root_policy.require_current()
         project_store.update(
             project_snapshot,
             replace(
                 project_snapshot.definition,
                 default_flavor_selectors=tuple(sorted(promoted_defaults)),
+                **(
+                    {"native_root_run_policy": original_native_policy}
+                    if native_root_policy is not None
+                    else {}
+                ),
             ),
         )
 
@@ -2422,7 +2438,14 @@ def _create_promoted_project(
                     "promotion.parent_changed",
                     "parent build selection changed during promotion",
                 )
-        os.replace(staging, project_target)
+        if native_root_policy is None:
+            os.replace(staging, project_target)
+        else:
+            from .native_root_promotion_policy import commit_native_root_policy_project
+
+            commit_native_root_policy_project(
+                native_root_policy, staging, project_target
+            )
     except BaseException:
         if staging.exists():
             shutil.rmtree(staging)
@@ -2788,6 +2811,8 @@ def _complete_standard_lifecycle_qualification(
     prior_project_configuration: bytes | None = None,
     allow_legacy_inventory_policy: bool = False,
     static_intake_review: object | None = None,
+    qualified_library_prepared=None,
+    qualified_library_archive_reader=None,
 ) -> tuple[dict[str, Any], int]:
     """Run and admit only the filesystem Standard lifecycle qualification contract."""
 
@@ -2865,14 +2890,20 @@ def _complete_standard_lifecycle_qualification(
         )
     try:
         binding = resolve_standard_project_lifecycle_driver(driver)
-        prepared = FilesystemLockedGenerationApplicationAdapter().prepare(
-            GenerationPreparationRequest(
-                component_root=component_root,
-                target_name=args.target,
-                flavor_selectors=tuple(args.flavor),
-                flavor_roots=project.roots("flavor"),
+        if qualified_library_prepared is None:
+            prepared = FilesystemLockedGenerationApplicationAdapter().prepare(
+                GenerationPreparationRequest(
+                    component_root=component_root,
+                    target_name=args.target,
+                    flavor_selectors=tuple(args.flavor),
+                    flavor_roots=project.roots("flavor"),
+                )
             )
-        )
+        else:
+            # Same object used by the earlier source-plan projection. Never
+            # renew a receiving owner or reopen its mutable importer scopes.
+            prepared = qualified_library_prepared
+            FilesystemLockedGenerationApplicationAdapter.require_unchanged(prepared)
     except (GenerationPreparationError, StandardLifecycleBindingError) as exc:
         raise CliFailure(
             getattr(exc, "code", "qualification.standard_preparation_failed"),
@@ -2933,6 +2964,11 @@ def _complete_standard_lifecycle_qualification(
             retain_library_products=retained_store is not None,
             pipeline_model=getattr(args, "model", None),
             allow_legacy_inventory_policy=allow_legacy_inventory_policy,
+            **(
+                {"qualified_library_archive_reader": qualified_library_archive_reader}
+                if qualified_library_archive_reader is not None
+                else {}
+            ),
         )
         run_identities = tuple(
             sorted(
@@ -3274,6 +3310,32 @@ def _complete_standard_lifecycle_qualification(
 
 
 def spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+    if (
+        args.spec_command == "qualify"
+        and getattr(args, "qualified_library_receivers", None) is not None
+    ):
+        from literate_ai._filesystem import require_safe_directory
+
+        from .qualified_library_receivers import qualified_library_receiving_operation
+
+        component = Path(args.component).absolute()
+        component_directory = (
+            component.parent if component.name == "component.md" else component
+        )
+        require_safe_directory(component_directory)
+        project = discover_project(component_directory)
+        if project is None:
+            raise CliFailure(
+                "qualification.project_required",
+                "qualification requires a canonical promoted project",
+            )
+        with qualified_library_receiving_operation(
+            project,
+            args,
+            hold_consumer_lock=True,
+            operation="qualified-library-consumer-qualification",
+        ) as receivers:
+            return _spec_from_args(args, qualified_library_receivers=receivers)
     if args.spec_command == "accept" and getattr(args, "root_project", False):
         if args.project_target is None or args.integrate_project is not None:
             raise CliFailure(
@@ -3372,8 +3434,15 @@ def _intake_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     return review.to_dict(), 0
 
 
-def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+def _spec_from_args(
+    args: argparse.Namespace, *, qualified_library_receivers=None
+) -> tuple[dict[str, Any], int]:
     command = args.spec_command
+    native_policy_selection = None
+    if command == "accept" and getattr(args, "native_root_policy", None) is not None:
+        from .native_root_promotion_policy import read_native_root_promotion_policy
+
+        native_policy_selection = read_native_root_promotion_policy(args)
     if command == "merge":
         from literate_ai.adapters.spec_merge import (
             SpecMergeError,
@@ -4054,6 +4123,8 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                     "promotion.replacement_plan_stale",
                     "reviewed replacement plan is no longer current",
                 )
+        if native_policy_selection is not None:
+            native_policy_selection.require_current()
         parent = target.parent
         parent.mkdir(parents=True, exist_ok=True)
         staging = Path(tempfile.mkdtemp(prefix=f".{target.name}.", dir=parent))
@@ -4173,6 +4244,11 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                         parent_selection=parent_selection,
                         promotion_parent=integration_project,
                         static_intake_review=intake_review,
+                        **(
+                            {"native_root_policy": native_policy_selection}
+                            if native_policy_selection is not None
+                            else {}
+                        ),
                     )
 
                 if replacement_plan is not None:
@@ -4478,15 +4554,41 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             )
         from .generation import plan_from_args
 
-        plan_report = plan_from_args(
-            Namespace(
-                specification=str(component_root),
-                recipe_id=None,
-                model=getattr(args, "model", None),
-                target=args.target,
-                flavor=list(args.flavor),
-                flavor_root=[],
+        plan_args = Namespace(
+            specification=str(component_root),
+            recipe_id=None,
+            model=getattr(args, "model", None),
+            target=args.target,
+            flavor=list(args.flavor),
+            flavor_root=[],
+        )
+        qualified_prepared = None
+        if qualified_library_receivers is not None:
+            from literate_ai.adapters.generation_preparation import (
+                FilesystemLockedGenerationApplicationAdapter,
+                FilesystemLockedGenerationPreparationAdapter,
             )
+            from literate_ai.application import GenerationPreparationRequest
+
+            qualified_prepared = FilesystemLockedGenerationApplicationAdapter(
+                FilesystemLockedGenerationPreparationAdapter(
+                    qualified_library_builder=qualified_library_receivers.prepare
+                )
+            ).prepare(
+                GenerationPreparationRequest(
+                    component_root=component_root,
+                    target_name=args.target,
+                    flavor_selectors=tuple(args.flavor),
+                    flavor_roots=project.roots("flavor"),
+                )
+            )
+        plan_report = plan_from_args(
+            plan_args,
+            **(
+                {"_prepared": qualified_prepared}
+                if qualified_prepared is not None
+                else {}
+            ),
         )
         planned_component = _object(
             plan_report.get("component"), "generation Component"
@@ -4567,6 +4669,7 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "generation plan does not close its audited Flavor, skill, workflow, "
                 "and routing inputs",
             ) from exc
+        receivers = qualified_library_receivers
         return _complete_standard_lifecycle_qualification(
             args=args,
             project=project,
@@ -4591,6 +4694,14 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             allow_legacy_inventory_policy=rebind_migration is not None,
             static_intake_review=getattr(
                 verified_promotion, "static_intake_review", None
+            ),
+            **(
+                {
+                    "qualified_library_prepared": qualified_prepared,
+                    "qualified_library_archive_reader": receivers.read_archive,
+                }
+                if qualified_library_receivers is not None
+                else {}
             ),
         )
 
@@ -4879,6 +4990,10 @@ def add_spec_parser(commands: argparse._SubParsersAction) -> None:
     )
     accept.add_argument("--project-id")
     accept.add_argument(
+        "--native-root-policy",
+        help="strict finite native root policy JSON for the new promoted project",
+    )
+    accept.add_argument(
         "--qualification-target",
         default="host",
         help="target name recorded in the promoted Component lock",
@@ -4947,6 +5062,10 @@ def add_spec_parser(commands: argparse._SubParsersAction) -> None:
             "exact pre-rebind literate.project.json whose bytes match the historical "
             "promotion audit; accepted only for current-qualified recertification"
         ),
+    )
+    qualify.add_argument(
+        "--qualified-library-receivers",
+        help="explicit local genuine V2 qualified-library receiving configuration",
     )
     qualify.add_argument("--allow-host-execution", action="store_true")
 

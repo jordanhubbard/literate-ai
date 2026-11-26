@@ -58,9 +58,23 @@ def reopen_cargo_provider_evidence(
     record,
     metadata,
     lock_bytes,
+    current_provider_commands=None,
 ):
     """An integrity join, not original execution or importer admission."""
     contracts = {revision.uri: value for revision, value in current_commands.items()}
+    if current_provider_commands is not None:
+        from literate_ai.contracts.executable_components import ComponentCommandContract
+
+        for revision, command in current_provider_commands.items():
+            if (
+                type(command) is not ComponentCommandContract
+                or command.component_revision != revision
+                or revision.uri in contracts
+            ):
+                raise ValueError(
+                    "qualification.capture.cargo-provider-command-mismatch"
+                )
+            contracts[revision.uri] = command
     root_contract = contracts[plan.component_revision.uri]
     if root_contract.locked_build_authority_identity != target.identity:
         raise ValueError("qualification.capture.cargo-target-mismatch")

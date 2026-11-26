@@ -686,13 +686,24 @@ class RepoManConvertSliceTests(unittest.TestCase):
             self.assertIn(f"LITAI_LEGACY := {implementation_dir}", wrapper)
             self.assertIn("build.kit:", wrapper)
             self.assertIn("build.rendering:", wrapper)
+            quoted_root = (
+                '"$(LITAI_LEGACY)'
+                if os.name == "nt"
+                else "'$(subst ','\"'\"',$(LITAI_LEGACY))'"
+            )
+            closing_quote = '"' if os.name == "nt" else ""
             self.assertIn(
-                "cd $(LITAI_LEGACY)/kit && ./repo.sh build --release", wrapper
+                f"cd {quoted_root}/kit{closing_quote} && ./repo.sh build --release",
+                wrapper,
             )
             self.assertIn(
-                "cd $(LITAI_LEGACY)/rendering && ./repo.sh build --release", wrapper
+                f"cd {quoted_root}/rendering{closing_quote}"
+                " && ./repo.sh build --release",
+                wrapper,
             )
-            self.assertIn("cd $(LITAI_LEGACY) && ./repo.sh build --release", wrapper)
+            self.assertIn(
+                f"cd {quoted_root}{closing_quote} && ./repo.sh build --release", wrapper
+            )
             inventory = json.loads(
                 _framework(target, ".literate/harness-inventory.json").read_text(
                     encoding="utf-8"

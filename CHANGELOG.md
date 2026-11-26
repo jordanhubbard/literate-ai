@@ -230,17 +230,23 @@ Project layout: expose acknowledged catalog producer renewal and scoped source f
   defaults now use `litai/_build/release/`. Focused source controls pass; complete
   containment and installed platform qualification remain in progress.
 
-- Native root repair development: add closed continuation, terminal-history and
-  run-policy contracts, optional explicit project policy selection and an
-  original-run lifetime constraint. Preserve absent-policy project identities.
-  The shipped policy selects 1,800 seconds and three candidates; reviewed longer
-  finite policies retain the same original expiry and existing operation caps.
-  CLI admission, packaged continuation and closed replay remain implementation-open.
+- Develop opt-in native-root repair under one original finite lifetime and
+  three-candidate budget. Controlled-provider Rust source regressions cover late
+  packaged rejection and replacement, compiler rejection followed by late repair,
+  and build/test/package exhaustion without a fourth allocation or publication.
+  Installed, live-model, held-dependency, strict replay and complete release
+  qualification remain open.
 
-- Native candidate repair: keep substituted case IDs or capabilities terminal
-  even when they share the historical result-mismatch code. Bind early repair
-  eligibility to the current attempt's actual verifier return. Full versioned
-  packaged-root continuation and release qualification remain open.
+- Preserve rejected source, package and request history without rewriting accepted
+  node observations. Close the original native verifier before diagnostic
+  bookkeeping, and begin each replacement's context-journal projection while
+  retaining prior immutable records. Keep private oracle data out of feedback and
+  preserve original errors, operation limits, custody and terminal refusals.
+
+- Guard source-cache publication and retirement with the original run, coordinate
+  readers and writers through existing read-only storage, and roll back only the
+  operation's exact metadata links. Scoped source controls pass; native Windows
+  and complete release qualification remain required.
 
 - Retained readmission journal: reject Boolean values substituted for integer
   header limits or step indexes in the live guard. Preserve every bounded native

@@ -2978,6 +2978,10 @@ def _parser() -> JsonArgumentParser:
         ),
     )
     rebuild.add_argument(
+        "--qualified-library-receivers",
+        help="explicit local genuine V2 qualified-library receiving configuration",
+    )
+    rebuild.add_argument(
         "--allow-host-execution",
         action="store_true",
         help="acknowledge compilation and execution of generated code on this host",

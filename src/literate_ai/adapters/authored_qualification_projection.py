@@ -52,9 +52,20 @@ class CurrentAuthoredQualificationProjection:
     _recipes: Mapping[ContentIdentity, GenerationRecipe] = field(repr=False)
     _commands: Mapping[ContentIdentity, ComponentCommandContract] = field(repr=False)
     _check: Callable[[object], None] = field(repr=False)
+    _original_toolchain: ProjectedStandardToolchainClosure | None = field(
+        default=None, repr=False, compare=False, kw_only=True
+    )
 
     def require_unchanged(self):
         self._check(self)
+
+    @property
+    def toolchain(self):
+        """Actual original current closure; never reconstructed from archive IDs."""
+        self.require_unchanged()
+        if self._original_toolchain is None:
+            raise TypeError("qualification.authored.original-toolchain-required")
+        return self._original_toolchain
 
     @property
     def recipes(self):
@@ -345,6 +356,7 @@ def _open_projection(
                 or candidate.current is not current
                 or candidate._recipes is not recipe_views
                 or candidate._commands is not command_views
+                or candidate._original_toolchain is not closure
             ):
                 raise ValueError("qualification.authored.original_projection_required")
             authority()
@@ -364,9 +376,15 @@ def _open_projection(
             ):
                 raise ValueError("qualification.authored.projection_changed")
             authority()
+            if candidate._original_toolchain is not closure:
+                raise ValueError("qualification.authored.original_projection_required")
 
         owner = CurrentAuthoredQualificationProjection(
-            current, recipe_views, command_views, check
+            current,
+            recipe_views,
+            command_views,
+            check,
+            _original_toolchain=closure,
         )
         try:
             owner.require_unchanged()

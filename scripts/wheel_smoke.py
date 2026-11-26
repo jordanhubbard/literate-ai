@@ -725,6 +725,178 @@ def qualify_installed_maintained_controls(repository, python, cwd):
     return results
 
 
+def qualify_installed_native_root_journeys(
+    repository,
+    python,
+    cwd,
+    *,
+    wheel,
+    distribution,
+    origin,
+    revision,
+    archive_directory,
+    inputs,
+    input_pins,
+):
+    """Require BOTH real same-wheel native cells; no optional unqualified result."""
+    expected_wheel = file_identity(wheel)
+    input_pins.require_unchanged()
+    input_api = runpy.run_path(
+        str(repository / "scripts/installed_native_root_inputs.py")
+    )
+    snapshot, snapshot_pins = input_api["stage_inputs"](
+        repository,
+        archive_directory,
+        cwd / "installed-native-fixture-inputs",
+        inputs=inputs,
+        pins=input_pins,
+    )
+    journey_script = (
+        snapshot / "tests/support/installed_public_qualified_native_journey.py"
+    )
+    reports = {}
+    for mode in ("consumer", "late-first"):
+        input_pins.require_unchanged()
+        snapshot_pins.require_unchanged()
+        transport_seconds = input_api["MODE_TRANSPORT_SECONDS"][mode]
+        stem = cwd / ("installed-native-" + mode + ".transport")
+        try:
+            with stem.with_suffix(".stdout").open("xb", buffering=0) as sink:
+                completed = run_bounded_process(
+                    (
+                        str(python),
+                        "-I",
+                        "-B",
+                        str(journey_script),
+                        str(cwd / ("installed-native-" + mode)),
+                        distribution,
+                        expected_wheel,
+                        origin,
+                        revision,
+                        str(snapshot / "archives"),
+                        inputs["identity"],
+                        mode,
+                    ),
+                    cwd=cwd,
+                    environment=_subprocess_environment(),
+                    timeout_seconds=transport_seconds,
+                    stdout_limit_bytes=8 * 1024**2,
+                    stderr_limit_bytes=4 * 1024**2,
+                    terminate_descendants=True,
+                    stdout_sink=sink,
+                    trace=False,
+                    error_prefix="wheel.installed-native-qualified-mode",
+                )
+        except BaseException as error:
+            try:
+                stem.with_suffix(".json").write_text(
+                    json.dumps(
+                        {
+                            "mode": mode,
+                            "outer_transport_seconds": transport_seconds,
+                            "exit": None,
+                            "phase": "actual-installed-native-mode-transport",
+                            "exception_type": type(error).__name__,
+                            "stderr_returned": False,
+                        },
+                        sort_keys=True,
+                    )
+                )
+            except BaseException as cleanup:
+                error.add_note(
+                    "mode transport metadata failed: " + type(cleanup).__name__
+                )
+            raise
+        stem.with_suffix(".stderr").write_bytes(completed.stderr)
+        stem.with_suffix(".json").write_text(
+            json.dumps(
+                {
+                    "mode": mode,
+                    "outer_transport_seconds": transport_seconds,
+                    "exit": completed.returncode,
+                    "stderr_returned": True,
+                },
+                sort_keys=True,
+            )
+        )
+        if completed.returncode != 0:
+            raise RuntimeError(
+                "installed native mode refused; original stdout/stderr retained"
+            )
+        from literate_ai.projects import PinnedInputClosure
+
+        output_pins = PinnedInputClosure(
+            maximum_files=1,
+            maximum_file_bytes=8 * 1024**2,
+            maximum_total_bytes=8 * 1024**2,
+        )
+        raw = output_pins.pin(
+            stem.with_suffix(".stdout"),
+            boundary=cwd,
+            label="actual-installed-native-mode-stdout",
+        )
+        output_pins.require_unchanged()
+        observed = json.loads(raw)
+        if (
+            type(observed) is not dict
+            or observed.get("schema")
+            != "literate-ai/installed-native-qualified-public-journey@1"
+            or observed.get("qualified") is not True
+            or type(observed.get("skipped")) is not int
+            or observed["skipped"] != 0
+            or observed.get("mode") != mode
+            or observed.get("framework_distribution") != distribution
+            or observed.get("wheel_identity") != expected_wheel
+            or observed.get("build_origin", {}).get("repository_url") != origin
+            or observed.get("build_origin", {}).get("git_revision") != revision
+            or observed.get("fixture_input_identity") != inputs["identity"]
+            or observed.get("test_python_identity") != inputs["test_python_identity"]
+            or observed.get("test_python_members") != inputs["test_python_members"]
+            or observed.get("synthetic_framework_observers") is not False
+            or observed.get("actual_clean_runs") != 2
+            or type(observed.get("histories")) is not list
+            or len(observed["histories"]) != 2
+            or observed.get("source_requests") != (3 if mode == "consumer" else 4)
+            or not observed.get("calls")
+            or any(row.get("exit") != 0 for row in observed["calls"])
+            or any(
+                len(row.get("attempts", ())) != (1 if mode == "consumer" else 2)
+                for row in observed["histories"]
+            )
+        ):
+            raise RuntimeError("required actual installed native cell evidence differs")
+        consumer = observed.get("consumer")
+        if mode == "consumer" and (
+            type(consumer) is not dict
+            or consumer.get("receipt_committed") is not True
+            or consumer.get("generated_nodes") != 1
+            or consumer.get("provider_closed_history_reopens") != 2
+        ):
+            raise RuntimeError(
+                "actual installed held-provider consumer receipt required"
+            )
+        if mode == "late-first" and consumer is not None:
+            raise RuntimeError("separate late-first native cell required")
+        _runtime_record_scope(
+            python,
+            mode="framework",
+            expected=distribution,
+            wheel_identity=expected_wheel,
+        )
+        if file_identity(wheel) != expected_wheel:
+            raise RuntimeError("original wheel changed during installed native cell")
+        input_pins.require_unchanged()
+        snapshot_pins.require_unchanged()
+        output_pins.require_unchanged()
+        reports[mode] = {
+            **observed,
+            "outer_mode_transport_seconds": transport_seconds,
+            "mode_stdout_sha256": hashlib.sha256(raw).hexdigest(),
+            "mode_stderr_sha256": hashlib.sha256(completed.stderr).hexdigest(),
+        }
+    return reports
+
+
 def qualify_installed_windows_retained_context(repository, installation, python, cwd):
     if sys.platform != "win32":
         return {
@@ -2523,7 +2695,32 @@ def _main() -> int:
         type=Path,
         help="retain bounded operation timing spans without command arguments",
     )
+    parser.add_argument(
+        "--native-root-archives",
+        type=Path,
+        help="explicit local11 archives; requires BOTH installed native cells",
+    )
+    parser.add_argument(
+        "--require-native-root-qualification",
+        action="store_true",
+        help="require both native cells; missing explicit archives is a refusal",
+    )
     arguments = parser.parse_args()
+    native_root_inputs = native_root_pins = None
+    if (
+        arguments.require_native_root_qualification
+        and arguments.native_root_archives is None
+    ):
+        raise RuntimeError(
+            "required installed native cells need explicit local archive inputs"
+        )
+    if arguments.native_root_archives is not None:
+        input_api = runpy.run_path(
+            str(Path(__file__).with_name("installed_native_root_inputs.py"))
+        )
+        native_root_inputs, native_root_pins = input_api["capture_inputs"](
+            Path(__file__).resolve().parents[1], arguments.native_root_archives
+        )
     _TIMING_REPORT = arguments.timing_report
     _TIMINGS.clear()
     repository = Path(__file__).resolve().parents[1]
@@ -3526,6 +3723,20 @@ def _main() -> int:
             or rust_harness.get("synthetic_framework_observers") is not False
         ):
             raise RuntimeError("actual installed Rust framework and receipt required")
+        native_root_journeys = None
+        if native_root_inputs is not None:
+            native_root_journeys = qualify_installed_native_root_journeys(
+                repository,
+                python,
+                root,
+                wheel=wheel_files[0],
+                distribution=standard_binding["distribution"],
+                origin=repository_url,
+                revision=git_revision,
+                archive_directory=arguments.native_root_archives,
+                inputs=native_root_inputs,
+                input_pins=native_root_pins,
+            )
         if worker_wheel_directory is not None and worker_dependency_inputs != {
             path.name: file_identity(path)
             for path in sorted(worker_wheel_directory.iterdir())
@@ -3574,6 +3785,8 @@ def _main() -> int:
             report["retained"] = _retain_qualified_html(
                 repository, root / "golden-created", report["artifact"]
             )
+        if native_root_pins is not None:
+            native_root_pins.require_unchanged()
         retained_manifest = _retain_qualified_wheel(
             repository,
             wheel_files[0],
@@ -3607,6 +3820,11 @@ def _main() -> int:
                     "html_observability": html_observability,
                     "tree_html": tree_html,
                     "rust_library_harness": rust_harness,
+                    **(
+                        {"installed_native_root_qualification": native_root_journeys}
+                        if native_root_journeys is not None
+                        else {}
+                    ),
                     "project_identity_migration": identity_migration,
                     "skills": sorted(installed),
                     "snapshot_replication_schema": replication_schema,

@@ -76,6 +76,7 @@ class LiveNativeRootRun:
         "_upstream",
         "_bindings",
         "_original_binding_uris",
+        "_claimed_roots",
     )
 
     def __init__(self):
@@ -171,6 +172,23 @@ class LiveNativeRootRun:
         except BaseException:
             self.close()
             raise
+
+    def _claim_root_sequence(self, root: ContentIdentity) -> None:
+        """Refuse a second candidate counter for an already admitted root.
+
+        This consumes no host-execution grant. A failed or closed sequence
+        cannot buy a fresh candidate allowance from the same original run.
+        """
+        self.require_current()
+        if type(root) is not ContentIdentity:
+            raise NativeRootRunError("binding_invalid")
+        root.__post_init__()
+        with self._lock:
+            if not self._active:
+                raise NativeRootRunError("closed")
+            if root.uri in self._claimed_roots:
+                raise NativeRootRunError("root_already_claimed")
+            self._claimed_roots.add(root.uri)
 
     def close(self) -> None:
         if self._seal is not self or self._pid != os.getpid():
@@ -281,6 +299,7 @@ def open_native_root_run(
     owner._upstream = original_remaining
     owner._bindings = bindings
     owner._original_binding_uris = original_binding_uris
+    owner._claimed_roots = set()
     try:
         owner.require_current()
         yield owner

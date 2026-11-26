@@ -20,6 +20,7 @@ from literate_ai.contracts.retained_libraries import (
     RetainedLibraryGatePolicy,
 )
 from literate_ai.contracts.retained_python import RetainedPythonWorkspacePlan
+from literate_ai.contracts.retained_python_authored import AuthoredRetainedPythonBinding
 from literate_ai.contracts.retained_python_tests import RetainedPythonTestInventory
 from literate_ai.projects import (
     PROJECT_FILENAME,
@@ -49,7 +50,7 @@ def _require_native(nodes, ancestry):
 @dataclass(frozen=True, slots=True)
 class RetainedPythonReviewedFiles:
     project: LoadedProject
-    binding: RetainedLibraryBinding
+    binding: RetainedLibraryBinding | AuthoredRetainedPythonBinding
     plan: RetainedPythonWorkspacePlan
     plan_content: bytes
     policy: RetainedLibraryGatePolicy
@@ -104,12 +105,91 @@ def read_retained_python_review(
     maximum_file_bytes=16 * 1024**2,
     maximum_total_bytes=64 * 1024**2,
 ):
+    """Read only the original v1 SOURCE binding under current review custody."""
+    return _read_retained_python_review(
+        project_root,
+        binding_path=binding_path,
+        reviewed_binding=reviewed_binding,
+        plan_path=plan_path,
+        gate_policy_path=gate_policy_path,
+        reviewed_gate_policy=reviewed_gate_policy,
+        harness_inventory_path=harness_inventory_path,
+        reviewed_harness_inventory=reviewed_harness_inventory,
+        test_inventory_path=test_inventory_path,
+        reviewed_test_inventory=reviewed_test_inventory,
+        maximum_file_bytes=maximum_file_bytes,
+        maximum_total_bytes=maximum_total_bytes,
+        _authored=False,
+    )
+
+
+def read_authored_retained_python_review(
+    project_root,
+    *,
+    binding_path,
+    reviewed_binding,
+    plan_path,
+    gate_policy_path,
+    reviewed_gate_policy,
+    harness_inventory_path,
+    reviewed_harness_inventory,
+    test_inventory_path,
+    reviewed_test_inventory,
+    maximum_file_bytes=16 * 1024**2,
+    maximum_total_bytes=64 * 1024**2,
+):
+    """Explicit authored Python codec; no archive-field origin selection."""
+    return _read_retained_python_review(
+        project_root,
+        binding_path=binding_path,
+        reviewed_binding=reviewed_binding,
+        plan_path=plan_path,
+        gate_policy_path=gate_policy_path,
+        reviewed_gate_policy=reviewed_gate_policy,
+        harness_inventory_path=harness_inventory_path,
+        reviewed_harness_inventory=reviewed_harness_inventory,
+        test_inventory_path=test_inventory_path,
+        reviewed_test_inventory=reviewed_test_inventory,
+        maximum_file_bytes=maximum_file_bytes,
+        maximum_total_bytes=maximum_total_bytes,
+        _authored=True,
+    )
+
+
+def _read_retained_python_review(
+    project_root,
+    *,
+    binding_path,
+    reviewed_binding,
+    plan_path,
+    gate_policy_path,
+    reviewed_gate_policy,
+    harness_inventory_path,
+    reviewed_harness_inventory,
+    test_inventory_path,
+    reviewed_test_inventory,
+    maximum_file_bytes=16 * 1024**2,
+    maximum_total_bytes=64 * 1024**2,
+    _authored=False,
+):
     """Pin operator-reviewed references, never candidate-derived approval.
 
     Paths are coordinates. Review references must come from independent current
     importer authority. Matching documents do not prove current source coverage,
     parity, tool measurements or the qualification of any named provider.
     """
+    if type(_authored) is not bool:
+        raise TypeError("retained.python.explicit-review-codec-required")
+    if _authored:
+        from literate_ai.adapters.retained_python_authored import (
+            _reopen_authored_python_plan,
+        )
+
+        binding_decoder = AuthoredRetainedPythonBinding.from_dict
+        plan_decoder = _reopen_authored_python_plan
+    else:
+        binding_decoder = RetainedLibraryBinding.from_dict
+        plan_decoder = reopen_retained_python_plan
     if (
         type(maximum_file_bytes) is not int
         or type(maximum_total_bytes) is not int
@@ -189,15 +269,11 @@ def read_retained_python_review(
             raise ValueError("retained.python.review-document-invalid") from None
 
     def capture():
-        binding = parse(
-            read(binding_path, reviewed_binding), RetainedLibraryBinding.from_dict
-        )
+        binding = parse(read(binding_path, reviewed_binding), binding_decoder)
         if binding.importer_project_id != configuration.definition.project_id:
             raise ValueError("retained.python.review-project-mismatch")
         plan_content = read(plan_path, binding.workspace_plan)
-        plan = reopen_retained_python_plan(
-            plan_content, binding, max_bytes=maximum_file_bytes
-        )
+        plan = plan_decoder(plan_content, binding, max_bytes=maximum_file_bytes)
         policy = parse(
             read(gate_policy_path, reviewed_gate_policy),
             RetainedLibraryGatePolicy.from_dict,

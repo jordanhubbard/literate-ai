@@ -190,5 +190,27 @@ and release qualification. See
 The [foundation development record](../../verification/native-root-continuation-foundation-development.json)
 separately records the closed contracts, policy selection and lifetime controls.
 It leaves CLI admission, the shared root controller, native/package custody and
-capture/replay integration open. The maintained actual late-package counterexample
-still reproduces the missing continuation.
+capture/replay integration open. At that foundation checkpoint, the maintained actual late-package counterexample
+reproduced the missing continuation.
+
+
+## Implementation evidence — source development, 2026-11-24
+
+The [scoped native source record](../../verification/native-root-late-source-journey-development.json)
+retains the first complete maintained late-package journey: actual early 42,
+packaged 41, fresh replacement, early 42 and packaged 42, with two distinct
+requests/workspaces and the fixture's current receipt. It passes in 317.312
+seconds with the selected original run and verifier limits unchanged. The source
+provider and framework-distribution observation are controlled. This establishes
+the source continuation behavior; the installed, full replay, held-dependency,
+platform and release acceptance requirements above remain mandatory and open.
+
+The later [mixed source-journey record](../../verification/native-root-mixed-source-journeys-development.json)
+retains three passing actual Rust/Cargo journeys in 1,154.766 seconds: the original
+late replacement, compiler rejection followed by packaged rejection and final
+acceptance on candidate three, and build/test/package exhaustion with no fourth
+allocation or publication. The real compiler error and complete zero-exit failed
+generated-test protocol retain their original factual capture and shared budget.
+The record identifies the exact historical dirty source; later collected replay
+and receiving changes require their own verification. It closes no installed,
+live-model, full replay, temporal, held-dependency, platform or release gate.

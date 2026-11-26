@@ -70,6 +70,50 @@ HARNESS = b"""fn main() {
 """
 
 
+def _archive_search_roots():
+    """Prefer explicit local inputs; never follow ambient cache directory links.
+
+    The exact upstream archive size/hash checks still belong to prepare_vendor.
+    This selection neither fetches archives nor changes the operator cache.
+    """
+    import stat
+
+    configured = os.environ.get("LITAI_TEST_RUST_ARCHIVES")
+
+    def directory(path):
+        if not path.is_absolute() or ".." in path.parts:
+            raise ValueError(
+                "fixture archive directory must be an absolute native path"
+            )
+        current = Path(path.anchor)
+        for part in path.parts[1:]:
+            current /= part
+            if not stat.S_ISDIR(current.lstat().st_mode):
+                raise ValueError(
+                    "fixture archive ancestry must contain real directories"
+                )
+        return path
+
+    if configured is not None:
+        return (directory(Path(configured)),)
+    try:
+        base = directory(Path.home() / ".cargo/registry/cache")
+    except (OSError, ValueError) as error:
+        raise unittest.SkipTest(
+            "native archives unavailable through real local cache directories; "
+            "set LITAI_TEST_RUST_ARCHIVES to exact local upstream archives"
+        ) from error
+    roots = []
+    for index, candidate in enumerate(base.glob("*")):
+        if index >= 32:
+            raise ValueError("fixture archive cache directory inventory is excessive")
+        try:
+            roots.append(directory(candidate))
+        except (OSError, ValueError):
+            continue
+    return tuple(roots)
+
+
 def prepare_native_verifier_class(cls):
     """Provision a genuine direct-native class seed once, before oracle capture."""
     from literate_ai.adapters.builders.cargo import discover_cargo_toolchain
@@ -82,12 +126,21 @@ def prepare_native_verifier_class(cls):
 
     if not shutil.which("cargo") or not shutil.which("rustc"):
         raise unittest.SkipTest("native Cargo and rustc are unavailable")
-    candidates = tuple((Path.home() / ".cargo/registry/cache").glob("*"))
+    import stat
+
+    candidates = _archive_search_roots()
+
+    def actual_archive(root, name):
+        try:
+            return stat.S_ISREG((root / (name + ".crate")).lstat().st_mode)
+        except OSError:
+            return False
+
     archives = next(
         (
             root
             for root in candidates
-            if all((root / (name + ".crate")).is_file() for name in CRATES)
+            if all(actual_archive(root, name) for name in CRATES)
         ),
         None,
     )
@@ -353,7 +406,11 @@ class NativeRustVerifierFixture:
         self.author_oracle()
 
     def author_oracle(
-        self, *, specification_identity=None, library_manifest="Cargo.toml"
+        self,
+        *,
+        specification_identity=None,
+        library_manifest="Cargo.toml",
+        timeout_seconds=180,
     ):
         roots = (
             ("cargo-home", "cargo-home"),
@@ -390,7 +447,7 @@ class NativeRustVerifierFixture:
             resolution(library_manifest=library_manifest),
             self.cargo.toolchain_identity,
             self.rustc.toolchain_identity,
-            180,
+            timeout_seconds,
             1024**2,
             1024**2,
         )

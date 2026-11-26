@@ -307,6 +307,9 @@ class StandardLifecycleCheckpointRecorder(Protocol):
 
 
 class StandardContextEvidenceRecorder(ComponentContextEvidenceRecorder, Protocol):
+    def start_attempt(self) -> None:
+        """Reset this candidate's projection, retaining prior durable evidence."""
+
     @property
     def prompt_journal_identities(self) -> tuple[ContentIdentity, ...]: ...
 

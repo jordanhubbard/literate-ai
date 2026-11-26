@@ -1,0 +1,173 @@
+{
+  "scope": "controlled-provider SOURCE native continuation development; no installed/live-model/whole-release qualification",
+  "recorded_at": "2026-11-24T13:09:34.409093+00:00",
+  "base_revision": "75125268c86915bd2e535a24cc58ad2a88878d8c",
+  "dirty_source": true,
+  "source_and_test_sha256": {
+    "src/literate_ai/adapters/builders/_process.py": "9b9a361e404023b1892ceb0bad89a532a31d0d43af65b80f5ff89119cf0926e4",
+    "src/literate_ai/adapters/cache/_publication.py": "edaf504f41ffaf2689123b4f7de82ff61c5124f9426768c6d535e32a3ed6c378",
+    "src/literate_ai/adapters/cache/filesystem.py": "34c36f58801111216362d145e308314b47b40e5a2fba10c317b940a6c7a27d2c",
+    "src/literate_ai/adapters/cache/standard.py": "73eb652177f70c255d97ed68cbb3808cb1a15613dc7c5837fd652da06e4baea2",
+    "src/literate_ai/adapters/candidate_repair.py": "e61c097f20c66533c053f0ace6efbb4631ea67b82668faa492c11e29b90c472c",
+    "src/literate_ai/adapters/lifecycle/standard_local.py": "bb3f9ff01647369b099f7a10bd88d3ad97f65d4e1eca969291aac3c8bdf40ac7",
+    "src/literate_ai/adapters/models/coding_cli.py": "dd2588096b122959d0eca1a3a4544a6612d6c25ec6b28ad13f3226253e792aeb",
+    "src/literate_ai/adapters/native_candidate_verification.py": "958a8d353af4cf688ab9613e40b6594f1786a847bd021be4999dcc9f67bad95d",
+    "src/literate_ai/adapters/native_root_capture.py": "d7df9f83e8e315a98eaa0d33c459408fd536e2247f63b8427f6fb2592ccf9119",
+    "src/literate_ai/adapters/native_root_continuation.py": "d160c1c543e977c49da3f536d50aca8925289c3d18870b2c3da998e119f8a515",
+    "src/literate_ai/adapters/native_root_preparation_replay.py": "e1d2e49d5e2f7ca6520f65f8e03979a60fcc41855e01f711f3a27cfc3040ba2c",
+    "src/literate_ai/adapters/native_root_provider_replay_context.py": "a180fdea6f41e3f9b696ad87f45a80a84735bb7882e4ed9e054883bd39e4dd18",
+    "src/literate_ai/adapters/native_root_qualified_provider.py": "1425c4ce7d3c138e02b56464dcdea33601656cf4945ae3685eeb671c79af742f",
+    "src/literate_ai/adapters/native_root_rejection_replay.py": "1d0c24b50bf7fe234f5275ab148b959cd09ec2a87b37829d655d1d3864d2fe8f",
+    "src/literate_ai/adapters/native_root_replay.py": "bc39695413111eb11dfd1997307f5f926fb7ac9637a624b689adac3690ea2747",
+    "src/literate_ai/adapters/native_root_run_admission.py": "852fc04690bc851f36940a1c42f27b00344fb990cb4398ff5f6a9bfeb91ab1ae",
+    "src/literate_ai/adapters/qualification.py": "cf9f9897c04ee7ea3b8a38a230efdad8332044c44f95b6e9e03420e708b4b361",
+    "src/literate_ai/adapters/qualification_capture.py": "13398dfac09c84d2403bd7b788a72e9539a4317557a6d6581a203c0b08bb7c82",
+    "src/literate_ai/adapters/retained_cargo_import_v2.py": "144c5f72d552e8cbec6badaf37130acd7630dfd5097313318e123cb6bf491cf2",
+    "src/literate_ai/adapters/rust_library_harness_execution.py": "a5b50d66b19e07ae29ffe29f39f3b6f08b6ab9cbc7a4dd0065a6700dc3508aed",
+    "src/literate_ai/adapters/standard_project.py": "96f4f23d59f456841f2b0de2854fdda2dd1d7c1f45370129dce07f43f5fd3be5",
+    "src/literate_ai/adapters/standard_rebuild.py": "b2d6c645d52e71951870bf3969da5a17243cea504181066145cd5ba3ab3ad846",
+    "src/literate_ai/application/native_root_candidate_sequence.py": "7fcbb70ccb61e420f720ff80d09b52b3cac70c631a20bcf1018a586a1e07444f",
+    "src/literate_ai/application/native_root_continuation.py": "39c9bd07dab388a3fcc25111f9046b0447a6ff3b35230355a732d0f40dba7ee3",
+    "src/literate_ai/application/native_root_preparation_retention.py": "dda140d1bc1917835a05dba76c47b3ea5d0f1c5b58ce2e1d80bd3a01ad457ff7",
+    "src/literate_ai/application/native_root_repair_prompt.py": "f1494ba85a29c340b81555942b918b81d0cd2c7ef712668768d94a3b6d341f79",
+    "src/literate_ai/application/native_root_run.py": "f083ea714f797d3980fc19d1bd96ac7ef67965c43d3526beb39d9f2e6ac7395b",
+    "src/literate_ai/application/source_generation_scheduling.py": "24c3f03220c6bab1ac7312dde5d084e4ed69230bc7a97010d431ba2d8f44a9db",
+    "src/literate_ai/application/standard_lifecycle_ports.py": "934e68d9fb79a06294d976d2c2d6c3a56e3d17bbca4dc52d576d9f2eb3f4f3a5",
+    "src/literate_ai/application/standard_project_lifecycle.py": "63740ba171d85f81afeba5fcb696244691bcc6b2502a39062dfe179b9ebed27e",
+    "src/literate_ai/application/standard_project_services.py": "6023381131c48d71ec4f643d99707f3bbb7ca71a738a19849a9e8f46208c8172",
+    "src/literate_ai/cli/rebuild.py": "2821204e42a7c8ad77ccbb200c37e7b78bb1ef0266372242e08ff85192bdaca8",
+    "src/literate_ai/project_source_index.py": "fee294e2192428eb8060637f06cd13689a97cf0f21efae1663d9530d290d8b17",
+    "src/literate_ai/test_receipts.py": "7dcf7daf0ef8c414fd5fa85fca5f3ed23a1713e0e64d7a0a6a1bc2e31dfa3e08",
+    "tests/critical/test_native_root_adapter_custody.py": "ff534d2512932c90f1a4aa601cf558208091e6aad82c061f1dbb5d8de6016572",
+    "tests/critical/test_native_root_binding.py": "513472ca4fb8d00fe5842812895bfb90e6947decba0bcbb43c3fd0d03c557673",
+    "tests/critical/test_native_root_candidate_repair_port.py": "72dc86df05b58facdb6482ddeba5d2dbb1fef1b22d72dc115f239c48cdb7c0aa",
+    "tests/critical/test_native_root_candidate_sequence.py": "d62a7a69071b6ec42029efe5497989fadbc9edb775e9315ae393c79a5c8c1d2e",
+    "tests/critical/test_native_root_cli_aggregate.py": "b0e1d7004cbf1a6ab33608b527ba0d6baee816800aa560a5e615ba28a035c648",
+    "tests/critical/test_native_root_completion_deadline.py": "24737485f07e798020c9d3906a07d7010e6fe74ed1251c67032ddc6ee6f6e57d",
+    "tests/critical/test_native_root_context_projection.py": "4457e51d0ceaf88074b1492a07ea68f24f8a89259fbbdc7292fc2af530706327",
+    "tests/critical/test_native_root_controller_terminal.py": "3e928977f9882d95a25c05d23386e11192e39d995452675e10aae5c707543454",
+    "tests/critical/test_native_root_deadline_propagation.py": "e165cb25d8bb46d7dff1fc8da2c3278710fa5e3e426961be560ce0415cace400",
+    "tests/critical/test_native_root_export_capture.py": "6f8301a5ff3f98ccc56cdc51814164ce4e9e4309da2aba6f8d6f79143d164508",
+    "tests/critical/test_native_root_finalizer_eligibility.py": "20fe7b7d1e98df326683314b97520cca1a1429ae0d3f21ccde32b8607976a856",
+    "tests/critical/test_native_root_guard_pairing.py": "cff3f14d5c42a4afbe510d228836503bfed2c7530234bcf04f5f749bc27ccfa8",
+    "tests/critical/test_native_root_history_capture.py": "92439bc1e7c5f76097c346b3fea5068e526a66b9a5f2fa3a8ee020495ff221f2",
+    "tests/critical/test_native_root_index_deadline.py": "6ca98e89ee79c90c70e1ee75b1377d4812c76bc9488d65f2c23a3f949a91af23",
+    "tests/critical/test_native_root_node_decoder.py": "05ecf53cba598658042be830a30facba4879cd0a633313b00fd35ca8587de5c3",
+    "tests/critical/test_native_root_package_capture.py": "4a5fe4c1f95919f52d4bf2670b4cbab8112580dd4e4608656fd019e2d6357c32",
+    "tests/critical/test_native_root_packaged_guards.py": "72d8b63fae97ee3212c95213a53c40a63d7689f54d89ec18c8433f22bd3e534c",
+    "tests/critical/test_native_root_precheck_guards.py": "c217f457355451e67843e72392328c570257509518728a66798dd88363a83b82",
+    "tests/critical/test_native_root_preparation_preimages.py": "ab8da2d5ba866ce4edc4973bbfa06ea1733a18cddaa2b8a9377e367d57ed4d47",
+    "tests/critical/test_native_root_preparation_replay.py": "756928fbfb6c49f5a76d66a6ee16e17e53c86ca8212f2817263fc8ae09651218",
+    "tests/critical/test_native_root_preparation_retention.py": "a374a8b2a146ec910a8592d02c35f013c426914bec103017d0f670e8221dcd4c",
+    "tests/critical/test_native_root_provider_replay_context.py": "38a1f7fe54ac063c0f61bcfd5b5cada854e10e8b1acc80f7d788f89778fb277d",
+    "tests/critical/test_native_root_qualification_admission.py": "0e745e9adb1512a0d6d9e6842edc2f3e58078ecf47dedf0d12b2e3a9d7ab81b2",
+    "tests/critical/test_native_root_qualified_provider.py": "867c335ed4d500616509f820a2ad65afdf9333f065d13f0ac4f6abd15e46cb2c",
+    "tests/critical/test_native_root_qualified_provider_operations.py": "8ec3688cac91312454a97b27c580897e6b665475e3de8c48fcc9ea6b09497d75",
+    "tests/critical/test_native_root_rejection_close.py": "5c70e5dcfa67d9e5a23813b05a0cfb22037c0e2b2787ef49b78bf45aeda08172",
+    "tests/critical/test_native_root_rejection_replay.py": "a15c84bb0af7ce693ef6cedf56b20294b52615d989adc77d9e0a3865e7e18548",
+    "tests/critical/test_native_root_repair_prompt.py": "cb3e17da8c48f72281ac051b8e9f658be93dc961810b48b4b5b0ad89ced5eba9",
+    "tests/critical/test_native_root_replay.py": "b6b7aa3903bf65411fb919cfd0b3375c9cb3096fd65f41a52a5295925ea94a29",
+    "tests/critical/test_native_root_retained_mode.py": "dc5f16442eb8f090d85c3134801e18f8f698b76ac58416060459cc1361b18c91",
+    "tests/critical/test_native_root_run_admission.py": "f7e3abf7da47c14cf8b9b69a4337654f7becd174f26eafee162bd70fd8225070",
+    "tests/critical/test_native_root_run_bridge.py": "3b8ee8c99321d4dc3b82e8a144e9a2957f9cf7980f727727244806f8369066f8",
+    "tests/critical/test_native_root_runtime_plan.py": "a72846d4e8429482b62b3f57998f26eb3e624de10ededa886341c93b3e5e0e1f",
+    "tests/critical/test_native_root_scheduler_deadline.py": "8036252efe92e565e662579f8994507cc52a40c92bf9fbc6129bf9d1b7859c60",
+    "tests/critical/test_native_root_sequence_review.py": "b2560933fe0b82bc946611121aaab76ab64c44a7d634cf8ea7c5c109d3c491fd",
+    "tests/critical/test_native_root_snapshot.py": "da126b8ce644cec9d63aafd55e937b953ec1570709d1524121b5c397bfbd3f05",
+    "tests/critical/test_rust_fixture_archive_selection.py": "e9a9f2bd81441732947bcd399498e128a8d2f0fa97682a53e21c8ade0eae07d0",
+    "tests/critical/test_rust_harness_observer_pairing.py": "2977ecb180cad2498fc4afefa366b1dab3b2d907566079092746381651b891cb",
+    "tests/critical/test_rust_harness_operation_budget.py": "8da11bd7ddd886aee4e74e57d31d7d3bff714273a434cce81db98ec569737dc5",
+    "tests/critical/test_rust_harness_outcome.py": "ab35b89bb97ed90fce27f1e7ab19a936264a88ad25860aa92520ba1715081659",
+    "tests/critical/test_source_cache_publication_transaction.py": "9fda80a00beb28cc2cdd4d1aa1df72b39218cdc944882f648ce4dd10d4472a7b",
+    "tests/e2e/test_native_late_package_counterexample.py": "6455643a733131a7283bb77579bd3854d1364ad0e4bfc48d46ec921080faa7ad",
+    "tests/support/fixtures_rust_library_harness.py": "516d28047fe6a7cbb9bad7b120c07a8e744e6c287df27aeb7e23f9a3610f6993",
+    "tests/support/fixtures_test_standard_project_lifecycle.py": "1e0594678a427292038c7a4d2192625cf62e695335bef69ddb4fe9ab12c5d2ed"
+  },
+  "canonical_runner": "make python-check",
+  "pattern": "test_native_late_package_counterexample.py",
+  "python_test_workers": 1,
+  "result": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 317.312,
+    "native": [
+      {
+        "stage": "early-export",
+        "answer": 42,
+        "exit": 0
+      },
+      {
+        "stage": "final-package",
+        "answer": 41,
+        "exit": 0
+      },
+      {
+        "stage": "early-export",
+        "answer": 42,
+        "exit": 0
+      },
+      {
+        "stage": "final-package",
+        "answer": 42,
+        "exit": 0
+      }
+    ],
+    "requests": 2,
+    "distinct_requests_and_workspaces_asserted": true,
+    "fixture_current_receipt_asserted": true,
+    "oracle_unchanged_asserted": true,
+    "native_streams_replaced": false
+  },
+  "selected_bounds": {
+    "original_run_seconds": 1800,
+    "candidate_limit": 3,
+    "fixture_verifier_seconds": 300,
+    "legacy_fixture_verifier_seconds": 180,
+    "production_limits_changed": false,
+    "full_temporal_and_arbitrary_future_cancellation_qualification": false
+  },
+  "supporting_checks": {
+    "controller_history_cohort": {
+      "passed": 295,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 96.264,
+      "pattern": "test_native_root_[!q]*.py",
+      "whole_source_suite": false
+    },
+    "journal_projection": {
+      "passed": 11,
+      "seconds": 5.54,
+      "real_cas": true,
+      "native_commands": false
+    },
+    "static": {
+      "lint": true,
+      "format_files": 2475,
+      "repository_layout": true,
+      "public_export": true
+    }
+  },
+  "framework_observation": {
+    "kind": "explicit synthetic source-fixture distribution",
+    "version": "1.1.0",
+    "installed_wheel_identity_qualified": false
+  },
+  "source_provider": "controlled external fixture process, not a live model",
+  "raw_report": {
+    "file": "native-root-context-projection-actual-report.json",
+    "sha256": "26e67b1689009134a7ff1a78460a40a42f2e48422751c8fcecbaf10f5e2b3a05"
+  },
+  "raw_fixture_retained_locally": true,
+  "remaining": [
+    "strict complete historical source/stage/package/native replay and trusted-current ingress",
+    "held already-qualified external library runtime/planner/assembly integration and actual producer-first proof",
+    "two independently allocated installed qualification runs",
+    "full source/noneditable wheel and Linux/macOS/Windows installed/native gates",
+    "independent review, exact-head/resulting-main delivery and complete release lifecycle"
+  ],
+  "roadmap_parent_closed": false,
+  "authority_or_receipt_repins": false,
+  "nas_or_configured_worker_actions": false
+}

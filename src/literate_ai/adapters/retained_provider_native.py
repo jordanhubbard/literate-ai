@@ -42,6 +42,14 @@ class RetainedProviderNative:
             {item.component_revision: item for item in self.toolchain.contracts}
         )
 
+    @property
+    def provider_id(self) -> str:
+        return self.provider.provider_id
+
+    @property
+    def pipeline_model(self) -> str | None:
+        return self.provider.pipeline_model
+
     def require_unchanged(self) -> None:
         # Reuse only existing read-only parsing observations in this one guard.
         # Every callback, complete graph and fresh byte check still runs; Flavor

@@ -41,6 +41,14 @@ class RetainedProviderAuthority:
     lifecycle: ResolvedStandardProjectLifecycleDriver
     _configuration: PinnedInputClosure = field(repr=False, compare=False)
 
+    @property
+    def provider_id(self) -> str:
+        return self.generation.provider_id
+
+    @property
+    def pipeline_model(self) -> str | None:
+        return self.generation.pipeline_model
+
     def require_unchanged(self) -> None:
         require_safe_directory(self.project.root)
         self._configuration.require_unchanged()
@@ -62,6 +70,7 @@ def read_retained_provider_authority(
     profile_path: str,
     pipeline_model: str | None = None,
     maximum_file_bytes: int = 16 * 1024 * 1024,
+    qualified_library_inputs=None,
 ) -> RetainedProviderAuthority:
     """Resolve provider expectations from current files and installed authority.
 
@@ -96,7 +105,14 @@ def read_retained_provider_authority(
         raise ValueError("retained.provider.standard-driver-required")
     lifecycle = resolve_standard_project_lifecycle_driver(driver)
     generation = read_retained_provider_generation(
-        request, provider_id=provider_id, pipeline_model=pipeline_model
+        request,
+        provider_id=provider_id,
+        pipeline_model=pipeline_model,
+        **(
+            {"qualified_library_inputs": qualified_library_inputs}
+            if qualified_library_inputs is not None
+            else {}
+        ),
     )
     if not generation.prepared.component_root.is_relative_to(root):
         raise ValueError("retained.provider.component-outside-project")

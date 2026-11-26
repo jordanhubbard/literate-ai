@@ -8,6 +8,7 @@ import stat
 import tempfile
 from pathlib import Path
 
+from literate_ai.application.native_root_run import current_native_root_run
 from literate_ai.contracts import (
     PROJECT_TEST_RECEIPT_FINALIZED_CANDIDATE_SCHEMA,
     PROJECT_TEST_RECEIPT_PROVISIONAL_SCHEMA,
@@ -773,6 +774,7 @@ def _update_project_test_receipt_bytes(
     finalized: ProjectTestReceiptFinalizedCandidate | None,
     candidate: bytes,
 ) -> dict[str, object]:
+    owner = current_native_root_run()
     target = _target(project, create_parent=True)
     if target is None:
         raise ProjectError(
@@ -797,12 +799,16 @@ def _update_project_test_receipt_bytes(
                 "configured project test receipt is not canonical JSON",
             )
         if before == candidate:
+            if owner is not None:
+                owner.require_current()
             return {
                 "path": target.relative_to(project.root).as_posix(),
                 "identity": receipt.identity.uri,
                 "updated": False,
             }
 
+    if owner is not None:
+        owner.require_current()
     descriptor, temporary_name = tempfile.mkstemp(
         prefix=f".{target.name}.", suffix=".tmp", dir=target.parent
     )
@@ -830,6 +836,8 @@ def _update_project_test_receipt_bytes(
                 "project.test_receipt_changed",
                 "project test receipt target changed during atomic replacement",
             )
+        if owner is not None:
+            owner.require_current()
         os.replace(temporary, target)
     except BaseException:
         temporary.unlink(missing_ok=True)

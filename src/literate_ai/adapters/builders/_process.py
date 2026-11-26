@@ -13,6 +13,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import BinaryIO
 
+from literate_ai.adapters.worker_telemetry_processes import (
+    register_original_process_launch,
+    retire_original_process_observation,
+)
 from literate_ai.application.native_root_run import current_native_root_run
 from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
 
@@ -197,10 +201,12 @@ def run_bounded_process(
             native_command_not_started()
         ownership.release()
         raise
+    observation = None
     writer = None
     readers: list[threading.Thread] = []
     try:
         ownership.bind(process.pid)
+        observation = register_original_process_launch(process)
         assert process.stdout is not None and process.stderr is not None
         streams = {
             "stdout": (process.stdout, stdout_limit_bytes),
@@ -461,13 +467,16 @@ def run_bounded_process(
                         "Native process closure refused: " + str(error)
                     )
         finally:
-            ownership.release()
-            _close_process_pipes(process)
-            if process.stdin is not None:
-                with suppress(OSError, ValueError):
-                    process.stdin.close()
-            if writer is not None and writer.ident is not None:
-                writer.join(timeout=_STREAM_JOIN_SECONDS)
+            try:
+                retire_original_process_observation(observation)
+            finally:
+                ownership.release()
+                _close_process_pipes(process)
+                if process.stdin is not None:
+                    with suppress(OSError, ValueError):
+                        process.stdin.close()
+                if writer is not None and writer.ident is not None:
+                    writer.join(timeout=_STREAM_JOIN_SECONDS)
 
 
 __all__ = ["BoundedProcessResult", "run_bounded_process"]

@@ -29,6 +29,7 @@ from literate_ai.adapters.project_runtime import (
     ProjectRuntimeError,
     project_inspection_staging,
 )
+from literate_ai.application.native_root_run import current_native_root_run
 from literate_ai.cache_directories import CacheDirectoryError
 from literate_ai.contracts import (
     ProjectSourceIntelligencePolicy,
@@ -454,6 +455,30 @@ class _CodeGraphCommandEngine:
     def _run_git(self, root: Path, git: str, *arguments: str) -> bytes | None:
         environment = self._environment()
         environment["GIT_OPTIONAL_LOCKS"] = "0"
+        owner = current_native_root_run()
+        if owner is not None:
+            from literate_ai.adapters.builders._process import run_bounded_process
+            from literate_ai.adapters.builders.python import BuildError
+
+            try:
+                result = run_bounded_process(
+                    (git, "-c", "core.fsmonitor=false", *arguments),
+                    cwd=root,
+                    environment=environment,
+                    timeout_seconds=min(self.timeout_seconds, 30),
+                    stdout_limit_bytes=50 * 1024 * 1024,
+                    stderr_limit_bytes=_MAXIMUM_COMMAND_OUTPUT_BYTES,
+                    error_prefix="project.source_intelligence_git",
+                    trace=False,
+                    terminate_descendants=True,
+                )
+            except BuildError:
+                # A normal Git refusal can select the bounded filesystem
+                # snapshot fallback. Original-run expiry cannot select one.
+                owner.require_current()
+                return None
+            owner.require_current()
+            return result.stdout if result.returncode == 0 else None
         try:
             result = subprocess.run(
                 (git, "-c", "core.fsmonitor=false", *arguments),
@@ -751,6 +776,11 @@ class _CodeGraphCommandEngine:
     def _run(self, cwd: Path, *arguments: str) -> str:
         executable = self._require_executable()
         expected_identity = self._require_executable_identity()
+        owner = current_native_root_run()
+        if owner is not None:
+            return self._run_in_native_root_run(
+                owner, executable, expected_identity, cwd, *arguments
+            )
         stdout = bytearray()
         stderr = bytearray()
         exceeded = threading.Event()
@@ -842,6 +872,58 @@ class _CodeGraphCommandEngine:
                 "the CodeGraph executable changed during use",
             )
         ownership.release()
+        return output
+
+    def _run_in_native_root_run(
+        self, owner, executable, expected_identity, cwd: Path, *arguments: str
+    ) -> str:
+        """Use the original run's bounded process owner for indexed commands."""
+        from literate_ai.adapters.builders._process import run_bounded_process
+        from literate_ai.adapters.builders.python import BuildError
+
+        try:
+            result = run_bounded_process(
+                (str(executable), *arguments),
+                cwd=cwd,
+                environment=self._environment(),
+                timeout_seconds=self.timeout_seconds,
+                stdout_limit_bytes=_MAXIMUM_COMMAND_OUTPUT_BYTES,
+                stderr_limit_bytes=_MAXIMUM_COMMAND_OUTPUT_BYTES,
+                error_prefix="project.source_intelligence_command",
+                trace=False,
+                terminate_descendants=True,
+            )
+        except BuildError as exc:
+            owner.require_current()
+            if exc.code.endswith("_timeout"):
+                code = "project.source_intelligence_command_timeout"
+            elif exc.code.endswith("_output_limit"):
+                code = "project.source_intelligence_command_output_limit"
+            else:
+                code = "project.source_intelligence_command_unavailable"
+            raise ProjectSourceIntelligenceError(
+                code, "The bounded CodeGraph command could not complete"
+            ) from exc
+        owner.require_current()
+        try:
+            output = result.stdout.decode("utf-8", errors="strict")
+            result.stderr.decode("utf-8", errors="strict")
+        except UnicodeError as exc:
+            raise ProjectSourceIntelligenceError(
+                "project.source_intelligence_command_output_invalid",
+                "the CodeGraph command returned non-UTF-8 output",
+            ) from exc
+        if result.returncode != 0:
+            self._fail(
+                "project.source_intelligence_unhealthy",
+                f"the CodeGraph {arguments[0]} command failed",
+            )
+        if self._require_executable_identity() != expected_identity:
+            self._fail(
+                "project.source_intelligence_command_changed",
+                "the CodeGraph executable changed during use",
+            )
+        owner.require_current()
         return output
 
     @staticmethod
