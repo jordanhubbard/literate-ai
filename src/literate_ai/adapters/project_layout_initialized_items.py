@@ -55,6 +55,14 @@ def original_initialized_item_inventory(
             if top == "flavors" and path.name == "flavor.md"
             else "component"
             if top in {"components", "samples"} and path.name == "component.md"
+            else "workflow"
+            if top == "workflows"
+            and (path.name == "workflow.md" or len(path.parts) == 2)
+            and path.suffix == ".md"
+            else "routing"
+            if top == "routing"
+            and (path.name == "routing.json" or len(path.parts) == 2)
+            and path.suffix == ".json"
             else None
         )
         if kind is None:
@@ -100,14 +108,22 @@ def original_initialized_item_inventory(
         # Component metadata is retained here only as a proven initialized file.
         # Its original typed producer/endpoint owner is REQUIRED by the caller;
         # this resolver cannot issue Component currentness or writer fences.
-        boundaries[path.parent.as_posix()] = (kind, logical, proof.identity)
+        # Original flat workflow/routing documents are individual items, not
+        # ownership of their entire catalog root. Directory-form items still
+        # require every original member and refuse unknown neighbors below it.
+        boundary = (
+            path
+            if kind in {"workflow", "routing"} and len(path.parts) == 2
+            else path.parent
+        )
+        boundaries[boundary.as_posix()] = (kind, logical, proof.identity)
 
     def owner(logical):
         path = PurePosixPath(logical)
         return next(
             (
                 parent.as_posix()
-                for parent in path.parents
+                for parent in (path, *path.parents)
                 if parent.as_posix() in boundaries
             ),
             None,

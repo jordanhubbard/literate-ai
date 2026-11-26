@@ -26575,6 +26575,21 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Original initialized workflow/routing items (source partial):** The real
+  installed f1d84cfe7 fixture passes metadata rollback/reapplication but its
+  framework-authority plan safely refuses missing workflow/routing item proofs,
+  a mixed Component root and documentation reference transitions. The original
+  managed-item inventory now recognizes directory and flat single-file workflow
+  and routing items through independently issued initialized-file proofs. Flat
+  items do not acquire their catalog root; unknown nested payload prevents whole
+  item placement and application neighbors retain the mixed-root refusal. Six
+  original-item controls and ten existing Component-capture controls pass, with
+  lint, formatting, repository layout and public export checks passing without
+  source drift. The installed framework regression remains open; this source
+  increment does not qualify full containment, producer renewal, supported
+  platforms, full source, independent review or release publication. All original
+  acceptance boxes remain open.
+
 - **Next action — runtime child retention and native platform custody (in progress):**
   Complete supported-platform native execution custody and the original remaining
   project-layout producer/lifecycle acceptance inventory. Preserve

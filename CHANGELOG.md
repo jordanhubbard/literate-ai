@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: recognize proven initialized workflow and routing items while preserving unknown payload and mixed catalog boundaries.
+
 - Project layout: verify a repaired installed SDK can recover the original failed metadata journal while preserving application source, Git state and unchanged archived history.
 
 - Project layout: exercise noneditable installed metadata migration and rollback with real initializer/harness records, early recovery-import checks, and retained source/Git preservation.

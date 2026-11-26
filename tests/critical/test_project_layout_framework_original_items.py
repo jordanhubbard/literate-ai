@@ -20,7 +20,7 @@ from tests.critical import test_project_layout_framework_source_proofs as suppor
 
 
 class OriginalInitializedItemTests(unittest.TestCase):
-    def fixture(self, build_files):
+    def fixture(self, build_files, *, extra=None):
         helper = support.InitializedFrameworkProofTests("runTest")
         self.addCleanup(helper.doCleanups)
         project, previous = helper.fixture()
@@ -43,6 +43,8 @@ class OriginalInitializedItemTests(unittest.TestCase):
             canonical_json_bytes(project.baseline.to_dict()) + b"\n",
         )
         project.write("litai/.literate/update-bases.json", bases.serialized())
+        for logical, content in (extra or {}).items():
+            project.write(logical, content)
         project.refresh()
         project.inventory["retained_implementation"] = None
         project.rehash()
@@ -73,6 +75,61 @@ class OriginalInitializedItemTests(unittest.TestCase):
             observations=project.observations,
         )
         return project, owner, files, public, private
+
+    def test_original_workflow_and_routing_items_include_flat_and_nested_forms(self):
+        names = (
+            "workflows/sample-host.md",
+            "workflows/production/staging/dev/workflow.md",
+            "routing/sample-host.json",
+            "routing/production/staging/dev/routing.json",
+        )
+
+        def files(owner):
+            return {name: owner.files[name] for name in names}, names
+
+        _project, _owner, original, public, private = self.fixture(files)
+        self.assertEqual(set(public["placements"]), set(names))
+        self.assertFalse(
+            any(
+                row["owner"] == "initializer-catalog"
+                for row in public["required_owners"]
+            )
+        )
+        for name, content in original.items():
+            self.assertEqual(private.rewritten_contents["litai/" + name], content)
+
+    def test_unknown_nested_workflow_member_prevents_whole_item_placement(self):
+        name = "workflows/production/staging/dev/workflow.md"
+
+        def files(owner):
+            return {name: owner.files[name]}, (name,)
+
+        project, _owner, _original, public, _private = self.fixture(
+            files,
+            extra={
+                "workflows/production/staging/dev/custom.txt": b"application data\n"
+            },
+        )
+        self.assertNotIn(name, public["placements"])
+        self.assertFalse(public["applicable"])
+        self.assertEqual(
+            project.contents["workflows/production/staging/dev/custom.txt"],
+            b"application data\n",
+        )
+
+    def test_flat_workflow_does_not_adopt_neighboring_application_file(self):
+        name = "workflows/sample-host.md"
+
+        def files(owner):
+            return {name: owner.files[name]}, (name,)
+
+        _project, _owner, _original, public, private = self.fixture(
+            files,
+            extra={"workflows/application.md": b"keep application notes\n"},
+        )
+        self.assertEqual(set(public["placements"]), {name})
+        self.assertNotIn("litai/workflows/application.md", private.rewritten_contents)
+        self.assertFalse(public["applicable"])  # mixed catalog root remains guarded
 
     def test_nearest_original_nested_skill_item_does_not_adopt_its_sibling(self):
         chosen = "skills/agent/align-workers/SKILL.md"
