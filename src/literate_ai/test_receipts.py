@@ -523,12 +523,18 @@ def write_project_test_receipt_provisional(
 
 
 def write_project_test_receipt_finalized_candidate(
-    path: Path, candidate: ProjectTestReceiptFinalizedCandidate
+    path: Path,
+    candidate: ProjectTestReceiptFinalizedCandidate,
+    *,
+    require_current=None,
 ) -> None:
     """Atomically expose one finalized candidate at a new external path."""
 
     if not isinstance(candidate, ProjectTestReceiptFinalizedCandidate):
         raise TypeError("candidate must be a ProjectTestReceiptFinalizedCandidate")
+    if require_current is not None and not callable(require_current):
+        raise TypeError("candidate currentness guard must be callable")
+    guard = (lambda: None) if require_current is None else require_current
     destination = Path(path)
     content = _canonical_finalized_candidate_bytes(candidate)
     temporary: Path | None = None
@@ -542,6 +548,7 @@ def write_project_test_receipt_finalized_candidate(
             or destination.exists()
         ):
             raise OSError
+        guard()
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=".litai-retained-candidate-", dir=parent
         )
@@ -553,6 +560,7 @@ def write_project_test_receipt_finalized_candidate(
         os.chmod(temporary, 0o600)
         observed = temporary.stat()
         committed_identity = (observed.st_dev, observed.st_ino)
+        guard()
         if os.name == "nt":
             os.rename(temporary, destination)
         else:
@@ -563,8 +571,9 @@ def write_project_test_receipt_finalized_candidate(
         loaded, canonical = load_project_test_receipt_candidate(destination)
         if loaded != candidate or canonical != content:
             raise OSError
+        guard()
         _fsync_directory(parent)
-    except (OSError, ProjectError) as exc:
+    except (OSError, ProjectError, ValueError, TypeError) as exc:
         try:
             if destination.exists() and not destination.is_symlink():
                 observed = destination.stat()

@@ -33513,20 +33513,26 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RETAINED-RECEIPT-PROMOTE-001 — Promote a verified retained-project run into the project test receipt
 
-- **Release target:** none assigned; requested by Daemonarchy 1.5.1
+- **Release target:** 1.4.0; the requesting consumer's release is separate.
 - **GitHub issue:** [#295](https://github.com/jordanhubbard/literate-ai/issues/295)
-- **Proposed decision:** [ADR 0060](../decisions/0060-retained-project-receipt-promotion.md); **accepted** by the directing user on 2026-11-04.
-- **Next action:** Merge the reviewed implementation, then qualify against a real retained run.
+- **Decision:** [ADR 0060](../decisions/0060-retained-project-receipt-promotion.md), corrected design explicitly accepted by the directing user on 2026-11-04. The accepted proposed-text identity is `dbdb2a0f30b0d293aeb70e88af49d7cf71887116f718ff36e8eb321bcdf6d0b9`; acceptance is recorded in [PR #297](https://github.com/jordanhubbard/literate-ai/pull/297#issuecomment-6636036548).
+- **Next action:** In progress: implement complete historical verification and genuine live admission capture under the corrected accepted contract before qualifying promotion.
 
 - **Priority:** P1
 - **Owner:** Retained-project lifecycle and project test receipts
-- **Direction:** Provide a supported, verified path from a passed retained-project run to `project test-receipt update` under a custom retained-suite policy without weakening any policy check.
-- **Conclusion:** `project test-receipt promote-retained` re-verifies custody, plan, policies, evidence and counts and emits a finalized candidate.
+- **Direction:** Provide a supported, verified path from a passed retained-project run to `project test-receipt update` under the consumer's unchanged custom suite and evidence policy.
+- **Conclusion:** The provisional implementation at `6b1f33d8` retains the three confirmed gaps from `421ce0f7`: acceptance streams are not compared, runner identity excludes semantic test policy, and identifier-only workspace/cache assertions overstate historical evidence. Reuse the complete canonical retained-run verification owners, repair missing command/output/dependency joins, and capture an additive historical admission assertion while the genuine original owner is current. The historical reader must not reconstruct live ownership. Refusing every admission-requiring consumer does not complete the requested capability. Existing policy minima, required evidence and update checks remain mandatory.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [x] Draft `promote-retained` command and verification owner with refusal tests (provisional on ADR acceptance).
-  - [x] ADR 0060 accepted by the directing user.
+  - [x] Retain the original draft command and its historical refusal controls as provisional work.
+  - [x] Reconcile the repository ADR with the exact corrected design and its explicit acceptance; include this existing item in framework 1.4.0.
+  - [ ] Reopen exact acceptance streams, command/tool/case context, reports, source/output/payload inventories and dependency evidence through complete canonical historical verification.
+  - [ ] Bind the runner to semantic test policy, complete actions and test definitions while excluding only the actual circular policy field.
+  - [ ] Add genuine live-owner capture and complete historical reopening for required workspace admission; distinguish envelope cache not-applicable bookkeeping from operational cache evidence.
+  - [ ] Bound metadata, streams, inventories and aggregate custody resources; recheck complete current authority before exclusive publication and preserve no-write dry-run/refusal behavior.
 - **Evidence:**
-  - [x] Critical tests cover stale plan, changed inputs/policy, wrong runner, wrong suite, missing evidence kind, tampered custody and below-minimum count.
-  - [ ] Qualification against a real retained run (Daemonarchy plan `sha256:2bbd12ac...f607`) is open: its custody store was not retained on the build worker.
+  - [x] Historical draft controls cover stale plan, changed inputs/policy, wrong runner/suite, missing evidence kind, custody tampering and minimum count; they do not qualify the corrected contract.
+  - [ ] Public negative controls refuse coherent wrong streams, altered semantic inventories, fabricated admission/context/dependency records and unsupported operational cache evidence without changing consumer policy.
+  - [ ] Canonical independent source/pin review, full regression and a clean committed installed distribution qualify the repaired implementation.
+  - [ ] A genuine requesting-consumer journey proves supported fresh capture, historical promotion, unchanged-policy update, receipt currentness and project verification. The earlier consumer custody store was not retained; synthetic or converted-harness fixtures do not replace this qualification.

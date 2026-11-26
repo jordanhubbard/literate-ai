@@ -91,6 +91,13 @@ acceptance of ADRs 0054 and 0055 for 1.4 under Goals 1, 4, 5 and 6.
 Reviewed Cargo compatibility and command-addressed remote workers remain open;
 implementation follows the prioritized FreeBSD SDK and Daemonarchy unblock.
 
+RETAINED-RECEIPT-PROMOTE-001 extends Goals 1, 4 and 6 with verified promotion of
+original-source retained evidence under an unchanged project test-receipt policy.
+The directing user accepted corrected ADR 0060 for framework 1.4.0 on 2026-11-04.
+Complete historical verification, genuine live admission capture and installed
+requesting-consumer qualification remain open; the provisional draft does not yet
+satisfy the corrected contract.
+
 RETAINED-TREE-EXPLORER-001 and WORKER-TELEMETRY-001 extend Goals 1 and 4
 with hierarchical retained-tree information cards and authenticated read-only
 worker observations. Issues #279 and #280 are included in 1.4. The directing user

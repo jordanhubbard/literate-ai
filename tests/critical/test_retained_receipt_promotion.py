@@ -73,7 +73,7 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
         worker = ExecutionWorker("local", ExecutionWorkerKind.LOCAL)
         # The project policy names the runner derived from the run's own test
         # actions; its bytes reach the manifest through the test-policy member.
-        runner = retained_project_runner_identity(f.plan, f.manifest)
+        runner = retained_project_runner_identity(f.plan, f.manifest, f.test_policy)
         self.policy = ProjectTestReceiptPolicy(
             "retained-fixture", "1.0.0", runner, KINDS, 1
         )
@@ -98,7 +98,9 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
         f.plan = replace(f.plan, profile=profile, manifest_identity=f.manifest.identity)
         f.current = f.plan
         f.configured_test_policy = self.policy
-        self.assertEqual(retained_project_runner_identity(f.plan, f.manifest), runner)
+        self.assertEqual(
+            retained_project_runner_identity(f.plan, f.manifest, f.test_policy), runner
+        )
         self.planning = self.planning_for(f.plan)
         directories = CacheDirectories(
             f.source, f.base / "generated", f.base / "objects"
@@ -114,6 +116,7 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
             cache_directories=directories,
             authorization=f.plan.identity.uri,
             allow_host_execution=True,
+            capture_promotion_evidence=True,
         )
         self.admission = admission
         self.store = FileSystemCAS(admission.store.root, create=False)
@@ -135,6 +138,9 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
             "planning": self.planning,
             "component_locks": self.locks,
             "test_receipt_policy": self.policy,
+            "promotion_evidence_identity": type(self.policy.identity).parse_uri(
+                self.admission.promotion_evidence_reference.identity
+            ),
             **changes,
         }
         return verify_retained_run(
@@ -235,7 +241,7 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
         )
         receipt.chmod(0o600)
         receipt.write_bytes(b"{}")
-        self.refused("receipt_unreadable", self.verify)
+        self.refused("custody_invalid", self.verify)
 
 
 def canonical_identity_from_bytes(content):

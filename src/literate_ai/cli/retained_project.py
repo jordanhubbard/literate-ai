@@ -27,12 +27,16 @@ from .execution_workers import (
 
 def retained_project_requested(args: Any) -> bool:
     """Keep explicit, even empty, retained selectors out of generated execution."""
-    return bool(getattr(args, "retained_project_plan", False)) or any(
-        getattr(args, key, None) is not None
-        for key in (
-            "retained_project",
-            "retained_project_profile",
-            "authorize_retained_project",
+    return (
+        bool(getattr(args, "retained_project_plan", False))
+        or bool(getattr(args, "retain_promotion_evidence", False))
+        or any(
+            getattr(args, key, None) is not None
+            for key in (
+                "retained_project",
+                "retained_project_profile",
+                "authorize_retained_project",
+            )
         )
     )
 
@@ -131,12 +135,55 @@ def _current_authority_factory(project: Any, binding: Any, args: Any):
 def retained_project_from_args(
     project: Any, binding: Any, args: Any
 ) -> dict[str, object]:
+    if getattr(args, "retained_project_plan", False):
+        from literate_ai.adapters.readonly_authority import strict_readonly_authority
+
+        with strict_readonly_authority():
+            return _retained_project_from_args(project, binding, args)
+    return _retained_project_from_args(project, binding, args)
+
+
+def _retained_project_from_args(
+    project: Any, binding: Any, args: Any
+) -> dict[str, object]:
+    from literate_ai.adapters.project_validation import ProjectValidationError
+
     try:
         current_authority = current_retained_project_authority(project, binding, args)
         manifest, worker, planning = current_authority()
         plan = planning.plan
         if args.retained_project_plan:
-            return {"authority_mode": "retained-project", **planning.to_dict()}
+            result = {"authority_mode": "retained-project", **planning.to_dict()}
+            # A read-only diagnostic outside the frozen plan wire body lets an
+            # operator review the runner pin before authorizing a costly run.
+            # Generic plans without a complete policy keep their prior result.
+            configured = project.definition.test_receipt_policy
+            if (
+                configured is not None
+                and plan.profile.test_policy_identity is not None
+                and any(member.role == "test-policy" for member in manifest.members)
+            ):
+                from literate_ai.adapters.retained_project_runner import (
+                    RETAINED_PROJECT_RUNNER_SCHEMA,
+                    retained_project_runner_identity,
+                )
+                from literate_ai.adapters.retained_project_testing import (
+                    read_retained_project_test_policy,
+                )
+
+                policy = read_retained_project_test_policy(
+                    project.root,
+                    manifest,
+                    plan.profile,
+                    configured,
+                )
+                result["test_runner_identity"] = retained_project_runner_identity(
+                    plan,
+                    manifest,
+                    policy,
+                ).uri
+                result["test_runner_schema"] = RETAINED_PROJECT_RUNNER_SCHEMA
+            return result
         plan.require_authorization(args.authorize_retained_project)
         from literate_ai.adapters.component_lock_application import (
             current_project_component_locks,
@@ -175,6 +222,9 @@ def retained_project_from_args(
                     operator_environment=dict(os.environ),
                     sdk_project=project,
                     sdk_binding=binding,
+                    capture_promotion_evidence=getattr(
+                        args, "retain_promotion_evidence", False
+                    ),
                 ),
             )
         except (
@@ -191,6 +241,11 @@ def retained_project_from_args(
             "admitted": True,
             "retained_receipt": admission.receipt.to_dict(),
             "retained_receipt_identity": admission.receipt.identity.uri,
+            "promotion_evidence": (
+                admission.promotion_evidence_reference.to_dict()
+                if hasattr(admission, "promotion_evidence_reference")
+                else None
+            ),
             "custody_root": str(admission.store.root),
             "workspace": str(workspace.root),
             "source_authority": "original",
@@ -203,11 +258,21 @@ def retained_project_from_args(
         }
     except CliFailure:
         raise
+    except ProjectValidationError as exc:
+        raise CliFailure(exc.code, exc.message) from exc
     except (ValueError, TypeError, OSError) as exc:
         raise CliFailure("retained_project.admission_invalid", str(exc)) from exc
 
 
 def promote_retained_receipt_from_args(project: Any, binding: Any, args: Any) -> dict:
+    """Keep direct callers under the same strict public read-only authority scope."""
+    from literate_ai.adapters.readonly_authority import strict_readonly_authority
+
+    with strict_readonly_authority():
+        return _promote_retained_receipt_from_args(project, binding, args)
+
+
+def _promote_retained_receipt_from_args(project: Any, binding: Any, args: Any) -> dict:
     """Verify one admitted retained run and write its finalized receipt candidate."""
     from literate_ai.adapters.component_lock_application import (
         current_project_component_locks,
@@ -236,16 +301,59 @@ def promote_retained_receipt_from_args(project: Any, binding: Any, args: Any) ->
             raise ValueError(
                 "--retained-project and --retained-project-profile are required"
             )
-        _manifest, worker, planning = _current_authority_factory(
-            project, binding, args
-        )()
+        current_authority = _current_authority_factory(project, binding, args)
+        _manifest, worker, planning = current_authority()
         locks = current_project_component_locks(project)
         lock_ids = tuple(sorted((lock.identity for lock in locks), key=lambda i: i.uri))
         from literate_ai.adapters.project_validation import (
             validated_project_authority_identity as adapter_identity,
         )
+        from literate_ai.adapters.retained_sdk_authority import (
+            current_retained_sdk_snapshots,
+        )
 
-        revision = promoted_project_revision(adapter_identity(project.root), lock_ids)
+        revision = promoted_project_revision(
+            adapter_identity(project.root, synchronize_source_intelligence=False),
+            lock_ids,
+        )
+        authority_snapshot = (
+            revision,
+            lock_ids,
+            planning.plan.identity,
+            _manifest.identity,
+            policy.identity,
+        )
+
+        def require_complete_current():
+            current_manifest, current_worker, current_planning = current_authority()
+            current_locks = current_project_component_locks(project)
+            current_ids = tuple(
+                sorted((lock.identity for lock in current_locks), key=lambda i: i.uri)
+            )
+            from literate_ai.projects import ProjectConfigurationStore
+
+            current_definition = (
+                ProjectConfigurationStore(project.root).read().definition
+            )
+            if current_definition.test_receipt_policy is None:
+                raise ValueError("retained.promotion.current-policy-missing")
+            observed = (
+                promoted_project_revision(
+                    adapter_identity(
+                        project.root, synchronize_source_intelligence=False
+                    ),
+                    current_ids,
+                ),
+                current_ids,
+                current_planning.plan.identity,
+                current_manifest.identity,
+                current_definition.test_receipt_policy.identity,
+            )
+            if observed != authority_snapshot or current_worker != worker:
+                raise ValueError("retained.promotion.current-authority-changed")
+            binding.require_unchanged()
+
+        require_complete_current()
         store = FileSystemCAS(Path(args.custody_root), create=False)
         verified = verify_retained_run(
             store,
@@ -255,6 +363,15 @@ def promote_retained_receipt_from_args(project: Any, binding: Any, args: Any) ->
             planning=planning,
             component_locks=locks,
             test_receipt_policy=policy,
+            promotion_evidence_identity=ContentIdentity.parse_uri(
+                args.promotion_evidence
+            ),
+            require_current=binding.require_unchanged,
+            current_sdk_snapshots=(
+                current_retained_sdk_snapshots(project, locks)
+                if any(member.role == "sdk-policy" for member in _manifest.members)
+                else ()
+            ),
             expected_plan_identity=(
                 ContentIdentity.parse_uri(args.plan) if args.plan else None
             ),
@@ -268,11 +385,18 @@ def promote_retained_receipt_from_args(project: Any, binding: Any, args: Any) ->
             receipt_policy=policy,
         )
         validate_project_test_receipt_finalized_value(
-            project, candidate, project_revision_identity=adapter_identity(project.root)
+            project,
+            candidate,
+            project_revision_identity=adapter_identity(
+                project.root, synchronize_source_intelligence=False
+            ),
         )
+        require_complete_current()
         if not args.dry_run:
             write_project_test_receipt_finalized_candidate(
-                Path(args.candidate), candidate
+                Path(args.candidate),
+                candidate,
+                require_current=require_complete_current,
             )
     except CliFailure:
         raise
@@ -292,5 +416,9 @@ def promote_retained_receipt_from_args(project: Any, binding: Any, args: Any) ->
         "plan_identity": verified.plan.identity.uri,
         "runner_identity": runner,
         "tests_passed": verified.passed,
+        "cache_evidence_provenance": {
+            "source-cache-decision": "not-applicable-original-source-authority",
+            "source-cache-lifecycle": "not-applicable-original-source-authority",
+        },
         "next": "litai project test-receipt update CANDIDATE --project .",
     }

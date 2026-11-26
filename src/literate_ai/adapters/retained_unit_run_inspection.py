@@ -114,7 +114,10 @@ class _Reader:
         raw = self.raw(reference)
         if reference.identity not in self.documents:
             value = json.loads(raw)
-            if canonical_json_bytes(value) != raw:
+            # Every selected historical document here is an assertion object.
+            # Raw stdout/stderr use raw(), and may contain arbitrary JSON bytes.
+            # Reject a canonical array/scalar before downstream .get/index calls.
+            if type(value) is not dict or canonical_json_bytes(value) != raw:
                 raise ValueError("retained.unit.canonical-run-document-required")
             self.documents[reference.identity] = value
         self.guard()
@@ -343,6 +346,9 @@ def reopen_retained_unit_run(
         )
         if observed.to_dict() != value or observed.identity.uri != identity:
             raise ValueError("retained.unit.test-assertion-differs")
+        verify_retained_report_blob(
+            reader, inputs.output_manifest, test_policy, observed
+        )
         reports.append(observed)
     accepted = []
     for identity in cases:
@@ -482,3 +488,30 @@ def reopen_retained_unit_run(
     if workspace_root_observer is not None:
         workspace_root_observer(workspace_roots)
     return reopened
+
+
+def verify_retained_report_blob(reader, output_manifest, test_policy, observed):
+    """Reopen actual retained report bytes, preserving allowed JSON whitespace."""
+    report_path = dict(test_policy.reports).get(observed.report.action_id)
+    member = next((m for m in output_manifest.members if m.path == report_path), None)
+    if (
+        member is None
+        or member.size > 16 * 1024**2
+        or member.symlink_target is not None
+    ):
+        raise ValueError("retained.unit.bounded-actual-test-report-required")
+
+    def unique_report_pairs(items):
+        result = {}
+        for key, item in items:
+            if key in result:
+                raise ValueError("retained.unit.duplicate-test-report-key")
+            result[key] = item
+        return result
+
+    report_bytes = reader.raw(BlobRef(member.sha256, member.size))
+    actual_report = RetainedProjectTestReport.from_dict(
+        json.loads(report_bytes, object_pairs_hook=unique_report_pairs)
+    )
+    if actual_report != observed.report:
+        raise ValueError("retained.unit.actual-test-report-differs")
