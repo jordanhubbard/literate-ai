@@ -1,0 +1,68 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "One fresh noneditable framework wheel; three actual local macOS operator journeys, not full wheel, SDK, two-run independent qualification or release acceptance",
+  "source_revision": "cbf4804e81346864560a4e3c016eb440d57f2135",
+  "source_tree": "b943a78089534ac4d7e4985e303d010ea704cf5d",
+  "wheel_sha256": "ac642c711f8d2c606b62dbf69efe7d07be218d199f1574de473fe176057d6efb",
+  "distribution_identity": "sha256:23dc686beb48d9d9ea9b59f199186a951de1a6f463dda557f9cbf91e526d2eac",
+  "installed_module_origins_verified": true,
+  "seed_and_framework_RECORD": "All record paths contained;885seed records and5688framework records checked",
+  "source_unchanged": true,
+  "script_unchanged": true,
+  "wheel_helper_unchanged": true,
+  "script_sha256": "e9f6bdcc9e34186c47fa71d64904f7f93c8c57ba4cc4aa3d014e8d43dc193f01",
+  "wheel_helper_sha256": "178f7cd22cf6e9c4d4c640ab4d771f956c575624f21766c0e90c34e2820ba893",
+  "child_seconds": 1919.307,
+  "supervisor_seconds": 1920.761,
+  "per_case_bound_seconds": 1800,
+  "supervisor_bound_seconds": 7200,
+  "cases": {
+    "initial-selection": {
+      "passed": true,
+      "installed_module_origins_verified": true,
+      "original_tests": 2,
+      "receipt_sha256": "d2d3ed18ba3ed858f9dad3ff358f51508a9862950ffb2f9118a9cff53383afda"
+    },
+    "post-adoption-renewal": {
+      "passed": true,
+      "installed_module_origins_verified": true,
+      "original_tests": 2,
+      "receipt_sha256": "2bd34595668de8aa8b7654e7522b66508e707210edc9b15200edb013ffe953f1",
+      "original_receipt_preserved": true,
+      "fresh_receipt_differs": true
+    },
+    "refined-component-renewal": {
+      "passed": true,
+      "installed_module_origins_verified": true,
+      "original_tests": 2,
+      "receipt_sha256": "66c63f51da528cc1e1a46613db68322e57bfa1c7a3c2441426883398e3e1a819",
+      "original_receipt_preserved": true,
+      "fresh_receipt_differs": true,
+      "native_Component_build_stdout_identity": "sha256:cd1b2a197d3a254ce2e6ea50f808c591cfff5cc336eff7c5d39597529068e23d",
+      "native_Component_tests": {
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "skipped": 0,
+        "state": "nonempty",
+        "total": 2
+      },
+      "root_harness_preserved": true
+    }
+  },
+  "checks": [
+    "Initial selection and both post-adoption renewal forms use their actual installed public CLI",
+    "Complete reviewed request reopens identically; missing acknowledgement refuses",
+    "Explicit C build executes real compiler and asserts native result42; both actual original unittest cases pass",
+    "Refined renewal preserves root help-only harness and performs its selected native Component build/test",
+    "Unchanged original application bytes, stale old root receipt refusal, fresh root receipt renewal and exact original archive preservation"
+  ],
+  "later_source_boundary": "Separate typed journal-guard follow-up fb9c2fd88 has source controls; this wheel proves exactly cbf4804e8, not that later subject",
+  "remaining": [
+    "Modern contained-layout renewal and all original ADR0070 acceptance requirements",
+    "Fresh integrated complete source, platform, installed and independent acceptance gates",
+    "Exact resulting-main release qualification and delivery"
+  ],
+  "qualified": false,
+  "release_evidence": false
+}
