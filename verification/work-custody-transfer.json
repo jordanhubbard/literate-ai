@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "c9fceb6440f115d4fbe380780ae48aa4b7a6ea38",
+  "continued_subject": "d0a2a72c491e1a2f74c02dab36b05379f15337b7",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -1022,6 +1022,16 @@
     "committed_head_counts": {
       "merged": 5,
       "preserved-for-reconciliation": 2
+    },
+    "next_source_work": {
+      "label": "head-nativereadopt-wheel1",
+      "commit": "6fe9f65e08c6567473286429225dccc08fafaf7f",
+      "same_tree_snapshot": "nativereadopt1",
+      "same_tree": "7f4d844b98d3898a7def6846bc22ec46a0782fc4",
+      "status": "reviewed unique extension; implementation and integration pending",
+      "scope": "Current code lacks existing-only cache lock acquisition, coordinated lifecycle namespace selection, exact idle contained runtime retirement and six readoption controls. Preserve current CRLF/native index/nested-owner guards when porting the original final commit delta. Parent 441ee05b3 also changes older shared owners: a 52-file symbol inventory is preparatory, not proof that all parent intent is superseded. Metadata-path ownership check moved into retained_cargo_execution_inputs_core; renamed/current closed owners need semantic review before completing merge.",
+      "symbol_inventory_sha256": "7c3329398dea0c602f0e4e0ea869e01f697eeb1191bb3d8f68b676021161934a",
+      "next_step": "Port unique readoption runtime ownership behavior and original refusal/readoption controls. Reconcile remaining parent changes before counting either head or same-tree snapshot merged."
     }
   },
   "checks": {
