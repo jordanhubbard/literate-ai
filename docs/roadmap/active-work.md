@@ -29516,3 +29516,24 @@ The actual current 1.4.0 queue projects 83 included goals, 35 closed and 48 open
 with 198 unchecked criteria. These are observed planning counts, not a readiness
 or evidence attestation. Sixty of ninety dirty snapshots and all seven clean
 heads are integrated; thirty dirty snapshots and existing acceptance holds remain.
+
+
+**Authored graph recovery preserves current ownership.** `authoredgraph2` joins
+with the stronger current original-directory deletion witness, paired native tool
+and opaque projection/lifetime/deadline owners, metadata namespace and journal
+controls intact. The older Darwin F_GETPATH heuristic is superseded by prearmed
+original-vnode NOTE_DELETE evidence. Fifteen original development documents are
+retained byte for byte with their recorded subjects and classifications; their
+historical passes, source/wheel statuses and Windows observations are not current
+consolidated-source or release acceptance.
+
+Eight Linux retirement controls pass, with three original Darwin-only cases
+skipped (0.155s). Twelve projection controls pass (92.994s), including actual
+selected-interpreter byte drift and borrowed-closure refusal. The copied test
+interpreter initially inherited nonwritable source permissions, so mutation
+failed before the drift assertion. The fixture now proves the copy is a separate
+file and enables its own write bit before binding; no source guard or original
+interpreter changes. These controls model framework/provider/macOS selection and
+run no generated/native application. Full lint/format pass; existing promotion
+profile line wrapping is verified AST-identical. Sixty-one snapshots and all seven
+clean heads are reconciled; twenty-nine snapshots and acceptance holds remain.

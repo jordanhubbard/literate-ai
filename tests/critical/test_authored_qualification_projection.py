@@ -6,6 +6,7 @@ fixture's macOS platform selection are injected. No generated/native application
 publication or retained consumer runs here.
 """
 
+import stat
 import sys
 import tempfile
 import unittest
@@ -206,11 +207,15 @@ class AuthoredQualificationProjectionTests(unittest.TestCase):
                     Path(temporary), "python"
                 )
             self.assertFalse(executable.is_symlink())
+            base = Path(getattr(sys, "_base_executable", sys.executable)).resolve()
+            self.assertFalse(executable.samefile(base))
+            # Only this test-owned copy will be mutated. Record its writable
+            # mode before binding so the later refusal proves actual byte drift.
+            executable.chmod(executable.stat().st_mode | stat.S_IWUSR)
             if sys.platform != "win32":
                 # The copied interpreter must still locate its real standard
                 # library under -I -S. No environment or wrapper substitutes
                 # for the actual test-owned executable whose bytes change.
-                base = Path(getattr(sys, "_base_executable", sys.executable)).resolve()
                 (executable.parent / "pyvenv.cfg").write_text(
                     f"home = {base.parent}\n", encoding="utf-8"
                 )

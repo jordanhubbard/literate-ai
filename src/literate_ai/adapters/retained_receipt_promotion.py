@@ -260,9 +260,7 @@ def verify_retained_run(
             _refuse(
                 "plan_stale", "the selected receipt belongs to a different current plan"
             )
-        _verify_receipt_record_inventory(
-            store, original_receipt, poll_deadline, policy
-        )
+        _verify_receipt_record_inventory(store, original_receipt, poll_deadline, policy)
         require_current()
         evidence = _document(
             store, evidence_ref, min(MAX_DOCUMENT, policy.max_provider_metadata_bytes)

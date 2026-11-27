@@ -53,8 +53,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 60,
-      "preserved-for-reconciliation": 30
+      "merged": 61,
+      "preserved-for-reconciliation": 29
     },
     "snapshots": [
       {
@@ -179,9 +179,10 @@
         "base": "743a57fa5f5d0bb192e061bebdda3182e570d097",
         "commit": "09b7ec082dd759ab282576fc30744ab53fa960a0",
         "branch": "recovery/puck-20261126/authoredgraph2",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 3,
-        "remaining_paths": 3
+        "remaining_paths": 3,
+        "resolution": "Normal merge retains stronger current original-vnode deletion witness, opaque projection/toolchain/deadline/custody and namespace owners. Fifteen byte-exact original development evidence documents imported with historical scope. Test-owned copied interpreter is proved distinct and writable before binding, so actual byte-drift control reaches its original refusal assertion."
       },
       {
         "label": "cancust1",
@@ -1039,6 +1040,27 @@
     "actual_missing_file_review": {
       "sha256": "827ac36f381b72102367dd26324e46412dd3f88a795baf78292a1584dd8ce77a",
       "scope": "Only actual current filesystem absence, not absence from an original snapshot parent. Remaining missing paths occur in authoredgraph1 historical evidence, cg14b bounded Cargo helpers/tests, fp14 materialization test, layout14 prototype modules/tests and wt14 telemetry modules/schemas/tests. Other pending snapshots still require semantic reconciliation; symbol presence is not completion."
+    },
+    "historical_authored_graph_documents": {
+      "classification": "Original historical development observations for their recorded source subjects; no current/native/model/release renewal",
+      "documents": {
+        "verification/authored-execution-development.json": "ded1aef7a6dfc96931b4ab21d0daa813a63e3d21279d406f893039be2be06f52",
+        "verification/authored-graph-acceptance-development.json": "8564cdf7d35841ca982502b5855af7b5830e9e763d40270bfc7c37600408fe25",
+        "verification/authored-product-capture-development.json": "c7940e0d8ea9ccccba3d13ed02ad6d7f3097cd20d54f8b1447ff6d9801c132c9",
+        "verification/authored-projection-development.json": "332f132a2a5cbac40a7806a4ccca7e20074c22afcdba250eb2af29a45a36b13d",
+        "verification/authored-publication-development.json": "b51c0dddd17b61822badd09dd60ea0a7102be08e9a1f9f9a52d260040fe4609c",
+        "verification/authored-qualification-comparison-development.json": "e7b4acbc9f6ed78066d1b8f4e9883ae20a70697a00a7bca40c2267f32e0f0ded",
+        "verification/authored-qualification-oracles-development.json": "4e2e875fe8319598264d356b078168e6a16d978ce81145a5b382b936e538f24e",
+        "verification/authored-qualification-origin-foundation.json": "2b0a234e7688b83849fe2a680ea7936bd79f549160b6ed196acc2daf6b1cce46",
+        "verification/authored-qualification-planning-development.json": "84b60fd6e8b34712834851f0de0e19f0907f42643cc8ae2a6c58b61fea4496b4",
+        "verification/authored-qualification-runs-development.json": "069b7f3f66b61dd814a4861b12eb38016947e08755ecfdabf7ca0a8448b7b466",
+        "verification/authored-qualification-workspace-development.json": "fc5f2dafc5703f86c3da12bebf8ddda02390a2864f62af9f1e6334f37a1fbf41",
+        "verification/authored-retirement-pr-stack.json": "b31499ef683db9f0195e297d46ba13436342f3b105cc0470c16f079bf5ce08cb",
+        "verification/authored-retirement-windows-development.json": "6c881e643dd3dcab1f52d3c4066858f479da89d2ed7fa0eaf51f36489b0351ff",
+        "verification/authored-semantic-reopening-development.json": "930cb319aea1388d5fd133cca1961d3dd48b8d8ddf57d6a6daa6b285c4e62e4f",
+        "verification/authored-standard-runner-development.json": "570daa3f7e4e3b74d1bda0ca2c4225882ef4ca36d0b04ee859bec335081895eb"
+      },
+      "resolution_sha256": "24423dbda3dff34870af24e938d6affbc4c06aa1842c39e438ffcec0345a0c61"
     }
   },
   "checks": {
@@ -2319,10 +2341,52 @@
       },
       "scope": "Queue/ledger planning projection only. Read configured policy/manifest/queue, refuse stale/duplicate/cyclic authority, preserve unknown external inputs and release phases as unverified. Current six baseline cases did not contain this feature; recovered cases and actual contained conversion control establish restored behavior. Native release eligibility and root policy-shadow refusal remain original owner decisions. Initial moved-metadata fixture lacked a declared contained project and correctly refused; replaced with actual initialization/conversion, not fabricated baseline authority.",
       "release_evidence": false
+    },
+    "authored_graph_reconciliation": {
+      "status": "bounded source controls passed; Darwin cells not run here",
+      "retirement": {
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 11,
+          "skipped": 3
+        },
+        "seconds": 0.155,
+        "report_sha256": "d495f1c2c5ded68d428dc2576d26428eecc845f65dca3bbeff9f10ae4cc85251",
+        "log_sha256": "142db1b5f73ead54531053ad49add366382e3a711a881c00e93201db79934404"
+      },
+      "projection": {
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        },
+        "seconds": 92.994,
+        "report_sha256": "d78374bbdb3281171b85d0f38c80d82eda7aac1c2c6e631d21affc82acdcf4c6",
+        "log_sha256": "fc2088fa006c2b2a6b2e8688d70e79c8665b0c52915048061b815a2c74f8f680"
+      },
+      "scope": "Eight actual POSIX retirement controls pass, three original Darwin-only vnode cells skipped on Linux. Twelve projection controls use actual native Python inputs/commands with explicitly modeled framework/provider/macOS selection, not generated/native application or release acceptance. Preserve current KQUEUE NOTE_DELETE and held POSIX inode proof rather than recovered F_GETPATH name heuristic. Original borrowed/substituted toolchain refusal and portable selected-interpreter byte/inode checks retained.",
+      "prior_failure": {
+        "seconds": 5.552,
+        "error": "Test-owned interpreter copy inherited nonwritable source mode; mutation failed with PermissionError before original drift assertion. Corrected only the test-owned distinct copy before capturing binding; original interpreter remains unchanged.",
+        "log_sha256": "e83c1475507741c291a21f6882abac32ad03d55e4140c64e29265b38d0b798f6"
+      },
+      "style": {
+        "status": "passed",
+        "log_sha256": "abea4f032dff71007ac79b2ef24fe9dd65a6c6edbf6fb28f2e412b228f542ae7",
+        "scope": "Full lint/format. Only existing promotion-profile line wrapping changed production bytes; parsed AST equality verified separately.",
+        "format_proof_sha256": "96777e4b09d0f08aabdee32beebff301c0e1132ed0d17a303d502c2b72973eb9"
+      },
+      "release_evidence": false
     }
   },
   "remaining_requirements": [
-    "Reconcile the 30 preserved source snapshots. All seven additional clean heads are integrated. Preserve unique bounded Cargo metadata/configuration, layout and native telemetry intent while retaining current namespace, lifetime, per-write journal and historical custody guards. Canonical promotion exact-wheel controls pass at 2ec59a540; later phase-polling changes have their own bounded source checks.",
+    "Reconcile the 29 preserved source snapshots. All seven additional clean heads are integrated. Preserve unique bounded Cargo metadata/configuration, layout and native telemetry intent while retaining current namespace, lifetime, per-write journal and historical custody guards. Canonical promotion exact-wheel controls pass at 2ec59a540; later phase-polling changes have their own bounded source checks.",
     "Complete resulting composed-source qualification. Fourteen Cargo cases pass at f0a5da8eb; later retained-release/fixture changes have their own bounded controls. Diagnose canonical source metadata publication role-input refusal before the recovered forest capacity assertions; do not weaken its guards or expand declared budgets.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
