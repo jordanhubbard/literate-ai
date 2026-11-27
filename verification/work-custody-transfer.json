@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "1e7995c404f49945d90895de009606db3f8d7b82",
+  "continued_subject": "82fe2dc69ebcf76f2d363522ef48cac5f089bc22",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -53,8 +53,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 88,
-      "preserved-for-reconciliation": 2
+      "merged": 89,
+      "preserved-for-reconciliation": 1
     },
     "snapshots": [
       {
@@ -947,9 +947,11 @@
         "base": "b14fed8c0fc910ab302654abd8cfc49c53f469d5",
         "commit": "405a24c3a6167cd56d7ba46b609d2ab1f8e44b51",
         "branch": "recovery/puck-20261126/wt14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 52,
-        "remaining_paths": 52
+        "remaining_paths": 0,
+        "reconciliation_commit": "82fe2dc69ebcf76f2d363522ef48cac5f089bc22",
+        "resolution": "Substantive port: separate v2 contracts/authentication/codec/schema preserves established v1 bytes and tests. Original observation/native/provider modules and runner hooks integrated with current confirmed-termination, deadline, interrupt, source and cleanup guards. Native/installed live-worker acceptance remains open."
       },
       {
         "label": "ww14",
@@ -1094,6 +1096,27 @@
         "resolution_sha256": "ee567a17f47e34148a2786d0aa0d9ce174960cb5f85d8ce64f527dfbd4d7c1aa",
         "historical_notes": "docs/history/roadmap/recovered-cargo-prototypes.md",
         "current_owner_scope": "Three reproduced runtime gaps repaired on current opaque owners. Keep separate absent-only root reservation and qualified package publication, measured native protocols/deadlines and current canonical promotion. Original prototype evidence remains historical; no old API grants restored."
+      },
+      "worker_telemetry_versioned_port": {
+        "merge": "82fe2dc69ebcf76f2d363522ef48cac5f089bc22",
+        "candidate_receipt_sha256": "349818291513eb7d250d23cb150faaf59bbdd13f23215a86903ac6c716f793ab",
+        "preserved_legacy_sha256": {
+          "src/literate_ai/contracts/worker_telemetry.py": "c816d4620371d8ef05c6e46966ba99694866000e050fbb40adcca5d470f100c8",
+          "src/literate_ai/contracts/worker_telemetry_observations.py": "65e5ffd5f483f78ccb32cfeecf278efe318afae734bf8ca4b2173bcef8de0bed",
+          "src/literate_ai/adapters/worker_telemetry_wire.py": "11d2d8fb0f5874bf8f9c110bdbed794d157a084b33660a3d4702b302990cc518",
+          "src/literate_ai/adapters/worker_telemetry_authentication.py": "923864d0f50c71ffdac4c6349756f587d0bb7b7c9e1bba9fb10e1065765571b4",
+          "tests/support/fixtures_worker_telemetry.py": "986193f4d89f64ed3773ea2a0f53d29664ac0a14e8cd2ae620ecc949f79dc81e",
+          "tests/critical/test_action_package_worker.py": "7671c4e5e5cdc89896f11151cc545684f7dd6ebf58c1f3fcc7dab396e6f75736",
+          "schemas/v2/worker-telemetry.schema.json": "cc680fc6728c2d856dc540023e9eb7b8687c652436c3c486a66c8f7449541a37"
+        },
+        "shared_wire_versions": {
+          "literate-ai/authenticated-worker-telemetry-request@1": "literate-ai/authenticated-worker-telemetry-request@2",
+          "literate-ai/authenticated-worker-telemetry-response@1": "literate-ai/authenticated-worker-telemetry-response@2",
+          "literate-ai/worker-telemetry-request@1": "literate-ai/worker-telemetry-request@2",
+          "literate-ai/worker-telemetry-response@1": "literate-ai/worker-telemetry-response@2"
+        },
+        "historical_notes": "docs/history/roadmap/recovered-telemetry-prototype.md",
+        "native_guard_resolution": "Retain current confirmed Job termination and failed-kill fallback. New deferral is separate from successful kernel termination. Preserve live native-root clamping, absolute deadlines, original process registration, native command admission/closure and interrupt relay. Optional observation cannot claim the Job or execute fallback from a reader thread."
       }
     },
     "committed_heads": [
@@ -1140,8 +1163,8 @@
       "preserved-for-reconciliation": 0
     },
     "actual_missing_file_review": {
-      "sha256": "827ac36f381b72102367dd26324e46412dd3f88a795baf78292a1584dd8ce77a",
-      "scope": "Only actual current filesystem absence, not absence from an original snapshot parent. Remaining missing paths occur in authoredgraph1 historical evidence, cg14b bounded Cargo helpers/tests, fp14 materialization test, layout14 prototype modules/tests and wt14 telemetry modules/schemas/tests. Other pending snapshots still require semantic reconciliation; symbol presence is not completion."
+      "scope": "Only layout14 remains unreconciled, including its 13 absent prototype paths. Obsolete cg14b configuration/materializer/test APIs were intentionally superseded by current opaque-owner APIs and 39 scoped controls; wt14 uses separate versioned contract/codec/authentication/fixture/receiver-test files to preserve legacy telemetry bytes. Original snapshots and historical notes remain reachable.",
+      "inventory_sha256": "3f55400d51066f034bbe10310a5b4c6b071f98bcc6b8b2cb3f67d5733697cafa"
     },
     "historical_authored_graph_documents": {
       "classification": "Original historical development observations for their recorded source subjects; no current/native/model/release renewal",
@@ -1165,12 +1188,9 @@
       "resolution_sha256": "24423dbda3dff34870af24e938d6affbc4c06aa1842c39e438ffcec0345a0c61"
     },
     "next_source_work": {
-      "labels": [
-        "layout14",
-        "wt14"
-      ],
-      "status": "unique source prototypes require current-owner port and qualification",
-      "scope": "layout14 retains 13 absent prototype files spanning compiler/inspection/planning/workspace/public relocation; current lower-level native forest/source transaction owners and original role-input refusal remain authoritative. wt14 retains 29 absent telemetry/native-provider files; review and port observation-only owner/configuration/provisioning mechanics and original native integrations without changing execution/control authority. Do not equate file/symbol presence with completion or renew native/release evidence from source unit passes.",
+      "label": "layout14",
+      "status": "last unique source prototype requires current-owner port and qualification",
+      "scope": "Thirteen prototype files span compiler/inspection/planning/workspace/public relocation, plus eleven original named controls including the wrapper issuance control now ported. Current lower-level native forest/source transaction and journal owners and the original canonical role-input refusal remain authoritative. Recover functional intent through current exact owners; do not restore old data/plan-based grants or infer public/native relocation acceptance from helper presence.",
       "inventory_sha256": "3f55400d51066f034bbe10310a5b4c6b071f98bcc6b8b2cb3f67d5733697cafa"
     }
   },
@@ -2683,6 +2703,146 @@
       },
       "scope": "Actual Python owner/CAS and finite transfer behavior, modeled process outcomes/FreeBSD declarations. Nonzero exit alone remains terminal. One original native FreeBSD case skipped on Linux; no FreeBSD/native product acceptance inferred.",
       "earlier_discovery": "Incorrect nonexistent test_retained_unit_transfer.py selector returned no tests; runner refused before cases. Correct existing test_freebsd_tree_packaging.py module used for the recorded 15-case result."
+    },
+    "recovered_worker_telemetry": {
+      "status": "integrated; source and scoped fresh-wheel controls passed; native/live-worker/full-feature acceptance open",
+      "subject": "82fe2dc69ebcf76f2d363522ef48cac5f089bc22",
+      "telemetry_dual_protocol": {
+        "summary": {
+          "executed": 109,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 109,
+          "selected": 113,
+          "skipped": 4
+        },
+        "seconds": 164.405,
+        "report_sha256": "ea5c5e1deb0d3f98054f208b42391a2411a0ea06378788216d7f1b72521d677f",
+        "log_sha256": "fbf0cddf1afde30271810e673c23521236f32c671fc14cd0530d1b6d7e90c6e1"
+      },
+      "process_tree": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 13,
+          "skipped": 4
+        },
+        "seconds": 1.318,
+        "report_sha256": "26c1b70820066ac23d0f4e10dee4db1b27c86115175cb5b6371e8a56adf0d98c",
+        "log_sha256": "b339d361dbf6ce6f745503d586d8a56e571752ccdce9a611857b3643dabca18b"
+      },
+      "guarded_builder": {
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "seconds": 2.528,
+        "report_sha256": "34af638941287486cbf62c6a7ea2b2ee9b07e2fac78113622ddef3b8ad46e0de",
+        "log_sha256": "48cf1291cf09f5fb1994befbf7c36f3f7a762170b4b1f76ae9aa7fa61732f420"
+      },
+      "legacy_action_package": {
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "seconds": 12.408,
+        "report_sha256": "1f8b918370d2e9ec15f03e316af55cab05c352f13984b73a5afbc0130e960e7d",
+        "log_sha256": "a76ca874e33b0f4e57edfc0099174ccaa3da85bcb6c787275a867e81f0e402ab"
+      },
+      "existing_windows_job_controls": {
+        "summary": {
+          "executed": 15,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 15,
+          "selected": 18,
+          "skipped": 3
+        },
+        "seconds": 0.195,
+        "report_sha256": "d18ee7c71774fc1ca56fc77899e3890981788e80b3a9ba511d785c68160e7a35",
+        "log_sha256": "337c876bfd03e1f0ffed5e068008e39f81565e9656cd22c3d22eb24328ac5eea"
+      },
+      "v2_job_handoff": {
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        },
+        "seconds": 0.033,
+        "report_sha256": "9978fdf9b07b0be81440b03a78d1babe8e4cc83318814daa8da45098c7b5f07d",
+        "log_sha256": "7905cdc72e9102224423efd035882a484c8dd2a3dd5469a125c50c3efaf45ab7"
+      },
+      "ci_policy": {
+        "summary": {
+          "executed": 35,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 35,
+          "selected": 35,
+          "skipped": 0
+        },
+        "seconds": 0.557,
+        "report_sha256": "f47c041985bd0db869aa2cb3d604507876db0ec7deaa3596f4e045167ceeffea",
+        "log_sha256": "59c58b8ec1d93bbf7a7b54cb828c2abe4629ea2aed8477aca03e41017845e320"
+      },
+      "skipped_telemetry_cases": [
+        "tests.critical.test_worker_telemetry_receiver_v2.WorkerTelemetryReceiverTests.test_native_observation_pipe_never_controls_execution_or_retained_parent",
+        "tests.critical.test_worker_telemetry_receiver_v2.WorkerTelemetryReceiverTests.test_native_resources_follow_live_and_reaped_processes",
+        "tests.critical.test_worker_telemetry_receiver_v2.WorkerTelemetryReceiverTests.test_public_native_provider_provision_is_receipt_bound_and_current",
+        "tests.critical.test_worker_telemetry_receiver_v2.WorkerTelemetryReceiverTests.test_public_native_provider_rejects_real_input_and_output_mutation"
+      ],
+      "schema_catalog": {
+        "v2_files": 149,
+        "v2_resources": 663,
+        "new_unique_write_contracts": 13,
+        "unchanged_legacy_telemetry_ids": 5,
+        "overlapping_ids_advanced_to_v2": 4
+      },
+      "installed": {
+        "subject": "82fe2dc69ebcf76f2d363522ef48cac5f089bc22",
+        "wheel_sha256": "ba6ac062bb46047430e2723d0749eb0144c52ae1d9b0697b38752fb62917a74f",
+        "distribution_binding": {
+          "distribution": "sha256:e0642b6c24c7e4ab56b345a573cf137c61f18a9b2ef487449cd2396119c0355f",
+          "members": 1759,
+          "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+        },
+        "methods": 35,
+        "console_invocations": 3,
+        "verified_framework_module_origins": 272,
+        "v2_signed_data_roundtrip": true,
+        "v2_corruption_and_cross_version_refusals": 3,
+        "packaged_native_c_sha256": "602d4de7d5fd625ecbf1227397a0ef669fd4bfe31f0c8174fc025c8bdf0739ce",
+        "seconds": 6.129,
+        "receipt_sha256": "37adb91af234bb65b6f313a3845486ab3f197a7fa4ffefd4c8e1f3316400040a",
+        "scope": "Fresh noneditable wheel: legacy contract/codec/authentication plus modeled Job handoff units, v2 signed data roundtrip/refusals, packaged C/schema bytes and actual console help/unconfigured refusal. No worker contact, native C execution/provisioning, observed live job, SSH/command action or release acceptance.",
+        "initial_harness_failures": {
+          "logs_sha256": {
+            "wt14-installed-82fe.log": "672dc5db15c1c5f3d9a3f062fd3b8135acfead57b4606f29fc1f489e46960651",
+            "wt14-installed-82fe-resume.log": "c7384831b5a3c088d72229aed7d3b65e0787b5cff6cc6e14d8304bbec9ce4a5d",
+            "wt14-installed-82fe-final.log": "428ba12db97a41fed8c6125a47fa04ba77483447f021e598ced36e6c4bfccff7"
+          },
+          "reason": "External probe first called the private schema validator with reversed arguments/omitted code, then omitted catalog_version=v2 in schema_path (whose default is v1). The third probe expected the generic query error instead of the actual specific configuration_unavailable refusal. All three harness expectations corrected. Original immutable built wheel and fresh prefix reused; production source/wheel unchanged."
+        }
+      },
+      "scope": "147 source methods pass and 11 native-platform cases skip across telemetry/process/builder/action/Job cohorts; 35 CI policy methods also pass. Actual local receiver operations and observation races retain provider/native modeling boundaries. Real thread/feed handoff checks use a modeled Windows Job, not Windows accounting. Fresh wheel units/CLI help/unconfigured refusal and package bytes do not qualify native C execution, a live worker query, SSH/command routes, complete configuration tooling or release acceptance.",
+      "canonical_style_and_schema": {
+        "status": "passed",
+        "python_files": 2805,
+        "log_sha256": "3cd2efdfb5373ce5937870792e303ef5cc701225dbf101ac1853bd48ef432ca0"
+      }
     }
   },
   "remaining_requirements": [

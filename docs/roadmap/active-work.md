@@ -25556,10 +25556,15 @@ independent review and the complete combined gate from test one.
 - **Release target:** 1.4.0
 - **GitHub issue:** [#280](https://github.com/jordanhubbard/literate-ai/issues/280)
 - **Accepted decision:** [ADR 0059](../decisions/0059-authenticated-read-only-worker-telemetry.md); explicit directing-user acceptance on 2026-11-03.
-- **Next action:** Connect the accepted observation protocol to the live
-  action owner. Verify authentication, bounded sampling and attribution on a
-  named remote action. Retain the existing pressure command for host health.
-  An aligned Linux worker reported GPU capacity in two consecutive samples.
+- **Next action:** Qualify and independently review the versioned live-owner
+  feed integrated at `82fe2dc69` through actual registered worker routes. Preserve
+  the existing v1 admission, polling and reservation-publication repairs; the
+  separate v2 request/response/authentication retains their original contracts.
+  Current Linux source and scoped fresh-wheel results are recorded under
+  HANDOFF-001; they do not complete native provider, actual remote-action
+  attribution or installed SSH/command-route acceptance. Retain the existing
+  pressure command for host health. In earlier retained capacity observations,
+  an aligned Linux worker reported GPU capacity in two consecutive samples.
   The earlier controller labeled those samples `gpu-busy-progressing` with
   no action identity. The reviewed classifier returned `gpu-idle` in a later
   observation on that worker. Controlled samples also cover a disappearing
@@ -29155,10 +29160,10 @@ qualification, admission and cache reuse remain open.
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
-- **Next action:** Reconcile the remaining two snapshots; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Next action:** Reconcile the remaining layout-relocation snapshot; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
   - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
-  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 88 of 90 recovery snapshots merged; two remain preserved. All seven additional committed heads are merged.
+  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 89 of 90 recovery snapshots merged; one remains preserved. All seven additional committed heads are merged.
   - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
   - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
   - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
@@ -29174,11 +29179,11 @@ files. Seven otherwise unpushed heads are published too. After independent trans
 acceptance, 268 redundant worktrees and one legacy clone were removed. The sole
 source checkout retains 695 ignored/untracked paths and the legacy Git database;
 no separate framework sibling checkout or alias remains. Its clean registration
-and fast-forward synchronization were rechecked through `4b9e7e6d5`; synchronize
+and fast-forward synchronization were rechecked through `bdf384b3f`; synchronize
 again after subsequent checkpoints. New large outputs use the mounted shared
 workspace volume, preserving existing checkout paths and failed-fixture nodes.
 
-**Integration.** The latest reviewed history integration joins at `1e7995c40`.
+**Integration.** The latest reviewed history integration joins at `82fe2dc69`.
 Reviewed history merges retain newer runtime code, original 1.4.0 goals, terminal
 failures, native qualification gates and source custody. The current snapshot
 counts above are established by actual ancestry. Six original proposed designs
@@ -29574,8 +29579,7 @@ those additions are refused and each merge retains the exact current tree.
 Seventeen factual failure controls pass (6.482s). Fourteen package-return controls
 pass, with one native FreeBSD case skipped (5.878s). Nonzero exits alone remain
 terminal; no native platform or release qualification is inferred. At that checkpoint four
-snapshots remained. The Cargo/promotion prototypes have since joined; only
-`layout14` and `wt14` remain for source reconciliation.
+snapshots remained. The Cargo/promotion prototypes have since joined; `wt14` has since joined; only `layout14` remains for source reconciliation.
 
 **Cargo prototype reconciliation complete.** Thirty-nine focused original-owner
 controls pass across metadata, configuration, wrapper lifetime and receiving.
@@ -29584,3 +29588,28 @@ repairs. The [original Cargo prototype notes](../history/roadmap/recovered-cargo
 retain historical source reviews, macOS observations, old API behavior and open
 qualification requirements. No current native/generated-product, installed,
 independent-review or release acceptance is inferred from these controls.
+
+**Telemetry source port preserves both protocol families.** `wt14` joins through
+`82fe2dc69`. Its incompatible request/response and authenticated frames use `@2`
+with separate contracts/codecs/schema. Existing telemetry v1 contract, HMAC,
+codec, schema, fixture and legacy action-test bytes remain exact. Thirteen new
+contracts register beside the original five; all 149 v2 schema files and 663
+resources validate. Current confirmed Job termination/fallback, native ownership,
+absolute deadlines, interrupt relay and cleanup remain intact.
+
+The telemetry cohort passes 109 methods with four native FreeBSD cases skipped
+(164.405s). Process-tree, guarded-builder, legacy-action and existing Job cohorts
+pass 9/6/5/15 methods with seven additional native-platform skips; three new real
+thread/feed controls use modeled Jobs and pass. All 35 CI policy controls pass.
+The [original telemetry notes](../history/roadmap/recovered-telemetry-prototype.md)
+retain the historical FreeBSD observations separately from this integrated tree.
+
+A fresh noneditable `82fe2dc69` wheel passes 35 scoped methods, a v2 signed-data
+roundtrip and three corruption/cross-version refusals, packaged C/schema checks,
+and three actual console help/unconfigured-refusal invocations (6.129s). All 272
+loaded framework module origins lie in that installed prefix. The original wheel
+and prefix were reused across three corrected external-probe API/expectation
+errors, with no product-code or wheel changes; earlier failures remain recorded. No worker contact, native C
+execution/provisioning, native metrics, installed live-worker/SSH/command journey
+or complete-feature/release acceptance is inferred. Eighty-nine dirty snapshots
+and all seven clean heads are integrated; `layout14` remains.
