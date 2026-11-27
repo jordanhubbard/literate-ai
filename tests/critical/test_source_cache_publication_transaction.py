@@ -21,6 +21,7 @@ from literate_ai.adapters.cache.standard import (
     FilesystemStandardSourceAdmissionPublisher,
 )
 from literate_ai.application import native_root_run as lifetime
+from literate_ai.application import standard_node_sdk_admission as sdk_lifetime
 from literate_ai.contracts.native_root_continuation import NativeRootRunPolicy
 from literate_ai.storage import FileSystemCAS
 from tests.support import fixtures_test_source_cache as fixture
@@ -428,6 +429,99 @@ class SourceCacheCommitConstraintTests(unittest.TestCase):
         self.assertTrue(tokens)
         self.assertEqual(self.store.published_entries(), ())
         self.assertEqual(self.store.candidates(entry.cache_key), ())
+
+    def test_explicit_constraints_cannot_replace_original_active_run(self):
+        for cut in ("guard", "remaining"):
+            with self.subTest(cut=cut):
+                self._explicit_constraint_case(cut)
+
+    def _explicit_constraint_case(self, cut):
+        tokens = []
+        with self.owner() as owner, lifetime.activate_native_root_run(owner):
+
+            def close_original():
+                if not tokens:
+                    tokens.append(lifetime._ACTIVE_NATIVE_ROOT_RUN.set(None))
+                    owner.close()
+
+            def current():
+                if cut == "guard":
+                    close_original()
+
+            def remaining():
+                if cut == "remaining":
+                    close_original()
+                return 30
+
+            try:
+                with self.assertRaises(lifetime.NativeRootRunError) as caught:
+                    self.store.publish(
+                        self.entry,
+                        caller_cas=self.caller,
+                        require_current=current,
+                        remaining=remaining,
+                    )
+                self.assertEqual(caught.exception.code, "native_root_run.closed")
+            finally:
+                if tokens:
+                    lifetime._ACTIVE_NATIVE_ROOT_RUN.reset(tokens[0])
+        self.assertTrue(tokens)
+        self.assertEqual(self.store.published_entries(), ())
+        self.assertEqual(self.store.candidates(self.entry.derivation.cache_key), ())
+
+    def test_original_native_and_sdk_owners_close_after_each_others_callbacks(self):
+        for cut in ("native", "sdk", "final-native"):
+            with self.subTest(cut=cut):
+                self._original_owner_callback_case(cut)
+
+    def _original_owner_callback_case(self, cut):
+        armed, entered, sdk_checks = [], [], []
+        invocation = SimpleNamespace(
+            identity="invocation",
+            prepared=SimpleNamespace(
+                recipe=SimpleNamespace(identity="recipe"),
+                request=SimpleNamespace(
+                    request=SimpleNamespace(context_manifest_identity="manifest")
+                ),
+            ),
+        )
+
+        def native_callback():
+            if armed and (
+                cut == "native"
+                or (cut == "final-native" and entered and len(sdk_checks) > entered[0])
+            ):
+                scope.active = False
+                sdk_lifetime._CURRENT.set(None)
+
+        def sdk_callback():
+            sdk_checks.append(True)
+            if armed and cut == "sdk":
+                owner.close()
+                lifetime._ACTIVE_NATIVE_ROOT_RUN.set(None)
+
+        scope = sdk_lifetime._Scope(
+            SimpleNamespace(identity="execution"),
+            invocation,
+            sdk_callback,
+            lambda: None,
+        )
+        with (
+            self.owner(native_callback) as owner,
+            lifetime.activate_native_root_run(owner),
+        ):
+            token = sdk_lifetime._CURRENT.set(scope)
+            armed.append(True)
+            try:
+                with self.assertRaises((ValueError, lifetime.NativeRootRunError)):
+                    with self.store._operation(
+                        require_current=lambda: None,
+                        remaining=lambda: 30,
+                    ):
+                        entered.append(len(sdk_checks))
+            finally:
+                sdk_lifetime._CURRENT.reset(token)
+        self.assertEqual(bool(entered), cut == "final-native")
 
     def test_attachment_iterator_cannot_drop_original_commit_constraint(self):
         tokens = []

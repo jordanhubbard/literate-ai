@@ -7776,6 +7776,29 @@ the reported failure.
 <a id="test-cache-001-checkpointgate-skip-logic-is-not-dependency-aware-it-only-detects-a-changed-test-file-not-a-changed-dependency"></a>
 ### [~] TEST-CACHE-001 — Complete dependency-bound qualification reuse
 
+- **Independent release review (source partial):** Real callback reproducers show
+  that membership retirement can delete a same-inode rewrite after its final
+  original-byte check, and public publication can adopt a replacement store
+  configuration after selecting the original marker lock. Fence the original
+  target/CAS/path configuration before every guarded operation callback and
+  effect without turning legacy operations into leased rollback transactions.
+  Recheck the original membership after the last callback, explicitly settling
+  only the transaction's own hardlink before that callback. Require unchanged
+  retirement/rollback behavior, foreign-byte preservation and public target-swap
+  controls before closing either finding; retain all original cache acceptance.
+  A real active native-run reproducer also shows explicit caller guards/budgets
+  bypassing the captured original owner. Compose captured native and SDK fences
+  with caller constraints after transaction registration, retain original owner
+  references across context clearing, and intersect remaining budgets with the
+  unchanged local lock ceiling. Keep operations without any lease unguarded.
+  All four cache findings now have targeted repairs: both original owners are
+  captured without callbacks, and a callback-free SDK close follows the last
+  native callback. The 61-case cache cohort, 43 native-run/bridge/admission
+  controls and 19 SDK lifecycle controls pass without skips; original retirement,
+  rollback, partial-publication and deadlines remain intact. Independent closing
+  review reproduces refusal in both initial capture directions and the final
+  callback cut. Full source, installed and platform qualification remain open.
+
 - **Priority:** P0
 - **Release target:** 1.4.0
 - **Previous release targets:** 1.1.0; 0.8.0. Historical execution instructions are
@@ -24463,6 +24486,22 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   `v7.1.0` and `v10.4.0` tag references. Keep Go/uv tool versions and all workflow
   permissions, conditions and deadlines unchanged; current candidate CI must
   qualify the composed workflow before landing.
+- **Independent source review (repairs in progress):** The directing user authorizes
+  independent reviewers for the concrete integration. The frozen 462-file
+  review subject, all confirmed findings, required outcomes and repair limits
+  are retained in [the source review record](../../verification/release-1.4-source-review.json).
+  Every open finding remains a release blocker. Complete source inspection and
+  closing review of repairs before renewing any pin; targeted tests alone do not
+  provide review, native/installed qualification or complete-goal acceptance.
+  All 462 frozen source diffs are now independently inspected across disjoint
+  runtime, authority and contracts partitions. Fifteen confirmed findings are
+  recorded; five bootstrap/cache findings have targeted repairs and independent
+  closing review. Remaining findings, every original release goal and native/
+  installed acceptance remain open; no review pin is renewed from these results.
+  The isolated, integrity-verified TypeScript 6.0.3 SDK retains all 140 published
+  files and passes all 35 real compiler controls (134.758s, zero skips). The
+  installed authored-SDK preflight separately refuses this non-macOS host before
+  construction; preserve that prerequisite and obtain its native cell elsewhere.
 - **Roadmap fixture portability:** Current macOS qualification
   reports seven dependency-fixture errors because temporary roots retain the
   system directory alias. Reproduce under an aliased temporary parent locally,
@@ -29133,6 +29172,34 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Maintained bootstrap fixtures (source partial):** The fresh installed-wheel gate
+  reaches all ten original maintained bootstrap controls, which fail during setup
+  because their legacy-root fixtures now use the contained default. Select the
+  internal legacy fixture layout explicitly, retaining every original path,
+  bootstrap, timeout, checksum and custom-rule assertion. Add an actual default
+  contained bootstrap invocation from both application and framework directories
+  to the installed maintained cohort; require fresh source and noneditable-wheel
+  controls before treating either layout as qualified.
+  Explicit legacy layout restores fixture setup and exposes the original exact
+  helper-parity refusal: the shared owner acquired eager optional telemetry
+  dependencies while the standalone copy stayed stale. Defer those imports to
+  actual observer opt-in, retain the original Job and cleanup controls, and
+  refresh the exact helper copy/digest. Require original standalone subprocess
+  controls, numeric-observer controls and independent runtime review; no bundled
+  framework installation or weakened helper check is permitted.
+  Independent review also reproduces a stale ready result after a successful
+  child probe followed by a same-size, restored-mtime pin rewrite. Retain the
+  original selected manifest's bounded bytes/native facts and revalidate exact
+  project selection after every result; preserve callback-written state on
+  refusal. Require legacy and contained closing controls without relaxing any
+  existing bootstrap or process assertion.
+  All 15 source bootstrap controls pass without skips, including default contained
+  invocation and both-layout post-probe mutation/refusal controls. Independent
+  closing review passes 36 controlled-probe cases across four probe outcomes,
+  including framework-directory invocation. All three original Windows observer
+  protocol controls pass locally; this is not native Windows qualification.
+  Fresh noneditable maintained controls and complete release gates remain open.
+
 - **Lock capture placement parity (source partial):** Fresh full source qualification
   stops during actual retained Cargo fixture adoption: ordinary Component reads
   resolve recorded contained catalog coordinates, but the descriptor-capture
@@ -30526,6 +30593,21 @@ Source partial: converted framework-resource observation now includes the origin
   - [ ] Reproduce the nine-execution/three-raw-case diamond and qualify capture/replay, missing or failed provider refusal, per-suite duplicate refusal, installed/native and integrated gates.
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
+
+- **Observation-frame fixtures (source partial):** Full source qualification now
+  reaches 375 discovered executions before an ambient-frame assertion compares
+  the constructor-owned Flavor frame to its former dictionary representation.
+  Check the frame's actual observation index for the original empty-cache
+  invariant, require exact frame restoration and lifetime across real success
+  and callback failure, and retain outside-scope cleanup, mutation refusals and
+  parse-reduction assertions. Apply the same representation correction to the
+  existing Cargo isolation control. No production frame or guard change follows
+  from this fixture failure; require both complete modules and full regression.
+  The three authored controls pass (14.280s), and all 14 original Cargo isolation
+  controls pass (917.840s), with no skips or deadline changes. The original
+  empty-index, exact frame-restoration, active/retired lifetime, mutation and
+  parse-reduction assertions remain enforced. Complete current-candidate source
+  and installed/native qualification remain separate and open.
 
 - **Read-only publication development:** Bound each complete read with fresh full
   provider checks, while original namespace owners validate directory traversal.

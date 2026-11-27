@@ -217,7 +217,10 @@ class NativeRootRunBridgeTests(unittest.TestCase):
         application = SimpleNamespace(rebuild=mock.Mock())
         ports = SimpleNamespace(shared_cache=None)
         prepared = SimpleNamespace(
-            nodes=(), nodes_by_revision={"other-component": object()}
+            nodes=(),
+            nodes_by_revision={
+                "other-component": SimpleNamespace(recipe=SimpleNamespace())
+            },
         )
         restorer = SimpleNamespace(restore_prepared=mock.Mock())
         runtime = replace(

@@ -504,67 +504,72 @@ class FileSystemSourceCache:
         require_current: Callable[[], None] | None = None,
         remaining: Callable[[], float] | None = None,
     ) -> Iterator[CachePublicationTransaction]:
-        if require_current is not None and remaining is None:
-            from literate_ai.application.native_root_run import current_native_root_run
+        configuration, original_cas = self._effect_configuration(), self.cas
 
-            original_run = current_native_root_run()
-            caller_guard = require_current
-            local_deadline = time.monotonic() + 30.0
+        def require_target():
+            if (
+                self.cas is not original_cas
+                or self._effect_configuration() != configuration
+            ):
+                raise _effect_failure()
 
-            def require_current():
-                if original_run is not None:
-                    original_run.require_current()
-                caller_guard()
-                if original_run is not None:
-                    original_run.require_current()
-
-            def remaining():
-                local = local_deadline - time.monotonic()
-                return (
-                    local
-                    if original_run is None
-                    else min(local, original_run.remaining())
-                )
+        if remaining is not None and require_current is None:
+            raise TypeError("a remaining budget requires a currentness constraint")
+        if (require_current is not None and not callable(require_current)) or (
+            remaining is not None and not callable(remaining)
+        ):
+            raise TypeError("commit constraints must be callable")
+        caller_guard, caller_remaining = require_current, remaining
 
         def select_constraint():
-            from literate_ai.application.native_root_run import current_native_root_run
+            from literate_ai.application.native_root_run import _capture_native_root_run
             from literate_ai.application.standard_node_sdk_admission import (
-                capture_node_sdk_lifecycle,
+                _capture_node_sdk_lifecycle,
             )
 
-            owner = current_native_root_run()
-            sdk_guard = capture_node_sdk_lifecycle()
-            if sdk_guard is None:
-                return (
-                    None if owner is None else (owner.require_current, owner.remaining)
-                )
+            # Retain BOTH originals before either guard can clear another scope.
+            owner = _capture_native_root_run()
+            captured_sdk = _capture_node_sdk_lifecycle()
+            sdk_guard, sdk_close = (
+                (None, None) if captured_sdk is None else captured_sdk
+            )
+            if owner is None and sdk_guard is None and caller_guard is None:
+                return None
             # The original SDK owner enforces its existing lease on every poll.
             # This additional local lock ceiling is the unchanged transaction
             # default, not a replacement or renewal of that original lease.
             local_deadline = time.monotonic() + 30.0
 
+            def original_current():
+                if owner is not None:
+                    owner.require_current()
+                if sdk_guard is not None:
+                    sdk_guard()
+                    if owner is not None:
+                        owner.require_current()
+                # The final native callback may revoke SDK custody. Close its
+                # original identity without invoking another owner callback.
+                if sdk_close is not None:
+                    sdk_close()
+
             def current():
-                if owner is not None:
-                    owner.require_current()
-                sdk_guard()
-                if owner is not None:
-                    owner.require_current()
+                original_current()
+                if caller_guard is not None:
+                    caller_guard()
+                    original_current()
 
             def remaining_budget():
                 local = local_deadline - time.monotonic()
+                if caller_remaining is not None:
+                    local = min(local, caller_remaining())
                 return local if owner is None else min(local, owner.remaining())
 
             return current, remaining_budget
 
         with cache_publication_transaction(
             self._io_root / "format.json",
-            require_current=require_current,
-            remaining=remaining,
-            select_constraint=(
-                select_constraint
-                if require_current is None and remaining is None
-                else None
-            ),
+            require_target=require_target,
+            select_constraint=select_constraint,
         ) as transaction:
             token = _CACHE_TRANSACTIONS.set(
                 {**(_CACHE_TRANSACTIONS.get() or {}), id(self): transaction}
@@ -1171,6 +1176,7 @@ class FileSystemSourceCache:
                     membership,
                     staging=self.staging,
                     require_original_read=original.current,
+                    settle_original_link=original.settle_owned_link_change,
                 )
             retired = True
         if retired:

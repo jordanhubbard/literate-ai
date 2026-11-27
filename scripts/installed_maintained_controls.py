@@ -21,6 +21,7 @@ _CASE_SETS = {
             "class": "GeneratedBootstrapTests",
             "methods": [
                 "test_bootstrap_environment_is_not_source_without_git",
+                "test_completed_probe_cannot_hide_changed_pin_or_project_selection",
                 "test_generated_route_and_missing_cli_are_read_only",
                 "test_incompatible_and_ready_runtime_checks_preserve_custom_rules",
                 "test_private_probe_accepts_exact_byte_bounds_before_installation",
@@ -31,7 +32,15 @@ _CASE_SETS = {
                 "test_update_adds_bootstrap_files_without_replacing_custom_rules",
                 "test_wheel_checksum_and_missing_file_fail_closed",
             ],
-        }
+        },
+        {
+            "fixture": "tests/smoke/test_bootstrap_litai.py",
+            "module": "tests.smoke.test_bootstrap_litai",
+            "class": "ContainedGeneratedBootstrapTests",
+            "methods": [
+                "test_default_contained_bootstrap_keeps_pins_from_app_and_framework",
+            ],
+        },
     ],
     "bootstrap-posix": [
         {

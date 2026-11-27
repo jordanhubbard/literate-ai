@@ -21,7 +21,7 @@ from contextlib import suppress
 from pathlib import Path
 
 _OUTPUT_LIMIT = 1024 * 1024
-_OWNER_DIGEST = "1accf0a06ddfd86fce7c7ad0b616624c99435e0a9471841176958919c6b5d7ad"
+_OWNER_DIGEST = "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb690"
 
 
 def _process_owner():
@@ -169,7 +169,7 @@ def _native_directory(path: Path) -> None:
             raise ValueError("Bootstrap project ancestry is redirected or unavailable")
 
 
-def _native_manifest(path: Path) -> dict[str, object]:
+def _native_manifest(path: Path, *, _observed=None) -> dict[str, object]:
     _native_directory(path.parent)
     before = path.lstat()
     if not stat.S_ISREG(before.st_mode) or (
@@ -194,8 +194,10 @@ def _native_manifest(path: Path) -> dict[str, object]:
             value.st_dev,
             value.st_ino,
             value.st_mode,
+            value.st_nlink,
             value.st_size,
             value.st_mtime_ns,
+            value.st_ctime_ns,
         )
 
     if not (identity(before) == identity(opened) == identity(after) == identity(final)):
@@ -205,10 +207,12 @@ def _native_manifest(path: Path) -> dict[str, object]:
     value = json.loads(content)
     if not isinstance(value, dict):
         raise ValueError("Bootstrap project manifest must be an object")
+    if _observed is not None:
+        _observed.append((path, content, identity(final)))
     return value
 
 
-def _declared_project(project: Path):
+def _declared_project(project: Path, *, _observed=None):
     project = project.absolute()
     _native_directory(project)
     direct = project / "literate.project.json"
@@ -217,12 +221,12 @@ def _declared_project(project: Path):
     if os.path.lexists(child):
         _native_directory(child)
     if os.path.lexists(contained):
-        definition = _native_manifest(contained)
+        definition = _native_manifest(contained, _observed=_observed)
         if definition.get("framework_directory") == "litai":
             if os.path.lexists(direct):
                 raise ValueError("Root and contained project manifests are ambiguous")
             return project, contained, definition
-    definition = _native_manifest(direct)
+    definition = _native_manifest(direct, _observed=_observed)
     if definition.get("framework_directory") == "litai":
         if project.name != "litai" or os.path.lexists(
             project.parent / "literate.project.json"
@@ -234,9 +238,11 @@ def _declared_project(project: Path):
     return project, direct, definition
 
 
-def check(project: Path, executable: str | None) -> dict[str, object]:
+def _check_snapshot(
+    project: Path, executable: str | None, observed
+) -> dict[str, object]:
     try:
-        project, manifest, definition = _declared_project(project)
+        project, manifest, definition = _declared_project(project, _observed=observed)
         driver = definition["lifecycle_driver"]
         if not isinstance(driver, dict):
             raise ValueError("project has no Standard framework distribution pin")
@@ -332,6 +338,20 @@ def check(project: Path, executable: str | None) -> dict[str, object]:
         "required_distribution": required,
         "detail": "Installed LitAI matches the project pin",
     }
+
+
+def check(project: Path, executable: str | None) -> dict[str, object]:
+    observed = []
+    result = _check_snapshot(project, executable, observed)
+    if observed:
+        try:
+            current = []
+            _declared_project(project, _observed=current)
+            if current != observed:
+                raise ValueError("Bootstrap project changed during runtime check")
+        except (OSError, UnicodeError, ValueError, KeyError, TypeError) as error:
+            return {"state": "project-invalid", "ok": False, "detail": str(error)}
+    return result
 
 
 def verify_wheel(path: Path, expected: str) -> dict[str, object]:

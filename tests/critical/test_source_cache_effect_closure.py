@@ -10,7 +10,9 @@ from unittest import mock
 
 from literate_ai.adapters.cache import FileSystemSourceCache, SourceCacheError
 from literate_ai.adapters.cache import filesystem as owner
+from literate_ai.storage import FileSystemCAS
 from tests.critical import test_source_cache_retirement as retirement_fixture
+from tests.support.fixtures_test_source_cache import _accepted_entry
 
 
 class SourceCacheEffectClosureTests(unittest.TestCase):
@@ -98,6 +100,110 @@ class SourceCacheEffectClosureTests(unittest.TestCase):
             )
         self.assertEqual(self.cache.root, outside)
         self.assertFalse(destination.exists())
+
+    def test_public_publish_fences_original_target_before_callbacks(self):
+        for cut in ("guard", "remaining", "attachments"):
+            with self.subTest(cut=cut):
+                self._public_publish_target_case(cut)
+
+    def _public_publish_target_case(self, cut):
+        root = self.root / cut
+        caller = FileSystemCAS(root / "caller")
+        entry = _accepted_entry(caller, suffix=cut)
+        selected = FileSystemSourceCache("selected", root / "selected")
+        other = FileSystemSourceCache("other", root / "other")
+        original_root = selected.root
+        before = {
+            path.relative_to(other.root): path.read_bytes()
+            for path in other.root.rglob("*")
+            if path.is_file()
+        }
+        changed = []
+
+        def change_target():
+            if not changed:
+                for name in (
+                    "root",
+                    "cas",
+                    "entries",
+                    "keys",
+                    "intelligence",
+                    "intelligence_by_source",
+                    "staging",
+                ):
+                    setattr(selected, name, getattr(other, name))
+                changed.append(True)
+
+        def current():
+            if cut == "guard":
+                change_target()
+
+        def remaining():
+            if cut == "remaining":
+                change_target()
+            return 10
+
+        class Attachments:
+            def __iter__(self):
+                change_target()
+                return iter(())
+
+        options = (
+            {"intelligence_attachments": Attachments()}
+            if cut == "attachments"
+            else {"require_current": current, "remaining": remaining}
+        )
+        with self.assertRaises(SourceCacheError):
+            selected.publish(entry, caller_cas=caller, **options)
+        self.assertEqual(changed, [True])
+        self.assertEqual(selected.root, other.root)
+        self.assertFalse(list((original_root / "entries").rglob("*.json")))
+        self.assertEqual(
+            {
+                path.relative_to(other.root): path.read_bytes()
+                for path in other.root.rglob("*")
+                if path.is_file()
+            },
+            before,
+        )
+
+    @unittest.skipUnless(os.name == "posix", "requires same-inode write callback")
+    def test_retirement_last_callback_preserves_changed_membership_bytes(self):
+        for equal_bytes in (False, True):
+            with self.subTest(equal_bytes=equal_bytes):
+                self._retirement_callback_case(equal_bytes)
+
+    def _retirement_callback_case(self, equal_bytes):
+        cache, key, first, second = (
+            retirement_fixture.SourceCacheRetirementTests().populate(
+                self.root / str(equal_bytes) / "cache"
+            )
+        )
+        membership = (
+            cache.keys
+            / key.accepted_source_lookup_identity.digest
+            / f"{first.identity.digest}.json"
+        )
+        original = membership.read_bytes()
+        foreign = original if equal_bytes else b"foreign membership"
+        changed = []
+
+        def current():
+            if list(cache.staging.glob(".retire-*/membership")) and not changed:
+                metadata = membership.stat()
+                membership.write_bytes(foreign)
+                os.utime(
+                    membership,
+                    ns=(metadata.st_atime_ns, metadata.st_mtime_ns + 1),
+                )
+                changed.append(True)
+
+        with self.assertRaises(SourceCacheError):
+            cache.retire_other_memberships(
+                key, keep=second.identity, require_current=current
+            )
+        self.assertEqual(changed, [True])
+        self.assertEqual(membership.read_bytes(), foreign)
 
     @unittest.skipUnless(os.name == "posix", "requires an actual named-file swap")
     def test_existing_entry_final_callback_cannot_adopt_equal_byte_replacement(self):

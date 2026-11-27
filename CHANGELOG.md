@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Keep standalone bootstrap checks independent of optional telemetry imports and
+  reject changed project pins or authority selection after runtime probes.
+
+- Bind cache operations to their original target and native/SDK owners, preserving
+  foreign membership rewrites during retirement and the existing rollback policy.
+
 - Resolve contained Component catalog references consistently during ordinary
   lock reads and descriptor capture, preserving file identity and redirect refusal.
 

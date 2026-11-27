@@ -149,10 +149,13 @@ class CachePublicationTransaction:
         marker: Path,
         descriptor: int,
         require_current: Callable[[], None] | None,
+        *,
+        require_target: Callable[[], None] | None = None,
     ) -> None:
         self.marker = marker
         self.descriptor = descriptor
         self._require_current = require_current
+        self._require_target = require_target
         self._owner = os.getpid(), threading.get_ident()
         self._operations: list[_Operation] = []
         self._rollback_failed = False
@@ -175,8 +178,12 @@ class CachePublicationTransaction:
 
     def require_current(self) -> None:
         self._require_coordinate()
+        if self._require_target is not None:
+            self._require_target()
         if self._require_current is not None:
             self._require_current()
+        if self._require_target is not None:
+            self._require_target()
         self._require_coordinate()
 
     @property
@@ -221,7 +228,12 @@ class CachePublicationTransaction:
                 _close_handles((held, parent), operation_error)
 
     def remove(
-        self, destination: Path, *, staging: Path, require_original_read=None
+        self,
+        destination: Path,
+        *,
+        staging: Path,
+        require_original_read=None,
+        settle_original_link=None,
     ) -> None:
         """Retire one pointer, retaining exact private undo custody if guarded."""
         self.require_current()
@@ -247,6 +259,8 @@ class CachePublicationTransaction:
             self._operations.append(operation)
             retained = True
             self.require_current()
+            if require_original_read is not None:
+                require_original_read()
             if not parent.matches(destination.parent) or not held.matches(destination):
                 raise CachePublicationLockError(
                     "retired pointer changed before custody"
@@ -254,11 +268,15 @@ class CachePublicationTransaction:
             os.link(destination, backup)
             if not held.matches(backup):
                 raise CachePublicationLockError("retired pointer undo custody changed")
+            if settle_original_link is not None:
+                settle_original_link()
             from literate_ai.adapters.cache.filesystem import _fsync_directory
 
             _fsync_directory(directory)
             _fsync_directory(staging)
             self.require_current()
+            if require_original_read is not None:
+                require_original_read()
             if not parent.matches(destination.parent) or not held.matches(destination):
                 raise CachePublicationLockError(
                     "retired pointer changed before removal"
@@ -374,6 +392,7 @@ def cache_publication_transaction(
     *,
     require_current: Callable[[], None] | None = None,
     remaining: Callable[[], float] | None = None,
+    require_target: Callable[[], None] | None = None,
     select_constraint: Callable[
         [], tuple[Callable[[], None], Callable[[], float]] | None
     ]
@@ -386,6 +405,8 @@ def cache_publication_transaction(
     refused. Internal compound reads must call explicit unlocked helpers while
     holding one transaction. Only guarded attempts undo their owned links;
     omission preserves the legacy partial-publication behavior on failure.
+    A target-configuration check closes store selection across callbacks without
+    granting a lifetime lease or changing that rollback policy.
 
     The final successful currentness check is the commit point. Failures in
     handle cleanup or unlock after that point report cleanup failure and retain
@@ -394,6 +415,8 @@ def cache_publication_transaction(
     """
     if (require_current is None) != (remaining is None):
         raise TypeError("a commit constraint requires both currentness and remaining")
+    if require_target is not None and not callable(require_target):
+        raise TypeError("a target constraint must be callable")
     if require_current is not None and (
         not callable(require_current) or not callable(remaining)
     ):
@@ -407,7 +430,9 @@ def cache_publication_transaction(
     flags = os.O_RDONLY | getattr(os, "O_BINARY", 0)
     flags |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
     descriptor = os.open(path, flags)
-    transaction = CachePublicationTransaction(path, descriptor, require_current)
+    transaction = CachePublicationTransaction(
+        path, descriptor, require_current, require_target=require_target
+    )
     active = getattr(_LOCAL, "active", None)
     if active is None:
         active = _LOCAL.active = set()

@@ -15,12 +15,14 @@ from pathlib import Path
 from unittest import mock
 
 from literate_ai.adapters import project_initialization
+from literate_ai.adapters.project_scaffold_placement import ScaffoldLayout
 from literate_ai.adapters.project_update_apply import apply_project_update
 from literate_ai.adapters.project_updates import FilesystemProjectUpdateAdapter
 from literate_ai.contracts import (
     ProjectInitializationOrigin,
     ProjectUpdateClassification,
 )
+from literate_ai.projects import ProjectConfigurationStore
 from tests.smoke.test_project_reparenting import initialize_root
 
 
@@ -28,8 +30,8 @@ class GeneratedBootstrapFixture(unittest.TestCase):
     def setUp(self) -> None:
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
-        self.root = Path(temporary.name) / "project"
-        initialize_root(self.root)
+        self.root = Path(temporary.name).resolve() / "project"
+        initialize_root(self.root, _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE)
         manifest = self.root / "literate.project.json"
         definition = json.loads(manifest.read_text())
         definition["lifecycle_driver"] = {
@@ -42,9 +44,9 @@ class GeneratedBootstrapFixture(unittest.TestCase):
         manifest.write_text(json.dumps(definition))
         self.script = self.root / "scripts/bootstrap_litai.py"
 
-    def module(self):
+    def module(self, script=None):
         spec = importlib.util.spec_from_file_location(
-            "generated_bootstrap", self.script
+            "generated_bootstrap", self.script if script is None else script
         )
         self.assertIsNotNone(spec)
         self.assertIsNotNone(spec.loader)
@@ -73,7 +75,166 @@ class GeneratedBootstrapFixture(unittest.TestCase):
         )
 
 
+class ContainedGeneratedBootstrapTests(unittest.TestCase):
+    def test_default_contained_bootstrap_keeps_pins_from_app_and_framework(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve() / "project"
+            initialize_root(root)
+            context = ProjectConfigurationStore.context(root)
+            self.assertEqual(context.framework_root, root / "litai")
+            manifest = context.manifest_path
+            definition = json.loads(manifest.read_bytes())
+            definition["lifecycle_driver"] = {
+                "binding": "standard",
+                "framework_distribution_identity": {
+                    "algorithm": "sha256",
+                    "digest": "a" * 64,
+                },
+            }
+            manifest.write_text(json.dumps(definition))
+            script = context.framework_path("scripts/bootstrap_litai.py")
+
+            def files():
+                return {
+                    path.relative_to(root): path.read_bytes()
+                    for path in root.rglob("*")
+                    if path.is_file()
+                }
+
+            before = files()
+            for cwd in (root, context.framework_root):
+                with self.subTest(cwd=cwd.relative_to(root).as_posix()):
+                    process = subprocess.run(
+                        [sys.executable, "-I", str(script), "--json"],
+                        cwd=cwd,
+                        env={**os.environ, "PATH": ""},
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                        timeout=30,
+                    )
+                    self.assertEqual(process.returncode, 1, process.stderr)
+                    report = json.loads(process.stdout)
+                    self.assertEqual(report["state"], "missing")
+                    self.assertEqual(
+                        report["required_distribution"], "sha256:" + "a" * 64
+                    )
+                    self.assertEqual(files(), before)
+
+
 class GeneratedBootstrapTests(GeneratedBootstrapFixture):
+    def test_completed_probe_cannot_hide_changed_pin_or_project_selection(self):
+        for contained in (False, True):
+            with (
+                self.subTest(contained=contained),
+                tempfile.TemporaryDirectory() as directory,
+            ):
+                root = Path(directory).resolve() / "project"
+                initialize_root(
+                    root,
+                    **(
+                        {}
+                        if contained
+                        else {"_layout": ScaffoldLayout.LEGACY_ROOT_FIXTURE}
+                    ),
+                )
+                context = ProjectConfigurationStore.context(root)
+                manifest = context.manifest_path
+                definition = json.loads(manifest.read_bytes())
+                definition["lifecycle_driver"] = {
+                    "binding": "standard",
+                    "framework_distribution_identity": {
+                        "algorithm": "sha256",
+                        "digest": "a" * 64,
+                    },
+                }
+                manifest.write_text(json.dumps(definition))
+                original = manifest.read_bytes()
+                module = self.module(
+                    context.framework_path("scripts/bootstrap_litai.py")
+                )
+                for cut in ("rewrite", "replacement", "authority"):
+                    foreign = []
+
+                    def checked_then_changed(
+                        *_args,
+                        manifest=manifest,
+                        original=original,
+                        cut=cut,
+                        definition=definition,
+                        root=root,
+                        foreign=foreign,
+                        contained=contained,
+                        **_kwargs,
+                    ):
+                        self.assertEqual(manifest.read_bytes(), original)
+                        response = self._ready_envelope()
+                        before = manifest.stat()
+                        if cut == "rewrite":
+                            changed = original.replace(b"a" * 64, b"b" * 64, 1)
+                            self.assertNotEqual(changed, original)
+                            self.assertEqual(len(changed), len(original))
+                            with manifest.open("r+b") as stream:
+                                stream.write(changed)
+                                stream.flush()
+                                os.fsync(stream.fileno())
+                            os.utime(
+                                manifest, ns=(before.st_atime_ns, before.st_mtime_ns)
+                            )
+                        elif cut == "replacement":
+                            replacement = manifest.with_name("replacement.json")
+                            replacement.write_bytes(original)
+                            os.utime(
+                                replacement, ns=(before.st_atime_ns, before.st_mtime_ns)
+                            )
+                            replacement.replace(manifest)
+                            changed = original
+                        else:
+                            alternate = (
+                                root / "literate.project.json"
+                                if contained
+                                else root / "litai/literate.project.json"
+                            )
+                            alternate.parent.mkdir(exist_ok=True)
+                            alternate.write_bytes(
+                                json.dumps(
+                                    {**definition, "framework_directory": "litai"}
+                                ).encode()
+                            )
+                            foreign.append(alternate)
+                            changed = original
+                        return subprocess.CompletedProcess(
+                            ["fixture-litai"], 0, stdout=response, stderr=""
+                        )
+
+                    try:
+                        with (
+                            self.subTest(cut=cut),
+                            mock.patch.object(
+                                module,
+                                "_run_version_probe",
+                                side_effect=checked_then_changed,
+                            ),
+                        ):
+                            result = module.check(root, "fixture-litai")
+                            self.assertEqual(result["state"], "project-invalid")
+                            self.assertFalse(result["ok"])
+                            if cut == "rewrite":
+                                self.assertEqual(
+                                    manifest.read_bytes(),
+                                    original.replace(b"a" * 64, b"b" * 64, 1),
+                                )
+                            else:
+                                self.assertEqual(manifest.read_bytes(), original)
+                            for path in foreign:
+                                self.assertTrue(path.is_file())
+                    finally:
+                        manifest.write_bytes(original)
+                        for path in foreign:
+                            path.unlink()
+                            if not contained:
+                                path.parent.rmdir()
+
     def test_generated_route_and_missing_cli_are_read_only(self) -> None:
         self.assertTrue(self.script.is_file())
         self.assertTrue((self.root / "docs/user/bootstrap.md").is_file())
@@ -111,7 +272,7 @@ class GeneratedBootstrapTests(GeneratedBootstrapFixture):
         from literate_ai.source_to_specification.inventory import inventory_source
 
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             environment = root / ".litai-venv/lib"
             environment.mkdir(parents=True)
             (environment / "foreign.py").write_text("print('tooling')\n")
@@ -271,7 +432,7 @@ class GeneratedBootstrapTests(GeneratedBootstrapFixture):
 
     def test_update_adds_bootstrap_files_without_replacing_custom_rules(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            target = Path(directory) / "older-project"
+            target = Path(directory).resolve() / "older-project"
             old_files = {
                 path: resource
                 for path, resource in project_initialization._TEMPLATE_FILES.items()
@@ -317,7 +478,7 @@ class GeneratedBootstrapTests(GeneratedBootstrapFixture):
                     side_effect=older_template,
                 ),
             ):
-                initialize_root(target)
+                initialize_root(target, _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE)
             custom = b"# Project agent rules\n\nPreserve our workflow. Read SKILL.md.\n"
             (target / "AGENTS.md").write_bytes(custom)
             before = (target / "literate.project.json").read_bytes()

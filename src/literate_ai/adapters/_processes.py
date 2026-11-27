@@ -13,11 +13,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from .windows_job_accounting import read_original_job_accounting
-from .windows_job_numeric_feed import NumericJobFeed, NumericJobSample
-
 _TASKKILL_WAIT_SECONDS = 5
 _ORIGINAL_POPEN = subprocess.Popen
+
+
+def read_original_job_accounting(kernel32: Any, handle: int) -> Any:
+    """Load optional telemetry only when the original runner samples its Job."""
+    from .windows_job_accounting import read_original_job_accounting as read
+
+    return read(kernel32, handle)
 
 
 def process_tree_termination_wait_seconds(*, platform_name: str | None = None) -> int:
@@ -213,6 +217,8 @@ class ProcessTreeOwnership:
         Successful opt-in requires reader failures to wake the original runner;
         they must never terminate/release this Job from a reader thread.
         """
+        from .windows_job_numeric_feed import NumericJobFeed, NumericJobSample
+
         if (
             type(feed) is not NumericJobFeed
             or self._runner_control is not None

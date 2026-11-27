@@ -127,8 +127,10 @@ class AuthoredQualificationParseScopeTests(unittest.TestCase):
             ambient = frames()
             current.require_unchanged()
             self.assertEqual(frames(), ambient)
+            self.assertIs(frames()[2], ambient[2])
             self.assertEqual(ambient[1], {})
-            self.assertEqual(ambient[2], {})
+            self.assertEqual(ambient[2].observations, {})
+            self.assertTrue(ambient[2].active)
             error = RuntimeError("actual fixture reviewer failed")
 
             def failed_review(*_args, **_kwargs):
@@ -139,6 +141,9 @@ class AuthoredQualificationParseScopeTests(unittest.TestCase):
                 failing.require_unchanged()
             self.assertIs(observed.exception, error)
             self.assertEqual(frames(), ambient)
+            self.assertIs(frames()[2], ambient[2])
             self.assertEqual(ambient[1], {})
-            self.assertEqual(ambient[2], {})
+            self.assertEqual(ambient[2].observations, {})
+            self.assertTrue(ambient[2].active)
         self.assertEqual(frames(), (None, None, None))
+        self.assertFalse(ambient[2].active)

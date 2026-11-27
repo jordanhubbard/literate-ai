@@ -204,9 +204,14 @@ _ACTIVE_NATIVE_ROOT_RUN: ContextVar[LiveNativeRootRun | None] = ContextVar(
 )
 
 
+def _capture_native_root_run() -> LiveNativeRootRun | None:
+    """Retain the original owner without callbacks; validate before using it."""
+    return _ACTIVE_NATIVE_ROOT_RUN.get()
+
+
 def current_native_root_run() -> LiveNativeRootRun | None:
     """Return the active original constraint, never restore one from evidence."""
-    owner = _ACTIVE_NATIVE_ROOT_RUN.get()
+    owner = _capture_native_root_run()
     if owner is not None:
         owner.require_current()
     return owner

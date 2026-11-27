@@ -1,0 +1,159 @@
+{
+  "record_version": 1,
+  "release": "1.4.0",
+  "owning_work": "RELEASE-INTEGRATION-005",
+  "review_subject": "339cc31ada8abcf4c27cfb94e65bc31ba386fb6b",
+  "review_baseline": "9e4299d9457ce636b407946a26667b7effb58d17",
+  "scope": "Independent source review of 462 changed lifecycle-driver files; source review alone does not qualify installed, native, worker, release or complete-feature acceptance.",
+  "acceptance": "pending; unresolved findings and original release goals remain blockers",
+  "findings": [
+    {
+      "id": "sample-slot-selection",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "tests/conformance/support/sample_runner.py",
+      "required_outcome": "Use original root lock slot/revision bindings; retain same-target distinct selections and exclude dependency-only flavors.",
+      "state": "open"
+    },
+    {
+      "id": "bootstrap-pin-closing",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "src/literate_ai/project_template/scripts/bootstrap_litai.py",
+      "required_outcome": "Close original project selection, native manifest facts and exact bytes after the runtime probe.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "intake-prebound-read",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "src/literate_ai/cli/source_to_specification.py",
+      "required_outcome": "Enforce the finite input ceiling before initial bundle read/decode and schema dispatch.",
+      "state": "open"
+    },
+    {
+      "id": "catalog-fifo-open",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "required_outcome": "Open the selected source without blocking on substituted FIFOs and retain identity refusal.",
+      "state": "open"
+    },
+    {
+      "id": "component-namespace-read",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "src/literate_ai/adapters/component_namespace.py",
+      "required_outcome": "Enforce existing metadata byte ceilings before constructor witness hashing, including growth.",
+      "state": "open"
+    },
+    {
+      "id": "cache-retirement-close",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/cache/_publication.py",
+      "required_outcome": "Close exact original membership after the last callback; settle only owned hardlink changes.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "cache-target-selection",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/cache/filesystem.py",
+      "required_outcome": "Retain original store/CAS/path selection before callbacks and fence before effects without changing legacy rollback.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "cache-explicit-owner",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/cache/filesystem.py",
+      "required_outcome": "Compose original native/SDK fences and minimum budgets with explicit caller constraints.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "cache-dual-owner-close",
+      "severity": "P1",
+      "reviewer": "runtime",
+      "path": "src/literate_ai/adapters/cache/filesystem.py",
+      "required_outcome": "Capture both originals before callbacks and close SDK identity after the final native callback.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "python-temp-cleanup",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/retained_python_original_gates.py",
+      "required_outcome": "Retain foreign replacement namespace and failed native residue; no unconditional recursive temporary cleanup.",
+      "state": "open"
+    },
+    {
+      "id": "python-product-owner",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/retained_python_source.py",
+      "required_outcome": "Close exact original owner fields and delegate after all currentness callbacks.",
+      "state": "open"
+    },
+    {
+      "id": "authored-product-owner",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/authored_retained_cargo_products.py",
+      "required_outcome": "Bind neutral owner reference/run/exports/blobs/delegate before and after callbacks, preserving modeled compatibility.",
+      "state": "open"
+    },
+    {
+      "id": "finite-absence-budget",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/project_layout_finite_creations.py",
+      "required_outcome": "Bound sibling enumeration before allocating names during each finite absence observation.",
+      "state": "open"
+    },
+    {
+      "id": "windows-result-path",
+      "severity": "P3",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/project_layout_continuation_result.py",
+      "required_outcome": "Decode inert recorded Windows/UNC journal coordinates using pure path semantics on every host.",
+      "state": "open"
+    },
+    {
+      "id": "forest-contained-metadata",
+      "severity": "P2",
+      "reviewer": "runtime",
+      "path": "src/literate_ai/adapters/retained_layout_forest_metadata_replay.py",
+      "required_outcome": "Replay metadata using independently validated original contained placement coordinates.",
+      "state": "open"
+    }
+  ],
+  "targeted_evidence": {
+    "cache-before-dual-closing": {
+      "command": "make python-check PYTHON_TEST_START_DIRECTORY=tests/critical PYTHON_TEST_PATTERN=test_source_cache*.py",
+      "selected": 60,
+      "passed": 60,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Before final dual-owner callback-free closing repair; fresh regression and independent closing review required."
+    },
+    "cache-final": {
+      "command": "make python-check PYTHON_TEST_START_DIRECTORY=tests/critical PYTHON_TEST_PATTERN=test_source_cache*.py",
+      "selected": 61,
+      "passed": 61,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Targeted local source controls; not full native/installed or release acceptance."
+    },
+    "bootstrap-final": {
+      "command": "make python-check PYTHON_TEST_START_DIRECTORY=tests/smoke PYTHON_TEST_PATTERN=test_bootstrap_litai.py",
+      "selected": 15,
+      "passed": 15,
+      "skipped": 0,
+      "failures": 0,
+      "independent_probe_cases": 36,
+      "limit": "Source and controlled probe cases; fresh noneditable maintained controls remain required."
+    }
+  },
+  "review_scope": "All 462 frozen changed files independently inspected: runtime 65, SDK transfer 36, retained-layout transfer 36, authority 157 and remaining contracts 168. This is source review only."
+}

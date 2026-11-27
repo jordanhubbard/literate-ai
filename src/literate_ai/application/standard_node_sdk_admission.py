@@ -179,13 +179,20 @@ def require_node_sdk_source(execution_plan, prepared):
     return True
 
 
+def _capture_node_sdk_lifecycle():
+    """Retain original guard/closing checks without running owner callbacks."""
+    scope = _CURRENT.get()
+    return None if scope is None else (scope.guard, scope._values_identity)
+
+
 def capture_node_sdk_lifecycle():
     """Retain an existing operation across blocking publisher preparation."""
-    scope = _CURRENT.get()
-    if scope is None:
+    captured = _capture_node_sdk_lifecycle()
+    if captured is None:
         return None
-    scope.guard()
-    return scope.guard
+    guard, _closing = captured
+    guard()
+    return guard
 
 
 def consume_node_sdk_build(consumer, candidate, providers, operation):

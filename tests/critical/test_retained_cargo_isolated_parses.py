@@ -413,7 +413,8 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
             ambient = flavor_catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
             self.inputs.current_identity(environment=self.environment)
             self.assertIs(flavor_catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get(), ambient)
-            self.assertEqual(ambient, {})
+            self.assertEqual(ambient.observations, {})
+            self.assertTrue(ambient.active)
             error = RuntimeError("owned source callback failure")
 
             def fail(_ordinal):
@@ -427,9 +428,11 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
             finally:
                 self.on_provider_read = None
             self.assertIs(flavor_catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get(), ambient)
-            self.assertEqual(ambient, {})
+            self.assertEqual(ambient.observations, {})
+            self.assertTrue(ambient.active)
         self.inputs.current_identity(environment=self.environment)
         self.assertIsNone(flavor_catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get())
+        self.assertFalse(ambient.active)
 
     def test_identity_keeps_sixteen_explicit_fences_and_parse_isolation(self):
         before = _frames()
