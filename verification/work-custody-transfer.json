@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "881644cf2938f8b4c0216fcccb16a28b9a368e8f",
+  "continued_subject": "03553009cfff3fdc38e6dede15a812edc1dad0fb",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -53,8 +53,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 61,
-      "preserved-for-reconciliation": 29
+      "merged": 62,
+      "preserved-for-reconciliation": 28
     },
     "snapshots": [
       {
@@ -170,9 +170,10 @@
         "base": "49a96386d86279352b239c15dc448adbce892fba",
         "commit": "89452e206df0a24479b95c5e2d5a98c89cf05a10",
         "branch": "recovery/puck-20261126/authoredgraph1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 80,
-        "remaining_paths": 42
+        "remaining_paths": 42,
+        "resolution": "Normal merge 03553009c preserves identical production/test/script/schema tree after authoredgraph2 reconciliation; original Unreleased changelog feature entries retained. Recovered trees differ only in three already-reviewed older namespace/projection/retirement files; current original-vnode and portable input/projection controls supersede them. All fifteen historical records identical to the imported authoredgraph2 records."
       },
       {
         "label": "authoredgraph2",
@@ -1061,6 +1062,25 @@
         "verification/authored-standard-runner-development.json": "570daa3f7e4e3b74d1bda0ca2c4225882ef4ca36d0b04ee859bec335081895eb"
       },
       "resolution_sha256": "24423dbda3dff34870af24e938d6affbc4c06aa1842c39e438ffcec0345a0c61"
+    },
+    "next_source_work": {
+      "label": "cg14b",
+      "status": "unique configuration/metadata bounds reviewed; original-owner runtime reproduction and port pending",
+      "scope": "Current core require_metadata_paths builds a resolved file set and has no recovered explicit metadata path-count/memory preflight. Prototype verifies nearest captured owner and bounded internal alias resolution without opening metadata-selected paths. Hypothesis to reproduce: an external unowned symlink to a captured file may pass current resolve-based membership. Preserve current original materialization/scratch/environment/lifetime guards and independently pinned ancestor configuration, rather than restoring obsolete constructible prototype owners or rejecting all existing ancestor config.",
+      "current_owner": "src/literate_ai/adapters/retained_cargo_execution_inputs_core.py",
+      "original_helper_files": [
+        "src/literate_ai/adapters/retained_cargo_configuration_v2.py",
+        "src/literate_ai/adapters/retained_cargo_metadata_inputs_v2.py"
+      ],
+      "original_helper_sha256": {
+        "src/literate_ai/adapters/retained_cargo_configuration_v2.py": "9c2ff895fa5a03326e87e43ababc119c0b5f844afacf8ec9fe0dbc12ba8684df",
+        "src/literate_ai/adapters/retained_cargo_metadata_inputs_v2.py": "a471664e49581c14e4b6f73e1de487f9e01b1bfa05ec7a1e692976d083c1985e"
+      },
+      "fixture_entrypoints": [
+        "tests/support/fixtures_retained_cargo_receiving_v2.py:initialize_retained_cargo_receiving_v2_fixture",
+        "tests/support/fixtures_retained_cargo_receiving_v2.py:receive_retained_cargo_fixture",
+        "tests/critical/test_retained_cargo_isolated_parses.py:RetainedCargoIsolatedObservationTests"
+      ]
     }
   },
   "checks": {
@@ -2386,7 +2406,7 @@
     }
   },
   "remaining_requirements": [
-    "Reconcile the 29 preserved source snapshots. All seven additional clean heads are integrated. Preserve unique bounded Cargo metadata/configuration, layout and native telemetry intent while retaining current namespace, lifetime, per-write journal and historical custody guards. Canonical promotion exact-wheel controls pass at 2ec59a540; later phase-polling changes have their own bounded source checks.",
+    "Reconcile the 28 preserved source snapshots. All seven additional clean heads are integrated. Preserve unique bounded Cargo metadata/configuration, layout and native telemetry intent while retaining current namespace, lifetime, per-write journal and historical custody guards. Canonical promotion exact-wheel controls pass at 2ec59a540; later phase-polling changes have their own bounded source checks.",
     "Complete resulting composed-source qualification. Fourteen Cargo cases pass at f0a5da8eb; later retained-release/fixture changes have their own bounded controls. Diagnose canonical source metadata publication role-input refusal before the recovered forest capacity assertions; do not weaken its guards or expand declared budgets.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."

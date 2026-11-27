@@ -29537,3 +29537,19 @@ interpreter changes. These controls model framework/provider/macOS selection and
 run no generated/native application. Full lint/format pass; existing promotion
 profile line wrapping is verified AST-identical. Sixty-one snapshots and all seven
 clean heads are reconciled; twenty-nine snapshots and acceptance holds remain.
+
+
+**Earlier authored graph snapshot joined.** `authoredgraph1` is now ancestral via
+`03553009c`. Its tree differs from the recovered second snapshot only in the
+three already-reviewed namespace/projection/retirement files; all development
+records match exactly. The merge preserves the current production, tests,
+scripts and schemas and retains its original Unreleased feature documentation.
+Sixty-two snapshots and all seven clean heads are integrated; twenty-eight
+snapshots and explicit acceptance holds remain.
+
+Next, reproduce and port `cg14b`'s unique metadata projection/path bounds using
+actual current original Cargo materialization and scope owners. Current resolved
+membership may accept an unowned external alias pointing at a captured file;
+that is a hypothesis until exercised. Keep current lifetime/environment/native
+fences and independently pinned ancestor configuration; do not restore obsolete
+constructible owners or loosen/refuse host input authority just to pass old tests.
