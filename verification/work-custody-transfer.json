@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "8e769f26f43a7164fd1f1772ca8068c5ec3e52c1",
+  "continued_subject": "1e7995c404f49945d90895de009606db3f8d7b82",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -53,8 +53,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 86,
-      "preserved-for-reconciliation": 4
+      "merged": 88,
+      "preserved-for-reconciliation": 2
     },
     "snapshots": [
       {
@@ -235,9 +235,11 @@
         "base": "2b9c392d9bb869f31f95a04a4a7a867456dbc58e",
         "commit": "96cf7add74048cd00fe213aa1ca42cf1c0b328bd",
         "branch": "recovery/puck-20261126/cg14b",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 13,
-        "remaining_paths": 13
+        "remaining_paths": 0,
+        "reconciliation_commit": "20be0932a2e85c06ca0aee9eb0af9484258884bf",
+        "resolution": "Current original-owner API and tests retained after porting three real reproduced gaps; prototype-specific APIs superseded; original notes retained as history."
       },
       {
         "label": "cgproj1",
@@ -350,9 +352,11 @@
         "base": "8eb8ed0a80ace4a3cd9980d1531b13c2547ef2b3",
         "commit": "8f40eedb75659bef18f53b91c111c0f5e6d786f4",
         "branch": "recovery/puck-20261126/fp14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 44,
-        "remaining_paths": 43
+        "remaining_paths": 0,
+        "reconciliation_commit": "1e7995c404f49945d90895de009606db3f8d7b82",
+        "resolution": "Current original-owner API and tests retained after porting three real reproduced gaps; prototype-specific APIs superseded; original notes retained as history."
       },
       {
         "label": "go14",
@@ -1019,7 +1023,9 @@
         "sdlcq5",
         "ur14",
         "ux14",
-        "wkcust1"
+        "wkcust1",
+        "cg14b",
+        "fp14"
       ],
       "roadmap_delta_test_methods_identical": 4,
       "roadmap_delta_added_prose_lines_retained": 17,
@@ -1083,6 +1089,11 @@
         "plan_sha256": "5c8dd512d5c214bc9a29c7218dc46a408d888959824da1a99652cee2a2d3b5a6",
         "resolution_sha256": "bac5c8f849dab4c84f4d9cbfa96f4ed552a3572e5661d5415b0be51fcd5d360e",
         "scope": "Reviewed identity methods now inherit shared cores; native update helper generalized to contained root updates; original transfer receiver generalized to typed RetainedUnitReturnCustody. All original changed named tests present except nonzero-alone retry test deliberately replaced by stronger retained-but-terminal test. Automatic merge additions consist only of duplicate existing Git/runtime functions or already-present PROJECT.md goal text. No source change or qualification renewal in these history joins."
+      },
+      "cargo_prototypes_original_owners": {
+        "resolution_sha256": "ee567a17f47e34148a2786d0aa0d9ce174960cb5f85d8ce64f527dfbd4d7c1aa",
+        "historical_notes": "docs/history/roadmap/recovered-cargo-prototypes.md",
+        "current_owner_scope": "Three reproduced runtime gaps repaired on current opaque owners. Keep separate absent-only root reservation and qualified package publication, measured native protocols/deadlines and current canonical promotion. Original prototype evidence remains historical; no old API grants restored."
       }
     },
     "committed_heads": [
@@ -1154,23 +1165,13 @@
       "resolution_sha256": "24423dbda3dff34870af24e938d6affbc4c06aa1842c39e438ffcec0345a0c61"
     },
     "next_source_work": {
-      "label": "cg14b",
-      "status": "Three actual runtime gaps repaired and committed; final existing execution-input regression running before complete cg14b reconciliation.",
-      "scope": "Current core require_metadata_paths builds a resolved file set and has no recovered explicit metadata path-count/memory preflight. Prototype verifies nearest captured owner and bounded internal alias resolution without opening metadata-selected paths. Hypothesis to reproduce: an external unowned symlink to a captured file may pass current resolve-based membership. Preserve current original materialization/scratch/environment/lifetime guards and independently pinned ancestor configuration, rather than restoring obsolete constructible prototype owners or rejecting all existing ancestor config.",
-      "current_owner": "src/literate_ai/adapters/retained_cargo_execution_inputs_core.py",
-      "original_helper_files": [
-        "src/literate_ai/adapters/retained_cargo_configuration_v2.py",
-        "src/literate_ai/adapters/retained_cargo_metadata_inputs_v2.py"
+      "labels": [
+        "layout14",
+        "wt14"
       ],
-      "original_helper_sha256": {
-        "src/literate_ai/adapters/retained_cargo_configuration_v2.py": "9c2ff895fa5a03326e87e43ababc119c0b5f844afacf8ec9fe0dbc12ba8684df",
-        "src/literate_ai/adapters/retained_cargo_metadata_inputs_v2.py": "a471664e49581c14e4b6f73e1de487f9e01b1bfa05ec7a1e692976d083c1985e"
-      },
-      "fixture_entrypoints": [
-        "tests/support/fixtures_retained_cargo_receiving_v2.py:initialize_retained_cargo_receiving_v2_fixture",
-        "tests/support/fixtures_retained_cargo_receiving_v2.py:receive_retained_cargo_fixture",
-        "tests/critical/test_retained_cargo_isolated_parses.py:RetainedCargoIsolatedObservationTests"
-      ]
+      "status": "unique source prototypes require current-owner port and qualification",
+      "scope": "layout14 retains 13 absent prototype files spanning compiler/inspection/planning/workspace/public relocation; current lower-level native forest/source transaction owners and original role-input refusal remain authoritative. wt14 retains 29 absent telemetry/native-provider files; review and port observation-only owner/configuration/provisioning mechanics and original native integrations without changing execution/control authority. Do not equate file/symbol presence with completion or renew native/release evidence from source unit passes.",
+      "inventory_sha256": "3f55400d51066f034bbe10310a5b4c6b071f98bcc6b8b2cb3f67d5733697cafa"
     }
   },
   "checks": {
@@ -2495,7 +2496,7 @@
       "release_evidence": false
     },
     "recovered_cargo_input_custody": {
-      "status": "metadata, wrapper and receiving controls passed; full execution-input regression still running",
+      "status": "39 focused actual-owner controls passed; both recovered prototype histories reconciled",
       "source_commits": [
         "c3358e21f",
         "cac4efa22",
@@ -2624,7 +2625,34 @@
       "earlier_unqualified_diagnostics": [
         "External test-discovery start directory refused as not importable before case execution; canonical Make discovery used for actual counterexample.",
         "Raw ruff check dot included historical/lab examples and failed 703 findings outside canonical Make lint scope; these files were not changed."
-      ]
+      ],
+      "complete_execution_inputs": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "seconds": 1030.642,
+        "report_sha256": "b3d3becd0cc98a6bde67f7185f6aacffc22727728401e09144a00e1d9385ebef",
+        "log_sha256": "9255eca395ff12ada38b8a015f384f3151014c0065f1c5ead337b0a98083d32e",
+        "scope": "All nine original execution-input methods including both present/absent late ancestor-config controls, whole-home drift, original scope/materialization identity, actual authored metadata and ended-owner/cross-origin refusal. Fixture provider/Cargo declarations; no native Cargo execution."
+      },
+      "integrated_source_subject": "1e7995c404f49945d90895de009606db3f8d7b82",
+      "source_file_sha256": {
+        "src/literate_ai/adapters/retained_cargo_metadata_inputs_v2.py": "273bd6ed4b390b3ad00c25533ac5cc7735ee507a2794bdcacc176dda735531e4",
+        "src/literate_ai/adapters/retained_cargo_execution_inputs_core.py": "167a2ed6891568af1a2f49ffcc20df9c475c727a5e12a86f32e0ff4fb2e73092",
+        "src/literate_ai/adapters/retained_cargo_wrapper_core.py": "6a159674aa8404eed5574db0a4bc1c370d17d229d27efac1c7e61a0e46646d02",
+        "src/literate_ai/adapters/retained_cargo_wrapper_v2.py": "21eb90fe84c502853082171ebc9ce898c91356b0a3358ef6309111e5a03fe7b5",
+        "src/literate_ai/adapters/authored_retained_cargo_wrapper.py": "d8063c8aaa2bec1d7d1740777caa10bd51ab2bc292250130df00f635be318eab",
+        "src/literate_ai/adapters/retained_python_wrapper.py": "a3d50112b8dd11dbef903edc59679c104a2fad961bf35e0d807c66a8bf6224ef"
+      },
+      "recovered_helper_sources": {
+        "src/literate_ai/adapters/retained_cargo_configuration_v2.py": "9c2ff895fa5a03326e87e43ababc119c0b5f844afacf8ec9fe0dbc12ba8684df",
+        "src/literate_ai/adapters/retained_cargo_metadata_inputs_v2.py": "a471664e49581c14e4b6f73e1de487f9e01b1bfa05ec7a1e692976d083c1985e"
+      }
     },
     "reconciled_failure_and_return_owners": {
       "factual_failure": {
