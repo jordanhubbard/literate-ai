@@ -24458,6 +24458,11 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   and [#495](https://github.com/jordanhubbard/literate-ai/pull/495).
   Each remains open until its actual integrated controls and required review/CI
   pass; these dispositions neither close goals nor move release scope.
+  Integrate the two included action updates into the candidate, preserving their
+  histories. Their pinned commit identities match the respective official
+  `v7.1.0` and `v10.4.0` tag references. Keep Go/uv tool versions and all workflow
+  permissions, conditions and deadlines unchanged; current candidate CI must
+  qualify the composed workflow before landing.
 - **Roadmap fixture portability:** Current macOS qualification
   reports seven dependency-fixture errors because temporary roots retain the
   system directory alias. Reproduce under an aliased temporary parent locally,
@@ -24474,6 +24479,14 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   exact-head CI failures, and complete the remaining contribution dispositions
   and platform/action cells. Preserve every original guard, timeout and acceptance
   requirement; the two historical lifecycle-header defects are repaired.
+- **Interpreter preflight (in progress):** The next complete source run reaches
+  117 cases before the self-hosting proof rejects a linked base-interpreter
+  prefix. The reused environment records a package-manager alias as its home;
+  invoking the same Python 3.15.2 executable through its concrete installation
+  reports direct base prefixes. Create an isolated environment from that exact
+  executable on the build volume, retain the linked-prefix refusal and all
+  offline two-generation assertions, then repeat conformance and full source
+  qualification. This is host selection, not a product guard exception.
 
 - **Recovered design execution owners:** The directing user's release-resumption
   instruction accepts the already-recorded designs in reviews #381, #382, #409
