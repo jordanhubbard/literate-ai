@@ -24425,11 +24425,30 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   current-directory lookup. Original admission and version guards stay intact.
   With that explicit tool and loader selection, all three real compiler-cache
   conformance cases pass (2.884s), including cold/warm object identity.
-- **Next release action:** Repair current documentation lifecycle findings and
-  diagnose exact-head CI failures while completing the fresh contribution and
-  worker-alignment audits. Follow with complete local source qualification and
-  the remaining policy-selected platform/action cells; preserve every original
-  guard, timeout and acceptance requirement.
+  The full suite separately reproduces a broken system Bazel launcher before
+  its read-only-cache control. Select the repository-pinned 9.2.0 official
+  ARM64 binary with its published digest, retaining fleet-volume startup/cache
+  defaults and every explicitly selected test cache mode.
+  Its real read-only-cache conformance passes (15.588s): cold and warm output
+  hashes match, the warm build is a disk hit, and the shared cache inventory
+  remains unchanged. The isolated launcher forwards standalone version probes
+  without startup flags, as required by the native Bazel argument parser.
+- **Current release intake:** Include context-bound roadmap validation
+  [#492](https://github.com/jordanhubbard/literate-ai/issues/492) /
+  [#493](https://github.com/jordanhubbard/literate-ai/pull/493) under
+  PROJECT-LAYOUT-001, and authored wrapper preservation
+  [#496](https://github.com/jordanhubbard/literate-ai/issues/496) under the
+  existing readmission/authority requirements. Include integration review
+  [#497](https://github.com/jordanhubbard/literate-ai/pull/497) and routine CI
+  dependency reviews [#494](https://github.com/jordanhubbard/literate-ai/pull/494)
+  and [#495](https://github.com/jordanhubbard/literate-ai/pull/495).
+  Each remains open until its actual integrated controls and required review/CI
+  pass; these dispositions neither close goals nor move release scope.
+- **Next release action:** Continue complete local source qualification with
+  admitted build tools, resolve the original authority/driver review drift and
+  exact-head CI failures, and complete the remaining contribution dispositions
+  and platform/action cells. Preserve every original guard, timeout and acceptance
+  requirement; the two historical lifecycle-header defects are repaired.
 
 - **Recovered design execution owners:** The directing user's release-resumption
   instruction accepts the already-recorded designs in reviews #381, #382, #409
