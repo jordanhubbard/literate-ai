@@ -46,8 +46,8 @@ _CASE_SETS = {
             "module": "tests.smoke.test_bootstrap_litai",
             "class": "ManifestNativeReadTests",
             "methods": [
-                "test_path_and_descriptor_change_clocks_are_independent_and_both_close",
                 "test_exact_manifest_and_helper_reads_use_binary_descriptor_mode",
+                "test_path_and_descriptor_change_clocks_are_independent_and_both_close",
             ],
         },
     ],

@@ -557,11 +557,58 @@
     },
     "remaining_acceptance": [
       "Original authored-native-completion run failed genuine 900-second execution deadline; bounded syntax-only frame repair independently source-reviewed but actual native deadline result pending.",
-      "Existing authored-reopened-native-r1 remains live on original pre-optimization process; no terminal pass claimed.",
       "Native Windows bootstrap/removal and actual FreeBSD SDK CI must be rerun; removal diagnostics do not establish its cause or repair.",
       "Fresh complete-source and noneditable wheel gates, resulting-main, all immutable release goals, collateral, contribution readiness and release workflow remain required.",
       "authored-native-completion-r2 is running the new syntax-only frame in the isolated followup; repair evidence only until terminal, exact committed-candidate gates still required."
     ],
-    "limits": "Source review of exact hashes and focused terminal results only. Earlier final_delta_review is historical for original candidate and does not supersede newer per-file hashes."
+    "limits": "Source review of exact hashes and focused terminal results only. Earlier final_delta_review is historical for original candidate and does not supersede newer per-file hashes.",
+    "observation_scope": "Historical source-transfer snapshot for candidate9d75fb1b7; later qualification_followup_r2 supersedes pending process statuses and its newer file hashes."
+  },
+  "qualification_followup_r2": {
+    "base_commit": "9d75fb1b747ae3c718c53a496956c61b0eddcad7",
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-labs-documentation-closing.json",
+      "verification/release-1.4-followup/review-contracts-installed-bootstrap-inventory-closing.json",
+      "verification/release-1.4-followup/review-runtime-cargo-output-ignore-fixture-close.json"
+    ],
+    "repairs": [
+      "Retain strict installed bootstrap inventory equality with corrected discovery order; all 17 original/new methods retained.",
+      "Permit absent application-root fixture .gitignore after conversion; preserve existing content, output patterns and all eight original ownership/refusal controls.",
+      "Clarify checked-in Lab05 browser-root/build-graph authority; renew only its stale documentation marker, with unfinished curriculum and acceptance limits retained."
+    ],
+    "terminal_source_evidence": {
+      "cargo-output-fixture-r1": {
+        "report_sha256": "d9d1142ff8fdab0c04a7360204e751afb774d9911db4ea62e5aa09128f8ebca6",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        }
+      },
+      "authored-reopened-native-r1": {
+        "report_sha256": "53724b84800af28484634575a3325a6ab5b7e6b9fb98260c862a5c5248571b71",
+        "summary": {
+          "executed": 1,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 0,
+          "selected": 4,
+          "skipped": 0
+        }
+      },
+      "labs": {
+        "all_six_project_validation": "passed before final wording tightening; final Lab05 separately revalidated after canonical record",
+        "offline_bundles": 6,
+        "source_tests_passed": 6,
+        "browser_acceptance": false,
+        "limit": "Historical source/structure/authority review only; no new curriculum or actual native lifecycle acceptance."
+      }
+    },
+    "prior_candidate_disposition": "wheel-full-r4 failed exact method ordering; exact-head CI partitions3 failed absent fixture ignore; full-source-r9 intentionally SIGINT after those confirmed failures, cleanup exited130. Partial results are not a complete-source pass.",
+    "native_original_disposition": "authored-reopened-native-r1 reached two event successes then failed original 3600-second worker deadline on third control. Report records one failure; no full cohort pass or new-code acceptance.",
+    "remaining_acceptance": "New native completion repair run still active; fresh complete source and installed wheel, target Windows/FreeBSD CI, all original release goals and collateral remain required."
   }
 }

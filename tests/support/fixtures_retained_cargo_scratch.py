@@ -110,7 +110,8 @@ def scratch_review_fixture(
         if build_outputs:
             ignore = project / ".gitignore"
             ignore.write_text(
-                ignore.read_text() + "".join("**/" + p + "/\n" for p in build_outputs)
+                (ignore.read_text() if ignore.exists() else "")
+                + "".join("**/" + p + "/\n" for p in build_outputs)
             )
         policy = RetainedLibraryGatePolicyV2(
             RetainedLibraryGatePolicy(

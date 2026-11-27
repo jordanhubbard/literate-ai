@@ -5,8 +5,10 @@ versioned examples with their original project pins and qualification evidence.
 For current framework installation and first steps, start with
 [the getting-started guide](../docs/user/getting-started.md).
 
-The 1.4 curriculum refresh is unfinished. Each published project currently has one
-application Component; progressively richer multi-Component composition remains
+The 1.4 curriculum refresh is unfinished. Each lab has one browser application
+root; the checked-in Lab 05 graph also declares a choir-score build dependency.
+That declaration does not establish acceptance of the current graph.
+Progressively richer multi-Component composition remains
 required by [LAB-AUTHORITY-001](../docs/roadmap/active-work.md). The historical
 1.3.1 results below do not qualify that work or the 1.4 release.
 
@@ -85,8 +87,9 @@ shows complete authored and selected authority bytes with SHA-256. These hashes
 identify content; the separate project receipt records what the lifecycle tested.
 
 LAB-AUTHORITY-001 also requires progressively richer multi-Component composition.
-The initial conversion has one application Component per project; its internal
-physics/audio/drawing roles are not mislabeled as additional Components. That
+The initial conversion has one browser application root per project. Lab 05 now
+also declares a choir-score build dependency; its internal physics/audio/drawing
+roles are not mislabeled as additional Components. That
 composition requirement remains open until it is implemented and qualified.
 
 The shared authoring inputs are [the visual system](shared/lab.css) and

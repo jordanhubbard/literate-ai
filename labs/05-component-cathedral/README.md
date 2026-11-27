@@ -19,8 +19,10 @@ selection.
 
 Read [the complete specification](project/components/frontend-application/component-cathedral/component.md)
 and [the actual lock](project/components/frontend-application/component-cathedral/component.lock.json).
-The graph distinguishes the real application Component, selected Flavors and
-pinned skills/workflow/routing. Its drawing/audio roles are not separate Components.
+The checked-in graph distinguishes the browser Component, its choir-score build
+dependency, selected Flavors and pinned skills/workflow/routing. Its drawing/audio
+roles are not separate Components. The build edge does not establish lifecycle
+or browser acceptance of the current graph.
 
 Try one behavior change in the specification, relock and inspect the plan before
 rebuilding. Compare the resulting page, tests and independent browser evidence.
