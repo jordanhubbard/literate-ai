@@ -146,6 +146,26 @@ def _allowed_identity_order(
     }
 
 
+def canonical_direct_interface_sources(
+    plan: ComponentGenerationPlan,
+) -> dict[str, ContentIdentity]:
+    """Choose one selected source representative per exact public-byte identity.
+
+    The complete plan retains every edge and provider-resolution identity. This
+    DATA projection neither makes a representative the sole origin nor admits
+    any provider or interface absent from that plan.
+    """
+    sources: dict[str, ContentIdentity] = {}
+    for edge in plan.direct_generation_edges:
+        if edge.public_interface_identity is None:
+            continue
+        uri = edge.public_interface_identity.uri
+        prior = sources.get(uri)
+        if prior is None or edge.provider_revision.uri < prior.uri:
+            sources[uri] = edge.provider_revision
+    return sources
+
+
 def _canonical_inputs(
     plan: ComponentGenerationPlan,
     inputs: tuple[PromptSegmentInput, ...],
@@ -155,11 +175,7 @@ def _canonical_inputs(
         (kind, uri) for kind, identities in orders.items() for uri in identities
     }
     seen: dict[tuple[ContextAuthorityKind, str], PromptSegmentInput] = {}
-    provider_by_interface = {
-        edge.public_interface_identity.uri: edge.provider_revision
-        for edge in plan.direct_generation_edges
-        if edge.public_interface_identity is not None
-    }
+    provider_by_interface = canonical_direct_interface_sources(plan)
     for item in inputs:
         if not isinstance(item, PromptSegmentInput):
             raise TypeError("context inputs must be PromptSegmentInput values")
@@ -254,6 +270,7 @@ def prepare_component_generation_context(
     framework_envelope: bytes,
     authority_segments: tuple[PromptSegmentInput, ...],
     budget: GenerationComplexityBudget,
+    node_sdk_provider_segments: tuple[PromptSegmentInput, ...] = (),
 ) -> PreparedComponentGenerationRequest:
     """Validate, order, meter, and identity-bind exact prompt bytes before egress."""
 
@@ -267,6 +284,41 @@ def prepare_component_generation_context(
     if not isinstance(budget, GenerationComplexityBudget):
         raise TypeError("budget must be a GenerationComplexityBudget")
     ordered = _canonical_inputs(plan, authority_segments)
+    if (
+        type(node_sdk_provider_segments) is not tuple
+        or len(node_sdk_provider_segments) > 32
+    ):
+        raise ComponentGenerationContextError(
+            "generation_context.node_sdk_bound",
+            "Node SDK metadata exceeds its bounded inventory",
+        )
+    sdk_ids = []
+    sdk_bytes = 0
+    for item in node_sdk_provider_segments:
+        if (
+            type(item) is not PromptSegmentInput
+            or item.authority_kind
+            is not ContextAuthorityKind.LOCAL_NODE_SDK_PROVIDER_METADATA
+            or item.source_component_revision != plan.component_revision
+            or type(item.content) is not bytes
+            or len(item.content) > 2 * 1024 * 1024 - sdk_bytes
+            or type(item.content_identity) is not ContentIdentity
+            or type(item.reason) is not str
+            or _raw_identity(item.content) != item.content_identity
+            or not item.reason.strip()
+        ):
+            raise ComponentGenerationContextError(
+                "generation_context.node_sdk_metadata",
+                "Node SDK metadata differs from its exact local input",
+            )
+        sdk_bytes += len(item.content)
+        sdk_ids.append(item.content_identity.uri)
+    if sdk_bytes > 2 * 1024 * 1024 or sdk_ids != sorted(set(sdk_ids)):
+        raise ComponentGenerationContextError(
+            "generation_context.node_sdk_bound",
+            "Node SDK metadata must be bounded, canonical and unique",
+        )
+    ordered = (*ordered, *node_sdk_provider_segments)
     envelope_identity = _raw_identity(framework_envelope)
     manifest_segments: list[ComponentGenerationContextSegment] = [
         ComponentGenerationContextSegment(
@@ -311,8 +363,10 @@ def prepare_component_generation_context(
         "estimated_tokens": manifest.estimated_tokens,
         "document_count": len(manifest.segments),
         "direct_interface_bytes": sum(item.byte_count for item in direct_segments),
+        # Shared public bytes have one displayed representative, but every
+        # distinct selected provider still consumes the original fan-in budget.
         "dependency_fan_in": len(
-            {item.source_component_revision.uri for item in direct_segments}
+            {edge.provider_revision.uri for edge in plan.direct_generation_edges}
         ),
     }
     limits = {
@@ -366,5 +420,6 @@ __all__ = [
     "PreparedComponentGenerationRequest",
     "PromptSegmentInput",
     "bind_component_generation_context_cache_key",
+    "canonical_direct_interface_sources",
     "prepare_component_generation_context",
 ]

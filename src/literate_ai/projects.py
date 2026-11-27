@@ -31,8 +31,11 @@ from literate_ai._cache_lock import (
 )
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
+    _readonly_directory_batch,
+    capture_directory_ancestries,
     path_is_link_or_reparse,
     require_safe_directory,
+    stat_is_link_or_reparse,
 )
 from literate_ai.application.agent_skill_catalog import (
     AgentSkillCatalog,
@@ -1237,10 +1240,31 @@ class PinnedInputClosure:
                 "inputs.closure_label_invalid",
                 "pinned-input labels must be non-empty and at most 1024 bytes",
             )
+        expected_identity = _expected_identity_before_read(expected_identity)
         configured_boundary, resolved_boundary = self._boundary(boundary)
         resolved_path, content = self._read(
             path, resolved_boundary, configured_boundary=configured_boundary
         )
+        return self._admit_read(
+            resolved_path,
+            resolved_boundary,
+            content,
+            label=label,
+            expected_content=expected_content,
+            expected_identity=expected_identity,
+        )
+
+    def _admit_read(
+        self,
+        resolved_path,
+        resolved_boundary,
+        content,
+        *,
+        label,
+        expected_content=None,
+        expected_identity=None,
+    ) -> bytes:
+        """One common identity, quota and label admission after a current read."""
         if expected_content is not None and content != expected_content:
             raise PinnedInputClosureError(
                 "inputs.closure_capture_drift",
@@ -1266,6 +1290,140 @@ class PinnedInputClosure:
                 )
         self._admit(_PinnedInput(resolved_path, resolved_boundary, content, (label,)))
         return content
+
+    def _supports_direct_capture(self):
+        namespace = object.__getattribute__(self, "__dict__")
+        return (
+            type(self) is PinnedInputClosure
+            and "_read" not in namespace
+            and "pin" not in namespace
+            and type(self).__dict__.get("_read") is _DEFAULT_PINNED_INPUT_READ
+            and type(self).__dict__.get("pin") is _DEFAULT_PINNED_INPUT_PIN
+            and _pinned_read_batch_supported()
+        )
+
+    def _try_pin_direct(
+        self,
+        path,
+        *,
+        boundary,
+        label,
+        directories,
+        expected_identity,
+        unsafe_code,
+        unavailable_code,
+    ):
+        """Fuse a strict local path check and bounded capture, or decline early.
+
+        None is eligibility-only, before payload IO. The caller then retains its
+        original path-helper plus ordinary pin policy. Errors never ask to retry.
+        """
+        if not self._supports_direct_capture():
+            return None
+        configured = Path(os.path.abspath(path))
+        if (
+            not boundary.is_absolute()
+            or ".." in boundary.parts
+            or not configured.is_relative_to(boundary)
+            or configured == boundary
+        ):
+            return None
+        maximum = self.maximum_file_bytes
+
+        def settings_current():
+            if (
+                self.maximum_file_bytes != maximum
+                or not self._supports_direct_capture()
+            ):
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed",
+                    "pinned input reader or limit changed during capture",
+                )
+
+        if not label or len(label.encode("utf-8")) > 1024:
+            raise PinnedInputClosureError(
+                "inputs.closure_label_invalid",
+                "pinned-input labels must be non-empty and at most 1024 bytes",
+            )
+        expected_identity = _expected_identity_before_read(expected_identity)
+        content = None
+        try:
+            with directories.capture(configured.parent) as directory:
+                if directory is not None:
+                    parent = directory.binding.descriptor
+                    named = os.stat(
+                        configured.name, dir_fd=parent, follow_symlinks=False
+                    )
+                    if stat_is_link_or_reparse(named) or not stat.S_ISREG(
+                        named.st_mode
+                    ):
+                        raise PinnedInputClosureError(
+                            unsafe_code,
+                            "Component content must be a direct regular file "
+                            "without reparse points",
+                        )
+                    if named.st_ino:
+                        if named.st_size > maximum:
+                            raise PinnedInputClosureError(
+                                "inputs.closure_file_size_limit",
+                                "generation authority exceeds the "
+                                "pinned-input per-file limit",
+                            )
+                        original = _pinned_file_stamp(named)
+                        descriptor = os.open(
+                            configured.name,
+                            os.O_RDONLY
+                            | os.O_NOFOLLOW
+                            | os.O_NONBLOCK
+                            | getattr(os, "O_CLOEXEC", 0),
+                            dir_fd=parent,
+                        )
+                        try:
+                            if _pinned_file_stamp(os.fstat(descriptor)) != original:
+                                raise _pinned_replaced()
+                            content = _read_pinned_descriptor(descriptor, maximum)
+                            if _pinned_file_stamp(os.fstat(descriptor)) != original:
+                                raise _pinned_replaced()
+                        finally:
+                            os.close(descriptor)
+                        if len(content) > maximum:
+                            raise PinnedInputClosureError(
+                                "inputs.closure_file_size_limit",
+                                "generation authority exceeds the "
+                                "pinned-input per-file limit",
+                            )
+                        if (
+                            _pinned_file_stamp(
+                                os.stat(
+                                    configured.name,
+                                    dir_fd=parent,
+                                    follow_symlinks=False,
+                                )
+                            )
+                            != original
+                        ):
+                            raise _pinned_replaced()
+                settings_current()
+            settings_current()
+        except UnsafeFilesystemPathError as error:
+            raise PinnedInputClosureError(
+                unsafe_code,
+                "Component content traverses an unsafe directory",
+            ) from error
+        except OSError as error:
+            raise PinnedInputClosureError(
+                unavailable_code,
+                "Component content is unavailable",
+            ) from error
+        if content is None:
+            return None
+        return self._admit_read(
+            configured,
+            boundary,
+            content,
+            label=label,
+            expected_identity=expected_identity,
+        )
 
     def include(self, other: PinnedInputClosure) -> None:
         """Merge an independently captured authority set without rereading it."""
@@ -1319,6 +1477,13 @@ class PinnedInputClosure:
         }
 
     def require_unchanged(self) -> None:
+        if (
+            _pinned_read_batch_supported()
+            and type(self) is PinnedInputClosure
+            and getattr(self._read, "__func__", None) is _DEFAULT_PINNED_INPUT_READ
+            and self._require_unchanged_posix()
+        ):
+            return
         for entry in self._entries.values():
             _resolved, content = self._read(entry.path, entry.boundary)
             if content != entry.content:
@@ -1327,6 +1492,201 @@ class PinnedInputClosure:
                     "generation authority changed during the operation: "
                     + ", ".join(entry.labels),
                 )
+
+    def _require_unchanged_posix(self):
+        """Read original pinned DATA once per entry using fresh bounded handles."""
+        values, entries_current = self._capture_entry_values()
+        limits = (self.maximum_files, self.maximum_file_bytes, self.maximum_total_bytes)
+        rows = tuple(
+            (Path(path), Path(boundary), content, labels)
+            for path, boundary, content, labels in values
+        )
+        for path, boundary, _content, _labels in rows:
+            if (
+                not path.is_absolute()
+                or not boundary.is_absolute()
+                or ".." in path.parts
+                or ".." in boundary.parts
+                or not path.is_relative_to(boundary)
+                or path == boundary
+            ):
+                raise PinnedInputClosureError(
+                    "inputs.closure_path_escape", "pinned input escaped its boundary"
+                )
+
+        def metadata_current():
+            entries_current()
+            if limits != (
+                self.maximum_files,
+                self.maximum_file_bytes,
+                self.maximum_total_bytes,
+            ):
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed",
+                    "pinned input limits changed during validation",
+                )
+
+        try:
+            parents = tuple(dict.fromkeys(row[0].parent for row in rows))
+            with _readonly_directory_batch(parents) as view:
+                if view is None:
+                    metadata_current()
+                    return False
+                descriptors, _directories_current = view
+                originals = []
+                # Establish the entire original file set BEFORE reading payloads.
+                # Unknown identity declines the optimization before any file read.
+                for path, _boundary, content, labels in rows:
+                    parent = descriptors[path.parent]
+                    value = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+                    original = _pinned_file_stamp(value)
+                    if not value.st_ino:
+                        metadata_current()
+                        return False
+                    if value.st_size > limits[1]:
+                        raise PinnedInputClosureError(
+                            "inputs.closure_file_size_limit",
+                            "generation authority exceeds the pinned-input "
+                            "per-file limit",
+                        )
+                    originals.append((path, parent, original, content, labels))
+                for path, parent, original, expected, labels in originals:
+                    descriptor = os.open(
+                        path.name,
+                        os.O_RDONLY
+                        | os.O_NOFOLLOW
+                        | os.O_NONBLOCK
+                        | getattr(os, "O_CLOEXEC", 0),
+                        dir_fd=parent,
+                    )
+                    try:
+                        if _pinned_file_stamp(os.fstat(descriptor)) != original:
+                            raise _pinned_replaced()
+                        content = _read_pinned_descriptor(descriptor, limits[1])
+                        if _pinned_file_stamp(os.fstat(descriptor)) != original:
+                            raise _pinned_replaced()
+                    finally:
+                        os.close(descriptor)
+                    if len(content) > limits[1]:
+                        raise PinnedInputClosureError(
+                            "inputs.closure_file_size_limit",
+                            "generation authority exceeds the pinned-input "
+                            "per-file limit",
+                        )
+                    if content != expected:
+                        raise PinnedInputClosureError(
+                            "inputs.closure_changed",
+                            "generation authority changed during the operation: "
+                            + ", ".join(labels),
+                        )
+                for path, parent, original, _content, _labels in originals:
+                    named = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+                    if _pinned_file_stamp(named) != original:
+                        raise _pinned_replaced()
+                metadata_current()
+            return True
+        except UnsafeFilesystemPathError as error:
+            raise PinnedInputClosureError(
+                "inputs.closure_symlink",
+                "pinned directory changed or traverses a symbolic link",
+            ) from error
+        except OSError as error:
+            raise PinnedInputClosureError(
+                "inputs.closure_unavailable",
+                "pinned generation authority is unavailable",
+            ) from error
+
+    def _capture_entry_values(self):
+        """Snapshot immutable entry DATA without retaining aliased entry DTOs."""
+
+        def current_values():
+            rows = []
+            for key, entry in self._entries.items():
+                path, boundary = str(entry.path), str(entry.boundary)
+                if (
+                    tuple(str(part) for part in key) != (path, boundary)
+                    or not isinstance(entry.content, bytes)
+                    or type(entry.labels) is not tuple
+                    or any(not isinstance(label, str) for label in entry.labels)
+                ):
+                    raise PinnedInputClosureError(
+                        "inputs.closure_changed", "pinned input entry metadata changed"
+                    )
+                rows.append(
+                    (
+                        path,
+                        boundary,
+                        (
+                            entry.content
+                            if type(entry.content) is bytes
+                            else memoryview(entry.content).tobytes()
+                        ),
+                        tuple(str.__str__(label) for label in entry.labels),
+                    )
+                )
+            return tuple(sorted(rows, key=lambda row: (row[0], row[1])))
+
+        original = current_values()
+
+        def require_entries():
+            if current_values() != original:
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned inputs changed before close"
+                )
+
+        return original, require_entries
+
+    def capture_current_stamps(self):
+        """Fence original POSIX files after owner callbacks without reading again.
+
+        This is observation only. It neither renews authority nor replaces byte
+        validation. Directory identity is pinned without rejecting unrelated
+        sibling writes; original files retain metadata-change timestamps.
+        """
+        if os.name != "posix":
+            raise ValueError("live pinned files require POSIX change timestamps")
+        entries, entries_current = self._capture_entry_values()
+        files = {}
+
+        def file_stamp(path):
+            value = path.lstat()
+            if not stat.S_ISREG(value.st_mode):
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned file is no longer regular"
+                )
+            return (
+                value.st_dev,
+                value.st_ino,
+                value.st_mode,
+                value.st_nlink,
+                value.st_size,
+                value.st_mtime_ns,
+                value.st_ctime_ns,
+            )
+
+        for path, _boundary, _content, _labels in entries:
+            path = Path(path)
+            files[path] = file_stamp(path)
+        directories_current = capture_directory_ancestries(
+            tuple(dict.fromkeys(Path(row[0]).parent for row in entries))
+        )
+
+        def require_stamps():
+            try:
+                directories_current()
+            except (OSError, UnsafeFilesystemPathError) as error:
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned directory changed"
+                ) from error
+            entries_current()
+            if any(file_stamp(path) != value for path, value in files.items()):
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned inputs changed before close"
+                )
+
+        self.require_unchanged()
+        require_stamps()
+        return require_stamps
 
     def _identity_document(self) -> dict[str, object]:
         return {
@@ -1495,6 +1855,68 @@ class PinnedInputClosure:
                 "generation authority changed while it was read",
             )
         return resolved, content
+
+
+_DEFAULT_PINNED_INPUT_READ = PinnedInputClosure._read
+_DEFAULT_PINNED_INPUT_PIN = PinnedInputClosure.pin
+
+
+def _expected_identity_before_read(value):
+    if isinstance(value, ContentIdentity):
+        value = value.uri
+    # Detach str subclasses without invoking their overridable formatting.
+    # Other input types retain the common admission owner's invalid-ID error.
+    return str.__str__(value) if isinstance(value, str) else value
+
+
+def _pinned_read_batch_supported():
+    return (
+        os.name == "posix"
+        and all(
+            hasattr(os, name) for name in ("O_DIRECTORY", "O_NOFOLLOW", "O_NONBLOCK")
+        )
+        and os.open in os.supports_dir_fd
+        and os.stat in os.supports_dir_fd
+        and os.stat in os.supports_follow_symlinks
+    )
+
+
+def _pinned_replaced():
+    return PinnedInputClosureError(
+        "inputs.closure_replaced", "generation authority changed while it was read"
+    )
+
+
+def _pinned_file_stamp(value):
+    if stat.S_ISLNK(value.st_mode):
+        raise PinnedInputClosureError(
+            "inputs.closure_symlink",
+            "generation authority cannot traverse a symbolic link",
+        )
+    if not stat.S_ISREG(value.st_mode):
+        raise PinnedInputClosureError(
+            "inputs.closure_not_regular", "generation authority must be a regular file"
+        )
+    return (
+        value.st_dev,
+        value.st_ino,
+        value.st_mode,
+        value.st_nlink,
+        value.st_size,
+        value.st_mtime_ns,
+        value.st_ctime_ns,
+    )
+
+
+def _read_pinned_descriptor(descriptor, maximum):
+    parts, remaining = [], maximum + 1
+    while remaining:
+        content = os.read(descriptor, min(remaining, 64 * 1024))
+        if not content:
+            break
+        parts.append(content)
+        remaining -= len(content)
+    return b"".join(parts)
 
 
 @dataclass(frozen=True, slots=True)

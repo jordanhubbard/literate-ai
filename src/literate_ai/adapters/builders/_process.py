@@ -13,6 +13,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import BinaryIO
 
+from literate_ai.adapters.process_liveness import capture_process_liveness
 from literate_ai.adapters.worker_telemetry_processes import (
     register_original_process_launch,
     retire_original_process_observation,
@@ -152,8 +153,16 @@ def run_bounded_process(
         raise BuildError(
             f"{error_prefix}_timeout", "Tool deadline expired before launch"
         )
-    if interrupt_guard is not None:
-        interrupt_guard()
+    caller_guard = interrupt_guard
+    require_process_liveness = capture_process_liveness()
+
+    def interrupt_guard():
+        require_process_liveness()
+        if caller_guard is not None:
+            caller_guard()
+        require_process_liveness()
+
+    interrupt_guard()
     if stdout_sink is not None and not stdout_sink.writable():
         raise ValueError("tool stdout sink must be writable")
     observation_wake = None
@@ -174,13 +183,13 @@ def run_bounded_process(
 
     native_joined = native_bounded_command_start(cwd)
     ownership = create_process_tree_ownership()
-    child_environment = inherited_verbose_environment(
-        native_command_environment(environment) if native_joined else environment
-    )
     native_closed = not native_joined
     native_refused = False
-    started_monotonic = clock()
     try:
+        child_environment = inherited_verbose_environment(
+            native_command_environment(environment) if native_joined else environment
+        )
+        started_monotonic = clock()
         _started = datetime.now(UTC)
         if trace:
             trace_subprocess(
@@ -190,8 +199,8 @@ def run_bounded_process(
             raise BuildError(
                 f"{error_prefix}_timeout", "Tool deadline expired before launch"
             )
-        process = process_factory(
-            list(command),
+        launch_command = list(command)
+        launch_options = dict(
             cwd=cwd,
             env=child_environment,
             stdin=subprocess.DEVNULL if input_bytes is None else subprocess.PIPE,
@@ -200,6 +209,8 @@ def run_bounded_process(
             **({} if input_bytes is None else {"bufsize": 0}),
             **ownership.popen_options,
         )
+        interrupt_guard()
+        process = process_factory(launch_command, **launch_options)
     except OSError as exc:
         if native_joined:
             native_command_not_started()
@@ -501,7 +512,6 @@ def run_bounded_process(
             )
         if live_run is not None:
             live_run.require_current()
-        return result
     except KeyboardInterrupt:
         if terminate_descendants:
             relay_process_interrupt(
@@ -545,6 +555,11 @@ def run_bounded_process(
                         process.stdin.close()
                 if writer is not None and writer.ident is not None:
                     writer.join(timeout=_STREAM_JOIN_SECONDS)
+
+    interrupt_guard()
+    if live_run is not None:
+        live_run.require_current()
+    return result
 
 
 __all__ = ["BoundedProcessResult", "run_bounded_process"]

@@ -670,6 +670,365 @@ Project layout: expose acknowledged catalog producer renewal and scoped source f
   documentation-only check installs only its own tools. Audit both locked graphs
   before their respective checks; full CI, Windows and release qualification keep
   both. This separation does not waive or remediate an OpenSpec advisory.
+- Bound compiler serialization with a prepaid immutable view and fresh original
+  storage checks, sharing existing command/identity formats. Use a conservative
+  ASCII source policy on reviewed CPython 3.12–3.14 while preserving fallbacks
+  and memory ceilings. Three measured quota sequences and two actual independent
+  provider operations fit; full native root qualification remains separate.
+
+- Wire original verifier captures to prepare/commit detached observations after
+  original closing checks, retaining pending payload cleanup and charges through
+  cancellation and lost acknowledgments. Actual provider controls with injected
+  operation binding pass after source-scope exit. The full native scenario,
+  expiry recovery and typed execution permission remain open.
+
+- Borrow joined verifier observations during final verification outside the
+  binding lock, with original-token publication before borrowing and explicit
+  dropped-view proof before completion. Recover interrupted metadata completion
+  without replaying guards; recheck closing identity after cleanup. Full native
+  qualification remains open.
+
+- Bind verifier enrollment to its original pool/lease and add metadata-only
+  PREPARED/COMMITTED handoff support with no uncertain-commit replay. Account each
+  compiler observation separately from shared source, require all three cleanup
+  owners, and clear failed method/decorator source references. Full native
+  qualification remains open.
+
+- Charge bounded file metadata during live verifier capture and explicitly retire
+  original file/ancestry observations outside the capture lock before settlement.
+  Add opt-in guard/release pairs while preserving default callers and owned moves;
+  releasing observers refuse moves until descendant custody is implemented.
+
+- Add a bounded file-metadata preflight for verifier closing custody. Measure
+  root ancestry and repeated parent/path storage before canonical inventory
+  parsing; detach primitive rows and clear failed construction references.
+  Capture-to-closing transfer and native qualification remain open.
+
+- Protect initial verifier capture setup and wrapper entry failures with source
+  cleanup. Keep wrapper release before quota settlement and preserve original
+  errors through early reservation/file/tool refusal and local snapshot failure.
+
+- Clear original file-source references from materialized-file validation failure
+  frames, including partial snapshots and cancellation. Preserve original errors,
+  byte/namespace checks and the source-free successful metadata guard.
+
+- Preserve original compiler tuple-field identity with immutable anchors, and add
+  lazy operation resource ownership with durable allocation/retirement journals.
+  Recover interrupted metadata cleanup outside binding locks while preserving
+  the original failure. Capture-to-closing transfer remains unfinished.
+
+- Add durable, fixed-ABI closing-payload cleanup to verifier quota draining. Keep
+  charges through partial component release and final detachment, reject getter
+  substitution and clear source-bearing field-reader failure frames. Runtime
+  closing handoff enrollment and native qualification remain open.
+
+- Add charged live oracle observation using fresh weak original roots, exact
+  registry/storage membership and detached file/ancestry stamps. Preserve full
+  original byte checks and add explicit metadata release through retained
+  tracebacks; operation-closing custody and native qualification remain open.
+
+- Reserve and account original compiler storage during live Node verifier capture,
+  with exact private-field, SDK-file and identity/enum observations bracketed by
+  full byte checks. Explicit cleanup severs retained traceback references, keeps
+  uncertain live-entry removal charged and preserves original failures. Runtime
+  closing transfer and native qualification remain open.
+
+- Support bounded nested original-reference facts for operation-local Node
+  compiler quota sharing. Refuse changed leaves and substituted containers
+  without invoking equality; compiler custody integration remains open.
+
+- Defer Node verifier CLOSED tickets until original capture cleanup settles.
+  Preserve sticky failure through cancellation and uncertain terminal reporting;
+  recovery releases resources without replaying successful acknowledgment.
+
+- Add a detached direct-Node tool observation with original full capture checks
+  and payload-free sticky file/ancestry continuation. Sixteen synthetic controls
+  pass; runtime closing integration and native qualification remain open.
+
+- Centralize Node verifier capture storage in one bounded transferable quota.
+  Retain ended-capture cleanup through cancellation, remove original identity
+  before releasing its charge, and destroy retained references outside locks.
+  Runtime closing-witness integration and native qualification remain open.
+
+- Add bounded inert scanning for exact live SDK verifier captures. A separate
+  six-suffix JavaScript/TypeScript rule policy preserves baseline scan identities,
+  refuses finding/metadata overflow and labels uncovered DATA separately. Original
+  capture/ticket joins and fixed dependency checks withhold substituted results;
+  returned metadata grants no origin, classification or execution authority.
+
+- Bind Node verifier inspections to their original host operation, provider scope
+  and actual SDK invocation. Opaque membership tickets retire with the operation;
+  capture failures remain sticky and closing checks use pinned storage without
+  serializers. Tickets retain no released source/tool captures and grant no
+  execution permission; installed lifecycle and downstream qualification remain open.
+
+- Distinguish bounded npm dependency/version subprocess timing from whole Node
+  probes in the explicit SDK diagnostic. Preserve default-off instrumentation,
+  original calls and unqualified results; record no commands or request data.
+
+- Project private authored SDK legal assets into separate portable package copies,
+  preserving original source custody and mode guards. Bind the legal-copy policy
+  into composition and build-cache identities; generic inventories stay strict.
+
+- Keep authored SDK rebuild project-configuration checks in its callback and
+  snapshot validation in the original host owner, removing a duplicate fixture
+  traversal without changing production guards or deadlines.
+
+- Add an explicit installed SDK probe diagnostic that observes original process
+  and guard operations under unchanged deadlines. Keep it separate from ordinary
+  preflight acceptance, with bounded private timing data and restored observers.
+
+- Preserve the original SDK node failure when recording its checkpoint by using
+  the returned bound preparation. Retain bounded private authored-rebuild failure
+  diagnostics before temporary cleanup without replacing the original exception.
+
+- Defer SDK checkpoint attempts until live admission binds the exact recipe,
+  preserving immutable attempt lineage and rejecting stale, substituted or
+  reentrant binding. SDK checkpoint records remain unavailable for historical
+  source recovery; installed rebuild acceptance still requires qualification.
+
+- Collect TypeScript SDK source from `src/` only for a bound SDK recipe, preserving
+  ordinary application confinement and rejection of package/build output. Reject
+  recipe changes during generation and keep failed installed-preflight diagnostics
+  readable through canonical temporary paths without following diagnostic links.
+
+- Add a separate authored installed SDK rebuild preflight using the canonical
+  installer and real receipt checks, with explicit unqualified evidence retention.
+  Native execution and ordinary model-backed CLI acceptance remain unqualified.
+
+- Add an authored fixture CLI preflight through the original source generator and
+  cache, checking provenance, replay and changed-recipe refusal before qualifying
+  SDK rebuild integration. Preserve the original SDK runtime scenarios.
+
+- Route an explicitly owned Node SDK host through the Standard rebuild adapter,
+  checking original snapshot and actual plan ownership while refusing unsupported
+  retained/action-worker execution before generation. Nine routing controls pass;
+  actual rebuild execution and ordinary CLI integration remain separate gates.
+
+- Qualify authored macOS cold-start provider restoration and receipt-driven SDK
+  regeneration with fresh runtime custody and unchanged authorization deadlines.
+  Preserve private cached artifacts while projecting separate SDK-owned copies
+  under an explicit npm mode policy; generic inventories remain strict. Installed,
+  broader recovery/platform and downstream qualification remain separate.
+
+- Remove one adjacent duplicate library custody check only when the optional
+  process observer is absent. Keep both oracle checks, all callback guards and
+  original authorization deadlines.
+
+- Qualify authored-generator `runtime.execute` orchestration for the one-provider
+  control and two-provider/root-subpath cell under unchanged original grants,
+  retaining provider re-admission, independent acceptance and publication order.
+  Ordinary model generation and performance with larger provider sets remain open.
+
+- Qualify the opt-in Python SDK host's complete native two-provider build,
+  cache, test, execution, packaging and independent packaged acceptance path,
+  including CommonJS/ESM root and subpath declarations/runtime probes. Retain
+  separate authored/model, recovery, installed and downstream-cutover evidence.
+
+- Share bounded original directory topology across local catalog-reference reads,
+  retaining fresh file/namespace checks and ordinary fallback. Fence reentrant
+  reads, preserve original cleanup ownership and snapshot expected identities
+  before blocking I/O. Discovery, asset handling and authorization stay live.
+
+- Share SDK operation entry/exit validation with the existing process-liveness
+  context, removing only adjacent duplicate checks. Provider custody, final
+  witnesses, callback cuts and original authorization expiry remain unchanged.
+
+- Validate pinned inputs through bounded, fresh POSIX directory handles while
+  preserving ordinary-reader fallback and file/namespace checks. Saved stamp
+  guards now retain primitive entry values so in-place entry metadata changes
+  cannot escape through aliased frozen objects.
+
+- Attribute shared public-interface bytes deterministically across selected
+  providers. Validate every origin, render equal bytes once, retain all exact
+  dependency facts, and enforce provider fan-in from the original graph rather
+  than its displayed representatives.
+
+- Retain original SDK output observations through packing, metadata writes,
+  package moves and final owner callbacks. Create reserved evidence exclusively,
+  reject redirected parents and refuse unknown occupied SDK output/checkpoint
+  destinations. Known live compiled-plan reuse remains available; durable cold
+  recovery still requires separate qualification.
+
+- Snapshot SDK compiler/declaration inputs before callbacks, account for repeated
+  retained oracle sources, and remove ambient producer bindings from SDK tool
+  environments. Cache publication and retirement retain original native object
+  identity through their filesystem effects, preserving foreign replacements.
+
+- Preserve original provider registry and scope metadata through verifier closing,
+  while separating fixed request description from full custody validation. Reject
+  initial retargeting and late registry substitution without removing replacement
+  state or relaxing subject, oracle, clock, grant or catalog checks.
+
+- Supply the shared independent SDK runtime checker with the bounded canonical
+  package projection so original harnesses can resolve bare ESM root and subpath
+  imports. Bind namespace identity and retain original POSIX file stamps across
+  children, callbacks and combined oracle closure. Legacy direct-runtime checks
+  keep their identities; unsupported strong namespace custody refuses early.
+
+- Permit bounded exact provider sets in opt-in SDK operation admission and Python
+  host configuration, sharing the existing 32-provider composition ceiling.
+  Preserve nonempty matched oracle/receipt inventories, original recursive
+  custody, independent verifier grants and aggregate scope quotas. Native
+  qualification covers two distinct-interface providers; complete multi-provider
+  SDK lifecycle and shared-interface attribution remain separate gates.
+
+- Honor exact declared CommonJS runtime paths in JavaScript library EXEC,
+  including nested `.cjs` files and root/subpath aliases. Preserve complete v2
+  declaration facts, reuse CommonJS metadata and membership checks, and pin fixed
+  driver support by SHA256 within the existing command argument limit. Legacy
+  convention-based surfaces and independent execution grants remain unchanged.
+
+- Close public SDK host bindings and original locked-authority witnesses before
+  returning owned operation results. Native regressions reproduced late registry
+  replacement and same-byte authority writes escaping the lower operation.
+  Preserve original baselines and retired contexts without another callback or
+  clock sample after the lower owner returns.
+
+- Close original SDK operation input witnesses after the final clock callback.
+  Actual regressions reproduced escaped results after oracle/file writes or
+  oracle-selection replacement at that cut. Preserve the original finite
+  baselines, current membership and one sampled time for all verifier grants.
+
+- Qualify explicit Python SDK host orchestration through actual `runtime.execute`
+  with a deterministic authored generator. The native fixture passes in 1081.895
+  seconds, including original provider admission, finalization re-admission,
+  packaged six-type/two-runtime checks and publication after root acceptance.
+  Real-model, durable-cache/recovery and installed qualification remain open.
+
+- Add opt-in Python host configuration for a Node SDK root and one sealed
+  CommonJS provider. Bind the original runtime, snapshot, graph and loaded
+  oracles; select root acceptance only during its owned invocation. Retired or
+  foreign contexts and callback delegate replacement refuse without rollback.
+  Separate verifier grants and the shared native checker remain required.
+  The authored assembled-runtime fixture passes build, cache, package and root
+  acceptance in 995.361 seconds; complete runtime orchestration remains pending.
+  Ordinary model-generated, retained and installed qualification remain open.
+
+- Reduce repeated root SDK validation by separating host ownership from package
+  custody within the existing shared verifier. Preserve original snapshot, legal
+  bytes, source/package stamps and grant expiry checks. The extended authored
+  fixture passes in about 16m20s versus the prior 22m25s, including added host-loss,
+  package-drift and grant-revocation refusals. Public SDK admission remains gated.
+
+- Add explicit internal SDK project acceptance using the shared Node verifier
+  lifecycle. Require original complete component plans, registered package and
+  TEST/EXEC evidence, locked legal bytes, the loaded root oracle and a separate
+  verifier grant. Final clock callbacks cannot replace original oracle, package
+  or locked inputs unnoticed. The authored canonical fixture passes actual dual
+  runtime and declaration checks; public admission and generated SDK qualification
+  remain open.
+
+- Retain exact accepted SDK ownership across root finalization, separately from
+  source-cache publication. Pin graph, link and package identities through later
+  callbacks. Packaged SDK TEST/EXEC share the existing runner and protected source
+  custody; path and coordinated metadata substitutions are rejected. This
+  foundation does not qualify a complete SDK lifecycle.
+
+- Bind local SDK tarballs as explicit package resources using original complete
+  BUILD custody. SDK packaging writes validated immutable library blob rows and
+  checks finite source, export and staged-package inventories through registration.
+  Late resource substitution and expired grants are rejected. Public finalization
+  and independent SDK acceptance remain unfinished.
+
+- Add an internal SDK legal-byte comparison against the original locked Component
+  immutable assets and selected packaging profile. Missing authority, changed bytes,
+  stale original inputs and substituted filename policies are rejected. This is a
+  read-only foundation; final SDK acceptance wiring remains unfinished.
+
+- Verify authored SDK source through the real canonical owned invocation: strict
+  bound-recipe registration, separately authorized BUILD, shared compilation/packing,
+  cache reuse, TEST and EXEC. The shared canonical fixture now supplies explicit
+  addition behavior and fixture-only legal text before locking. Exact compiler and
+  provider evidence is checked in build metadata/resolved BOM. This establishes
+  authored integration, not model generation or independent SDK acceptance.
+
+- Canonical SDK recipes can now reference declaration-bearing JavaScript libraries
+  under an explicit TypeScript dual-library SDK policy. Preparation and execution
+  share pinned profile decoding and language-shape checks. Other language mismatches,
+  malformed SDK policy and competing build profiles remain refused. A real canonical
+  graph now joins strict authored provider stages and original v2 verification to
+  the existing owned SDK invocation. Static recipe data grants no execution, and
+  generated SDK BUILD/acceptance and full qualification remain unfinished.
+
+- Add opt-in `lang-typescript-library` and `package-node-sdk` Flavors with a
+  versioned pure SDK generation policy and matching initialization templates.
+  Real lock/recipe/profile projection selects the shared SDK target and exact
+  policy bytes; application or competing build profiles fail before tool discovery.
+  Existing TypeScript application policy is unchanged. Canonical selection does
+  not establish provider admission, independent SDK acceptance or native/installed
+  qualification; license contents still require exact Component authority.
+
+- Explicit Node SDK profiles now project the shared SDK target through locked
+  toolchain closure and ordinary runtime assembly. Compiler selection captures an
+  explicitly located TypeScript image and enforces its original Node, exact
+  command/version constraints and selected packaging Flavor. SDK npm selection
+  obeys the same complete constraints. Scoped runtime bindings and closing target
+  membership checks remain enforced. Canonical SDK Flavors/generation policy and
+  independent SDK lifecycle acceptance remain unfinished.
+
+- Node SDK local build integration: explicitly selected targets bind the compiler,
+  offline packer, profile and dual-export surface to the command contract. BUILD
+  retains original invocation custody and a separately current build grant through
+  compilation, packing, dependency evidence and artifact registration. Cache
+  readback checks the original bounded product inventory before generic hashing;
+  TEST/EXEC use the shared runtime without producer-checkout paths. Public profile
+  selection and generated/native/installed lifecycle qualification remain open.
+
+- Node SDK internal integration: explicitly configured local SDK nodes wait for
+  provider acceptance and retain original ownership through source/cache selection,
+  stage reservations, current build inputs and bounded repair. Root cache
+  publication revalidates the original invocation, and filesystem membership links
+  check ownership after staging. Late loss retains committed evidence with no
+  acknowledgment. Repaired cached source publishes its new winning membership.
+  Default/public SDK profile activation and native/installed qualification remain
+  open; remote and checkpoint recovery remain refused.
+
+- Node SDK groundwork: add an explicit internal synchronous operation owner for
+  one genuinely accepted provider under fresh verifier grants. Renewal preserves
+  the exact original invocation and consumer command contract. Closing checks
+  reject ownership loss during final reads and late oracle writes. The shared
+  complete-node repair driver can retain per-stage reservations under that owner;
+  ownership loss ends the operation before further repair. Public SDK generation
+  and multi-provider lifecycle admission remain unfinished.
+
+- Coding-agent and tool children now share bounded process supervision. Scoped
+  owner checks stop launches and running process trees after revocation, including
+  copied contexts, and withhold results when ownership expires during cleanup.
+  Coding-agent timeout/output error codes remain unchanged. This supplies the
+  live-owner process path for SDK work without activating public SDK generation.
+
+- Node SDK generation groundwork: bind exact verified provider facts and public
+  declaration closure into a new recipe and bounded context/cache identity while
+  preserving the static plan. Oracle-only private imports stay out of model
+  context. Existing source, cache/resume and remote routes refuse the data-only
+  invocation pending live generation admission; SDK source cannot be retagged
+  with a different provider recipe.
+
+- Node library verification: join genuine accepted provider custody to exact locked
+  specifications, original oracle files and selected compiler/Node tools under a
+  separate explicit execution grant. Controller-only runtimes cannot execute the
+  verifier. Synchronous results are withheld after owner/grant loss, including loss
+  during closing oracle reads; returned data does not grant SDK admission.
+
+- Library providers: add bounded internal live custody of genuine registered
+  acceptance stages, current build authority, sealed bytes and original files.
+  Closing checks reject changed or retired scopes, including same-size rewrites
+  with restored modification times. Long-lived custody refuses platforms without
+  POSIX change timestamps; public Node SDK lifecycle admission remains unfinished.
+
+- Library acceptance refuses the new Node runtime/declaration oracle at legacy
+  single-harness entry points, before custody lookup or evidence publication.
+  Original-input, ESM and declaration requirements cannot be discarded through
+  subclass compatibility; public SDK lifecycle admission remains unfinished.
+
+- Library contracts: add opt-in, exact CommonJS runtime and TypeScript declaration
+  paths while preserving existing library import wire identities. Node SDK
+  composition under accepted ADR 0073 remains in development; its internal shared
+  owner now supplies bounded compiler snapshots, offline exact tarball readback,
+  explicit dual-output authority, and original runtime/declaration verifier input
+  custody. Public lifecycle/profile integration and
+  native qualification remain open.
 
 - Existing repositories default to a contained native adoption profile under
   `litai/`, preserving source, build tools, CI and custom instructions. Explicit

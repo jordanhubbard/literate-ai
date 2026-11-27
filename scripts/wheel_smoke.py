@@ -686,7 +686,9 @@ _INTERPRETER_RESOLUTION_ENVIRONMENT_VARIABLES = (
 
 @contextmanager
 def _runtime_directory():
-    # Canonicalize our new workspace before passing owned snapshots to path guards.
+    # Canonicalize the freshly created, controller-owned parent once, before
+    # children exist. Strict diagnostic custody must not traverse platform aliases
+    # such as macOS /var; never resolve a failed case or its diagnostic members.
     root = Path(tempfile.mkdtemp(prefix="literate-wheel-smoke-")).resolve(strict=True)
     with retained_directory(
         root,
@@ -984,6 +986,378 @@ def qualify_installed_native_root_journeys(
             "mode_stderr_sha256": hashlib.sha256(completed.stderr).hexdigest(),
         }
     return reports
+
+
+NODE_SDK_HELPERS = (
+    "tests/__init__.py",
+    "tests/smoke/__init__.py",
+    "tests/smoke/test_canonical_sdk_admission.py",
+    "tests/smoke/test_canonical_sdk_runtime.py",
+    "tests/smoke/test_javascript_library_imports.py",
+    "tests/smoke/test_node_library_acceptance.py",
+    "tests/smoke/test_node_library_execution.py",
+    "tests/smoke/test_node_library_projection.py",
+    "tests/smoke/test_node_library_verification.py",
+    "tests/smoke/test_node_sdk_composition.py",
+    "tests/smoke/test_node_sdk_cross_language.py",
+    "tests/smoke/test_node_sdk_flavors.py",
+    "tests/smoke/test_node_sdk_package_specifiers.py",
+    "tests/smoke/test_node_sdk_typescript.py",
+    "tests/smoke/test_standard_command_projection.py",
+    "tests/support/__init__.py",
+    "tests/support/fixtures_test_coding_cli_generation.py",
+    "tests/support/fixtures_test_component_execution_planning.py",
+    "tests/support/fixtures_test_component_generation_context.py",
+    "tests/support/fixtures_test_component_lock_contracts.py",
+    "tests/support/fixtures_test_component_lock_planning.py",
+    "tests/support/fixtures_test_component_node_generation_preparation.py",
+    "tests/support/fixtures_test_schema_catalog.py",
+    "tests/support/fixtures_test_standard_command_projection.py",
+    "tests/support/standard_source_evidence_fixture.py",
+)
+
+
+NODE_SDK_REBUILD_HELPERS = (
+    *NODE_SDK_HELPERS,
+    "tests/smoke/test_canonical_sdk_rebuild.py",
+    "tests/support/authored_coding_cli.py",
+    "tests/support/sdk_probe_timing.py",
+)
+
+NODE_SDK_TYPED_HELPERS = (
+    *NODE_SDK_HELPERS,
+    "tests/smoke/test_node_sdk_typed_host_native.py",
+)
+
+
+def require_node_sdk_prerequisites():
+    if (
+        sys.platform != "darwin"
+        or not os.environ.get("LITERATE_TYPESCRIPT_SDK")
+        or not shutil.which("node")
+        or not shutil.which("npm")
+    ):
+        raise RuntimeError(
+            "installed SDK cell requires macOS and explicit Node/npm/TypeScript"
+        )
+
+
+def stage_node_sdk_helpers(repository: Path, root: Path):
+    return _stage_node_sdk_helper_paths(repository, root, NODE_SDK_HELPERS)
+
+
+def stage_node_sdk_rebuild_helpers(repository: Path, root: Path):
+    return _stage_node_sdk_helper_paths(repository, root, NODE_SDK_REBUILD_HELPERS)
+
+
+def stage_node_sdk_typed_helpers(repository: Path, root: Path):
+    return _stage_node_sdk_helper_paths(repository, root, NODE_SDK_TYPED_HELPERS)
+
+
+def _stage_node_sdk_helper_paths(repository: Path, root: Path, paths):
+    bundle = root / "helpers"
+    bundle.mkdir(mode=0o700)
+    rows, originals = {}, {}
+    total = 0
+    for relative in paths:
+        source = repository / relative
+        if source.is_symlink() or not source.resolve(strict=True).is_relative_to(
+            repository.resolve()
+        ):
+            raise RuntimeError("reviewed SDK helper source required")
+        with source.open("rb") as stream:
+            content = stream.read(1024 * 1024 + 1)
+        total += len(content)
+        if len(content) > 1024 * 1024 or total > 8 * 1024 * 1024:
+            raise RuntimeError("SDK helper source envelope exceeded")
+        target = bundle / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("xb") as stream:
+            stream.write(content)
+        target.chmod(0o644)
+        digest = hashlib.sha256(content).hexdigest()
+        rows[relative] = {
+            "bytes": len(content),
+            "sha256": digest,
+            "mode": target.stat().st_mode & 0o777,
+        }
+        originals[relative] = "sha256:" + digest
+    manifest = {"schema": "literate-ai/installed-sdk-helpers@1", "files": rows}
+    content = (json.dumps(manifest, sort_keys=True) + "\n").encode()
+    with (root / "helpers.json").open("xb") as stream:
+        stream.write(content)
+    return hashlib.sha256(content).hexdigest(), originals
+
+
+def qualify_installed_node_sdk(repository, installation, python, cwd, wheel, expected):
+    return _installed_node_sdk_cell(
+        repository, installation, python, cwd, wheel, expected, rebuild_preflight=False
+    )
+
+
+def preflight_installed_node_sdk_rebuild(
+    repository, installation, python, cwd, wheel, expected, *, profile_probes=False
+):
+    return _installed_node_sdk_cell(
+        repository,
+        installation,
+        python,
+        cwd,
+        wheel,
+        expected,
+        rebuild_preflight=True,
+        **({"profile_probes": True} if profile_probes else {}),
+    )
+
+
+def preflight_installed_node_sdk_typed_host(
+    repository, installation, python, cwd, wheel, expected
+):
+    return _installed_node_sdk_cell(
+        repository,
+        installation,
+        python,
+        cwd,
+        wheel,
+        expected,
+        rebuild_preflight=False,
+        typed_host_preflight=True,
+    )
+
+
+def _installed_node_sdk_cell(
+    repository,
+    installation,
+    python,
+    cwd,
+    wheel,
+    expected,
+    *,
+    rebuild_preflight,
+    profile_probes=False,
+    typed_host_preflight=False,
+):
+    import runpy
+
+    from literate_ai.adapters.standard_lifecycle_binding import (
+        InstalledFrameworkDistribution,
+        InstalledFrameworkDistributionMember,
+    )
+    from literate_ai.remote_worker_bootstrap import (
+        _site_packages,
+        installed_distribution_identity,
+    )
+
+    if type(profile_probes) is not bool or (profile_probes and not rebuild_preflight):
+        raise ValueError("probe profiling requires the separate rebuild diagnostic")
+    if type(typed_host_preflight) is not bool or (
+        typed_host_preflight and (rebuild_preflight or profile_probes)
+    ):
+        raise ValueError("typed host preflight requires its separate fixed cell")
+    require_node_sdk_prerequisites()
+    root = cwd / (
+        "node-sdk-typed-host"
+        if typed_host_preflight
+        else "node-sdk-rebuild"
+        if rebuild_preflight
+        else "node-sdk"
+    )
+    root.mkdir(mode=0o700)
+    root = root.resolve(strict=True)
+    installation = installation.resolve(strict=True)
+    cache = root / "bytecode-cache"
+    cache.mkdir(mode=0o700)
+    manifest_hash, helpers = (
+        stage_node_sdk_typed_helpers(repository, root)
+        if typed_host_preflight
+        else stage_node_sdk_rebuild_helpers(repository, root)
+        if rebuild_preflight
+        else stage_node_sdk_helpers(repository, root)
+    )
+    driver = repository / "tests/support/installed_node_sdk_journey.py"
+    driver_identity = file_identity(driver)
+    wheel_identity = file_identity(wheel)
+    # These are controller-side DATA observations, not installed runtime or
+    # checker substitutes. Hold their original stamps across child startup too.
+    support = runpy.run_path(str(driver), run_name="_installed_sdk_support")
+    name, version, payload = support["wheel_payload"](
+        wheel, wheel_identity.removeprefix("sha256:")
+    )
+    selected_distribution = InstalledFrameworkDistribution(
+        name,
+        version,
+        tuple(
+            InstalledFrameworkDistributionMember(path, size, digest)
+            for path, (size, digest) in sorted(payload.items())
+        ),
+    )
+    if (
+        selected_distribution.identity.uri != expected
+        or installed_distribution_identity(installation) != expected
+    ):
+        raise RuntimeError("original installed SDK package differs from wheel")
+    custody = ExitStack()
+    environment = {
+        **_subprocess_environment(),
+        "LITAI_CONFIG_DIR": str(root / "config"),
+        "LITAI_MCP_TRANSPORT": "off",
+    }
+    if rebuild_preflight:
+        environment["LITAI_NODE_SDK_REBUILD_PREFLIGHT"] = "1"
+    if typed_host_preflight:
+        environment["LITAI_NODE_SDK_TYPED_HOST_PREFLIGHT"] = "1"
+    try:
+        packages = _site_packages(installation)
+        roots = (
+            packages / "literate_ai",
+            installation / "share/literate-ai/schemas",
+            packages
+            / next(
+                PurePosixPath(path).parts[0]
+                for path in payload
+                if PurePosixPath(path).parts[0].endswith(".dist-info")
+            ),
+            cache,
+        )
+        for namespace in roots:
+            custody.callback(
+                support["namespace_guard"](namespace, support["file_table"](namespace))
+            )
+        with (root / "helpers.json").open("rb") as stream:
+            source_rows = json.loads(stream.read(65537))["files"]
+        custody.callback(
+            support["namespace_guard"](root / "helpers", source_rows, complete=False)
+        )
+        driver_row = {
+            driver.relative_to(repository).as_posix(): {
+                "bytes": driver.stat().st_size,
+                "sha256": driver_identity.removeprefix("sha256:"),
+                "mode": driver.stat().st_mode & 0o777,
+            }
+        }
+        custody.callback(
+            support["namespace_guard"](repository, driver_row, complete=False)
+        )
+        completed = run_bounded_process(
+            (
+                str(python),
+                "-I",
+                "-B",
+                "-X",
+                "pycache_prefix=" + str(cache),
+                str(driver),
+                str(root),
+                str(installation),
+                str(wheel),
+                expected,
+                wheel_identity.removeprefix("sha256:"),
+                manifest_hash,
+                *(("--authored-rebuild",) if rebuild_preflight else ()),
+                *(("--profile-node-probes",) if profile_probes else ()),
+                *(("--typed-host",) if typed_host_preflight else ()),
+            ),
+            cwd=root,
+            environment=environment,
+            timeout_seconds=3600,
+            stdout_limit_bytes=1024 * 1024,
+            stderr_limit_bytes=1024 * 1024,
+            error_prefix="installed_node_sdk",
+            terminate_descendants=True,
+        )
+        (root / "stdout.log").write_bytes(completed.stdout)
+        (root / "stderr.log").write_bytes(completed.stderr)
+        if completed.returncode:
+            raise RuntimeError(
+                "authored installed SDK cell failed: "
+                + completed.stderr.decode(errors="replace")[-4000:]
+            )
+        observed = json.loads(completed.stdout)
+        evidence_path = root / "result.json"
+        if evidence_path.is_symlink() or not evidence_path.is_file():
+            raise RuntimeError("regular installed SDK evidence required")
+        with evidence_path.open("rb") as stream:
+            evidence = stream.read(8 * 1024 * 1024 + 1)
+        if (
+            len(evidence) > 8 * 1024 * 1024
+            or hashlib.sha256(evidence).hexdigest() != observed["evidence_sha256"]
+        ):
+            raise RuntimeError("installed SDK evidence changed or exceeded its bound")
+        report = json.loads(evidence)
+        for key, value in (
+            ("qualified", not (rebuild_preflight or typed_host_preflight)),
+            ("selected", 1 if rebuild_preflight else 2),
+            ("passed", 1 if rebuild_preflight else 2),
+            ("skipped", 0),
+            (
+                "scope",
+                support["TYPED_HOST_SCOPE"]
+                if typed_host_preflight
+                else "diagnostic-authored-macos-installed-rebuild-adapter"
+                if profile_probes
+                else "authored-macos-installed-rebuild-adapter"
+                if rebuild_preflight
+                else "authored-macos-installed-python-api",
+            ),
+            ("framework_distribution", expected),
+            ("wheel_sha256", wheel_identity.removeprefix("sha256:")),
+            ("helper_manifest_sha256", manifest_hash),
+            ("driver_sha256", driver_identity.removeprefix("sha256:")),
+            ("installed_module_origins_verified", True),
+            ("source_execution_policy", "isolated-no-write-empty-private-pycache@1"),
+            ("original_namespace_custody_verified", True),
+        ):
+            if (
+                type(report.get(key)) is not type(value)
+                or type(observed.get(key)) is not type(value)
+                or report.get(key) != value
+                or observed.get(key) != value
+            ):
+                raise RuntimeError("installed SDK result mismatch")
+        if typed_host_preflight:
+            support["require_typed_host_report"](report)
+            support["require_typed_host_report"](observed)
+        if rebuild_preflight:
+            if (
+                report.get("schema")
+                != (
+                    "literate-ai/installed-node-sdk-rebuild-diagnostic@1"
+                    if profile_probes
+                    else "literate-ai/installed-node-sdk-rebuild-preflight@1"
+                )
+                or report.get("preflight_passed") is not (not profile_probes)
+                or type(report.get("rebuild")) is not dict
+                or report.get("rebuild") != observed.get("rebuild")
+                or observed.get("preflight_passed") is not (not profile_probes)
+                or report.get("diagnostic_only", False) is not profile_probes
+                or observed.get("diagnostic_only", False) is not profile_probes
+                or observed.get("schema") != report.get("schema")
+                or report["rebuild"].get("framework_distribution") != expected
+            ):
+                raise RuntimeError("original authored rebuild evidence required")
+            if profile_probes:
+                profile = report.get("probe_profile")
+                if (
+                    type(profile) is not dict
+                    or profile != observed.get("probe_profile")
+                    or profile.get("qualified") is not False
+                    or profile.get("instrumentation_active") is not True
+                    or len(json.dumps(profile).encode()) > 32768
+                ):
+                    raise RuntimeError("bounded original probe diagnostic required")
+        return {"requested": True, **observed, "_evidence_path": str(evidence_path)}
+    finally:
+        try:
+            if (
+                file_identity(driver) != driver_identity
+                or file_identity(wheel) != wheel_identity
+                or any(
+                    file_identity(repository / relative) != digest
+                    for relative, digest in helpers.items()
+                )
+            ):
+                raise RuntimeError("installed SDK source or original wheel changed")
+        finally:
+            custody.close()
 
 
 def qualify_installed_windows_retained_context(repository, installation, python, cwd):
@@ -2752,6 +3126,208 @@ def _retain_qualified_wheel(
     return manifest
 
 
+def _retain_node_sdk_rebuild_preflight(
+    repository, wheel, *, revision, result, diagnostic=False
+):
+    """Retain exact focused evidence without creating release qualification data."""
+    import base64
+
+    from literate_ai.adapters.repository_file_custody import _node
+
+    evidence = Path(result["_evidence_path"])
+    captured = _node(evidence.parent, evidence.name, frozenset(), 8 * 1024 * 1024)
+    if captured.kind != "file":
+        raise RuntimeError("regular authored rebuild evidence required")
+    content = captured.content
+    if (
+        len(content) > 8 * 1024 * 1024
+        or hashlib.sha256(content).hexdigest() != result["evidence_sha256"]
+    ):
+        raise RuntimeError("authored rebuild evidence changed")
+    report = json.loads(content)
+    if (
+        report.get("qualified") is not False
+        or report.get("preflight_passed") is not (not diagnostic)
+        or report.get("diagnostic_only", False) is not diagnostic
+        or report.get("scope")
+        != (
+            "diagnostic-authored-macos-installed-rebuild-adapter"
+            if diagnostic
+            else "authored-macos-installed-rebuild-adapter"
+        )
+    ):
+        raise RuntimeError("separate unqualified rebuild evidence required")
+    wheel_identity = file_identity(wheel)
+    if wheel_identity != "sha256:" + report["wheel_sha256"]:
+        raise RuntimeError("authored rebuild wheel changed")
+    program = base64.b64decode(
+        report["rebuild"]["fixture_program_base64"], validate=True
+    )
+    if (
+        len(program) > 65536
+        or "sha256:" + hashlib.sha256(program).hexdigest()
+        != report["rebuild"]["fixture_program_sha256"]
+    ):
+        raise RuntimeError("original authored fixture executable bytes required")
+    output = release_file_path(repository, "_build/node-sdk-rebuild-preflight")
+    output.mkdir(parents=True, exist_ok=True)
+    retained = Path(
+        tempfile.mkdtemp(prefix="diagnostic-" if diagnostic else "run-", dir=output)
+    )
+    shutil.copy2(wheel, retained / wheel.name)
+    if file_identity(retained / wheel.name) != wheel_identity:
+        raise RuntimeError("retained candidate wheel changed")
+    (retained / "result.json").write_bytes(content)
+    (retained / "authored-coding-cli").write_bytes(program)
+    for name in ("stdout.log", "stderr.log"):
+        captured = _node(evidence.parent, name, frozenset(), 1024 * 1024)
+        if captured.kind != "file":
+            raise RuntimeError("regular authored rebuild output required")
+        (retained / name).write_bytes(captured.content)
+    (retained / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema": "literate-ai/retained-node-sdk-rebuild-diagnostic@1"
+                if diagnostic
+                else "literate-ai/retained-node-sdk-rebuild-preflight@1",
+                "qualified": False,
+                "preflight_passed": not diagnostic,
+                **({"diagnostic_only": True} if diagnostic else {}),
+                "source_revision": revision,
+                "wheel": {"path": wheel.name, "identity": wheel_identity},
+                "evidence": {
+                    "path": "result.json",
+                    "identity": file_identity(retained / "result.json"),
+                },
+                "fixture_program": {
+                    "path": "authored-coding-cli",
+                    "identity": report["rebuild"]["fixture_program_sha256"],
+                },
+            },
+            sort_keys=True,
+            indent=2,
+        )
+        + "\n"
+    )
+    return retained
+
+
+def _retain_node_sdk_typed_host_preflight(repository, wheel, *, revision, result):
+    """Retain scoped typed evidence and exact candidate bytes, never qualification."""
+    import runpy
+
+    from literate_ai.adapters.repository_file_custody import _node
+
+    support = runpy.run_path(
+        str(repository / "tests/support/installed_node_sdk_journey.py")
+    )
+    evidence = Path(result["_evidence_path"])
+    captured = _node(evidence.parent, evidence.name, frozenset(), 8 * 1024 * 1024)
+    if (
+        captured.kind != "file"
+        or hashlib.sha256(captured.content).hexdigest() != result["evidence_sha256"]
+    ):
+        raise RuntimeError("original typed host evidence changed")
+    content = captured.content
+    report = json.loads(content)
+    support["require_typed_host_report"](report)
+    support["require_typed_host_report"](result)
+    wheel_identity = file_identity(wheel)
+    if wheel_identity != "sha256:" + report["wheel_sha256"]:
+        raise RuntimeError("typed host candidate wheel changed")
+    output = release_file_path(repository, "_build/node-sdk-typed-host-preflight")
+    output.mkdir(parents=True, exist_ok=True)
+    retained = Path(tempfile.mkdtemp(prefix="run-", dir=output))
+    shutil.copy2(wheel, retained / wheel.name)
+    if file_identity(retained / wheel.name) != wheel_identity:
+        raise RuntimeError("retained typed host wheel changed")
+    (retained / "result.json").write_bytes(content)
+    for name in ("stdout.log", "stderr.log"):
+        captured = _node(evidence.parent, name, frozenset(), 1024 * 1024)
+        if captured.kind != "file":
+            raise RuntimeError("regular typed host output required")
+        (retained / name).write_bytes(captured.content)
+    (retained / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema": "literate-ai/retained-node-sdk-typed-host-preflight@1",
+                "qualified": False,
+                "preflight_passed": True,
+                "source_revision": revision,
+                "authorization_mode": report["authorization_mode"],
+                "wheel": {"path": wheel.name, "identity": wheel_identity},
+                "evidence": {
+                    "path": "result.json",
+                    "identity": file_identity(retained / "result.json"),
+                },
+            },
+            sort_keys=True,
+            indent=2,
+        )
+        + "\n"
+    )
+    return retained
+
+
+def _retain_node_sdk_rebuild_failure(
+    repository, wheel, *, revision, case_root, failure, typed_host=False
+):
+    """Keep bounded diagnostics for a failed focused attempt; retain its failure."""
+    from literate_ai.adapters.repository_file_custody import _node
+
+    output = release_file_path(
+        repository,
+        (
+            "_build/node-sdk-typed-host-preflight"
+            if typed_host
+            else "_build/node-sdk-rebuild-preflight"
+        ),
+    )
+    output.mkdir(parents=True, exist_ok=True)
+    retained = Path(tempfile.mkdtemp(prefix="failed-", dir=output))
+    rows = {}
+    for name, maximum in (
+        ("stdout.log", 1024 * 1024),
+        ("stderr.log", 1024 * 1024),
+        ("helpers.json", 65536),
+        ("attempt.json", 256 * 1024),
+    ):
+        try:
+            captured = _node(case_root, name, frozenset(), maximum)
+            if captured.kind != "file":
+                raise RuntimeError("regular diagnostic required")
+            (retained / name).write_bytes(captured.content)
+            rows[name] = {
+                "state": "captured",
+                "identity": file_identity(retained / name),
+            }
+        except (OSError, ValueError, RuntimeError):
+            rows[name] = {"state": "unknown"}
+    shutil.copy2(wheel, retained / wheel.name)
+    (retained / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema": "literate-ai/failed-node-sdk-typed-host-preflight@1"
+                if typed_host
+                else "literate-ai/failed-node-sdk-rebuild-preflight@1",
+                "qualified": False,
+                "preflight_passed": False,
+                "source_revision": revision,
+                "failure_type": failure,
+                "wheel": {
+                    "path": wheel.name,
+                    "identity": file_identity(retained / wheel.name),
+                },
+                "diagnostics": rows,
+            },
+            sort_keys=True,
+            indent=2,
+        )
+        + "\n"
+    )
+    return retained
+
+
 def _host_flavor(platform_name: str) -> str:
     """Independent wheel-smoke expectation for the native OS Flavor."""
     if platform_name == "win32":
@@ -2794,6 +3370,26 @@ def _main() -> int:
         action="store_true",
         help="require both native cells; missing explicit archives is a refusal",
     )
+    parser.add_argument(
+        "--node-sdk-runtime",
+        action="store_true",
+        help="also require the authored macOS installed Node SDK runtime matrix",
+    )
+    parser.add_argument(
+        "--node-sdk-rebuild-preflight",
+        action="store_true",
+        help="run only the authored installed rebuild preflight; never qualify a wheel",
+    )
+    parser.add_argument(
+        "--node-sdk-typed-host-preflight",
+        action="store_true",
+        help="run the separate installed typed host cell; never qualify a wheel",
+    )
+    parser.add_argument(
+        "--diagnostic-node-probes",
+        action="store_true",
+        help="observe actual SDK probe phases; never establish preflight acceptance",
+    )
     arguments = parser.parse_args()
     native_root_inputs = native_root_pins = None
     if (
@@ -2810,6 +3406,33 @@ def _main() -> int:
         native_root_inputs, native_root_pins = input_api["capture_inputs"](
             Path(__file__).resolve().parents[1], arguments.native_root_archives
         )
+    if arguments.node_sdk_typed_host_preflight and (
+        arguments.node_sdk_runtime
+        or arguments.node_sdk_rebuild_preflight
+        or arguments.diagnostic_node_probes
+        or arguments.qualified_wheel_manifest is not None
+        or arguments.wheel is not None
+    ):
+        parser.error(
+            "typed host preflight requires a fresh separate candidate; "
+            "it cannot qualify a wheel"
+        )
+    if arguments.diagnostic_node_probes and not arguments.node_sdk_rebuild_preflight:
+        parser.error("probe diagnostics require the separate rebuild case")
+    if arguments.node_sdk_rebuild_preflight and (
+        arguments.node_sdk_runtime
+        or arguments.qualified_wheel_manifest is not None
+        or arguments.wheel is not None
+    ):
+        parser.error(
+            "rebuild preflight requires a fresh candidate and cannot qualify a wheel"
+        )
+    if (
+        arguments.node_sdk_runtime
+        or arguments.node_sdk_rebuild_preflight
+        or arguments.node_sdk_typed_host_preflight
+    ):
+        require_node_sdk_prerequisites()
     _TIMING_REPORT = arguments.timing_report
     _TIMINGS.clear()
     repository = Path(__file__).resolve().parents[1]
@@ -2840,6 +3463,13 @@ def _main() -> int:
         run("git", "remote", "get-url", "origin", cwd=repository).stdout.strip()
     )
     git_revision = run("git", "rev-parse", "HEAD", cwd=repository).stdout.strip()
+    if (
+        arguments.node_sdk_rebuild_preflight
+        and run(
+            "git", "status", "--porcelain", "--untracked-files=all", cwd=repository
+        ).stdout.strip()
+    ):
+        raise RuntimeError("authored rebuild preflight requires committed clean source")
     build_environment = {
         **_subprocess_environment(),
         "LITAI_BUILD_REPOSITORY_URL": repository_url,
@@ -2935,6 +3565,120 @@ def _main() -> int:
         standard_binding = json.loads(
             run(str(python), "-c", STANDARD_BINDING_PROBE, cwd=root).stdout
         )
+        if arguments.node_sdk_typed_host_preflight:
+            try:
+                result = preflight_installed_node_sdk_typed_host(
+                    repository,
+                    environment,
+                    python,
+                    root,
+                    wheel_files[0],
+                    standard_binding["distribution"],
+                )
+            except Exception as exc:
+                try:
+                    _retain_node_sdk_rebuild_failure(
+                        repository,
+                        wheel_files[0],
+                        revision=git_revision,
+                        case_root=root / "node-sdk-typed-host",
+                        failure=type(exc).__name__,
+                        typed_host=True,
+                    )
+                except Exception as retention_error:
+                    print(
+                        "Typed host failure retention failed: "
+                        + type(retention_error).__name__,
+                        file=sys.stderr,
+                    )
+                raise
+            retained = _retain_node_sdk_typed_host_preflight(
+                repository,
+                wheel_files[0],
+                revision=git_revision,
+                result=result,
+            )
+            print(
+                json.dumps(
+                    {
+                        "schema": (
+                            "literate-ai/installed-node-sdk-typed-host-preflight-summary@1"
+                        ),
+                        "qualified": False,
+                        "preflight_passed": True,
+                        "authorization_mode": "inspected-verifier@1",
+                        "retained_evidence": retained.relative_to(
+                            repository
+                        ).as_posix(),
+                        "wheel": tested_wheel_identity,
+                    },
+                    sort_keys=True,
+                )
+            )
+            return 0
+        if arguments.node_sdk_rebuild_preflight:
+            try:
+                result = preflight_installed_node_sdk_rebuild(
+                    repository,
+                    environment,
+                    python,
+                    root,
+                    wheel_files[0],
+                    standard_binding["distribution"],
+                    **(
+                        {"profile_probes": True}
+                        if arguments.diagnostic_node_probes
+                        else {}
+                    ),
+                )
+            except Exception as exc:
+                try:
+                    _retain_node_sdk_rebuild_failure(
+                        repository,
+                        wheel_files[0],
+                        revision=git_revision,
+                        case_root=root / "node-sdk-rebuild",
+                        failure=type(exc).__name__,
+                    )
+                except Exception as retention_error:
+                    print(
+                        "Authored rebuild diagnostic retention failed: "
+                        + type(retention_error).__name__,
+                        file=sys.stderr,
+                    )
+                raise
+            retained = _retain_node_sdk_rebuild_preflight(
+                repository,
+                wheel_files[0],
+                revision=git_revision,
+                result=result,
+                **({"diagnostic": True} if arguments.diagnostic_node_probes else {}),
+            )
+            print(
+                json.dumps(
+                    {
+                        "schema": (
+                            "literate-ai/installed-node-sdk-rebuild-diagnostic-summary@1"
+                            if arguments.diagnostic_node_probes
+                            else "literate-ai/installed-node-sdk-rebuild-"
+                            "preflight-summary@1"
+                        ),
+                        "qualified": False,
+                        "preflight_passed": not arguments.diagnostic_node_probes,
+                        **(
+                            {"diagnostic_only": True}
+                            if arguments.diagnostic_node_probes
+                            else {}
+                        ),
+                        "retained_evidence": retained.relative_to(
+                            repository
+                        ).as_posix(),
+                        "wheel": tested_wheel_identity,
+                    },
+                    sort_keys=True,
+                )
+            )
+            return 0
         runtime_environment = {
             "seeded": seeded_runtime,
             **assert_wheel_runtime_environment(
@@ -3843,6 +4587,16 @@ def _main() -> int:
                 inputs=native_root_inputs,
                 input_pins=native_root_pins,
             )
+        node_sdk_runtime = {"requested": False, "qualified": False}
+        if arguments.node_sdk_runtime:
+            node_sdk_runtime = qualify_installed_node_sdk(
+                repository,
+                environment,
+                python,
+                root,
+                wheel_files[0],
+                standard_binding["distribution"],
+            )
         if worker_wheel_directory is not None and worker_dependency_inputs != {
             path.name: file_identity(path)
             for path in sorted(worker_wheel_directory.iterdir())
@@ -3900,6 +4654,22 @@ def _main() -> int:
             version=declared_version,
             expected_identity=tested_wheel_identity,
         )
+        if arguments.node_sdk_runtime:
+            evidence = Path(node_sdk_runtime.pop("_evidence_path"))
+            if evidence.is_symlink() or file_identity(evidence) != (
+                "sha256:" + node_sdk_runtime["evidence_sha256"]
+            ):
+                raise RuntimeError("installed SDK evidence changed before retention")
+            retained_sdk = retained_manifest.parent / "installed-node-sdk.json"
+            shutil.copy2(evidence, retained_sdk)
+            if (
+                file_identity(retained_sdk)
+                != "sha256:" + node_sdk_runtime["evidence_sha256"]
+            ):
+                raise RuntimeError("installed SDK retained evidence mismatch")
+            node_sdk_runtime["retained_evidence"] = retained_sdk.relative_to(
+                repository
+            ).as_posix()
         if arguments.qualified_wheel_manifest is not None:
             export_qualified_wheel(
                 repository,
@@ -3931,6 +4701,7 @@ def _main() -> int:
                         if native_root_journeys is not None
                         else {}
                     ),
+                    "node_sdk_runtime": node_sdk_runtime,
                     "project_identity_migration": identity_migration,
                     "skills": sorted(installed),
                     "snapshot_replication_schema": replication_schema,

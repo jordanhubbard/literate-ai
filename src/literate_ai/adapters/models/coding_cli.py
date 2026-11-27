@@ -10,20 +10,14 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import threading
-import time
 from collections.abc import Callable, Collection, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
-from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING
 
-from literate_ai.adapters._processes import (
-    ProcessTreeOwnership,
-    create_process_tree_ownership,
-    terminate_process_tree,
-)
+from literate_ai.adapters.builders._process import run_bounded_process
+from literate_ai.adapters.builders.python import BuildError
 from literate_ai.adapters.dependencies import (
     CycloneDxBomError,
     build_cyclonedx_bom,
@@ -40,6 +34,7 @@ from literate_ai.adapters.model_selection_stack import (
     explicit_stack_model,
 )
 from literate_ai.adapters.models.native_sdk_recipe import RecipeNativeSdkDependency
+from literate_ai.adapters.models.node_sdk_recipe import RecipeNodeSDKProvider
 from literate_ai.adapters.models.opencode_profile import (
     OpenCodeProfileError,
     OpenCodeV1Profile,
@@ -55,7 +50,6 @@ from literate_ai.application.flavor_selection import (
 from literate_ai.application.flavor_selection import (
     apply_flavor_selectors as apply_ordered_flavor_selectors,
 )
-from literate_ai.application.native_root_run import current_native_root_run
 from literate_ai.application.skill_closure import (
     SkillClosureError,
     close_specification_to_source_skills,
@@ -84,10 +78,8 @@ from literate_ai.contracts import (
 )
 from literate_ai.contracts.model_scopes import RETAINED_SOURCE_PROVIDER
 from literate_ai.diagnostics import (
-    inherited_verbose_environment,
     log_operation,
     redact_secrets,
-    trace_subprocess,
 )
 from literate_ai.evidence_ledger import EvidenceNode, attach_run, bounded_excerpt
 from literate_ai.generated_test_coverage import (
@@ -144,7 +136,6 @@ _OPENCODE_V2_HELP_OPTIONS = (
     b"--print-logs",
     b"--log-level",
 )
-_PIPE_READ_BYTES = 64 * 1024
 _ACCEPTED_SOURCE_LOOKUP_ONLY_EXECUTABLE = "/accepted-source-lookup-only"
 _OPENCODE_PERMISSION = json.dumps(
     {
@@ -314,6 +305,35 @@ def _prompt_json(document: bytes) -> str:
     """
 
     return json.dumps(json.loads(document), indent=2, ensure_ascii=False)
+
+
+def _allows_node_sdk_source(recipe: GenerationRecipe) -> bool:
+    """Recognize bound SDK DATA for collection; grant no build authority."""
+    profile = dict(recipe.resolved_inputs).get("node_sdk_profile")
+    surface = recipe.library_import_surface
+    sdk_surface = surface is not None and bool(surface.node_sdk_exports)
+    if not (profile is not None or recipe.node_sdk_providers or sdk_surface):
+        return False
+    if (
+        type(recipe) is not GenerationRecipe
+        or not recipe.node_sdk_providers
+        or not sdk_surface
+        or surface.language != "typescript"
+        or profile is None
+    ):
+        raise CodingCliError(
+            "coding_cli.node_sdk_recipe_invalid",
+            "SDK source collection requires the original bound SDK recipe",
+        )
+    # This CID binds the recipe to the original live binder's profile. Syntax
+    # alone grants no profile-content, tool, provider or execution authority.
+    try:
+        ContentIdentity.parse_uri(profile)
+    except (TypeError, ValueError) as exc:
+        raise CodingCliError(
+            "coding_cli.node_sdk_recipe_invalid", "invalid bound SDK profile identity"
+        ) from exc
+    return True
 
 
 def _reset_generation_output_root(root: Path) -> None:
@@ -597,6 +617,7 @@ class GenerationRecipe:
     library_dependencies: tuple[RecipeLibraryDependency, ...] = ()
     native_sdk_dependencies: tuple[RecipeNativeSdkDependency, ...] = ()
     cpp_library_build: RecipeCppLibraryBuild | None = None
+    node_sdk_providers: tuple[RecipeNodeSDKProvider, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.recipe_id or not self.application_id or not self.documents:
@@ -705,6 +726,56 @@ class GenerationRecipe:
             for item in self.native_sdk_dependencies
         ):
             raise TypeError("generation recipe SDK dependencies must be typed")
+        if type(self.node_sdk_providers) is not tuple or any(
+            type(item) is not RecipeNodeSDKProvider for item in self.node_sdk_providers
+        ):
+            raise TypeError("generation recipe Node SDK providers must be typed")
+        if self.node_sdk_providers:
+            if (
+                self.library_import_surface is None
+                or self.library_import_surface.language != "typescript"
+                or not self.library_import_surface.node_sdk_exports
+                or entrypoints
+                or self.native_sdk_dependencies
+            ):
+                raise ValueError(
+                    "Node SDK provider metadata requires a pure TypeScript SDK"
+                )
+            revisions = tuple(
+                item.artifact.component_revision.uri for item in self.node_sdk_providers
+            )
+            if revisions != tuple(sorted(set(revisions))):
+                raise ValueError(
+                    "Node SDK generation providers must be canonical and unique"
+                )
+            expected_providers = {
+                item.provider_component_revision.uri
+                for item in self.library_dependencies
+            }
+            if set(revisions) != expected_providers:
+                raise ValueError(
+                    "Node SDK metadata differs from direct library dependencies"
+                )
+            by_revision = {
+                item.artifact.component_revision: item
+                for item in self.node_sdk_providers
+            }
+            for dependency in self.library_dependencies:
+                if (
+                    dependency.import_surface
+                    != by_revision[dependency.provider_component_revision].surface
+                ):
+                    raise ValueError(
+                        "Node SDK metadata differs from exact import authority"
+                    )
+            namespaces = [
+                item.surface.package.casefold() for item in self.node_sdk_providers
+            ]
+            if (
+                len(namespaces) != len(set(namespaces))
+                or self.library_import_surface.package.casefold() in namespaces
+            ):
+                raise ValueError("Node SDK generation package namespaces collide")
         sdk_keys = tuple(item.dependency_id for item in self.native_sdk_dependencies)
         if sdk_keys != tuple(sorted(set(sdk_keys))):
             raise ValueError(
@@ -937,6 +1008,10 @@ class GenerationRecipe:
         if self.native_sdk_dependencies:
             value["native_sdk_dependencies"] = [
                 item.to_dict() for item in self.native_sdk_dependencies
+            ]
+        if self.node_sdk_providers:
+            value["node_sdk_providers"] = [
+                item.to_dict() for item in self.node_sdk_providers
             ]
         if self.generated_test_coverage_authority is not None:
             value["generated_test_coverage"] = (
@@ -1315,6 +1390,30 @@ class GenerationRecipe:
                     "```json",
                     json.dumps(
                         [item.to_dict() for item in self.library_dependencies],
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                    "```",
+                ]
+            )
+        if self.node_sdk_providers:
+            sections.extend(
+                [
+                    "",
+                    "## Exact sealed Node SDK provider inputs",
+                    "",
+                    "Use only these public import mappings and declaration bytes.",
+                    "The records describe exact inputs; they grant no execution",
+                    "permission or ambient package resolution. Provider implementation",
+                    "and verifier answers are excluded from this generation context.",
+                    "```json",
+                    json.dumps(
+                        [
+                            item.to_dict()
+                            if include_locked_authority_documents
+                            else {"input_identity": item.identity.uri}
+                            for item in self.node_sdk_providers
+                        ],
                         sort_keys=True,
                         separators=(",", ":"),
                     ),
@@ -3440,6 +3539,8 @@ class CodingCliSourceGenerator:
         source_intelligence_reason_code: str | None,
         provider: SourceIntelligenceProvider | None,
     ) -> CodingCliGeneration:
+        recipe_identity = recipe.identity
+        node_sdk_source = _allows_node_sdk_source(recipe)
         request_path = workspace / ".literate-ai-generation-request.md"
         request = (
             _coding_cli_binding_prompt(recipe, self.selection)
@@ -3606,7 +3707,21 @@ class CodingCliSourceGenerator:
             )
             instrument_generated_tree(source)
         try:
-            files = self._collect(workspace, recipe.all_required_entrypoints)
+            if recipe.identity != recipe_identity:
+                raise CodingCliError(
+                    "coding_cli.recipe_changed",
+                    "generation recipe changed during execution",
+                )
+            files = self._collect(
+                workspace,
+                recipe.all_required_entrypoints,
+                _node_sdk_source=node_sdk_source,
+            )
+            if recipe.identity != recipe_identity:
+                raise CodingCliError(
+                    "coding_cli.recipe_changed",
+                    "generation recipe changed during collection",
+                )
         except CodingCliError as exc:
             if exc.code != "coding_cli.empty_generation":
                 raise
@@ -3714,6 +3829,11 @@ class CodingCliSourceGenerator:
             source_intelligence_status = "off"
         request_identity = canonical_identity(request).uri
         command_identity = canonical_identity(tuple(command)).uri
+        if recipe.identity != recipe_identity:
+            raise CodingCliError(
+                "coding_cli.recipe_changed",
+                "generation recipe changed during collection",
+            )
         return CodingCliGeneration(
             files=files,
             coding_cli=self.selection.name,
@@ -3793,7 +3913,11 @@ class CodingCliSourceGenerator:
         )
 
     def _collect(
-        self, root: Path, required_entrypoints: tuple[str, ...]
+        self,
+        root: Path,
+        required_entrypoints: tuple[str, ...],
+        *,
+        _node_sdk_source: bool = False,
     ) -> dict[str, str]:
         result: dict[str, str] = {}
         total_bytes = 0
@@ -3854,7 +3978,19 @@ class CodingCliSourceGenerator:
                     "coding_cli.output_path_limit",
                     "coding CLI generated a path outside the configured limits",
                 )
-            if relative != "source" and not relative.startswith("source/"):
+            sdk_path = _node_sdk_source and (
+                relative == "src" or relative.startswith("src/")
+            )
+            if sdk_path and not path.is_dir() and not relative.endswith(".ts"):
+                raise CodingCliError(
+                    "coding_cli.unexpected_output",
+                    f"coding CLI SDK source must be TypeScript: {relative}",
+                )
+            if (
+                not sdk_path
+                and relative != "source"
+                and not relative.startswith("source/")
+            ):
                 # This bound is for fungible generated application source in the
                 # coding-CLI workspace. It does not confine load-bearing project
                 # authority (catalogs, skills, a self-modifying project's Makefile)
@@ -4655,13 +4791,6 @@ class _BoundedProcessResult:
     stderr: bytes
 
 
-def _terminate_process(
-    process: subprocess.Popen[bytes],
-    ownership: ProcessTreeOwnership | None = None,
-) -> None:
-    terminate_process_tree(process, ownership=ownership)
-
-
 def _run_bounded(
     command: Sequence[str],
     *,
@@ -4673,147 +4802,43 @@ def _run_bounded(
     redaction_environment: Mapping[str, str] | None = None,
     trace_output: bool = True,
 ) -> _BoundedProcessResult:
-    """Drain both streams concurrently and kill the process on the first overflow."""
+    """Use the shared owned-child runner with the original private trace policy."""
+    from datetime import UTC, datetime
 
-    live_run = current_native_root_run()
-    if live_run is not None:
-        timeout_seconds = live_run.clamp_timeout(timeout_seconds)
+    from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
+
     child_environment = inherited_verbose_environment(environment)
     diagnostic_environment = {**child_environment, **(redaction_environment or {})}
-    _started = datetime.now(UTC)
+    started = datetime.now(UTC)
     trace_subprocess(command, cwd=cwd, environment=diagnostic_environment)
-    ownership = create_process_tree_ownership()
     try:
-        process = subprocess.Popen(
-            list(command),
+        result = run_bounded_process(
+            command,
             cwd=cwd,
-            env=child_environment,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            **ownership.popen_options,
+            environment=child_environment,
+            timeout_seconds=timeout_seconds,
+            stdout_limit_bytes=maximum_stdout_bytes,
+            stderr_limit_bytes=maximum_stderr_bytes,
+            error_prefix="coding_cli",
+            terminate_descendants=True,
+            process_factory=subprocess.Popen,
+            trace=False,
         )
-    except OSError:
-        ownership.release()
-        raise
-    ownership.bind(process.pid)
-    assert process.stdout is not None
-    assert process.stderr is not None
-
-    streams = {
-        "stdout": (process.stdout, maximum_stdout_bytes),
-        "stderr": (process.stderr, maximum_stderr_bytes),
-    }
-    buffers = {name: bytearray() for name in streams}
-    overflows: list[str] = []
-    read_errors: list[Exception] = []
-    state_lock = threading.Lock()
-
-    def read_stream(name: str) -> None:
-        stream, limit = streams[name]
-        try:
-            while True:
-                remaining = limit - len(buffers[name])
-                content = stream.read(min(_PIPE_READ_BYTES, remaining + 1))
-                if not content:
-                    return
-                if len(content) > remaining:
-                    buffers[name].extend(content[:remaining])
-                    with state_lock:
-                        overflows.append(name)
-                    _terminate_process(process, ownership)
-                    return
-                buffers[name].extend(content)
-        except (OSError, ValueError) as exc:
-            with state_lock:
-                read_errors.append(exc)
-            _terminate_process(process, ownership)
-        finally:
-            stream.close()
-
-    readers = [
-        threading.Thread(
-            target=read_stream,
-            args=(name,),
-            name=f"literate-ai-{name}-reader",
-            daemon=True,
-        )
-        for name in streams
-    ]
-    for reader in readers:
-        reader.start()
-    timed_out = False
-    execution_failed = False
-    try:
-        if live_run is None:
-            returncode = process.wait(timeout=timeout_seconds)
-        else:
-            phase_started = time.monotonic()
-            while True:
-                live_run.require_current()
-                remaining = min(
-                    live_run.remaining(),
-                    timeout_seconds - (time.monotonic() - phase_started),
-                )
-                if remaining <= 0:
-                    raise subprocess.TimeoutExpired(command, timeout_seconds)
-                try:
-                    returncode = process.wait(timeout=min(0.25, remaining))
-                    break
-                except subprocess.TimeoutExpired:
-                    continue
-            live_run.require_current()
-    except subprocess.TimeoutExpired:
-        timed_out = True
-        _terminate_process(process, ownership)
-        try:
-            returncode = process.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            returncode = -1
-    except BaseException:
-        execution_failed = True
-        raise
-    finally:
-        # A completed launcher may still own helpers and inherited pipe handles.
-        # Retire its process tree before callers remove private provider state.
-        _terminate_process(process, ownership)
-        for reader in readers:
-            reader.join(timeout=5)
-        for _name, (stream, _limit) in streams.items():
-            if any(reader.is_alive() for reader in readers):
-                try:
-                    stream.close()
-                except OSError:
-                    pass
-        for reader in readers:
-            reader.join(timeout=1)
-        if execution_failed:
-            ownership.release()
-
-    if timed_out:
-        ownership.release()
-        raise CodingCliError(
-            "coding_cli.timeout",
-            "coding CLI exceeded the configured execution timeout",
-        )
-    if overflows:
-        names = " and ".join(sorted(set(overflows)))
-        ownership.release()
-        raise CodingCliError(
-            "coding_cli.output_limit",
-            f"coding CLI exceeded the configured {names} byte limit",
-        )
-    if read_errors or any(reader.is_alive() for reader in readers):
-        ownership.release()
+    except BuildError as exc:
+        if exc.code == "coding_cli_timeout":
+            raise CodingCliError(
+                "coding_cli.timeout",
+                "coding CLI exceeded the configured execution timeout",
+            ) from exc
+        if exc.code == "coding_cli_output_limit":
+            raise CodingCliError(
+                "coding_cli.output_limit",
+                "coding CLI exceeded its configured output byte limit",
+            ) from exc
         raise CodingCliError(
             "coding_cli.execution_failed",
-            "coding CLI output streams could not be read safely",
-        )
-    result = _BoundedProcessResult(
-        returncode,
-        bytes(buffers["stdout"]),
-        bytes(buffers["stderr"]),
-    )
+            "coding CLI process could not complete safely",
+        ) from exc
     trace_subprocess(
         command,
         cwd=cwd,
@@ -4821,10 +4846,9 @@ def _run_bounded(
         status=result.returncode,
         stdout=result.stdout if trace_output else None,
         stderr=result.stderr if trace_output else None,
-        started_at=_started,
+        started_at=started,
     )
-    ownership.release()
-    return result
+    return _BoundedProcessResult(result.returncode, result.stdout, result.stderr)
 
 
 def _require_coding_cli_compatible(

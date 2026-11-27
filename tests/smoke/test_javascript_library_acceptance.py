@@ -7,7 +7,7 @@ import json
 import shutil
 import tempfile
 import unittest
-from dataclasses import fields
+from dataclasses import fields, replace
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -26,6 +26,8 @@ from literate_ai.adapters.lifecycle.standard_local import (
     LocalStandardLifecycleError,
     run_with_tree_kill,
 )
+from literate_ai.adapters.node_library_acceptance import NodeLibraryAcceptance
+from literate_ai.adapters.node_sdk_declarations import NodeDeclarationCase
 from literate_ai.adapters.standard_project import (
     project_locked_standard_toolchain_closure,
 )
@@ -249,3 +251,98 @@ class JavaScriptLibraryAcceptanceTests(unittest.TestCase):
             ),
         ):
             self.accept(ports)
+
+    def node_oracle(self):
+        original = self.oracle
+        return NodeLibraryAcceptance(
+            **{
+                field.name: getattr(original, field.name)
+                for field in fields(LibraryAcceptance)
+            },
+            esm_harness_identity=ContentIdentity.parse_uri(
+                "sha256:"
+                + hashlib.sha256(b"throw new Error('unverified ESM');").hexdigest()
+            ),
+            esm_harness_content=b"throw new Error('unverified ESM');",
+            declaration_cases=(
+                NodeDeclarationCase(
+                    "adds-values",
+                    self.capability.capability,
+                    b"const result: any = 1;",
+                    b"const result: number = 'bad';",
+                    b"const result: any = 1;",
+                    b"const result: number = 'bad';",
+                    (2322,),
+                ),
+            ),
+        )
+
+    def test_node_oracle_cannot_downgrade_to_legacy_single_harness(self):
+        node = self.node_oracle()
+
+        # The old CJS harness would pass, ignoring ESM, declarations and original
+        # loader custody. Neither the DTO nor a copied DTO can select that path.
+        class DerivedNodeOracle(NodeLibraryAcceptance):
+            pass
+
+        derived = DerivedNodeOracle(
+            **{
+                field.name: getattr(node, field.name)
+                for field in fields(NodeLibraryAcceptance)
+            }
+        )
+        for oracle in (node, replace(node), derived):
+            with self.subTest(kind=type(oracle).__name__, copied=oracle is not node):
+                self.oracle = oracle
+                with self.assertRaisesRegex(
+                    LocalStandardLifecycleError, "Node.*profile"
+                ):
+                    self.accept(self.ports())
+
+    def test_node_oracle_is_refused_before_public_package_custody_lookup(self):
+        self.oracle = self.node_oracle()
+        ports = self.ports()
+        with (
+            mock.patch.object(ports, "project_package_custody") as custody,
+            mock.patch.object(ports, "_record_evidence") as evidence,
+            mock.patch(
+                "literate_ai.adapters.lifecycle.standard_local.run_with_tree_kill"
+            ) as run,
+            self.assertRaisesRegex(LocalStandardLifecycleError, "Node.*profile"),
+        ):
+            try:
+                ports.accept_project_independently(
+                    self.snapshot.authority.lock,
+                    self.execution,
+                    None,
+                    None,
+                    None,
+                    canonical_identity("root test"),
+                    canonical_identity("execution"),
+                )
+            finally:
+                custody.assert_not_called()
+                evidence.assert_not_called()
+                run.assert_not_called()
+
+    def test_node_oracle_deep_legacy_owner_refuses_before_evidence_or_inputs(self):
+        from contextlib import ExitStack
+
+        ports = self.ports()
+        with (
+            mock.patch.object(ports, "_record_evidence") as evidence,
+            mock.patch.object(ports, "_record_product_evidence") as products,
+            mock.patch(
+                "literate_ai.adapters.lifecycle.standard_local.run_with_tree_kill"
+            ) as run,
+            ExitStack() as contexts,
+            self.assertRaisesRegex(LocalStandardLifecycleError, "Node.*profile"),
+        ):
+            try:
+                ports._accept_library_observed(
+                    None, None, None, None, self.node_oracle(), None, None, contexts
+                )
+            finally:
+                evidence.assert_not_called()
+                products.assert_not_called()
+                run.assert_not_called()

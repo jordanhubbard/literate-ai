@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap install uninstall install-check installed-project-e2e installed-e2e installed-e2e-status dev-install tools-install documentation-tools-install skill-evaluator-install skills-check repository-layout-check public-export-check python-version schema-check python-check source-intelligence-check provider-resolution-check source-admission-check remote-evidence-check inherited-session-check target-matrix-check native-toolchain-check samples samples-packages roundtrip-host samples-platform-regression migration-baseline-refresh test-receipt-current wheel-check format format-check lint openspec-check documentation-check documentation-review documentation-review-record driver-review driver-review-record doc-toolchain-bootstrap release-contributions release-contributions-check release-collateral-regenerate release-collateral-preflight release-collateral-publish plugin-bundle validate release release-check release-check-reset clean really-clean
+.PHONY: help bootstrap install uninstall install-check installed-project-e2e installed-e2e installed-e2e-status dev-install tools-install documentation-tools-install skill-evaluator-install skills-check repository-layout-check public-export-check python-version schema-check python-check source-intelligence-check provider-resolution-check source-admission-check remote-evidence-check inherited-session-check target-matrix-check native-toolchain-check samples samples-packages roundtrip-host samples-platform-regression migration-baseline-refresh test-receipt-current wheel-check wheel-sdk-rebuild-preflight format format-check lint openspec-check documentation-check documentation-review documentation-review-record driver-review driver-review-record doc-toolchain-bootstrap release-contributions release-contributions-check release-collateral-regenerate release-collateral-preflight release-collateral-publish plugin-bundle validate release release-check release-check-reset clean really-clean
 
 PREFIX ?=
 BUILD_DIR ?= $(CURDIR)/generated
@@ -146,7 +146,7 @@ dev-install: ## Install pinned Python contributor tools.
 endif
 
 install-check: python-version $(RUNTIME_PREREQUISITE) ## Install to a temporary PREFIX and verify init/validate/lock/plan.
-	$(STEP) install-check -- $(RUN_PYTHON_COMMAND) scripts/installed_project_smoke.py --repository "$(CURDIR)" --isolated-tool-bootstrap $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
+	$(STEP) install-check -- $(RUN_PYTHON_COMMAND) scripts/installed_project_smoke.py --repository "$(CURDIR)" --isolated-tool-bootstrap $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",) $(if $(strip $(NATIVE_ROOT_FIXTURE_ARCHIVES)),--native-root-archives "$(NATIVE_ROOT_FIXTURE_ARCHIVES)",) $(if $(filter 1,$(RELEASE_NATIVE_ROOT_QUALIFICATION)),--require-native-root-qualification,)
 
 installed-project-e2e: python-version $(RUNTIME_PREREQUISITE) ## Prove an installed CLI can init, generate, build, test, and run hello.
 	$(STEP) installed-project-e2e -- $(RUN_PYTHON_COMMAND) scripts/installed_project_smoke.py --repository "$(CURDIR)" --live $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
@@ -288,8 +288,27 @@ migration-baseline-refresh: python-version $(RUNTIME_PREREQUISITE) ## Refresh th
 test-receipt-current: python-version $(RUNTIME_PREREQUISITE) ## Require the current local Git test assertion; this is not remote attestation.
 	PYTHONPATH=src $(STEP) test-receipt-current -- $(RUN_PYTHON_COMMAND) -m literate_ai.cli project test-receipt require-current --project .
 
-wheel-check: python-version $(RUNTIME_PREREQUISITE) ## Build and smoke-test the installed wheel outside this checkout.
-	$(STEP) wheel-check -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",) $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",) $(if $(strip $(NATIVE_ROOT_FIXTURE_ARCHIVES)),--native-root-archives "$(NATIVE_ROOT_FIXTURE_ARCHIVES)",) $(if $(filter 1,$(RELEASE_NATIVE_ROOT_QUALIFICATION)),--require-native-root-qualification,)
+WHEEL_NODE_SDK_RUNTIME ?= 0
+ifneq ($(words $(WHEEL_NODE_SDK_RUNTIME)),1)
+$(error WHEEL_NODE_SDK_RUNTIME must be 0 or 1)
+endif
+ifneq ($(filter-out 0 1,$(WHEEL_NODE_SDK_RUNTIME)),)
+$(error WHEEL_NODE_SDK_RUNTIME must be 0 or 1)
+endif
+
+wheel-check: python-version $(RUNTIME_PREREQUISITE) ## Build and smoke-test the installed wheel outside this checkout; optional WHEEL_NODE_SDK_RUNTIME=1 adds authored SDK cases.
+	$(STEP) wheel-check -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py $(if $(filter 1,$(WHEEL_NODE_SDK_RUNTIME)),--node-sdk-runtime,) $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",) $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
+
+wheel-sdk-rebuild-preflight: python-version $(RUNTIME_PREREQUISITE) ## Run the authored installed SDK rebuild case; retain an unqualified candidate.
+	$(STEP) wheel-sdk-rebuild-preflight -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py --node-sdk-rebuild-preflight $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",)
+
+.PHONY: wheel-sdk-typed-host-preflight
+wheel-sdk-typed-host-preflight: python-version $(RUNTIME_PREREQUISITE) ## Run original typed SDK host cases under an isolated wheel; never qualify or publish it.
+	$(STEP) wheel-sdk-typed-host-preflight -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py --node-sdk-typed-host-preflight $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",)
+
+.PHONY: wheel-sdk-rebuild-probe-diagnostic
+wheel-sdk-rebuild-probe-diagnostic: python-version $(RUNTIME_PREREQUISITE) ## Observe actual guarded SDK probe phases; never qualify preflight acceptance.
+	$(STEP) wheel-sdk-rebuild-probe-diagnostic -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py --node-sdk-rebuild-preflight --diagnostic-node-probes
 
 format: $(DEV_PREREQUISITE) ## Format Python source and tests.
 	$(RUFF) format src tests scripts $(SAMPLE_PYTHON)

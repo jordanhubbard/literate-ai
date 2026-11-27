@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import stat
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
@@ -18,6 +17,11 @@ from literate_ai.adapters.action_build_limits import (
 from literate_ai.adapters.directory_artifacts import (
     DirectoryExportFile,
     read_directory_export,
+    require_materialized_files,
+)
+from literate_ai.application.library_artifacts import (
+    javascript_module_paths,
+    require_declared_commonjs_files,
 )
 from literate_ai.contracts import (
     ArtifactExport,
@@ -124,6 +128,8 @@ def prepare_javascript_library_imports(
         if provider is None or not isinstance(contract, ComponentCommandContract):
             raise ValueError("JavaScript provider or contract unavailable")
         surface = contract.library_import_surface
+        if surface is not None and surface.node_sdk_exports:
+            raise ValueError("dual SDK surface @3 is not a CommonJS provider surface")
         if (
             not contract.is_library
             or surface is None
@@ -168,7 +174,8 @@ def prepare_javascript_library_imports(
             }:
                 raise ValueError("JavaScript module is not an exact native import")
             subpath = "." if module == name else "./" + module[len(name) + 1 :]
-            mapping[subpath] = "./.litai-provider/source/" + module + ".js"
+            runtime, _declaration = javascript_module_paths(surface, module)
+            mapping[subpath] = "./.litai-provider/" + runtime
         if provider.blob.size > MAX_BUILD_ARCHIVE_BYTES - total_bytes:
             raise ValueError("JavaScript provider imports exceed byte bound")
         content = read_blob(provider.blob)
@@ -186,6 +193,9 @@ def prepare_javascript_library_imports(
             for target in mapping.values()
         ):
             raise ValueError("JavaScript provider module is absent from sealed bytes")
+        require_declared_commonjs_files(
+            surface, {file.path: file.content for file in files}
+        )
         packages.append(
             JavaScriptLibraryPackage(
                 name,
@@ -257,73 +267,7 @@ def materialize_javascript_library_imports(
             stream.write(
                 json.dumps(metadata, sort_keys=True, separators=(",", ":")) + "\n"
             )
-        _require_written_provider(retained, package.files)
-
-
-def _require_written_provider(
-    root: Path, files: tuple[DirectoryExportFile, ...]
-) -> None:
-    # Enumerate only the finite original namespace. Unexpected nodes stop before
-    # recursion; file reads allocate at most the pinned original length plus one.
-    expected = {item.path: item for item in files}
-    directories = set()
-    for name in expected:
-        directories.update(p.as_posix() for p in Path(name).parents if str(p) != ".")
-    seen = set()
-    pending = [root]
-    while pending:
-        directory = pending.pop()
-        require_safe_directory(directory)
-        with os.scandir(directory) as entries:
-            for entry in entries:
-                path = Path(entry.path)
-                name = path.relative_to(root).as_posix()
-                if name in seen or path_is_link_or_reparse(path):
-                    raise ValueError(
-                        "materialized JavaScript provider has a foreign node"
-                    )
-                seen.add(name)
-                if name in directories:
-                    if not entry.is_dir(follow_symlinks=False):
-                        raise ValueError("materialized JavaScript directory differs")
-                    pending.append(path)
-                    continue
-                item = expected.get(name)
-                if item is None or not entry.is_file(follow_symlinks=False):
-                    raise ValueError(
-                        "materialized JavaScript provider has a foreign file"
-                    )
-                fd = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
-                with os.fdopen(fd, "rb") as stream:
-                    before = os.fstat(stream.fileno())
-                    if (
-                        not stat.S_ISREG(before.st_mode)
-                        or before.st_size != len(item.content)
-                        or stat.S_IMODE(before.st_mode) != item.mode
-                        or stream.read(len(item.content) + 1) != item.content
-                    ):
-                        raise ValueError(
-                            "materialized JavaScript provider bytes differ"
-                        )
-                    after = os.fstat(stream.fileno())
-                    if (
-                        before.st_dev,
-                        before.st_ino,
-                        before.st_size,
-                        before.st_mtime_ns,
-                        before.st_ctime_ns,
-                    ) != (
-                        after.st_dev,
-                        after.st_ino,
-                        after.st_size,
-                        after.st_mtime_ns,
-                        after.st_ctime_ns,
-                    ):
-                        raise ValueError(
-                            "materialized JavaScript provider changed during read"
-                        )
-    if seen != set(expected) | directories:
-        raise ValueError("materialized JavaScript provider namespace differs")
+        require_materialized_files(retained, package.files)
 
 
 def _require_unshadowed_consumer(root: Path, packages: set[str]) -> None:

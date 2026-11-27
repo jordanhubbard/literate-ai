@@ -58,6 +58,7 @@ from .lifecycle import (
     LocalSourceTreeRegistry,
     LocalStandardLifecycleError,
 )
+from .node_sdk_host import LocalNodeSDKHostConfiguration
 from .project_runtime import (
     ContainedProjectRuntime,
     ProjectRuntimeError,
@@ -739,6 +740,7 @@ def assemble_filesystem_standard_rebuild_adapter(
     accepted_cas_root: Path,
     checkpoint_root: Path,
     python_wheelhouse: Path | None = None,
+    node_sdk_host: LocalNodeSDKHostConfiguration | None = None,
     action_workers: CommandActionWorkerPool | None = None,
     action_source_cas: FileSystemCAS | None = None,
     action_result_source=None,
@@ -775,6 +777,33 @@ def assemble_filesystem_standard_rebuild_adapter(
     if not isinstance(prepared, PreparedLockedGeneration):
         raise TypeError("prepared must be a PreparedLockedGeneration")
     _require_native_root_run(project, None, live_run)
+    if node_sdk_host is not None:
+        if type(node_sdk_host) is not LocalNodeSDKHostConfiguration:
+            raise TypeError("SDK host configuration must be an original typed policy")
+        node_sdk_host._require_bytes()
+        if node_sdk_host.snapshot is not prepared.locked_authority_snapshot:
+            raise FilesystemStandardRebuildError(
+                "standard_rebuild.node_sdk_authority_mismatch",
+                "SDK host requires the original prepared authority snapshot",
+            )
+        if (
+            retained_source is not None
+            or accepted_source_provider_id == RETAINED_SOURCE_PROVIDER
+            or action_workers is not None
+            or prepared.native_sdk_inputs is not None
+        ):
+            raise FilesystemStandardRebuildError(
+                "standard_rebuild.node_sdk_execution_unsupported",
+                "SDK host rebuild requires local non-retained execution",
+            )
+        if (
+            independent_acceptance_oracle is not None
+            and independent_acceptance_oracle is not node_sdk_host.root_oracle
+        ):
+            raise FilesystemStandardRebuildError(
+                "standard_rebuild.node_sdk_oracle_mismatch",
+                "SDK host and rebuild selected different root oracles",
+            )
     if action_workers is not None:
         action_workers.deadline.remaining()
         if (
@@ -823,11 +852,18 @@ def assemble_filesystem_standard_rebuild_adapter(
         try:
             action_execution = load_action_execution(project_root=project.root)
             if action_execution is not None:
+                if node_sdk_host is not None:
+                    raise FilesystemStandardRebuildError(
+                        "standard_rebuild.node_sdk_execution_unsupported",
+                        "SDK host rebuild does not admit configured action workers",
+                    )
                 action_workers, action_source_cas = action_execution.admit(
                     project_root=project.root,
                     target_profile=prepared.locked_authority_snapshot.authority.lock.target_name,
                     job_identity=prepared.locked_authority_snapshot.authority.lock.identity,
                 )
+        except FilesystemStandardRebuildError:
+            raise
         except (ActionExecutionConfigurationError, ActionWireError) as exc:
             raise FilesystemStandardRebuildError(exc.code, str(exc)) from exc
         except (ValueError, OSError, RuntimeError) as exc:
@@ -1055,6 +1091,18 @@ def assemble_filesystem_standard_rebuild_adapter(
             "standard_rebuild.external_libraries_require_local_runtime",
             "qualified providers require their original local receiving owners",
         )
+    if node_sdk_host is not None:
+        node_sdk_host._require_bytes()
+        if (
+            node_sdk_host.snapshot is not prepared.locked_authority_snapshot
+            or node_sdk_host.snapshot is not snapshot
+            or node_sdk_host.expected_execution.identity
+            != planned.execution_plan.identity
+        ):
+            raise FilesystemStandardRebuildError(
+                "standard_rebuild.node_sdk_authority_mismatch",
+                "SDK host disagrees with the actual prepared execution plan",
+            )
     if remote_build and remote_test and remote_execute and remote_finalize:
         # No Component or root command runs on this host, so derive every locked tool
         # identity, command and dependency from the admitted worker that will
@@ -1155,6 +1203,7 @@ def assemble_filesystem_standard_rebuild_adapter(
             else {}
         ),
         shared_cache=shared_cache,
+        **({"node_sdk_host": node_sdk_host} if node_sdk_host is not None else {}),
     )
     configuration, caches = _resolved_source_cache(project, source_cache_root)
     resolver = SourceCacheResolver(configuration, caches)

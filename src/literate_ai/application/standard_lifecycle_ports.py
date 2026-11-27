@@ -298,6 +298,9 @@ class StandardLifecycleCheckpointRecorder(Protocol):
 
     def record(self, evidence: StandardLifecycleStageEvidence) -> None: ...
 
+    def start_node_sdk_attempt(self, execution_plan, prepared, invocation) -> None:
+        """Bind a deferred attempt only inside original live SDK admission."""
+
     def start_replacement(
         self,
         execution_plan_identity: ContentIdentity,

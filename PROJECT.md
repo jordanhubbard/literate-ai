@@ -96,7 +96,162 @@ goals require a specific unreleased Literate AI capability.
 
 ## Completeness
 
-The [task-oriented skill catalog](docs/user/skills.md) enumerates all 89 canonical
+Accepted [ADR 0075](docs/decisions/0075-sealed-node-sdk-composition.md) is being
+implemented under LIBRARY-ARTIFACT-001. Canonical `lang-typescript-library` and
+`package-node-sdk` Flavors select a versioned pure SDK generation skill, dual public
+exports, `src/` implementation and built-SDK tests. Initialization templates match
+the canonical authority. Existing TypeScript application policy and older import
+wire formats remain separate and unchanged.
+
+Explicit local SDK targets share one captured TypeScript compiler, composition and
+offline pack owner. Target/profile/Flavor/tool identities bind actual BUILD, TEST
+and EXEC commands. BUILD requires original admitted invocation/provider custody and
+a separately current finalized build grant through child execution and artifact
+registration. Original bounded product inventory precedes cache hashing. Dependency
+evidence retains exact compiler-image, composition and bundled-provider identities.
+Runtime commands receive no producer checkout paths. Scoped command bindings and
+closing membership checks follow authority callbacks.
+
+Canonical static recipe preparation permits declaration-bearing JavaScript inputs
+only for an explicit TypeScript dual-library SDK policy. Preparation and execution
+share pinned profile decoding and language-shape validation. Other cross-language
+imports, malformed policy and competing build/accelerator profiles remain refused.
+Exact public interface and import-surface metadata reach the static recipe.
+Declaration bytes enter the bound recipe only through live verified provider
+custody; private provider specifications and oracle inputs do not. Static metadata grants no source, provider,
+verifier or build authority. Bound recipes retain the original consumer command
+contract and exact GENERATION+BUILD edges.
+
+An explicit trusted-host operation port retains one original accepted provider,
+loaded v2 oracle and current separate verifier grant around synchronous SDK use.
+The actual scheduler waits for provider acceptance before owned source/cache
+selection, stage reservations and bounded repairs. Revalidation binds the exact
+original invocation. Root cache publication renews that ownership through the
+membership link; a late loss retains durable evidence and withholds acknowledgment.
+Data-only, copied, retired and uncertain scopes cannot reopen source or mutations.
+Node children and coding-agent children share process liveness and cleanup.
+
+Current evidence includes actual authored SDK compilation/packing, bounded cache
+reuse, relocated CJS/ESM root/subpath imports and positive/negative TypeScript
+consumers. A canonical filesystem graph joins strict authored JavaScript
+provider BUILD/TEST/EXEC stages on macOS, original v2 runtime/declaration checks and
+a current fixture-only verifier grant to the owned SDK invocation. Its escaped
+guard is rejected after exit. That same canonical owned invocation now registers
+bound-recipe authored SDK source, obtains separate build authorization, compiles and
+packs through the shared owner, reuses its cache and passes actual TEST and EXEC.
+The Component declares precise addition behavior and a fixture-only immutable legal
+asset before locking; the source and package match its locked bytes and retain
+exact provider/compiler evidence. These
+prove authored source/build seams; the explicit root acceptance checkpoint below
+adds independent verification. Ordinary model generation remains unqualified.
+Earlier foundation `8c2e108f` passed a whole-wheel
+fixture gate; later changes are not covered by that installed-wheel evidence.
+
+A read-only SDK legal comparison now joins caller-owned captured files to the
+original locked Component assets with the explicit `node-sdk-legal` role and exact
+selected packaging profile. It reuses original snapshot pin checks and profile
+decoding; source presence, a model assertion or a different filename policy supplies
+no legal authority. Explicit internal SDK project acceptance now runs the comparison
+against the registered packaged export through the final decision. The comparison
+itself grants no execution or continuing custody.
+
+Explicit local SDK packaging now binds its tarball as a typed package resource to
+original registered BUILD custody of the complete artifact tree. Bounded captures
+and original namespace stamps precede generic hashing. All linked library exports
+materialize from validated immutable blob rows, without traversing producer trees.
+Original invocation, source/build membership and current grant checks close through
+package materialization and registration. Root finalization now revalidates the exact
+accepted SDK binding around assembly, packaging and finalization ports, then retires
+before separate source-cache publication. Original graph/link/package identities
+remain pinned across callbacks. Packaged TEST and EXEC reuse the shared SDK runner,
+with protected original test source and the fixed packaged export under additive
+liveness checks. Original package plan/result objects and CIDs are pinned before
+staging. An explicitly configured internal root policy now retains the original
+snapshot, accepted invocation, registered package and loaded root v2 oracle. It
+requires complete original component plans and actual packaged TEST/EXEC evidence,
+then obtains separate verifier authorization and uses the shared provider/runtime/
+declaration owner. Original oracle, package, BUILD and locked-input stamp checks
+close after the final clock. A canonical authored port-level fixture passes actual
+packaged SDK acceptance with six TypeScript children and both runtime formats;
+missing/wrong grants, copied authority, invented stages and late locked-input
+rewrites are refused. Profiling identified repeated combined host/package checks.
+Root acceptance now uses the shared verifier's separate owner and subject roles,
+retaining original invocation, snapshot, package/legal, stamp and expiry checks.
+The extended authored fixture passes in 979.740 seconds versus the prior 1,344.510
+seconds, including added host-loss, late package-drift and final-clock grant
+revocation refusals. One current root guard measures 2.18 seconds; this is an initial
+local improvement, not a performance guarantee. Public admission and a complete
+generated SDK lifecycle remain unfinished.
+
+An [explicit Python SDK host configuration](docs/architecture/node-sdk-host.md)
+now connects runtime assembly to the existing provider admission and root
+acceptance owners for one root SDK and one CommonJS provider. It binds original
+snapshot, graph, loaded oracles, ports and measured closure, retaining selection
+through runtime recomposition. Root policy selection exists only within the
+current accepted invocation; foreign, malformed or retired copied contexts
+refuse without fallback or configuration rollback. The authored assembled-runtime
+fixture passes actual SDK BUILD/cache/TEST/EXEC/PACKAGE, packaged TEST/EXEC and
+root independent acceptance in 995.361 seconds, with six TypeScript child checks
+and both runtime formats. Native scope and delegate-redirection controls pass
+separately. This exercises owned ports, not complete `runtime.execute` or model
+generation. Configuration supplies no execution grant and does not activate a
+CLI or default policy.
+
+A separate deterministic authored generator now qualifies actual `runtime.execute`
+orchestration in 1081.895 seconds. It binds actual prepared requests, recipes and
+allocated workspaces while the runtime produces all stage receipts. Finalization
+re-admits the original invocation facts with a distinct policy, refuses the
+retired generation context, completes the original packaged six-TypeScript/two-
+runtime checker, and publishes both source memberships only after original root
+acceptance returns. The default local publisher observes membership identity;
+this does not establish durable cache restoration. Production code and grant
+policy remain unchanged; live model generation and installed qualification remain
+separate gates.
+
+SDK operation closing now samples the final clock before checking its original
+oracle/file witnesses, membership and configuration, then validates every verifier
+grant at that same captured time. Three native final-clock mutations reproduced
+escaped results before the repair; the complete 12-case native operation suite
+now passes without recapturing baselines or extending active grants. Multiple
+providers now use a bounded admission inventory with the original recursive
+ownership and closing checks. Scoped native two-provider positives, earlier-input
+and expiry refusals, final-clock closure and aggregate budget unwind pass. The
+actual fixtures use distinct public-interface bytes; identical-interface source
+attribution and complete multi-provider SDK build/package/root acceptance remain
+open. A separate actual two-owner foreign-registry refusal passes while both
+foreign scopes remain live; it establishes registry isolation, not full lifecycle
+acceptance. The shared ceiling of 32 providers is
+a bound, not a 32-provider performance qualification.
+
+The public host also pins the original snapshot input-closure object and captures
+its validated authority stamps before each owned operation. After the lower owner
+returns, finite checks close original host metadata, installed binding, delegate
+and closure identities, and those authority stamps. No later callback, byte read
+or clock can reopen that closing boundary. Late registry replacement is preserved
+and refused rather than restored; a caller's later runtime guard cannot conceal
+an already returned result.
+
+JavaScript library EXEC now retains complete v2 declaration authority and uses
+exact declared runtime paths for root/subpath exports, including nested `.cjs`
+files. Host and standalone driver share bounded CommonJS metadata and declared
+file-membership policy. Fixed driver support is checked by SHA256 and fits the
+original argument limit; immutable artifact custody and independent grants remain
+required. Native public-host provider admission and the default canonical control
+both pass. The complete authored public-host nested-provider SDK passes in
+979.867 seconds, including actual build/cache/test/execute/package, packaged tests
+and execution, and the original six-TypeScript/two-runtime root checker. Current
+source orchestration, ordinary model output and installed qualification remain
+separate from this owned-port proof.
+
+Remaining gates are complete public runtime qualification, ordinary generated/retained canonical SDK lifecycle,
+multiple-provider closing cuts, ordinary generated and retained SDK products,
+packed SDK output publication, supported native platforms and fresh noneditable
+installed qualification. Legacy single-harness acceptance refuses the stronger
+Node oracle. Remote/async/checkpoint SDK recovery and accepted-source-only cache
+continuation remain unqualified/refused. No downstream SDK or registered-child
+cutover follows before complete qualification.
+
+The [task-oriented skill catalog](docs/user/skills.md) enumerates all 90 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records
 composition lessons and proposed adaptations separately from delivered capabilities.

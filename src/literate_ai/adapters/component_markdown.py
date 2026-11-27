@@ -25,6 +25,7 @@ from literate_ai.contracts.components import Entrypoint
 from literate_ai.contracts.flavors import FlavorAxis, FlavorCardinality, FlavorSlot
 from literate_ai.contracts.identity import ComponentCoordinate, ContentIdentity
 from literate_ai.contracts.library_imports import AuthoredLibraryImport
+from literate_ai.contracts.node_sdk import NodeSDKExportDeclaration
 from literate_ai.contracts.provider_resolution import (
     ProviderCapabilitySet,
     ProviderResolutionDeclaration,
@@ -407,6 +408,34 @@ def _render_library_import(item: AuthoredLibraryImport) -> list[str]:
         for key in ("language", "package", "capability", "module")
     ]
     _append_scalar_list(lines, "symbols", item.symbols)
+    if item.node_module is not None:
+        lines.append("node_module:")
+        lines.extend(
+            f"  {key}: {_yaml_string(value)}"
+            for key, value in item.node_module.to_dict().items()
+        )
+    if item.node_sdk_exports:
+        _append_mapping_list(
+            lines, "node_sdk_exports", item.node_sdk_exports, _render_node_sdk_export
+        )
+    return lines
+
+
+def _render_node_sdk_export(item: NodeSDKExportDeclaration) -> list[str]:
+    data = item.to_dict()
+    lines = [
+        f"{key}: {_yaml_string(data[key])}"
+        for key in ("schema", "module", "stem", "format")
+    ]
+    for kind in ("require", "import"):
+        _append_nested_mapping(
+            lines,
+            kind,
+            [
+                f"{key}: {_yaml_string(data[kind][key])}"
+                for key in ("runtime", "declaration")
+            ],
+        )
     return lines
 
 

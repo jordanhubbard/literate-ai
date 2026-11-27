@@ -38,10 +38,12 @@ from tests.support import fixtures_test_standard_project_lifecycle as lifecycle
 
 
 def _runtime(
-    repair: object, verifier=None
+    repair: object, verifier=None, sdk_admissions=None
 ) -> standard_project.FilesystemStandardProjectRuntime:
     lifecycle = mock.Mock(
-        candidate_repair_port=repair, generated_candidate_verifier=verifier
+        candidate_repair_port=repair,
+        generated_candidate_verifier=verifier,
+        node_sdk_admissions={} if sdk_admissions is None else sdk_admissions,
     )
     values = {
         field.name: mock.Mock()
@@ -57,6 +59,7 @@ class RecomposedRuntimeCandidateRepairTests(unittest.TestCase):
     ) -> None:
         repair = object()
         verifier = object()
+        sdk_admissions = {"explicit-host-selection": object()}
         assembled = mock.Mock(name="application")
         with (
             tempfile.TemporaryDirectory() as raw,
@@ -75,7 +78,8 @@ class RecomposedRuntimeCandidateRepairTests(unittest.TestCase):
         ):
             root = Path(raw).resolve()
             standard_project.compose_filesystem_standard_lifecycle_checkpoints(
-                _runtime(repair, verifier), checkpoint_root=root / "checkpoints"
+                _runtime(repair, verifier, sdk_admissions),
+                checkpoint_root=root / "checkpoints",
             )
             target = SourceCacheTarget(
                 target_id="repair",
@@ -92,7 +96,7 @@ class RecomposedRuntimeCandidateRepairTests(unittest.TestCase):
                 {target.target_id: FileSystemSourceCache("repair", root / "cache")},
             )
             standard_project.compose_filesystem_standard_source_cache(
-                _runtime(repair, verifier),
+                _runtime(repair, verifier, sdk_admissions),
                 generator=mock.Mock(),
                 resolver=resolver,
                 caller_cas=FileSystemCAS(root / "cas"),
@@ -102,6 +106,7 @@ class RecomposedRuntimeCandidateRepairTests(unittest.TestCase):
         for call in assemble.call_args_list:
             self.assertIs(call.kwargs["candidate_repair_port"], repair)
             self.assertIs(call.kwargs["generated_candidate_verifier"], verifier)
+            self.assertIs(call.kwargs["node_sdk_admissions"], sdk_admissions)
 
 
 class _SourceTrees:

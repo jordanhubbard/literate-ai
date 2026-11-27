@@ -74,6 +74,16 @@ must expose the same logical provider paths. No provider bytes are written to th
 authored source tree. Error-class identity must hold across the SDK's root/subpath
 exports within each format; cross-format module-instance identity is not promised.
 
+A generated SDK's own TypeScript output uses an additive versioned import surface,
+separate from the CommonJS provider surface. It binds each public module to its
+exact CJS/ESM runtime and declaration paths and the package-boundary manifest
+bytes. Explicit root/subpath aliases may share exact files for a covered
+capability; extra public stems need their own capability authority. Existing
+surface codecs retain their wire identities. A dual SDK output surface cannot
+silently become a dependency-free CommonJS provider in this first composition
+profile. Retained applications bind their acknowledged SDK-product authority
+separately and never gain a fabricated library Component.
+
 The package exports map binds separate `require.types` and `import.types` entries.
 Use `.d.ts` files inside explicit CJS and ESM package-type boundaries, paired with
 their matching `.js` outputs. Keep those boundary manifests in the distribution.
@@ -83,6 +93,21 @@ and bind the complete closure to the plan. Acceptance uses actual `.cts` and `.m
 consumers under both Node16 and NodeNext resolution with compiler type roots limited
 to the exact selected compiler SDK and packaged declarations. Missing declarations
 cannot be rescued by host `@types`, NODE_PATH or the producer checkout.
+
+Verifier input custody binds the original reviewed oracle, separate CommonJS and
+ESM runtime harnesses, and all four declaration sources per independent case.
+Reopen that bounded file closure before and after verification, including failed
+operations. A copied oracle value or historical result cannot acquire original
+input custody. Input custody and declaration-check data remain separate from
+artifact admission, execution authorization and lifecycle publication. The
+internal Node oracle loader is not a public lifecycle dispatcher until those
+remaining checks are integrated.
+
+The internal runtime runner supplies the reviewed harness with bounded JSON on
+stdin: the exact artifact location, import surface and case arguments, without
+expected answers. Both formats must return every exact case through the shared
+library result validator. Its observations remain data until the lifecycle joins
+them with declaration checks, current artifact admission and execution ownership.
 
 The first retained adapter may coexist with the SDK's separately admitted existing
 registry closure. Those registry dependencies retain their original exact lockfile,

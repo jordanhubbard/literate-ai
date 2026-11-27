@@ -5,6 +5,8 @@ import os
 import pickle
 import shutil
 import unittest
+from contextvars import copy_context
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import literate_ai.adapters.legacy_generation_catalog as catalog
@@ -25,6 +27,372 @@ class LineageFlavorObservationTests(unittest.TestCase):
 
     def capture(self):
         return catalog.LegacyFlavorGraphObservation.capture(self.roots)
+
+    def test_bound_scope_keeps_one_exact_root_key_and_foreign_reads_fresh(self):
+        other = fixtures.CurrentComponentLockTests()
+        other.setUp()
+        self.addCleanup(other.doCleanups)
+        with patch.object(
+            catalog,
+            "_load_legacy_flavor_entries",
+            wraps=catalog._load_legacy_flavor_entries,
+        ) as load:
+            with catalog.read_only_flavor_graph_observations(allowed_roots=self.roots):
+                frame = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+                first = graph.project_authority_graph(
+                    self.root, include_component_locks=False
+                )
+                second = graph.project_authority_graph(
+                    self.root, include_component_locks=False
+                )
+                self.assertEqual(first, second)
+                self.assertIsNot(first, second)
+                self.assertIsNone(
+                    catalog.scoped_flavor_graph_observation(
+                        (Path(str(self.roots[0]).upper()),)
+                    )
+                )
+                for _ in range(2):
+                    graph.project_authority_graph(
+                        other.root, include_component_locks=False
+                    )
+                self.assertEqual(
+                    tuple(frame.observations), (tuple(str(p) for p in self.roots),)
+                )
+                self.assertEqual(load.call_count, 3)
+            self.assertFalse(frame.active)
+            self.assertEqual(frame.observations, {})
+
+    def test_bound_nested_scopes_and_copied_retired_contexts_do_not_revive_cache(self):
+        with catalog.read_only_flavor_graph_observations(allowed_roots=self.roots):
+            outer = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+            original = catalog.scoped_flavor_graph_observation(self.roots)
+            copied = copy_context()
+            with catalog.read_only_flavor_graph_observations(allowed_roots=self.roots):
+                inner = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+                self.assertIsNot(inner, outer)
+                self.assertIsNot(
+                    catalog.scoped_flavor_graph_observation(self.roots), original
+                )
+            self.assertFalse(inner.active)
+            self.assertIs(catalog.scoped_flavor_graph_observation(self.roots), original)
+        self.assertIsNone(
+            copied.run(catalog.scoped_flavor_graph_observation, self.roots)
+        )
+        with patch.object(
+            catalog,
+            "_load_legacy_flavor_entries",
+            wraps=catalog._load_legacy_flavor_entries,
+        ) as load:
+            for _ in range(2):
+                copied.run(
+                    graph.project_authority_graph,
+                    self.root,
+                    include_component_locks=False,
+                )
+            self.assertEqual(load.call_count, 2)
+        self.assertFalse(outer.active)
+        self.assertEqual(outer.observations, {})
+
+    def test_premature_retirement_refuses_owner_close_but_copied_reads_fresh(self):
+        with self.assertRaises(catalog.CliFailure):
+            with catalog.read_only_flavor_graph_observations(allowed_roots=self.roots):
+                catalog.scoped_flavor_graph_observation(self.roots)
+                frame = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+                copied = copy_context()
+                frame._retire()
+                self.assertIsNone(catalog.scoped_flavor_graph_observation(self.roots))
+        self.assertFalse(frame.active)
+        self.assertIsNone(catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get())
+        with patch.object(
+            catalog,
+            "_load_legacy_flavor_entries",
+            wraps=catalog._load_legacy_flavor_entries,
+        ) as load:
+            for _ in range(2):
+                copied.run(
+                    graph.project_authority_graph,
+                    self.root,
+                    include_component_locks=False,
+                )
+            self.assertEqual(load.call_count, 2)
+
+    def test_bound_scope_preserves_body_exception_and_always_retires(self):
+        failure = RuntimeError("original consumer failure")
+        path = self.roots[0] / "os-macos/flavor.md"
+        original = path.read_bytes()
+        try:
+            with self.assertRaises(RuntimeError) as caught:
+                with catalog.read_only_flavor_graph_observations(
+                    allowed_roots=self.roots
+                ):
+                    catalog.scoped_flavor_graph_observation(self.roots)
+                    frame = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+                    path.write_bytes(original + b"\n")
+                    raise failure
+            self.assertIs(caught.exception, failure)
+            self.assertFalse(frame.active)
+            self.assertEqual(frame.observations, {})
+            self.assertIsNone(catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get())
+        finally:
+            path.write_bytes(original)
+
+    def test_original_primitive_metadata_and_reference_fences_refuse_tampering(self):
+        for kind in (
+            "item",
+            "metadata-copy",
+            "roots-copy",
+            "closures-copy",
+            "coordinated-baseline",
+        ):
+            for direct in (False, True):
+                with (
+                    self.subTest(kind=kind, direct=direct),
+                    self.assertRaises(catalog.CliFailure),
+                ):
+                    with catalog.read_only_flavor_graph_observations(
+                        allowed_roots=self.roots
+                    ):
+                        observed = catalog.scoped_flavor_graph_observation(self.roots)
+                        if kind == "item":
+                            object.__setattr__(
+                                observed._metadata[0], "flavor_id", "changed"
+                            )
+                        elif kind == "metadata-copy":
+                            object.__setattr__(
+                                observed, "_metadata", tuple(list(observed._metadata))
+                            )
+                        elif kind == "roots-copy":
+                            object.__setattr__(
+                                observed, "roots", tuple(list(observed.roots))
+                            )
+                        elif kind == "closures-copy":
+                            object.__setattr__(
+                                observed, "_closures", tuple(list(observed._closures))
+                            )
+                        else:
+                            original = observed._metadata
+                            object.__setattr__(
+                                observed, "_metadata", tuple(list(original))
+                            )
+                            object.__setattr__(
+                                observed, "_integrity", lambda value=original: value
+                            )
+                        if direct:
+                            observed.require_current(self.roots)
+                        # Otherwise only the final scope close observes drift.
+
+    def test_immutable_unframed_anchor_rejects_both_replacement_paths(self):
+        for field in ("_metadata", "_integrity", "roots", "_closures"):
+            for raw in (False, True):
+                with self.subTest(field=field, raw=raw):
+                    observed = self.capture()
+                    metadata = observed._metadata
+                    value = (
+                        (lambda value=metadata: value) if field == "_integrity" else ()
+                    )
+                    with self.assertRaises(catalog.CliFailure):
+                        if raw:
+                            object.__setattr__(observed, field, value)
+                        else:
+                            setattr(observed, field, value)
+                    self.assertIs(observed.require_current(self.roots), metadata)
+
+    def test_index_tampering_refuses_at_direct_check_and_final_close(self):
+        for kind in ("clear", "replace-entry", "replace-index", "replace-key"):
+            for direct in (False, True):
+                with self.subTest(kind=kind, direct=direct):
+                    with self.assertRaises(catalog.CliFailure):
+                        with catalog.read_only_flavor_graph_observations(
+                            allowed_roots=self.roots
+                        ):
+                            observed = catalog.scoped_flavor_graph_observation(
+                                self.roots
+                            )
+                            frame = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+                            key = tuple(str(p) for p in self.roots)
+                            if kind == "clear":
+                                frame.observations.clear()
+                            elif kind == "replace-entry":
+                                frame.observations[key] = (observed, lambda: ())
+                            elif kind == "replace-index":
+                                object.__setattr__(frame, "observations", {})
+                            else:
+                                entry = frame.observations.pop(key)
+                                frame.observations[("other",)] = entry
+                            if direct:
+                                observed.require_current(self.roots)
+                    self.assertFalse(frame.active)
+                    self.assertEqual(frame.observations, {})
+                    self.assertIsNone(catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get())
+
+    def test_allowed_root_and_scope_anchor_replacement_refuses(self):
+        for field in ("allowed_roots", "_lookup", "_integrity", "_close", "_retire"):
+            for raw in (False, True):
+                with self.subTest(field=field, raw=raw):
+                    with self.assertRaises(catalog.CliFailure):
+                        with catalog.read_only_flavor_graph_observations(
+                            allowed_roots=self.roots
+                        ):
+                            catalog.scoped_flavor_graph_observation(self.roots)
+                            frame = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+                            value = () if field == "allowed_roots" else lambda: None
+                            if raw:
+                                object.__setattr__(frame, field, value)
+                            else:
+                                setattr(frame, field, value)
+                    self.assertFalse(frame.active)
+
+    def test_original_closure_values_refuse_coordinated_baseline_edits(self):
+        for kind in ("content", "labels", "membership", "limits"):
+            for scoped in (False, True):
+                with self.subTest(kind=kind, scoped=scoped):
+                    path = self.roots[0] / "os-macos/flavor.md"
+                    original_bytes = path.read_bytes()
+                    try:
+
+                        def mutate(
+                            observed,
+                            path=path,
+                            kind=kind,
+                            original_bytes=original_bytes,
+                        ):
+                            closure = next(
+                                c
+                                for c in observed._closures
+                                if any(e.path == path for e in c._entries.values())
+                            )
+                            entry = next(
+                                e for e in closure._entries.values() if e.path == path
+                            )
+                            if kind == "content":
+                                changed = original_bytes + b"\n"
+                                path.write_bytes(changed)
+                                object.__setattr__(entry, "content", changed)
+                            elif kind == "labels":
+                                object.__setattr__(entry, "labels", ("changed",))
+                            elif kind == "membership":
+                                closure._entries.clear()
+                            else:
+                                closure.maximum_total_bytes += 1
+
+                        if scoped:
+                            with self.assertRaises((ValueError, catalog.CliFailure)):
+                                with catalog.read_only_flavor_graph_observations(
+                                    allowed_roots=self.roots
+                                ):
+                                    mutate(
+                                        catalog.scoped_flavor_graph_observation(
+                                            self.roots
+                                        )
+                                    )
+                        else:
+                            observed = self.capture()
+                            mutate(observed)
+                            with self.assertRaises((ValueError, catalog.CliFailure)):
+                                observed.require_current(self.roots)
+                    finally:
+                        path.write_bytes(original_bytes)
+
+    def test_direct_manual_observation_checks_primitive_metadata_on_every_call(self):
+        observed = self.capture()
+        object.__setattr__(observed._metadata[0], "revision_digest", 7)
+        with self.assertRaises(catalog.CliFailure):
+            observed.require_current(self.roots)
+
+    def test_graph_direct_close_uses_independently_retained_metadata_fence(self):
+        original_component = graph._component_authoring
+        original_current = catalog.LegacyFlavorGraphObservation.require_current
+        swapped = False
+        closing_checks = []
+        with self.assertRaises(catalog.CliFailure) as caught:
+            with catalog.read_only_flavor_graph_observations(allowed_roots=self.roots):
+                observed = catalog.scoped_flavor_graph_observation(self.roots)
+
+                def component(*args, **kwargs):
+                    nonlocal swapped
+                    result = original_component(*args, **kwargs)
+                    if not swapped:
+                        object.__setattr__(
+                            observed._metadata[0], "flavor_id", "changed"
+                        )
+                        swapped = True
+                    return result
+
+                def current(observation, roots):
+                    if swapped:
+                        closing_checks.append(True)
+                    return original_current(observation, roots)
+
+                with (
+                    patch.object(graph, "_component_authoring", side_effect=component),
+                    patch.object(
+                        catalog.LegacyFlavorGraphObservation,
+                        "require_current",
+                        autospec=True,
+                        side_effect=current,
+                    ),
+                ):
+                    graph.project_authority_graph(
+                        self.root, include_component_locks=False
+                    )
+        self.assertTrue(swapped)
+        self.assertTrue(closing_checks)
+        self.assertEqual(caught.exception.code, "generate.input_capture_drift")
+
+    def test_bound_final_close_rejects_changed_bytes_references_and_membership(self):
+        for kind in ("bytes", "reference", "member"):
+            changed = None
+            added = self.roots[0] / "added-during-consumption"
+            try:
+                expected = catalog.CliFailure if kind == "member" else ValueError
+                with self.subTest(kind=kind), self.assertRaises(expected):
+                    with catalog.read_only_flavor_graph_observations(
+                        allowed_roots=self.roots
+                    ):
+                        observed = catalog.scoped_flavor_graph_observation(self.roots)
+                        if kind == "member":
+                            shutil.copytree(self.roots[0] / "os-macos", added)
+                        else:
+                            path = self.roots[0] / "os-macos/flavor.md"
+                            if kind == "reference":
+                                path = next(
+                                    entry.path
+                                    for closure in observed._closures
+                                    for entry in closure._entries.values()
+                                    if entry.path.name
+                                    not in {"flavor.md", "literate.project.json"}
+                                )
+                            changed = (path, path.read_bytes())
+                            path.write_bytes(changed[1] + b"\n")
+            finally:
+                if changed is not None:
+                    changed[0].write_bytes(changed[1])
+                if added.exists():
+                    shutil.rmtree(added)
+
+    def test_final_validation_cannot_capture_a_new_key(self):
+        original = catalog.LegacyFlavorGraphObservation.require_current
+        closing = []
+
+        def check(observed, roots):
+            frame = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+            if frame.closing:
+                closing.append(True)
+                self.assertIsNone(
+                    catalog.scoped_flavor_graph_observation((self.root / "never-read",))
+                )
+            return original(observed, roots)
+
+        with patch.object(
+            catalog.LegacyFlavorGraphObservation,
+            "require_current",
+            autospec=True,
+            side_effect=check,
+        ):
+            with catalog.read_only_flavor_graph_observations():
+                catalog.scoped_flavor_graph_observation(self.roots)
+        self.assertEqual(closing, [True])
 
     def test_read_only_scopes_share_parsing_but_keep_graphs_and_calls_independent(self):
         with (

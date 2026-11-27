@@ -8,10 +8,15 @@ import shutil
 import tempfile
 import threading
 from collections.abc import Callable, Mapping
+from dataclasses import asdict, replace
 from pathlib import Path, PurePosixPath
 
 from literate_ai.application.component_generation_preparation import (
     PreparedComponentGenerationNode,
+)
+from literate_ai.application.standard_node_sdk_admission import (
+    is_node_sdk,
+    require_node_sdk_source,
 )
 from literate_ai.application.standard_project_lifecycle import (
     rebind_standard_source_checkpoint_generation,
@@ -38,6 +43,24 @@ class StandardLifecycleCheckpointError(RuntimeError):
 
 
 _STAGE_INDEX = {stage: index for index, stage in enumerate(StandardLifecycleStage)}
+
+
+def _sdk_pending_values(execution, prepared):
+    """Retain primitive facts as well as original object pointers across callbacks."""
+    return (
+        id(execution),
+        execution.identity.uri,
+        id(prepared),
+        id(prepared.definition),
+        id(prepared.plan),
+        prepared.plan.identity.uri,
+        prepared.plan.component_revision.uri,
+        prepared.plan.generation_key.identity.uri,
+        id(prepared.workspace),
+        canonical_identity(asdict(prepared.workspace)).uri,
+        prepared.recipe.identity,
+        tuple(prepared.recipe.resolved_inputs),
+    )
 
 
 class FilesystemStandardLifecycleCheckpointStore:
@@ -71,6 +94,9 @@ class FilesystemStandardLifecycleCheckpointStore:
         self.source_trees = source_trees
         self._attempts: dict[str, StandardLifecycleAttemptEvidence] = {}
         self._source_files: dict[str, tuple[CachedSourceFile, ...]] = {}
+        self._pending_sdk: dict[str, tuple] = {}
+        self._binding_sdk: dict[str, tuple] = {}
+        self._binding_faults: set[str] = set()
         self._lock = threading.RLock()
 
     @staticmethod
@@ -194,6 +220,11 @@ class FilesystemStandardLifecycleCheckpointStore:
                 "checkpoint attempt requires every and only prepared Component"
             )
         with self._lock:
+            if self._binding_sdk:
+                self._binding_faults.update(self._binding_sdk)
+                raise StandardLifecycleCheckpointError(
+                    "SDK checkpoint binding is reentrant"
+                )
             for plan in execution_plan.generation_plans:
                 key = self._key(execution_plan.identity, plan.component_revision)
                 latest = self._read_head(
@@ -210,6 +241,21 @@ class FilesystemStandardLifecycleCheckpointStore:
                     raise StandardLifecycleCheckpointError(
                         "prepared checkpoint recipe has no content identity"
                     )
+                if is_node_sdk(prepared):
+                    # Provider admission binds SDK recipe/context later. Do not
+                    # publish an attempt for a recipe that will never execute.
+                    self._pending_sdk[key] = (
+                        execution_plan,
+                        prepared,
+                        recipe_identity,
+                        latest,
+                        previous_attempt,
+                        _sdk_pending_values(execution_plan, prepared),
+                        (prepared.definition, prepared.plan, prepared.workspace),
+                    )
+                    self._attempts.pop(key, None)
+                    self._source_files.pop(key, None)
+                    continue
                 attempt = StandardLifecycleAttemptEvidence(
                     execution_plan.identity,
                     plan.component_revision,
@@ -221,6 +267,138 @@ class FilesystemStandardLifecycleCheckpointStore:
                     None if latest is None else latest.identity,
                 )
                 self._publish_attempt(key, attempt)
+
+    def start_node_sdk_attempt(self, execution_plan, prepared, invocation) -> None:
+        """Publish one bound attempt inside the original live SDK admission."""
+        from literate_ai.adapters.node_sdk_generation import (
+            BoundNodeSDKGenerationInvocation,
+        )
+
+        if type(invocation) is not BoundNodeSDKGenerationInvocation:
+            raise TypeError(
+                "checkpoint SDK attempt requires an original bound invocation"
+            )
+        bound = invocation.prepared
+        key = self._key(execution_plan.identity, prepared.plan.component_revision)
+        with self._lock:
+            if key in self._binding_sdk:
+                self._binding_faults.add(key)
+                raise StandardLifecycleCheckpointError(
+                    "SDK checkpoint binding is reentrant"
+                )
+            pending = self._pending_sdk.get(key)
+            if pending is None:
+                raise StandardLifecycleCheckpointError(
+                    "SDK checkpoint attempt is not pending"
+                )
+            (
+                original_execution,
+                original,
+                recipe_identity,
+                latest,
+                previous,
+                values,
+                original_objects,
+            ) = pending
+            bound_values = _sdk_pending_values(execution_plan, bound)
+            invocation_identity = invocation.identity
+            self._binding_sdk[key] = pending
+            self._binding_faults.discard(key)
+
+            def require_pending(*, published=None, published_identity=None):
+                # Filesystem observations precede the final primitive/object fence.
+                current_head = self._read_head(
+                    execution_plan.identity, prepared.plan.component_revision
+                )
+                current_attempt = self._read_attempt_head(
+                    execution_plan.identity, prepared.plan.component_revision
+                )
+                inputs = prepared.recipe.resolved_inputs
+                bound_inputs = bound.recipe.resolved_inputs
+                extras = bound_inputs[len(inputs) :]
+                if (
+                    key in self._binding_faults
+                    or self._binding_sdk.get(key) is not pending
+                    or self._pending_sdk.get(key) is not pending
+                    or execution_plan is not original_execution
+                    or prepared is not original
+                    or any(
+                        a is not b
+                        for a, b in zip(
+                            (prepared.definition, prepared.plan, prepared.workspace),
+                            original_objects,
+                            strict=True,
+                        )
+                    )
+                    or _sdk_pending_values(execution_plan, prepared) != values
+                    or _sdk_pending_values(execution_plan, bound) != bound_values
+                    or invocation.identity != invocation_identity
+                    or invocation.base_recipe != recipe_identity
+                    or bound.plan is not prepared.plan
+                    or bound.workspace is not prepared.workspace
+                    or bound.definition is not prepared.definition
+                    or bound.recipe.component_lock_identity
+                    != execution_plan.component_lock_identity
+                    or bound_inputs[: len(inputs)] != inputs
+                    or len(extras) not in (1, 2)
+                    or extras[0] != ("node_sdk_profile", invocation.profile.uri)
+                    or (
+                        len(extras) == 2 and extras[1][0] != "node_sdk_command_contract"
+                    )
+                    or replace(
+                        bound.recipe, node_sdk_providers=(), resolved_inputs=inputs
+                    )
+                    != prepared.recipe
+                    or current_head != latest
+                    or current_attempt != (previous if published is None else published)
+                    or (
+                        published is not None
+                        and (
+                            published.identity != published_identity
+                            or self._attempts.get(key) is not published
+                        )
+                    )
+                ):
+                    raise StandardLifecycleCheckpointError(
+                        "SDK checkpoint differs from original pending preparation"
+                    )
+
+            try:
+                require_pending()
+                if not require_node_sdk_source(execution_plan, bound):
+                    raise StandardLifecycleCheckpointError(
+                        "SDK checkpoint requires live admission"
+                    )
+                require_pending()
+                if not require_node_sdk_source(execution_plan, bound):
+                    raise StandardLifecycleCheckpointError(
+                        "SDK checkpoint admission ended"
+                    )
+                require_pending()
+                plan = prepared.plan
+                published = StandardLifecycleAttemptEvidence(
+                    execution_plan.identity,
+                    plan.component_revision,
+                    plan.identity,
+                    plan.generation_key.identity,
+                    ContentIdentity.parse_uri(bound.recipe.identity),
+                    1 if previous is None else previous.attempt + 1,
+                    None if previous is None else previous.identity,
+                    None if latest is None else latest.identity,
+                )
+                published_identity = published.identity
+                self._publish_attempt(key, published)
+                require_pending(
+                    published=published, published_identity=published_identity
+                )
+            finally:
+                # Failure retires this pending allocation. A new process attempt
+                # must capture fresh original inputs; never adopt replacement state.
+                if self._pending_sdk.get(key) is pending:
+                    del self._pending_sdk[key]
+                if self._binding_sdk.get(key) is pending:
+                    del self._binding_sdk[key]
+                self._binding_faults.discard(key)
 
     def _publish_attempt(
         self, key: str, attempt: StandardLifecycleAttemptEvidence
@@ -252,6 +430,11 @@ class FilesystemStandardLifecycleCheckpointStore:
 
         key = self._key(execution_plan_identity, component_revision)
         with self._lock:
+            if key in self._binding_sdk:
+                self._binding_faults.add(key)
+                raise StandardLifecycleCheckpointError(
+                    "SDK checkpoint binding is reentrant"
+                )
             current = self._attempts.get(key)
             if current is None:
                 raise StandardLifecycleCheckpointError(
@@ -411,6 +594,10 @@ class FilesystemStandardLifecycleCheckpointStore:
     ) -> SourceGenerationResumeCandidate | None:
         """Restore source bytes, then bind them to the newly allocated workspace."""
 
+        if is_node_sdk(prepared):
+            # SDK checkpoints are lineage/audit DATA, never continuing live
+            # provider/oracle/grant ownership for historical source recovery.
+            return None
         with self._lock:
             checkpoint = self._read_head(
                 execution_plan.identity, prepared.plan.component_revision

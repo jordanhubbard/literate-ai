@@ -220,9 +220,13 @@ class CachePublicationTransaction:
             if not retained:
                 _close_handles((held, parent), operation_error)
 
-    def remove(self, destination: Path, *, staging: Path) -> None:
+    def remove(
+        self, destination: Path, *, staging: Path, require_original_read=None
+    ) -> None:
         """Retire one pointer, retaining exact private undo custody if guarded."""
         self.require_current()
+        if require_original_read is not None:
+            require_original_read()
         if not self.guarded:
             destination.unlink()
             return

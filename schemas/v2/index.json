@@ -227,6 +227,15 @@
       ]
     },
     {
+      "file": "node-sdk-contracts.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:node-sdk-contracts",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:library-import-surface@3",
+        "urn:literate-ai:schema:v2:node-sdk-export-declaration@1",
+        "urn:literate-ai:schema:v2:standard-node-sdk-command-profile@1"
+      ]
+    },
+    {
       "file": "component-commands.schema.json",
       "root_id": "urn:literate-ai:schema:v2:component-command-contracts",
       "public_ids": [
@@ -235,6 +244,8 @@
         "urn:literate-ai:schema:v2:multi-entrypoint-component-semantics@1",
         "urn:literate-ai:schema:v2:library-capability-import@1",
         "urn:literate-ai:schema:v2:library-import-surface@1",
+        "urn:literate-ai:schema:v2:library-import-surface@2",
+        "urn:literate-ai:schema:v2:commonjs-module-declaration@1",
         "urn:literate-ai:schema:v2:library-consumer-binding@1"
       ]
     },

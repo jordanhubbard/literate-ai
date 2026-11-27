@@ -144,6 +144,7 @@ class CycloneDxLifecycleResolver:
         managed_graph: CycloneDxManagedGraph,
         observer: PortableHostDependencyObserver,
         evidence_path: Path,
+        write_evidence: Callable[[Path, bytes], None] | None = None,
         additional_components: Sequence[Mapping[str, object]] = (),
         additional_edges: Sequence[tuple[str, str]] = (),
         repository_resolutions: Sequence[CycloneDxRepositorySourceResolution] = (),
@@ -160,6 +161,7 @@ class CycloneDxLifecycleResolver:
         self.managed_graph = managed_graph
         self.observer = observer
         self.evidence_path = evidence_path
+        self.write_evidence = write_evidence
         self.additional_components = tuple(dict(item) for item in additional_components)
         self.additional_edges = tuple(additional_edges)
         self.repository_resolutions = tuple(repository_resolutions)
@@ -441,17 +443,22 @@ class CycloneDxLifecycleResolver:
                 "sbom.transition-binding-mismatch",
                 "source-to-resolved validation returned different CycloneDX bindings",
             )
-        self.evidence_path.parent.mkdir(parents=True, exist_ok=True)
-        descriptor, temporary_name = tempfile.mkstemp(
-            prefix=f".{self.evidence_path.name}.", dir=self.evidence_path.parent
-        )
-        os.close(descriptor)
-        temporary = Path(temporary_name)
-        try:
-            temporary.write_bytes(resolved_content)
-            os.replace(temporary, self.evidence_path)
-        finally:
-            temporary.unlink(missing_ok=True)
+        if self.write_evidence is not None:
+            # A lifecycle owner may retain exclusive original-file custody.
+            # This trusted host callback grants no resolver or runtime authority.
+            self.write_evidence(self.evidence_path, resolved_content)
+        else:
+            self.evidence_path.parent.mkdir(parents=True, exist_ok=True)
+            descriptor, temporary_name = tempfile.mkstemp(
+                prefix=f".{self.evidence_path.name}.", dir=self.evidence_path.parent
+            )
+            os.close(descriptor)
+            temporary = Path(temporary_name)
+            try:
+                temporary.write_bytes(resolved_content)
+                os.replace(temporary, self.evidence_path)
+            finally:
+                temporary.unlink(missing_ok=True)
         identity_material: dict[str, object] = {
             "resolver_id": self.resolver_id,
             "effective_revision_digest": artifact["effective_revision_digest"],

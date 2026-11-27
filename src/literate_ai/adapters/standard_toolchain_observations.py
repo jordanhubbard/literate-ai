@@ -16,6 +16,7 @@ _ROLES = frozenset(
         "python",
         "node",
         "npm",
+        "typescript",
         "rust",
         "go",
         "cpp",
@@ -29,6 +30,8 @@ _ROLES = frozenset(
         "zig-cc",
     )
 )
+MAX_STANDARD_TOOL_ROLES = len(_ROLES)
+_NODE_DEPENDENT_ROLES = frozenset({"npm", "typescript"})
 _SCHEMA = "literate-ai/standard-worker-tool-observations@1"
 
 
@@ -87,10 +90,12 @@ class StandardToolObservation:
             sorted(self.environment)
         ):
             raise ValueError("tool environment must be unique and canonical")
-        if (self.role == "npm") != isinstance(self.node_identity, ContentIdentity):
-            raise ValueError("only npm requires a Node tool identity")
-        if self.role != "npm" and self.node_identity is not None:
-            raise ValueError("non-npm tool cannot bind Node")
+        if (self.role in _NODE_DEPENDENT_ROLES) != isinstance(
+            self.node_identity, ContentIdentity
+        ):
+            raise ValueError("npm and TypeScript require a Node tool identity")
+        if self.role not in _NODE_DEPENDENT_ROLES and self.node_identity is not None:
+            raise ValueError("independent tool cannot bind Node")
 
     def to_dict(self):
         return dict(
@@ -131,11 +136,12 @@ class StandardToolObservations:
             previous = by_identity.setdefault(tool.toolchain_identity, metadata)
             if previous != metadata:
                 raise ValueError("one tool identity has inconsistent observations")
-        if "npm" in by_role and (
-            "node" not in by_role
-            or by_role["npm"].node_identity != by_role["node"].toolchain_identity
-        ):
-            raise ValueError("npm observation differs from selected Node")
+        for role in _NODE_DEPENDENT_ROLES & by_role.keys():
+            if (
+                "node" not in by_role
+                or by_role[role].node_identity != by_role["node"].toolchain_identity
+            ):
+                raise ValueError(f"{role} observation differs from selected Node")
         if len(self.to_bytes()) > MAX_TOOL_OBSERVATION_BYTES:
             raise ValueError("tool observation document exceeds bound")
 
@@ -253,7 +259,7 @@ def capture_standard_tool_observations(platform, tools, *, require_current):
                 version,
                 numbers,
                 ContentIdentity.parse_uri(tool.node.identity)
-                if role == "npm"
+                if role in _NODE_DEPENDENT_ROLES
                 else None,
             )
         )

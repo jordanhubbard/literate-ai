@@ -5,9 +5,9 @@ engineering, host preparation, document and presentation generation, instruction
 videos, and operator integrations. Start with the task map below; the complete
 inventory follows it.
 
-This inventory covers the **89 canonical `SKILL.md` files under `skills/`** in the
+This inventory covers the **90 canonical `SKILL.md` files under `skills/`** in the
 development tree, including the optional A2A guidance added on 2026-11-12:
-**40 agent**, **38 specification-to-source**, and **11 source-to-specification** skills. A catalog entry
+**40 agent**, **39 specification-to-source**, and **11 source-to-specification** skills. A catalog entry
 means guidance exists, not that every target or workflow has passed native acceptance.
 See [current features](current-features.md) for release posture and
 [skill architecture](../architecture/skills.md) for enforcement details.
@@ -170,6 +170,7 @@ a skill can still contribute to several tasks in the task map.
 | [rust-portable-json-application](https://github.com/jordanhubbard/literate-ai/blob/c093657e8839d2adbcb4858a1195dcec9dd29dcc/skills/specification-to-source/rust-portable-json-application/SKILL.md) | Generate Rust applications using direct rustc or the selected Cargo build. |
 | [swift-portable-json-application](https://github.com/jordanhubbard/literate-ai/blob/c093657e8839d2adbcb4858a1195dcec9dd29dcc/skills/specification-to-source/swift-portable-json-application/SKILL.md) | Generate Swift applications and native runtime tests. |
 | [typescript-portable-application](https://github.com/jordanhubbard/literate-ai/blob/c093657e8839d2adbcb4858a1195dcec9dd29dcc/skills/specification-to-source/typescript-portable-application/SKILL.md) | Generate Node.js TypeScript applications and native runtime tests. |
+| `typescript-node-sdk` (`skills/specification-to-source/typescript-node-sdk/SKILL.md`) | Generate pure TypeScript library source and built-SDK tests for the explicit SDK Flavors; selection is not lifecycle acceptance. |
 | [zig-portable-application](https://github.com/jordanhubbard/literate-ai/blob/c093657e8839d2adbcb4858a1195dcec9dd29dcc/skills/specification-to-source/zig-portable-application/SKILL.md) | Generate portable Zig applications and native runtime tests. |
 
 ### Build systems, containers and acceleration

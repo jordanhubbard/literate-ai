@@ -27,6 +27,9 @@ from literate_ai.application.source_generation_scheduling import (
 from literate_ai.application.standard_lifecycle_ports import (
     AdmittedBuildIntentDispatcher,
 )
+from literate_ai.application.standard_node_sdk_admission import (
+    NodeSDKLifecycleAdmission,
+)
 from literate_ai.application.standard_project_lifecycle import (
     AcceptedSourceCachePublisher,
     BuildAuthorizer,
@@ -256,6 +259,7 @@ class StandardProjectApplicationService:
         live_run: LiveNativeRootRun | None = None,
         project_authority_identity: ContentIdentity | None = None,
         retained_source_identity: ContentIdentity | None = None,
+        skip_node_sdk_cache_lookup: bool = False,
     ) -> StandardProjectLifecycleResult:
         if not isinstance(prepared, PreparedExecutableProject):
             raise TypeError("prepared must be a PreparedExecutableProject")
@@ -300,6 +304,7 @@ class StandardProjectApplicationService:
                 if live_run is not None
                 else {}
             ),
+            skip_node_sdk_cache_lookup=skip_node_sdk_cache_lookup,
         )
         if live_run is not None:
             live_run.require_current()
@@ -363,6 +368,8 @@ def assemble_standard_project_application_service(
     candidate_repair_port: StandardCandidateRepairPort | None = None,
     generated_candidate_verifier: GeneratedCandidateVerifier | None = None,
     native_root_continuation_factory: Callable | None = None,
+    node_sdk_admissions: Mapping[str, NodeSDKLifecycleAdmission] | None = None,
+    node_sdk_source_lookup: Callable | None = None,
     clock: Callable[[], datetime] = lambda: datetime.now(UTC),
 ) -> StandardProjectApplicationService:
     """Assemble the public Standard service without a CLI-private dependency."""
@@ -401,6 +408,8 @@ def assemble_standard_project_application_service(
                 if native_root_continuation_factory is not None
                 else {}
             ),
+            node_sdk_admissions=node_sdk_admissions,
+            node_sdk_source_lookup=node_sdk_source_lookup,
             clock=clock,
         )
     )

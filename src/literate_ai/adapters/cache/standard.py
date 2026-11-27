@@ -357,41 +357,54 @@ class FilesystemStandardAcceptedSourcePublisher:
         self, publication: StandardAcceptedSourcePublication
     ) -> ContentIdentity:
         from literate_ai.application.native_root_run import current_native_root_run
+        from literate_ai.application.standard_node_sdk_admission import (
+            capture_node_sdk_lifecycle,
+        )
 
         original_run = current_native_root_run()
+        sdk_guard = capture_node_sdk_lifecycle()
+
+        def require_original():
+            if original_run is not None:
+                original_run.require_current()
+            if sdk_guard is not None:
+                sdk_guard()
+            if original_run is not None:
+                original_run.require_current()
+
         constraint = (
             {
-                "require_current": original_run.require_current,
+                "require_current": require_original,
                 "remaining": original_run.remaining,
             }
             if original_run is not None
             else {}
         )
         _key, entry = self._build_entry(publication)
-        if original_run is not None:
-            original_run.require_current()
+        if original_run is not None or sdk_guard is not None:
+            require_original()
         self.cache.publish(entry, caller_cas=self.caller_cas, **constraint)
-        if original_run is not None:
-            original_run.require_current()
+        if original_run is not None or sdk_guard is not None:
+            require_original()
         if self.source_admission is not None:
             # An explicitly reviewed live retained qualification supersedes its
             # prior exact-key membership. Immutable older evidence is retained.
             self.cache.retire_other_memberships(_key, keep=entry.identity, **constraint)
-        if original_run is not None:
-            original_run.require_current()
+        if original_run is not None or sdk_guard is not None:
+            require_original()
         membership_identity = publication.membership.identity
-        if original_run is not None:
-            original_run.require_current()
+        if original_run is not None or sdk_guard is not None:
+            require_original()
         published_identity = entry.identity
         mapping = self._published_entry_by_membership
-        if original_run is None:
+        if original_run is None and sdk_guard is None:
             mapping[membership_identity] = published_identity
             return membership_identity
         absent = object()
         prior = mapping.get(membership_identity, absent)
         try:
             mapping[membership_identity] = published_identity
-            original_run.require_current()
+            require_original()
         except BaseException as original_error:
             try:
                 if mapping.get(membership_identity, absent) is published_identity:
@@ -551,19 +564,33 @@ class FilesystemStandardAcceptedSourcePublisher:
         """
 
         from literate_ai.application.native_root_run import current_native_root_run
+        from literate_ai.application.standard_node_sdk_admission import (
+            capture_node_sdk_lifecycle,
+        )
 
         original_run = current_native_root_run()
+        sdk_guard = capture_node_sdk_lifecycle()
+
+        def require_original():
+            if original_run is not None:
+                original_run.require_current()
+            if sdk_guard is not None:
+                sdk_guard()
+            if original_run is not None:
+                original_run.require_current()
+
         key, entry = self._build_entry(publication)
         constraint = {}
-        if original_run is not None:
-            original_run.require_current()
-            constraint = {
-                "require_current": original_run.require_current,
-                "remaining": original_run.remaining,
-            }
+        if original_run is not None or sdk_guard is not None:
+            require_original()
+            if original_run is not None:
+                constraint = {
+                    "require_current": require_original,
+                    "remaining": original_run.remaining,
+                }
         self.cache.retire_other_memberships(key, keep=entry.identity, **constraint)
-        if original_run is not None:
-            original_run.require_current()
+        if original_run is not None or sdk_guard is not None:
+            require_original()
 
 
 class FilesystemStandardSourceAdmissionPublisher:
