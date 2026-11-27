@@ -1559,5 +1559,34 @@
     "new_fixture_development_failures": "r1-r4 retained: new assertions initially confused owned/catalog placement views, expected unchanged relocated Markdown references, and assumed captured data/identity coordinate maps conferred movement authority. New assertions corrected against actual documented owner semantics; no original assertion or product guard changed.",
     "driver_pin": "sha256:d1d85f3889635945fbabe3a39006b6bd49e363699b698dd81df2930104adc79f",
     "qualification": "Full wheel r14 remains running on frozen 5f3f850e9 (fixture repair only). This later source repair still requires new immutable installed artifact and actual public historical plans. All 83 goals and full release acceptance remain open as recorded; no prepare/tag/publish."
+  },
+  "qualification_followup_r15": {
+    "candidate": {
+      "source": {
+        "git_revision": "bf6551038c5051c19b192e6e8cc79e4fb02169ff",
+        "repository_url": "https://github.com/jordanhubbard/literate-ai",
+        "schema": "literate-ai/distribution-origin@1"
+      },
+      "wheel_sha256": "81e1fe4f49537f8c9988660e35aa103d4646b2c7f497bfef2405ff4cacb9e0a1",
+      "framework_distribution_identity": "sha256:52bf69177713d63ff32b9f2e8f60722a740c03bd0229b21adcaf5250e405b755",
+      "package_members_exact": 1637,
+      "prefix": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r15/environment",
+      "whole_gate": "not run; provisional build/install only"
+    },
+    "review": "verification/release-1.4-followup/historical-layout-bf6-framework-plan-review-r1.json",
+    "public_historical_plans": {
+      "root_exit": 0,
+      "descendant_exit": 0,
+      "stdout_byte_identical": true,
+      "plan_identity": "sha256:d042ffc42dcb2ee60a6950f5e331157e1173645d63c6afb767070fb9d4e3c755",
+      "applicable": false,
+      "sole_required_owner": {
+        "path": "litai/literate.release.json",
+        "owner": "original-reference-consumer"
+      }
+    },
+    "preservation": "Exact original 613 files, 471 directories and three Git facts remain unchanged. Existing 35 action preimages/modes exact and original 28 movement destinations plus finite creation absent. No apply attempted.",
+    "next_action": "Included issue501 under existing RELEASE-INTEGRATION-005: add reviewed typed resident-policy reference transition for contributions.roadmap_goal_manifest to its same proved ledger destination, preserving all other policy semantics and goals. Existing framework scope rejects approved-reference flags; no manual prepointing/bypass.",
+    "limits": "Provisional build/install only for bf6551038; full wheel r14 still runs on frozen5f3f850e9. Actual placement, renewal/finalization, full installed/native/source/platform/generation/FreeBSD/collateral/contributions/main/publication acceptance remain open. All83 immutable goals retained."
   }
 }

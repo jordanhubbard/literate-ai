@@ -24427,6 +24427,20 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Resident release-policy reference (open integration subtask):**
+  [GitHub issue #501](https://github.com/jordanhubbard/literate-ai/issues/501).
+  Actual installed `bf6551038` framework plans from the historical application
+  root and implementation descendant now agree exactly, advancing past the
+  recorded-producer and imported-candidate defects. They remain inapplicable:
+  the resident policy's roadmap-goal manifest points to the original document
+  that the plan would place under `litai/`. The existing framework scope has no
+  approved typed policy-consumer transition. Next implement and qualify that
+  reviewed reference owner, preserving every other policy field and all release
+  goals, then repeat the actual public plans and review before application.
+  Independent review verifies the provisional wheel's 1,637 package members,
+  all 35 existing action preimages, absent destinations, and unchanged 613 files,
+  471 directories and three Git facts. This does not qualify the whole wheel or
+  authorize bypassing its sole reference-consumer blocker.
 - **Mounted-storage Git discovery (source qualified; landing/platform open):**
   [GitHub issue #500](https://github.com/jordanhubbard/literate-ai/issues/500).
   A native Git
@@ -24464,15 +24478,19 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   record transformations and 249 saved originals. Native source, Git, original
   policy/driver and receipt bytes remain preserved. Twelve held blockers and
   later framework/source finalization remain open; no missing historical
-  Component target is invented for renewal. The next framework placement plan
-  refuses inspection from both root and implementation descendant
+  Component target is invented for renewal. Earlier framework placement plans
+  refused inspection from both root and implementation descendant
   ([GitHub issue #499](https://github.com/jordanhubbard/literate-ai/issues/499)): six original
   converter files match, while the genuine 1.3.1 Make wrapper uses the older
   quoting format. Exact supported-producer recognition now passes 21 projection
   and 59 source/custody controls; the current default identity and all seven
   original/prospective bytes remain preserved. Independent review closes the
   transitive callback-code and lexical-default boundaries. New installed public
-  planning, apply and downstream renewal remain open.
+  plans now advance past this comparison. Their original initialized-item
+  fallback also wrongly requested a proof for an imported contained manifest;
+  the source-coordinate exclusion now passes 11 selection and 19 proof controls
+  with zero skips. The actual installed plans agree but retain the policy
+  reference blocker above. Apply and downstream renewal remain open.
 - **Qualification fixture follow-up:** The real 65,536-entry negative now uses
   deliberate decoded-entry pressure through its original issued reader, keeping
   the original allowance, metadata ceiling and every refusal/source/journal

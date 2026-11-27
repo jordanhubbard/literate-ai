@@ -1,0 +1,441 @@
+{
+  "schema": "literate-ai/independent-historical-framework-plan-review@1",
+  "candidate": {
+    "source": {
+      "git_revision": "bf6551038c5051c19b192e6e8cc79e4fb02169ff",
+      "repository_url": "https://github.com/jordanhubbard/literate-ai",
+      "schema": "literate-ai/distribution-origin@1"
+    },
+    "wheel_sha256": "81e1fe4f49537f8c9988660e35aa103d4646b2c7f497bfef2405ff4cacb9e0a1",
+    "framework_distribution_identity": "sha256:52bf69177713d63ff32b9f2e8f60722a740c03bd0229b21adcaf5250e405b755",
+    "package_members_exact": 1637,
+    "prefix": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r15/environment",
+    "whole_gate": "not run; provisional build/install only"
+  },
+  "independent_bytes_and_preservation": {
+    "wheel_sha256": "81e1fe4f49537f8c9988660e35aa103d4646b2c7f497bfef2405ff4cacb9e0a1",
+    "package_members": 1637,
+    "installed_byte_mismatches": [],
+    "source_archive_byte_mismatches": [],
+    "installed_origin": {
+      "git_revision": "bf6551038c5051c19b192e6e8cc79e4fb02169ff",
+      "repository_url": "https://github.com/jordanhubbard/literate-ai",
+      "schema": "literate-ai/distribution-origin@1"
+    },
+    "project_preservation": {
+      "files": {
+        "count": 613,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "directories": {
+        "count": 471,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "Git": {
+        "count": 3,
+        "changed": []
+      }
+    }
+  },
+  "independent_distribution_and_pin": {
+    "installed_distribution_identity": "sha256:52bf69177713d63ff32b9f2e8f60722a740c03bd0229b21adcaf5250e405b755",
+    "recorded_distribution_members": 1813,
+    "source_archive_driver_configured_and_computed": "sha256:d1d85f3889635945fbabe3a39006b6bd49e363699b698dd81df2930104adc79f"
+  },
+  "plan": {
+    "identity": "sha256:d042ffc42dcb2ee60a6950f5e331157e1173645d63c6afb767070fb9d4e3c755",
+    "root_descendant_exact_equal": true,
+    "stdout_bytes_equal": true,
+    "public_exit": {
+      "root": {
+        "argv": [
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r15/environment/bin/python",
+          "-I",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r15/environment/bin/litai",
+          "--json",
+          "project",
+          "layout",
+          "plan",
+          "--migration",
+          "--place-framework-authority",
+          "--project",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+        ],
+        "exit": 0,
+        "seconds": 13.629077646008227,
+        "timeout_seconds": 1800
+      },
+      "descendant": {
+        "argv": [
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r15/environment/bin/python",
+          "-I",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r15/environment/bin/litai",
+          "--json",
+          "project",
+          "layout",
+          "plan",
+          "--migration",
+          "--place-framework-authority",
+          "--project",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation"
+        ],
+        "exit": 0,
+        "seconds": 13.588091733981855,
+        "timeout_seconds": 1800
+      }
+    },
+    "applicable": false,
+    "full_containment": false,
+    "action_counts": {
+      "placements": 10,
+      "owned_placements": 18,
+      "resident_edits": 3,
+      "reference_edits": 0,
+      "delegate_edits": 4,
+      "owned_creations": 1
+    },
+    "required_owners": [
+      {
+        "owner": "original-reference-consumer",
+        "path": "litai/literate.release.json",
+        "reason": "resident application/import reference needs original reviewed transformation"
+      }
+    ],
+    "renewal": [
+      "normal destination producer currentness remains required",
+      "documentation authority requires a fresh review after placement"
+    ],
+    "current_preimages_and_modes": [
+      {
+        "group": "placements",
+        "source": "components/legacy-project-wrapper/component.lock.json",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/components/legacy-project-wrapper/component.lock.json",
+        "destination_absent": true
+      },
+      {
+        "group": "placements",
+        "source": "components/legacy-project-wrapper/component.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/components/legacy-project-wrapper/component.md",
+        "destination_absent": true
+      },
+      {
+        "group": "placements",
+        "source": "components/legacy-project-wrapper/component.resolution-audit.host.json",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/components/legacy-project-wrapper/component.resolution-audit.host.json",
+        "destination_absent": true
+      },
+      {
+        "group": "placements",
+        "source": "flavors/legacy-project-shim/flavor.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/flavors/legacy-project-shim/flavor.md",
+        "destination_absent": true
+      },
+      {
+        "group": "placements",
+        "source": "flavors/legacy-project-shim/openspec/spec.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/flavors/legacy-project-shim/openspec/spec.md",
+        "destination_absent": true
+      },
+      {
+        "group": "placements",
+        "source": "litai.harness.mk",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/litai.harness.mk",
+        "destination_absent": true
+      },
+      {
+        "group": "placements",
+        "source": "routing/legacy-adoption.json",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/routing/legacy-adoption.json",
+        "destination_absent": true
+      },
+      {
+        "group": "placements",
+        "source": "skills/specification-to-source/legacy-project-shim/SKILL.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/skills/specification-to-source/legacy-project-shim/SKILL.md",
+        "destination_absent": true
+      },
+      {
+        "group": "placements",
+        "source": "skills/specification-to-source/portable-application/SKILL.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/skills/specification-to-source/portable-application/SKILL.md",
+        "destination_absent": true
+      },
+      {
+        "group": "placements",
+        "source": "workflows/legacy-adoption/workflow.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/workflows/legacy-adoption/workflow.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "SKILL.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/SKILL.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/README.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/README.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/architecture/authority-learning-loop.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/architecture/authority-learning-loop.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/architecture/design-traceability.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/architecture/design-traceability.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/architecture/mission-specification-composition.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/architecture/mission-specification-composition.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/architecture/skills.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/architecture/skills.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/roadmap/active-work.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/roadmap/active-work.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/roadmap/native-rewrite-program.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/roadmap/native-rewrite-program.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/roadmap/release-goals.json",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/roadmap/release-goals.json",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/user/framework-flow.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/user/framework-flow.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/user/getting-started.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/user/getting-started.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/user/models-and-generation.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/user/models-and-generation.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/user/project-layout.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/user/project-layout.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/user/security.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/user/security.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/user/specifications.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/user/specifications.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "docs/user/test-matrix.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/docs/user/test-matrix.md",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "literate.test.example.json",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/literate.test.example.json",
+        "destination_absent": true
+      },
+      {
+        "group": "owned_placements",
+        "source": "literate.workers.example.json",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/literate.workers.example.json",
+        "destination_absent": true
+      },
+      {
+        "group": "resident_edits",
+        "source": "litai/.literate/initialization-baseline.json",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/.literate/initialization-baseline.json",
+        "destination_absent": null
+      },
+      {
+        "group": "resident_edits",
+        "source": "litai/.literate/update-bases.json",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/.literate/update-bases.json",
+        "destination_absent": null
+      },
+      {
+        "group": "resident_edits",
+        "source": "litai/literate.project.json",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "litai/literate.project.json",
+        "destination_absent": null
+      },
+      {
+        "group": "delegate_edits",
+        "source": ".cursor/rules/literate-ai.mdc",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": ".cursor/rules/literate-ai.mdc",
+        "destination_absent": null
+      },
+      {
+        "group": "delegate_edits",
+        "source": "AGENTS.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "AGENTS.md",
+        "destination_absent": null
+      },
+      {
+        "group": "delegate_edits",
+        "source": "CLAUDE.md",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "CLAUDE.md",
+        "destination_absent": null
+      },
+      {
+        "group": "delegate_edits",
+        "source": "agents/openai.yaml",
+        "from_matches": true,
+        "mode_matches": true,
+        "destination": "agents/openai.yaml",
+        "destination_absent": null
+      }
+    ],
+    "finite_creation_destination_absent": true
+  },
+  "sole_policy_consumer": {
+    "path": "litai/literate.release.json",
+    "sha256": "c95dfe77fb34c508f89be00b8eea336e7ab04419c7b706a77a0bd32397b97a37",
+    "field": "/contributions/roadmap_goal_manifest",
+    "before": "docs/roadmap/release-goals.json",
+    "prospective_preserving_value": "litai/docs/roadmap/release-goals.json",
+    "semantics": "Release contribution loader opens root/manifest_path; current path remains valid now, but framework placement would relocate that exact ledger. Preserve ledger goals and all policy settings.",
+    "other_policy_references": {
+      "version_authority.path": "literate.project.json remains valid by canonical manifest special case in project_releases._binding_path",
+      "gate.argv[2]": "samples/hello-component is not moved by this plan; preserve original typed gate and all arguments",
+      "changelog.path": "CHANGELOG.md remains application-root; unchanged"
+    },
+    "matched_moved_paths": [
+      "docs/roadmap/release-goals.json"
+    ]
+  },
+  "public_owner_assessment": {
+    "refusal": "Correct original-reference-consumer refusal; applying blocked plan or silently rewriting arbitrary JSON would violate ownership.",
+    "existing_options": "Framework scope explicitly rejects rewrite_reference and place_release_policy combinations (cli/project.py1205); framework selection emits empty reference_edits; legacy explicit reference path accepts Markdown only (project_layout_migration.py239). No existing public typed resident release-policy reference transition found.",
+    "gap": "Public full historical journey lacks an authorized resident-policy consumer transform when framework-owned ledger moves. This is a separate integration capability gap, not failure of imported-path exclusion or producer-epoch recognition.",
+    "next_action": "Root should tracker-bind a bounded explicit typed policy-consumer transition before any apply. Bind original exact policy bytes/native identity, typed ReleasePolicy, original moved ledger coordinate and exact reviewed destination; change only contributions.roadmap_goal_manifest, preserve all other parsed policy fields and ledger goals. Capture consumer currentness/callback code/native closure and publish within original guarded transaction with matching plan/apply acknowledgement and recovery. Alternative user-owned policy editing requires explicit review and temporary dangling-target consideration; no such edits authorized/performed by reviewer.",
+    "controls": [
+      "No selection keeps exact blocked plan/refusal",
+      "Explicit selection changes only exact typed ledger field when matching genuinely selected original ledger",
+      "Custom unrelated path/unknown policy/changed original bytes/mixed policy source refuse or hold",
+      "All source/producer/Git/receipt/policy roles stay independently bound; no goal removal or receipt success claimed"
+    ]
+  },
+  "reviewed_closing_source": {
+    "src/literate_ai/adapters/project_layout_initialized_items.py": "cab9515969007b787f4b9e23860d1aefa580c2f098d651007e20b20e821b1ea4",
+    "tests/critical/test_project_layout_framework_selection.py": "134829d4c1f7d9511f5a3f0ffa2bbef3adcb5fb4f2aa3dc538c295fc0a1e56aa"
+  },
+  "limits": [
+    "No new plan,apply,renewal,marker,source,prefix or project writes by reviewer. Existing two root-authored public results only.",
+    "No whole wheel gate run; provisional candidate bytes/source/pin verified only.",
+    "No acceptance of blocked plan, full containment, generation, native completion or full release."
+  ],
+  "evidence_sha256": {
+    "bf6-framework-root-plan.stdout": "d4f02490f53600e03b4abdca5fa5cd30588b5a4343dffb3f1c75aa66eb0df279",
+    "bf6-framework-root-plan.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bf6-framework-root-plan.json": "1a0190ac06bf3cc5b97f40cc0f8a7c26c7a9f8afce8313462a2c17821a55a939",
+    "bf6-framework-descendant-plan.stdout": "d4f02490f53600e03b4abdca5fa5cd30588b5a4343dffb3f1c75aa66eb0df279",
+    "bf6-framework-descendant-plan.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bf6-framework-descendant-plan.json": "7cabcf0aac92286c1fccd9d59a6af42b5c26a6e8950c29ba8718df57627aef63"
+  }
+}
