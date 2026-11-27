@@ -29481,3 +29481,21 @@ journey passes again (133.188s). These local timings are not a controlled speed
 benchmark. Fifty-eight of ninety dirty snapshots are integrated, with thirty-two
 remaining; all seven additional clean heads are ancestors. Source, review,
 provenance, original role-input and full release holds remain explicit.
+
+
+**Rust verifier history reconciled.** `rh14` is joined by normal merge
+`881644cf2` with the current tree unchanged. Its original declaration, typed
+contracts, provisioned input closure, offline native acceptance and installed
+journey remain present. Current paired command/native observers, original run
+and deadline owners, namespace and evidence custody supersede the older forms.
+The wheel still requires actual matching framework identity, committed receipt
+and no synthetic framework observer before reporting that native cell qualified.
+This merge does not renew native acceptance: the original broad binding run's
+ancestor Cargo configuration refusal and all existing release holds remain.
+
+Fifty-nine of ninety dirty snapshots and all seven clean heads are integrated;
+thirty-one dirty snapshots remain. The next `execview1` is genuine missing work:
+current code lacks its execution-view entry point, typed prerequisite projection
+and shared release-goal authority reader. Port the original feature through the
+current declared namespace owners. The six existing summary smoke cases pass
+(0.768s), but do not cover that missing feature or authorize discarding it.
