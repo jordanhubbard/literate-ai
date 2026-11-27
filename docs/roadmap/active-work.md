@@ -24479,14 +24479,23 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   exact-head CI failures, and complete the remaining contribution dispositions
   and platform/action cells. Preserve every original guard, timeout and acceptance
   requirement; the two historical lifecycle-header defects are repaired.
-- **Interpreter preflight (in progress):** The next complete source run reaches
+- **Interpreter preflight:** The next complete source run reaches
   117 cases before the self-hosting proof rejects a linked base-interpreter
   prefix. The reused environment records a package-manager alias as its home;
   invoking the same Python 3.15.2 executable through its concrete installation
   reports direct base prefixes. Create an isolated environment from that exact
-  executable on the build volume, retain the linked-prefix refusal and all
-  offline two-generation assertions, then repeat conformance and full source
-  qualification. This is host selection, not a product guard exception.
+  executable on the build volume. Isolated, no-site environment creation avoids
+  startup customization rewriting that home to the alias. All four self-hosting
+  conformance cases pass in 202.024s without skips, retaining the linked-prefix
+  refusal, offline optional-dependency case, descendant timeout, complete file
+  identity and repeated two-generation assertions. This is host selection, not a
+  product guard exception. Repeat complete source qualification in that environment.
+- **Refreshed intake and collateral inventory:** The post-integration sweep has
+  no unclassified open issues or reviews; branch/worktree dispositions and all
+  48 unfinished goals remain open. An initial candidate inventory covers 336
+  tracked documentation/media candidates. Front-door copy truthfully identifies
+  published 1.3.1 and development 1.4 with historical conference labels; every
+  final-candidate, rendered and publication-dependent review remains pending.
 
 - **Recovered design execution owners:** The directing user's release-resumption
   instruction accepts the already-recorded designs in reviews #381, #382, #409
