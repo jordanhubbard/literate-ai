@@ -17,6 +17,7 @@ from unittest import mock
 
 from literate_ai.adapters.models import coding_cli as cli
 from tests.support.fixtures_test_coding_cli_generation import (
+    configure_python_cli_alias,
     flavor,
     recipe,
     write_generated_test_suite,
@@ -261,6 +262,7 @@ class CodexRuntimeStateTests(unittest.TestCase):
                 "PATH": "/tools",
                 "OPENAI_API_KEY": "owned-fixture-key",
             }
+            configure_python_cli_alias(root, "codex", environment)
             with mock.patch.object(cli.shutil, "which", return_value=sys.executable):
                 runner = cli.CodingCliTaskRunner(environment=environment)
             with mock.patch.object(cli, "_run_bounded", side_effect=execute):

@@ -1498,5 +1498,28 @@
     "limits": "All83immutable1.4goals retained. Newissues498/499/500 remainincludedintegrationdefects; sourceclosure/scopedtestsdoNOTcompleteinstalled/platform/generation/historicalsourcefinalization/FreeBSD/collateral/contributions/resulting-main/publicationacceptance. Swift installation authorization remainspending. No prepare/tag/publish.",
     "format_followup": "OpenCode fixture finalformat is AST-identical and independently closed in r3; no semantic test rerun required.",
     "wheel_followup": "Fresh hostileMake case on immutable866passes original44byte nativebuildstdout hash and2passed/0skip collection, thenfails archivedComponentobserver. Actualcommittedarchive matches savedpreapplycanonicalComponentkey. Driver nowderives that key from originalcapturedliveComponentreceipt path; implicitbaselinearchivekeys remainlogical. Bothfailedruns preserved, noapplyretry. Completefreshlatestgate mustpassall3originalcases."
+  },
+  "qualification_followup_r13": {
+    "baseline": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+    "review": "verification/release-1.4-followup/review-contracts-portable-python-cli-fixture-closing-r1.json",
+    "repair": "POSIX Python subprocess fixtures use owned CLI-name aliases targeting the exact original canonical interpreter and adjacent runtime-derived stdlib-only ._pth files. Production, executable pin, logical argv0, original guards, limits, case inventory and assertions are unchanged. Windows setup is unchanged.",
+    "wheel_r13": "Full frozen df6 wheel gate failed in the original native SQLite controlled Python transport before native journey scenarios. Original failure retained; targeted controls do not reclassify that full gate.",
+    "installed_controls": {
+      "installed_module_origins_verified": true,
+      "passed": 27,
+      "scope": "coding-cli-posix",
+      "selected": 27,
+      "skipped": 0,
+      "test_python_input_identity": "sha256:94391500aed79d0b88292eab94298d5ca88a1fa58e7d59dcc55e8a79063fd74e"
+    },
+    "source_opencode": {
+      "executed": 6,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 6,
+      "selected": 6,
+      "skipped": 0
+    },
+    "scope": "All 83 release goals retained. Complete fresh full-wheel, source, native platform, historical lifecycle and release acceptance remain pending. Current df6 hosted CI is preserved; no retry/cancellation."
   }
 }

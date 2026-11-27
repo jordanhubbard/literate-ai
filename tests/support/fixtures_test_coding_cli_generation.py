@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import sys
+import sysconfig
 from pathlib import Path
 
 import literate_ai.adapters.models.coding_cli as coding_cli_adapter
@@ -32,6 +35,24 @@ from literate_ai.generated_tests import (
 )
 
 TEST_COMPONENT_LOCK_IDENTITY = ContentIdentity.parse_uri("sha256:" + "c" * 64)
+
+
+def configure_python_cli_alias(root: Path, name: str, environment: dict[str, str]):
+    """Give a pinned Python transport its own isolated native CLI startup path."""
+    if os.name != "posix":
+        return
+    tools = root / "python-cli-tools"
+    tools.mkdir(exist_ok=True)
+    (tools / name).symlink_to(Path(sys.executable).resolve(strict=True))
+    # Relocatable Python builds cannot discover their stdlib from an arbitrary
+    # argv[0]. These fixture-owned paths keep the real executable pin and the
+    # provider's logical argv[0], without changing the installation or PYTHONHOME.
+    paths = (sysconfig.get_path("stdlib"), sysconfig.get_config_var("DESTSHARED"))
+    (tools / f"{name}._pth").write_text(
+        "".join(f"{Path(path).resolve(strict=True)}\n" for path in paths),
+        encoding="utf-8",
+    )
+    environment["PATH"] = str(tools) + os.pathsep + environment.get("PATH", "")
 
 
 def generation_skill(

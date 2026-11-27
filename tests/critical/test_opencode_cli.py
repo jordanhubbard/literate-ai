@@ -16,6 +16,7 @@ from unittest import mock
 from literate_ai.adapters.models import coding_cli as cli
 from literate_ai.diagnostics import operation_log, verbose_diagnostics
 from tests.support.fixtures_test_coding_cli_generation import (
+    configure_python_cli_alias,
     flavor,
     recipe,
     write_generated_test_suite,
@@ -163,6 +164,7 @@ class OpenCodeCliTests(unittest.TestCase):
                     encoding="utf-8",
                 )
                 actual_run = cli._run_bounded
+                configure_python_cli_alias(root, "opencode", environment)
 
                 def external(
                     command, *, actual_run=actual_run, double=double, **kwargs
