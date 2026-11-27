@@ -6,6 +6,7 @@ This scope grants no consumer review, scratch, execution or admission authority.
 """
 
 import json
+import sys
 from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import dataclass, field
@@ -317,9 +318,12 @@ def _open_authored_retained_products_session(
         raise ValueError("retained.cargo.authored-archive-limit-invalid")
     if configured_store_id != selection.evidence_store_id:
         raise ValueError("retained.cargo.authored-store-mismatch")
-    current.require_unchanged()
     expected = selection.provider_reference
+    selected_run_identity = selection.selected_run_identity
+    selected_exports = selection.exports
+    current.require_unchanged()
     active = True
+    owner = None
     try:
         with AuthoredPublicationFiles(current, writable=False) as files:
             metadata = _PinnedPublicationMetadata(files)
@@ -364,13 +368,13 @@ def _open_authored_retained_products_session(
                 selected = [
                     exports
                     for run, exports in membership.exports
-                    if run == selection.selected_run_identity
+                    if run == selected_run_identity
                 ]
-                if len(selected) != 1 or selected[0] != selection.exports:
+                if len(selected) != 1 or selected[0] != selected_exports:
                     raise ValueError("retained.cargo.authored-selected-run-mismatch")
                 references = {
                     export.blob
-                    for manifest in selection.exports.graph.manifests
+                    for manifest in selected_exports.graph.manifests
                     for export in manifest.exports
                 }
                 if sum(item.size for item in references) > max_bytes:
@@ -384,12 +388,17 @@ def _open_authored_retained_products_session(
                 if any(len(content) != item.size for item, content in blobs):
                     raise ValueError("retained.cargo.authored-product-size-mismatch")
 
-                def check(candidate):
-                    if not active:
-                        raise ValueError(
-                            "retained.cargo.authored-product-owner-expired"
+                def require_owner(candidate):
+                    if candidate is not owner or any(
+                        actual is not original
+                        for actual, original in (
+                            (candidate.reference, reference),
+                            (candidate.selected_run_identity, selected_run_identity),
+                            (candidate.exports, selected_exports),
+                            (candidate.blobs, blobs),
+                            (candidate._check, check),
                         )
-                    if candidate is not owner:
+                    ):
                         raise ValueError(
                             "retained.cargo.authored-original-products-required"
                         )
@@ -401,6 +410,13 @@ def _open_authored_retained_products_session(
                         raise ValueError(
                             "retained.authored.original-artifact-owner-changed"
                         )
+
+                def check(candidate):
+                    if not active:
+                        raise ValueError(
+                            "retained.cargo.authored-product-owner-expired"
+                        )
+                    require_owner(candidate)
                     current.require_unchanged()
                     projection.require_unchanged()
                     metadata.require_unchanged()
@@ -415,14 +431,7 @@ def _open_authored_retained_products_session(
                     )
                     if latest != reference or latest_archive != archive:
                         raise ValueError("retained.cargo.authored-publication-changed")
-                    if not _cargo_compat and (
-                        candidate.reader is not reader
-                        or candidate.reopened is not reopened
-                        or candidate.projection is not projection
-                    ):
-                        raise ValueError(
-                            "retained.authored.original-artifact-owner-changed"
-                        )
+                    require_owner(candidate)
 
                 owner_type = (
                     CurrentAuthoredRetainedCargoProducts
@@ -431,8 +440,8 @@ def _open_authored_retained_products_session(
                 )
                 owner = owner_type(
                     reference,
-                    selection.selected_run_identity,
-                    selection.exports,
+                    selected_run_identity,
+                    selected_exports,
                     blobs,
                     check,
                     **(
@@ -445,7 +454,7 @@ def _open_authored_retained_products_session(
                         else {}
                     ),
                 )
-                owner.require_unchanged()
+                check(owner)
                 if _retain_publication:
                     publication = _capture_original_authored_publication(
                         metadata, retired_paths
@@ -458,7 +467,7 @@ def _open_authored_retained_products_session(
                     )
                 else:
                     yield owner
-                owner.require_unchanged()
+                check(owner)
             # The projection's own closer can run additional dependency guards.
             metadata.require_unchanged()
             _read_published_authored_metadata(
@@ -470,4 +479,20 @@ def _open_authored_retained_products_session(
             )
         _require_retired_paths_absent(retired_paths)
     finally:
-        active = False
+        primary = sys.exception()
+        try:
+            if owner is not None:
+                require_owner(owner)
+        except BaseException as closing:
+            if primary is None:
+                raise
+            try:
+                BaseException.add_note(
+                    primary,
+                    "retained.authored.product-closing-refused: "
+                    + type(closing).__name__,
+                )
+            except BaseException:
+                pass
+        finally:
+            active = False

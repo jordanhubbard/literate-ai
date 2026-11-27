@@ -24435,7 +24435,21 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   installed and collateral requirements, then prepare, check, publish and verify
   through the release owner. No recovered snapshot or narrow passing cohort
   establishes release acceptance.
-- **Product callback closing repairs (in progress):** Independent review reproduces
+- **Forest metadata placement repair (in progress):** A real contained initializer
+  and saved source-to-root plan reproduce legacy-path lookup failure in replay.
+  Derive finite metadata coordinates from the saved original manifest and its
+  native/blob commitments, retaining the producer's wrapper/lift/layout order.
+  Refuse contradictory placement and malformed target rosters without consulting
+  current relocated paths. Require contained and legacy source controls plus
+  independent review; canonical root/shared execution remains separately blocked.
+- **Original Python gate disposal repair (in progress):** A failed copy can
+  replace a temporary pathname before unconditional recursive cleanup. Reuse
+  native execution custody and its original copier/producer postimage hooks,
+  preserve foreign or unfinished residue, and restore any outer execution token.
+  Keep original observer/input closing and primary failures. Require actual gate,
+  hostile replacement, callback-residue and nested-scope controls plus independent
+  closing review; provider and receiving-workspace acceptance remain separate.
+- **Product callback closing repairs (source partial):** Independent review reproduces
   changes to Python and neutral authored product fields inside legitimate guards.
   Retain exact original fields and checker before and after callbacks and invoke
   the captured checker directly at factory closure. Preserve the established
@@ -24468,6 +24482,14 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   mounted filesystem preserves all four workers, original assertions and
   deadlines; the three real compiler-cache cases then pass in parallel
   (3.336s). No cache availability assertion or product admission is relaxed.
+- **Sample slot binding repair (source partial):** Independent resolver-backed review
+  finds that grouping selected Flavors by axis/value loses distinct root slot
+  revisions sharing one target and can substitute dependency-only selections.
+  Bind recipes to the original root lock's exact selected slot/revision pairs;
+  require real resolver controls and unchanged host recipe assertions, followed
+  by independent review. Four actual resolver controls pass independently; the
+  original sample ladder passes six source controls with six declared live/native
+  skips. Native generation and release acceptance remain open.
 - **Sample catalog integration:** Full source qualification now
   reaches recipe planning and exposes a global one-target-per-Flavor assumption.
   The application and SDK TypeScript profiles legitimately share a target while

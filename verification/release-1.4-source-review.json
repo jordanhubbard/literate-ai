@@ -13,7 +13,7 @@
       "reviewer": "contracts",
       "path": "tests/conformance/support/sample_runner.py",
       "required_outcome": "Use original root lock slot/revision bindings; retain same-target distinct selections and exclude dependency-only flavors.",
-      "state": "open"
+      "state": "fixed-targeted-and-independently-reviewed"
     },
     {
       "id": "bootstrap-pin-closing",
@@ -93,7 +93,7 @@
       "reviewer": "authority",
       "path": "src/literate_ai/adapters/retained_python_source.py",
       "required_outcome": "Close exact original owner fields and delegate after all currentness callbacks.",
-      "state": "open"
+      "state": "fixed-targeted-and-independently-reviewed"
     },
     {
       "id": "authored-product-owner",
@@ -101,7 +101,7 @@
       "reviewer": "authority",
       "path": "src/literate_ai/adapters/authored_retained_cargo_products.py",
       "required_outcome": "Bind neutral owner reference/run/exports/blobs/delegate before and after callbacks, preserving modeled compatibility.",
-      "state": "open"
+      "state": "fixed-targeted-and-independently-reviewed"
     },
     {
       "id": "finite-absence-budget",
@@ -185,6 +185,38 @@
       "skipped": 0,
       "failures": 0,
       "limit": "Targeted source controls and independent closing review; full native/installed and release acceptance remain pending."
+    },
+    "python-product-owner": {
+      "run": "python-products-r1",
+      "selected": 7,
+      "passed": 7,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Source controls and independent closing review only; original full native/installed and release qualification remains required."
+    },
+    "authored-product-owner": {
+      "run": "authored-products-r1",
+      "selected": 20,
+      "passed": 20,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Source controls and independent closing review only; original full native/installed and release qualification remains required."
+    },
+    "sample-slot-selection": {
+      "run": "sample-slots-r1",
+      "selected": 4,
+      "passed": 4,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Source controls and independent closing review only; original full native/installed and release qualification remains required."
+    },
+    "sample-ladder": {
+      "run": "sample-ladder-r1",
+      "selected": 12,
+      "passed": 6,
+      "skipped": 6,
+      "failures": 0,
+      "limit": "Original declared live/native opt-in skips; source recipe checks only."
     }
   },
   "review_scope": "All 462 frozen changed files independently inspected: runtime 65, SDK transfer 36, retained-layout transfer 36, authority 157 and remaining contracts 168. This is source review only."

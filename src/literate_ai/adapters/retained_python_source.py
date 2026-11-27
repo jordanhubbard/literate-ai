@@ -104,6 +104,7 @@ def open_current_retained_python_source_products(
     original_plan = reviewed.plan
     original_binding = reviewed.binding
     active = True
+    owner = None
 
     def require_references():
         actual = _source_references(native, reviewed, consumer)
@@ -184,32 +185,41 @@ def open_current_retained_python_source_products(
             raise ValueError("retained.python.source-package-membership-changed")
         check()
 
-        def check_owner(candidate):
+        def require_owner(candidate):
             if (
                 candidate is not owner
                 or candidate.plan is not original_plan
                 or candidate.capture is not capture
                 or candidate.reader is not reader
+                or candidate._check is not check_owner
             ):
                 raise ValueError("retained.python.source-original-products-required")
+
+        def check_owner(candidate):
+            require_owner(candidate)
             check()
+            require_owner(candidate)
 
         owner = CurrentRetainedPythonSourceProducts(
             original_plan, capture, reader, check_owner
         )
-        owner.require_unchanged()
+        check_owner(owner)
         yield owner
-        owner.require_unchanged()
+        check_owner(owner)
     finally:
         primary = sys.exception()
         try:
-            check()
+            if owner is None:
+                check()
+            else:
+                check_owner(owner)
         except BaseException as closing:
             if primary is None:
                 raise
             try:
-                primary.add_note(
-                    "retained.python.source-closing-refused: " + type(closing).__name__
+                BaseException.add_note(
+                    primary,
+                    "retained.python.source-closing-refused: " + type(closing).__name__,
                 )
             except BaseException:
                 pass

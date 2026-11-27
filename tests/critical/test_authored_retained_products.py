@@ -26,6 +26,74 @@ class AuthoredRetainedProductsTests(original.AuthoredRetainedCargoProductsTests)
             **kwargs,
         )
 
+    def test_projection_callback_cannot_replace_original_product_fields(self):
+        for name in (
+            "reference",
+            "selected_run_identity",
+            "exports",
+            "blobs",
+            "_check",
+            "reader",
+            "reopened",
+            "projection",
+        ):
+            with self.subTest(field=name):
+                self._replace_product_field(name)
+
+    def _replace_product_field(self, name):
+        with self.fixture() as (fixture, binding, payload, _projection, _replay):
+            with self.open(fixture, binding, payload) as owner:
+                original_value = getattr(owner, name)
+                original_check = owner._check
+                foreign = object()
+
+                def replace_field():
+                    object.__setattr__(owner, name, foreign)
+
+                fixture.projection_guard_hook = replace_field
+                try:
+                    with self.assertRaisesRegex(
+                        ValueError, "original-.*required|owner-changed"
+                    ):
+                        original_check(owner)
+                    self.assertIs(getattr(owner, name), foreign)
+                finally:
+                    fixture.projection_guard_hook = None
+                    object.__setattr__(owner, name, original_value)
+
+    def test_factory_closing_uses_original_checker_and_preserves_primary(self):
+        for primary in (None, KeyboardInterrupt("original body cancellation")):
+            with self.subTest(primary=primary), self.fixture() as fixture_values:
+                fixture, binding, payload, _projection, _replay = fixture_values
+                try:
+                    with self.open(fixture, binding, payload) as owner:
+                        object.__setattr__(owner, "_check", lambda candidate: None)
+                        if primary is not None:
+                            raise primary
+                except BaseException as caught:
+                    if primary is None:
+                        self.assertIsInstance(caught, ValueError)
+                        self.assertIn("original-products", str(caught))
+                    else:
+                        self.assertIs(caught, primary)
+                        self.assertTrue(
+                            any(
+                                "product-closing-refused" in note
+                                for note in caught.__notes__
+                            )
+                        )
+                else:
+                    self.fail("replaced checker bypassed original factory close")
+
+    def test_projection_closer_cannot_replace_product_payload(self):
+        with self.fixture() as (fixture, binding, payload, _projection, _replay):
+            with self.assertRaisesRegex(ValueError, "original-products"):
+                with self.open(fixture, binding, payload) as owner:
+                    fixture.projection_close_hook = lambda: object.__setattr__(
+                        owner, "blobs", ()
+                    )
+            self.assertEqual(owner.blobs, ())
+
     def test_existing_cargo_wrapper_keeps_original_nominal_owner(self):
         with self.fixture() as (fixture, binding, payload, _projection, _replay):
             with original.open_authored_retained_cargo_products(

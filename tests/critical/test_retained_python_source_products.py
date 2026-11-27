@@ -208,6 +208,53 @@ class RetainedPythonSourceProductsTests(unittest.TestCase):
             finally:
                 f[0].provider.generation.prepared.locked_authority_snapshot = original
 
+    def test_original_native_callback_cannot_replace_product_fields(self):
+        for name in ("plan", "capture", "reader", "_check"):
+            with self.subTest(field=name):
+                self._replace_product_field_in_callback(name)
+
+    def _replace_product_field_in_callback(self, name):
+        with self.fixture() as f, self.open(f) as owner:
+            original = getattr(owner, name)
+            foreign = object()
+
+            def replace_field(*_args):
+                object.__setattr__(owner, name, foreign)
+
+            try:
+                with patch.object(
+                    RetainedProviderNative, "require_unchanged", replace_field
+                ):
+                    with self.assertRaisesRegex(ValueError, "original-products"):
+                        original_check = owner._check
+                        original_check(owner)
+                    self.assertIs(getattr(owner, name), foreign)
+            finally:
+                object.__setattr__(owner, name, original)
+
+    def test_factory_closing_cannot_dispatch_replaced_checker(self):
+        for primary in (None, KeyboardInterrupt("original body cancellation")):
+            with self.subTest(primary=primary), self.fixture() as f:
+                try:
+                    with self.open(f) as owner:
+                        object.__setattr__(owner, "_check", lambda candidate: None)
+                        if primary is not None:
+                            raise primary
+                except BaseException as caught:
+                    if primary is None:
+                        self.assertIsInstance(caught, ValueError)
+                        self.assertIn("original-products", str(caught))
+                    else:
+                        self.assertIs(caught, primary)
+                        self.assertTrue(
+                            any(
+                                "source-closing-refused" in note
+                                for note in caught.__notes__
+                            )
+                        )
+                else:
+                    self.fail("replaced checker bypassed factory closing")
+
     def test_original_cancellation_survives_current_guard_refusal(self):
         with self.fixture() as f:
             primary = KeyboardInterrupt("fixture original cancellation")
