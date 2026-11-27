@@ -8,6 +8,9 @@
 - Recognize the exact published 1.3.1 retained-wrapper producer during framework
   placement and preserve its original bytes and provenance.
 
+- Exclude imported and protected catalog files from initialized framework
+  candidate selection, preserving their original ownership.
+
 - Match Git filesystem boundaries during layout discovery while preserving
   same-filesystem ancestor repositories and explicit linked worktrees.
 

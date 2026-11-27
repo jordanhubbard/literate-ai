@@ -45,7 +45,7 @@ class ExistingFrameworkSelectionTests(unittest.TestCase):
             project.snapshot, project.context, project.inventory, **arguments
         )
 
-    def catalog_fixture(self, *, extra=False, dot_link=False):
+    def catalog_fixture(self, *, extra=False, dot_link=False, contained=False):
         helper = support.InitializedFrameworkProofTests("runTest")
         self.addCleanup(helper.doCleanups)
         project, original = helper.fixture()
@@ -62,15 +62,16 @@ class ExistingFrameworkSelectionTests(unittest.TestCase):
         rows = list(project.baseline.files)
         bases = UpdateBases(project.root)
         for logical, content in files.items():
-            project.write(logical, content)
+            source = "litai/" + logical if contained else logical
+            project.write(source, content)
             rows.append(
                 ProjectInitializationBaselineFile(
-                    logical,
+                    source,
                     len(content),
                     ContentIdentity.parse_uri(support.identity(content)),
                 )
             )
-            bases.advance("framework", logical, content)
+            bases.advance("framework", source, content)
         if extra:
             project.write("flavors/os-base/custom-application.txt", b"keep local\n")
         project.baseline = replace(
@@ -101,7 +102,7 @@ class ExistingFrameworkSelectionTests(unittest.TestCase):
                 project,
                 owner,
                 logical=logical,
-                source_path=logical,
+                source_path="litai/" + logical if contained else logical,
             )
             for logical in sorted(files)
         )
@@ -118,6 +119,39 @@ class ExistingFrameworkSelectionTests(unittest.TestCase):
                 public["placements"][logical]["to"],
             )
         self.assertNotIn("skills/demo/SKILL.md", public["placements"])
+
+    def test_imported_and_protected_catalog_fallback_preserves_other_placements(self):
+        for key, contained in (
+            (key, contained)
+            for key in ("protected_paths", "imported_paths")
+            for contained in (False, True)
+        ):
+            with self.subTest(key=key, contained=contained):
+                project, owner, _proofs, files = self.catalog_fixture(
+                    contained=contained
+                )
+                helper = support.InitializedFrameworkProofTests("runTest")
+                proof = helper.prove(project, owner)
+                before = dict(project.contents)
+                _baseline, baseline_private = self.select(project, owner, proof)
+                sources = {"litai/" + path if contained else path for path in files}
+                public, private = self.select(
+                    project,
+                    owner,
+                    proof,
+                    **{key: frozenset(sources)},
+                )
+                self.assertIn("SKILL.md", public["owned_placements"])
+                self.assertTrue(set(files).isdisjoint(public["owned_placements"]))
+                self.assertTrue(sources.isdisjoint(public["placements"]))
+                self.assertEqual(
+                    private.rewritten_contents["litai/SKILL.md"],
+                    baseline_private.rewritten_contents["litai/SKILL.md"],
+                )
+                self.assertTrue(sources.isdisjoint(private.rewritten_contents))
+                for source in sources:
+                    self.assertEqual(private.original_contents[source], before[source])
+                self.assertEqual(project.contents, before)
 
     def test_resident_producer_projection_keeps_exact_history_and_source_identities(
         self,

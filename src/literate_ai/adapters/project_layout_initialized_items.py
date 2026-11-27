@@ -76,6 +76,8 @@ def original_initialized_item_inventory(
             if len(candidates) != 1:
                 continue
             source = candidates[0]
+            if source in protected_paths or source in imported_paths:
+                continue
             original = update_bases.scopes["framework"].get(source)
             if original is None:
                 original = next(

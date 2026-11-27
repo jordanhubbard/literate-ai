@@ -1521,5 +1521,43 @@
       "skipped": 0
     },
     "scope": "All 83 release goals retained. Complete fresh full-wheel, source, native platform, historical lifecycle and release acceptance remain pending. Current df6 hosted CI is preserved; no retry/cancellation."
+  },
+  "qualification_followup_r14": {
+    "owning_issues": [
+      481,
+      499
+    ],
+    "independent_review": "verification/release-1.4-followup/historical-layout-df6-framework-plan-diagnosis-r1.json",
+    "observed_failure": "Both actual installed df6 historical R2 public framework plans refuse before effects. The first fallback candidate is actual imported litai/components/document-pair/component.md; its current bytes match the old initialization baseline but import ownership remains authoritative.",
+    "preservation": "Independent exact before-facts equality: 613 files, 471 directories and three Git facts unchanged after both refused plans.",
+    "repair": "After original unique source-coordinate selection, exclude protected/imported sources before initialized-file proof issuance. Direct proof guard, whole-item closure, admission and movement owners remain unchanged.",
+    "regression": "Actual framework resources and issued proofs cover root/contained coordinates crossed with protected/imported membership. Excluded files have no placement or rewritten payload; original captured bytes remain; unrelated SKILL transformation equals the normal baseline. Original tests and default fixture behavior retained.",
+    "cohorts": {
+      "selection": {
+        "summary": {
+          "executed": 11,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 11,
+          "skipped": 0
+        },
+        "report_sha256": "1fe90412ce6f5e30541c599b7e46bc999b54fced0250bb174170284f58b34a10"
+      },
+      "proof_guards": {
+        "summary": {
+          "executed": 19,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 19,
+          "selected": 19,
+          "skipped": 0
+        },
+        "report_sha256": "5a2e566a04ee9e1d033ba9ff314cba119e84de3567f9be3bf936279743a8041b"
+      }
+    },
+    "new_fixture_development_failures": "r1-r4 retained: new assertions initially confused owned/catalog placement views, expected unchanged relocated Markdown references, and assumed captured data/identity coordinate maps conferred movement authority. New assertions corrected against actual documented owner semantics; no original assertion or product guard changed.",
+    "driver_pin": "sha256:d1d85f3889635945fbabe3a39006b6bd49e363699b698dd81df2930104adc79f",
+    "qualification": "Full wheel r14 remains running on frozen 5f3f850e9 (fixture repair only). This later source repair still requires new immutable installed artifact and actual public historical plans. All 83 goals and full release acceptance remain open as recorded; no prepare/tag/publish."
   }
 }
