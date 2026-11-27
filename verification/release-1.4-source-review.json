@@ -971,5 +971,60 @@
     },
     "review_supersession": "Wire report retains historical unresolved helper endpoints and intermediate provider hash; final finite-edge and AST portability reports close those source findings at current hashes.",
     "limits": "Source closing and diagnostic only. All83 immutable release goals, complete source/installed/native/platform/collateral/contribution/resulting-main/publication/readback requirements remain open unless individually evidenced elsewhere. No deadline or original assertion relaxed."
+  },
+  "qualification_followup_r6": {
+    "base_commit": "fef411fafba81dfcf890dd159d69e388589acf4e",
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-scratch-release-fixtures-closing.json",
+      "verification/release-1.4-followup/review-contracts-windows-scaffold-diagnostic-closing.json",
+      "verification/release-1.4-followup/review-contracts-ci-b087-diagnosis.json"
+    ],
+    "current_reviewed_hashes": {
+      ".github/workflows/ci.yml": "49c2ce6c7d77c4cc0656947c28e5f054b0cf99b4a0fc9e1ceef65d00e4cb29df",
+      "tests/critical/test_authored_retained_cargo_scratch.py": "dad8677b08632bad7f5c6c70c1f5b003c57ab1a27a672f705f4be3aa13581bcc",
+      "tests/critical/test_release_atomic_writer.py": "7478d230b59cfc2f8ef876fe2747a312f958df0f525d88491f649134806c1935"
+    },
+    "changes": [
+      "Contained scratch fixture explicitly issues its modeled wrapper view inside the original live core/lifecycle and around the original reservation;31assertion expressions unchanged.",
+      "Two release atomic writer fixtures resolve their newly owned temporary roots;51assertion expressions unchanged. Actual macOS required.",
+      "Additional unchanged positive scaffold create/replace/rollback case runs single-process before Windows group3; exact JUnit joins existing always-upload artifact. Original full shard and boundary commands unchanged; no retry or softened source sharing policy."
+    ],
+    "source_evidence": {
+      "authored-scratch-view-r1": {
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "report_sha256": "798c63b7aaf56d6ada609edcfd18ee9671b285b3d719b794694c19b30b6b0c33"
+      },
+      "release-writer-path-r1": {
+        "summary": {
+          "executed": 11,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 11,
+          "skipped": 0
+        },
+        "report_sha256": "463f265ee9b2a751650af67bcc05d25efcff36497797021c73ce80b31c06df30"
+      },
+      "scaffold-isolation-source-r1": {
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        },
+        "report_sha256": "9ca42decb11ccd13be50a58108279593b082aa30c9496cd5d4e4a0908e72f687"
+      }
+    },
+    "native_windows_blocker": "Prior b087 native Windows group3 report222failures/65errors/1860passed/743skipped includes sharing violations, but full report is not classified as one cause. Writer and metadata leaf handles appear closed before first scaffold replace; no speculative production policy repair. Existing positive scaffold class absent from group3 JUnit, so added isolated execution supplies missing evidence.",
+    "limits": "Frozenfef native900 and wheel gates still running independently. Complete source/native/installed/platform/collateral/contribution/all83goals/publication/readback remain required."
   }
 }

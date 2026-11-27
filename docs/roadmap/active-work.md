@@ -24462,6 +24462,14 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   platform and release acceptance remains open. Exact source hashes, review
   closures and scoped evidence are in
   [the release source review](../../verification/release-1.4-source-review.json).
+- **Additional fixture closure (source partial):** The modeled contained scratch
+  view now enters its original issuance scope inside the live core/lifecycle;
+  seven controls pass. Two release-writer owned temporary roots use physical
+  paths; eleven controls pass. Independent review verifies all 82 original
+  assertions unchanged. Windows publication still needs native diagnosis: an
+  unchanged positive create/replace/rollback control now runs separately before
+  the full Windows shard, with its JUnit retained in the always-upload artifact.
+  Twelve scaffold source controls pass on Linux; no Windows success is inferred.
 - **Native Cargo deadline investigation (in progress):** The actual authored
   native completion control now reaches execution but retains a genuine original
   900-second deadline failure (1,039.733s including setup/closing). Live sampling

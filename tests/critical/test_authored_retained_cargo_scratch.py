@@ -200,7 +200,10 @@ class AuthoredRetainedCargoScratchTests(unittest.TestCase):
                     _key=wrapper_views._CREATION_KEY, core=consumer
                 )
                 metadata = root / "litai/.litai-locks"
-                with authored.reserve_authored_retained_cargo_scratch(context) as scope:
+                with (
+                    wrapper_views._original_wrapper_view(context),
+                    authored.reserve_authored_retained_cargo_scratch(context) as scope,
+                ):
                     self.assertTrue(all(path.is_dir() for path in self.roots(context)))
                     self.assertTrue(tuple(metadata.glob("cargo-scratch-*.lock")))
                     self.assertTrue(tuple(metadata.glob("cargo-scratch-stage-*")))

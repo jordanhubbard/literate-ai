@@ -1,0 +1,23 @@
+{
+  "status": "independent_source_closing_review_accepted",
+  "baseline": "fef411fafba81dfcf890dd159d69e388589acf4e",
+  "files": {
+    "tests/critical/test_authored_retained_cargo_scratch.py": {
+      "sha256": "dad8677b08632bad7f5c6c70c1f5b003c57ab1a27a672f705f4be3aa13581bcc",
+      "original_assertion_expressions_unchanged": 31
+    },
+    "tests/critical/test_release_atomic_writer.py": {
+      "sha256": "7478d230b59cfc2f8ef876fe2747a312f958df0f525d88491f649134806c1935",
+      "original_assertion_expressions_unchanged": 51
+    }
+  },
+  "scope": "Exact two-file fixture-only delta independently inspected and source replacement equality checked. All original assertion AST expression multisets identical.",
+  "scratch_lifetime": "Private modeled view issued inside already-live core/lifecycle scopes; view opens before real reservation and closes after reservation exit. No core renewal or production guard change.",
+  "release_alias": "Exactly two newly owned TemporaryDirectory inputs to actual Git fixtures resolve(strict=True). All original Git advancement/cleanup assertions unchanged.",
+  "independent_prior_control": "Actual original scratch test with only in-process original view issuance seam passed1test4.219s.",
+  "parent_receipt_tails_observed": {
+    "authored-scratch-view-r1": "rbosity \"1\" --workers \"4\" --worker-timeout \"3600\" --report \"/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/authored-scratch-view-r1/python-test-report.json\"\nparallel tests: 4 workers; logs /home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/authored-scratch-view-r1/workers/f168797ac1bd\n.......\n----------------------------------------------------------------------\nRan 7 tests in 62.425s\n\nOK\n",
+    "release-writer-path-r1": "rbosity \"1\" --workers \"4\" --worker-timeout \"3600\" --report \"/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/release-writer-path-r1/python-test-report.json\"\nparallel tests: 4 workers; logs /home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/release-writer-path-r1/workers/ef5820b06b50\n...........\n----------------------------------------------------------------------\nRan 11 tests in 3.926s\n\nOK\n"
+  },
+  "limits": "Source/fixture closure only. Actual macOS and full/native/installed acceptance pending. Frozen fef native/wheel runs unaffected."
+}

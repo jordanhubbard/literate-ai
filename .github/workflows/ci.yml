@@ -749,6 +749,12 @@ jobs:
           if ($missing.Count -gt 0) {
             throw "Required Windows tools are unavailable on PATH: $($missing -join ', ')"
           }
+      - name: Verify native Windows scaffold publication in isolation
+        if: matrix.task == 'windows-tests' && matrix.group == 3
+        shell: pwsh
+        run: |
+          $scaffoldTemporary = Join-Path $env:RUNNER_TEMP "scaffold-boundary"
+          python -m pytest -q -rA -o addopts='' --randomly-seed=12345 --basetemp="$scaffoldTemporary" --junitxml=logs/test-scaffold-boundary.xml tests/critical/test_scaffold_custody_owner.py::ScaffoldCustodyTests::test_real_creators_replace_owned_file_then_retire_only_owned_outputs
       - name: Verify native Windows boundary controls before the full shard
         if: matrix.task == 'windows-tests' && matrix.group == 3
         shell: pwsh
@@ -783,6 +789,7 @@ jobs:
             logs/test-results-${{ matrix.group }}.xml
             logs/test-results-${{ matrix.group }}-receiver.xml
             logs/test-results-${{ matrix.group }}-boundary.xml
+            logs/test-scaffold-boundary.xml
           if-no-files-found: warn
 
       # cpp-native

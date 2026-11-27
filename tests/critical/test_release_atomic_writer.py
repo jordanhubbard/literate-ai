@@ -139,7 +139,7 @@ class ReleaseAtomicWriterTests(unittest.TestCase):
     def test_atomic_file_joins_original_live_git_output_before_next_command(self):
         with tempfile.TemporaryDirectory() as directory:
             fixture = release_fixture.ReleaseBackportTests("runTest")
-            root = fixture.initialize(Path(directory))
+            root = fixture.initialize(Path(directory).resolve(strict=True))
             fixture.git(root, "branch", "release/1.0.x", "HEAD")
             with release._release_backport_worktree(root, "release/1.0.x") as worktree:
                 release._atomic_write_bytes(
@@ -157,7 +157,7 @@ class ReleaseAtomicWriterTests(unittest.TestCase):
     def test_actual_local_bare_default_advancement_and_clean_retirement(self):
         with tempfile.TemporaryDirectory() as directory:
             fixture = release_fixture.ProjectReleaseTests("runTest")
-            root, remote = fixture.initialize(Path(directory))
+            root, remote = fixture.initialize(Path(directory).resolve(strict=True))
             policy = replace(
                 release.ReleasePolicy.from_dict(
                     json.loads((root / "literate.release.json").read_text())
