@@ -24404,6 +24404,33 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Release execution on the development host (2026-11-26):** The directing user
+  requests the next release from this host after custody consolidation. Current
+  policy selects 1.4.0 after published 1.3.1; retain all 83 release goals and
+  existing approved future-release deferrals. Audit current contributions and
+  qualification, repair integration failures, complete the original source/native/
+  installed and collateral requirements, then prepare, check, publish and verify
+  through the release owner. No recovered snapshot or narrow passing cohort
+  establishes release acceptance.
+- **Initial release audit:** The fresh contribution sweep reports 48 of 83
+  immutable goals open. Exact-head CI exposes documentation lifecycle findings
+  and stale driver review; the driver report names 461 changed TCB files, so no
+  review pin is renewed from test results alone. The two recovered historical
+  roadmap notes now carry their required archival lifecycle headers. Complete
+  source discovery selects 8,398 instances; its first conformance case refuses
+  the installed compiler cache version before compiling. The exact official
+  0.18.0 ARM64 artifact is digest-verified in the isolated build workspace. A
+  further preflight correctly refuses the shell's empty loader-path entry;
+  qualification selects explicit absolute library paths without that implicit
+  current-directory lookup. Original admission and version guards stay intact.
+  With that explicit tool and loader selection, all three real compiler-cache
+  conformance cases pass (2.884s), including cold/warm object identity.
+- **Next release action:** Repair current documentation lifecycle findings and
+  diagnose exact-head CI failures while completing the fresh contribution and
+  worker-alignment audits. Follow with complete local source qualification and
+  the remaining policy-selected platform/action cells; preserve every original
+  guard, timeout and acceptance requirement.
+
 - **Recovered design execution owners:** The directing user's release-resumption
   instruction accepts the already-recorded designs in reviews #381, #382, #409
   and #453. Their canonical records and original source hashes are retained in

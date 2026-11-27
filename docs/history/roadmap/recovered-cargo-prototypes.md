@@ -1,5 +1,9 @@
 # Recovered Cargo prototype development notes
 
+- **Status:** historical
+- **Owning queue item:** [HANDOFF-001](../../roadmap/active-work.md#handoff-001-consolidate-active-framework-work-into-one-checkout-and-continue-layout-qualification)
+- **Completion / archival evidence:** [Reconciled source and custody observation](../../../verification/work-custody-transfer.json); original feature and release acceptance remain open.
+
 These original development notes are historical observations for their recorded
 snapshots. They preserve the original proposed APIs, measured prototype runs and
 remaining gates. They do not qualify the current implementation or renew native,

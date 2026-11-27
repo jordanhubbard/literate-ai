@@ -1,5 +1,9 @@
 # Recovered worker telemetry prototype notes
 
+- **Status:** historical
+- **Owning queue item:** [HANDOFF-001](../../roadmap/active-work.md#handoff-001-consolidate-active-framework-work-into-one-checkout-and-continue-layout-qualification)
+- **Completion / archival evidence:** [Reconciled source and custody observation](../../../verification/work-custody-transfer.json); original feature and release acceptance remain open.
+
 Original snapshot: `405a24c3a6167cd56d7ba46b609d2ab1f8e44b51`. These are the original author's historical
 development statements, including native FreeBSD observations and outstanding
 gates. They have not been renewed for the current integrated tree.
