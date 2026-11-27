@@ -32,6 +32,7 @@ from literate_ai.evidence_ledger import (
     attach_run,
     retained_directory,
 )
+from literate_ai.projects import ProjectConfigurationStore
 from literate_ai.release_files import (
     SCHEMA as RELEASE_FILES_SCHEMA,
 )
@@ -2728,28 +2729,42 @@ def assert_installed_agent_bootstrap(
 ) -> dict[str, bool]:
     """Exercise the generated bootstrap with the noneditable wheel on this host."""
 
-    script = project / "scripts/bootstrap_litai.py"
-    guide = project / "docs/user/bootstrap.md"
-    skill = (project / "SKILL.md").read_text(encoding="utf-8")
+    context = ProjectConfigurationStore.context(project)
+    script = context.framework_path("scripts/bootstrap_litai.py")
+    guide = context.framework_path("docs/user/bootstrap.md")
+    skill = context.framework_path("SKILL.md").read_text(encoding="utf-8")
     entrypoints = [
         (project / name).read_text(encoding="utf-8")
         for name in ("AGENTS.md", "CLAUDE.md")
     ]
+    if context.framework_root != context.root:
+        skill_reference = (
+            context.framework_path("SKILL.md").relative_to(project).as_posix()
+        )
+        delegate = (
+            "<!-- literate-ai:project-entrypoint -->\n"
+            f"Read and follow [project authority]({skill_reference}).\n"
+            "<!-- /literate-ai:project-entrypoint -->"
+        )
+        entrypoint_routes = all(delegate in entrypoint for entrypoint in entrypoints)
+    else:
+        entrypoint_routes = all(
+            "docs/user/bootstrap.md" in entrypoint
+            and "SKILL.md" in entrypoint
+            and entrypoint.index("docs/user/bootstrap.md")
+            < entrypoint.index("SKILL.md")
+            for entrypoint in entrypoints
+        )
     if (
         not script.is_file()
         or not guide.is_file()
         or "docs/user/bootstrap.md" not in skill
         or skill.index("docs/user/bootstrap.md") > skill.index("`litai doctor`")
-        or any(
-            "docs/user/bootstrap.md" not in entrypoint
-            or "SKILL.md" not in entrypoint
-            or entrypoint.index("docs/user/bootstrap.md") > entrypoint.index("SKILL.md")
-            for entrypoint in entrypoints
-        )
+        or not entrypoint_routes
     ):
         raise RuntimeError("installed project omitted its pre-CLI bootstrap route")
 
-    manifest_path = project / "literate.project.json"
+    manifest_path = context.manifest_path
     original_manifest = manifest_path.read_bytes()
     original_agents = (project / "AGENTS.md").read_bytes()
 
@@ -2839,7 +2854,7 @@ def assert_standard_project_version_check(
             "installed version check cannot resolve its initialized Standard project"
         )
 
-    manifest_path = project / "literate.project.json"
+    manifest_path = ProjectConfigurationStore.context(project).manifest_path
     original = manifest_path.read_bytes()
     manifest = json.loads(original)
     lifecycle_driver = manifest.get("lifecycle_driver", {})
@@ -2986,7 +3001,8 @@ def project_clean_source(repository: Path, destination: Path) -> None:
 def add_selected_flavor_packaging_provider(project: Path) -> None:
     """Add a portable Component reached only through the selected Python Flavor."""
 
-    provider = project / "components" / "wheel-package-publisher"
+    context = ProjectConfigurationStore.context(project)
+    provider = context.framework_path("components/wheel-package-publisher")
     provider.mkdir()
     (provider / "component.md").write_text(
         """---
@@ -3020,7 +3036,7 @@ Provide a deterministic packaging-phase publisher for installed-wheel qualificat
         newline="\n",
     )
 
-    flavor = project / "flavors" / "lang-python" / "flavor.md"
+    flavor = context.framework_path("flavors/lang-python/flavor.md")
     current = flavor.read_text(encoding="utf-8")
     required = "requires: []"
     if current.count(required) != 1:
@@ -4148,27 +4164,26 @@ def _main() -> int:
             ).stdout
         )
         initialization = initialized.get("result", {})
+        project_context = ProjectConfigurationStore.context(project)
         if (
             not initialized["ok"]
             or initialization.get("schema") != "literate-ai/project-initialization@6"
             or initialization.get("standard_binding") != "configured"
             or not isinstance(initialization.get("initial_lock"), dict)
-            or not (project / "SKILL.md").is_file()
+            or not project_context.framework_path("SKILL.md").is_file()
         ):
             raise RuntimeError("installed wheel cannot initialize agent onboarding")
         initialization_origin = json.loads(
-            (project / ".literate/initialization-origin.json").read_text(
-                encoding="utf-8"
-            )
+            project_context.framework_path(
+                ".literate/initialization-origin.json"
+            ).read_text(encoding="utf-8")
         )
         if (
             initialization_origin.get("repository_url") != repository_url
             or initialization_origin.get("git_revision") != git_revision
         ):
             raise RuntimeError("installed wheel lost its exact Git build origin")
-        manifest = json.loads(
-            (project / "literate.project.json").read_text(encoding="utf-8")
-        )
+        manifest = json.loads(project_context.manifest_path.read_text(encoding="utf-8"))
         host_flavor = _host_flavor(sys.platform)
         host_selector = f"+flavor://literate-ai/os-{host_flavor}"
         expected_default_selectors = [
@@ -4206,7 +4221,12 @@ def _main() -> int:
         if manifest.get(
             "default_flavor_selectors"
         ) != expected_default_selectors or not all(
-            (project / relative).is_file() for relative in starter_assets
+            (
+                project / relative
+                if relative == "CHANGELOG.md"
+                else project_context.framework_path(relative)
+            ).is_file()
+            for relative in starter_assets
         ):
             raise RuntimeError(
                 "installed wheel lacks its complete portable starter authority"
@@ -4231,15 +4251,16 @@ def _main() -> int:
             raise RuntimeError(
                 "installed wheel cannot initialize an explicit Flavor shape"
             )
+        scoped_context = ProjectConfigurationStore.context(scoped)
         if (
-            not (scoped / "flavors" / "lang-python" / "flavor.md").is_file()
-            or not (scoped / "flavors" / "os-macos" / "flavor.md").is_file()
+            not scoped_context.framework_path("flavors/lang-python/flavor.md").is_file()
+            or not scoped_context.framework_path("flavors/os-macos/flavor.md").is_file()
         ):
             raise RuntimeError(
                 "explicit python+macos init omitted a declared Flavor directory"
             )
         scoped_manifest = json.loads(
-            (scoped / "literate.project.json").read_text(encoding="utf-8")
+            scoped_context.manifest_path.read_text(encoding="utf-8")
         )
         if scoped_manifest.get("default_flavor_selectors") != [
             "+flavor://literate-ai/lang-python",
@@ -4377,7 +4398,9 @@ def _main() -> int:
             run(
                 str(litai),
                 "lock",
-                "samples/hello-component",
+                project_context.framework_path("samples/hello-component")
+                .relative_to(project)
+                .as_posix(),
                 "--check",
                 cwd=project,
             ).stdout
@@ -4390,12 +4413,21 @@ def _main() -> int:
             run(
                 str(litai),
                 "lock",
-                "components/wheel-package-publisher",
+                project_context.framework_path("components/wheel-package-publisher")
+                .relative_to(project)
+                .as_posix(),
                 cwd=project,
             ).stdout
         )
         selected_lock = json.loads(
-            run(str(litai), "lock", "samples/hello-component", cwd=project).stdout
+            run(
+                str(litai),
+                "lock",
+                project_context.framework_path("samples/hello-component")
+                .relative_to(project)
+                .as_posix(),
+                cwd=project,
+            ).stdout
         )
         if not provider_lock.get("ok") or not selected_lock.get("ok"):
             raise RuntimeError(
@@ -4425,9 +4457,9 @@ def _main() -> int:
                 "installed wheel cannot validate the selected-Flavor provider project"
             )
         starter_lock = json.loads(
-            (project / "samples" / "hello-component" / "component.lock.json").read_text(
-                encoding="utf-8"
-            )
+            project_context.framework_path(
+                "samples/hello-component/component.lock.json"
+            ).read_text(encoding="utf-8")
         )
         root_node = next(
             (
@@ -4508,7 +4540,14 @@ def _main() -> int:
                 "language, host, and package Flavors"
             )
         planned = json.loads(
-            run(str(litai), "plan", "samples/hello-component", cwd=project).stdout
+            run(
+                str(litai),
+                "plan",
+                project_context.framework_path("samples/hello-component")
+                .relative_to(project)
+                .as_posix(),
+                cwd=project,
+            ).stdout
         )
         if (
             not planned["ok"]

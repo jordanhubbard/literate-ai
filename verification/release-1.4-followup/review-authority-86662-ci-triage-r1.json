@@ -1,0 +1,132 @@
+{
+  "review": "independent read-only exact86662 CI and prior a3 terminal failure triage",
+  "observed_at_utc": "2026-11-27T11:13:18.838828+00:00",
+  "current": {
+    "head": "86662cc0a5d0aaeed89728c55b4a6f55accddfaf",
+    "run_id": 45988112467,
+    "url": "https://github.com/jordanhubbard/literate-ai/actions/runs/45988112467",
+    "status": "queued",
+    "conclusion": "",
+    "job_counts": {
+      "success": 9,
+      "in_progress": 34,
+      "queued": 13
+    },
+    "terminal_failures": [],
+    "companion_workflows": "Conference documentation website45988111895 success; Native coverage pilot45988111878 success.",
+    "limit": "No new concrete failed86662 job exists in observed snapshot; no exacthead full CI acceptance."
+  },
+  "prior": {
+    "head": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+    "run_id": 45980368875,
+    "status": "completed",
+    "conclusion": "cancelled",
+    "job_counts": {
+      "success": 22,
+      "cancelled": 28,
+      "failure": 6
+    },
+    "failed_jobs": [
+      {
+        "job_id": 140442966378,
+        "name": "ubuntu-latest / Python 3.14 (partition 3 of 8)",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job_id": 140442966407,
+        "name": "ubuntu-latest / Python 3.14",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job_id": 140442966503,
+        "name": "Windows / Python 3.12 / lint, OpenSpec, wheel",
+        "failed_steps": [
+          "Verify the installed wheel outside the checkout"
+        ]
+      },
+      {
+        "job_id": 140442966505,
+        "name": "ubuntu-latest / Python 3.11",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job_id": 140442966659,
+        "name": "ubuntu-latest / Python 3.11 (partition 3 of 8)",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job_id": 140442966678,
+        "name": "ubuntu-latest / Python 3.14 (partition 8 of 8)",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      }
+    ]
+  },
+  "classified_failures": [
+    {
+      "jobs": [
+        140442966378,
+        140442966659
+      ],
+      "classification": "stale modeled Windows directory-sharing fixture; source-closed in86662",
+      "test": "tests.critical.test_remote_evidence_native_reads.EvidenceNativeReadTests.test_windows_handle_composition_model",
+      "detail": "Historical type-only deny-write expectation conflicts with original directory pin share-write policy. Correct fixture checks exact original hold/current phase vs leaf role, no leaf weakening. Prior independent source/control evidence retained in review-authority-evidence-directory-model-final-closing.json."
+    },
+    {
+      "jobs": [
+        140442966407,
+        140442966505
+      ],
+      "classification": "concrete fixture invocation defect still present86662",
+      "test": "tests.critical.test_library_import_command.LibraryImportCommandTests.test_large_package_checks_every_export_and_retains_path_checks",
+      "lines": "tests/critical/test_library_import_command.py:141; private embedded driver line125",
+      "detail": "Actual subprocess fails IndexError sys.argv[7], before import/export verification. Fixture supplies arguments1..6 only. Production standard_project.execute_argv appends exact _STANDARD_COMMONJS_IMPORT_DRIVER for JavaScript, required by private driver support digest gate.",
+      "bounded_repair": "Use same original JS support argument in direct driver fixture invocation; preserve support digest gate and every export/path check. No production or Node changes required."
+    },
+    {
+      "jobs": [
+        140442966503
+      ],
+      "classification": "concrete receiving-coordinate fixture defect still present86662",
+      "step": "Verify the installed wheel outside the checkout",
+      "owner": "scripts/wheel_smoke.py:4158",
+      "detail": "Unconditional init default-contained but onboarding check requires project/SKILL.md; producer framework_path owns litai/SKILL.md. Existing actual contained fixture confirms root absent/litai present. Adjacent origin and manifest root lookups and later bootstrap helper share same family, finite followup audit assigned.",
+      "bounded_repair": "Resolve receiving framework authority through original configured coordinates while retaining application bridge/output and source-parent archive coordinates. Do not weaken initialized result or bindings."
+    },
+    {
+      "jobs": [
+        140442966678
+      ],
+      "classification": "unresolved actual native execution budget blocker; environmental cause not established",
+      "test": "tests.smoke.test_authored_retained_cargo_native_completion.AuthoredNativeCompletionTests.test_inspector_graph_change_refuses_even_when_original_files_stay_current",
+      "detail": "Original timeout900 remains. Test fails entering executed() before negative-inspector body; inner retained.execution.v2-budget-exhausted at core.run410 while entering retained Cargo test execution, wrapped retained.execution.v2-failed. Ran1test1155.185s including failing close. Core code unchanged a3->86662. Guard combines remaining output cap and duration; exact exhausted dimension not independently established by this log.",
+      "bounded_repair": "Preserve original failure and budget; await current exacthead/native qualification, diagnose actual bounded runtime work if reproduced. Do not mark environmental or solved by unrelated fixture fixes."
+    }
+  ],
+  "evidence_hashes": {
+    "ci-a3-140442966503.raw.log": "fe2601c903453ba35bf8c2542f4cc992d69737e57033669dd4ee92526808a400",
+    "ci-a3-140442966678.raw.log": "718218ef76155844b32811d08785ffd6445f17c9e7182b9383276f337405333a",
+    "ci-a3-140442966407.raw.log": "a6ddcbc83f8de8abbb834004168f55bb4e2e135dfbf767531d40b01f3ff8a31f",
+    "ci-a3-140442966505.raw.log": "b05625ddfec1186243150ce0d10d39f2609669e0b999694d30408c81e6424406"
+  },
+  "source_hashes": {
+    "tests/critical/test_library_import_command.py": "3fc46cbf21940d043598a8477806bbc075fdf6f7e1cb6dfcdc2aede306391f3b",
+    "scripts/wheel_smoke.py": "ae231fb9640cef91a7273d7a8ecbd68c3583c268cd13fe2e1900326ed2157119",
+    "src/literate_ai/adapters/standard_project.py": "a8fe291dc0519daafa94612631d83394444fe1523549006f6210033eb478b4b4",
+    "src/literate_ai/adapters/retained_cargo_execution_core.py": "b6f805f6356581461a69d7a55ef4c649f5ece10f9dfa6e5e181695936435559b"
+  },
+  "limits": [
+    "Read-only GH run/job queries and exact log retrieval. No retries, mutations, source edits, skips, deadline changes or test runs.",
+    "Prior overall cancelled run has28cancelled jobs; their absent acceptance cannot be interpreted as passing or as proven product defects.",
+    "No full native installed release acceptance. Finite whole-wheel coordinate source audit continues separately."
+  ]
+}

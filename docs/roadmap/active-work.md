@@ -24427,6 +24427,18 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Installed starter fixture closure (partial, 2026-11-27):** The JavaScript
+  import fixture now supplies the original hash-bound driver support argument;
+  all four existing controls pass. Maintained wheel fixtures capture canonical
+  initialized/scoped metadata and physical lock paths while preserving logical
+  catalog references and root application bridges. Independent review retains
+  every original refusal, assertion and deadline. Fresh installed version and
+  bootstrap controls pass, including forged-pin refusal and exact restoration;
+  the original selected-provider/lock/validation/plan statement block also passes.
+  These scoped checks use the immutable a3 wheel; current full-wheel acceptance
+  remains separate. A second genuine published 1.3.1 starter now initializes,
+  validates and retains its original lock with committed README and Git facts
+  preserved. Generated lifecycle and fresh receipt acceptance remain open.
 - **Qualification continuation (partial, 2026-11-27):** All three original native
   completion controls now pass in 2394.692 seconds with their original 900-second
   inner and 3600-second worker limits. Exact a3 Windows isolated scaffold and

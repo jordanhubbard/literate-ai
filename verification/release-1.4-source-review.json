@@ -1278,5 +1278,42 @@
     "historical": "Actual published1.3.1 conversion followed by public metadata+release-policy migration14moves, documentation review, Standard rebind, original retained build/2tests/package, fresh receipt update, require-current and validation all pass. Independent evidence joins producer/candidate/receipt/runner and preserves original11roles/min1policy, source and Git. Original failed usage diagnostic retained. Catalog/framework placements and complete historical journey remain open.",
     "workers": "Original private catalog invalid only by order. All11 original complete descriptors reproduced exactly using public worker add into private task catalog; original untouched. Alignment reports2ready,8transport failures,1low-home-space. Public transport diagnosis pending. No private catalog committed or workers hand-repaired.",
     "limits": "All83immutable1.4goals retained. Full source/installed/platform/historical/provider/coldFreeBSD/collateral/contributions/resulting-main/publication acceptance remain required. No release prepare/tag/publish."
+  },
+  "qualification_followup_r10": {
+    "base_commit": "86662cc0a5d0aaeed89728c55b4a6f55accddfaf",
+    "review_reports": [
+      "verification/release-1.4-followup/review-authority-wheel-smoke-coordinates-final-closing-r1.json",
+      "verification/release-1.4-followup/review-authority-wheel-smoke-coordinate-audit-r1.json",
+      "verification/release-1.4-followup/review-authority-wheel-starter-focused-evidence-r1.json",
+      "verification/release-1.4-followup/review-authority-86662-ci-triage-r1.json",
+      "verification/release-1.4-followup/historical-layout-starter-old-producer-review-r1.json"
+    ],
+    "current_reviewed_hashes": {
+      "scripts/wheel_smoke.py": "a951ce6146ac158028d66f0c5e2e8d9fcd44c4201217fde1db378fce5da5eb0e",
+      "tests/critical/test_library_import_command.py": "3fc46cbf21940d043598a8477806bbc075fdf6f7e1cb6dfcdc2aede306391f3b"
+    },
+    "repair": "Direct JavaScript import fixture now supplies production original hash-bound support argument. Maintained wheel fixture uses captured receiving context for initialized/scoped authority, bootstrap/version mutation and restoration, selected provider files and physical lock/plan operands. Catalog YAML/logical run/orchestration root authoring/source parent coordinates preserved. Contained root delegates must exactly route to receiving SKILL; SKILL still requires bootstrap-before-doctor. Legacy direct bootstrap ordering remains.",
+    "original_guards": "Independent review compares all151original wheel Raise ASTs and1assert, unittest assertions and timeout/limit keyword ASTs unchanged. No production code, policy, expected defaults, binary requirement or test deadline modified.",
+    "javascript_tests": {
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      },
+      "report_sha256": "e6f02fda7f6d8155b2b04ea42e825a65e156efa03a2d8fa294e8ecdc4f90665b"
+    },
+    "focused_installed": "Fresh public a3 initialization exit0,46.769s under1800bound. Original maintained version/bootstrap helper calls pass exact/forged and ready/missing/incompatible/route checks, manifest restored. Exact original main provider-through-plan AST block passes selected provider locks, validation, exact packaging graph/edge/defaultFlavor and generation-plan guards. Uses immutable a3 noneditable prefix, not current866 or full wheel qualification.",
+    "historical_starter": "Actual published1.3.1 public init from exact local87506parent, validation and original lock checks pass. Original committedREADME/GitHEAD/rawindex/ref retain exact content and nativefacts. Rootlayout and actualoldStandardbinding verified independently. No generated lifecycle/currentreceipt claim; real provider/worker prerequisites remain before that work.",
+    "historical_catalog": "Independent exact public partial plan reviewed245unchangedplacements+4residentrecordtransforms. Original acknowledged apply still live at record time under original1800bound. Twelve explicit blockers remain; no postapply/completion/renewal claim yet.",
+    "contributions": {
+      "identity": "sha256:c33eb254fbc701cb0d30389feea760b2eee246b7c1339b60f527816fc3089c0c",
+      "in_scope_open": 143,
+      "ready": false,
+      "full_snapshot_sha256": "8cd72c542cb7bacb36b2a7ce9090b6c664295e8255c1bebf2ca8fb7669d5957c"
+    },
+    "limits": "All83goals retained. Frozen866wheelr12 and exactheadCI continue separately; original900nativeperformance remains unresolved on hostedCI despite scoped local3pass. Swift installation approval pending. Complete source/installed/platform/historical/provider/coldFreeBSD/collateral/contributions/resulting-main/publication acceptance remains."
   }
 }
