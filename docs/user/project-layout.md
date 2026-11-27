@@ -332,7 +332,21 @@ Component placement preserves its original lock/audit bytes as history; ordinary
 producer currentness and any required renewal remain separate. When catalog
 placement is followed by framework-authority placement, undo the framework phase
 before recovering the earlier catalog phase so each journal sees its own exact
-metadata state.
+metadata state. Name that same framework plan explicitly when recovering the
+catalog, including when normal producers made no writes and created no renewal
+journal:
+
+```sh
+litai project layout recover --place-framework-authority --acknowledge \
+  --plan-identity FRAMEWORK_ID --project ROOT
+litai project layout recover --acknowledge --plan-identity CATALOG_ID \
+  --successor-plan-identity FRAMEWORK_ID --project ROOT
+```
+
+The successor must already be rolled back. Recovery proves the exact shared
+metadata handback and retained coordination/native directory anchors from both
+original journals. Unrelated files and replacement inodes still block recovery;
+no successor payload is admitted as a live catalog member after rollback.
 
 Catalog apply and recovery return
 `literate-ai/project-layout-catalog-continuation-result@1`. The original read-only
@@ -348,6 +362,11 @@ instructions and catalogs, including the seven conversion-wrapper outputs, with
 `required_owners`; unresolved ownership keeps `applicable` false. This scope is
 separate from imported-catalog, forward-Skill and release-policy placement.
 It does not adopt imported or custom authority.
+
+Markdown references may resolve to existing contained imported catalog members.
+Framework placement checks their native identities without reading their payloads
+or selecting them for relocation. Missing targets, private or output paths,
+symlinks, hardlinked files and changed target identities remain blocked.
 
 When a resident release policy references the roadmap-goal manifest selected for
 placement, approve that consumer with

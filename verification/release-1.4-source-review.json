@@ -1867,5 +1867,319 @@
       "documentation_review": "recorded",
       "diff_check": "passed"
     }
+  },
+  "qualification_followup_r19": {
+    "baseline": "2c49e0e59",
+    "issue": 503,
+    "status": "in progress, full source review and acceptance OPEN",
+    "reviews": [
+      "verification/release-1.4-followup/review-runtime-503-original-link-design-r1.json",
+      "verification/release-1.4-followup/review-runtime-503-recovery-design-and-source-findings-r1.json",
+      "verification/release-1.4-followup/review-runtime-503-late-helper-source-closure-r1.json",
+      "verification/release-1.4-followup/review-contracts-503-recovery-api-design-r1.json"
+    ],
+    "source_sha256": {
+      "src/literate_ai/adapters/project_layout_continuation.py": "49311337d839431f5508b0e46538e8f51720524aacfb98a893d9f74b9a2d3f06",
+      "src/literate_ai/adapters/project_layout_catalog_successor.py": "aad22c36de961885b813d42ef5210ff25722f88bd5f9aa480784a8bd1ca38fa9",
+      "src/literate_ai/adapters/project_layout_catalog_renewal.py": "c0bd386df669109e2f2249a81137a30986fc51656bc8702d50746bee530da047",
+      "tests/critical/test_project_layout_mixed_component_channels.py": "1668966083e39092d51710485f35e24b610b6fa5fd26723551723b4c1fdd0fb6",
+      "tests/critical/test_catalog_successor_membership.py": "002040177e07b128aedce6c8ce381743a3df3cc34cc04a34806220e4cf799cfe"
+    },
+    "forward_progress": "New exact same-parent journey reaches original framework and catalog finalization after genuine normal producer renewal. Original full recovery assertion remains unchanged and fails at catalog strict census after framework rollback retains exact coordination scaffolds. Historical installed R2 has not been retried.",
+    "current_scoped_receipt": {
+      "file": "catalog-membership-r19f-report.json",
+      "sha256": "93c557efc4aeb6a3be2063c265bd926fd5bc16eacc3c70943a6763523cdbaaea",
+      "summary": {
+        "executed": 4,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 3,
+        "selected": 5,
+        "skipped": 0
+      },
+      "not_executed_due_original_failfast": [
+        "test_foreign_member_observer_is_refused_before_invocation_and_lease_expires"
+      ]
+    },
+    "original_cohort_diagnostics": {
+      "membership-project_layout_framework_source_finalization-r19d-report.json": {
+        "sha256": "deda90f3b9a41a462d4a7e7fa0dcb09d7496fd895f2f20a33b846a27240564f1",
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        },
+        "scope": "Earlier source before closing-helper refinement; nine passes, not final current candidate qualification."
+      },
+      "membership-project_layout_mixed_component_channels-r19d-report.json": {
+        "sha256": "34b9d450270de0285a01b36d91ea1f617e49b002b677a223c70324ccc8d5e360",
+        "summary": {
+          "executed": 1,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 1,
+          "skipped": 0
+        },
+        "scope": "Earlier source before closing-helper refinement; nine passes, not final current candidate qualification."
+      },
+      "membership-project_layout_mixed_producer_epochs-r19d-report.json": {
+        "sha256": "335e6693dc5a41069c24070b04e763fe18da0d9e3b7177b755c4cec73fecddfb",
+        "summary": {
+          "executed": 1,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 1,
+          "skipped": 0
+        },
+        "scope": "Earlier source before closing-helper refinement; nine passes, not final current candidate qualification."
+      },
+      "membership-project_layout_catalog_successor_controls-r19d-report.json": {
+        "sha256": "1cc2e87ff88e395383c8f9960902290328a38ca7f8d83a542a7e3b7cea6c164d",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "scope": "Earlier source before closing-helper refinement; nine passes, not final current candidate qualification."
+      }
+    },
+    "pending": [
+      "Explicit successor identity on catalog recovery, rejected for framework/noncatalog scope, before original first load; same lease/namespace/binding at every currentness boundary.",
+      "Exact cross-journal shared metadata handback through predecessor published/backedup/original states; no live successor payload grants in rollback direction.",
+      "Native equality proof and bounded retention for successor coordination plus original directory anchors that are catalog-created, including no-coordination cases.",
+      "Actual late callback mutation, source/code/default binding, cold import-order, no-write and changed-producer, interruption/restart and complete original-inode recovery controls.",
+      "Independent full source closure, reviewed pin/documentation refresh, frozen original/current regressions and actual installed historical acceptance."
+    ],
+    "preserved_failures": "r19/r19b fixture setup required ordinary producer renewal; baseline-r19/r19b caught missing catalog/empty-directory assumptions. r19c diagnostic run had concurrent source/test edits and is not frozen qualification. r19d/r19e special function attribute mock cleanup raised TypeError; manual finally restoration repaired it. r19f retains actual rollback failure.",
+    "limits": "All83 goals retained; no issue closed, no prepare/tag/publish, no driver repin while source closure/recovery incomplete."
+  },
+  "qualification_followup_r20": {
+    "baseline": "2c49e0e593f6cefab1a4c47fcca817f1e344f571",
+    "owning_issues": [
+      503,
+      509
+    ],
+    "status": "503 native/source/API review closed; full qualification blocked by separately recorded509 before moved-reference handback",
+    "reviews": [
+      "verification/release-1.4-followup/review-runtime-503-final-source-closure-r1.json",
+      "verification/release-1.4-followup/review-runtime-503-fixture-refresh-r2.json",
+      "verification/release-1.4-followup/review-runtime-503-fixture-source-closure-r3.json",
+      "verification/release-1.4-followup/review-contracts-503-recovery-api-docs-closing-r3.json",
+      "verification/release-1.4-followup/review-runtime-503-r2-fixes-and-moved-handback-fixture-r1.json",
+      "verification/release-1.4-followup/review-runtime-framework-imported-reference-scope-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-runtime-framework-imported-reference-scope-design-r2.json",
+      "verification/release-1.4-followup/review-authority-lang-python-partial-framework-r20c-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-authority-partial-flavor-public-producer-plan-r1.json"
+    ],
+    "repairs": "Original import-bound successor owner derives finite exact active or rollback membership; same original lease/namespace/binding throughout initial load, producer undo and every currentness boundary. Shared metadata follows exact predecessor published/backedup/original handback nodes/slots. Recovering retains only proved coordination and native directory anchors. Explicit successor recover option has strict wrong-scope/empty/legacy refusal and preserves omitted-option call shapes. No target ownership grant or deadline changes.",
+    "reports": {
+      "successor-catalog-r20e-report.json": {
+        "sha256": "2f471647a9bec9691c85d86bada1a0162b26783e79339fc0edc6ecd246ecfd2e",
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        }
+      },
+      "successor-framework-r20e-report.json": {
+        "sha256": "c303bc157bcd07c30f8af52e2ac978f2f13de90905436455e6bdbffd4c620e76",
+        "summary": {
+          "executed": 122,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 122,
+          "selected": 122,
+          "skipped": 0
+        }
+      },
+      "successor-initialized-r20e-report.json": {
+        "sha256": "ebc741cf3f236b9228e6052c2d24fbbbfcf8ed488c674059fdd7dcea22936ec9",
+        "summary": {
+          "executed": 18,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 18,
+          "selected": 18,
+          "skipped": 0
+        }
+      },
+      "successor-mixed-r20e-report.json": {
+        "sha256": "533526cb6781910341f6f99ddcad298b696e815bcee47364baac9a0f3c3379a3",
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        }
+      },
+      "successor-new-r20e-report.json": {
+        "sha256": "75b5a8206c7885576b4a03feafd71e364aab847bb27a6e8f609973e48deb4b4c",
+        "summary": {
+          "executed": 12,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 12,
+          "skipped": 0
+        }
+      },
+      "successor-public-r20e-report.json": {
+        "sha256": "3252c41071a64d0efb85f3f0012a3d10b4fe007520a905d046825118e96b4d5d",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        }
+      },
+      "successor-new-r20g-report.json": {
+        "sha256": "6df9123fcdb74e7308f82ea5821cf4153f7d27fe9339f10494bd0fe695c7111b",
+        "summary": {
+          "executed": 12,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 12,
+          "skipped": 0
+        }
+      },
+      "catalog-membership-recovery-r20d-report.json": {
+        "sha256": "97af2f20cbd7cd5b9acd600f63f85eefaf941e2086558fff119e8b1e22a94068",
+        "summary": {
+          "executed": 10,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 10,
+          "selected": 10,
+          "skipped": 0
+        }
+      }
+    },
+    "new_failure": "Canonical valid-SKILL original POST baseline plus real local PRE edit reaches catalog placement/rewrite; framework plan then refuses existing contained imported target litai/samples/peer/component.md because curated semantic observation excludes it. #509 included1.4.0 before implementation; original applicability/foreign-inode/complete-recovery assertions retained.",
+    "next": "Add finite original ingress-owned read-only target facts derived from proved Markdown and typed imported file membership, separate from contents/source proofs/writer inventory, with safe native/currentness/callback closure. Keep private/output/escaped/missing refs strict. Then finish full handback control, original regressions, driver/docs gates and frozen installed historical catalog finalization.",
+    "preserved_failures": "r20 expired lease fixture expected wrong exception; corrected to exact original ProjectLayoutLeaseError. r20b lacked initialized Flavor anchor; r20c langPython partial modeled fixture reached separate consumer-closer asymmetry with public provenance unproven. r20e synthetic moved SKILL lacked frontmatter. r20f accidental unchanged rerun after an unchecked string replacement missed formatted text; no newqualification claimed. Exact apply_patch+AST/hash before r20g corrects template and reaches distinct509 refusal.",
+    "conditional_followup": "Mixed Flavor primary/closing consumer coordinate asymmetry is read-only source-confirmed but admissible public producer regression is unrun. Preserve r20c diagnosis separately; do not claim authentic historical/native acceptance or expand503 scope.",
+    "limits": "All83 goals retained. #509 includedexisting1.4.0 scope. No issueclosed, no finalsourcegate/publication claim, no prepare/tag/publish. Actual R2 remains preserved at oldcatalogfinalizefailure; no provisional retry with this dirty tree. Driver/doc reviews remain stale pending complete source wave."
+  },
+  "qualification_followup_r21": {
+    "created_utc": "2026-11-27T19:17:39.868976+00:00",
+    "issues": [
+      503,
+      509
+    ],
+    "status": "independently reviewed source fixes and scoped regressions pass; installed historical and release acceptance remain open",
+    "reports": {
+      "successor-catalog-r21e-report.json": {
+        "sha256": "35bef837cea7bb1b54dc78eb6d383218746703b400e24990e6ef5043952feb64",
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        }
+      },
+      "successor-framework-r21e-report.json": {
+        "sha256": "d043a8f92864197df8f9d12519bba77b61367d46e28d6e72cfac803de8e15b4b",
+        "summary": {
+          "executed": 122,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 122,
+          "selected": 122,
+          "skipped": 0
+        }
+      },
+      "successor-initialized-r21e-report.json": {
+        "sha256": "73e84ff7cb3d6750a9430e6e7d4f81204b342bc7b6f7030d89ae925976b1a58c",
+        "summary": {
+          "executed": 18,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 18,
+          "selected": 18,
+          "skipped": 0
+        }
+      },
+      "successor-mixed-r21e-report.json": {
+        "sha256": "2c50547204e97f80922e842966958b9a45f1f29ef0f5ae7cdbcbfacff25a952c",
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        }
+      },
+      "successor-public-r21e-report.json": {
+        "sha256": "f5f6aa8c10f870e2e4a59a581e8945dc5eb91831fb4543d20d22156484e40be8",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        }
+      },
+      "reference-catalog_successor_membership-r21f-report.json": {
+        "sha256": "55c4743edc6a19b1e64f7f3270ab63ce646c01abe80b1562c7f5b53d14534513",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      },
+      "reference-framework_reference_targets-r21f-report.json": {
+        "sha256": "741264c57535d96702d5dd4b4b1c50a33c2f6f2be91c5a76a637be5c6d92c197",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      }
+    },
+    "scope": "Original177 r21e pass before final single export-slot guard addition. Final12 reference-target controls and12 complete successor membership/recovery controls r21f pass on final production bytes. No original assertions/deadlines changed; no new skips.",
+    "review_reports": [
+      "verification/release-1.4-followup/review-runtime-509-final-source-closure-r4.json",
+      "verification/release-1.4-followup/review-runtime-509-parser-export-slot-closure-r6.json",
+      "verification/release-1.4-followup/review-runtime-509-parser-export-slot-findings-r5.json",
+      "verification/release-1.4-followup/review-runtime-509-prototype-source-findings-r1.json",
+      "verification/release-1.4-followup/review-runtime-509-tightened-source-findings-r2.json",
+      "verification/release-1.4-followup/review-runtime-509-url-result-source-findings-r3.json",
+      "verification/release-1.4-followup/review-contracts-503-509-final-docs-r4.json"
+    ],
+    "source_sha256": {
+      "src/literate_ai/adapters/project_layout_framework_ingress.py": "e6458a5f7ff54ff0a32f370492ba0828d328a35adcfc9a330a8309e272b463a9",
+      "src/literate_ai/adapters/project_layout_framework_observation.py": "f2c98a805a74f3104ef6506018c922a0c5af2ac0c608db0d5b91372dec322831",
+      "src/literate_ai/adapters/project_layout_framework_selection.py": "7f0757642eab38bb8c909f8fa43f1182c16b1436a8ef496386e339013cd7c35a"
+    },
+    "source_fix": "Finite metadata-only native reference observations from original proved Markdown and imported membership; no payload/ownership grant; currentness across callbacks. Original parser export/code/default/dependency closure guarded before foreign invocation.",
+    "preserved_failures": "Prior r20g moved reference refusal and r21 intermediate reviewer findings retained. r4 closure amended by r5 export pointer finding; r6 closes exact final fix.",
+    "next": "Documentation authority and project validation, clean commit, fresh immutable candidate and original preserved R2 catalog finalization; no legacy journal edits.",
+    "limits": "All83 original goals retained. No issue closed, merge, prepare, tag, publication or whole-wheel/native matrix acceptance."
   }
 }

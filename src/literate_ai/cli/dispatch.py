@@ -2181,6 +2181,7 @@ def _parser() -> JsonArgumentParser:
         )
         if operation in {"renew", "finalize"}:
             layout_action.add_argument("--place-imported-catalogs", action="store_true")
+        if operation in {"recover", "renew", "finalize"}:
             layout_action.add_argument("--successor-plan-identity")
         if operation == "renew":
             layout_action.add_argument("--component", required=True)

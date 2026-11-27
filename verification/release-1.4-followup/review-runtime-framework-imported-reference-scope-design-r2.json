@@ -1,0 +1,95 @@
+{
+  "created_utc": "2026-11-27T18:28:52.125681+00:00",
+  "status": "confirmed separate product composition defect; no repair applied",
+  "severity": "P2",
+  "finding": "Contained imported reference targets omitted from original framework semantic read scope",
+  "evidence": {
+    "run": "successor-new-r20g",
+    "summary": {
+      "executed": 12,
+      "passed": 11,
+      "failed": 1,
+      "skipped": 0
+    },
+    "failure": "test_rolled_back_moved_reference_rejects_foreign_destination at public applicable assertion, before framework apply/moved handback",
+    "error": "reference-scope unresolved local reference at line 138: litai/samples/peer/component.md",
+    "log_sha256": "9d32d338c39c07823ec905963177a81b5f442edac47852771544d2a3e01dd1c4",
+    "report_sha256": "6df9123fcdb74e7308f82ea5821cf4153f7d27fe9339f10494bd0fe695c7111b"
+  },
+  "source_hashes": {
+    "src/literate_ai/adapters/project_layout_framework_ingress.py": "cbd5d5cb2cf3fecc6eefd767a141f4cc63f4d25c7110d1e36300b3db26c9581d",
+    "src/literate_ai/adapters/project_layout_framework_observation.py": "e4eee70a0a93bc4d4159aa8a8c2a695cbe0e9d201edf880a9ac4b7c36daaf3ee",
+    "src/literate_ai/adapters/project_layout_framework_selection.py": "7e39d40c4c378fb07ba20b47bb60ee89b6d7e9f80559407991ea62431d73996e",
+    "src/literate_ai/adapters/project_scaffold_placement.py": "15795470a5c606786b7c41fff0e6c0686c37d7671a337fad0712ff98e00e6091",
+    "src/literate_ai/adapters/project_layout_initialized_items.py": "cab9515969007b787f4b9e23860d1aefa580c2f098d651007e20b20e821b1ea4",
+    "tests/critical/test_catalog_successor_membership.py": "942bdd5de48cb715b4b8b15625fc593c2cdfd85b638e46311a7a485210591366"
+  },
+  "causal_chain": [
+    {
+      "path": "src/literate_ai/adapters/project_layout_framework_observation.py",
+      "lines": "24-29,198-221,264-280",
+      "fact": "litai is an excluded root unless exact internally owned required scope enters it."
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_framework_ingress.py",
+      "lines": "546-570,572-615,633-653",
+      "fact": "Curated finite paths omit imported payload; imports ledger parsed only after capture."
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_framework_selection.py",
+      "lines": "548-551,718-729",
+      "fact": "Identity coordinates derive captured contents; target neither observed nor mapped -> unresolved reference."
+    },
+    {
+      "path": "src/literate_ai/adapters/project_scaffold_placement.py",
+      "lines": "505-550",
+      "fact": "Existing renderer keeps an unknown target coordinate fixed and recalculates document-relative link; target observation can validate without authorizing target movement."
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_initialized_items.py",
+      "lines": "75-80",
+      "fact": "Imported/protected fallback exclusion is correct nonownership; do not revert it."
+    }
+  ],
+  "bounded_repair_design": {
+    "owner": "Original framework ingress and source observation, before pure selector; separate finite target facts, not ownership issuer.",
+    "derivation": "After original initialization/import metadata and original document proofs are available, use original bound Markdown local-subject parser on exact proved bytes. Intersect unresolved contained targets with freshly parsed typed import file coordinates for the minimal supported imported-target extension; already protected native source is already independently captured. No caller-supplied path authority.",
+    "capture": "Use original native no-follow root/ancestor/leaf owner to observe exact targets and ancestor lineages only, with portable alias, same-device, independent Git, private/output, type/hardlink and existing entry/depth/byte bounds. Preserve source capture exclusions; do not recursively census litai, credentials, build outputs or imports wholesale. A dedicated native existence/type observation may avoid reading target contents entirely; if bytes are captured, keep them separated from candidate ownership content.",
+    "pure_projection": "Pass immutable original-owned semantic target facts or original validated target coordinate data separately. Use target->same-target only; never claim targets as selected, create baseline entries or bypass imported/protected proof exclusions. Existing renderer already computes the correct relative target from moved document.",
+    "freshness": "Reobserve exact derived target set/facts within original current() before and after all owner callbacks, with parent native closing checks after last callback. Bind helper identity/code and original owner custody consistent existing ingress. Mutation/replacement/activation must refuse.",
+    "minimal_controls": [
+      "Existing exact catalog peer import -> catalog rewrite -> canonical SKILL original POST base -> framework plan applicable; assert peer unchanged and absent from all framework owned/writer outputs.",
+      "Direct already-contained imported reference positive independent of catalog transaction.",
+      "Protected already observed reference remains usable but never owned.",
+      "Missing/unrecorded contained target remains explicit blocker; imports ledger alone grants no presence.",
+      "Alias/symlink/private/output/foreign Git target remains refused/unopened.",
+      "Target same-byte inode replacement, disappearance, type change, alias/ancestor replacement after selection refuse before effects; no target read is necessary. Ordinary stamp drift can be refused, but byte-only restored-native-fact changes are not an invented content contract.",
+      "Retain full existing occupied moved-destination handback refusal and original PRE recovery byte/inode assertions.",
+      "Copied/forged target-owner facts or replaced callbacks refuse before foreign execution; finite caps enforced."
+    ],
+    "minimal_original_registry_integration": [
+      "Prefer extending existing original ingress closure/registration rather than a caller-provided target observer or general registry. Derive exact targets after actual source proofs and typed imports are established, using captured original Markdown parser.",
+      "Native helper accepts only original snapshot/context root witness and internally derived bounded canonical target tuple. Its output is closure-private data retained by existing OriginalFrameworkAuthorityObservation/current callback; pure selector receives only an immutable data projection.",
+      "Add helper/parser/original subject derivation to finite import-time ingress original-function/code seals before first use and after callbacks, consistent existing _invoke/_check. Keep original target-set association with exact source proof bytes and resources context.",
+      "Currentness reacquires original target observations and compares exact target set, kinds, native leaf/ancestor facts; final native close follows callbacks. Closing original selection registry retires all target facts; no standalone public permission token or caller path set.",
+      "If a separate issued owner is chosen instead, require exact original class/registry issuance, same resources/snapshot/context association, captured fields and current/retirement checks; copied decoded facts cannot become effect admission."
+    ],
+    "existence_only_semantics": "Safe existence/type/native ancestry is sufficient for Markdown target resolution because no target content is parsed or transformed. Do not open/read/hash target payload merely to establish referential presence. A changed target native identity/type or unsafe ancestor must refuse; do not promise detection of byte-only mutations restoring all native facts when bytes are deliberately outside this semantic contract. Original transaction protections continue to preserve imported payloads independently."
+  },
+  "issue_draft": {
+    "title": "Framework placement cannot resolve references to already contained imported catalog payloads",
+    "body": "An actual catalog-to-framework composition reaches a valid original SKILL proof whose local peer link already points to the imported catalog destination litai/samples/peer/component.md. Catalog apply has published the target and preserved imported ownership. Framework planning nevertheless returns applicable=false with reference-scope / unresolved local reference at line 138.\n\nThe original root source capture excludes litai/. Ingress supplements only finite initializer resource coordinates, producer metadata and retained native-source records; it does not observe this imported payload. Selection requires every local target to be a coordinate or observation. Thus an actual contained imported target is indistinguishable from a missing target. Imported/protected ownership exclusion is correct and must remain unchanged.\n\nAdd finite original-owner target observations, independently of move ownership, under the same native/root/Git/resource currentness and callback closing checks. Do not treat import membership or a caller path set as proof of existence/currentness, and do not broaden framework source proofs or grant directory ownership. Preserve missing/unsafe/private/alias/foreign-target refusal and all original preimage/lease/rollback checks.\n\nRetain the existing moved-reference applicability assertion and full occupied destination rollback test. Cover already-contained imported targets, protected observed targets, missing targets, replacement/mutation after observation, foreign/copy callback injection and bounded target scope. No receipt/full qualification claim is implied.\n\nTarget resolution requires safe existence/type/native ancestry, not a content read. Keep credential-shaped/private/output/unsupported targets unopened and refused. Register target facts only through the original ingress source owner; retire/revalidate them with that owner. No arbitrary observer callback, caller path roster or decoded target fact may acquire effect authority.",
+    "duplicate_queries": [
+      "gh issue list --state all --search \"framework reference-scope imported\"",
+      "gh issue list --state all --search \"contained catalog reference target\"",
+      "gh issue view 481",
+      "gh issue view 503"
+    ],
+    "tracker_status": "No search or post performed in this task; parent should inspect current #481/#503 scope before creating a distinct reusable issue."
+  },
+  "limits": [
+    "Read-only source and preserved canonical report inspection; no tests/jobs/source edits/project mutation.",
+    "No #503 full closure: new moved-handback product cut remains blocked before framework apply.",
+    "Actual authentic installed historical acceptance remains pending."
+  ]
+}

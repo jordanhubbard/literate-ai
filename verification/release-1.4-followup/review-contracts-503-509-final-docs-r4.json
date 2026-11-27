@@ -1,0 +1,36 @@
+{
+  "status": "documentation-reviewed-closed-no-concrete-finding",
+  "issues": [
+    503,
+    509
+  ],
+  "head": "2c49e0e593f6cefab1a4c47fcca817f1e344f571",
+  "documentation_hashes": {
+    "docs/user/project-layout.md": "30ace7ecb6afa26eb315c352e420b521bd21a1b4dc93fb69d136f70343964f28",
+    "CHANGELOG.md": "59f8fb06f0ad8cfa96c17620dfe8e684207ae609b7ba5cc037fde698be2dc22e"
+  },
+  "supporting_implementation_hashes": {
+    "src/literate_ai/adapters/project_layout_framework_ingress.py": "e6458a5f7ff54ff0a32f370492ba0828d328a35adcfc9a330a8309e272b463a9",
+    "src/literate_ai/adapters/project_layout_framework_observation.py": "f2c98a805a74f3104ef6506018c922a0c5af2ac0c608db0d5b91372dec322831",
+    "src/literate_ai/adapters/project_layout_framework_selection.py": "7f0757642eab38bb8c909f8fa43f1182c16b1436a8ef496386e339013cd7c35a"
+  },
+  "503_API_exact_unchanged_since_r3": {
+    "src/literate_ai/cli/dispatch.py": true,
+    "src/literate_ai/cli/project.py": true,
+    "src/literate_ai/adapters/project_layout_migration.py": true,
+    "src/literate_ai/adapters/project_layout_continuation.py": true
+  },
+  "claims_checked": {
+    "503": "Final user guide retains exact frameworkundo then catalog recover --successor-plan-identity SAME_FRAME_ID; nohistory case, alreadyrolledback requirement, exact original journals/native handback/anchors and foreign/replaced-inode refusal. Changelog implementation statement matches that bounded behavior; no release/native platform acceptance claimed.",
+    "509_reference_scope": "Ingress derives finite references only from original admitted initialized source proofs and actual imported member/ancestor membership; skips already captured nodes. No target content read is added by reference observer. Selection receives only original reference target names, suppressing only unresolved-reference blockers; imported/protected source exclusion remains unchanged.",
+    "509_native_observation": "Reference capture admits only canonical litai catalog coordinates (components/samples/flavors/skills/workflows/routing), finite bounds, direct same-device ancestors, exact portable spelling/no aliases, no independent Git namespace, regular leaf with nlink1 or native directory. Uses stat/lstat/scandir/held directory identities; never reads target file bytes or recursively inventories unrelated target payload.",
+    "509_freshness": "Original reference facts are snapshot as path/kind/mode/stamp; closing capture repeats exact original semantic target scope and native facts. Missing/unsafe filtered targets stay absent from target set, so original unresolved-reference blocker remains; replaced/stale observations refuse.",
+    "509_identity_limit": "Wording correctly says native identities, not payload digest/content verification or imported authority ownership. Directory reference observation does not claim recursive membership or payload completeness."
+  },
+  "findings": [],
+  "limits": [
+    "Documentation closure only; supporting relevant call paths inspected to substantiate claims, not new complete509 implementation/foreign-callback/native-platform source attestation.",
+    "No source/docs edits, marker recording, jobs/tests/reruns, posts or project/prefix mutation.",
+    "No installed/historical/browser/native-scale/fullcontainment/full-feature/wholewheel/release acceptance. Release qualification remains open."
+  ]
+}

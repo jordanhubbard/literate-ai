@@ -10,6 +10,7 @@ import json
 import os
 import stat
 import tempfile
+import types
 from pathlib import Path
 
 from literate_ai.adapters import component_lock_operations as operations
@@ -345,7 +346,6 @@ def _guard(
 ):
     _bindings()
     require_layout_lease(lease, root)
-    native._current(root, parent, intent, namespace)
     outputs = {}
     observed_successors = []
     for component, target in _pairs(intent):
@@ -382,6 +382,15 @@ def _guard(
             successor = observed_successors[0]
         if any(binding != successor for binding in observed_successors):
             _fail("normal catalog histories name different successor epochs")
+    native._current(
+        root,
+        parent,
+        intent,
+        namespace,
+        lease=lease,
+        successor=successor,
+        recovering=recovering,
+    )
     shadowed = (
         successor_owner.require_catalog_successor(
             root, parent, intent, lease, namespace, successor, recovering=recovering
@@ -673,7 +682,7 @@ def renew_placed_catalog_component(
         )
 
 
-def recover_catalog_renewals(root, parent, intent, namespace):
+def recover_catalog_renewals(root, parent, intent, namespace, *, successor=None):
     check, move = _bindings, _move
     check()
     lease = current_layout_lease(root)
@@ -683,7 +692,16 @@ def recover_catalog_renewals(root, parent, intent, namespace):
         if not os.path.lexists(journal):
             continue
         journal, record = _decode(root, intent, component, target)
-        _guard(root, parent, intent, lease, namespace, active=journal, recovering=True)
+        _guard(
+            root,
+            parent,
+            intent,
+            lease,
+            namespace,
+            active=journal,
+            recovering=True,
+            successor=successor,
+        )
         for coordinate, row in reversed(tuple(record["entries"].items())):
             state = _state(root, journal, coordinate, row)
             if state == "published":
@@ -705,6 +723,7 @@ def recover_catalog_renewals(root, parent, intent, namespace):
                     namespace,
                     active=journal,
                     recovering=True,
+                    successor=successor,
                 )
             if state != "original":
                 move(
@@ -725,6 +744,7 @@ def recover_catalog_renewals(root, parent, intent, namespace):
                     namespace,
                     active=journal,
                     recovering=True,
+                    successor=successor,
                 )
         if not os.path.lexists(journal / "rolled-back"):
             filesystem._write(journal / "rolled-back", _MARKERS["rolled-back"])
@@ -763,6 +783,7 @@ def _bind():
             "os",
             "stat",
             "tempfile",
+            "types",
             "canonical_identity",
             "canonical_json_bytes",
             "ContentIdentity",
@@ -789,6 +810,8 @@ def _bind():
                     "validate_successor_binding",
                     "observe_catalog_successor",
                     "require_catalog_successor",
+                    "require_catalog_successor_members",
+                    "_bindings",
                 ),
             ),
             (
@@ -798,6 +821,9 @@ def _bind():
                     "_current",
                     "_guard",
                     "_guard_journal",
+                    "_guard_directories",
+                    "_install_successor_directories",
+                    "_successor_directory_query",
                     "_entry_state",
                     "_view",
                     "_matches",
@@ -815,12 +841,48 @@ def _bind():
         )
         for name in names
     )
+    directory_functions = tuple(
+        (
+            value,
+            value.__code__,
+            value.__defaults__,
+            value.__kwdefaults__,
+            tuple((value.__kwdefaults__ or {}).items()),
+        )
+        for module, name, value in originals
+        if type(value) is types.FunctionType
+        and (
+            (
+                module is native
+                and name
+                in (
+                    "_current",
+                    "_guard_journal",
+                    "_guard_directories",
+                    "_successor_directory_query",
+                )
+            )
+            or module is successor_owner
+        )
+    )
     error_type = ProjectLayoutPlanError
 
     def check():
         if (
             namespace.get("_bindings") is not check
             or any(namespace.get(name) is not original for name, original in aliases)
+            or any(
+                fn.__code__ is not code
+                or fn.__defaults__ is not defaults
+                or fn.__kwdefaults__ is not kwdefaults
+                or len(fn.__kwdefaults__ or {}) != len(items)
+                or any(type(key) is not str for key in (fn.__kwdefaults__ or {}))
+                or any(
+                    (fn.__kwdefaults__ or {}).get(key) is not value
+                    for key, value in items
+                )
+                for fn, code, defaults, kwdefaults, items in directory_functions
+            )
             or any(
                 vars(module).get(name) is not original
                 for module, name, original in originals

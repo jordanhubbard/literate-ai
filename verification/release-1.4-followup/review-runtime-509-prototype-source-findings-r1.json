@@ -1,0 +1,63 @@
+{
+  "created_utc": "2026-11-27T18:45:32.361112+00:00",
+  "issue": 509,
+  "status": "review open: original delegate binding gaps identified",
+  "files": {
+    "src/literate_ai/adapters/project_layout_framework_observation.py": "061c3603ea2d6b8e20113a298f3cc54bc06ac0bf174b99f8f7b610f37f6c9d50",
+    "src/literate_ai/adapters/project_layout_framework_ingress.py": "5456ffe78a761d151bfff546f351a447d4bf74b07feebf24ac60766764e9d04a",
+    "src/literate_ai/adapters/project_layout_framework_selection.py": "7f0757642eab38bb8c909f8fa43f1182c16b1436a8ef496386e339013cd7c35a"
+  },
+  "reviewed": "Full actual three-file diff and relevant original source/parser/native/current/selection/registration call paths, read only.",
+  "positive_findings": [
+    "Reference subjects originate in actual original initialized proofs and intersect parsed typed imported file coordinates/ancestors.",
+    "Finite native helper filters private/output/noncanonical/unsupported namespaces before entering target paths, walks only selected lineage, checks portable aliases/same-device/no-follow/direct singly-linked regular leaves, and bounds census/entries/depth/coordinate bytes.",
+    "Target leaf content is never opened or read. Only directory handles/cursors are opened.",
+    "Target facts remain private immutable tuples, not candidate contents/ownership proofs/coordinate grants. Pure optional frozenset only affects reference-presence guard.",
+    "Original current closure rederives target set from original source proofs and reobserves native target facts after source native closing."
+  ],
+  "findings": [
+    {
+      "id": "509-R1",
+      "severity": "P1",
+      "path": "src/literate_ai/adapters/project_layout_framework_ingress.py",
+      "lines": "217-249,353-379,1031-1047",
+      "finding": "New coordinate/fact helpers and Python parser dependencies are identity-bound but their executable code is not sealed.",
+      "evidence": "reference_codes contains only capture_framework_reference_targets and _reference_subjects. _reference_coordinates and _reference_facts are added to original call/binding maps, which compare object identity only. _reference_facts has no freevars and is called directly after native capture and again as the final current comparison. Replacing its same function object __code__ can run foreign code or suppress changed target facts without any _check refusal. Same-object code replacement of extract_markdown_links/urlsplit/unquote/posixpath helpers passes reference_dependencies identity checks before invocation.",
+      "repair": "Capture original code/default/kwdefault identity and mutable default values for actual new helpers and used parser functions. Check before use and after callbacks; call closing fact helper only after original check. Extend used parser dependency closure finitely, including its own called helpers and immutable parse constants.",
+      "runtime_reproduction": "Not executed: parent explicitly prohibited tests/jobs/runs in this review. Source path deterministic; root informed incrementally.",
+      "meaningful_controls": [
+        "Replace _reference_facts.__code__ with no-freevar foreign(nodes), assert refusal before foreign invocation.",
+        "Equivalent code cut for coordinate helper, using matching closure cells, before first native capture.",
+        "Replace actual Markdown extractor/parser dependency code without replacing function object; require refusal before foreign counter.",
+        "Late original callback mutates a closing helper, then require_current must refuse before foreign helper runs."
+      ]
+    },
+    {
+      "id": "509-R2",
+      "severity": "P2",
+      "path": "src/literate_ai/adapters/project_layout_framework_observation.py",
+      "lines": "568-621",
+      "finding": "Original native helper sealing does not yet cover actual used reparse/path-parser global dependencies.",
+      "evidence": "stat_is_link_or_reparse code is sealed but calls its own stat.S_ISLNK and reads _WINDOWS_REPARSE_POINT. Native wrapper stat bindings omit S_ISLNK and the reparse constant lives in another module. canonical_relative_posix_path also uses live own globals for portable path parsing. Code identity alone does not bind those original privacy/no-follow decisions.",
+      "repair": "Capture exact actual used helper globals/constants/delegates within finite original native wrapper closure, especially stat.S_ISLNK/_WINDOWS_REPARSE_POINT, canonical path parser dependencies and Windows original native owner resolution; avoid generic registry.",
+      "runtime_reproduction": "Not run; platform-specific bypass not claimed proven. Finite dependency coverage gap found by direct call-path read."
+    }
+  ],
+  "recommended_functional_controls": [
+    "Actual catalog-to-framework composition retains applicable assertion and final moved-handback native refusal/recovery.",
+    "Imported target exact bytes/inode remain unchanged and absent all framework owned/writer inventories.",
+    "Already observed protected source reference resolves but never acquires ownership.",
+    "Patch native target-file opening to refuse: metadata-only positive still passes; only original directory opens allowed.",
+    "Missing imported target is a blocker, not granted by imports metadata; missing prefix activation changes facts/currentness.",
+    "Private/credential-shaped/escaped/unsupported/output target stays unopened and unresolved even if present in imported ledger.",
+    "Symlink/reparse/hardlink/foreign-device/independent Git/portable alias must refuse or remain explicit unsupported blocker before payload read.",
+    "Target/ancestor same-byte inode replacement, disappearance/type change after observation refuses before effects; no target-content hash contract invented.",
+    "8192-target/entry bounds, depth and coordinate-byte bounds cannot be bypassed by duplicate requests or shared ancestors.",
+    "Forged pure reference target frozenset cannot be used as original selection effect admission; copied original owner refuses."
+  ],
+  "qualification_limits": [
+    "Prototype r21 is pending and not counted; no source qualification closure.",
+    "No reviewer tests/jobs/edits/posts/project mutation.",
+    "Installed authentic historical journey and full release acceptance pending."
+  ]
+}

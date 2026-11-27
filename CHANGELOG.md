@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Preserve exact framework successor membership during catalog finalization and
+  recovery, including explicit successor selection for interrupted recovery.
+
+- Recognize contained imported catalog targets in framework Markdown references
+  through read-only native observations, preserving source ownership and refusing
+  changed target identities.
+
 - Restore accepted Codex source-cache replay by owning private runtime state
   while reconstructing invocation metadata, without another generation call.
 

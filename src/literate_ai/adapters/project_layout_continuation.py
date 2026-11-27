@@ -304,7 +304,7 @@ def _restore_source_namespaces(root, journal, intent):
         yield
 
 
-def _guard_directories(root, journal, intent):
+def _guard_directories(root, journal, intent, members):
     for coordinate, node in intent["original_directories"].items():
         if (
             list(directory_node(_source_location(root, journal, intent, coordinate)))
@@ -345,13 +345,240 @@ def _guard_directories(root, journal, intent):
                         ".component.resolution-audit." + target + ".json.write.lock"
                         for target in component["target_names"]
                     )
+            for path in members:
+                if path != coordinate and path.startswith(coordinate + "/"):
+                    allowed.add(path[len(coordinate) + 1 :].split("/", 1)[0])
             if not _names(live) <= allowed:
                 _fail(
                     "recovery_conflict", "new catalog directory has unrelated content"
                 )
 
 
-def _guard_journal(root, journal, intent):
+def _bind_successor_directories(census):
+    # One original module link, completed during successor module import. It
+    # cannot be replaced, or first captured from a callback during a census.
+    link = None
+
+    def install(module, observe, check):
+        nonlocal link
+        if link is not None:
+            _fail(
+                "recovery_conflict", "original successor directory owner already bound"
+            )
+        if (
+            type(module) is not types.ModuleType
+            or type(observe) is not types.FunctionType
+            or type(check) is not types.FunctionType
+            or vars(module).get("require_catalog_successor_members") is not observe
+            or vars(module).get("_bindings") is not check
+        ):
+            _fail("recovery_conflict", "original successor directory owner required")
+        select = vars(module).get("observe_catalog_successor")
+        if type(select) is not types.FunctionType:
+            _fail("recovery_conflict", "original successor selection owner required")
+        link = (
+            module,
+            observe,
+            select,
+            check,
+            tuple(
+                (
+                    fn.__code__,
+                    fn.__defaults__,
+                    fn.__kwdefaults__,
+                    tuple((fn.__kwdefaults__ or {}).items()),
+                )
+                for fn in (observe, select, check)
+            ),
+        )
+
+    def members(
+        root,
+        journal,
+        intent,
+        lease,
+        namespace,
+        successor,
+        recovering,
+        *,
+        selecting=False,
+    ):
+        if link is None:
+            _fail("recovery_conflict", "original successor directory owner unavailable")
+        if type(selecting) is not bool:
+            _fail("recovery_conflict", "exact original successor query required")
+        module, observe, select, check, seals = link
+
+        def current():
+            if (
+                vars(module).get("require_catalog_successor_members") is not observe
+                or vars(module).get("observe_catalog_successor") is not select
+                or vars(module).get("_bindings") is not check
+                or any(
+                    fn.__code__ is not seal[0]
+                    or fn.__defaults__ is not seal[1]
+                    or fn.__kwdefaults__ is not seal[2]
+                    or len(fn.__kwdefaults__ or {}) != len(seal[3])
+                    or any(type(key) is not str for key in (fn.__kwdefaults__ or {}))
+                    or any(
+                        (fn.__kwdefaults__ or {}).get(key) is not value
+                        for key, value in seal[3]
+                    )
+                    for fn, seal in zip((observe, select, check), seals, strict=True)
+                )
+            ):
+                _fail(
+                    "recovery_conflict", "original successor directory delegate changed"
+                )
+            check()
+
+        current()
+        function = select if selecting else observe
+        result = function(
+            root, journal, intent, lease, namespace, successor, recovering=recovering
+        )
+        current()
+        return result
+
+    def require_helpers():
+        if any(
+            fn.__code__ is not code
+            or fn.__defaults__ is not defaults
+            or fn.__kwdefaults__ is not kwdefaults
+            or len(fn.__kwdefaults__ or {}) != len(items)
+            or any(type(key) is not str for key in (fn.__kwdefaults__ or {}))
+            or any(
+                (fn.__kwdefaults__ or {}).get(key) is not value for key, value in items
+            )
+            for fn, code, defaults, kwdefaults, items in functions
+        ):
+            _fail(
+                "recovery_conflict", "original catalog directory census/helper changed"
+            )
+
+    helper_code = require_helpers.__code__
+
+    def guarded(
+        root,
+        journal,
+        intent,
+        *,
+        lease=None,
+        namespace=None,
+        successor=None,
+        recovering=False,
+    ):
+        if (
+            require_helpers.__code__ is not helper_code
+            or require_helpers.__defaults__ is not None
+            or require_helpers.__kwdefaults__ is not None
+        ):
+            _fail("recovery_conflict", "original directory closure checker changed")
+        require_helpers()
+        if successor is None:
+            census(root, journal, intent, ())
+            if (
+                require_helpers.__code__ is not helper_code
+                or require_helpers.__defaults__ is not None
+                or require_helpers.__kwdefaults__ is not None
+            ):
+                _fail("recovery_conflict", "original directory closure checker changed")
+            require_helpers()
+            return
+        before = members(root, journal, intent, lease, namespace, successor, recovering)
+        if (
+            require_helpers.__code__ is not helper_code
+            or require_helpers.__defaults__ is not None
+            or require_helpers.__kwdefaults__ is not None
+        ):
+            _fail("recovery_conflict", "original directory closure checker changed")
+        require_helpers()
+        census(root, journal, intent, before)
+        if (
+            require_helpers.__code__ is not helper_code
+            or require_helpers.__defaults__ is not None
+            or require_helpers.__kwdefaults__ is not None
+        ):
+            _fail("recovery_conflict", "original directory closure checker changed")
+        require_helpers()
+        after = members(root, journal, intent, lease, namespace, successor, recovering)
+        if (
+            require_helpers.__code__ is not helper_code
+            or require_helpers.__defaults__ is not None
+            or require_helpers.__kwdefaults__ is not None
+        ):
+            _fail("recovery_conflict", "original directory closure checker changed")
+        require_helpers()
+        if before != after:
+            _fail("recovery_conflict", "successor directory membership changed")
+
+    def query(
+        root,
+        journal,
+        intent,
+        lease,
+        namespace,
+        successor,
+        *,
+        recovering=False,
+        selecting=False,
+    ):
+        if (
+            require_helpers.__code__ is not helper_code
+            or require_helpers.__defaults__ is not None
+            or require_helpers.__kwdefaults__ is not None
+        ):
+            _fail("recovery_conflict", "original directory closure checker changed")
+        require_helpers()
+        result = members(
+            root,
+            journal,
+            intent,
+            lease,
+            namespace,
+            successor,
+            recovering,
+            selecting=selecting,
+        )
+        if (
+            require_helpers.__code__ is not helper_code
+            or require_helpers.__defaults__ is not None
+            or require_helpers.__kwdefaults__ is not None
+        ):
+            _fail("recovery_conflict", "original directory closure checker changed")
+        require_helpers()
+        return result
+
+    functions = tuple(
+        (
+            fn,
+            fn.__code__,
+            fn.__defaults__,
+            fn.__kwdefaults__,
+            tuple((fn.__kwdefaults__ or {}).items()),
+        )
+        for fn in (census, install, members, require_helpers, guarded, query)
+    )
+    return install, guarded, query
+
+
+(
+    _install_successor_directories,
+    _guard_directories,
+    _successor_directory_query,
+) = _bind_successor_directories(_guard_directories)
+
+
+def _guard_journal(
+    root,
+    journal,
+    intent,
+    *,
+    lease=None,
+    namespace=None,
+    successor=None,
+    recovering=False,
+):
     expected_document = {**intent, "identity": canonical_identity(intent).uri}
     if (
         _owner()._file(journal / "intent.json")[1]
@@ -418,10 +645,20 @@ def _guard_journal(root, journal, intent):
             _coordination_view(_source_location(root, journal, intent, path)), row
         ):
             _fail("recovery_conflict", "original source coordination inode changed")
-    _guard_directories(root, journal, intent)
+    _guard_directories(
+        root,
+        journal,
+        intent,
+        lease=lease,
+        namespace=namespace,
+        successor=successor,
+        recovering=recovering,
+    )
 
 
-def _current(root, journal, intent, namespace):
+def _current(
+    root, journal, intent, namespace, *, lease=None, successor=None, recovering=False
+):
     for fence in _FENCES.get():
         fence()
     if namespace is not None:
@@ -435,7 +672,15 @@ def _current(root, journal, intent, namespace):
             "litai/.literate/.catalog-placement-custody",
         ),
     )
-    _guard_journal(root, journal, intent)
+    _guard_journal(
+        root,
+        journal,
+        intent,
+        lease=lease,
+        namespace=namespace,
+        successor=successor,
+        recovering=recovering,
+    )
     if namespace is not None:
         namespace.require_current()
     for fence in _FENCES.get():
@@ -1045,7 +1290,9 @@ def _decode_intent(root, expected):
     return journal, intent
 
 
-def _load(root, expected):
+def _load(
+    root, expected, *, lease=None, namespace=None, successor=None, recovering=False
+):
     from literate_ai.adapters.project_layout_planning import ProjectLayoutPlanError
 
     journal, intent = _decode_intent(root, expected)
@@ -1054,7 +1301,15 @@ def _load(root, expected):
         _owner()._require_worktree_members(
             root, (*entries, *(row["destination"] for row in entries.values()))
         )
-        _guard_journal(root, journal, intent)
+        _guard_journal(
+            root,
+            journal,
+            intent,
+            lease=lease,
+            namespace=namespace,
+            successor=successor,
+            recovering=recovering,
+        )
     except ProjectLayoutPlanError:
         raise
     except (OSError, KeyError, TypeError, ValueError) as error:
@@ -1585,127 +1840,316 @@ def apply_catalog_continuation(selection, expected):
     return decode_catalog_continuation_result(envelope)
 
 
-def recover_catalog_continuation(root, expected):
-    root = Path(root).absolute()
-    with _operation(root) as namespace, _reserve(root, namespace):
-        journal, intent = _decode_intent(root, expected)
-        _guard(root, intent["plan"])
-        with _restore_source_namespaces(root, journal, intent):
-            journal, intent = _load(root, expected)
-            _current(root, journal, intent, namespace)
-            entries = intent["entries"]
-            # The independent producer history restores exact placed inodes
-            # before original catalog recovery validates its own postimages.
-            # No import/lease work for original journals without renewal data.
-            identity = canonical_identity(intent).uri
-            renewals = (
-                root
-                / "litai/.literate"
-                / (
-                    "catalog-renewal-"
-                    + canonical_identity(
-                        {
-                            "catalog_intent": identity,
-                            "component": component["source_root"],
-                            "target": target,
-                        }
-                    ).digest
-                )
-                for component in intent["components"]
-                for target in component["target_names"]
-            )
-            if not os.path.lexists(journal / "rolled-back") and any(
-                os.path.lexists(path) for path in renewals
-            ):
-                from literate_ai.adapters.project_layout_catalog_renewal import (
-                    recover_catalog_renewals,
-                )
+def _bind_catalog_recovery(query):
+    owner_namespace = globals()
+    query_code = query.__code__
+    query_defaults = query.__defaults__
+    query_keywords = query.__kwdefaults__
+    query_items = tuple((query.__kwdefaults__ or {}).items())
 
-                with _component_fences(
-                    root,
-                    intent["components"],
-                    namespace,
-                    destinations=True,
-                    intent=intent,
-                    journal=journal,
+    def recover_catalog_continuation(root, expected, *, successor_plan_identity=None):
+        if (
+            owner_namespace.get("_successor_directory_query") is not query
+            or query.__code__ is not query_code
+            or query.__defaults__ is not query_defaults
+            or query.__kwdefaults__ is not query_keywords
+            or len(query.__kwdefaults__ or {}) != len(query_items)
+            or any(type(key) is not str for key in (query.__kwdefaults__ or {}))
+            or any(
+                (query.__kwdefaults__ or {}).get(key) is not value
+                for key, value in query_items
+            )
+        ):
+            _fail("recovery_conflict", "original recovery successor query changed")
+        root = Path(root).absolute()
+        if successor_plan_identity is not None:
+            # Import initializes the finite original link; no late function lookup
+            # from this module is used as proof or as an effect callback.
+            from . import (
+                project_layout_catalog_successor as _successor_owner,  # noqa: F401
+            )
+            from .project_layout_lease import current_layout_lease
+
+            lease = current_layout_lease(root)
+        with _operation(root) as namespace, _reserve(root, namespace):
+            journal, intent = _decode_intent(root, expected)
+            _guard(root, intent["plan"])
+            context = {}
+            if successor_plan_identity is not None:
+                if (
+                    owner_namespace.get("_successor_directory_query") is not query
+                    or query.__code__ is not query_code
+                    or query.__defaults__ is not query_defaults
+                    or query.__kwdefaults__ is not query_keywords
+                    or len(query.__kwdefaults__ or {}) != len(query_items)
+                    or any(type(key) is not str for key in (query.__kwdefaults__ or {}))
+                    or any(
+                        (query.__kwdefaults__ or {}).get(key) is not value
+                        for key, value in query_items
+                    )
                 ):
-                    recover_catalog_renewals(root, journal, intent, namespace)
-            for source, entry in entries.items():
-                _entry_state(root, journal, source, entry)
-            with (
-                _component_fences(root, intent["components"], namespace),
-                _component_fences(
+                    _fail(
+                        "recovery_conflict", "original recovery successor query changed"
+                    )
+                binding = query(
                     root,
-                    intent["components"],
+                    journal,
+                    intent,
+                    lease,
                     namespace,
-                    destinations=True,
-                    intent=intent,
-                    journal=journal,
-                ),
-            ):
-                for source, entry in reversed(tuple(entries.items())):
-                    _current(root, journal, intent, namespace)
-                    state = _entry_state(root, journal, source, entry)
-                    if state == "published":
-                        _move(
-                            root / entry["destination"],
-                            journal / "after" / entry["slot"],
-                            entry,
-                            original=False,
-                            namespace=namespace,
+                    successor_plan_identity,
+                    recovering=True,
+                    selecting=True,
+                )
+                context = {
+                    "lease": lease,
+                    "namespace": namespace,
+                    "successor": binding,
+                    "recovering": True,
+                }
+                _load(root, expected, **context)
+            with _restore_source_namespaces(root, journal, intent):
+                journal, intent = _load(root, expected, **context)
+                _current(
+                    root,
+                    journal,
+                    intent,
+                    namespace,
+                    **{
+                        name: value
+                        for name, value in context.items()
+                        if name != "namespace"
+                    },
+                )
+                entries = intent["entries"]
+                # The independent producer history restores exact placed inodes
+                # before original catalog recovery validates its own postimages.
+                # No import/lease work for original journals without renewal data.
+                identity = canonical_identity(intent).uri
+                renewals = (
+                    root
+                    / "litai/.literate"
+                    / (
+                        "catalog-renewal-"
+                        + canonical_identity(
+                            {
+                                "catalog_intent": identity,
+                                "component": component["source_root"],
+                                "target": target,
+                            }
+                        ).digest
+                    )
+                    for component in intent["components"]
+                    for target in component["target_names"]
+                )
+                if not os.path.lexists(journal / "rolled-back") and any(
+                    os.path.lexists(path) for path in renewals
+                ):
+                    from literate_ai.adapters.project_layout_catalog_renewal import (
+                        recover_catalog_renewals,
+                    )
+
+                    with _component_fences(
+                        root,
+                        intent["components"],
+                        namespace,
+                        destinations=True,
+                        intent=intent,
+                        journal=journal,
+                    ):
+                        recover_catalog_renewals(
+                            root,
+                            journal,
+                            intent,
+                            namespace,
+                            **({"successor": binding} if context else {}),
                         )
-                    if state != "original":
-                        _move(
-                            journal / "before" / entry["slot"],
-                            root / source,
-                            entry,
-                            original=True,
-                            namespace=namespace,
+                for source, entry in entries.items():
+                    _entry_state(root, journal, source, entry)
+                with (
+                    _component_fences(root, intent["components"], namespace),
+                    _component_fences(
+                        root,
+                        intent["components"],
+                        namespace,
+                        destinations=True,
+                        intent=intent,
+                        journal=journal,
+                    ),
+                ):
+                    for source, entry in reversed(tuple(entries.items())):
+                        _current(
+                            root,
+                            journal,
+                            intent,
+                            namespace,
+                            **{
+                                name: value
+                                for name, value in context.items()
+                                if name != "namespace"
+                            },
                         )
-            retained = {row["path"] for row in _scaffolding(root, journal, intent)}
-            for path, row in sorted(
-                intent["new_directories"].items(),
-                key=lambda item: len(Path(item[0]).parts),
-                reverse=True,
-            ):
-                _current(root, journal, intent, namespace)
-                live, staged = root / path, journal / "directories" / row["slot"]
-                if path in retained:
-                    continue
-                if os.path.lexists(live):
-                    if _names(live):
+                        state = _entry_state(root, journal, source, entry)
+                        if state == "published":
+                            _move(
+                                root / entry["destination"],
+                                journal / "after" / entry["slot"],
+                                entry,
+                                original=False,
+                                namespace=namespace,
+                            )
+                        if state != "original":
+                            _move(
+                                journal / "before" / entry["slot"],
+                                root / source,
+                                entry,
+                                original=True,
+                                namespace=namespace,
+                            )
+                retained = {row["path"] for row in _scaffolding(root, journal, intent)}
+                if context:
+                    if (
+                        owner_namespace.get("_successor_directory_query") is not query
+                        or query.__code__ is not query_code
+                        or query.__defaults__ is not query_defaults
+                        or query.__kwdefaults__ is not query_keywords
+                        or len(query.__kwdefaults__ or {}) != len(query_items)
+                        or any(
+                            type(key) is not str for key in (query.__kwdefaults__ or {})
+                        )
+                        or any(
+                            (query.__kwdefaults__ or {}).get(key) is not value
+                            for key, value in query_items
+                        )
+                    ):
                         _fail(
                             "recovery_conflict",
-                            "new catalog directory has unrelated content",
+                            "original recovery successor query changed",
                         )
-                    _move_directory(live, staged, row["node"], namespace)
-            _current(root, journal, intent, namespace)
-            for source, entry in entries.items():
-                if _entry_state(root, journal, source, entry) != "original":
-                    _fail("recovery_conflict", "catalog original was not restored")
-            if not os.path.lexists(journal / "rolled-back"):
-                _owner()._write(
-                    journal / "rolled-back", b"catalog placement rolled back\n"
+                    retained.update(
+                        query(
+                            root,
+                            journal,
+                            intent,
+                            lease,
+                            namespace,
+                            binding,
+                            recovering=True,
+                        )
+                        & intent["new_directories"].keys()
+                    )
+                for path, row in sorted(
+                    intent["new_directories"].items(),
+                    key=lambda item: len(Path(item[0]).parts),
+                    reverse=True,
+                ):
+                    _current(
+                        root,
+                        journal,
+                        intent,
+                        namespace,
+                        **{
+                            name: value
+                            for name, value in context.items()
+                            if name != "namespace"
+                        },
+                    )
+                    live, staged = root / path, journal / "directories" / row["slot"]
+                    if path in retained:
+                        continue
+                    if os.path.lexists(live):
+                        if _names(live):
+                            _fail(
+                                "recovery_conflict",
+                                "new catalog directory has unrelated content",
+                            )
+                        _move_directory(live, staged, row["node"], namespace)
+                _current(
+                    root,
+                    journal,
+                    intent,
+                    namespace,
+                    **{
+                        name: value
+                        for name, value in context.items()
+                        if name != "namespace"
+                    },
                 )
-            _owner()._flush(journal)
-            _current(root, journal, intent, namespace)
-            retained_paths = [
-                row["path"] for row in _scaffolding(root, journal, intent)
-            ]
-    envelope = {
-        "schema": "literate-ai/project-layout-catalog-continuation-result@1",
-        "operation": "recover",
-        "plan": intent["plan"],
-        "writes": True,
-        "full_containment": False,
-        "qualification": False,
-        "journal": str(journal),
-        "retained_scaffolding": retained_paths,
-        "rolled_back": True,
-    }
+                for source, entry in entries.items():
+                    if _entry_state(root, journal, source, entry) != "original":
+                        _fail("recovery_conflict", "catalog original was not restored")
+                if not os.path.lexists(journal / "rolled-back"):
+                    _owner()._write(
+                        journal / "rolled-back", b"catalog placement rolled back\n"
+                    )
+                _owner()._flush(journal)
+                _current(
+                    root,
+                    journal,
+                    intent,
+                    namespace,
+                    **{
+                        name: value
+                        for name, value in context.items()
+                        if name != "namespace"
+                    },
+                )
+                retained_paths = [
+                    row["path"] for row in _scaffolding(root, journal, intent)
+                ]
+                if context:
+                    if (
+                        owner_namespace.get("_successor_directory_query") is not query
+                        or query.__code__ is not query_code
+                        or query.__defaults__ is not query_defaults
+                        or query.__kwdefaults__ is not query_keywords
+                        or len(query.__kwdefaults__ or {}) != len(query_items)
+                        or any(
+                            type(key) is not str for key in (query.__kwdefaults__ or {})
+                        )
+                        or any(
+                            (query.__kwdefaults__ or {}).get(key) is not value
+                            for key, value in query_items
+                        )
+                    ):
+                        _fail(
+                            "recovery_conflict",
+                            "original recovery successor query changed",
+                        )
+                    retained_paths = sorted(
+                        set(retained_paths)
+                        | (
+                            query(
+                                root,
+                                journal,
+                                intent,
+                                lease,
+                                namespace,
+                                binding,
+                                recovering=True,
+                            )
+                            & intent["new_directories"].keys()
+                        )
+                    )
+        envelope = {
+            "schema": "literate-ai/project-layout-catalog-continuation-result@1",
+            "operation": "recover",
+            "plan": intent["plan"],
+            "writes": True,
+            "full_containment": False,
+            "qualification": False,
+            "journal": str(journal),
+            "retained_scaffolding": retained_paths,
+            "rolled_back": True,
+        }
 
-    from literate_ai.adapters.project_layout_continuation_result import (
-        decode_catalog_continuation_result,
-    )
+        from literate_ai.adapters.project_layout_continuation_result import (
+            decode_catalog_continuation_result,
+        )
 
-    return decode_catalog_continuation_result(envelope)
+        return decode_catalog_continuation_result(envelope)
+
+    return recover_catalog_continuation
+
+
+recover_catalog_continuation = _bind_catalog_recovery(_successor_directory_query)

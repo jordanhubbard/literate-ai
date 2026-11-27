@@ -24432,6 +24432,29 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   finalization with an explicitly proved framework successor's exact directory
   membership; the actual historical catalog finalize refused legitimate new
   framework siblings. Preserve strict unknown-content refusal and recovery order.
+  The source repair derives finite membership from the original successor owner
+  and preserves complete rollback through exact shared metadata handback and
+  native coordination/directory anchors. Native/source/API review is closed;
+  177 original framework, catalog, mixed-owner, public CLI and initialized
+  controls pass with zero skips. A focused cohort also demonstrates complete
+  recovery and cold CLI recovery twice with no catalog renewal history.
+  The new moved-reference journey exposed
+  [#509](https://github.com/jordanhubbard/literate-ai/issues/509): the existing
+  contained imported peer target is omitted from semantic reference observation.
+  The source repair adds the original ingress's finite read-only target observation,
+  derived from proved Markdown and typed import membership, without reading
+  private target contents or issuing source ownership/write grants. Original
+  native identities and ancestors are revalidated across callbacks. The 12-case
+  composition module now passes with zero skips, retaining its original
+  applicability/native-refusal/full-restoration assertions. All 177 original
+  regressions also pass on this observation implementation. Independent review
+  identified a remaining parser export-slot guard, now repaired with a dedicated
+  zero-call negative control. Final source review is closed; all 12 reference-target
+  controls and all 12 composition/recovery controls pass on the final source,
+  with zero skips. These remain scoped development results.
+  Next: complete source gates and the frozen installed historical readback.
+  All 83 goals remain;
+  #509 is included in the existing 1.4.0 integration scope, with no deferral.
   [#504](https://github.com/jordanhubbard/literate-ai/issues/504) owns the missing
   Codex runtime owner during accepted-cache metadata replay. The source repair
   scopes the original private runtime owner around prospective command metadata

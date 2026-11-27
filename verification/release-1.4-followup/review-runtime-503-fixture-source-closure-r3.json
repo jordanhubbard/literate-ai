@@ -1,0 +1,58 @@
+{
+  "created_utc": "2026-11-27T18:24:03.463125+00:00",
+  "status": "narrow fixture source review closed; r20g execution pending",
+  "scope": [
+    {
+      "path": "src/literate_ai/adapters/project_layout_catalog_successor.py",
+      "sha256": "75d04c51f32600a9d92de0690f7cfd058eccbf881ead147d51f588eae1510578",
+      "matches_source_closure_r1": true
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_continuation.py",
+      "sha256": "472c7e2c59e49eb2cb07f64d89db64023a94cca8e4dcc595902f4324399df653",
+      "matches_source_closure_r1": true
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_catalog_renewal.py",
+      "sha256": "963c161904ff3b3b34c94e83b9c894eb1442dc8f2bf4b7b8a283ca3f64b1469f",
+      "matches_source_closure_r1": true
+    },
+    {
+      "path": "tests/critical/test_catalog_successor_membership.py",
+      "sha256": "942bdd5de48cb715b4b8b15625fc593c2cdfd85b638e46311a7a485210591366",
+      "matches_source_closure_r1": false
+    },
+    {
+      "path": "tests/critical/test_project_layout_initialized_component_capture.py",
+      "sha256": "5b5fbfef14034b2158b389e9446461cb476e3d708d76371ba2b7232d7b014636",
+      "matches_source_closure_r1": true
+    },
+    {
+      "path": "tests/critical/test_project_layout_mixed_component_channels.py",
+      "sha256": "b1912ac4c6100b05fb9d9e9824a3b5a4471690a862819a1ca69f43806085341e",
+      "matches_source_closure_r1": true
+    },
+    {
+      "path": "docs/user/project-layout.md",
+      "sha256": "1a3d521b90c5bdbcb2de34ce96b7bf668a36577ccb5908ee30df2f7ef2a850e4",
+      "matches_source_closure_r1": true
+    }
+  ],
+  "actual_setup": [
+    "template = resources.initialization._template_text('SKILL.md').encode()",
+    "before = template + b'\\n[peer](samples/peer/component.md)\\n'",
+    "retained = template + b'\\n[peer](litai/samples/peer/component.md)\\n'"
+  ],
+  "fixture_review": [
+    "Actual framework resource owner supplies initialization._template_text(SKILL.md), preserving canonical required frontmatter.",
+    "Both PRE and POST share identical template bytes; appended peer Markdown link alone differs by litai/ prefix.",
+    "Original retained POST base is established through existing initialized fixture before local PRE edit; public catalog rewrite must reproduce exact POST before original framework ownership is acquired.",
+    "All original catalog reference approval, moved owned placement, framework rollback, foreign destination byte/inode preservation, exact handback refusal, and final original PRE byte/inode recovery assertions remain unchanged."
+  ],
+  "original_evidence": "177 original controls passed without skips, independently parsed in fixture-refresh-r2; production and shared fixture hashes remain unchanged.",
+  "limits": [
+    "No reviewer jobs, tests or mutations.",
+    "New12 r20g is live and not claimed passing.",
+    "Installed authentic historical full journey and release acceptance remain pending."
+  ]
+}

@@ -1189,7 +1189,10 @@ def project_layout_from_args(args) -> dict[str, Any]:
                     "framework_scope_conflict",
                     "select exactly one original Component placement scope",
                 )
-            if framework_scope and getattr(args, "successor_plan_identity", None):
+            if (
+                framework_scope
+                and getattr(args, "successor_plan_identity", None) is not None
+            ):
                 raise ProjectLayoutPlanError(
                     "framework_scope_conflict",
                     "successor identity belongs to the catalog Component scope",
@@ -1203,6 +1206,11 @@ def project_layout_from_args(args) -> dict[str, Any]:
 
                 return renew_catalog_from_args(args)
         if getattr(args, "place_framework_authority", False):
+            if getattr(args, "successor_plan_identity", None) is not None:
+                raise ProjectLayoutPlanError(
+                    "framework_scope_conflict",
+                    "successor identity belongs to catalog recovery",
+                )
             approved_references = tuple(getattr(args, "rewrite_reference", ()))
             if (
                 approved_references
@@ -1303,7 +1311,14 @@ def project_layout_from_args(args) -> dict[str, Any]:
             )
         if args.layout_command == "recover":
             return recover_legacy_layout_migration(
-                project, args.plan_identity, acknowledge=args.acknowledge
+                project,
+                args.plan_identity,
+                acknowledge=args.acknowledge,
+                **(
+                    {"successor_plan_identity": args.successor_plan_identity}
+                    if getattr(args, "successor_plan_identity", None) is not None
+                    else {}
+                ),
             )
         if args.migration:
             return plan_legacy_layout_migration(

@@ -1,0 +1,69 @@
+{
+  "status": "API-and-documentation-source-reviewed-closed-no-new-finding",
+  "issue": 503,
+  "head": "2c49e0e593f6cefab1a4c47fcca817f1e344f571",
+  "files": {
+    "src/literate_ai/cli/dispatch.py": "cab83a64679b6622c628b8a6295a99b1dab136bf62d03c01e939380461f30f98",
+    "src/literate_ai/cli/project.py": "6038fdb4da63990109addea4b40f726a53d96d82e7e6d4bd37a32cc8cbd85521",
+    "src/literate_ai/adapters/project_layout_migration.py": "5c781abbdcbfdcce3ce2c64ad2d59438854566ae5b3951320b0ffe5ed07fe522",
+    "src/literate_ai/adapters/project_layout_continuation.py": "472c7e2c59e49eb2cb07f64d89db64023a94cca8e4dcc595902f4324399df653",
+    "tests/critical/test_catalog_successor_membership.py": "9405fbc34c2aef211afc12b4386038dbabc859bf35820424606769f76b080a42",
+    "tests/critical/test_project_layout_mixed_component_channels.py": "b1912ac4c6100b05fb9d9e9824a3b5a4471690a862819a1ca69f43806085341e",
+    "docs/user/project-layout.md": "1a3d521b90c5bdbcb2de34ce96b7bf668a36577ccb5908ee30df2f7ef2a850e4"
+  },
+  "scope": "Parser/CLI/migration recoveryAPI/context threading and reviewed public-control semantics. Cross-journal state/member/native authority and transitive code-custody remain runtime reviewer responsibility, not attested by this API closure.",
+  "closed_input_finding": "Both original renew/finalize and new framework recovery checks use is not None: explicit empty successor rejected with same scope error; omitted option remains legacy-compatible.",
+  "source_checks": [
+    "Successor option only recover/renew/finalize; imported-catalogs selector only renew/finalize.",
+    "No manifest discovery introduced into recovery; exact original root and layout lease stay through migrationAPI.",
+    "Noncatalog fallback rejects explicit successor before _load_journal/_rollback.",
+    "Explicit recovery boundquery uses original lease/namespace/recovering direction before first contextful _load and source namespace restoration.",
+    "Subsequent loads/currents preserve same context; explicit binding now forwarded into recover_catalog_renewals (full native comparison reviewed by peer).",
+    "No new result/schema field; unchanged original reviewed plan nested in recover result, existing noqualification/fullcontainment limits retained."
+  ],
+  "public_controls_reviewed": {
+    "scope": "Actual dispatch.invoke empty/nonempty identity with frameworkrecover returns scopeconflict/status2 and original effect mock zero calls.",
+    "fallback": "Actual no-catalog layoutAPI refusal verifies _rollback zero calls and original bytes+inodes.",
+    "cold_no_history": "Actual original catalog/framework applies; imported peer has no lock; catalog finalization skips peer renewal; explicit assert zero catalog-renewal journals. Cold source CLI subprocess reverses framework then catalog2times with exact explicit successor identity, 180s original child timeout, exact bytes/inodes, rolledback/noqualification/fullcontainment flags and retained empty litai/flavors anchor.",
+    "fixture_meaning": "Imported os-base plus original template bytes for self-contained os-macos modeled initialized baseline prove no-coordination shared-parent shape. Historical provenance is declared fixture data, not an actual published initializer acceptance.",
+    "side_effect_mocks": "Cold child mocks only forbidden implicit host selfupdate/user-MCP setup to throw; parser/project/native recovery paths are actual source operations. Scope/fallback mocks only verify refusal before effects.",
+    "no_skips_or_assertion_weakening": "New API controls add explicit assertions; original existing assertions retained."
+  },
+  "evidence_status": {
+    "r20d": {
+      "log": "catalog-membership-recovery-r20d.log",
+      "report": "catalog-membership-recovery-r20d-report.json",
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "elapsed_seconds": 89.048,
+      "scope": "Prior10case focused snapshot, actual coldCLI2x and nohistory/emptyanchor included; latest12case tests and omitted-keyword compatibility edits are later deltas."
+    },
+    "r20e": "Broad canonical source cohort live/owned by root; no terminal/pass claimed."
+  },
+  "remaining_recommendations": [
+    "Combine exact current runtime proof closure with terminal final frozen source cohorts; source API/documentation closure does not replace native proof or runtime acceptance."
+  ],
+  "limits": [
+    "Read-only review, no edits/runs/jobs/posts.",
+    "Attests only CLI/API/default call-shape/context threading, API controls and documentation in listed files; native proof portions of continuation/test file remain separately reviewed by runtime peer.",
+    "Latest12case/broad source r20e not yet accepted here; original failed r20b/r20c fixtures retained.",
+    "No actual historical/installed/wholewheel/native-platform/fullcontainment/release acceptance."
+  ],
+  "compatibility_delta_reviewed": [
+    "CLI uses getattr(...,None) and omits successor_plan_identity keyword entirely when absent, preserving original Namespace/call shape; explicit empty remains forwarded or wrong-scope refused.",
+    "Migration API omits successor keyword for absent option when calling original catalog recovery; explicit empty/nonempty goes through original exact owner validation.",
+    "Continuation omits successor keyword to original producer-recovery helper without explicit binding; context/binding forwards exact explicit selection when present.",
+    "Parser semantics unchanged from previous reviewed option addition; same is-not-None scope guards retained."
+  ],
+  "documentation_review": {
+    "file": "docs/user/project-layout.md",
+    "claims": "Shows framework undo followed by catalog recover with same explicit framework ID, including no-write/no-renewal-history case; requires successor already rolled back; exact original journals/native anchors and handback; unrelated/replaced objects block and no postrollback payload admission.",
+    "assessment": "Matches intended original API/proof scope; does not claim installed/historical/all-platform acceptance or automatic journal discovery. Existing false qualification/fullcontainment limits retained."
+  }
+}

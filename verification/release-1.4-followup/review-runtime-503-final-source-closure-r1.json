@@ -1,0 +1,85 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "created_utc": "2026-11-27T18:16:57.634474+00:00",
+  "issue": 503,
+  "reviewer": "review_runtime",
+  "status": "source-review-closed; qualification and installed journey pending",
+  "scope": [
+    {
+      "path": "src/literate_ai/adapters/project_layout_catalog_successor.py",
+      "sha256": "75d04c51f32600a9d92de0690f7cfd058eccbf881ead147d51f588eae1510578",
+      "bytes": 12696,
+      "tracked_diff_sha256": "2974d56046d49b74f50ac671fe2278b94ffb4f7cbf9527bfaaf8da0db140e272",
+      "review": "full actual diff/source and relevant call paths; new test full source"
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_continuation.py",
+      "sha256": "472c7e2c59e49eb2cb07f64d89db64023a94cca8e4dcc595902f4324399df653",
+      "bytes": 84856,
+      "tracked_diff_sha256": "da169918688288f7bd47013d915c968f7bf8b19a23ea0397e4397ab88f48c189",
+      "review": "full actual diff/source and relevant call paths; new test full source"
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_catalog_renewal.py",
+      "sha256": "963c161904ff3b3b34c94e83b9c894eb1442dc8f2bf4b7b8a283ca3f64b1469f",
+      "bytes": 31578,
+      "tracked_diff_sha256": "05bc1ade2bbec2503df19ad58db251d1df9f36869f93ba897e71817058ed6489",
+      "review": "full actual diff/source and relevant call paths; new test full source"
+    },
+    {
+      "path": "tests/critical/test_catalog_successor_membership.py",
+      "sha256": "9405fbc34c2aef211afc12b4386038dbabc859bf35820424606769f76b080a42",
+      "bytes": 23298,
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "review": "full actual diff/source and relevant call paths; new test full source"
+    },
+    {
+      "path": "tests/critical/test_project_layout_initialized_component_capture.py",
+      "sha256": "5b5fbfef14034b2158b389e9446461cb476e3d708d76371ba2b7232d7b014636",
+      "bytes": 12648,
+      "tracked_diff_sha256": "c306b95504c15d70d3cd315ca0776661ecc685f48cddc89a5e238aa3f9f47e8a",
+      "review": "full actual diff/source and relevant call paths; new test full source"
+    },
+    {
+      "path": "tests/critical/test_project_layout_mixed_component_channels.py",
+      "sha256": "b1912ac4c6100b05fb9d9e9824a3b5a4471690a862819a1ca69f43806085341e",
+      "bytes": 10378,
+      "tracked_diff_sha256": "21d2cad826908b8b67eee843eefb63e4716beb5953a3b6caf0e080d3a4763234",
+      "review": "full actual diff/source and relevant call paths; new test full source"
+    },
+    {
+      "path": "docs/user/project-layout.md",
+      "sha256": "1a3d521b90c5bdbcb2de34ce96b7bf668a36577ccb5908ee30df2f7ef2a850e4",
+      "bytes": 41392,
+      "tracked_diff_sha256": "7c9a7be0d1ab8b7dc9ec4cc09803484827ba5610b2f1fd14e74d4379d434eb78",
+      "review": "full actual diff/source and relevant call paths; new test full source"
+    }
+  ],
+  "actionable_source_findings": [],
+  "resolved_findings": [
+    "No externally supplied member roster or observer; one-shot finite original owner link and original callback/code/default/kwdefault checks before and after callback boundaries.",
+    "Recovery captures original query before callback entry and seals it inline before selection, pruning and reporting.",
+    "Explicit successor epoch is retained through every native load/current and renewal rollback guard; existing no-successor call shapes remain compatible.",
+    "Shared metadata recovery uses original catalog entry-state and exact native/hash joins through original/backed-up/published transitions. Distinct framework destination must be absent after framework rollback.",
+    "Only proven published coordination, original scaffolding and equal-native original directory intersections survive rollback; all unrelated names and replacement inodes remain refused."
+  ],
+  "fixture_review": {
+    "original_defaults_preserved": true,
+    "existing_assertions_preserved": true,
+    "honest_moved_handback_design": "Retain original POST SKILL in actual initialized base, create PRE as local edit, let public catalog reference rewrite restore POST, then framework moves exact owned SKILL; after framework rollback a foreign framework destination must refuse catalog rollback. No forged journal/base advance.",
+    "current_moved_handback_fixture_limit": "Current PRE/POST synthetic SKILL has no required frontmatter. Parent reports r20e initial ordinary lock fails before this product cut. Replace with canonical template bytes plus only peer-link delta; this case remains pending.",
+    "cold_import_and_late_callback_controls": "Source inspected: three cold owner-import orders; no-history fresh child CLI rollback twice; empty native directory anchors; replaced owner/query/private helper and late census mutation refusal."
+  },
+  "observed_checks": {
+    "git_diff_check": "passed; no output",
+    "tests_executed_by_reviewer": 0,
+    "parent_reported_r20d": "10 passed, 0 skipped; earlier fixture revision, not qualification of current new12",
+    "parent_reported_r20e_new_module": "11 passed, 1 fixture error (moved-handback required frontmatter), broad original cohorts still active; not counted as passing new12"
+  },
+  "limits": [
+    "Read-only source review; no code/project/prefix mutation and no builds/tests/jobs dispatched.",
+    "CLI/API boundary partition independently owned by contracts reviewer; only adjacent optional-None forwarding compatibility inspected here.",
+    "Current source review does not close pending broad original cohorts, corrected moved-handback negative, actual installed authentic historical project retry, native platform qualification or complete release acceptance.",
+    "Actual historical R2 project remains at preserved original catalog-finalize refusal; no new apply/recovery or acceptance inferred."
+  ]
+}

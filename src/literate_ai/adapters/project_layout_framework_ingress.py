@@ -11,6 +11,7 @@ import hashlib
 import json
 import os
 import weakref
+from bisect import bisect_left
 from dataclasses import dataclass, fields
 from pathlib import Path
 from types import MappingProxyType
@@ -29,6 +30,7 @@ from literate_ai.adapters.project_layout_finite_creations import (
 )
 from literate_ai.adapters.project_layout_framework_observation import (
     _close_bound_source_nodes,
+    capture_framework_reference_targets,
     capture_framework_source_scope,
 )
 from literate_ai.adapters.project_layout_framework_resources import (
@@ -42,6 +44,9 @@ from literate_ai.adapters.project_layout_framework_selection import (
     FrameworkAuthoritySelection,
     project_framework_creation_coordinates,
     select_existing_framework_authority,
+)
+from literate_ai.adapters.project_layout_framework_selection import (
+    _local_subjects as _reference_subjects,
 )
 from literate_ai.adapters.project_layout_framework_source_proofs import (
     prove_initialized_framework_file,
@@ -86,6 +91,11 @@ def _bind_original_ingress(imported_originals):
         DEFAULT_AUTHORITY_REVIEW_DOCUMENT as review_document,
     )
 
+    bisect_left = imported_originals["bisect_left"]
+    capture_framework_reference_targets = imported_originals[
+        "capture_framework_reference_targets"
+    ]
+    _reference_subjects = imported_originals["_reference_subjects"]
     catalog_resolver = catalog_projects.contained_catalog_coordinates
     catalog_resolver_code = catalog_resolver.__code__
     namespace = globals()
@@ -204,8 +214,155 @@ def _bind_original_ingress(imported_originals):
         for name in names
     )
     bindings = {}
+    reference_globals = _reference_subjects.__globals__
+    reference_dependencies = tuple(
+        (reference_globals, name, reference_globals[name])
+        for name in (
+            "_local_subjects",
+            "extract_markdown_links",
+            "urlsplit",
+            "unquote",
+            "posixpath",
+            "_fail",
+        )
+    ) + tuple(
+        (
+            vars(reference_globals["posixpath"]),
+            name,
+            vars(reference_globals["posixpath"])[name],
+        )
+        for name in ("dirname", "join", "normpath")
+    )
+
+    url_namespace = reference_globals["unquote"].__globals__
+    # Initialize the pure stdlib decoding table before any owner callback.
+    # The constant probe carries no project data and changes no parser grammar.
+    reference_globals["unquote"]("%41%42")
+    url_helpers = (
+        "urlsplit",
+        "_urlsplit",
+        "_coerce_args",
+        "_noop",
+        "_decode_args",
+        "_encode_result",
+        "_splitnetloc",
+        "_checknetloc",
+        "_check_bracketed_netloc",
+        "_check_bracketed_host",
+        "unquote",
+        "unquote_to_bytes",
+        "_unquote_impl",
+        "_generate_unquoted_parts",
+    )
+    url_names = {name for name in url_helpers if name in url_namespace}
+    for name in tuple(url_names):
+        value = url_namespace[name]
+        raw = getattr(value, "__wrapped__", value)
+        if hasattr(raw, "__code__"):
+            url_names.update(
+                item for item in raw.__code__.co_names if item in url_namespace
+            )
+    reference_dependencies += tuple(
+        (url_namespace, name, url_namespace[name]) for name in sorted(url_names)
+    )
+    url_tables = tuple(
+        (url_namespace[name], tuple(sorted(url_namespace[name].items())))
+        for name in ("_hextobyte",)
+        if type(url_namespace.get(name)) is dict
+    )
+    url_sequences = tuple(
+        (url_namespace[name], tuple(url_namespace[name]))
+        for name in ("_UNSAFE_URL_BYTES_TO_REMOVE",)
+        if type(url_namespace.get(name)) is list
+    )
+    markdown_namespace = reference_globals["extract_markdown_links"].__globals__
+    reference_dependencies += tuple(
+        (markdown_namespace, name, markdown_namespace[name])
+        for name in (
+            "extract_markdown_links",
+            "_visible_markdown_lines",
+            "_blank_inline_code",
+            "_normalize_reference",
+            "_REFERENCE_SPACE",
+            "_FENCE",
+            "_REFERENCE_DEFINITION",
+            "_RAW_HTML_NAVIGATION",
+            "_INLINE_LINK",
+            "_REFERENCE_LINK",
+            "_SHORTCUT_REFERENCE",
+            "MarkdownLink",
+            "DocumentationError",
+        )
+    )
+    result_classes = tuple(
+        url_namespace[name]
+        for name in ("SplitResult", "SplitResultBytes")
+        if name in url_names
+    )
+    result_owners = set(result_classes)
+    for cls in result_classes:
+        for field in ("__new__", "scheme", "netloc", "path", "query", "fragment"):
+            result_owners.add(next(base for base in cls.__mro__ if field in vars(base)))
+    reference_classes = tuple(
+        (cls, tuple(vars(cls).items()), cls.__bases__, cls.__mro__)
+        for cls in (
+            markdown_namespace["MarkdownLink"],
+            markdown_namespace["DocumentationError"],
+            *sorted(result_owners, key=lambda cls: (cls.__module__, cls.__name__)),
+        )
+    )
 
     def _check():
+        if any(
+            len(sequence) != len(rows)
+            or any(type(value) is not str for value in sequence)
+            or tuple(sequence) != rows
+            for sequence, rows in url_sequences
+        ):
+            raise error_type(
+                "framework_observation_changed", "original URL grammar list changed"
+            )
+        if any(
+            len(table) != len(rows)
+            or any(
+                type(key) is not bytes or type(value) is not bytes
+                for key, value in table.items()
+            )
+            or any(table.get(key) != value for key, value in rows)
+            for table, rows in url_tables
+        ):
+            raise error_type(
+                "framework_observation_changed", "original URL decoding table changed"
+            )
+        if (
+            any(
+                fn.__code__ is not code
+                or fn.__defaults__ is not defaults
+                or fn.__kwdefaults__ is not keywords
+                or len(fn.__kwdefaults__ or {}) != len(items)
+                or any(type(key) is not str for key in (fn.__kwdefaults__ or {}))
+                or any(
+                    (fn.__kwdefaults__ or {}).get(key) is not value
+                    for key, value in items
+                )
+                for fn, code, defaults, keywords, items in reference_codes
+            )
+            or any(
+                cls.__bases__ is not bases
+                or cls.__mro__ is not mro
+                or set(vars(cls)) != {name for name, _value in fields}
+                or any(vars(cls)[name] is not value for name, value in fields)
+                for cls, fields, bases, mro in reference_classes
+            )
+            or any(
+                where.get(name) is not value
+                for where, name, value in reference_dependencies
+            )
+        ):
+            raise error_type(
+                "framework_observation_changed",
+                "original reference target producer changed",
+            )
         if catalog_resolver.__code__ is not catalog_resolver_code:
             raise error_type(
                 "framework_observation_changed",
@@ -304,6 +461,34 @@ def _bind_original_ingress(imported_originals):
 
     def _identity(content):
         return "sha256:" + _invoke(hashlib.sha256, content).hexdigest()
+
+    def _reference_coordinates(proofs, imported, observed):
+        if not imported:
+            return ()
+        registered = tuple(sorted(imported))
+        targets = set()
+        for proof in proofs:
+            _invoke(require_original_initialized_framework_file_proof, proof)
+            for _line, subject in _invoke(
+                _reference_subjects, proof.source_path, proof.source_bytes
+            ):
+                if subject in observed:
+                    continue
+                prefix = subject + "/"
+                index = _invoke(bisect_left, registered, prefix)
+                if subject in imported or (
+                    index < len(registered) and registered[index].startswith(prefix)
+                ):
+                    targets.add(subject)
+                    if len(targets) > 8192:
+                        _fail("original reference target scope exceeds bound")
+        return tuple(sorted(targets))
+
+    def _reference_facts(nodes):
+        return tuple(
+            (path, row["kind"], row["mode"], tuple(row["stamp"]))
+            for path, row in sorted(nodes.items())
+        )
 
     def _metadata_paths(snapshot, context):
         return tuple(
@@ -825,6 +1010,26 @@ def _bind_original_ingress(imported_originals):
                     acquired_creations.append(acquired)
                     selected_creations[helper] = acquired
             creation_owners = tuple(selected_creations.values())
+            reference_paths = _invoke(
+                _reference_coordinates,
+                tuple(proofs),
+                frozenset(imported),
+                frozenset(nodes),
+            )
+            reference_nodes = (
+                _invoke(
+                    capture_framework_reference_targets,
+                    snapshot.root,
+                    context.directory_binding[0],
+                    reference_paths,
+                )
+                if reference_paths
+                else {}
+            )
+            reference_snapshot = _invoke(_reference_facts, reference_nodes)
+            reference_targets = frozenset(
+                path for path in reference_paths if path in reference_nodes
+            )
             public, selection = _invoke(
                 select_existing_framework_authority,
                 snapshot,
@@ -838,6 +1043,11 @@ def _bind_original_ingress(imported_originals):
                 protected_paths=protected,
                 imported_paths=frozenset(imported),
                 source_held=held,
+                **(
+                    {"reference_targets": reference_targets}
+                    if reference_targets
+                    else {}
+                ),
                 **(
                     {"approved_references": approved_references}
                     if approved_references
@@ -930,6 +1140,27 @@ def _bind_original_ingress(imported_originals):
                     metadata_directories=True,
                 )
 
+                fresh_paths = _invoke(
+                    _reference_coordinates,
+                    tuple(proofs),
+                    frozenset(imported),
+                    frozenset(fresh_nodes),
+                )
+                if fresh_paths != reference_paths:
+                    _fail("original semantic reference target scope changed")
+                if reference_paths:
+                    fresh_references = _invoke(
+                        capture_framework_reference_targets,
+                        snapshot.root,
+                        context.directory_binding[0],
+                        reference_paths,
+                    )
+                    if (
+                        _invoke(_reference_facts, fresh_references)
+                        != reference_snapshot
+                    ):
+                        _fail("original semantic reference target native facts changed")
+
             values = (
                 snapshot,
                 context,
@@ -1007,6 +1238,34 @@ def _bind_original_ingress(imported_originals):
             ),
         )
 
+    reference_functions = [
+        capture_framework_reference_targets,
+        _reference_subjects,
+        _reference_coordinates,
+        _reference_facts,
+    ]
+    for _where, _name, value in reference_dependencies:
+        if hasattr(value, "__code__"):
+            reference_functions.append(value)
+        wrapped = getattr(value, "__wrapped__", None)
+        if wrapped is not None and hasattr(wrapped, "__code__"):
+            reference_functions.append(wrapped)
+    for cls, _fields, _bases, _mro in reference_classes:
+        reference_functions.extend(
+            getattr(value, "__func__", value)
+            for value in vars(cls).values()
+            if hasattr(getattr(value, "__func__", value), "__code__")
+        )
+    reference_codes = tuple(
+        (
+            fn,
+            fn.__code__,
+            fn.__defaults__,
+            fn.__kwdefaults__,
+            tuple((fn.__kwdefaults__ or {}).items()),
+        )
+        for fn in reference_functions
+    )
     original_class_check = _class_current
     originals = locals().copy()
     _ORIGINAL_CALLS = tuple(
@@ -1037,6 +1296,9 @@ def _bind_original_ingress(imported_originals):
             "require_original_component_transition",
             "_close_bound_source_nodes",
             "capture_framework_source_scope",
+            "capture_framework_reference_targets",
+            "_reference_subjects",
+            "bisect_left",
             "_producer_namespace",
             "observe_original_framework_resources",
             "original_framework_initialization",
@@ -1065,6 +1327,8 @@ def _bind_original_ingress(imported_originals):
             "_fail",
             "_identity",
             "_metadata_paths",
+            "_reference_coordinates",
+            "_reference_facts",
             "_git_pair",
             "OriginalFrameworkAuthorityObservation",
             "_OWNER_FIELDS",
@@ -1129,6 +1393,9 @@ def _bind_original_ingress(imported_originals):
                 "require_original_component_transition",
                 "_close_bound_source_nodes",
                 "capture_framework_source_scope",
+                "capture_framework_reference_targets",
+                "_reference_subjects",
+                "bisect_left",
                 "_producer_namespace",
                 "observe_original_framework_resources",
                 "original_framework_initialization",
@@ -1157,6 +1424,8 @@ def _bind_original_ingress(imported_originals):
                 "_fail",
                 "_identity",
                 "_metadata_paths",
+                "_reference_coordinates",
+                "_reference_facts",
                 "_git_pair",
                 "OriginalFrameworkAuthorityObservation",
                 "_OWNER_FIELDS",
@@ -1192,6 +1461,8 @@ def _bind_original_ingress(imported_originals):
             "_fail",
             "_identity",
             "_metadata_paths",
+            "_reference_coordinates",
+            "_reference_facts",
             "_git_pair",
             "OriginalFrameworkAuthorityObservation",
             "_OWNER_FIELDS",
@@ -1248,6 +1519,9 @@ globals().update(
                     "require_original_component_transition",
                     "_close_bound_source_nodes",
                     "capture_framework_source_scope",
+                    "capture_framework_reference_targets",
+                    "_reference_subjects",
+                    "bisect_left",
                     "_producer_namespace",
                     "observe_original_framework_resources",
                     "original_framework_initialization",
@@ -1297,6 +1571,9 @@ globals().update(
                     require_original_component_transition,
                     _close_bound_source_nodes,
                     capture_framework_source_scope,
+                    capture_framework_reference_targets,
+                    _reference_subjects,
+                    bisect_left,
                     _producer_namespace,
                     observe_original_framework_resources,
                     original_framework_initialization,

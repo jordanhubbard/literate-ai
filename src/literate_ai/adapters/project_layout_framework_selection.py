@@ -235,6 +235,7 @@ def select_existing_framework_authority(
     protected_paths=frozenset(),
     imported_paths=frozenset(),
     source_held=(),
+    reference_targets=frozenset(),
     creation_owners=(),
     component_endpoints=(),
     recorded_wrapper_source=None,
@@ -271,6 +272,12 @@ def select_existing_framework_authority(
     for value in (protected_paths, imported_paths):
         if type(value) is not frozenset or any(type(path) is not str for path in value):
             _fail("original application/imported path set required")
+    if (
+        type(reference_targets) is not frozenset
+        or len(reference_targets) > 8192
+        or any(type(path) is not str for path in reference_targets)
+    ):
+        _fail("original bounded read-only reference coordinates required")
     for row in source_held:
         if (
             type(row) is not dict
@@ -716,7 +723,11 @@ def select_existing_framework_authority(
             rewritten = _REVIEW_INVALIDATOR(rewritten)
             review_transition = True
         for line, subject in _local_subjects(source, before):
-            if subject not in coordinates and subject.rstrip("/") not in observations:
+            if (
+                subject not in coordinates
+                and subject.rstrip("/") not in observations
+                and subject.rstrip("/") not in reference_targets
+            ):
                 blockers.append(
                     {
                         "path": source,

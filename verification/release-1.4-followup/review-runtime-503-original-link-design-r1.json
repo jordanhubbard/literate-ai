@@ -1,0 +1,61 @@
+{
+  "schema": "literate-ai/503-finite-original-successor-link-design@1",
+  "status": "Read-only exact implementation supplement; root confirmed planned shape, no code authored",
+  "previous_plan": {
+    "path": "review-runtime-503-successor-census-implementation-plan-r1.json",
+    "sha256": "0e33bfa0a7f595f7c7974e1316d22e12d294db885cb714eda4d898cbf78745d8"
+  },
+  "finite_import_time_link": {
+    "native_initialization": [
+      "During native module import, create ONE closure-private initiallyempty successor delegate slot with one-shot installer and original validator; no registry or arbitrarykey lookup. Do not import successor eagerly.",
+      "Native _guard_directories becomes original closure-bound wrapper around privately captured raw census helper. Public/internal wrapper accepts original lease/namespace/2fieldbinding/recovering context only; no arbitrary checker/pathset. Raw helper accepts only internallyderived projection and is not exported.",
+      "Wrapper calls only captured link-validator (with capturedidentity/code/default state), not a dynamically replaceable module global. Unbound link refuses before foreign callbacks."
+    ],
+    "successor_initialization": [
+      "Define finite original successor observation/refactor returning joinedrows+livecoordinates and normal owner _bindings.",
+      "Only after _bindings is initialized, register exact owner module +observer+checker with native installer; capture object identities, __code__, defaults and kwdefaults snapshots. Keep private installer one-shot: every second binding fails before using passedobjects, even identical function.",
+      "A preempted/foreign slot must make genuine bootstrap fail closed; never silently overwrite or call it as part of registration. Existing catalogrenewal imports successor and captures linked endpoints before any runtimecallbacks."
+    ],
+    "use_checks": [
+      "Before execution validate captured module attribute bindings and captured observer/checker code/default state; reject replacement without invoking replacedfunction. Use exact savedobserver/checker afterward.",
+      "Require actual original Rootlease and exactsame root/context; validate inert2fieldbinding against actualsamephysicalnative framework journal and full terminal currentness. Derive bounded detached builtin projection.",
+      "Run raw native census with strict original catalogroster union only fresh derivedmembers; do not replace/skip nativecurrent/journal/Git/parent/control checks.",
+      "Revalidate originallink and live successor after census and require equal projections; a callback cannot retarget or replace members/lease/postimages across scan. Snapshot original plainbinding identitystrings before callbacks and reject bindingdata retarget if relevant.",
+      "Existing no-successor wrapper path invokes unchanged strict raw census without owner lookup; recovering branch requires actual frameworkrollback and returns emptyextras."
+    ]
+  },
+  "closure_binding_updates": {
+    "catalog_successor": "Existing _bind aliases/delegates include new internalobserver/helper, native installer/closedvalidator links actuallyused and original raw projection contributors. Capture code/default state for addedusedcallback endpoints.",
+    "catalog_renewal": "Existing _bind captures original successor endpoint/native wrapper; resolve agreed recorded successor before earlynative._current, preserving freshsameleasecontext. New helper replacement/code mutation mustrefuse before foreignfunction invocation.",
+    "native": "Capture raw census and slotchecker in wrapper closure; no publicraw helper accepting pathgrants; no first-use dynamic importcapture from callback-controlled namespace."
+  },
+  "framework_subtree_proof": {
+    "code_owner": "project_layout_framework_transaction._guard_intent",
+    "checks": "Each successor newdirectory has live/staged XOR and exactinode/mode; live childnames subset of exact successor entriesdestinations,newdirectories,coordination.",
+    "payload_completeness": "catalog_successor._published_framework proves each acknowledged payload at terminalpostimage or a fully decoded/guarded terminal normal producer history with originalbeforeimage intact. Both halves needed.",
+    "common_parent": "Catalogcreatedcommonparent is merely framework original_directory: frameworkguardchecks its inode, not arbitrarychildren. Catalogcensus must retain oldroster and add only exact proven successor childcoordinates.",
+    "direct_file_or_shared_nested_parent": "A directnewfile is admitted only by exact terminalpayload identity; newchilddirectory only by exact frameworknewdir plus strict descendantroster. This covers names underalready-existingnestedsharedparents without wholesale prefixauthority.",
+    "normal_history": "Return alreadyvalidated currentnormal outputcoordinate keys from _published_framework; no-write history absent is valid, actualwrite history uses new native nodes checked through _state. Never require obsolete originalafterinode for genuinely renewedproducer."
+  },
+  "required_added_tests": [
+    "One-shot original import-time link registers once; missinglink/relink/foreignmodule/function/code/default mutation refuses without foreigncallback execution. Includefreshprocessimport orders native-first andsuccessor-first.",
+    "Same originallease required; copied/ended/wrongRoot lease and savedprojection inlaterinvocation refuse.",
+    "Callback mutates successor binding, nativepostimage, ormemberroster during census: closingguard refuses andpreservesforeignfiles.",
+    "Commonparent actually created by catalog, then framework sibling/directfile adds exactmembers: explicitjoinpasses, no-successor fails.",
+    "Samecase with real changednormalproducer lock/audit nativepostimages and originalhistory.",
+    "Add unrecordedsibling and nesteddescendant after validjoin; both refuse.",
+    "Originalparent/nativeafterinode equalbytes replacement refuses before sourceeffects; wrongrecoveryorder remains refusal.",
+    "Raw helper cannot be invoked with callerpathset through publicwrapper. Originaldefault/v1/no-successor tests unchanged."
+  ],
+  "suggested_existing_fixture": "MixedComponentChannelTests alternative imported samples/peer +originalinitializedsamples/hello-component; do notprecreatelitai/samples and assert it iscatalogintent.new_directories. Current fixture precreates litai/components and uses separateframeworkparent, explainingmissingcoverage.",
+  "source_sha256": {
+    "src/literate_ai/adapters/project_layout_continuation.py": "5d83240e0c9052dd1a75ccbab92fa180bd20e64dd4823f00c2fdc69fd7f46702",
+    "src/literate_ai/adapters/project_layout_catalog_successor.py": "258bf8257a620f143d7556cd9d4324ba50ffd3b0fb70896ba1009034e7e95520",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "92c8e08823ee2aa0e165d78224cdad5cea9d20e3296c10aeeb5bc739b5578f97",
+    "src/literate_ai/adapters/project_layout_framework_transaction.py": "1915cf12eceaf335e2b7c767b605dc29c3cea697b5a1ad4cce15e2208d5f547b"
+  },
+  "limits": [
+    "Designonly; no edits/tests/jobs/posts/nativeapply or historicalmutation.",
+    "Actualsourceimplementation still requires independentreview; finite original link is not serializedauthority and doesnotrestore old actors."
+  ]
+}

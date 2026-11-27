@@ -1035,7 +1035,11 @@ def apply_legacy_layout_migration(
 
 
 def recover_legacy_layout_migration(
-    root: Path, expected: str, *, acknowledge: bool
+    root: Path,
+    expected: str,
+    *,
+    acknowledge: bool,
+    successor_plan_identity: str | None = None,
 ) -> dict:
     if not acknowledge:
         _fail("acknowledgement_required", "acknowledge rollback of the exact migration")
@@ -1052,7 +1056,20 @@ def recover_legacy_layout_migration(
         require_safe_directory(continuation.parent, allow_missing=True)
         if os.path.lexists(continuation):
             require_safe_directory(continuation)
-            return recover_catalog_continuation(root, expected)
+            return recover_catalog_continuation(
+                root,
+                expected,
+                **(
+                    {"successor_plan_identity": successor_plan_identity}
+                    if successor_plan_identity is not None
+                    else {}
+                ),
+            )
+        if successor_plan_identity is not None:
+            _fail(
+                "framework_scope_conflict",
+                "successor identity requires a catalog journal",
+            )
         journal, intent = _load_journal(git_dir, expected)
         if intent["plan"]["project"] != str(root):
             _fail("recovery_conflict", "journal belongs to another worktree")

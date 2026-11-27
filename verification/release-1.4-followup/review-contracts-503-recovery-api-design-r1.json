@@ -1,0 +1,97 @@
+{
+  "status": "read-only-design-recommendation-not-implementation-closure",
+  "issue": 503,
+  "head": "2c49e0e593f6cefab1a4c47fcca817f1e344f571",
+  "files_at_review": {
+    "src/literate_ai/cli/dispatch.py": "f947a9b219e9ae881219668f0a3400083c46b3b9a2ffeef1698a8985951e4fd3",
+    "src/literate_ai/cli/project.py": "6ed12824ba3acfe68b005c7b668b857e75a7c8199dbfb0c07c7b51cf19b7a24b",
+    "src/literate_ai/adapters/project_layout_migration.py": "ac5e2375a5e99715eeec5d29d6c3b44872014a39ceb9953943bd81ae87614e71",
+    "src/literate_ai/adapters/project_layout_continuation.py": "49311337d839431f5508b0e46538e8f51720524aacfb98a893d9f74b9a2d3f06",
+    "src/literate_ai/adapters/project_layout_catalog_successor.py": "aad22c36de961885b813d42ef5210ff25722f88bd5f9aa480784a8bd1ca38fa9",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "c0bd386df669109e2f2249a81137a30986fc51656bc8702d50746bee530da047",
+    "src/literate_ai/adapters/project_layout_continuation_result.py": "791a4d1d76289692d8855f424b3749f7db846ea2a3085213c7d4f3e8e78ecf19",
+    "schemas/v2/project-layout-catalog-continuation-result.schema.json": "303d08c7e42f53b3bbfd5e1b676a4980d641f9d5abf897a32a42097f2b5987f8",
+    "docs/user/project-layout.md": "3caffcc5bc0d016adae060738e6e2854ed76e1281e24a0ee9a3e1f4818c26735",
+    "tests/critical/test_project_layout_catalog_successor_controls.py": "8606ae33541e429a596424c9f23f516598a999930a3d57decd52f2b9fdf6a4d9",
+    "tests/critical/test_project_layout_mixed_producer_epochs.py": "7748ab58f62de8fbe3aa2d60c1297746c07726120a2a31bbbf5458109726de6a",
+    "tests/critical/test_project_layout_public_component_flow.py": "ad62fd9ba71035cdd950d5518600e3ca56ed9c64052005e60c7fdb6de758b193",
+    "tests/critical/test_project_layout_catalog_renewal.py": "364a46297e0afdbbdb0b5c4c20c01f04176af6e5cd5c24d7795dce2569ef43ba"
+  },
+  "problem": "Public recover cannot name original framework successor even though no-write normal producer may leave no catalog renewal history carrying binding. Original framework recovery deliberately retains coordination/scaffolds, so earlier catalog census needs explicit original successor proof; active ownership patch is not sufficient to recover.",
+  "recommended_public_command_sequence": [
+    "litai project layout recover --place-framework-authority --acknowledge --plan-identity FRAMEWORK_ID --project ROOT",
+    "litai project layout recover --acknowledge --plan-identity CATALOG_ID --successor-plan-identity FRAMEWORK_ID --project ROOT"
+  ],
+  "minimal_wiring": [
+    {
+      "owner": "cli/dispatch.py operation loop2182",
+      "change": "Retain --place-imported-catalogs for renew/finalize only. Separately admit --successor-plan-identity for recover/renew/finalize. No new recover scope selector; existing acknowledged catalog plan ID selects original journal."
+    },
+    {
+      "owner": "cli/project.py project_layout_from_args",
+      "change": "Forward explicit optional successor keyword only to recover_legacy_layout_migration. Reject successor with --place-framework-authority on recover upfront (existing scope rejection currently only renew/finalize). Preserve acknowledgement required and existing scope restrictions. Do not route recover through manifest discovery/root helper; manifest can be backed up in original transaction."
+    },
+    {
+      "owner": "project_layout_migration.recover_legacy_layout_migration",
+      "change": "Add keyword-only successor_plan_identity=None. Within same original layout lock and explicit exact catalog-journal branch pass original option through. If no catalog continuation and option supplied, refuse before legacy _rollback; do not silently ignore or scan unrelated journals. Legacy no-option behavior preserved."
+    },
+    {
+      "owner": "project_layout_continuation.recover_catalog_continuation/_load/_current",
+      "change": "Optional exact successor ID defaultNone; capture original current layout lease from existing held lock once. Decode selected original catalog intent first; original successor owner proves explicitly named framework journal in recovering direction. Thread same acquired lease, namespace, original binding, recovering=True to initial _load->_guard_journal and every _current before/after effects/markers/retained census. Do not acquire a replacement lease from serialized data or add broad global journal exceptions."
+    },
+    {
+      "owner": "project_layout_catalog_successor.observe_catalog_successor",
+      "change": "Current constructor validates active placement only. Extend original finite owner with explicit keyword recovering=False, exact bool validation and delegate to original require_catalog_successor(...recovering=recovering); recovery requires original framework rollback and original native handoff. Runtime reviewer owns exact cross-journal/member proof and closure guards."
+    }
+  ],
+  "input_contract": [
+    "Only None means no requested successor; explicit empty/malformed/foreign identity must refuse, not disappear via truthiness. Reuse original canonical identity/journal owner validation, with inert exact string/type checks before foreign behavior.",
+    "Exact expected catalog identity remains mandatory; second identity names bounded original framework successor, not arbitrary search/discovery or payload permission.",
+    "Acknowledgement is still required for both scope recoveries. Wrong recovery order must refuse before moves/markers, retaining original histories/live pair.",
+    "Root path semantics retained: recovery must function with original manifest unavailable; no new descendant-discovery promise."
+  ],
+  "result_schema_contract": {
+    "change_needed": false,
+    "reason": "Existing catalog continuation result@1 already covers operation=recover, unchanged nested original plan, rolled_back=true, retained_scaffolding bounded unique litai ancestors of original selected destinations, qualification=false/full_containment=false. Runtime proof may retain only original catnewdirs intersect exact successor-originaldirs/coordination; if those stay selected destination ancestors existing codec/schema apply.",
+    "preserve": [
+      "Do not mutate acknowledged historical plan/journal to add retrospective approval.",
+      "Do not add successor binding to public result without deliberate codec/schema review; invocation flag itself needs no result version.",
+      "A valid result remains data only; no lease/source actor revived."
+    ]
+  },
+  "documentation_guidance": [
+    "Update docs/user/project-layout.md334-343 to show framework rollback first, then catalog rollback explicitly naming same reviewed framework successor ID even if normal producer made no lock/audit writes.",
+    "Describe omitted option only for no-successor catalog histories; do not promise automatic discovery of all framework journals.",
+    "Explain retained_scaffolding as bounded original owner coordination/necessary still-recorded shared parents; unrelated files refuse and gain no payload or deletion permission.",
+    "Existing normal renewal/finalization successor commands395/404 remain; make recovery example consistent, preserve pending qualification/fullcontainment limits.",
+    "No separate guidance generator advertises this option in inspected call paths; parser help plus authoritative user layout docs are immediate owners."
+  ],
+  "recommended_existing_tests": [
+    {
+      "path": "tests/critical/test_project_layout_public_component_flow.py",
+      "purpose": "Cold public CLI original both-write finalization/recovery: framework then catalog, exact successor option only catalog, repeat each twice; every original byte/inode/authored/Git assertion retained. Add true no-write producer path with zero catalog-renewal journals before recovery."
+    },
+    {
+      "path": "tests/critical/test_project_layout_mixed_producer_epochs.py",
+      "purpose": "Shared recovery helper passes exact framework identity to catalog recovery after framework undo. Retain changed/missing/foreign journal source and original inode assertions."
+    },
+    {
+      "path": "tests/critical/test_project_layout_catalog_successor_controls.py",
+      "purpose": "Wrong-order refusal before any effect; exact successor postimage join; equal-byte foreign beforeimage; replaced original guard never invoked; interrupted child backups recover; wrong/missing successor/foreign pair/root histories refuse without mutation. Preserve original v1 no-successor recovery case."
+    },
+    {
+      "path": "tests/critical/test_project_layout_catalog_renewal.py and test_project_layout_catalog_renewal_controls.py",
+      "purpose": "No-successor original direct API and fresh-process recovery remain unchanged; exact acknowledged source/history/receipt bytes recovered."
+    },
+    {
+      "path": "Public parser/dispatch scope controls in test_project_layout_public_component_flow.py",
+      "purpose": "Recover accepts explicit canonical successor; framework+successor rejects before native recovery; noncatalog legacy+successor refuses before _rollback; missing acknowledgement/wrong exact ID malformed ID refuse. No importedcatalog flag added accidentally."
+    }
+  ],
+  "review_limits": [
+    "No source/test edits or qualification runs; current active patch reviewed only to design exact API/context wiring.",
+    "Cross-journal retained-member proof and new directories/scaffolding admission require independent runtime reviewer source closure.",
+    "Public/no-write recovery acceptance and fresh frozen cohorts remain pending; no actual historical apply/recovery performed by reviewer.",
+    "No new authority, platform, wholewheel, fullcontainment or release acceptance."
+  ]
+}

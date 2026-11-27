@@ -1,0 +1,26 @@
+{
+  "created_utc": "2026-11-27T19:08:09.127079+00:00",
+  "issue": 509,
+  "status": "source closure reopened for exact parser export-slot gap identified by root and independently confirmed",
+  "files": {
+    "src/literate_ai/adapters/project_layout_framework_ingress.py": "4053ebbc6dbf53c10cf3252808b58b033b7c9fb19d6ff985099b64f89a29f889",
+    "src/literate_ai/adapters/project_layout_framework_selection.py": "7f0757642eab38bb8c909f8fa43f1182c16b1436a8ef496386e339013cd7c35a"
+  },
+  "finding": {
+    "severity": "P1",
+    "path": "src/literate_ai/adapters/project_layout_framework_ingress.py",
+    "lines": "217-230",
+    "cause": "Original imported _reference_subjects alias/code and its used globals are bound, but its original exported _local_subjects slot in the selection module is not bound.",
+    "call_path": "Ingress _invoke(select_existing_framework_authority,...) -> selector global _local_subjects(source,before) at725 -> foreign replacement; later reference checking also uses same export.",
+    "impact": "Foreign module export can execute despite alias/code checks; foreign returning empty tuple suppresses local reference-scope guard. Original post-_invoke checks also miss this export pointer difference.",
+    "minimal_fix": "Add (reference_globals, '_local_subjects', _reference_subjects) to existing captured reference_dependencies; existing _check enforces original slot before and after all callback boundaries.",
+    "negative_control": "Replace only selection._local_subjects export with foreign counter callback, leaving original alias object/code/parser globals untouched. Original ingress invocation must raise typed original producer error before counter increments; exact finally restore. Include guard run before selector execution, not merely its direct pure call.",
+    "scope_note": "Pure decoded data remains non-authoritative; this fix closes the original installed ingress -> selector source join without expanding observation or effect permissions."
+  },
+  "evidence_limits": [
+    "Read-only source; no repro/test/job/source edit.",
+    "Canonical r21d23pass reports remain historical evidence, not coverage of this new cut.",
+    "Current broad original177 r21e live/frozen; do not edit until terminal.",
+    "Native Windows/installed historical/newwheel/release qualification remain pending."
+  ]
+}

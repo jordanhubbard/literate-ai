@@ -34,10 +34,17 @@ from tests.critical import test_project_layout_framework_source_proofs as suppor
 
 
 class InitializedComponentCaptureTests(unittest.TestCase):
-    def fixture(self, *, with_lock=False, contained=False, missing_historical=False):
+    def fixture(
+        self,
+        *,
+        with_lock=False,
+        contained=False,
+        missing_historical=False,
+        original_skill_content=None,
+    ):
         helper = support.InitializedFrameworkProofTests("runTest")
         self.addCleanup(helper.doCleanups)
-        project, previous = helper.fixture()
+        project, previous = helper.fixture(content=original_skill_content)
         logical = "samples/hello-component/component.md"
         source = ("litai/" if contained else "") + logical
         # Exact current original sample has a one-file authored item. Its actual
