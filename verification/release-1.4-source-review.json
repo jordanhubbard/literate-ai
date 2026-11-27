@@ -1315,5 +1315,38 @@
       "full_snapshot_sha256": "8cd72c542cb7bacb36b2a7ce9090b6c664295e8255c1bebf2ca8fb7669d5957c"
     },
     "limits": "All83goals retained. Frozen866wheelr12 and exactheadCI continue separately; original900nativeperformance remains unresolved on hostedCI despite scoped local3pass. Swift installation approval pending. Complete source/installed/platform/historical/provider/coldFreeBSD/collateral/contributions/resulting-main/publication acceptance remains."
+  },
+  "qualification_followup_r11": {
+    "base_commit": "5322c993b3148f8d36c5fb525b8d9ac0b97d6a62",
+    "review_reports": [
+      "verification/release-1.4-followup/historical-layout-catalog-postapply-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-framework-plan-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-contracts-codex-pinned-argv0-version.json",
+      "verification/release-1.4-followup/review-contracts-opencode-argv0-boundary-diagnosis.json",
+      "verification/release-1.4-followup/review-contracts-opencode-pinned-argv0-interface-help.json",
+      "verification/release-1.4-followup/review-contracts-opencode-pinned-argv0-version.json",
+      "verification/release-1.4-followup/review-contracts-coding-cli-pinned-argv0-design-review.json"
+    ],
+    "catalog_apply": "Actual public original0a083149 plan completed712.675s underoriginal1800bound. All245destinations/4residenttransforms/249savedoriginals checked. Native6payloads,GitHEAD/index/refs,policy/driver/currentreceipt bytes preserved. All8importedComponent target/lock/audit absences genuine. No fullcontainment/renewal/finalize claim;12blockersheld.",
+    "framework_plan": "Root+actualimplementationdescendant publicplans both fail project.layout.invalid. Independent mode0600 diagnosis proves6of7originalconverterentries equal; genuine1.3.1Make515bytes differs fromcurrent572bytes only3cdquotingprefixes introducedbd3197765. Preimage/schema/parity/source/policy guardspass before expectedcurrentrenderer equalityrefuses. All613files/471dirs+Gitfacts unchanged. No apply/retry/markeredit/workaround attempted.",
+    "provider_launch": "Actualcompiledmulticall Codex/OpenCode aliases reportversion successfully; pinningcanonicalWebMux image thenusingcanonicalargv0 fails. Logicalargv0+explicitlypinnedoriginalimage succeeds forboth, executable guards passbeforeafter. OpenCodeoriginalv1interfacehelp requirements pass throughsameboundimage. Sharedboundedrunnerprocess_factory canpreserveselectednativeimage/PID/treeownership; Windowsbatchroute requirescompatibilitycarveout. Actualmodelquery/readiness remains unproven.",
+    "new_integration_findings": [
+      {
+        "issue": 498,
+        "url": "https://github.com/jordanhubbard/literate-ai/issues/498",
+        "decision": "include",
+        "release": "1.4.0",
+        "state": "recorded-before-implementation; canonical executable/digest/drift guards and deadlines must remain"
+      },
+      {
+        "issue": 499,
+        "url": "https://github.com/jordanhubbard/literate-ai/issues/499",
+        "decision": "include",
+        "release": "1.4.0",
+        "state": "recorded-before-implementation; exact released-producer compatibility, never edit oldpreimage or bypass guards"
+      }
+    ],
+    "qualification": "Frozen866wheelr12 remains live at recordtime, currently original installed commandrenewal scenarios underunchangedbounds. Latest5322 fixturechanges separatelysourceclosed/focusedinstalledpassed; exact latestfullgate remainsrequired. Earlier r11launcher environmentfailure retained, no testsqualifiedbyit.",
+    "limits": "All83immutablegoals retained. Newfindings are subtasks within RELEASE-INTEGRATION-005. Swift installation approval pending. Full source/installed/platform/historical/provider/coldFreeBSD/collateral/contributions/resulting-main/publication acceptance remains. No releaseprepared/tagged/published."
   }
 }

@@ -1,0 +1,40 @@
+{
+  "status": "independent_design_review_conditionally_accepted",
+  "design": "coding_cli._run_bounded optional pinned executable; supply functools.partial(subprocess.Popen,executable=pin) through existing shared process_factory; provider command argv0 logical selection.name; retain selection resolvedimage/hash/guards. No shared runner API change required.",
+  "native_process_and_telemetry_review": {
+    "shared_runner": "builders/_process.py202-239 constructs command/options, calls factoryonce, binds pid to original treeowner, registersreturnedprocess and observesactualspawn; alltimeout/output/nativebookends remain canonical.",
+    "exact_type_boundary": "worker_telemetry_processes._capture_original_launch checks type(returnedprocess) is subprocess.Popen, notfactoryidentity. functools.partial(Popen,...) still returns actualPopen; do not substitute wrapperprocess object.",
+    "telemetry_pid_observation": "observe_actual_spawn(pid) captures actualnative process; argv/environment/processowner never cross this seam. Explicit pinnedimage route retains actualimage.",
+    "WindowsJob": "ownership.popen_options are passed through partial unchanged; original pid/job bind, observation, teardown and postprocess bookends remain sharedrunner-owned. ActualWindows proof still required.",
+    "native_root": "Boundedrunner native_bounded_command_start/environment/complete callbacks are unchanged. NativeRootTransport toolbinding document remains codingCLI logicalname+actualexecutableidentity+isolation; no portablepath/selection repin required."
+  },
+  "acceptance_conditions": [
+    "Optional pin defaultsNone for all nonprovider/internal existing _run_bounded uses. Only actualselected providerprocess calls supply original selection.executable.",
+    "Thread logicalargv0 and explicitpin consistently at task+source generation, injected authentication runner, failureauthentication probe, OpenCode runhelp and bothdebugconfig interfaces. Never reopenPATH.",
+    "Keep selection.executable canonical and exact native/image/currentness checks unchanged; preserve sandboxflags,cleanconfig,workspace,credentialfiltering/redaction/runtime-state/terminationguards.",
+    "Trace/result.command/command_identity must describe actuallogicalargv0, while result.executable/executable_identity identifies actualpinnedimage. Never falsely serialize command[0] asresolvedimage afterinvokinglogicalargv0.",
+    "Portable toolbinding@1 already bindsname/image/isolation and remainscompatible; machine operational selection identity retains canonicalabsoluteimage. No wire/contract version change appears necessary for these derived command semantics."
+  ],
+  "platform_carveouts": {
+    "POSIX_native": "Explicitimage+logicalargv0 proven on actualcompiledWebMux forcodex/opencode and original pin guards.",
+    "POSIX_shebang": "Kernel interpreter handling may replaceargv0 withscriptpath; this design does not establish arbitraryscriptmulticallalias support. Preserve originalscript regression behavior; do not claim Pythonstub proof of nativeargv0.",
+    "Windows_native": "CreateProcess separateimage/commandline permits knownnativeimage withlogicalargv0; nativeWindowsCI needed for actualargv and jobownership.",
+    "Windows_batch": "Do NOT universally pass .cmd/.bat as explicit executable/lpApplicationName. Preserve original pinnedcanonicalpath argv0 +existing noexplicit executable for batchlaunchers, or separately review full originalinterpreter/imagebinding; no shell=True shortcut.",
+    "primary_reference": "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessw"
+  },
+  "narrow_regression_controls": [
+    "Generic smallcompiledC program whosebinaryfilename differsfromcodingCLIname and whoseactual main(argv[0]) result ischecked; putaliascodex onPATH, selectcanonicalimage, theninvokeversion through actualboundedrunner. Compile on available POSIX Ctoolchain; useonlyexistingnonPOSIX nativecondition, do notaddskip toexistingcases.",
+    "Assert actualPopen executablepin andlogicalargv0 together; alteredPATH/aliasretarget cannotredirect selectedimage. Keep originalresolvedimage redirection/hash/nonexecutable drift refusal controls.",
+    "Existing task/sourceprofile argumentisolations and eachauth/preflight branch must assert pin forwarded, not merely remove old firstargv assertions.",
+    "Existing bounded successcleanup/timeoutdescendants/outputoverflow and originalnative/telemetry actualPopen registration should execute same codepath withpartialfactory; no telemetrymeasurement claim from mockedPopen.",
+    "Preserve actualWindows batchlauncher behavior withnativeWindows control and nativeexe argv0/job control separately; Linuxcompiledproof doesnotcloseeither."
+  ],
+  "test_and_mock_impact": [
+    "Mocks of _run_bounded gain optional pinned executable keyword; preserve existingtimeout/profile/environment/output expectations. Assert canonicalpin pluslogicalargv0 where formerlyassertingcanonicalcommand[0].",
+    "Injected authentication runner must receive explicit executablepin consistently; update exact expectedkwargs and validate argvlogicalname, not loosen toanyarguments.",
+    "Controlled external-program mocks in test_opencode_cli and test_codex_runtime_state rewrite to sys.executable+fixture; if forwarding newpin, preserve the intended actualtestimage association (these currentlymockselection to sys.executable). Do notletadapter substitute arbitraryexecutablewhileclaiming originalpin.",
+    "At sharedprocess factory inspection, require partial.func is originalPopen and partial.keywords exactly originalimage whenpinset; no pin retains originalfactory. Do notweaken exactreturnedPopen observerchecks.",
+    "No need source-cache/native-root binding schema change; retain existingmetadata/digest/profile assertions and source-key semantic binding."
+  ],
+  "limits": "Design/source-callpath review only; root alone authors. PubliccompiledWebMuxversion/help evidence separate. No actualnewnativeCtest, Windows proof, modelquery, generation or releaseacceptance byreviewer."
+}

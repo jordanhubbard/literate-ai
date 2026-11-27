@@ -1,0 +1,13 @@
+{
+  "argv0": "opencode",
+  "arguments": [
+    "run",
+    "--help"
+  ],
+  "explicit_pinned_image": "/home/jkh/Src/webmux/webmux/bin/webmux",
+  "returncode": 0,
+  "v1_required_options_advertised": true,
+  "v2_required_options_advertised": false,
+  "original_pin_guard_before_after": "passed",
+  "limits": "Publichelp probe only,15second bound, no modelquery/generation. Original profile parser option requirements reused; no output/privateproviderroute retained."
+}

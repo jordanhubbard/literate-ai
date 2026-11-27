@@ -24427,6 +24427,34 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Provider launcher correction (open integration subtask):**
+  [GitHub issue #498](https://github.com/jordanhubbard/literate-ai/issues/498).
+  Actual compiled multicall execution proves that resolving a coding CLI alias
+  and then invoking the pinned image as argv[0] loses the selected interface.
+  Keep the original canonical executable, digest and drift guards; retain the
+  logical invocation name while explicitly executing that pinned image. The
+  existing bounded runner's process factory supports this separation without
+  changing process ownership, deadlines or stream limits.
+  - [ ] Repair task/source generation, authentication and provider-interface
+    launch sites, with truthful invocation and image provenance.
+  - [ ] Pass a compiled multicall regression and original drift/refusal,
+    provider/profile, authentication and bounded-process controls.
+  - [ ] Verify the actual configured model and installed receiving workflow;
+    local-only worker alignment alone does not prove model readiness.
+- **Historical imported-catalog placement (partial):** The reviewed public
+  transaction passes in 712.675 seconds under its original 1800-second bound.
+  Independent review verifies all 245 placed payloads, four exact producing
+  record transformations and 249 saved originals. Native source, Git, original
+  policy/driver and receipt bytes remain preserved. Twelve held blockers and
+  later framework/source finalization remain open; no missing historical
+  Component target is invented for renewal. The next framework placement plan
+  refuses inspection from both root and implementation descendant
+  ([GitHub issue #499](https://github.com/jordanhubbard/literate-ai/issues/499)): six original
+  converter files match, while the genuine 1.3.1 Make wrapper uses the older
+  quoting format. Add exact supported-producer compatibility in the projection
+  owner, retaining all original baseline/parity/preimage and changed-recipe
+  refusals. Preserve the historical wrapper rather than editing its preimage to
+  resemble a newer renderer. Public apply and downstream renewal remain open.
 - **Installed starter fixture closure (partial, 2026-11-27):** The JavaScript
   import fixture now supplies the original hash-bound driver support argument;
   all four existing controls pass. Maintained wheel fixtures capture canonical
