@@ -936,6 +936,7 @@ dependencies = [
     { name = "jsonschema" },
     { name = "packaging" },
     { name = "pyjwt" },
+    { name = "pyyaml" },
     { name = "semantic-version" },
     { name = "univers" },
 ]
@@ -995,6 +996,7 @@ requires-dist = [
     { name = "pytest-split", marker = "extra == 'dev'", specifier = ">=0.10" },
     { name = "pytest-testmon", marker = "extra == 'impact'", specifier = "==2.2.0" },
     { name = "pytest-xdist", marker = "extra == 'dev'", specifier = ">=3.6" },
+    { name = "pyyaml", specifier = "==6.0.3" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.15.22" },
     { name = "semantic-version", specifier = "==2.10.0" },
     { name = "univers", specifier = "==32.0.1" },

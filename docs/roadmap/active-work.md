@@ -29426,3 +29426,36 @@ Fifty-seven of ninety dirty snapshots and six of seven clean heads are now
 ancestors. Thirty-three snapshots and `head-batch17` remain, including unique
 promotion/runner code and bounded Cargo metadata controls. Original changed-parent
 provenance, source role-input and release qualification holds remain open.
+
+
+**All committed clean heads reconciled.** `head-batch17` brings complete canonical
+retained promotion capture and historical verification, strict nonexecuting
+project authority reads, pure runner identity and three complete wire contracts.
+Historical facts never restore a live SDK/workspace grant. Current declared
+namespace/source/journal/receiver controls and paired native tool owners remain;
+no old command-only guard replaces their complete currentness requirements.
+The smaller conflicting composite schema was an unreleased takeover draft, absent
+from upstream main; replace its registration with the complete canonical schemas,
+reject stale incompatible shapes and preserve original CAS evidence rather than
+manufacturing contexts or migrating old assertions into authority.
+
+All thirty capture/contract/read-only/schema controls pass, six receipt controls
+pass, three document-object controls pass, and fifteen acceptance controls pass,
+including both native observation drift and exact before/after document seams.
+The full actual public run/promotion/separate-update journey passes in 137.863s
+with default contained metadata, bounded refusals, forged-grant/schema controls
+and exact metadata/native ownership preservation. The two preserved actual SDK
+forgery/private-filesystem cases pass (61.504s), with command, CAS write and SDK
+acquisition denied during historical reading. The recovered SDK batch journey
+also passed in the initial combined run; that run failed overall on the obsolete
+second module import, which is retained as a failure. Full lint/format pass for
+2,769 Python files; complete catalog validation resolves 147 v2 schemas and 648
+resources. Exact-commit installed qualification is still pending.
+
+Initial failures exposed the missing captured dependency-document method, old
+root-only fixture paths, and removed callback/reader entry points. Port the actual
+fixtures to declared context and canonical runtime-issued capture references;
+keep all original mutation/refusal and metadata assertions, not synthetic data.
+All seven additional clean heads are now integrated. Thirty-three of ninety
+preserved dirty snapshots remain; source, platform, review and release holds are
+not closed by these bounded source checks.

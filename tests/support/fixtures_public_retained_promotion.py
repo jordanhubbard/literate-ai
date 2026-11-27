@@ -50,7 +50,7 @@ from literate_ai.contracts.retained_project_tests import (
     RetainedProjectExpectedCase,
     RetainedProjectTestPolicy,
 )
-from literate_ai.projects import load_project
+from literate_ai.projects import ProjectConfigurationStore, load_project
 
 KINDS = (
     "acceptance-result",
@@ -265,7 +265,10 @@ def author_public_retained_project(root, invoke, *, driver=None, receipt=None):
         "tests": "test-definition",
         "retained-docs": "docs-definition",
         "test-policy.json": "test-policy",
-        "literate.release.json": "release-policy",
+        ProjectConfigurationStore.context(project)
+        .framework_path("literate.release.json")
+        .relative_to(project)
+        .as_posix(): "release-policy",
     }
     limits = RetainedProjectLimits(100, 8 * 1024**2, 16 * 1024**2)
     profile_path = project / "build/profile.json"
@@ -282,7 +285,11 @@ def author_public_retained_project(root, invoke, *, driver=None, receipt=None):
         manifest.role_identity({"sdk", "toolchain"}),
         manifest.role_identity({"dependency"}),
         _identity(test_path.read_bytes()),
-        _identity((project / "literate.release.json").read_bytes()),
+        _identity(
+            ProjectConfigurationStore.context(project)
+            .framework_path("literate.release.json")
+            .read_bytes()
+        ),
         (("runner", "tools/runner", _identity(tool.read_bytes())),),
         actions,
         ("app.bin", "docs.txt"),
@@ -310,9 +317,13 @@ def author_public_retained_project(root, invoke, *, driver=None, receipt=None):
     ):
         raise AssertionError("only the project-policy cycle was omitted")
     (project / "manifest.json").write_bytes(canonical_json_bytes(manifest.to_dict()))
-    configuration = json.loads((project / "literate.project.json").read_bytes())
+    configuration = json.loads(
+        ProjectConfigurationStore.context(project).manifest_path.read_bytes()
+    )
     configuration["test_receipt_policy"] = policy.to_dict()
-    (project / "literate.project.json").write_bytes(canonical_json_bytes(configuration))
+    ProjectConfigurationStore.context(project).manifest_path.write_bytes(
+        canonical_json_bytes(configuration)
+    )
     _invoke(invoke, ["project", "documentation-review", str(project), "--record"])
     for argv in (
         ["init", "-q", "--initial-branch=main"],
@@ -553,13 +564,15 @@ def forge_public_run_evidence(store, retained_receipt, promotion_reference, *, k
             canonical_json_bytes(transform(read(reference))),
             media_type=reference.media_type,
         )
-    reference = BlobRef.from_dict(root["workspace_admission"])
-    replacements[reference.identity] = store.put_bytes(
-        canonical_json_bytes(transform(read(reference))),
-        media_type=reference.media_type,
+    # The converged encoder preserves the complete inline historical assertion
+    # and per-action contexts. Rehash their join too: these negatives must reach
+    # actual report/oracle verification, not merely fail a stale sidecar hash.
+    altered_root = transform(root)
+    altered_root["historical_admission"]["command_contexts_identity"] = (
+        canonical_identity(altered_root["command_contexts"]).uri
     )
     new_bundle = store.put_bytes(
-        canonical_json_bytes(transform(root)),
+        canonical_json_bytes(altered_root),
         media_type="application/json",
     )
     return new_receipt, new_bundle
@@ -576,7 +589,10 @@ def refresh_public_retained_manifest(project):
             "tests": "test-definition",
             "retained-docs": "docs-definition",
             "test-policy.json": "test-policy",
-            "literate.release.json": "release-policy",
+            ProjectConfigurationStore.context(project)
+            .framework_path("literate.release.json")
+            .relative_to(project)
+            .as_posix(): "release-policy",
         },
         RetainedProjectLimits(100, 8 * 1024**2, 16 * 1024**2),
         executable_paths=("tools/runner",),

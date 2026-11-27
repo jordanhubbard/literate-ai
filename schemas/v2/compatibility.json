@@ -233,7 +233,6 @@
     "urn:literate-ai:schema:v2:native-sdk-tree@1",
     "literate-ai/retained-project-tree-policy@1",
     "literate-ai/retained-project-promotion-evidence@1",
-    "literate-ai/retained-project-admission-assertion@1",
     "urn:literate-ai:schema:v2:package-tree-input@1",
     "urn:literate-ai:schema:v2:tree-package-plan@1",
     "urn:literate-ai:schema:v2:tree-package-result@1",
@@ -326,7 +325,9 @@
     "literate-ai/project-layout-framework-authority-result@1",
     "literate-ai/project-layout-framework-producer-result@1",
     "literate-ai/project-layout-catalog-producer-result@1",
-    "literate-ai/project-layout-source-finalization-result@1"
+    "literate-ai/project-layout-source-finalization-result@1",
+    "literate-ai/retained-project-historical-admission@1",
+    "literate-ai/retained-project-test-runner@2"
   ],
   "read_paths": [
     {

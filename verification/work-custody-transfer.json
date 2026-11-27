@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "908c1678bb36c2a63d6d0bb4e4782ac391d7bf80",
+  "continued_subject": "a88e3821483706d617aa68b5e02244571644d4a9",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -994,7 +994,8 @@
       {
         "label": "head-batch17",
         "commit": "11740f084256ee3ae54cd3faf6135db6896fa2b9",
-        "disposition": "preserved-for-reconciliation"
+        "disposition": "merged",
+        "resolution": "Port complete canonical historical promotion contracts and original per-action/native dependency context capture, strict nonexecuting authority reads and pure runner identity. Preserve current namespace/custody, observer pairing, original-root budgets, journals, receiver and SDK forgery controls; qualify original public/native cases before committing."
       },
       {
         "label": "head-cmd14",
@@ -1023,8 +1024,8 @@
       }
     ],
     "committed_head_counts": {
-      "merged": 6,
-      "preserved-for-reconciliation": 1
+      "merged": 7,
+      "preserved-for-reconciliation": 0
     }
   },
   "checks": {
@@ -2061,10 +2062,113 @@
       "subject": "ace2f7d87",
       "log_sha256": "0d526005067b5482e39da1c761ae949b860f7f954159b8c5139c1c65d6b6117c",
       "formatted_python_files": 2759
+    },
+    "retained_promotion_canonical_reconciliation": {
+      "status": "source controls passed; exact-wheel qualification pending",
+      "recovered_head": "11740f084256ee3ae54cd3faf6135db6896fa2b9",
+      "contracts": {
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        },
+        "seconds": 34.269,
+        "report_sha256": "f9a78dea19e1b8c42fc0510e313098792196681f365d788b77dd159c35628535",
+        "log_sha256": "470040d5523e2c8480a55270b9b9296a36295c3b7b6b6c30f48e7879efecef1d"
+      },
+      "receipt": {
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "seconds": 26.434,
+        "report_sha256": "b08eade254a819156998129c5e137ebebddd648f15d054104c9805a9df6a2bae",
+        "log_sha256": "a7cd8492d7ce349eb6615324e1db670fb50fb297246a17769a6d171349e549f1"
+      },
+      "documents": {
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        },
+        "seconds": 0.197,
+        "report_sha256": "8309769e88beba84fcf215c8f78ebedf092d3ae468253670c076439335d6a210",
+        "log_sha256": "910b691b7221a0eb4af32957e1871fac2d108e14a3eeb7491d4bf7e7bda5a448"
+      },
+      "public_journey": {
+        "summary": {
+          "executed": 1,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 1,
+          "skipped": 0
+        },
+        "seconds": 137.863,
+        "report_sha256": "a883fc1079474647751d6025819ced38bbe710e9d24d673a6a8e3cd29f30c974",
+        "log_sha256": "b8295df1abe1ba0f29daa7ff8afb59c23ed8df70e4b660981106df938b8e0064"
+      },
+      "sdk_custody": {
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        },
+        "seconds": 61.504,
+        "report_sha256": "d099cea7facd355d1e4391da441e6adc74af0f2a774784a41292ab51c49a6258",
+        "log_sha256": "22f7495200fcd87fff1dedcfe87f0309802a6a7bcac9dcc7ddf7f303ce3c4a13"
+      },
+      "acceptance": {
+        "summary": {
+          "executed": 15,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 15,
+          "selected": 15,
+          "skipped": 0
+        },
+        "seconds": 1.043,
+        "report_sha256": "d9fc8e5bc9bef67aee72f7954ab0c029320e933bc3741708ee1e85ead8c3c3e5",
+        "log_sha256": "b81ea31541250f42977e7ea7e8569edbf50cc3b540a20b94cd6b19fecf0cce3d"
+      },
+      "sdk_batch_journey": {
+        "methods": 1,
+        "status": "passed before a separate obsolete API import failed discovery",
+        "scope": "Actual original native SDK batch-capture journey passed in initial combined two-module run; overall batch failed on the second module import and is not marked passed. Existing SDK custody cases now both pass through the new canonical verifier.",
+        "combined_failed_log_sha256": "241fcc34f3902245588e73e2a5787cb3804f191480d849e0ac7dfea40034648b"
+      },
+      "schemas": {
+        "status": "passed",
+        "v2_schema_files": 147,
+        "v2_resources": 648,
+        "log_sha256": "9472f1310b598cf9f3786dbc4edb58567319a8c76d8cd2d8b39f935534d96d55",
+        "scope": "Complete catalog/index/resource/ref/compatibility validation. Replace conflicting smaller unreleased draft composite with the three canonical records; no duplicate schema identity, no historical authority restoration and no schema migration fabricated."
+      },
+      "style": {
+        "status": "passed",
+        "formatted_python_files": 2769,
+        "log_sha256": "abea4f032dff71007ac79b2ef24fe9dd65a6c6edbf6fb28f2e412b228f542ae7"
+      },
+      "scope": "Actual public run/promotion/separate update on default contained fixture, strict no-write/no-command provider behavior, canonical complete captured contexts, pure runner policy projection, 15 acceptance controls including both native and document drift seams. Preserve current SDK closure/environment/dependency forgery assertions and move current actual journey schema-injection controls to the recovered public module. Original native tool observer pairing and command/complete-currentness distinction retained.",
+      "prior_failures": "Initial missing dependency to_dict; root-only manifest/release fixture paths; obsolete consumer callback and historical-reader import. Corrected at their owning source/fixture surfaces, without weakening guards, counts, limits or assertions. All original failed logs retained.",
+      "release_evidence": false
     }
   },
   "remaining_requirements": [
-    "Reconcile the 33 preserved source snapshots and remaining committed clean head head-batch17. Preserve unique promotion/runner and bounded Cargo metadata behavior while keeping current namespace, role-observation and journal guards. Exact installed readoption controls pass at 7eb417e58; broad qualification still has explicit unresolved failures.",
+    "Reconcile the 33 preserved source snapshots. All seven additional clean heads are now integrated. Complete exact-wheel canonical promotion checks and continue remaining source qualifications while preserving namespace, lifetime, per-write journal and bounded input guards.",
     "Complete resulting composed-source qualification. Fourteen Cargo cases pass at f0a5da8eb; later retained-release/fixture changes have their own bounded controls. Diagnose canonical source metadata publication role-input refusal before the recovered forest capacity assertions; do not weaken its guards or expand declared budgets.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."

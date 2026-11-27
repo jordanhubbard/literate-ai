@@ -1002,14 +1002,6 @@
       "public_ids": []
     },
     {
-      "file": "retained-project-promotion.schema.json",
-      "root_id": "urn:literate-ai:schema:v2:retained-project-promotion-contracts",
-      "public_ids": [
-        "literate-ai/retained-project-promotion-evidence@1",
-        "literate-ai/retained-project-admission-assertion@1"
-      ]
-    },
-    {
       "file": "package-tree-input.schema.json",
       "root_id": "urn:literate-ai:schema:v2:package-tree-input@1",
       "public_ids": []
@@ -1345,6 +1337,27 @@
       "root_id": "urn:literate-ai:schema:v2:project-layout-source-finalization-result",
       "public_ids": [
         "literate-ai/project-layout-source-finalization-result@1"
+      ]
+    },
+    {
+      "file": "retained-project-promotion-evidence.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:retained-project-promotion-evidence-contracts",
+      "public_ids": [
+        "literate-ai/retained-project-promotion-evidence@1"
+      ]
+    },
+    {
+      "file": "retained-project-historical-admission.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:retained-project-historical-admission-contracts",
+      "public_ids": [
+        "literate-ai/retained-project-historical-admission@1"
+      ]
+    },
+    {
+      "file": "retained-project-test-runner.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:retained-project-test-runner-contracts",
+      "public_ids": [
+        "literate-ai/retained-project-test-runner@2"
       ]
     }
   ]

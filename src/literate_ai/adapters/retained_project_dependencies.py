@@ -203,17 +203,19 @@ class RetainedProjectDependencyGuard:
                 "retained.dependencies.observation-rejected: " + str(exc)
             ) from exc
 
+    def to_dict(self):
+        """Exact already-observed dependency assertion; never a live scope."""
+        return {
+            "schema": "literate-ai/retained-native-dependency-observation@1",
+            "plan_identity": self._plan_identity.uri,
+            "manifest_identity": self._manifest.identity.uri,
+            "environment_identity": canonical_identity(self._environment).uri,
+            "observation": json.loads(self._canonical),
+        }
+
     @property
     def identity(self):
-        return canonical_identity(
-            {
-                "schema": "literate-ai/retained-native-dependency-observation@1",
-                "plan_identity": self._plan_identity.uri,
-                "manifest_identity": self._manifest.identity.uri,
-                "environment_identity": canonical_identity(self._environment).uri,
-                "observation": json.loads(self._canonical),
-            }
-        )
+        return canonical_identity(self.to_dict())
 
     @property
     def observation(self) -> HostDependencyObservation:

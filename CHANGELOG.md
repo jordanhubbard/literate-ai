@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Reopen retained-run promotion from complete canonical historical action and
+  dependency facts without restoring live execution owners. Preserve strict
+  read-only authority checks, finite metadata bounds and the separate receipt
+  update; publish complete promotion, historical-admission and runner schemas.
+
 - Retire only exact idle native lifecycle-lock residue after committed-profile
   removal, allowing repeated adoption while preserving foreign runtime contents,
   interrupted resources and active or already-open lifecycle contenders.

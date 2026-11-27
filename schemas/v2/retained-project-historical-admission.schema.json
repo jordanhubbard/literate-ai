@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:literate-ai:schema:v2:retained-project-historical-admission-contracts",
+  "$ref": "urn:literate-ai:schema:v2:retained-project-historical-admission-contracts#/$defs/record",
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "retained_receipt_identity",
+        "plan_identity",
+        "completed_run_identity",
+        "source_manifest_identity",
+        "output_manifest_identity",
+        "payload_manifest_identity",
+        "project_test_policy_identity",
+        "planning_evidence",
+        "accepted_run_evidence",
+        "command_contexts_identity",
+        "capture_owner",
+        "required_sdk_scopes_checked",
+        "admission_issued",
+        "release_authorized"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/retained-project-historical-admission@1"
+        },
+        "retained_receipt_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "plan_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "completed_run_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "source_manifest_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "output_manifest_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "payload_manifest_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "project_test_policy_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "planning_evidence": {
+          "allOf": [
+            {
+              "$ref": "urn:literate-ai:schema:v1:blob-ref"
+            },
+            {
+              "properties": {
+                "media_type": {
+                  "const": "application/json"
+                }
+              }
+            }
+          ]
+        },
+        "accepted_run_evidence": {
+          "allOf": [
+            {
+              "$ref": "urn:literate-ai:schema:v1:blob-ref"
+            },
+            {
+              "properties": {
+                "media_type": {
+                  "const": "application/json"
+                }
+              }
+            }
+          ]
+        },
+        "command_contexts_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "capture_owner": {
+          "const": "original-live-retained-workspace"
+        },
+        "required_sdk_scopes_checked": {
+          "const": true
+        },
+        "admission_issued": {
+          "const": false
+        },
+        "release_authorized": {
+          "const": false
+        }
+      },
+      "description": "Historical original-owner assertion, not live admission. Canonical historical verification additionally joins every identity, exact context and complete evidence closure.",
+      "$id": "literate-ai/retained-project-historical-admission@1"
+    }
+  }
+}
