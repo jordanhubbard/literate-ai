@@ -41,6 +41,12 @@ class _CargoConsumerExecutionInputMethods:
         )
         self.scope.require_unchanged(environment=environment)
         self.materialized.require_unchanged()
+        # Ancestor configuration lies outside the complete owner trees. Close
+        # its bytes and absence again after their potentially substantial guards.
+        self._configuration.require_unchanged()
+        for path, before in self._states:
+            if _state(path) != before:
+                raise ValueError("retained.inputs.v2-ancestor-configuration-changed")
         return identity
 
     def require_metadata_paths(self, metadata, *, environment):

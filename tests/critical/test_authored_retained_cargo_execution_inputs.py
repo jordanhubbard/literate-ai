@@ -100,6 +100,38 @@ class AuthoredRetainedCargoExecutionInputsTests(unittest.TestCase):
                 owner.current_identity(environment=environment)
             self.assertEqual(added.read_bytes(), b"preserve")
 
+    def test_ancestor_configuration_mutation_after_final_materialization_refuses(self):
+        for present in (True, False):
+            with self.subTest(present=present):
+                with self.fixture() as (materialized, environment, configuration):
+                    if not present:
+                        configuration.unlink()
+                    owner = self.read(materialized, environment)
+                    original = type(materialized).require_unchanged
+                    calls = []
+
+                    def check(
+                        selected,
+                        original=original,
+                        calls=calls,
+                        materialized=materialized,
+                        configuration=configuration,
+                    ):
+                        result = original(selected)
+                        if selected is materialized:
+                            calls.append(True)
+                            if len(calls) == 2:
+                                configuration.write_bytes(b"[net]\noffline = false\n")
+                        return result
+
+                    with patch.object(type(materialized), "require_unchanged", check):
+                        with self.assertRaises(ValueError):
+                            owner.current_identity(environment=environment)
+                    self.assertEqual(calls, [True, True])
+                    self.assertEqual(
+                        configuration.read_bytes(), b"[net]\noffline = false\n"
+                    )
+
     def test_ancestor_configuration_bytes_and_absence_cannot_change(self):
         for present in (True, False):
             with self.subTest(present=present):
