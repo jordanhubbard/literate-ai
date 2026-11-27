@@ -755,12 +755,25 @@ def execute_original_retained_python_gates(
     inventory = documents["inventory"]["value"]
     original = None
     observer = None
-    temporary = None
-    try:
-        temporary = tempfile.TemporaryDirectory(
-            prefix="retained-python-original-gates-"
+    workspace = None
+    entered = False
+
+    def require_inputs():
+        wrapper.require_unchanged()
+        require_retained_python_interpreter(
+            interpreter_observation, reviewed.plan.interpreter_identity
         )
-        root = Path(temporary.name).resolve(strict=True) / "implementation"
+
+    try:
+        from .retained_execution_workspace import _retained_execution_workspace_at
+
+        workspace = _retained_execution_workspace_at(
+            Path(tempfile.gettempdir()).resolve(strict=True),
+            require_inputs,
+            prefix="retained-python-original-gates-",
+        )
+        root = workspace.__enter__() / "source"
+        entered = True
         copy_retained_source_tree(
             wrapper.implementation, root, inventory.get("source_scope")
         )
@@ -800,8 +813,18 @@ def execute_original_retained_python_gates(
                     lambda: MethodType(_OBSERVER_METHODS[-1], observer)(),
                 )
             )
-        if temporary is not None:
-            callbacks.append(temporary.cleanup)
+        closing_error = None
+
+        def close_workspace():
+            primary = original if original is not None else closing_error
+            workspace.__exit__(
+                type(primary) if primary is not None else None,
+                primary,
+                primary.__traceback__ if primary is not None else None,
+            )
+
+        if entered:
+            callbacks.append(close_workspace)
         callbacks.extend(
             (
                 wrapper.require_unchanged,
@@ -810,7 +833,6 @@ def execute_original_retained_python_gates(
                 ),
             )
         )
-        closing_error = None
         for callback in callbacks:
             try:
                 callback()

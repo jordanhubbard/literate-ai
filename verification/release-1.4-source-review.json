@@ -85,7 +85,7 @@
       "reviewer": "authority",
       "path": "src/literate_ai/adapters/retained_python_original_gates.py",
       "required_outcome": "Retain foreign replacement namespace and failed native residue; no unconditional recursive temporary cleanup.",
-      "state": "open"
+      "state": "fixed-independently-reviewed-affected-cohort-running"
     },
     {
       "id": "python-product-owner",
@@ -133,7 +133,7 @@
       "reviewer": "contracts",
       "path": "src/literate_ai/cli/source_to_specification.py",
       "required_outcome": "Select audited Flavor inputs through original recorded catalog placement so default contained promotion reaches original trust checks.",
-      "state": "open"
+      "state": "fixed-targeted-and-independently-reviewed"
     }
   ],
   "targeted_evidence": {
@@ -241,6 +241,22 @@
       "skipped": 0,
       "failures": 0,
       "limit": "Affected source controls and independent closing review only; full native/installed and release acceptance remain pending."
+    },
+    "contained-qualification-audit-prefix": {
+      "run": "static-intake-cli-r3",
+      "selected": 6,
+      "passed": 6,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "All original CLI trust/promotion assertions retained; source integration controls only."
+    },
+    "python-temp-cleanup-independent": {
+      "selected": 3,
+      "passed": 3,
+      "skipped": 0,
+      "failures": 0,
+      "duration_seconds": 491.22,
+      "limit": "Independent actual replacement/foreign-residue/nested-original execution controls. Canonical expanded15-control cohort still running; no full source or release acceptance."
     }
   },
   "review_scope": "All 462 frozen changed files independently inspected: runtime 65, SDK transfer 36, retained-layout transfer 36, authority 157 and remaining contracts 168. This is source review only."

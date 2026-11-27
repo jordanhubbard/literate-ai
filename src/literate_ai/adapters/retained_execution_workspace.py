@@ -346,12 +346,29 @@ def retained_execution_workspace(owner, *, _command_root=None):
     if os.name != "posix" or _CURRENT.get() is not None:
         _fail("fresh original POSIX execution scope required")
     parent_path, guard = inspection_native_binding(owner)
+    with _retained_execution_workspace_at(
+        parent_path, guard, _command_root=_command_root
+    ) as path:
+        yield path
+
+
+@contextmanager
+def _retained_execution_workspace_at(
+    parent_path, guard, *, prefix=".nx-", _command_root=None
+):
+    """Private POSIX custody; may shadow and restore an existing run token.
+
+    Callers retain their own input admission. Only the original copier and native
+    producer hooks may enroll postimages; borrowed callbacks cannot adopt residue.
+    """
+    if os.name != "posix":
+        _fail("original POSIX execution scope required")
     state = primary = token = None
     stack = ExitStack()
     try:
         guard()
         parent = stack.enter_context(_access(parent_path))
-        path = Path(tempfile.mkdtemp(prefix=".nx-", dir=parent_path))
+        path = Path(tempfile.mkdtemp(prefix=prefix, dir=parent_path))
         root_stack = stack.enter_context(ExitStack())
         root = root_stack.enter_context(_access(path))
         state = _Run(path, parent, root, guard, root_stack, _command_root)
@@ -361,15 +378,24 @@ def retained_execution_workspace(owner, *, _command_root=None):
         primary = error
         raise
     finally:
+        closing_error = None
+
+        def retain_failure(error, message):
+            nonlocal closing_error
+            original = primary if primary is not None else closing_error
+            if original is None:
+                closing_error = error
+            else:
+                try:
+                    BaseException.add_note(original, message + str(error))
+                except BaseException:
+                    pass
+
         try:
             if state is not None:
                 state.dispose()
         except BaseException as error:
-            if primary is None:
-                raise
-            primary.add_note(
-                "Native execution disposal refused; retained: " + str(error)
-            )
+            retain_failure(error, "Native execution disposal refused; retained: ")
         finally:
             if state is not None:
                 state.closed = True
@@ -378,11 +404,9 @@ def retained_execution_workspace(owner, *, _command_root=None):
             try:
                 stack.close()
             except BaseException as error:
-                if primary is None:
-                    raise
-                primary.add_note(
-                    "Native execution handle release refused: " + str(error)
-                )
+                retain_failure(error, "Native execution handle release refused: ")
+        if primary is None and closing_error is not None:
+            raise closing_error
 
 
 def copy_into_native_workspace(source, destination, scope, *, directories=()):

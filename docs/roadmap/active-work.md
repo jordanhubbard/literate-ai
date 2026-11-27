@@ -24435,12 +24435,14 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   installed and collateral requirements, then prepare, check, publish and verify
   through the release owner. No recovered snapshot or narrow passing cohort
   establishes release acceptance.
-- **Contained qualification audit repair (in progress):** The actual contained
+- **Contained qualification audit repair (source partial):** The actual contained
   CLI promotion passes, but qualification's literal root Flavor prefix selects no
   files from its verified audit and masks the required intake trust refusals.
   Resolve the selected exact catalog placement against that original audit; keep
   nonempty/identity checks and every existing trust assertion, then require the
-  full CLI cohort and independent review. No trust guard is waived.
+  full CLI cohort and independent review. All six original CLI controls now pass
+  without skips; independent review also passes the actual trust-boundary control
+  and exact root/contained audit subsets. No trust guard is waived.
 - **Bundle preallocation repair (source partial):** Review reproduces an oversized
   reviewed-intake read before its 16 MiB guard; valid larger legacy bundles have
   no such fixed cap. Discriminate only finite envelope fields with bounded memory
@@ -24462,13 +24464,16 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   independent review. All nine affected source controls pass without skips and
   independent review closes this finding; canonical root/shared execution remains
   separately blocked.
-- **Original Python gate disposal repair (in progress):** A failed copy can
+- **Original Python gate disposal repair (source partial):** A failed copy can
   replace a temporary pathname before unconditional recursive cleanup. Reuse
   native execution custody and its original copier/producer postimage hooks,
   preserve foreign or unfinished residue, and restore any outer execution token.
   Keep original observer/input closing and primary failures. Require actual gate,
   hostile replacement, callback-residue and nested-scope controls plus independent
-  closing review; provider and receiving-workspace acceptance remain separate.
+  closing review. Three new actual controls pass independent review (491.220s),
+  including nested successful execution and foreign-state preservation. The full
+  15-control canonical cohort remains running with unchanged deadlines; provider
+  and receiving-workspace acceptance remain separate.
 - **Product callback closing repairs (source partial):** Independent review reproduces
   changes to Python and neutral authored product fields inside legitimate guards.
   Retain exact original fields and checker before and after callbacks and invoke

@@ -4688,7 +4688,11 @@ def _spec_from_args(
                 component_audit,
                 kinds=frozenset({PromotionInputKind.REVIEWED_FLAVOR}),
                 target_prefixes=tuple(
-                    f"flavors/{flavor_selector_directory(f'+{flavor_id}')}"
+                    project.context.framework_path(
+                        f"flavors/{flavor_selector_directory(f'+{flavor_id}')}"
+                    )
+                    .relative_to(project.root)
+                    .as_posix()
                     for flavor_id in selected_flavor_ids
                 ),
             )

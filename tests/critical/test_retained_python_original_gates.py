@@ -9,6 +9,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path
@@ -269,6 +270,98 @@ class ActualOriginalPythonGatesTests(unittest.TestCase):
         return subject.execute_original_retained_python_gates(
             wrapper, interpreter, **kwargs
         )
+
+    def test_failed_copy_preserves_replaced_root_and_original_exception(self):
+        copier = subject.copy_retained_source_tree
+        with tempfile.TemporaryDirectory() as directory:
+            parent = Path(directory).resolve()
+            primary = KeyboardInterrupt("original copy cancellation")
+            held = parent / "held-original"
+            sentinel = None
+
+            def fail_after_replacement(source, destination, scope):
+                nonlocal sentinel
+                copier(source, destination, scope)
+                destination.parent.rename(held)
+                destination.parent.mkdir()
+                sentinel = destination.parent / "foreign"
+                sentinel.write_bytes(b"retain foreign namespace")
+                raise primary
+
+            with (
+                self.interpreter() as interpreter,
+                observed_retained_python_wrapper(
+                    self.fx.reviewed, budget=self.fx.budget
+                ) as wrapper,
+                mock.patch.object(
+                    subject.tempfile, "gettempdir", return_value=str(parent)
+                ),
+                mock.patch.object(
+                    subject, "copy_retained_source_tree", fail_after_replacement
+                ),
+            ):
+                try:
+                    self.run_original(wrapper, interpreter)
+                except BaseException as caught:
+                    self.assertIs(caught, primary)
+                else:
+                    self.fail("copy cancellation was lost")
+            self.assertEqual(sentinel.read_bytes(), b"retain foreign namespace")
+            self.assertTrue((held / "source" / "app.py").is_file())
+            self.assertTrue(primary.__notes__)
+
+    def test_post_harness_foreign_child_is_preserved(self):
+        execute = harness.execute_retained_harness
+        with tempfile.TemporaryDirectory() as directory:
+            parent = Path(directory).resolve()
+            sentinel = None
+
+            def execute_then_add(*args, **kwargs):
+                nonlocal sentinel
+                result = execute(*args, **kwargs)
+                sentinel = kwargs["legacy_root"].parent / "foreign"
+                sentinel.write_bytes(b"not a producer postimage")
+                return result
+
+            with (
+                self.interpreter() as interpreter,
+                observed_retained_python_wrapper(
+                    self.fx.reviewed, budget=self.fx.budget
+                ) as wrapper,
+                mock.patch.object(
+                    subject.tempfile, "gettempdir", return_value=str(parent)
+                ),
+                mock.patch.object(
+                    harness, "execute_retained_harness", execute_then_add
+                ),
+            ):
+                with self.assertRaisesRegex(ValueError, "foreign state; preserved"):
+                    self.run_original(wrapper, interpreter)
+            self.assertEqual(sentinel.read_bytes(), b"not a producer postimage")
+            self.assertTrue((sentinel.parent / "source" / "app.py").exists())
+
+    def test_nested_original_gate_restores_outer_native_custody(self):
+        from literate_ai.adapters import retained_execution_workspace as workspace
+
+        with tempfile.TemporaryDirectory() as directory:
+            parent = Path(directory).resolve()
+            with workspace._retained_execution_workspace_at(
+                parent, lambda: None
+            ) as outer:
+                original = workspace._CURRENT.get()
+                with (
+                    self.interpreter() as interpreter,
+                    observed_retained_python_wrapper(
+                        self.fx.reviewed, budget=self.fx.budget
+                    ) as wrapper,
+                    mock.patch.object(
+                        subject.tempfile, "gettempdir", return_value=str(outer)
+                    ),
+                ):
+                    self.run_original(wrapper, interpreter)
+                self.assertIs(workspace._CURRENT.get(), original)
+                original.known()
+                self.assertEqual(tuple(outer.iterdir()), ())
 
     def test_real_full_original_gates_and_both_native_cases_are_observed(self):
         original = self.fx.implementation / "app.py"
