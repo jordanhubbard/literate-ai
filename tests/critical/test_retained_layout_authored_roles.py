@@ -120,9 +120,9 @@ class AuthoredRoleTests(unittest.TestCase):
     def test_original_smaller_profile_refuses_before_source_move(self):
         from literate_ai.adapters import retained_layout_source_finalization as controls
 
-        # Preserve the original finite policy. Complete durable original-state
-        # work now reaches capacity before source intent, with no metadata or
-        # finalization receipt. Cleanup refusal cannot hide the primary cause.
+        # Preserve the original finite policy and add real decoded-entry pressure
+        # after partition admission. The remaining source work must refuse before
+        # intent, metadata or finalization effects; cleanup cannot hide the cause.
         self.input_budget = replace(self.input_budget, maximum_entries=65536)
         lock = ComponentLockStore(self.source.parent).path
         lock.unlink()
@@ -167,6 +167,24 @@ class AuthoredRoleTests(unittest.TestCase):
                                     for item in phase.plan.inputs
                                     if item.path.is_file()
                                 }
+                                # Exercise the original reader's real decoded-entry
+                                # accounting, independent of incidental guard costs.
+                                remaining = (
+                                    original.ledger.budget.maximum_entries
+                                    - original.ledger.records
+                                )
+                                self.assertGreater(remaining, 2)
+                                with preparation._activate_role_observation(
+                                    original.reader
+                                ):
+                                    original.reader.json_value(
+                                        json.dumps([0] * (remaining - 2)).encode(),
+                                        "authored-role-negative-profile-pressure",
+                                    )
+                                self.assertEqual(
+                                    original.ledger.records,
+                                    original.ledger.budget.maximum_entries - 1,
+                                )
                                 reached.append("source-move")
                                 phase.move_source()
             receipt.assert_not_called()

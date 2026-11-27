@@ -24427,6 +24427,16 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Mounted-storage Git discovery (source qualified; landing/platform open):**
+  [GitHub issue #500](https://github.com/jordanhubbard/literate-ai/issues/500).
+  A native Git
+  probe stops at the mounted filesystem boundary, while layout's preliminary
+  marker walk crosses it and wrongly borrows an unrelated home repository.
+  Implicit ancestor discovery now stops before inspecting a different-device
+  directory. Four controls and native mounted-storage readback pass; same-
+  filesystem ancestors, unsafe-marker refusals and local regular worktree `.git`
+  files retain their original behavior. Independent source review is closed;
+  clean installed qualification and resulting-main acceptance remain open.
 - **Provider launcher correction (open integration subtask):**
   [GitHub issue #498](https://github.com/jordanhubbard/literate-ai/issues/498).
   Actual compiled multicall execution proves that resolving a coding CLI alias
@@ -24435,12 +24445,19 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   logical invocation name while explicitly executing that pinned image. The
   existing bounded runner's process factory supports this separation without
   changing process ownership, deadlines or stream limits.
-  - [ ] Repair task/source generation, authentication and provider-interface
-    launch sites, with truthful invocation and image provenance.
-  - [ ] Pass a compiled multicall regression and original drift/refusal,
-    provider/profile, authentication and bounded-process controls.
+  - [x] Repair task/source generation, authentication and provider-interface
+    launch sites, with truthful invocation and image provenance. Independent
+    source review closes all seven provider process boundaries while preserving
+    canonical image/digest/currentness and Windows batch handling.
+  - [x] Pass compiled native multicall and original drift/refusal, profile,
+    authentication and bounded-process controls on this host. The seven native/
+    routing cases, generation, OpenCode, Codex runtime and telemetry cohorts pass;
+    this does not qualify native Windows/macOS execution.
   - [ ] Verify the actual configured model and installed receiving workflow;
-    local-only worker alignment alone does not prove model readiness.
+    local-only worker alignment alone does not prove model readiness. The actual
+    configured OpenCode task now reaches the model request, then returns an API
+    stream error with no retained HTTP/auth/quota/service diagnosis. Preserve that
+    failure and existing operator configuration; no successful inference claimed.
 - **Historical imported-catalog placement (partial):** The reviewed public
   transaction passes in 712.675 seconds under its original 1800-second bound.
   Independent review verifies all 245 placed payloads, four exact producing
@@ -24451,10 +24468,25 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   refuses inspection from both root and implementation descendant
   ([GitHub issue #499](https://github.com/jordanhubbard/literate-ai/issues/499)): six original
   converter files match, while the genuine 1.3.1 Make wrapper uses the older
-  quoting format. Add exact supported-producer compatibility in the projection
-  owner, retaining all original baseline/parity/preimage and changed-recipe
-  refusals. Preserve the historical wrapper rather than editing its preimage to
-  resemble a newer renderer. Public apply and downstream renewal remain open.
+  quoting format. Exact supported-producer recognition now passes 21 projection
+  and 59 source/custody controls; the current default identity and all seven
+  original/prospective bytes remain preserved. Independent review closes the
+  transitive callback-code and lexical-default boundaries. New installed public
+  planning, apply and downstream renewal remain open.
+- **Qualification fixture follow-up:** The real 65,536-entry negative now uses
+  deliberate decoded-entry pressure through its original issued reader, keeping
+  the original allowance, metadata ceiling and every refusal/source/journal
+  assertion. Eighteen cases pass and one original filesystem case skips. This
+  tests an exhausted allowance, not the unpressured workload's natural cost.
+  Frozen 866 wheel qualification reaches committed refined renewal with a
+  successful native build and both tests, then fails the strict stdout hash on
+  inherited Make banners. The maintained driver isolates four Make recursion
+  controls and retains all original commands and assertions. A fresh hostile-
+  environment case passes that strict native result, then exposes its final
+  archive observer's stale Component key. That observer now uses the captured
+  actual Component receipt coordinate; implicit baseline archive keys remain
+  logical. The committed archive matches the pre-apply plan identity. Complete
+  fresh installed qualification remains required.
 - **Installed starter fixture closure (partial, 2026-11-27):** The JavaScript
   import fixture now supplies the original hash-bound driver support argument;
   all four existing controls pass. Maintained wheel fixtures capture canonical

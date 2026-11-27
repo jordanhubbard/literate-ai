@@ -1,0 +1,140 @@
+{
+  "schema": "literate-ai/independent-source-capacity-diagnosis@1",
+  "subject_revision": "5322c993b3148f8d36c5fb525b8d9ac0b97d6a62",
+  "status": "Original one-test failure reproduced. Negative fixture no longer exhausts its selected finite profile; no capacity-ordering defect demonstrated by this failure.",
+  "original_CI": {
+    "log": {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-5322-140476340049.raw.log",
+      "sha256": "e94fc5954673da41f3937ac85cf6519f7686514d7b16dab572f4234fda9f13a8",
+      "bytes": 164458
+    },
+    "first_failure": "AuthoredRoleTests.test_original_smaller_profile_refuses_before_source_move",
+    "result": "279tests,1failure,1skip,678.842s; mock move raises AssertionError(source effect before capacity admission).",
+    "native_effects": "Mock prevented actual source rename; this is a failing refusal assertion, not demonstrated moved source."
+  },
+  "fixture_owner": {
+    "test": "tests/critical/test_retained_layout_authored_roles.py:120",
+    "setup_chain": [
+      "AuthoredRoleTests",
+      "SourceAdmissionTests",
+      "RetainedLayoutOwnershipTests",
+      "RetainedLayoutFinalizationTests",
+      "RetainedLayoutTransactionTests",
+      "RetainedLayoutControlRoleTests"
+    ],
+    "explicit_layout_selection": "test_retained_layout_control_roles.py:64 _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE",
+    "classification": "Not default-contained fixture drift. The original legacy fixture is explicit; the brittle assumption is that its natural observation footprint always exceeds65536entries.",
+    "original_budgets": {
+      "maximum_entries": 65536,
+      "maximum_metadata_bytes": 4294967296
+    },
+    "original_assertions_to_preserve": [
+      "Reachedsource-move boundary exactly once.",
+      "ValueError chain contains shared catalog input allowance exhausted; cleanup must not mask primary error.",
+      "No move_layout_entry_exclusive, metadata stage or finalization receipt call.",
+      "Original ledger maximum_entries exactly65536, actual records greater than65536, metadata charged below4GiB.",
+      "Journal/producer bytes and inodes, source bytes/inode, original control/pending marker, missing optional lock and absent destination remain intact."
+    ]
+  },
+  "product_owner_and_order": {
+    "entry": "retained_layout_transaction.py:1725 source phase -> retained_layout_source_movement._run_source_move",
+    "ordering": "Require original complete partition/currentness, charge original shared ledger for movement graph/history, preobserve destination/control facts, then phase._move_source. Durable intent/pre-effect closure then reaches transaction.py:1826 native move.",
+    "capacity_implementation": "catalog_copy_plan._Observation.charge_records increments records/metadata then require_capacity; require_capacity refuses records>maximum_entries before returning.",
+    "no_new_claim": "This diagnosis does not independently prove every future allocation is fully reserved; it establishes that the failing test did not actually exhaust the selected entry profile and the observed pre-move charge still precedes effects."
+  },
+  "focused_diagnostic": {
+    "evidence": {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/source-capacity-focused-5322-r1.json",
+      "sha256": "ff6137cce5e75bf5083a0ed6455f59a0c6a137a580114325a987df4e6b3e1551",
+      "bytes": 27686
+    },
+    "test_count": 1,
+    "failure_count": 1,
+    "errors": 0,
+    "seconds": 19.263453532999847,
+    "interpreter": "Existing python-qualified managed environment, Python3.15 in this observation; CI was Python3.11.",
+    "method": "Unmodified exact5322test/source, one selected unittest only. sys.setprofile read charge_records call locals without replacing product functions, mutating ledger counters, suppressing guards or changing assertions. Not a release gate/acceptance run.",
+    "observed_move_preflight": {
+      "ledger": 251100937627568,
+      "caller_module": "retained_layout_source_movement.py",
+      "caller": "_run_source_move",
+      "records_before": 53674,
+      "count": 6328,
+      "charged_before": 3099528512,
+      "size": 2813408,
+      "limit": 65536
+    },
+    "records_after_actual_preflight": 60002,
+    "maximum_records_observed_in_last100charge_calls_including_cleanup": 64017,
+    "metadata_limit_not_exhausted": true,
+    "calculation": "53674+6328=60002<65536. Highest subsequently observed charged entry total64017<65536. Thus there is available capacity at mocked move; expecting quota refusal is not justified by this fixture.",
+    "raw_failure_preserved": true
+  },
+  "minimal_repair_recommendation": {
+    "scope": "Test-only fixture input pressure; preserve production and original65536/4GiB policy and every original refusal/no-effect/source/journal assertion.",
+    "preferred": "Make the negative case intentionally consume actual remaining entry allowance via the original live bounded reader (or equivalent genuine bounded declared fixture data) before the source-move action, rather than relying on a historical incidental framework footprint.",
+    "candidate_setup_to_validate": {
+      "placement": "Inside actual complete_partition body, before snapshots/reached.append/source action.",
+      "operation": "Compute remaining=original.ledger.budget.maximum_entries-original.ledger.records; assert positive room. Submit a fresh uniquely labelled bounded JSON primitive list through original.reader.json_value. For example, a list of remaining-2 zero values costs remaining-1 actual decoded records, leaving one entry for the subsequent original admission path to exhaust.",
+      "finite_bounds": "Original limit caps this payload below roughly128KiB and decoded entry charge below65536; existing4MiB input and4GiB metadata allowances remain intact. JSON parsing/charging itself must succeed, otherwise original reached==[source-move] and primary-error assertions still fail.",
+      "not_executed": "This candidate fixture setup has not been implemented or accepted by this reviewer. Root must run the unchanged original assertions with the explicit pressure and adjust only fixture input if normal currentness needs a small cushion; no assertion weakening or direct counter manipulation."
+    },
+    "do_not": [
+      "Increase maximum_entries or metadata allowance.",
+      "Lower the original65536 profile just to cause an arbitrary earlier failure.",
+      "Patch charge_records/require_capacity or assign ledger.records directly.",
+      "Remove move/stage/receipt guards or rewrite assertRaises/expectederror/reached/currentness assertions.",
+      "Change production source-movement ordering merely to make this non-exhausted fixture fail."
+    ],
+    "verification": "One focused original test after fixture-only repair, then its maintained authored-role cohort and existing source-admission/finalization capacity negatives as relevant. No279test cohort rerun was performed."
+  },
+  "source_bindings": [
+    {
+      "path": "/home/jkh/Src/literate-ai/tests/critical/test_retained_layout_authored_roles.py",
+      "sha256": "ff2b7d11da4acb52ba6f53451907ce2136770658ebfa4f4bc72d3d34a6c9c7b4",
+      "bytes": 31317,
+      "equals_frozen5322": true
+    },
+    {
+      "path": "/home/jkh/Src/literate-ai/tests/critical/test_retained_layout_source_admission.py",
+      "sha256": "70a76b9395d18ee615c6bccf3ccb2e0178d7797587f995e5f0d556ee26dc23d6",
+      "bytes": 70416,
+      "equals_frozen5322": true
+    },
+    {
+      "path": "/home/jkh/Src/literate-ai/tests/critical/test_retained_layout_control_roles.py",
+      "sha256": "daa64a4fc72cc17df65dfa660b081bd70ef8d2e445217b90faedc2bfd940669e",
+      "bytes": 24814,
+      "equals_frozen5322": true
+    },
+    {
+      "path": "/home/jkh/Src/literate-ai/src/literate_ai/adapters/retained_layout_source_movement.py",
+      "sha256": "fa946484ba63ba9a4ba79f478f3885dc11505b91dafd387573e9d196c27f993c",
+      "bytes": 15764,
+      "equals_frozen5322": true
+    },
+    {
+      "path": "/home/jkh/Src/literate-ai/src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "49e0c0210655573ba4b77ec5e03f175063ee15ae26a3ae8361d5a04cad7eb4f5",
+      "bytes": 77348,
+      "equals_frozen5322": true
+    },
+    {
+      "path": "/home/jkh/Src/literate-ai/src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "4599671fc55576379de31487f5a56ca2ba2bdd33aa19bb342d94e168db97f339",
+      "bytes": 21949,
+      "equals_frozen5322": true
+    },
+    {
+      "path": "/home/jkh/Src/literate-ai/src/literate_ai/adapters/bounded_role_observation.py",
+      "sha256": "961b25c95bb64e7480567b718f7f54e4bd88659113c0ed9bff67d08f4f03726d",
+      "bytes": 12724,
+      "equals_frozen5322": true
+    }
+  ],
+  "limits": [
+    "A focused diagnostic reproducer, not full cohort/platform/release acceptance.",
+    "No repository source/test changes, deadline changes or original historical project mutation by reviewer. Only transient focused test fixtures and sharedBdiagnostic evidence were created.",
+    "The separate #498/#499 implementation remains root-owned; no edits or conclusions transferred to those repairs."
+  ]
+}

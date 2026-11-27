@@ -250,7 +250,12 @@ def _git_state(root: Path) -> dict[str, str] | None:
     # of index authority. Refuse an unreadable/redirected marker, rather than
     # treating failed discovery as an unversioned project.
     marker_found = False
+    original_device = root.lstat().st_dev
     for ancestor in (root, *root.parents):
+        # The sanitized Git environment below uses its default mount boundary.
+        # An ancestor outside that discovery namespace cannot supply authority.
+        if ancestor.lstat().st_dev != original_device:
+            break
         try:
             marker = (ancestor / ".git").lstat()
         except FileNotFoundError:

@@ -1348,5 +1348,155 @@
     ],
     "qualification": "Frozen866wheelr12 remains live at recordtime, currently original installed commandrenewal scenarios underunchangedbounds. Latest5322 fixturechanges separatelysourceclosed/focusedinstalledpassed; exact latestfullgate remainsrequired. Earlier r11launcher environmentfailure retained, no testsqualifiedbyit.",
     "limits": "All83immutablegoals retained. Newfindings are subtasks within RELEASE-INTEGRATION-005. Swift installation approval pending. Full source/installed/platform/historical/provider/coldFreeBSD/collateral/contributions/resulting-main/publication acceptance remains. No releaseprepared/tagged/published."
+  },
+  "qualification_followup_r12": {
+    "base_commit": "311fc6c0b1fb51bb153ecad81d342da981986160",
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-coding-cli-pinned-argv0-closing-r3.json",
+      "verification/release-1.4-followup/review-authority-provider-model-readiness-r2.json",
+      "verification/release-1.4-followup/review-runtime-499-compatibility-closing-r1.json",
+      "verification/release-1.4-followup/review-runtime-499-grammar-equivalence-r1.json",
+      "verification/release-1.4-followup/review-authority-layout-git-filesystem-boundary-closing-r1.json",
+      "verification/release-1.4-followup/review-contracts-wheel-r12-refined-native-result-diagnosis.json",
+      "verification/release-1.4-followup/review-contracts-make-environment-authored-pressure-closing-r2.json",
+      "verification/release-1.4-followup/review-runtime-5322-source-capacity-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-contracts-installed-refined-archive-coordinate-closing-r1.json"
+    ],
+    "current_reviewed_hashes": {
+      "scripts/installed_retained_command_smoke.py": "c10e212d5d55cf125d6c5911b25462912387feb3512931c74751de027cf181ad",
+      "src/literate_ai/adapters/models/coding_cli.py": "45d8ee5ee2c63da57e3f49041fcd3a1fe26a6e73003f7093a7fae4bf7e219d3e",
+      "src/literate_ai/adapters/project_layout_planning.py": "4433b8f978f1c868b2c7c0e8fad17e4d2b148fa84d61fb51df325b896cb51391",
+      "src/literate_ai/adapters/project_layout_recorded_wrapper_projection.py": "0e0c24af8d9a5c2f128dbe6a9363490af5c41bb6ec2b51fbde37324826fd2848",
+      "src/literate_ai/adapters/project_layout_recorded_wrapper_source.py": "91b8dab2bc7ca7a27617648a493980a1be1b459c4051be706507a96823462b0d",
+      "tests/critical/test_codex_runtime_state.py": "a46a7edc10e5d5f230cc633f40de91d588067166cb0b6fa5a9252a6cb15f603a",
+      "tests/critical/test_coding_cli_multicall.py": "45d150984f43b8bcd497c6147f7b684cd5adc3cb8cbe8c775d204fddad5e8d5a",
+      "tests/critical/test_layout_git_filesystem_boundary.py": "09717bef95c89d520ee4347850f69faa5a5a076fcd94bce2fe9a715ce18d9fdd",
+      "tests/critical/test_opencode_cli.py": "d86ce4b745ed2580b67c35b177fbac9fb1f5aaf1979d4e7ae0b06963f81dda2d",
+      "tests/critical/test_project_host_flavors.py": "6e4e1d834b4e1a10cdae655bc819e3af00eff7857bb1c52fc7fe6e9ea8e30496",
+      "tests/critical/test_project_layout_framework_resources.py": "bd47aea8412ba55ae6583b38f8df9bacde91f898dc50cddbd3e09308ebc51cf0",
+      "tests/critical/test_project_layout_recorded_wrapper_projection.py": "d14d12240dcccfc2338313114d8c6fdd92695650f721ad909b756c77bfde147e",
+      "tests/critical/test_retained_layout_authored_roles.py": "0e94e700e69739f0f2c51c299217db0d5b3eced7a9a442759707707ec64f3244"
+    },
+    "source_evidence": {
+      "coding-cli-multicall-r3": {
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "report_sha256": "fa4ad4f914b6cf49a92d9f6df996654acfedfed922c1599ac2f888eee5777d96"
+      },
+      "coding-cli-generation-launch-r1": {
+        "summary": {
+          "executed": 31,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 31,
+          "selected": 31,
+          "skipped": 0
+        },
+        "report_sha256": "70347720a563668e1aa52155b0f78e4ea78118d6c8bbc99eac87af0db0008732"
+      },
+      "opencode-pinned-launch-r2": {
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "report_sha256": "214ac681de4c80b8838fbf5ba99a4509ccad7ab39744bafc3e1a05284a1ab0a6"
+      },
+      "codex-pinned-launch-r2": {
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        },
+        "report_sha256": "eafa875ab9ee1b02bf435061e942ce3d5bd64e716f23ce4bb2c8641d37b6b5ae"
+      },
+      "provider-process-telemetry-r1": {
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 13,
+          "skipped": 0
+        },
+        "report_sha256": "a54cb1b19e200e0bfbfae385cba1ce11b2a7a80722077163429b5e5f5e2947e7"
+      },
+      "project-host-flavor-coordinates-r2": {
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "report_sha256": "dca80338d35a8e2cacf0e1cd51a25b5a82dab17d506d5f108b18cbc16df2833a"
+      },
+      "recorded-producer-131-projection-r3": {
+        "summary": {
+          "executed": 21,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 21,
+          "selected": 21,
+          "skipped": 0
+        },
+        "report_sha256": "be268ab0de99a04acc5530420dc422cd359ca34b394b3ea9cec203208b6d75b0"
+      },
+      "recorded-producer-custody-r3": {
+        "summary": {
+          "executed": 59,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 59,
+          "selected": 59,
+          "skipped": 0
+        },
+        "report_sha256": "37004bc2ab875d289130ee26826d96bd54abb9a1c971ad29ea0b70b946888a33"
+      },
+      "layout-git-boundary-r2": {
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        },
+        "report_sha256": "4e1ecb5625269aae26a959ce33fa99b4dad9acf88083361e9c1dfabbec330e6d"
+      },
+      "authored-role-capacity-pressure-r2": {
+        "summary": {
+          "executed": 18,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 18,
+          "selected": 19,
+          "skipped": 1
+        },
+        "report_sha256": "3ec1a9f4921625eb30e7b76071a6fb61e2af8ad6576b3adb9d036eab2c62f29b"
+      }
+    },
+    "launcher_498": "Nativeprovider launch separates logicalargv0 from originalcanonicalpinnedimage using originalsharedrunnerprocessfactory. Canonicalpin/hash/drift helpers and sharedPID/tree/nativehooks unchanged; all7processsites carryselectedpin. Windowsbatchroute retains originalimplicitcommandinterpreterroute. ActualcompiledC covers4names,aliasretarget,image-drift,post-nativeauthdrift andstartedhelpercleanup; sourceWindowsroutecontrol isnotnativeWindowsproof.",
+    "model_readiness": "ActualconfiguredOpenCodepreflight nowpassesoriginalinterface/privateprofile and reachesmodelrun, thenfailswithAPIstreamerror. RetainedexcerptdoesnotidentifyHTTP/auth/quota/model/servicecause. Existingconfigurationunchanged; noactualmodelreadiness/fullgenerationclaim. Originalfailureretained, noblindmodelretry.",
+    "producer_499": "Exactadmittedpublished1.3.1origin/version/revision/repository andbaselinejoin selectfiniteinertoldMakegrammar onlywhencurrent7byteprojectiondiffers. All7actualoriginalbytesmustmatch; prospectivebytesremainidentical. Currentdefaultinputidentitypreserved; oldpathbindsepochinidentity. Usedhelper/codeclosuresandexplicitNone lexicalrootsrefuseforeigncallbackcodeandavoidfilesystemdefaultresolution. Actualnewfixedinstalledwheel publichistoricalR2plans remainrequired.",
+    "git_500": "StopimplicitmanualGitdiscoverybeforedifferent-deviceancestor matchingactualsanitizedGit. SameFSancestor/scopedindex andregular.gitworktrees remain; originalmarkerrefusals/Gitargv/env/boundsunchanged. MountedstorageactualreadbacknowNone, with4currentcontrols independentlypassed.",
+    "capacity_fixture": "Originalnegativefixture ceasedexhausting65536 afteroptimization. AddrealboundedJSONdecoded-entrypressure throughoriginalissuedreader/activescope; noledgerassignment/guardmock. Leave1entry, preserve65536/4GiB/alloriginalrefusal/source/journalassertions. This provesdeliberatelyexhaustedallowancerefusal, notunpressurednaturalworkloadcost. Cohort18pass/1originalskip. Originalr1setupscopefailurekept.",
+    "wheel_r12": "Frozen866fullgatefailedafterthirdpublicrefinedreadmission successfullycommitted;nativebuildexit0,2testscompleted0skip. DriverexactstdouthashassumptionconflictedwithinheritednestedMakebanners(295bytesv44expected). Originalcommittedreceiptpreserved; ownedfixtureenvnowdrops4MAKEcontrols withalloriginalassertions/commandsunchanged. Freshhostileenvscopedcaseisrunning, notyetqualified; completefreshlatestgatepending.",
+    "limits": "All83immutable1.4goals retained. Newissues498/499/500 remainincludedintegrationdefects; sourceclosure/scopedtestsdoNOTcompleteinstalled/platform/generation/historicalsourcefinalization/FreeBSD/collateral/contributions/resulting-main/publicationacceptance. Swift installation authorization remainspending. No prepare/tag/publish.",
+    "format_followup": "OpenCode fixture finalformat is AST-identical and independently closed in r3; no semantic test rerun required.",
+    "wheel_followup": "Fresh hostileMake case on immutable866passes original44byte nativebuildstdout hash and2passed/0skip collection, thenfails archivedComponentobserver. Actualcommittedarchive matches savedpreapplycanonicalComponentkey. Driver nowderives that key from originalcapturedliveComponentreceipt path; implicitbaselinearchivekeys remainlogical. Bothfailedruns preserved, noapplyretry. Completefreshlatestgate mustpassall3originalcases."
   }
 }

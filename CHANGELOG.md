@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Preserve coding CLI invocation names when launching pinned native images,
+  including multicall launchers, while retaining executable drift checks.
+
+- Recognize the exact published 1.3.1 retained-wrapper producer during framework
+  placement and preserve its original bytes and provenance.
+
+- Match Git filesystem boundaries during layout discovery while preserving
+  same-filesystem ancestor repositories and explicit linked worktrees.
+
 - Keep standalone bootstrap checks independent of optional telemetry imports and
   reject changed project pins or authority selection after runtime probes.
 

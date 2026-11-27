@@ -1,0 +1,47 @@
+{
+  "status": "independent_final_source_closing_accepted_capacity_control_passed_make_driver_pending",
+  "files": {
+    "scripts/installed_retained_command_smoke.py": {
+      "sha256": "deea5cf2522f45f9bdb2c37bb06d753b4b523b95ffccf4441fb7a834a8823575",
+      "original_guard_expressions_preserved": 34,
+      "new_guard_expressions": 0,
+      "compile": "passed"
+    },
+    "tests/critical/test_retained_layout_authored_roles.py": {
+      "sha256": "0e94e700e69739f0f2c51c299217db0d5b3eced7a9a442759707707ec64f3244",
+      "original_guard_expressions_preserved": 111,
+      "new_guard_expressions": 2,
+      "compile": "passed"
+    }
+  },
+  "driver_assessment": "Only ownedfixture environment excludes4ambient GNUmake controls; originalcommands/Makefile/exactstdoutsha/counts/receipts/limits/provider/sourcecache/Gitassociation unchanged. Freshworkspace hostileenvironment qualification pending; originalr12 committedreceipt hash independentlystillunchanged.",
+  "authored_role_assessment": "Calls original.reader.json_value under original issued _activate_role_observation. Originalledger JSON container+primitive accounting charges remaining-1 without directcountermutation/guardmock, leaving1entry for actualsourcephase. Original65536entry/4GiB policy, phaseordering/source/Git/journal/metadata/receipt/no-move predicates retained;2explicitpressure assertions added.",
+  "original_reader_scope_contract": "RoleObservation.json_value requires currentactualreader and owner._live; activationvalidates issuedoperation/currentPID/thread and rejects foreign/reentrant scopes. No guardrelaxation.",
+  "pressure_limit": "Final comment accurately states real decoded-entry pressure is added after partition admission. Accepted scope is refusal/effectpreservation at nearlyfull originalledger; no unpressured65536 intrinsic-workload claim.",
+  "runtime_status": "Authored capacity cohort passed18executed plus1originalskip. Fresh hostileMake refineddriver stillpending perparent; independent read seesstdout0bytes/stderr0bytes. No passingMake outcome inferred.",
+  "source498_closing_r2_retained": "review-contracts-coding-cli-pinned-argv0-closing-r2.json unchanged; thisreviewdoesnotbroadenit.",
+  "limits": "No reviewer sourceedits/realgeneration/applyretry/prefixorprojectmutation. No wholewheel/nativeplatform/releaseacceptance. Review limitedto2fixturechanges; unrelated dirtyproductionlayoutchanges outside scope.",
+  "prior_report_preserved": "review-contracts-make-environment-authored-pressure-closing-r1.json",
+  "observed_parent_capacity_receipt": {
+    "summary": {
+      "executed": 18,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 18,
+      "selected": 19,
+      "skipped": 1
+    },
+    "unittest_reported": 19,
+    "elapsed_seconds": 255.956,
+    "terminal": "OK(skipped=1)",
+    "report_sha256": "3ec1a9f4921625eb30e7b76071a6fb61e2af8ad6576b3adb9d036eab2c62f29b",
+    "original_skip_events": [
+      {
+        "description": "tests.critical.test_retained_layout_authored_roles.AuthoredRoleTests.test_absent_canonical_lock_under_actual_source_case_alias_refuses",
+        "reason": "actual case-insensitive source alias unavailable"
+      }
+    ],
+    "scope": "Canonical parentexecuted sourcecohort; reviewer read report/log. Originalskip conditions unchanged; negative test assertsoriginal maximum_entries65536, readermax-1 beforephase, thenoverflowrefusal and no originalsource/journal/metadata/receipt effects."
+  },
+  "findings": []
+}

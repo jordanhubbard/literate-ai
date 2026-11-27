@@ -22,11 +22,11 @@ from literate_ai.contracts import ProjectInitializationOrigin, canonical_json_by
 from tests.critical import test_project_layout_catalog_continuation as support
 
 
-def framework_fixture(test):
+def framework_fixture(test, *, old_origin=None):
     project = support.CatalogContinuationTests("runTest")
     project.setUp()
     test.addCleanup(project.doCleanups)
-    old_origin = ProjectInitializationOrigin(
+    old_origin = old_origin or ProjectInitializationOrigin(
         "https://example.test/framework.git", "a" * 40, "literate-ai", "1.3.0"
     )
     current_origin = replace(

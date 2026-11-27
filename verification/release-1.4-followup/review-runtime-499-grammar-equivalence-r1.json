@@ -1,0 +1,111 @@
+{
+  "verified_wheel_sha256": "4b075b0b7727a11785a59359ccc3fc2de327baad46ec45350faeb66ddfc14c15",
+  "scope": "Data-only grammar comparison; no commands, native source or filesystem discovery in copied renderer. Six audited pure function definitions loaded from exact published wheel; no old module import or arbitrary wheel code run.",
+  "cases": [
+    {
+      "case": "actual",
+      "directory": "components/legacy-project-wrapper/implementation",
+      "bytes": 515,
+      "sha256": "994961c9c2de0183bfd7097fcc1af3b58e4e3bc067a1c650774f61be2b9d1096",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "actual",
+      "directory": "retained source",
+      "bytes": 482,
+      "sha256": "af0fc2a22c4da315727963895cbd1c6266cd2787a6183df726c289a328cd617c",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "actual",
+      "directory": "retained#$quote'",
+      "bytes": 483,
+      "sha256": "4ac27f02d3a400c7e58c2d9012a7618b012cbdbb3994bd1d0dc436bd28f290a5",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "commands-fallback",
+      "directory": "components/legacy-project-wrapper/implementation",
+      "bytes": 547,
+      "sha256": "e9d575f6582124da1be5e1dbb778ce6b01798ebb194db665aedfd2618ad8c7d0",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "commands-fallback",
+      "directory": "retained source",
+      "bytes": 514,
+      "sha256": "93479bb0540d8c82e7ff4ff8ce24b9e0f0324ab71fae9ba528d04cbe1e59cbfa",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "commands-fallback",
+      "directory": "retained#$quote'",
+      "bytes": 515,
+      "sha256": "9d19ab97850d46158115ea1558bbd5d6ccf9f1037f7232463ffafa02d87f4692",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "extra-stages-and-cwd",
+      "directory": "components/legacy-project-wrapper/implementation",
+      "bytes": 540,
+      "sha256": "8c89e9ffb088bb1c0f193584cb264d927bdb567ab43563ba461701553ad994ed",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "extra-stages-and-cwd",
+      "directory": "retained source",
+      "bytes": 507,
+      "sha256": "3537a32b88a29ff11dd26456a372d5162f6481de9d128261a39eab04b69fe8f0",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "extra-stages-and-cwd",
+      "directory": "retained#$quote'",
+      "bytes": 508,
+      "sha256": "bf25be965267f90ab801b2492f6cfddb7cd05ba9c450230690fc96f197d53a89",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "workspace-links",
+      "directory": "components/legacy-project-wrapper/implementation",
+      "bytes": 783,
+      "sha256": "f1e3e3abb9cf83f86484c5394d3d47c4d1549af44c79e448e8d6d1746aeea5fb",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "workspace-links",
+      "directory": "retained source",
+      "bytes": 750,
+      "sha256": "9656305d0e1327d0e864882aef8b99c5e3dfbfbc22c890790d5beede0298ad60",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "workspace-links",
+      "directory": "retained#$quote'",
+      "bytes": 751,
+      "sha256": "8f0e2647eb9902ce403c0b330281adba8c21b8f1ef008e2816ae37c3cfedbe5f",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "cwd-error-rendering",
+      "directory": "components/legacy-project-wrapper/implementation",
+      "bytes": 583,
+      "sha256": "eec558f2c4489d133431a8351a8df7e2922ec73fe17dd2101ed68646d41908d7",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "cwd-error-rendering",
+      "directory": "retained source",
+      "bytes": 550,
+      "sha256": "15c2cfea80de9a1bb12e826668b7dd9c6d07e65e78e4ca997e352736ae043f8d",
+      "equals_verified_old_producer": true
+    },
+    {
+      "case": "cwd-error-rendering",
+      "directory": "retained#$quote'",
+      "bytes": 551,
+      "sha256": "7805fa42dedfcb38cd016643bcd1e31efd33910569d02a88e0146690a7326db1",
+      "equals_verified_old_producer": true
+    }
+  ]
+}

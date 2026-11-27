@@ -1,0 +1,39 @@
+{
+  "status": "independent_final_driver_source_closing_review_accepted",
+  "baseline": "311fc6c0b1fb51bb153ecad81d342da981986160",
+  "file": "scripts/installed_retained_command_smoke.py",
+  "sha256": "c10e212d5d55cf125d6c5911b25462912387feb3512931c74751de027cf181ad",
+  "exact_delta": "Complete current scriptAST equals baseline after only4ambientMakevariables excluded fromfixtureenvironment and1archivedComponentreceipt suffix replacedwith originalpre-renewal component_receipt_path.relative_to(project). Formattingotherwiseonly.",
+  "strict_assertion_preservation": "Nativebuild exit/exactstdoutsha, testexit/exact2testcollection, installed_component!=prior_component, archivedbytes==prior_component, oldreceiptarchive/currentbytes/staleness/newreceipt, nativeoriginalsource and unknownqualification predicates unchanged. Only archiveaddress fixed, no weaker byte/nativepredicate. All3originalcases and subprocesslimits/sourcecache/owner/distribution fences unchanged.",
+  "history_scope": "Implicitbaseline historykeys staylogical. CapturedComponentreceipt path follows actual original Componentowner key; declared priorreceipt staysactualapplication-relative. No producthistory/schema/sourceplacement change.",
+  "actual_original_committed_archive_join": {
+    "diagnosis": "review-contracts-installed-refined-archive-coordinate-diagnosis-r1.json",
+    "original_plan_key": "litai/.literate/monorepo-components/receipts/native-initial.json",
+    "original_plan_identity": "sha256:a00b4d51555100b91d24163f95f30ac6f2d8011caa8dabf888e406b78e5a2d63",
+    "original_receipt_expected_identity": "sha256:4f241b5a5a35967033f95197e9bca20e62f2e30ddae1fb3c8cb5fadc668c73ca",
+    "archived_receipt_observed_identity": "sha256:4f241b5a5a35967033f95197e9bca20e62f2e30ddae1fb3c8cb5fadc668c73ca",
+    "original_transaction_header_path": "litai/.literate/monorepo-components/receipts/native-initial.json",
+    "original_transaction_header_identity": "sha256:4f241b5a5a35967033f95197e9bca20e62f2e30ddae1fb3c8cb5fadc668c73ca",
+    "all27original_plan_document_hashes_match": true,
+    "committed": true,
+    "active": false
+  },
+  "actual_make_fix_boundary": {
+    "strict_build_exit": 0,
+    "strict_build_stdout_size": 44,
+    "strict_build_stdout_identity": "sha256:cd1b2a197d3a254ce2e6ea50f808c591cfff5cc336eff7c5d39597529068e23d",
+    "matches_original_expected_stdout": true,
+    "test_collection": {
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2,
+      "skipped": 0,
+      "state": "nonempty",
+      "total": 2
+    },
+    "status": "Originalstrictnativeassertions advanced; completeisolateddriver stillFAILED atnewarchiveobserver. No wholecasepassclaimed."
+  },
+  "reviewer_correction": "Earlier recommendation that containedComponentreceipt archive suffix shouldremainlogical wasincorrect; concreteownerplan/archive evidence supersedes thatclaim. Originalreports/failures retained.",
+  "validation": "Exact AST delta checked and currententirescriptcompile succeeded. No newapply/scopeddriver/wholewheel rerun byreviewer.",
+  "limits": "Fullr12 and freshhostileMake scopedr1 remainFAILED. Observedstrictnativebuild/test success plusoriginalarchivehashjoin is narrower thancomplete3case installeddriver/wholewheelqualification. Nextclean exactcandidate fullwheel mustexecute originalall3cases and unchangedarchivebyteassertions. Sourceclosingonly; no broaderplatform/provider/releaseclaim."
+}

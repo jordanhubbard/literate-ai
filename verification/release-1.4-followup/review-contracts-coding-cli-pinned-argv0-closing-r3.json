@@ -1,0 +1,95 @@
+{
+  "status": "independent_final_five_file_source_hash_closing_accepted",
+  "baseline": "311fc6c0b1fb51bb153ecad81d342da981986160",
+  "sha256": {
+    "src/literate_ai/adapters/models/coding_cli.py": "45d8ee5ee2c63da57e3f49041fcd3a1fe26a6e73003f7093a7fae4bf7e219d3e",
+    "tests/critical/test_coding_cli_multicall.py": "45d150984f43b8bcd497c6147f7b684cd5adc3cb8cbe8c775d204fddad5e8d5a",
+    "tests/critical/test_opencode_cli.py": "d86ce4b745ed2580b67c35b177fbac9fb1f5aaf1979d4e7ae0b06963f81dda2d",
+    "tests/critical/test_codex_runtime_state.py": "a46a7edc10e5d5f230cc633f40de91d588067166cb0b6fa5a9252a6cb15f603a",
+    "tests/critical/test_project_host_flavors.py": "6e4e1d834b4e1a10cdae655bc819e3af00eff7857bb1c52fc7fe6e9ea8e30496"
+  },
+  "coverage": "Complete production delta previouslyclosed and unchanged hash; bothadditionalnative testmethods, completeCodextransportfixture diff and completeProjectHostFlavorTests file/defaultcontained fixtureowner reviewed. All5filescompile; originalselection/pin/guardAPI remainsunchanged.",
+  "findings": [],
+  "custody_and_provenance": {
+    "original_pin_selection_helpers_ast_unchanged": {
+      "CodingCliSelection": true,
+      "_pin_coding_cli": true,
+      "_file_identity": true,
+      "_require_executable_unchanged": true
+    },
+    "shared_runner_bytes_unchanged": true,
+    "logical_invocation": "Each native providerargv0 derived from selectedknownCLI; explicit executable parameter always originalcanonicalimage. No alias/PATHlookup at invocation.",
+    "all_process_sites": [
+      "taskgeneration",
+      "sourcegeneration",
+      "authenticationstatus injectedrunner",
+      "postfailureauthenticationprobe",
+      "OpenCoderunhelp compatibility",
+      "OpenCodev1puredebugconfig",
+      "OpenCodev2standalonedebugconfig"
+    ],
+    "command_records": "Actual commandtuple/commandidentity now recordlogicalargv0; separate executable/executableidentity retain pinnedimage. Portabletoolbinding name+image+isolation unchanged.",
+    "nativeownership": "partial(Popen,executable=pin) returns genuinePopen; sharedrunner originalpid/job/treeowner/telemetry/nativecompletion/limits remain active.",
+    "Windowsbatch": "Existing canonicalpath argv0 and noexplicit executable preserved for .cmd/.bat. Modeltest provesroute choice only; nativeWindows stillneeded.",
+    "shebang": "Existing resolvedscriptimage retained; kernelinterpreterargv behavior not generalized as arbitraryscriptalias support.",
+    "exception_precedence": "Stablepin timeout/output/launch errors retain originalCodingCliError mapping; argv0mismatch refusesbeforedispatch. New finally currentness check intentionally makes actualimage drift dominant overchildresult/error, consistent with existing generation/task/OpenCode outercurrentness guards. No error relaxation or accepted foreignimage."
+  },
+  "new_control_meaning": {
+    "native": "CompiledactualC imagefilename differsfromall4logicalnames; realexec observesargv0. Aliasretarget cannotredirectoriginalimage; byteappenddrift refusesbeforespawn. Childfork/pipe readiness precedesparentcompletion and delayedmarker testsownedhelperretirement.",
+    "Windows": "Pure route model for .cmd/.BAT/.exe; no actualWindowsprocess accepted.",
+    "existingfixture": "ExistingexternalPython adapter keeps incominglogicalopencode argv0, insertscontrolledscript and retains selectionpinnedtoPython; adds2assertions onlogicalname/originalresolvedimage. Alloriginalassertions preserved.",
+    "additional_actual_native_auth": "New default authentication status test executes compiledactualimage through ordinary subprocess.run path, seeslogicalcodex and preservedcanonicalimage, returns controlledauthenticatedstatus. Actualnative return thenimageappend callback is refused by closing guard and changedbytespreserved. This validates dispatch/currentness, not genuine provider login/modelavailability.",
+    "codex_fixture": "ExternalPython transport retainslogicargv0codex while actualimage remainsoriginalpinnedcanonicalPython;2newassertions proveassociation. Existing actualOSfilesizelimit/SQLitewrites/failurethenownedruntime success and isolation assertions unchanged.",
+    "host_flavor_fixture": "Original default-contained context captured after initialize_root;7authoredshimmetadata/sidecar/copy locations project through it. Alloriginal namespace/duplicate/missing/customprobe/symlink/oversize/noobservation/bytepreservation assertions untouched. This tests hostFlavorpolicy boundaries, not complete shimsourcegraph generationqualification."
+  },
+  "independent_controls": {
+    "actual_new_native_file": "7passed0.845seconds,zero skips",
+    "extra_error_pin_auth_controls": "review-contracts-coding-cli-pinned-argv0-extra-controls.json;3stabletypederrormappings,pre-dispatchmismatch,authlogicalname+pin+30seconds forwarded"
+  },
+  "observed_parent_receipts": {
+    "coding-cli-multicall-r2": "5passed1.356s",
+    "coding-cli-generation-launch-r1": "31passed2.704s",
+    "opencode-pinned-launch-r1": "Failed originalexternaladapter beforecapturedoutput; retainedhistoricalreceipt",
+    "opencode-pinned-launch-r2": "6passed1.885s afternarrowfixturecorrection",
+    "coding-cli-multicall-r3": "7passed1.348s",
+    "codex-pinned-launch-r2": "4passed1.564s, actualSQLite/OSlimit fixture maintained",
+    "project-host-flavor-coordinates-r2": "7passed7.100s"
+  },
+  "limits": [
+    "Targetedsource/nativeLinuxcontrols only. No realmodelquery/generation/providerreadiness or wholefeature/release acceptance byreviewer.",
+    "ActualWindows/macOSnative invocation/processownership and provider-specific readiness remain their own gates.",
+    "Original configured-model/privateproviderroute omitted; initialold/currentaliasfailures retained.",
+    "No source edits,pins,workerregistration,catalogmutation or dispatch byreviewer."
+  ],
+  "prior_report": "review-contracts-coding-cli-pinned-argv0-closing-r2.json",
+  "existing_fixture_assertion_preservation": {
+    "tests/critical/test_opencode_cli.py": {
+      "all_original_guard_expressions_preserved": true,
+      "original_count": 60,
+      "added_guard_expressions": 2
+    },
+    "tests/critical/test_codex_runtime_state.py": {
+      "all_original_guard_expressions_preserved": true,
+      "original_count": 39,
+      "added_guard_expressions": 2
+    },
+    "tests/critical/test_project_host_flavors.py": {
+      "all_original_guard_expressions_preserved": true,
+      "original_count": 27,
+      "added_guard_expressions": 0
+    }
+  },
+  "format_only_closure": {
+    "file": "tests/critical/test_opencode_cli.py",
+    "before_sha256": "29af87f0a42cf8d94f3cf7506e249f7ce15bce528ada26e888d248b34423b282",
+    "after_sha256": "d86ce4b745ed2580b67c35b177fbac9fb1f5aaf1979d4e7ae0b06963f81dda2d",
+    "independent_ast_equal": true,
+    "evidence": "Reconstructed exact previously reviewed multiline call from current one-line formatting; reconstruction SHA matches priorr2 reviewedhash, completeASTs equal. Other4filehashes unchanged.",
+    "tests_repeated": false,
+    "reason": "No semanticchange; prior reviewed source/nativecontrol receipts remain scopedvalid."
+  },
+  "separate_make_pressure_closure_hashes_unchanged": {
+    "scripts/installed_retained_command_smoke.py": true,
+    "tests/critical/test_retained_layout_authored_roles.py": true
+  }
+}

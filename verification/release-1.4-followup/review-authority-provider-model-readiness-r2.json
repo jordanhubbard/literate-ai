@@ -1,0 +1,87 @@
+{
+  "review": "independent read-only retained public configured model readiness r2",
+  "observed_at_utc": "2026-11-27T11:42:21.129949+00:00",
+  "evidence": {
+    "stdout_bytes": 0,
+    "stderr_sha256": "1c031e244806f31b3673073d1ad5a925ed39c6bd6aeb543c5f01993fc3b61a47",
+    "stderr_bytes": 671,
+    "public_error_code": "coding_cli.model_unavailable",
+    "underlying_error_code": "coding_cli.task_failed",
+    "opencode_process_exit": 1,
+    "public_cli_exit": 2,
+    "stream_error_type": "AI_APICallError",
+    "final_excerpt_line_chars": 256
+  },
+  "restored_launcher_assessment": {
+    "supported": "Original configured public worker verify-model now passes launcher/interface/private-profile boundary and enters actual OpenCode model task; retained task failure supersedes prior interface incompatibility.",
+    "not_supported": "No successful model response or expected preflight JSON. This does not prove API endpoint reachability, credential acceptance, model authorization, availability, quota or complete live-provider readiness."
+  },
+  "safe_existing_config_provenance": {
+    "configured_selection_without_env": {
+      "coding_cli": "opencode",
+      "coding_cli_provenance": "test-config",
+      "model_provenance": "test-config",
+      "model_matches_failed_log": true,
+      "coding_cli_matches_failed_log": true
+    },
+    "test_config_sha256": "f4fc87ac807f836d71216e8dfb387d2e06b706315b11d6762cf3cd3e60d6a014",
+    "opencode_config_sha256": "5bd054e4ace33b6771fce19d284e6ac6f255c666fcb3cea92018c89e488c1a03",
+    "selected_provider_config_present": true,
+    "selected_provider_options_keys": [
+      "litellmProxy",
+      "baseURL",
+      "apiKey"
+    ],
+    "selected_model_declared": true,
+    "api_key_configuration": {
+      "present": true,
+      "kind": "literal"
+    }
+  },
+  "cause_limits": [
+    "Retained final stream excerpt is bounded256characters and ends at generic API exception name. No HTTP status, response body, detailed request cause, explicit authentication/quota refusal or retryability was retained in these two files.",
+    "Private configured provider/model presence is local declaration, not proof remote model exists or accepts credential. Literal credential presence does not establish which credential the failed process actually sent or whether server accepted it.",
+    "No justification to override source model, rotate keys, change provider route or retry from this generic failure alone.",
+    "coding_cli failure helper may preserve complete redacted transcript only when ambient evidence run exists; exact retained run/transcript could support further read-only cause diagnosis. No such transcript path established in this review."
+  ],
+  "next_owner_guided_action": "Preserve original request failure and original source pins. Inspect existing private provider/server or original ambient redacted run transcript for same request, if already retained. Keep launcher repair acceptance separate from actual configured API readiness; do not change selection based solely on generic model_unavailable envelope.",
+  "other_current_evidence": {
+    "ci": {
+      "head": "5322c993b3148f8d36c5fb525b8d9ac0b97d6a62",
+      "run": 45990208168,
+      "status": "queued",
+      "conclusion": "",
+      "counts": {
+        "success": 16,
+        "queued": 12,
+        "in_progress": 27,
+        "failure": 1
+      },
+      "first_failed_job": {
+        "id": 140476340049,
+        "name": "ubuntu-latest / Python3.11 partition3of8",
+        "step": "Run conformance gates",
+        "test": "tests.critical.test_retained_layout_authored_roles.AuthoredRoleTests.test_original_smaller_profile_refuses_before_source_move",
+        "actual_failure": "Mocked move_layout_entry_exclusive reached unexpectedly, raises AssertionError source effect before capacity admission",
+        "summary": "279tests/1failure/1skip678.842s",
+        "classification": "Concrete control failure; environmental root cause not established, causal diagnosis delegated to root.",
+        "raw_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-5322-140476340049.raw.log"
+      }
+    },
+    "frozen866_wheel_r12": {
+      "log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/wheel-full-r12.log",
+      "log_sha256_at_observation": "d368470fa2d25804d16019c191dc53046626843085ac2779a173a793669bda05",
+      "observed_tail": "Dependencies installed; original wheel-check command invoked. No terminal marker or failure in inspected tail.",
+      "status_limit": "Root owns live tool handle10085; reviewer did not wait on, consume, signal or rerun it. No whole-wheel result inferred."
+    }
+  },
+  "source_record_only": {
+    "coding_cli_dirty_sha256": "45d8ee5ee2c63da57e3f49041fcd3a1fe26a6e73003f7093a7fae4bf7e219d3e",
+    "scope": "Current dirty source identity recorded; this task is diagnosis, not complete source-delta approval."
+  },
+  "privacy_and_action_limits": [
+    "No private route, hostname, model identifier, endpoint, credential value or environment value in this report.",
+    "No new model/API request, retry, config mutation, worker action, source edit or remote execution by reviewer.",
+    "Only pure live selection resolution and existing local config reads; safe hashes identify original config sources."
+  ]
+}

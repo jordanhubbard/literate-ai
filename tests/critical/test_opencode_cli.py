@@ -167,9 +167,12 @@ class OpenCodeCliTests(unittest.TestCase):
                 def external(
                     command, *, actual_run=actual_run, double=double, **kwargs
                 ):
-                    return actual_run(
-                        [sys.executable, str(double), *command[1:]], **kwargs
+                    self.assertEqual(command[0], "opencode")
+                    self.assertEqual(
+                        kwargs["selection"].executable,
+                        str(Path(sys.executable).resolve()),
                     )
+                    return actual_run([command[0], str(double), *command[1:]], **kwargs)
 
                 diagnostics = io.StringIO()
                 log = root / "operation.jsonl"

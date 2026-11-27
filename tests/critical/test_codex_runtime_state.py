@@ -233,9 +233,13 @@ class CodexRuntimeStateTests(unittest.TestCase):
             def execute(command, **kwargs):
                 # Only the provider transport is a fixture. The exact framework
                 # argv, OS process limit and SQLite writes are actually exercised.
+                self.assertEqual(command[0], "codex")
+                self.assertEqual(
+                    kwargs["selection"].executable, str(Path(sys.executable).resolve())
+                )
                 result = real_run(
                     (
-                        sys.executable,
+                        command[0],
                         "-I",
                         "-S",
                         "-c",

@@ -83,7 +83,9 @@ def main():
     environment = {
         key: value
         for key, value in os.environ.items()
-        if not key.startswith("PYTHON") and key != "VIRTUAL_ENV"
+        if not key.startswith("PYTHON")
+        and key
+        not in {"VIRTUAL_ENV", "MAKELEVEL", "MAKEFLAGS", "MFLAGS", "GNUMAKEFLAGS"}
     }
     environment.update(
         LITAI_NO_SELF_UPDATE="1",
@@ -415,7 +417,7 @@ def main():
                 and (
                     project
                     / result["prior_evidence_history"]
-                    / ".literate/monorepo-components/receipts/native-initial.json"
+                    / component_receipt_path.relative_to(project)
                 ).read_bytes()
                 == prior_component,
                 "refined renewal lost the original Component receipt",

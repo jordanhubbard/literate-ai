@@ -1,0 +1,160 @@
+{
+  "schema": "literate-ai/independent-recorded-producer-compatibility-closing@1",
+  "status": "#499 final current source delta independently closed; both reproduced review findings repaired. No unresolved source finding in this bounded four-file partition.",
+  "observed_HEAD": "311fc6c0b1fb51bb153ecad81d342da981986160",
+  "reviewed_files": [
+    {
+      "path": "src/literate_ai/adapters/project_layout_recorded_wrapper_projection.py",
+      "sha256": "0e0c24af8d9a5c2f128dbe6a9363490af5c41bb6ec2b51fbde37324826fd2848",
+      "bytes": 21209
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_recorded_wrapper_source.py",
+      "sha256": "91b8dab2bc7ca7a27617648a493980a1be1b459c4051be706507a96823462b0d",
+      "bytes": 19680
+    },
+    {
+      "path": "tests/critical/test_project_layout_framework_resources.py",
+      "sha256": "bd47aea8412ba55ae6583b38f8df9bacde91f898dc50cddbd3e09308ebc51cf0",
+      "bytes": 10426
+    },
+    {
+      "path": "tests/critical/test_project_layout_recorded_wrapper_projection.py",
+      "sha256": "d14d12240dcccfc2338313114d8c6fdd92695650f721ad909b756c77bfde147e",
+      "bytes": 23437
+    }
+  ],
+  "scope": "Read entire exact four-file dirty delta and relevant original resources/source-owner/selection/renderer call paths; unrelated #498 and Git filesystem-boundary implementation reviewed by other owners.",
+  "behavior_review": {
+    "producer_epoch": "Current renderer exact map remains first/default; legacy fallback requires admitted original distribution_name=literate-ai,version1.3.1,revision87506c804210c46835723e11d1ca1c6cae0f496c,repositoryhttps://github.com/jordanhubbard/literate-ai and joinedbaseline.origin_identity.",
+    "grammar": "Finite old Make emitter reproduces full historical target/header/error/stage/workspace-link/rawdirectory grammar from admitted inventory; no textual normalization of actual file bytes. Independent15case comparison to verified published wheel pure renderer/helpers passed.",
+    "whole_map": "All7actualoriginalentrybytes must exactly equal selected expected map. Altered command/mixedprefix/header/extraoutput/otherentry/wrongorigin cases still refuse.",
+    "targets": "Original and prospective bytes remain equal for all7entries, including original515byte Make994961c9...; selection from==to/original-bytes semantics preserved. No quote upgrade or source relocation.",
+    "projection_identity": "Nondefault producer_epoch is included only when fallback is selected; direct comparison with original HEAD projector confirms current default input identity and7entries unchanged.",
+    "native_custody": "No native/source/record/parity/policy/coordinate/owner activation semantics removed. Source owner adds only the newly used helper delegate. Existing beforebaselinepreimage and later original owner/lastcallback closure paths retained."
+  },
+  "closed_findings": [
+    {
+      "id": "transitive-helper-code-callback",
+      "before_evidence": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-runtime-499-helper-closure-reproducer-r1.json",
+        "sha256": "c0696f5f750baf80fdf28f452e9b94abce6215a07d0829c0e66a5b283db32640",
+        "bytes": 414
+      },
+      "fix": "Guard pins function identity/code for6actual renderer helpers, both current renderer code objects and the historical helper. Checks run at entry, after original initialization read and before return.",
+      "closing_evidence": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-runtime-499-final-cuts-r1.json",
+        "sha256": "8631a4021c435ca140142182f5439af2e7602df9179843028351cc697f93eff2",
+        "bytes": 980
+      },
+      "result": "Postinitialization _stage substitution and actual admitted owner callback changing samefunction _stage.__code__ now refuse before foreign code."
+    },
+    {
+      "id": "lexical-root-keyword-default",
+      "before_evidence": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-runtime-499-default-callback-reproducer-r2.json",
+        "sha256": "e2c207df5859bf5d9ed1eb0de69a6e0bf11c13f510299df2cbc06122d804ae26",
+        "bytes": 274
+      },
+      "fix": "Explicit legacy_root=None in historical _legacy_relative_cwd and current projection _MAKE invocation; mutable defaults cannot reintroduce filesystem root into these lexical calls.",
+      "closing_evidence": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-runtime-499-final-cuts-r1.json",
+        "sha256": "8631a4021c435ca140142182f5439af2e7602df9179843028351cc697f93eff2",
+        "bytes": 980
+      },
+      "result": "Full nested-cwd known-old projection succeeds with both keyword defaults replaced by foreign roots, Path.resolve forbidden and all7originalbytes preserved; foreign root calls0.",
+      "prior_nonexploit_attempt": "review-runtime-499-default-callback-reproducer-r1.json refused earlier on inventory/receipt-policy mismatch; not evidence of effect admission."
+    }
+  ],
+  "independent_final_cuts": [
+    {
+      "case": "current default compatibility",
+      "input_identity": "sha256:80b3e6369b0102758f60988cd244d17c001255ca9bfe22322f059074995d331d",
+      "equals_original_current_input_identity": true,
+      "same_seven_entries": true
+    },
+    {
+      "case": "known published old output",
+      "entries": 7,
+      "Make_bytes": 515,
+      "Make_sha256": "994961c9c2de0183bfd7097fcc1af3b58e4e3bc067a1c650774f61be2b9d1096",
+      "byte_preserving": true
+    },
+    {
+      "case": "post-initialization transitive function substitution",
+      "refused": true,
+      "foreign_calls": 0,
+      "message": "original recorded-wrapper renderer changed"
+    },
+    {
+      "case": "real native owner callback code mutation",
+      "refused_before_foreign_code": true,
+      "message": "original recorded-wrapper renderer changed"
+    },
+    {
+      "case": "nested cwd with both mutated filesystem-root defaults",
+      "all_seven_original_bytes_preserved": true,
+      "foreign_root_calls": 0,
+      "Path_resolve_called": false
+    }
+  ],
+  "test_review": {
+    "literal_golden": "Independent actual published515byte Make golden retained, not generated by undoing current renderer.",
+    "origin_cases": "Wrong version/name/revision/repository refuse; fixture optional origin/cwd/commands keep existing defaults unchanged.",
+    "historical_negative": "Existing source-owner synthetic routing-newline/historicalbaseline refusal unchanged; not relabelled legitimate Make epoch.",
+    "new_regressions": "Helper replacement, callback helper replacement, fourtransitive/currentrenderer code mutation cuts and fullprojection foreignlegacyRootdefaults case retain original refusal/no-I/O/byte assertions.",
+    "canonical_projection_r3": {
+      "passed": 21,
+      "seconds": 2.782,
+      "log": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/recorded-producer-131-projection-r3.log",
+        "sha256": "9b6752f1ccecbe814368578430190d7ba7ee96521209be2e20ab22e39d8ffeef",
+        "bytes": 2427
+      },
+      "report": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/recorded-producer-131-projection-r3/python-test-report.json",
+        "sha256": "be268ab0de99a04acc5530420dc422cd359ca34b394b3ea9cec203208b6d75b0",
+        "bytes": 6765
+      }
+    },
+    "canonical_custody_r3": {
+      "passed": 59,
+      "seconds": 67.946,
+      "log": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/recorded-producer-custody-r3.log",
+        "sha256": "025b46f6ec0759d711032b920ff0535ccb6d3f347f9816be51711d756fd1b1fa",
+        "bytes": 2420
+      },
+      "report": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/recorded-producer-custody-r3/python-test-report.json",
+        "sha256": "37004bc2ab875d289130ee26826d96bd54abb9a1c971ad29ea0b70b946888a33",
+        "bytes": 18058
+      }
+    },
+    "canonical_r1": "Original projection/custody r1 errors preserved separately. Manual Git discovery crossed mountedfilesystem boundary where native Git stopped; that separate owner issue was not treated as a #499 pass or repaired by changing HOME."
+  },
+  "additional_evidence": [
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-runtime-499-grammar-equivalence-r1.json",
+      "sha256": "03db2f4f0a49ec443c5202f84704f2d4592521353aca836567a8be6a7d47f635",
+      "bytes": 3994
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-recorded-producer-compatibility-design-r1.json",
+      "sha256": "1115125401eb1b982e5241d0934b8f3f148fd9c2f4502205a81fd90bb0109e6c",
+      "bytes": 15458
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-framework-plan-diagnosis-r1.json",
+      "sha256": "472c803ae9bad73a2019215474dd7b77ed30a4dbcd8f7f151eab8cafc3fb65d4",
+      "bytes": 14388
+    }
+  ],
+  "limits": [
+    "Source/API/model controls only; modeled original execution records do not grant real native movement, generated Component acceptance or release qualification.",
+    "Fresh noneditable fixed-wheel actual public framework plan against preserved authentic oldR2input is still pending; keep old7bytes/producerrecords/Git/nativefacts and original first publicrefusals intact.",
+    "No installed oldR2framework plan/apply/renewal/finalization/recovery success claimed here; all83releasegoals remain unchanged.",
+    "Diagnostics used tiny /tmp fixtures only where explicitly permitted; no historical project/source edits, pin changes, builds, dispatch or publication by reviewer.",
+    "Current file hashes are the review subject; any later drift requires reopening its delta."
+  ]
+}

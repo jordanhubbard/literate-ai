@@ -13,6 +13,7 @@ import tempfile
 from collections.abc import Callable, Collection, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
+from functools import partial
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING
 
@@ -2809,6 +2810,7 @@ class CodingCliTaskRunner:
                     )
                     completed = _run_bounded(
                         command,
+                        selection=self.selection,
                         cwd=workspace,
                         environment=process_environment,
                         timeout_seconds=self.timeout_seconds,
@@ -3118,7 +3120,7 @@ def _coding_cli_command(
     opencode_interface: str | None = None,
     runtime_state: Path | None = None,
 ) -> list[str]:
-    executable = selection.executable
+    executable = _coding_cli_argv0(selection)
     if selection.name == "codex":
         command = [
             executable,
@@ -3607,6 +3609,7 @@ class CodingCliSourceGenerator:
                 )
                 completed = _run_bounded(
                     command,
+                    selection=self.selection,
                     cwd=workspace,
                     environment=process_environment,
                     timeout_seconds=self.timeout_seconds,
@@ -4326,8 +4329,10 @@ def inspect_coding_cli_authentication(
     if arguments is None:
         return {**base, "state": "unknown-provider-managed"}
     try:
+        selection.require_unchanged()
         completed = runner(
-            (selection.executable, *arguments),
+            (_coding_cli_argv0(selection), *arguments),
+            **_coding_cli_launch_options(selection),
             check=False,
             capture_output=True,
             text=True,
@@ -4336,10 +4341,12 @@ def inspect_coding_cli_authentication(
         )
     except (OSError, subprocess.SubprocessError):
         return {**base, "state": "unknown-status-command-failed"}
+    finally:
+        selection.require_unchanged()
     return {
         **base,
         "state": "authenticated" if completed.returncode == 0 else "unauthenticated",
-        "status_command": [selection.executable, *arguments],
+        "status_command": [_coding_cli_argv0(selection), *arguments],
     }
 
 
@@ -4586,7 +4593,8 @@ def _coding_cli_status_requires_authentication(
                 else ()
             )
             completed = _run_bounded(
-                (selection.executable, *runtime_arguments, *arguments),
+                (_coding_cli_argv0(selection), *runtime_arguments, *arguments),
+                selection=selection,
                 cwd=workspace,
                 environment=process_environment,
                 timeout_seconds=30,
@@ -4791,6 +4799,23 @@ class _BoundedProcessResult:
     stderr: bytes
 
 
+def _coding_cli_argv0(selection: CodingCliSelection) -> str:
+    # Windows batch launchers retain the original command-interpreter route.
+    # Explicit executable= selects a native image, not a .cmd/.bat document.
+    if _is_windows_host() and Path(selection.executable).suffix.lower() in {
+        ".cmd",
+        ".bat",
+    }:
+        return selection.executable
+    return selection.name
+
+
+def _coding_cli_launch_options(selection: CodingCliSelection) -> dict[str, str]:
+    if _coding_cli_argv0(selection) == selection.executable:
+        return {}
+    return {"executable": selection.executable}
+
+
 def _run_bounded(
     command: Sequence[str],
     *,
@@ -4801,12 +4826,24 @@ def _run_bounded(
     maximum_stderr_bytes: int,
     redaction_environment: Mapping[str, str] | None = None,
     trace_output: bool = True,
+    selection: CodingCliSelection | None = None,
 ) -> _BoundedProcessResult:
     """Use the shared owned-child runner with the original private trace policy."""
     from datetime import UTC, datetime
 
     from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
 
+    process_factory = subprocess.Popen
+    if selection is not None:
+        selection.require_unchanged()
+        if not command or command[0] != _coding_cli_argv0(selection):
+            raise CodingCliError(
+                "coding_cli.execution_failed",
+                "coding CLI invocation differs from selection",
+            )
+        options = _coding_cli_launch_options(selection)
+        if options:
+            process_factory = partial(subprocess.Popen, **options)
     child_environment = inherited_verbose_environment(environment)
     diagnostic_environment = {**child_environment, **(redaction_environment or {})}
     started = datetime.now(UTC)
@@ -4821,7 +4858,7 @@ def _run_bounded(
             stderr_limit_bytes=maximum_stderr_bytes,
             error_prefix="coding_cli",
             terminate_descendants=True,
-            process_factory=subprocess.Popen,
+            process_factory=process_factory,
             trace=False,
         )
     except BuildError as exc:
@@ -4839,6 +4876,9 @@ def _run_bounded(
             "coding_cli.execution_failed",
             "coding CLI process could not complete safely",
         ) from exc
+    finally:
+        if selection is not None:
+            selection.require_unchanged()
     trace_subprocess(
         command,
         cwd=cwd,
@@ -4861,7 +4901,7 @@ def _require_coding_cli_compatible(
 
     if selection.name != "opencode":
         return
-    command = [selection.executable, *_OPENCODE_PREFLIGHT_COMMAND]
+    command = [_coding_cli_argv0(selection), *_OPENCODE_PREFLIGHT_COMMAND]
     credential_names = {
         key.casefold() for key in _CODING_CLI_AUTH_ENVIRONMENT["opencode"]
     }
@@ -4875,6 +4915,7 @@ def _require_coding_cli_compatible(
         try:
             completed = _run_bounded(
                 command,
+                selection=selection,
                 cwd=workspace,
                 environment=probe_environment,
                 timeout_seconds=_OPENCODE_PREFLIGHT_TIMEOUT_SECONDS,
@@ -5028,7 +5069,8 @@ def _require_opencode_v1_configuration(
     selection.require_unchanged()
     try:
         result = _run_bounded(
-            [selection.executable, "--pure", "debug", "config"],
+            [_coding_cli_argv0(selection), "--pure", "debug", "config"],
+            selection=selection,
             cwd=workspace,
             environment=probe,
             timeout_seconds=_OPENCODE_PREFLIGHT_TIMEOUT_SECONDS,
@@ -5088,7 +5130,8 @@ def _require_opencode_v2_configuration(
     selection.require_unchanged()
     try:
         result = _run_bounded(
-            [selection.executable, "debug", "config", "--standalone"],
+            [_coding_cli_argv0(selection), "debug", "config", "--standalone"],
+            selection=selection,
             cwd=workspace,
             environment=probe_environment,
             timeout_seconds=_OPENCODE_PREFLIGHT_TIMEOUT_SECONDS,

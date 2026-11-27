@@ -118,6 +118,7 @@ def _bind_original_source():
                 (
                     "project_recorded_legacy_wrapper_authority",
                     "_original_renderer",
+                    "_render_131_make",
                     "_bytes",
                     "_digest",
                     "_record",
