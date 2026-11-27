@@ -287,11 +287,9 @@ class AuthoredRetainedCargoWrapperTests(unittest.TestCase):
                         lifetime=lifetime,
                         configuration=configuration,
                     )
-                    try:
+                    with core._original_wrapper_lifetime(owner):
                         owner.require_unchanged()
                         yield owner, configuration
-                    finally:
-                        lifetime.active = False
 
     def test_contained_core_pins_actual_framework_metadata_and_detects_drift(self):
         with self.contained_core() as (owner, _configuration):

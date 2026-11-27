@@ -13,7 +13,9 @@ from literate_ai.adapters.retained_cargo_tree_v2 import capture_retained_cargo_t
 from literate_ai.adapters.retained_cargo_wrapper_core import (
     _CargoConsumerWrapperView,
     _open_consumer_wrapper_context,
+    _original_wrapper_view,
     _ReadOnlyCargoConsumerWrapper,
+    _require_original_wrapper_view,
 )
 from literate_ai.adapters.retained_harness_receipts import (
     _load_retained_documents,
@@ -111,11 +113,13 @@ class RetainedPythonWrapperObservation(_CargoConsumerWrapperView):
         object.__setattr__(self, "_tree", tree)
 
     def require_unchanged(self):
+        _require_original_wrapper_view(self)
         self._core.require_unchanged()
         self._tree.require_unchanged()
         _require_original_declarations(self._core, self._tree)
         self._tree.require_unchanged()
         self._core.require_unchanged()
+        _require_original_wrapper_view(self)
 
     @property
     def source_scope_identity(self):
@@ -180,8 +184,9 @@ def observed_retained_python_wrapper(reviewed, *, budget):
         context = RetainedPythonWrapperObservation(
             _key=_CREATION_KEY, core=core, tree=tree
         )
-        try:
-            context.require_unchanged()
-            yield context
-        finally:
-            context.require_unchanged()
+        with _original_wrapper_view(context):
+            try:
+                context.require_unchanged()
+                yield context
+            finally:
+                context.require_unchanged()

@@ -15,6 +15,7 @@ from literate_ai.adapters.retained_cargo_wrapper_core import (
     _CargoConsumerWrapperView,
     _CurrentCargoConsumerWrapper,
     _open_consumer_wrapper_context,
+    _original_wrapper_view,
     _ReadOnlyCargoConsumerWrapper,
 )
 
@@ -69,6 +70,7 @@ def authored_retained_cargo_wrapper_context(
             else AuthoredRetainedCargoWrapperContext
         )
         context = factory(_key=_CREATION_KEY, core=core)
-        context.require_unchanged()
-        yield context
-        context.require_unchanged()
+        with _original_wrapper_view(context):
+            context.require_unchanged()
+            yield context
+            context.require_unchanged()

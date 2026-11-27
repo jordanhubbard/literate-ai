@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import json
 import os
+import threading
+import weakref
 from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 
@@ -52,6 +54,8 @@ from literate_ai.projects import (
 )
 
 _CREATION_KEY = object()
+_ISSUED_WRAPPERS = weakref.WeakKeyDictionary()
+_ISSUED_VIEWS = weakref.WeakKeyDictionary()
 _DOCUMENTS = (
     ("inventory", ".literate/harness-inventory.json"),
     ("baseline", ".literate/legacy-harness-baseline.json"),
@@ -63,6 +67,66 @@ _DOCUMENTS = (
 @dataclass(slots=True)
 class _WrapperLifetime:
     active: bool = True
+
+
+def _require_original_wrapper_lifetime(context):
+    issued = _ISSUED_WRAPPERS.get(context)
+    if (
+        issued is None
+        or type(context) is not issued[3]
+        or issued[0] != os.getpid()
+        or issued[1] is not threading.current_thread()
+        or context._lifetime is not issued[2]
+        or not issued[2].active
+    ):
+        raise ValueError("retained.cargo.v2-wrapper-operation-ended")
+
+
+@contextmanager
+def _original_wrapper_lifetime(context):
+    """Register the exact original operation, never a reconstructed value."""
+    if (
+        type(context)
+        not in {
+            _CurrentCargoConsumerWrapper,
+            _ReadOnlyCargoConsumerWrapper,
+        }
+        or context in _ISSUED_WRAPPERS
+    ):
+        raise TypeError("retained.cargo.v2-original-wrapper-required")
+    lifetime = context._lifetime
+    if type(lifetime) is not _WrapperLifetime or not lifetime.active:
+        raise ValueError("retained.cargo.v2-wrapper-operation-ended")
+    _ISSUED_WRAPPERS[context] = (
+        os.getpid(),
+        threading.current_thread(),
+        lifetime,
+        type(context),
+    )
+    try:
+        yield context
+    finally:
+        _ISSUED_WRAPPERS.pop(context, None)
+        lifetime.active = False
+
+
+def _require_original_wrapper_view(view):
+    original = _ISSUED_VIEWS.get(view)
+    if original is None or original is not view._core:
+        raise ValueError("retained.cargo.v2-wrapper-operation-ended")
+    _require_original_wrapper_lifetime(original)
+
+
+@contextmanager
+def _original_wrapper_view(view):
+    _require_original_wrapper_lifetime(view._core)
+    if view in _ISSUED_VIEWS:
+        raise ValueError("retained.cargo.v2-wrapper-operation-ended")
+    _ISSUED_VIEWS[view] = view._core
+    try:
+        yield view
+    finally:
+        _ISSUED_VIEWS.pop(view, None)
 
 
 class _UnsavableConsumerWrapper:
@@ -293,12 +357,10 @@ class _CurrentCargoConsumerWrapper(_UnsavableConsumerWrapper):
                 raise ValueError("retained.cargo.v2-wrapper-native-inputs-changed")
         if any(_lineage(path) != expected for path, expected in parents):
             raise ValueError("retained.cargo.v2-wrapper-input-ancestry-changed")
-        if not self._lifetime.active:
-            raise ValueError("retained.cargo.v2-wrapper-operation-ended")
+        _require_original_wrapper_lifetime(self)
 
     def require_unchanged(self):
-        if not self._lifetime.active:
-            raise ValueError("retained.cargo.v2-wrapper-operation-ended")
+        _require_original_wrapper_lifetime(self)
         native_inputs = self._native_inputs()
         reviewed = self.reviewed
         reviewed.require_unchanged()
@@ -425,7 +487,9 @@ class _CargoConsumerWrapperView(_UnsavableConsumerWrapper):
         )
 
     def require_unchanged(self):
+        _require_original_wrapper_view(self)
         self._core.require_unchanged()
+        _require_original_wrapper_view(self)
 
 
 @contextmanager
@@ -511,7 +575,5 @@ def _open_consumer_wrapper_context(reviewed, *, read_only=False, input_closure=N
             configuration=configuration,
             **({"input_closure": input_closure} if input_closure is not None else {}),
         )
-        try:
+        with _original_wrapper_lifetime(context):
             yield context
-        finally:
-            lifetime.active = False
