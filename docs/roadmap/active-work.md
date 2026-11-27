@@ -24458,6 +24458,17 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   and [#495](https://github.com/jordanhubbard/literate-ai/pull/495).
   Each remains open until its actual integrated controls and required review/CI
   pass; these dispositions neither close goals nor move release scope.
+- **Roadmap fixture portability:** Current macOS qualification
+  reports seven dependency-fixture errors because temporary roots retain the
+  system directory alias. Reproduce under an aliased temporary parent locally,
+  canonicalize fixture-owned roots before establishing project authority, and
+  retain all cycle, rejected-write and path-redirection refusal assertions.
+  The aliased-parent reproduction fails at the same direct-directory guard before
+  the repair. After fixture-root canonicalization, all 23 roadmap-dependency tests
+  pass under that parent (3.272s), retaining original assertions. Repository
+  formatting and lint pass. Native macOS qualification remains independently
+  required; the latest lab, documentation and sample CI cells separately stop on
+  stale documentation-authority review.
 - **Next release action:** Continue complete local source qualification with
   admitted build tools, resolve the original authority/driver review drift and
   exact-head CI failures, and complete the remaining contribution dispositions

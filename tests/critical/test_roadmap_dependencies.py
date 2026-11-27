@@ -236,7 +236,7 @@ class RoadmapDependencyTests(unittest.TestCase):
 
     def test_policy_selected_manifest_and_prospective_overlay_preserve_bytes(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             queue, target = self.project(root, item("AAA-001"), custom=True)
             before = target.read_bytes()
             with self.assertRaises(RoadmapDependencyError):
@@ -251,7 +251,7 @@ class RoadmapDependencyTests(unittest.TestCase):
 
     def test_release_readiness_rejects_manual_cycle_even_with_checked_goals(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             self.project(root, item("AAA-001", "release:1.3.1:verified", state="x"))
             with self.assertRaises(ReleaseContributionsError) as caught:
                 _roadmap_release_goals(
@@ -261,7 +261,7 @@ class RoadmapDependencyTests(unittest.TestCase):
 
     def test_documentation_validation_rejects_manual_cycle(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             skill = root / "SKILL.md"
             skill.write_text(
                 "Read [queue](docs/roadmap/active-work.md).\n", encoding="utf-8"
@@ -281,7 +281,7 @@ class RoadmapDependencyTests(unittest.TestCase):
 
     def test_cli_rejected_write_has_no_temporary_or_partial_changes(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             _, target = self.project(root, item("AAA-001", state="x"))
             before = target.read_bytes()
             args = SimpleNamespace(
@@ -324,7 +324,7 @@ class RoadmapDependencyTests(unittest.TestCase):
 
     def test_update_derived_import_rejects_bad_existing_data_without_writing(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             _, target = self.project(root, item("AAA-001", "AAA-001"))
             before = target.read_bytes()
             proposed = SimpleNamespace(
@@ -344,7 +344,7 @@ class RoadmapDependencyTests(unittest.TestCase):
 
     def test_custom_import_queue_is_checked_without_conventional_queue(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             queue = root / "custom.md"
             queue.write_text(item("AAA-001", "AAA-001"), encoding="utf-8")
             before = queue.read_bytes()
@@ -366,7 +366,7 @@ class RoadmapDependencyTests(unittest.TestCase):
             return original(path)
 
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory) / "project"
+            root = Path(directory).resolve() / "project"
             root.mkdir()
             sentinel = root / "README.md"
             sentinel.write_bytes(b"Existing user content\n")
@@ -396,7 +396,7 @@ class RoadmapDependencyTests(unittest.TestCase):
         )
 
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory) / "project"
+            root = Path(directory).resolve() / "project"
             RootParentProjectInitializationAdapter(
                 standard_binding_provider=lambda: None,
             ).initialize(root, empty=True, source_intelligence_provider="none")
@@ -452,7 +452,7 @@ class RoadmapDependencyTests(unittest.TestCase):
         )
 
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory) / "project"
+            root = Path(directory).resolve() / "project"
             (root / "retained").mkdir(parents=True)
             (root / "docs/roadmap").mkdir(parents=True)
             queue = root / "docs/roadmap/active-work.md"
