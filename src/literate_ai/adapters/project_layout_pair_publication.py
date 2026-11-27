@@ -9,8 +9,15 @@ from __future__ import annotations
 from literate_ai import _atomic_publication as atomic
 from literate_ai.adapters import component_lock_operations as operations
 from literate_ai.adapters import project_layout_migration as filesystem
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_calls as _bind_native_identity_calls,
+)
+from literate_ai.adapters.project_layout_native_identity import publication_record_wire
 from literate_ai.adapters.project_layout_planning import ProjectLayoutPlanError
 from literate_ai.contracts import canonical_identity
+
+globals().update(_bind_native_identity_calls(globals(), ("publication_record_wire",)))
+del _bind_native_identity_calls
 
 _ADMIT = operations.require_original_prepared_component_lock
 _OPERATE = operations.operate_component_lock
@@ -28,6 +35,8 @@ def _bind_publisher():
             "_SCOPE",
             "_SCOPED",
             "canonical_identity",
+            "_native_identity_guard",
+            "publication_record_wire",
             "operations",
             "atomic",
             "filesystem",
@@ -52,6 +61,12 @@ def _bind_publisher():
         )
         for name in names
     )
+    identity_guard = namespace["_native_identity_guard"]
+    identity_ports = tuple(
+        (function, function.__code__, function.__defaults__, function.__kwdefaults__)
+        for name, function in aliases
+        if name == "_native_identity_guard" or name in ("publication_record_wire",)
+    )
     error_type = ProjectLayoutPlanError
 
     def publish_prepared_pair(
@@ -74,6 +89,12 @@ def _bind_publisher():
                     namespace.get(name) is not original for name, original in aliases
                 )
                 or any(
+                    function.__code__ is not code
+                    or function.__defaults__ is not defaults
+                    or function.__kwdefaults__ is not keywords
+                    for function, code, defaults, keywords in identity_ports
+                )
+                or any(
                     vars(module).get(name) is not original
                     for module, name, original in delegates
                 )
@@ -82,22 +103,29 @@ def _bind_publisher():
                     "producer_publication_conflict",
                     "original finite pair publisher changed",
                 )
+            try:
+                identity_guard()
+            except ValueError as error:
+                raise error_type(
+                    "producer_publication_conflict",
+                    "original finite pair publisher changed",
+                ) from error
 
         bindings()
         planner, target, flavors, flavor_roots = _ADMIT(prepared)
-        identity = canonical_identity(record).uri
+        identity = canonical_identity(publication_record_wire(record)).uri
         live = True
 
         def current():
             bindings()
             if not live:
                 fail("normal producer publication scope is closed")
-            if canonical_identity(record).uri != identity:
+            if canonical_identity(publication_record_wire(record)).uri != identity:
                 fail("original finite pair publication record changed")
             guard()
             bindings()
             _ADMIT(prepared)
-            if canonical_identity(record).uri != identity:
+            if canonical_identity(publication_record_wire(record)).uri != identity:
                 fail("original finite pair record changed during closing guard")
 
         class Writer:

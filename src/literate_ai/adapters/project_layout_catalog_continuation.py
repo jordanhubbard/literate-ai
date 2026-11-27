@@ -20,6 +20,13 @@ from pathlib import PurePosixPath
 from types import MappingProxyType
 from urllib.parse import quote, unquote, urlsplit, urlunsplit
 
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_boundaries as _bind_native_identity_boundaries,
+)
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_calls as _bind_native_identity_calls,
+)
+from literate_ai.adapters.project_layout_native_identity import native_node, wire_node
 from literate_ai.adapters.project_layout_planning import (
     _SHARED,
     ProjectLayoutPlanError,
@@ -44,6 +51,9 @@ from literate_ai.projects import (
     parse_project_configuration,
     serialize_project_configuration,
 )
+
+globals().update(_bind_native_identity_calls(globals(), ("wire_node", "native_node")))
+del _bind_native_identity_calls
 
 SCHEMA = "literate-ai/project-layout-catalog-continuation@1"
 
@@ -718,8 +728,8 @@ def select_contained_catalog_continuation(
         "project_id": snapshot.definition.project_id,
         "framework_directory": "litai",
         "inventory_identity": inventory["plan_identity"],
-        "root_node": list(context.directory_binding[0][:3]),
-        "framework_node": list(context.directory_binding[1][:3]),
+        "root_node": wire_node(context.directory_binding[0][:3]),
+        "framework_node": wire_node(context.directory_binding[1][:3]),
         "git_state": inventory["git_state"],
         "framework_git_state": inventory["framework_git_state"],
         "placements": placements,
@@ -874,8 +884,10 @@ def decode_catalog_continuation_plan(value):
         array(value[key])
         if len(value[key]) != 3:
             _fail("continuation_plan_invalid", "exact native directory tuple required")
-        for item in value[key]:
-            integer(item)
+        try:
+            native_node(value[key])
+        except ValueError as error:
+            _fail("continuation_plan_invalid", str(error))
     for key in ("git_state", "framework_git_state"):
         if value[key] is not None:
             fields(value[key], ("head", "index"))
@@ -950,3 +962,12 @@ def decode_catalog_continuation_plan(value):
     ):
         _fail("plan_stale", "public continuation identity differs")
     return copy.deepcopy(value)
+
+
+globals().update(
+    _bind_native_identity_boundaries(
+        globals(),
+        ("select_contained_catalog_continuation", "decode_catalog_continuation_plan"),
+    )
+)
+del _bind_native_identity_boundaries

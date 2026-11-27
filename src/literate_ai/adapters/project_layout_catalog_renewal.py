@@ -27,6 +27,15 @@ from literate_ai.adapters.project_layout_lease import (
     current_layout_lease,
     require_layout_lease,
 )
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_calls as _bind_native_identity_calls,
+)
+from literate_ai.adapters.project_layout_native_identity import (
+    catalog_intent_wire,
+    catalog_renewal_native,
+    catalog_renewal_wire,
+    native_node,
+)
 from literate_ai.adapters.project_layout_planning import ProjectLayoutPlanError
 from literate_ai.contracts import (
     ContentIdentity,
@@ -35,6 +44,19 @@ from literate_ai.contracts import (
 )
 from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.projects import ProjectConfigurationStore
+
+globals().update(
+    _bind_native_identity_calls(
+        globals(),
+        (
+            "catalog_intent_wire",
+            "catalog_renewal_native",
+            "catalog_renewal_wire",
+            "native_node",
+        ),
+    )
+)
+del _bind_native_identity_calls
 
 _SCHEMA_V1 = "literate-ai/catalog-producer-renewal@1"
 _SCHEMA = "literate-ai/catalog-producer-renewal@2"
@@ -58,7 +80,9 @@ def _path(root, intent, component, target):
             "catalog-renewal-"
             + canonical_identity(
                 {
-                    "catalog_intent": canonical_identity(intent).uri,
+                    "catalog_intent": canonical_identity(
+                        catalog_intent_wire(intent)
+                    ).uri,
                     "component": component["source_root"],
                     "target": target,
                 }
@@ -188,10 +212,12 @@ def _decode(root, intent, component, target):
         record["schema"] not in (_SCHEMA_V1, _SCHEMA)
         or record["project"] != str(root)
         or record["plan_identity"] != intent["plan"]["plan_identity"]
-        or record["catalog_intent_identity"] != canonical_identity(intent).uri
+        or record["catalog_intent_identity"]
+        != canonical_identity(catalog_intent_wire(intent)).uri
         or canonical_identity(record).uri != identity
     ):
         _fail("catalog renewal intent differs from its actual parent")
+    record = catalog_renewal_native(record)
     if record.get("successor") is not None:
         successor_owner.validate_successor_binding(record["successor"])
     selection = record["selection"]
@@ -271,7 +297,7 @@ def _decode(root, intent, component, target):
             row["after_node"][2]
         ):
             _fail("normal replacement mode changed")
-    parents = {".": intent["plan"]["root_node"]}
+    parents = {".": native_node(intent["plan"]["root_node"])}
     for coordinate in ("litai/.literate", component["destination_root"]):
         parents[coordinate] = intent["original_directories"].get(coordinate) or intent[
             "new_directories"
@@ -306,7 +332,12 @@ def _journal_current(root, journal, record):
     if (
         list(directory_node(journal)) != record["journal_node"]
         or filesystem._file(journal / "intent.json")[1]
-        != canonical_json_bytes({**record, "identity": canonical_identity(record).uri})
+        != canonical_json_bytes(
+            {
+                **catalog_renewal_wire(record),
+                "identity": canonical_identity(catalog_renewal_wire(record)).uri,
+            }
+        )
         + b"\n"
     ):
         _fail("normal catalog native intent changed")
@@ -437,7 +468,7 @@ def _stage(
     }
     originals = _original_rows(intent, component, target)
     # Native snapshots all precede private staging and remain fixed afterwards.
-    parents = {".": intent["plan"]["root_node"]}
+    parents = {".": native_node(intent["plan"]["root_node"])}
     for coordinate in ("litai/.literate", component["destination_root"]):
         parents[coordinate] = list(directory_node(root / coordinate))
     with native._parent_scope(namespace, path.parent):
@@ -475,7 +506,7 @@ def _stage(
         "successor": successor,
         "project": str(root),
         "plan_identity": intent["plan"]["plan_identity"],
-        "catalog_intent_identity": canonical_identity(intent).uri,
+        "catalog_intent_identity": canonical_identity(catalog_intent_wire(intent)).uri,
         "selection": {
             key: component[key]
             for key in ("source_root", "destination_root", "manifest_identity")
@@ -497,7 +528,12 @@ def _stage(
     )
     filesystem._write(
         incoming / "intent.json",
-        canonical_json_bytes({**record, "identity": canonical_identity(record).uri})
+        canonical_json_bytes(
+            {
+                **catalog_renewal_wire(record),
+                "identity": canonical_identity(catalog_renewal_wire(record)).uri,
+            }
+        )
         + b"\n",
     )
     for directory in (incoming / "before", incoming / "after", incoming):
@@ -785,6 +821,11 @@ def _bind():
             "tempfile",
             "types",
             "canonical_identity",
+            "_native_identity_guard",
+            "catalog_intent_wire",
+            "catalog_renewal_native",
+            "catalog_renewal_wire",
+            "native_node",
             "canonical_json_bytes",
             "ContentIdentity",
             "ProjectConfigurationStore",
@@ -865,12 +906,31 @@ def _bind():
             or module is successor_owner
         )
     )
+    identity_guard = namespace["_native_identity_guard"]
+    identity_ports = tuple(
+        (function, function.__code__, function.__defaults__, function.__kwdefaults__)
+        for name, function in aliases
+        if name == "_native_identity_guard"
+        or name
+        in (
+            "catalog_intent_wire",
+            "catalog_renewal_native",
+            "catalog_renewal_wire",
+            "native_node",
+        )
+    )
     error_type = ProjectLayoutPlanError
 
     def check():
         if (
             namespace.get("_bindings") is not check
             or any(namespace.get(name) is not original for name, original in aliases)
+            or any(
+                function.__code__ is not code
+                or function.__defaults__ is not defaults
+                or function.__kwdefaults__ is not keywords
+                for function, code, defaults, keywords in identity_ports
+            )
             or any(
                 fn.__code__ is not code
                 or fn.__defaults__ is not defaults
@@ -892,6 +952,14 @@ def _bind():
                 "catalog_producer_renewal_conflict",
                 "original catalog renewal delegate changed",
             )
+
+        try:
+            identity_guard()
+        except ValueError as error:
+            raise error_type(
+                "catalog_producer_renewal_conflict",
+                "original catalog renewal delegate changed",
+            ) from error
 
     return check
 

@@ -1,0 +1,109 @@
+{
+  "status": "acceptable-alternative-with-explicit-complete-boundary-inventory",
+  "issue": 507,
+  "head": "55c31be8d4ae07b77aa5318e301ac44fc1f48842",
+  "examined_source_hashes": {
+    "src/literate_ai/adapters/project_layout_continuation.py": "472c7e2c59e49eb2cb07f64d89db64023a94cca8e4dcc595902f4324399df653",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "963c161904ff3b3b34c94e83b9c894eb1442dc8f2bf4b7b8a283ca3f64b1469f",
+    "src/literate_ai/adapters/component_namespace_closing.py": "21d388c5d440f273b8137392f0cefc4cbbb8579fee9fac60f4181d70042e7fcd",
+    "src/literate_ai/adapters/project_layout_pair_publication.py": "f269883b987a3192d23515c7908e0f9c92949c75f524a9bd352163582d81aa82",
+    "src/literate_ai/adapters/project_layout_catalog_finalization.py": "ec758edc4ce9f19f01ee59fea5115211a8656be2baf4b4f10e7d24de183e5755",
+    "src/literate_ai/cli/layout_component_commands.py": "96fb3c8498d6b671a7118c9a4c77a4f52556aa8b3d0ff795f7f76972eb0cf9a2",
+    "src/literate_ai/adapters/project_layout_migration.py": "5c781abbdcbfdcce3ce2c64ad2d59438854566ae5b3951320b0ffe5ed07fe522"
+  },
+  "verdict": "Acceptable and likely smaller than replacing every native comparison. No concrete owner requirement that a fresh read return the same object as serializedwire was found; original decoders already create fresh dictionaries. Keep current issued raw-owner object/child pointer identities unchanged after issuance; create new rawview only at initial read/factoryboundary.",
+  "invariants": [
+    "E(raw) returns new schema-owned canonicalwiredata; D(validatedwire) returns NEWraw-native-view containers. Neither mutates original plan/intent/record/wire objects. No generic stringify-every-int transform.",
+    "D(E(raw)) reproduces native integer facts exactly (nested publicplan intentionally remainsencoded); E(D(wire)) reproduces exact canonicalwirevalue and identity. Everyoriginal signed64 wirevalue/identity/path stays unchanged.",
+    "Validate original exactfieldsets/schema version, canonicalvalue/hash and canonical stat-ID representation BEFOREcoercing wireIDs to int. Then original existing raw-native validators/currentness predicates still apply. Do not accept +/leadingzeros/smallstr/bools/negative/outofrange IDs via permissive intconversion.",
+    "Mode and all non-IDfields stayint/stringexact peroriginalschema; only explicitdev/ino fields and kind-specific native-IDvectors project. Nested publicplan root/framework IDs remainencoded; no blanket recursive conversion.",
+    "All identity/currentness/write/export checks over raw private records MUST E-project freshly eachtime. A cached initialwiresnapshot would miss rawrecord mutation during foreign guardcallbacks.",
+    "Preserve existing canonicalbyte checks where present; reprojectraw to compare to original byte document, not normalizedforeigntext. No unreviewed historicaldocument rewrite/repinning.",
+    "Capture/seal original projectionfunctions, schema selection, scalarhelpers and their transitive canonicalstatdelegate code/defaults under original finite guards. Do not introduce arbitrary optional projector callback or mutable module-global schema dispatch hole."
+  ],
+  "explicit_field_maps": {
+    "catalog_intent": "Known schema v1/v2 only: entries[*].node/after_node; original_directories[*]; new_directories[*].node; journal_node; journal_directories[*]; history[*].node; coordination/source_coordination[*].node and native_node (2posix or3nt nativeIDs). Publicplan copiedexactlywire; other provenance/coord/source/selection/bytes/mode fields unchanged.",
+    "catalog_renewal": "Known renewalv1/v2: entries[*].node/after_node; original_directories[*]; journal_node; journal_directories[*]. successor binding/hash strings unchanged; selection/root/project/plan fields unchanged.",
+    "namespace_closure": "source_node/source_parent_node/archive_parent_node; payloads[*].node; coordination[*].node/native_node; empty_directories[*]. Other filenames, sourcepath, byte identities,modes,size,planidentity unchanged.",
+    "wrapper_source": "Separate pure sourceidentity projection first2IDs only for source_root_node5vector and7converter stamp7vectors; no newwire-readview needed because ownerissued/proofpreimage only."
+  },
+  "boundary_inventory": [
+    {
+      "owner": "project_layout_continuation",
+      "sites": [
+        "582-585 _guard_journal canonical identity +exactserializedbytes",
+        "1060-1061 _stage identity/write",
+        "1085-1089 _decode_intent wireparse/hash thenstrictD->newrawview",
+        "1928 recovery renewalpath parent identity"
+      ],
+      "change": "Use schema-owned intent E/identity consistently. Retain actual intent/root/native comparisons raw; avoid changing dozens move/census predicates."
+    },
+    {
+      "owner": "project_layout_catalog_renewal",
+      "sites": [
+        "59-61 _path parentintentidentity",
+        "165-192 _decode originalwirehash, parentidentity +strictD",
+        "309 _guard_journal identity/bytes",
+        "478 _stage catalogparentidentity",
+        "500 _stage renewalrecord write"
+      ],
+      "change": "Both original catalog intent ID and renewalrecord IDs must use same ownerprojected identity functions. Rawrecord actual state/move/parenttuples unchanged."
+    },
+    {
+      "owner": "component_namespace_closing",
+      "sites": [
+        "240-244 read_source_namespace_record canonicalwire/hash ->newrawcopy",
+        "464 source_namespace_record jsonroundtrip copy/export",
+        "614-618 original closure envelope identity/write"
+      ],
+      "change": "Specify export semantics explicitly: return E(raw) as wiredata or D(E(raw)) rawcopy according to originalAPI purpose; do not accidentally leave canonical_json_bytes(rawwide) here. Persist envelope E(raw) and readraw after strictwirevalidation."
+    },
+    {
+      "owner": "project_layout_catalog_finalization",
+      "sites": [
+        "166 initial heldrecordidentity",
+        "184/187/207 before/after foreign guardrecordidentities",
+        "247-248 closurerecord envelopewrite"
+      ],
+      "change": "All heldrecord hash checks freshly E-project SAMErawrecord; keep exact rawrecord pointer/native predicates unchanged."
+    },
+    {
+      "owner": "project_layout_pair_publication",
+      "sites": [
+        "88 initialrecordidentity",
+        "95/100 before/afterforeignguard checks"
+      ],
+      "change": "Hidden sharedpublisher boundary: currently hashes original rawrenewalrecord directly. Must select original schema-owned projection for catalog renewal while preserving original framework renewal ordinarydata behavior. No unchecked usercallback/no stalewirepacket; seal fixed original projector/dispatch under publisher originalclosure."
+    },
+    {
+      "owner": "cli/layout_component_commands",
+      "sites": [
+        "107 public catalog_intent_identity receipt"
+      ],
+      "change": "Use ownercatalogintent projectedidentity; resultcodec/pathhashes then stay consistent."
+    }
+  ],
+  "small_remaining_plan_native_joins": [
+    "continuation._guard frameworkdir and migration._guard_git root compare live rawnode against strictdecoded publicplan nativecomparand. Publicplan object/identity staysencoded.",
+    "continuation._decode_intent original_directories dot/litai vs nestedplan root/framework: compare exact decoded publiccomparands to rawprivateview.",
+    "catalog_renewal._stage parents[dot] currently borrowed encoded intent.plan.root_node; use strictdecodedpublicnode when constructing RAWview; _decode validation expectedparent map must do same.",
+    "successor plan-to-plan root/framework equality remainsencoded-on-both-sides, while original metadata/postimage tuples remainraw-on-both-sides. No broad retyping of frameworkjournals required for this alternative."
+  ],
+  "object_identity_assessment": [
+    "Sourceclosing _state(owner)[record] must remain the issued rawview; never replace it after factory registration. Newraw dictionaries from fresh read are data, require existing independent native/lease gate before use.",
+    "Pairpublisher closes over SAMErawrecord identity snapshot and rechecks content hash around foreignguard. FreshE(raw) preserves this defense; a projectedwirecopy captured onlyonce doesnot.",
+    "No observed currentness check demands that fresh parsed JSON object be pointeridentical to on-diskserializedtree; literalbyte/nativeidentity checks are separate and preserved."
+  ],
+  "meaningful_controls": [
+    "Roundtrip E/D all3explicit private schemas, legacyv1 andcurrent versions, everywide nativefield exercised; ordinarywire bytes and derived journal/receipt identities unchanged.",
+    "Malformed/noncanonical IDs with recomputedvalidwirehash rejected BEFOREintcoercion; modebool/string rejected; unknownschema/extra/missingfields remain refused.",
+    "Mutate rawprivate view during original foreignguard: projectedhash mustchange/refuse in pairpublisher andfinalization before anywrongnativeeffect. Replace projectionalias/code/default/dispatch must refuse beforeforeignCALLS.",
+    "Transparent native moveexpectation controls verify actual expected IDs remain Pythonints; measured rawowner tuple/maps unchanged after E.",
+    "Cold journal write/read/recovery and nohistorysuccessor/sourceclosing originals exercised on supportedPOSIX; decodedraw plancomparand rootmismatch/refusal. NativeWindows original8cases/readback stillrequired, purewide models do not attesthost."
+  ],
+  "limits": [
+    "Recommendation only, no implementation/source/tests/jobs/posts/nativeprobe or actualfixture mutation.",
+    "Boundarylist is current inspected owners; implementation must rerun targetedcanonical-identity/json search for any newlyintroduced or forwarded recordconsumer beforeclosing.",
+    "No change to canonicalJSONbounds, raw nativehelperreturns, original lease/namespace/currentness comparisons, history data, POSIX-only mutation gates or release acceptance."
+  ]
+}

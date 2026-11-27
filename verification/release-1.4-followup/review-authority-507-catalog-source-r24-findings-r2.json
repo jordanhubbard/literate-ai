@@ -1,0 +1,99 @@
+{
+  "review": "507 catalog source r24 refreshed baseline r2",
+  "created_utc": "2026-11-27T19:52:03.418778+00:00",
+  "head": "55c31be8d4ae07b77aa5318e301ac44fc1f48842",
+  "files_sha256": {
+    "src/literate_ai/adapters/project_layout_native_identity.py": "34fcb697b4fd242eb176eec6be313d16203c90d644e7816dcc8884a53cd8c779",
+    "src/literate_ai/adapters/component_namespace_closing.py": "dd79c946b00d8217e8e0ca8f1366d18c8c8deb96d8dd33ba2a7b6500aa5d6d91",
+    "src/literate_ai/adapters/project_layout_catalog_continuation.py": "92f6b8f3e84e1fb5c7f355d358059d1fd2d8588e54f40ab197acbb5fd0293abf",
+    "src/literate_ai/adapters/project_layout_catalog_finalization.py": "489b447d476d69560164562cd2122f3e0c9b90c3b1a38b72df544d675bf9c529",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "fcf52eb7e90a4dd7f67102769cc5fc3417a387c9dd9839afe42fba8e2dbb1117",
+    "src/literate_ai/adapters/project_layout_continuation.py": "ad4555154491cbfe3eaded2fedf980cc09acce085921d6c9e92ee860c44fcba6",
+    "src/literate_ai/adapters/project_layout_migration.py": "3e9520d2c1cf9a8f687cd423bca65ed8f6d8d733420bfe778f1bfb0e4e734a16",
+    "src/literate_ai/adapters/project_layout_pair_publication.py": "ed31c183acd3f7910be38e153ee9ef97525ff289fca12417c934dec6559404c3",
+    "src/literate_ai/cli/layout_component_commands.py": "aea9b9cdad47b8830dbdcb12cff5f7f2b955cb52b8438e94f9ffd0de7bb80bd4",
+    "schemas/v2/project-layout-catalog-continuation.schema.json": "224a41f960c1e41cfaf4dc58126aa1e5832f303439cdc183ec47f4aeb52d7cab",
+    "tests/critical/test_catalog_native_identity.py": "36dfd3ee80957ae3bd430db7615ff19d9e67ec41f429f553b7ef03f81c910627"
+  },
+  "status": "changes requested: original used-global baseline remains open",
+  "findings": [
+    {
+      "id": "catalog-native-identity-fresh-builtin-shadow-baseline",
+      "severity": "medium",
+      "file": "src/literate_ai/adapters/project_layout_native_identity.py",
+      "lines": "353-402, 428-445",
+      "finding": "Import-time baseline captures named Python functions and scalar export but does not capture original presence/absence of used builtin-shadow global slots. A new codec.int/type/dict/list/ValueError alias, or corresponding scalar defining-module int/type alias, introduced after helper import is accepted by baseline current(). A later binder then records that new slot in its runtime graph as original. Existing earlier caller ports refuse, but the later caller accepts a different global dependency baseline and can execute a foreign shadow function.",
+      "source_call_path": [
+        "helper import establishes rows only for current FunctionType module members",
+        "introduce a used builtin-shadow alias in codec or scalar defining namespace",
+        "public calls binder current() passes because rows and scalar export unchanged",
+        "private builder gathers current co_names scopes and captures new alias",
+        "new per-owner check accepts changed binding while calling original code"
+      ],
+      "recommendation": "Import-time provider baseline must also capture actually used global dependency slots, including absent builtin-shadow slots for helper/scalar namespaces, before later builders may inspect/capture state. Reuse finite used-graph slot enumeration against the original functions, retaining presence and exact value. Add late-binder control for a newly introduced builtin shadow and scalar-namespace shadow; assert refusal before foreign callback.",
+      "proof_limit": "Independent read-only source call-path finding; no reviewer execution."
+    }
+  ],
+  "field_map_review": {
+    "catalog_plan": "root_node and framework_node dev/ino encoded; mode remains integer; nested public plan stays wire and retains identity. Schema and Python codec correspond to nonnegative canonical signed64-or-decimal-wide IDs.",
+    "catalog_intent": [
+      "entries.* node/after_node",
+      "coordination.* node/native_node",
+      "source_coordination.* node/native_node",
+      "history.* node",
+      "new_directories.* node",
+      "original_directories.*",
+      "journal_directories.*",
+      "journal_node"
+    ],
+    "catalog_renewal": [
+      "entries.* node/after_node",
+      "original_directories.*",
+      "journal_directories.*",
+      "journal_node"
+    ],
+    "source_closure": [
+      "source_node",
+      "source_parent_node",
+      "archive_parent_node",
+      "coordination.* node/native_node",
+      "payloads.* node",
+      "empty_directories.*"
+    ],
+    "boundary_result": "No further E/D field or concrete hash/write/export callsite omission found in reviewed catalog paths. Renewal parents decode wire root explicitly; directory inventory uses raw original observations. Original moves/current comparisons retain native integers. Public nested plan is not rewritten into a native plan. Separate framework-record pair publication remains unchanged for its own explicit schema."
+  },
+  "guard_review": {
+    "positive": [
+      "Actual validator defining-module scalar slot is traversed/captured in existing bound graph.",
+      "Used function code/default pointer and keyword-default pointer plus contents are checked.",
+      "Imported callports are closed over original per-binding function objects; owner factories capture port/guard implementation seals and probe before callbacks.",
+      "Stage/decode/select/plan-codec/root-Git/physical-read/export/CLI boundaries check before original operations.",
+      "Contextmanager boundary checks at __enter__, covering mutation after context construction."
+    ],
+    "limits": [
+      "No claim against arbitrary Python closure-cell/interpreter mutation.",
+      "Exception paths retain original propagation; no new full release or native authority acceptance."
+    ]
+  },
+  "coverage": [
+    "Read every production diff for the nine changed existing files, full new helper, changed schema and complete new nine-control test file.",
+    "Traced original intent staging/decode/guard/currentness, normal renewal staging/decode/journal checking/publication, finalization/source closure read/export/context, CLI receipt and adjacent framework consumers.",
+    "Inspected complete new provenance binders and owner-factory enrollment changes.",
+    "Reviewed refreshed complete import-time baseline closure and revised ten-control tests. Original code/default/export refresh path is refused before collecting caller state. Context/field-map conclusions unchanged."
+  ],
+  "execution": {
+    "reviewer": "No tests, jobs, posts, source edits, retries, deadline changes or native effects performed.",
+    "parent": "Final ten-control job reported running at request; reviewer did not inspect terminal outcome.",
+    "acceptance": "No catalog issue closure, native Windows success, historical producer success or full installed release acceptance claimed."
+  },
+  "prior_findings": [
+    {
+      "id": "catalog-native-identity-fresh-baseline",
+      "status": "code/default/module-export variant closed by original helper-owned baseline; residual used-global binding variant below"
+    },
+    {
+      "id": "catalog-native-identity-unrelated-helper-test",
+      "status": "closed: renewal now probes renewal._bindings and closure probes physical read; stage probe supplies all five arguments"
+    }
+  ]
+}

@@ -19,10 +19,20 @@ from literate_ai.adapters.project_layout_component_results import (
     decode_source_finalization_result,
 )
 from literate_ai.adapters.project_layout_lease import current_layout_lease
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_boundaries as _bind_native_identity_boundaries,
+)
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_calls as _bind_native_identity_calls,
+)
+from literate_ai.adapters.project_layout_native_identity import catalog_intent_wire
 from literate_ai.adapters.project_layout_planning import ProjectLayoutPlanError
 from literate_ai.contracts import canonical_identity
 from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.projects import ProjectConfigurationStore
+
+globals().update(_bind_native_identity_calls(globals(), ("catalog_intent_wire",)))
+del _bind_native_identity_calls
 
 
 def _root(args):
@@ -104,7 +114,9 @@ def renew_catalog_from_args(args):
                 "operation": "renew",
                 "project": str(root),
                 "plan_identity": args.plan_identity,
-                "catalog_intent_identity": canonical_identity(intent).uri,
+                "catalog_intent_identity": canonical_identity(
+                    catalog_intent_wire(intent)
+                ).uri,
                 "successor_plan_identity": args.successor_plan_identity,
                 "source_component": component["source_root"],
                 "destination_component": coordinate,
@@ -145,3 +157,9 @@ def finalize_layout_from_args(args):
                 **result,
             }
         )
+
+
+globals().update(
+    _bind_native_identity_boundaries(globals(), ("renew_catalog_from_args",))
+)
+del _bind_native_identity_boundaries

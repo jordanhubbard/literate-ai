@@ -1,0 +1,89 @@
+{
+  "review": "510 mixed wrapper coordinate design diagnosis r1",
+  "created_utc": "2026-11-27T19:58:47.676844+00:00",
+  "status": "concrete normal-consumer coordinate defect confirmed by source and authentic current placement data; repair not implemented or executed by reviewer",
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_scaffold_coordinates.py": "dd5a4d668232eaadfd50e7c03c8f8b9d922e3dab33a4fa2ca5f1c3232caafeb5",
+    "src/literate_ai/adapters/retained_harness_receipts.py": "ddcbf1152ae84a0f2f59eee644129476dd995649c67896e043cb257f873e120d",
+    "src/literate_ai/adapters/retained_layout.py": "de713fb77d8dbfc00bee5add58b31bb35c5b9d99a7c4e5def0cad720917c6497",
+    "src/literate_ai/projects.py": "b3cf623844d23c2d51d72c28d9820f260c8e2235d1486bebd15535aee0d7926b",
+    "src/literate_ai/adapters/project_updates.py": "ffa2447a9cc1ff66130a15f47123daa0b28850d2a76069511bfa740c131c4d32",
+    "src/literate_ai/contracts/project_initialization.py": "bb5a208c8f1938da3ee8945eced6ddcd79a015fcb748aad5f8dad292f79c6e67",
+    "src/literate_ai/adapters/project_layout_framework_selection.py": "7f0757642eab38bb8c909f8fa43f1182c16b1436a8ef496386e339013cd7c35a",
+    "src/literate_ai/adapters/project_layout_framework_resources.py": "deecde73f11fc17d2cc0e9ea0e6acf9610a48de09baab97aa5c11180c62cb476",
+    "tests/critical/test_retained_scaffold_coordinates.py": "761d06ee1a298a2888990a1c8d4206f9fd959cf5bc37ad0c7b951ca4bf8b650c"
+  },
+  "cause": {
+    "normal_call_path": [
+      "retained_harness_receipts._load_retained_documents -> retained_scaffold_path(root, litai.harness.mk)",
+      "retained_scaffold_coordinate reads framework context and component_roots",
+      "mixed roots include components and litai/components, so helper returns original litai.harness.mk",
+      "actual acknowledged producer moved wrapper to litai/litai.harness.mk; original wrapper leaf absent",
+      "receipt read raises retained_receipt.wrapper_invalid"
+    ],
+    "also_affected": [
+      "retained_layout.resolve_legacy_layout selects wrapper Component metadata directory through same helper",
+      "retained_shim_authority checks resolver selected coordinate before scaffold rendering",
+      "bounded retained transaction/source authored metadata address owners also call helper; preserve their original read custody"
+    ],
+    "existing_transitional_test": "test_original_transitional_mixed_roots_keep_original_wrapper is valid and must remain unchanged: manifest mixture alone does not prove wrapper placement"
+  },
+  "authentic_observation": {
+    "root": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native",
+    "component_roots": [
+      "components",
+      "litai/components",
+      "samples",
+      "litai/samples"
+    ],
+    "baseline_wrapper_paths": [
+      "litai/components/legacy-project-wrapper/component.lock.json",
+      "litai/components/legacy-project-wrapper/component.md",
+      "litai/components/legacy-project-wrapper/component.resolution-audit.host.json",
+      "litai/litai.harness.mk"
+    ],
+    "artifact_sha256": {
+      "litai/.literate/initialization-baseline.json": "815b26302640ed0110bcf8ebc0ec4d7fc58a15ea234fab8e04f7fe8d91ac08fa",
+      "litai/.literate/initialization-origin.json": "d36985315efc4f3a97fd8eb0be8c4daef1bf452de5971b5ad8b251f25e80ecd5",
+      "litai/literate.project.json": "1165e9e8d5465815a2932949e8ef10950c47e11ed084e4d101ae90aa76ebc073"
+    },
+    "limit": "Read-only JSON placement inspection; no command/test rerun and no new native execution/readback acceptance claim. Successful authentic R2 finalizer/readback is parent-provided separate evidence."
+  },
+  "existing_provenance": {
+    "contracts": "ProjectInitializationOrigin + uniquely sorted typed ProjectInitializationBaseline rows, paired by baseline.origin_identity == origin.identity.",
+    "existing_reader": "project_updates._read_contract reads framework-selected canonical records, checks safe/reparse-free paths and contract canonical bytes. Reuse this provenance reading behavior; do not treat raw arbitrary JSON or a journal as an issuer.",
+    "existing_coordinate_model": "projects.contained_catalog_coordinates already joins canonical origin/baseline for initialized files in mixed catalogs and refuses old-root file shadows; imported files retain their own existing import provenance.",
+    "producer": "project_layout_framework_selection projects baseline row.path via acknowledged moved map, preserving historical content identities. It separately relocates UpdateBases and writes these metadata transitions through original framework transaction.",
+    "not_sufficient_directly": [
+      "ProjectScaffoldPlacement is typed deterministic new-output projection, not evidence existing files were moved.",
+      "configured_catalog_path explicitly handles Skill/workflow/routing URI kinds, not wrapper Makefile/Component directory.",
+      "contained_catalog_coordinates maps finite catalog files, excludes noncatalog litai.harness.mk, and therefore is not itself the complete wrapper resolver.",
+      "original_framework_initialization requires an already issued original resource owner and grants no new read/effect permission; normal consumer must not acquire inspection-owner requirements just to select an address."
+    ]
+  },
+  "minimal_design": [
+    "Keep explicit legacy root and contained-only declaration behavior unchanged. Add only a mixed-catalog recorded-wrapper placement branch to the shared retained scaffold coordinate resolver.",
+    "Reuse/extract a finite canonical typed initialization-pair coordinate reader, with origin join, exact logical-versus-contained candidates, safe paths, original input bounds and current owning read scope. Owners already holding admitted metadata should use original owned bytes rather than bypassing those read ports.",
+    "For this finite wrapper bundle, require consistent unambiguous baseline placement of litai.harness.mk and components/legacy-project-wrapper/component.md at contained spellings, with no conflicting original spellings. This authentic producer moved both. Partial/contradictory recorded placement must refuse rather than guess.",
+    "Only recorded placed wrapper Makefile and wrapper Component metadata resolve beneath litai. Do not move generic mixed components roots, other application Components, monorepo installation roots, implementation directories or unrelated descendants based on wrapper placement.",
+    "When no initialization placement record exists, retain original mixed-root address; do not use contained file presence as fallback. With present records, invalid origin/baseline/schema/canonical bytes or conflicting placements refuse. Exact absence policy should match existing typed resolver, preserving original manifest-only transitional fixture.",
+    "Refuse duplicate old-root metadata leaf shadows at originally mapped coordinates; do not refuse the old wrapper DIRECTORY merely because it still contains the retained original implementation. Root source container and its descendants retain their own ownership.",
+    "Retain explicit implementation exclusion on the newly selected contained-metadata branch. Resolve implementation only via existing retained layout declaration/legacy implementation resolver, without rebasing source.",
+    "Use recorded coordinates solely to select read addresses. Keep original normal consumer native/byte/currentness checks, callback fences and bounded paths. Do not use durable records as live owners or introduce new admission/move/recovery semantics."
+  ],
+  "threats_and_limits": {
+    "shadow": "A competing original metadata leaf must cause conflict even when destination bytes match; unrelated original implementation is preserved. Contained destination must remain direct and within original root boundaries.",
+    "unknown": "An unrecorded contained wrapper must never become authority by being present. Missing selected destination remains unavailable and must not trigger search/fallback to another copy.",
+    "changed_bytes": "Baseline content identities are historical initializer snapshots and may legitimately differ after acknowledged projection/normal regeneration. Do not require current wrapper bytes to match historical baseline as a new admission condition; current execution/receipt producer validates semantics and bytes independently.",
+    "replaced_inodes": "Baseline/origin contain no persistent native inode identity. They cannot prove continuity with a historical inode. Existing read owner must reject replacement/redirection during its current observation; same-content replacement before observation cannot honestly be diagnosed solely from these records. No historical journal should be reopened to fabricate that guarantee.",
+    "authority": "Canonical local provenance records are existing recorded coordinate data, not authentication against an actor able to rewrite all project authority. No new native SOURCE custody or effect permission follows from their parse."
+  },
+  "regression_plan": [
+    "Preserve original transitional mixed-roots test unchanged, plus legacy/contained-only manifest-only controls.",
+    "Add recorded placed wrapper bundle case retaining mixed roots and actual original implementation: both Makefile and Component metadata resolve contained; source resolution remains original.",
+    "Add absent/unrecorded, partial/conflicting pair, bad origin identity, canonical/schema invalidity, old metadata leaf shadow, selected destination missing, symlink/reparse/parent redirect and during-read swap refusal controls using original read owner.",
+    "Exercise normal docs review/retained receipt load from ordinary CWD against the existing immutable installed R2 candidate/project using only normal public command and existing bounds; do not copy wrapper, rewrite baseline, handpin, alter journal or rerun finalizer to hide original failure. Root owns any execution.",
+    "Audit resolver consumers for metadata/source separation, especially generic components and authored monorepo roots; no broad root prefixing."
+  ],
+  "execution": "No source edits, tests/jobs, installations, postings, worker operations or native effects by reviewer."
+}

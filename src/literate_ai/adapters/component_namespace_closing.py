@@ -42,6 +42,16 @@ from literate_ai.adapters.project_layout_lease import (
     current_layout_lease,
     require_layout_lease,
 )
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_boundaries as _bind_native_identity_boundaries,
+)
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_calls as _bind_native_identity_calls,
+)
+from literate_ai.adapters.project_layout_native_identity import (
+    source_closure_native,
+    source_closure_wire,
+)
 from literate_ai.adapters.project_layout_planning import (
     ProjectLayoutPlanError,
     _capture,
@@ -52,6 +62,13 @@ from literate_ai.adapters.qualification_workspace_namespace import (
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.projects import ProjectConfigurationSnapshot, ProjectConfigurationStore
+
+globals().update(
+    _bind_native_identity_calls(
+        globals(), ("source_closure_wire", "source_closure_native")
+    )
+)
+del _bind_native_identity_calls
 
 _SCHEMA = "literate-ai/component-source-namespace-closure@1"
 _KEY = object()
@@ -239,9 +256,11 @@ def read_source_namespace_record(root, plan, path):
     try:
         value = json.loads(_file(path)[1], object_pairs_hook=unique)
         identity = value.pop("identity")
+        original_wire = value
+        value = source_closure_native(original_wire)
         _validate_record(value, root, plan)
         if (
-            canonical_identity(value).uri != identity
+            canonical_identity(original_wire).uri != identity
             or _fixed_paths(root, value)[2] != path
         ):
             _fail("source closure record identity/coordinate differs")
@@ -461,7 +480,9 @@ def retire_source_namespace(owner):
 
 def source_namespace_record(owner):
     require_source_closing_current(owner)
-    return json.loads(canonical_json_bytes(_state(owner)["record"]))
+    return source_closure_native(
+        json.loads(canonical_json_bytes(source_closure_wire(_state(owner)["record"])))
+    )
 
 
 def _project_current(snapshot):
@@ -611,7 +632,8 @@ def source_namespace_closing(
         _LIVE[id(owner)] = (weakref.ref(owner), state)
         try:
             require_source_closing_current(owner)
-            envelope = {**record, "identity": canonical_identity(record).uri}
+            wire = source_closure_wire(record)
+            envelope = {**wire, "identity": canonical_identity(wire).uri}
             pending = intent.parent / (
                 "." + intent.stem + ".pending-" + uuid.uuid4().hex
             )
@@ -821,3 +843,16 @@ def restore_retired_source_namespaces(root, journal, intent):
         for record in source_closure_records(root, journal, intent):
             stack.enter_context(restored_source_namespace(root, record))
         yield
+
+
+globals().update(
+    _bind_native_identity_boundaries(
+        globals(),
+        (
+            "read_source_namespace_record",
+            "source_namespace_record",
+            "source_namespace_closing",
+        ),
+    )
+)
+del _bind_native_identity_boundaries

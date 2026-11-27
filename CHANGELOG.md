@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Preserve wide native IDs in catalog plans and stored migration state while
+  retaining native integer comparisons and original ownership checks.
+
 - Preserve wide native device and inode IDs in recorded-wrapper source proof
   identities without changing live native observations.
 

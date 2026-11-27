@@ -32,9 +32,16 @@ from literate_ai.adapters.project_layout_lease import (
     current_layout_lease,
     require_layout_lease,
 )
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_calls as _bind_native_identity_calls,
+)
+from literate_ai.adapters.project_layout_native_identity import source_closure_wire
 from literate_ai.adapters.project_layout_planning import ProjectLayoutPlanError
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
 from literate_ai.projects import ProjectConfigurationStore
+
+globals().update(_bind_native_identity_calls(globals(), ("source_closure_wire",)))
+del _bind_native_identity_calls
 
 
 def _fail(message):
@@ -163,7 +170,7 @@ def _held(root, journal, intent, lease, namespace, successor, record):
     _normal_current(root, journal, intent, lease, namespace, successor)
     source, archive, _path = physical._fixed_paths(root, record)
     actual = archive if os.path.lexists(archive) else source
-    identity = canonical_identity(record).uri
+    identity = canonical_identity(source_closure_wire(record)).uri
     with ExitStack() as stack:
         directory = os.open(actual, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
         stack.callback(os.close, directory)
@@ -181,10 +188,10 @@ def _held(root, journal, intent, lease, namespace, successor, record):
 
         def current():
             _bindings()
-            if canonical_identity(record).uri != identity:
+            if canonical_identity(source_closure_wire(record)).uri != identity:
                 _fail("original source closing record changed")
             _normal_current(root, journal, intent, lease, namespace, successor)
-            if canonical_identity(record).uri != identity:
+            if canonical_identity(source_closure_wire(record)).uri != identity:
                 _fail("original source record changed during normal closing check")
             actual = _location(root, journal, intent, record)
             observed = os.fstat(directory)
@@ -204,7 +211,7 @@ def _held(root, journal, intent, lease, namespace, successor, record):
                     or physical._file_record(fd) != record["coordination"][name]
                 ):
                     _fail("held source coordination inode changed")
-            if canonical_identity(record).uri != identity:
+            if canonical_identity(source_closure_wire(record)).uri != identity:
                 _fail("original source record changed during native closing check")
             _bindings()
 
@@ -245,7 +252,10 @@ def _close(root, journal, intent, component, lease, namespace, successor, move):
         if not os.path.lexists(path):
             data = (
                 canonical_json_bytes(
-                    {**record, "identity": canonical_identity(record).uri}
+                    {
+                        **source_closure_wire(record),
+                        "identity": canonical_identity(source_closure_wire(record)).uri,
+                    }
                 )
                 + b"\n"
             )
@@ -349,6 +359,8 @@ def _bind():
             "current_layout_lease",
             "require_layout_lease",
             "canonical_identity",
+            "_native_identity_guard",
+            "source_closure_wire",
             "canonical_json_bytes",
             "directory_node",
             "move_file_between_owned_parents_exclusive",
@@ -407,12 +419,24 @@ def _bind():
         )
         for name in names
     )
+    identity_guard = namespace["_native_identity_guard"]
+    identity_ports = tuple(
+        (function, function.__code__, function.__defaults__, function.__kwdefaults__)
+        for name, function in aliases
+        if name == "_native_identity_guard" or name in ("source_closure_wire",)
+    )
     error_type = ProjectLayoutPlanError
 
     def check():
         if (
             namespace.get("_bindings") is not check
             or any(namespace.get(name) is not original for name, original in aliases)
+            or any(
+                function.__code__ is not code
+                or function.__defaults__ is not defaults
+                or function.__kwdefaults__ is not keywords
+                for function, code, defaults, keywords in identity_ports
+            )
             or any(
                 vars(module).get(name) is not original
                 for module, name, original in delegates
@@ -422,6 +446,14 @@ def _bind():
                 "catalog_finalization_conflict",
                 "original fresh source-closing delegate changed",
             )
+
+        try:
+            identity_guard()
+        except ValueError as error:
+            raise error_type(
+                "catalog_finalization_conflict",
+                "original fresh source-closing delegate changed",
+            ) from error
 
     return check
 

@@ -1,0 +1,82 @@
+{
+  "status": "read-only-precise-failure-only-note-design-no-implementation",
+  "issue": 508,
+  "head": "55c31be8d4ae07b77aa5318e301ac44fc1f48842",
+  "source_sha256": {
+    "src/literate_ai/adapters/remote_cleanup.py": "72a303635dc42219f51a62028548472612527e56f4a309174b1d8de58e1c284f",
+    "src/literate_ai/adapters/evidence_files.py": "4cf4ae0ce51d5bd0130682a7516a50e27f2f3f1d5fa3b912a0bca1180affb699",
+    "src/literate_ai/adapters/windows_cleanup.py": "4a86cce4dddc3fe98aa92581ea340292c7e0ae30b7e72e3fbac4cdc8591a8bed",
+    "tests/critical/test_remote_cleanup_native.py": "48411f34e45657ac50ab0160992ea4a6114786b50405d0d61e71a371aab86d78",
+    "tests/critical/test_remote_cleanup_windows_handles.py": "6cfae8496c928ea431d028ca290fabf1a2e054aaa9cf92df40c05df17cd7227b",
+    "tests/smoke/test_worker_lease_management.py": "d85ec429bad4ca088497d097d3a93814d9ed1dcbe37c787847712f9ebd6a7423"
+  },
+  "scope": "Only original remote_cleanup._control initial opened-control mismatch, current215-218. No closingguard changes, newprotocol, nativeguard weakening or diagnosis inferred without actualvalues.",
+  "original_evaluation_order": [
+    "access.metadata((name,)) yields named node/native using original observer; regular/reparse/size checks unchanged.",
+    "access.open unchanged; inside original try opened=os.fstat(descriptor) once.",
+    "_descriptor_identity(access,descriptor) once, compare!=namednative. OnPOSIX this helper itself calls original os.fstat a SECONDtime; onWindows it queries existing native handle identity. Keep helpercall exactly, do not substitute opened.st_dev/ino.",
+    "On native mismatch OR shortcircuits: _signature called0times. Otherwise _signature(opened) then _signature(node), onecalleach, compareunchanged.",
+    "On mismatch original _fail(\"control changed during open\") exactlyonce; no contentread/jsonparse/hash/currentnessguard/yield occurs. Originalfinally os.close remains.",
+    "Success continues original contentloop/canonicalJSON and original2guards. Direct simple with-body-pass consumes10 cleanup._signature calls (2initial+4perguard*2); note code absent fromsuccess."
+  ],
+  "minimal_control_flow_pseudocode": [
+    "opened = os.fstat(descriptor)  # original call",
+    "observed_native = _descriptor_identity(access, descriptor)  # original exact call",
+    "native_changed = observed_native != native",
+    "if native_changed or (opened_signature := _signature(opened)) != (named_signature := _signature(node)):",
+    "    try: _fail(\"control changed during open\")  # retain original constructor/type/message",
+    "    except BaseException as original:",
+    "        try: [inline fixed primitive-only bounded note, if safely representable]",
+    "        except BaseException: pass  # optional formatting/note cannot mask original",
+    "        raise  # bare raise SAME original object; no replacement cause/message/status"
+  ],
+  "note_contents": {
+    "branch": "Fixed label native-identity or named/fd-signature. Use cachedcomparison result; nativebranch never evaluates signaturehelpers or metadataattributes.",
+    "native_branch": "Only cached native and observed_native primitive tuple/list values with exactcontainer/elementtypes, finite2/3length, exactint elements inside supported128bit bound. No path/name/env/credential/payload.",
+    "signature_branch": "Only cached opened_signature and named_signature exact7int tuples; fixedfieldorder mode,uid,gid,size,mtime_ns,ctime_ns,nlink. Mismatchfieldnames computed from cachedprimitiveinteger comparisons, not metadataobjects.",
+    "native_values_in_signature_branch": "Alreadycached named/observed nativeIDs may be included, no newquery.",
+    "bound": "Exacttype/length/integerwidth gates give finite stringsize; optional final note<=2048chars cap/omission acceptable. Use decimal primitive formatting, not canonicalJSON/nativeidhashing (unsignedIDs exceed signed64). Invalid/foreign-shaped diagnosticinput means omitnote entirely, never repr/str arbitraryobject or invoke metadata properties.",
+    "attachment": "Prefer unbound BaseException.add_note(original,text), avoiding instance/subclass add_note lookup. Actual expected RemoteCleanupError and original args/message/code remainunchanged. Notes onlyaugment failure evidence."
+  },
+  "dependency_guard_design": [
+    "Prefer inline primitive-only annotation at original failure site: no newmutableglobal observer/formatter callback, no extra original owner/helper calls. Builtin unbound add_note descriptor rather than original.add_note dynamicdispatch.",
+    "If factoring a helper for maintainability, capture its originalfunction identity/code/defaults/kwdefaults and the originalunbound builtin note descriptor at ownerimport boundary, include actualused primitive dependencybindings; never resolve replacementhelper frommutablemoduleglobal afterfailure.",
+    "On optionaldiagnostic helper/binding/code drift, OMITthe note and bare-raise originalrefusal; diagnosticguard must not mask/replaceoriginal RemoteCleanupError or authorizecontinuation. Do not add generic recursive guard framework or newliveowner.",
+    "Do not invoke newcallbacks inside _signature, access.metadata, nativehelper, currentnessguards or hashloops. Their original callcounts/shortcircuit/order remain unchanged.",
+    "Current remote_cleanup._control is plaincontextmanager with original global _fail/_signature/nativeaccess path; no existing caller-private code-seal requiring same prechange codeobject was found in inspected actual consumers. Sourceedit will naturally create new imported code; no runtime __code__patch or pin refresh byreviewer."
+  ],
+  "meaningful_test_recommendations": [
+    {
+      "case": "Native-ID mismatch through real owned canonical control",
+      "seam": "Transparent _descriptor_identity wrapper forwards exactoriginalquery once then returns modeled differentprimitive ID, not foreignIO. _signature spy mustsee0; contentread/hash/guard/yield0; expected originalfiledescriptor close observed once. Assertexact originalRemoteCleanupError args/message/type and diagnosticexpected/observedbranch; workspace/controlbytes/inodes preserved."
+    },
+    {
+      "case": "Signature mismatch through originalsignature wrapper",
+      "seam": "Forward both original calls in originalorder, alteronly returned cachedctime primitive in openedfirstresult. Assert2_signaturecalls total, no additional descriptor/fstat/lstat/read/hash/currentness calls for formatting; note labelsctime exactly and carries cachedvalues. This is modeled predicate fault, NOT realWindowsclockproof."
+    },
+    {
+      "case": "Success path operation counts",
+      "seam": "Actual _control with canonicalJSON and transparent forwardingspies; directbodypass expected10cleanup._signaturecalls and1_descriptor_identity, sameoriginal explicitfilefstatcounts. Count actualaccess/nativeops without replacingguards; no note emitted and exactvalue/nativefacts yielded."
+    },
+    {
+      "case": "Diagnostic failure/foreign-shaped values",
+      "seam": "Use primitive-type validation controls to prove foreignrepr/format/getattr/add_note overrides nevercalled; omission leaves exactoriginalexception/cleanup. If factoredhelper, alias/code/defaultreplacement omitted beforeforeignCALLS; if notesink fault is controllablyinjected at originalcaptured testseam, bare-raiseoriginal object. Avoid inventing injectableproductioncallback solelyfortest."
+    },
+    {
+      "case": "Existing refusal/retirement controls",
+      "seam": "Run original test_remote_cleanup_native.py, Windowsfacadecontrols and WorkerLeaseTests terminalcleanup/health/lostreply controls with everyoriginalassertion/deadline; keep FIFO/replacement/concurrentprivatefile/no-delete-on-uncertain checks. Actual nativeWindows source-shard firstfailedguard mustproduceprecomputednote to identify actualfield; genericstandaloneAPI sample is notproof."
+    }
+  ],
+  "no_extra_counts": [
+    "No added lstat/fstat/open/close/read/seek/nativehandlequery, actualreadguard/currentnesscallback, process, clock, JSONparse/encode or hash call. Diagnosticformatting uses only fixedlabels and exactcachedprimitives.",
+    "Original explicit openedfstat and descriptorhelper internalPOSIXfstat are both retained; all Windowsmetadata nativeIDqueries/parentchecks remain original.",
+    "No repeatedfullsignature evaluation for notes. Signatureaccesses stay skippedonnativemismatch.",
+    "No new payload/source/config read, callback timer or active-runs mutation."
+  ],
+  "limits": [
+    "No source/test edits, jobs/reruns/posts/nativeprobes or project/prefixmutation byreviewer.",
+    "No actualWindows guardvalues observed; no ctime/identity mismatch diagnosis accepted from design.",
+    "No ctime removal, tolerance/coercion, relaxedguard, skips/deadlinechanges or cleanupauthority.",
+    "Root507 broadsourcefreeze and actual installedhistorical workflow nottouched; releasequalification remainsopen."
+  ]
+}

@@ -2274,5 +2274,197 @@
       "verification/release-1.4-followup/review-contracts-507-lossless-wire-design-r1.json",
       "verification/release-1.4-followup/review-authority-507-wrapper-wire-source-r1.json"
     ]
+  },
+  "qualification_followup_r24": {
+    "created_utc": "2026-11-27T20:05:53.280545+00:00",
+    "issues": [
+      507,
+      510
+    ],
+    "status": "507 complete catalog wire source independently reviewed and 208 scoped controls pass0skip; actual Windows and release acceptance open. Historical catalog finalization passes; next documentation review blocked510.",
+    "source_repair": "Explicit schema-owned E/D native-ID projections at plan/private intent/renewal/closure/pair/receipt boundaries; no in-place mutation of hashed data. Original private views retain native integers and every native comparison/move/lease/custody guard. Import-time helper baseline cannot be refreshed by later binders; used module/builtin slots and code/default/kwdefault contents sealed. Context guard rechecks at enter.",
+    "reports": {
+      "successor-catalog-r24e-report.json": {
+        "sha256": "3c5cdac6f1bfa57c764fbe16cca26a420ed6845563757b7bca60c8bf934292d5",
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        }
+      },
+      "successor-framework-r24e-report.json": {
+        "sha256": "b94c1cca4dc76bbe5db9a9e3d48c1de83de63119fbe1f652773cabe8231cb077",
+        "summary": {
+          "executed": 122,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 122,
+          "selected": 122,
+          "skipped": 0
+        }
+      },
+      "successor-initialized-r24e-report.json": {
+        "sha256": "6bb05bc2040549e0d47df276336305bba44cdbcccd34617026c7e5afdaf9cad0",
+        "summary": {
+          "executed": 18,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 18,
+          "selected": 18,
+          "skipped": 0
+        }
+      },
+      "successor-membership-r24e-report.json": {
+        "sha256": "19a585cde80b49354e2a596ae03962d17918e04e5507e6ef43d0cf2d83efdb15",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      },
+      "successor-mixed-r24e-report.json": {
+        "sha256": "82e06f785ded7198798cac1823bc92884267b04479235127bbab921fd2442d66",
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        }
+      },
+      "successor-physical-r24e-report.json": {
+        "sha256": "dbcf77de9794e0a6b381671cbd7fc69e96663d2697f2b84ce57f89ae90be348d",
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        }
+      },
+      "successor-public-r24e-report.json": {
+        "sha256": "545225ded197ef58ecd008d6d683798d956b8fc64e04681045f9b77b916c2ad1",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        }
+      },
+      "catalog-native-identity-r24-report.json": {
+        "sha256": "c01bb24b830a1e3ba6e27f3b9a0f72de5e223acf806a0ebbf9aefe68358e5c16",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        }
+      },
+      "catalog-native-identity-r24b-report.json": {
+        "sha256": "1963c78db0e899f88248b191973cc9dea8a19e9fe27ccdb009c8c8bb482c0c73",
+        "summary": {
+          "executed": 7,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 9,
+          "skipped": 0
+        }
+      },
+      "catalog-native-identity-r24c-report.json": {
+        "sha256": "eb453abb9870f593bb6866cd67ade4a84dd80decb8445f192b0dbf46ec5e5bb9",
+        "summary": {
+          "executed": 10,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 10,
+          "selected": 10,
+          "skipped": 0
+        }
+      },
+      "catalog-native-identity-r24d-report.json": {
+        "sha256": "9bc3cf427a216c78ed483665d2640322b5c7a97efb9f464c0fd94dcd0531ae43",
+        "summary": {
+          "executed": 11,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 11,
+          "skipped": 0
+        }
+      },
+      "catalog-native-identity-r24f-report.json": {
+        "sha256": "c28a1cff7dd1734ae98f8671b98b14584710a80ab69c8671650e5586a5ebe01c",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      }
+    },
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-507-native-view-projection-design-r2.json",
+      "verification/release-1.4-followup/review-contracts-507-catalog-wire-closure-r24-r1.json",
+      "verification/release-1.4-followup/review-authority-507-catalog-source-r24-findings-r1.json",
+      "verification/release-1.4-followup/review-authority-507-catalog-source-r24-findings-r2.json",
+      "verification/release-1.4-followup/review-authority-507-catalog-source-r24-closure-r3.json",
+      "verification/release-1.4-followup/review-authority-507-final-test-source-r24-r4.json",
+      "verification/release-1.4-followup/historical-layout-r21-catalog-finalize-review-preparation-r1.json",
+      "verification/release-1.4-followup/historical-layout-r21-catalog-finalize-review-r1.json",
+      "verification/release-1.4-followup/review-authority-510-mixed-wrapper-coordinate-design-r1.json",
+      "verification/release-1.4-followup/review-contracts-508-original-guard-note-design-r2.json"
+    ],
+    "preserved_development_failures": "r24b original run selected9, executed7 with6pass1error and2unexecuted: new provenance fixture called _stage with3 instead of5args and probed unrelated renewal/closure helpers through that owner. Fixed actual consumer controls and exact signature, no original assertions changed. r1/r2 late-import fresh-baseline findings retained, fixed by import-time module/scalar/global+effective-builtin baseline. Initial schema trailing-LF gap fixed with true-end assertion. E731 lambda assignment fixed only after broad run terminal; final12 adds NT3model coverage.",
+    "historical_finalization": {
+      "candidate_source": "e0ed424699155877ec9a72071f5b1b5920bdd2c1",
+      "wheel_sha256": "62b399b33417424b0c2e57eb37276e8e5273a270e371d404269254e82c104a39",
+      "execution": {
+        "argv": [
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r21/environment/bin/python",
+          "-I",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r21/environment/bin/litai",
+          "--json",
+          "project",
+          "layout",
+          "finalize",
+          "--place-imported-catalogs",
+          "--acknowledge",
+          "--plan-identity",
+          "sha256:0a083149cd38189d11b86dbb7a8e72248cc779498e76752287a1e548ecfec915",
+          "--successor-plan-identity",
+          "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+          "--project",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+        ],
+        "exit": 0,
+        "seconds": 1799.6227332149865,
+        "timeout_seconds": 1800
+      },
+      "independent_readback": "closed; all8sourcearchives,249catalogjoins,37frameworkoutputs,613originalfiles/native6/Git/receipt/policy/oldStandard preserved",
+      "limits": "Qualification/full_containment remainfalse. This source is the immutable earlier candidate, not current dirty507source or whole-wheel/native-matrix acceptance."
+    },
+    "next_historical_failure": {
+      "issue": 510,
+      "error": "retained_receipt.wrapper_invalid: retained harness wrapper is unavailable",
+      "cause": "Current mixed component_roots retains original implementation but resolver chooses root wrapper instead of exact placed litai/litai.harness.mk; paired typed initialization data already records moved wrapper coordinates.",
+      "preserved_usage_error": "First docreview attempt passed unsupported --project and was rejected before effects; corrected cwd-only public command reaches actual product failure. No unchanged failure rerun, handpins or project workaround."
+    },
+    "next": "Complete source authority gates and commit507; implement reviewed510finite provenance resolver and qualify preserved actual installed journey through normal docs/Standard/freshreceipt. Add508originalguarddiagnostics before next nativecandidate.",
+    "limits": "All83originalgoals retained. Included510under existing1.4.0 integration scope, no deferral, issueclosure, merge, prepare, tag or publication. Native Windows, original remaining CI failures/skips and all other release goals remain open."
   }
 }

@@ -22,11 +22,29 @@ from literate_ai.adapters.exclusive_directory import directory_node
 from literate_ai.adapters.project_layout_component_transition import (
     require_original_inherited_component_transition as _admit_inherited_component,
 )
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_boundaries as _bind_native_identity_boundaries,
+)
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_calls as _bind_native_identity_calls,
+)
+from literate_ai.adapters.project_layout_native_identity import (
+    catalog_intent_native,
+    catalog_intent_wire,
+    native_node,
+)
 from literate_ai.adapters.project_layout_operation_custody import (
     hold_migration_namespaces,
 )
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.paths import canonical_relative_posix_path
+
+globals().update(
+    _bind_native_identity_calls(
+        globals(), ("catalog_intent_native", "catalog_intent_wire", "native_node")
+    )
+)
+del _bind_native_identity_calls
 
 _PLAN = "literate-ai/project-layout-catalog-continuation@1"
 _JOURNAL_V1 = "literate-ai/project-layout-catalog-continuation-journal@1"
@@ -88,7 +106,7 @@ def journal_path(root, expected):
 def _guard(root, plan):
     owner = _owner()
     owner._guard_git(root, plan)
-    if list(directory_node(root / "litai")) != plan["framework_node"]:
+    if list(directory_node(root / "litai")) != native_node(plan["framework_node"]):
         _fail("plan_stale", "the existing framework directory changed")
     owner._require_framework_git_boundary(root, root / "litai")
 
@@ -105,8 +123,8 @@ def _entries(plan):
         {k: v for k, v in plan.items() if k != "plan_identity"}
     ).uri != plan.get("plan_identity"):
         _fail("recovery_conflict", "catalog continuation plan identity changed")
-    _node(plan.get("root_node"), directory=True)
-    _node(plan.get("framework_node"), directory=True)
+    _node(native_node(plan.get("root_node")), directory=True)
+    _node(native_node(plan.get("framework_node")), directory=True)
     result, destinations = {}, set()
     for group in ("placements", "resident_edits", "reference_edits"):
         values = plan.get(group)
@@ -579,10 +597,13 @@ def _guard_journal(
     successor=None,
     recovering=False,
 ):
-    expected_document = {**intent, "identity": canonical_identity(intent).uri}
+    expected_document = {
+        **intent,
+        "identity": canonical_identity(catalog_intent_wire(intent)).uri,
+    }
     if (
         _owner()._file(journal / "intent.json")[1]
-        != canonical_json_bytes(expected_document) + b"\n"
+        != canonical_json_bytes(catalog_intent_wire(expected_document)) + b"\n"
     ):
         _fail("recovery_conflict", "catalog intent document changed")
     if list(directory_node(journal)) != intent["journal_node"]:
@@ -1057,8 +1078,11 @@ def _stage(root, selection, namespace, components, witnesses):
             for name in _journal_directories(_JOURNAL)
         },
     }
-    intent["identity"] = canonical_identity(intent).uri
-    owner._write(incoming / "intent.json", canonical_json_bytes(intent) + b"\n")
+    intent["identity"] = canonical_identity(catalog_intent_wire(intent)).uri
+    owner._write(
+        incoming / "intent.json",
+        canonical_json_bytes(catalog_intent_wire(intent)) + b"\n",
+    )
     intent.pop("identity")
     for directory, _, _ in os.walk(incoming, topdown=False):
         owner._flush(Path(directory))
@@ -1089,6 +1113,7 @@ def _decode_intent(root, expected):
             or canonical_identity(intent).uri != identity
         ):
             raise ValueError("catalog journal identity changed")
+        intent = catalog_intent_native(intent)
         if set(intent) != {
             "schema",
             "plan",
@@ -1257,10 +1282,9 @@ def _decode_intent(root, expected):
             if coordinate != ".":
                 _relative(coordinate)
             _node(node, directory=True)
-        if (
-            original["."] != intent["plan"]["root_node"]
-            or original.get("litai") != intent["plan"]["framework_node"]
-        ):
+        if original["."] != native_node(intent["plan"]["root_node"]) or original.get(
+            "litai"
+        ) != native_node(intent["plan"]["framework_node"]):
             raise ValueError("catalog root directory bindings differ")
         ordered_new = sorted(new, key=lambda name: (len(Path(name).parts), name))
         for ordinal, coordinate in enumerate(ordered_new):
@@ -1925,7 +1949,7 @@ def _bind_catalog_recovery(query):
                 # The independent producer history restores exact placed inodes
                 # before original catalog recovery validates its own postimages.
                 # No import/lease work for original journals without renewal data.
-                identity = canonical_identity(intent).uri
+                identity = canonical_identity(catalog_intent_wire(intent)).uri
                 renewals = (
                     root
                     / "litai/.literate"
@@ -2153,3 +2177,11 @@ def _bind_catalog_recovery(query):
 
 
 recover_catalog_continuation = _bind_catalog_recovery(_successor_directory_query)
+
+
+globals().update(
+    _bind_native_identity_boundaries(
+        globals(), ("_entries", "_guard", "_guard_journal", "_stage", "_decode_intent")
+    )
+)
+del _bind_native_identity_boundaries

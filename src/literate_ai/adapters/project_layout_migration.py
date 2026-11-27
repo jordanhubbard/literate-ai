@@ -15,7 +15,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit, urlunsplit
 
 from literate_ai._cache_lock import exclusive_cache_lock
-from literate_ai._filesystem import require_safe_directory
+from literate_ai._filesystem import require_safe_directory, stat_identity_value
 from literate_ai.adapters.catalog_import import _contained_catalog_records
 from literate_ai.adapters.conversion_authority import FilesystemConversionAuthorityStore
 from literate_ai.adapters.exclusive_directory import (
@@ -28,6 +28,12 @@ from literate_ai.adapters.project_layout_filesystem import (
     flush_migration_directory,
     read_migration_file,
     write_migration_file,
+)
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_boundaries as _bind_native_identity_boundaries,
+)
+from literate_ai.adapters.project_layout_native_identity import (
+    bind_native_identity_calls as _bind_native_identity_calls,
 )
 from literate_ai.adapters.project_layout_planning import (
     _MAX_FILE_BYTES,
@@ -70,6 +76,9 @@ from literate_ai.test_receipts import (
     _parse_tracked,
     _policy_mismatch,
 )
+
+globals().update(_bind_native_identity_calls(globals(), ("stat_identity_value",)))
+del _bind_native_identity_calls
 
 SCHEMA = "literate-ai/project-layout-migration@1"
 JOURNAL_SCHEMA = "literate-ai/project-layout-migration-journal@1"
@@ -788,10 +797,9 @@ def _journal(root: Path, git_dir: Path, plan: dict, content: dict) -> tuple[Path
 
 
 def _guard_git(root: Path, plan: dict) -> None:
-    if (
-        list(directory_node(root)) != plan["root_node"]
-        or _git_state(root) != plan["git_state"]
-    ):
+    if [stat_identity_value(value) for value in directory_node(root)] != plan[
+        "root_node"
+    ] or _git_state(root) != plan["git_state"]:
         _fail(
             "plan_stale",
             "worktree root, HEAD or index changed; inspect before recovery",
@@ -1082,3 +1090,7 @@ def recover_legacy_layout_migration(
         "rolled_back": True,
         "journal": str(archive),
     }
+
+
+globals().update(_bind_native_identity_boundaries(globals(), ("_guard_git",)))
+del _bind_native_identity_boundaries

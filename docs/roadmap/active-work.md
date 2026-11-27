@@ -24452,7 +24452,13 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   zero-call negative control. Final source review is closed; all 12 reference-target
   controls and all 12 composition/recovery controls pass on the final source,
   with zero skips. These remain scoped development results.
-  Next: complete source gates and the frozen installed historical readback.
+  The immutable installed `e0ed42469` candidate now completes the preserved
+  historical catalog finalization within the original 1800-second deadline.
+  Independent readback verifies eight exact source archives, all 249 catalog
+  joins, 37 framework outputs and 613 original files, including native source,
+  Git, receipt and policy preservation. This does not complete lifecycle renewal:
+  the next normal documentation review reaches the mixed-root wrapper lookup
+  defect tracked in [#510](https://github.com/jordanhubbard/literate-ai/issues/510).
   All 83 goals remain;
   #509 is included in the existing 1.4.0 integration scope, with no deferral.
   [#504](https://github.com/jordanhubbard/literate-ai/issues/504) owns the missing
@@ -24483,10 +24489,22 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   cover seven leaf stamps, unchanged ordinary identity bytes, wide-ID roundtrips,
   changed-ID hashes and helper tampering. All six new controls pass with zero
   skips; independent wrapper source review is closed with no findings.
-  Catalog plan/journal/renewal/source-closure wire joins and native Windows
-  readback remain open; the issue is not closed by the wrapper repair alone.
+  Catalog plans, private journals, renewal, pair publication, source closure and
+  public receipt identities now use explicit wire projections, with separate
+  native integer copies and the original live comparisons and move boundaries.
+  Independent source/schema reviews are closed. All 196 original layout/recovery
+  controls and 12 final wire/provenance controls pass with zero skips. The latter
+  include three-part Windows control IDs as modeled data, not native Windows
+  qualification. Actual Windows readback and full release acceptance remain open.
   [#508](https://github.com/jordanhubbard/literate-ai/issues/508) owns native
   Windows control observations; actual mismatched fields remain unproven.
+  [#510](https://github.com/jordanhubbard/literate-ai/issues/510) owns the next
+  genuine historical upgrade failure: normal documentation review cannot find
+  the placed wrapper when both original and contained catalog roots remain
+  declared. The tree is preserved after successful finalization. A reviewed
+  design uses the existing paired initialization provenance for finite wrapper
+  metadata selection, preserving original transitional behavior and implementation
+  coordinates. Implementation and fresh lifecycle receipt remain open.
   Next: integrate these repairs with original guards and deadlines, obtain native
   evidence, then repeat exact-candidate qualification. Full `df6` CI is terminal
   (33 success, 22 failure, one cancellation). All failed jobs and 1,751 original
@@ -24529,9 +24547,10 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   published outputs and 577 other original files, preserving native application,
   receipt, Git and prior catalog archives. Original wrapper `host` renewal is
   current with no writes. Framework finalization succeeds and independent review
-  verifies the exact three archived source-control inodes. Catalog finalization
-  remains blocked by #503; normal downstream documentation/Standard/receipt
-  acceptance remains open.
+  verifies the exact three archived source-control inodes. That initial catalog
+  finalization failed at #503. The subsequent installed `e0ed42469` repair completes
+  it with independent readback closed. Normal downstream documentation/Standard/
+  receipt acceptance remains blocked by #510 and is still open.
   Optional external policy-parser shapes remain unsupported as documented;
   source closure does not complete their admission or the full release goal.
   Independent review verifies the provisional wheel's 1,637 package members,

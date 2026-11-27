@@ -1,0 +1,53 @@
+{
+  "review": "507 final test/source refresh r24 r4",
+  "created_utc": "2026-11-27T20:05:01.332808+00:00",
+  "status": "narrow source/test review closed; no actionable findings",
+  "findings": [],
+  "files_sha256": {
+    "src/literate_ai/adapters/project_layout_native_identity.py": "16f1f15fdbe49f50b9e505e0351db354d770e63f6c40431f086b3193a83419da",
+    "src/literate_ai/adapters/component_namespace_closing.py": "dd79c946b00d8217e8e0ca8f1366d18c8c8deb96d8dd33ba2a7b6500aa5d6d91",
+    "src/literate_ai/adapters/project_layout_catalog_continuation.py": "92f6b8f3e84e1fb5c7f355d358059d1fd2d8588e54f40ab197acbb5fd0293abf",
+    "src/literate_ai/adapters/project_layout_catalog_finalization.py": "489b447d476d69560164562cd2122f3e0c9b90c3b1a38b72df544d675bf9c529",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "fcf52eb7e90a4dd7f67102769cc5fc3417a387c9dd9839afe42fba8e2dbb1117",
+    "src/literate_ai/adapters/project_layout_continuation.py": "ad4555154491cbfe3eaded2fedf980cc09acce085921d6c9e92ee860c44fcba6",
+    "src/literate_ai/adapters/project_layout_migration.py": "3e9520d2c1cf9a8f687cd423bca65ed8f6d8d733420bfe778f1bfb0e4e734a16",
+    "src/literate_ai/adapters/project_layout_pair_publication.py": "ed31c183acd3f7910be38e153ee9ef97525ff289fca12417c934dec6559404c3",
+    "src/literate_ai/cli/layout_component_commands.py": "aea9b9cdad47b8830dbdcb12cff5f7f2b955cb52b8438e94f9ffd0de7bb80bd4",
+    "schemas/v2/project-layout-catalog-continuation.schema.json": "224a41f960c1e41cfaf4dc58126aa1e5832f303439cdc183ec47f4aeb52d7cab",
+    "tests/critical/test_catalog_native_identity.py": "f3e6d279151f51740b31dadaebcbd1f2d4278a9b55c7b8ad8ac98df1a2a55a98"
+  },
+  "changed_since_r3": [
+    "tests/critical/test_catalog_native_identity.py"
+  ],
+  "production_source_unchanged": true,
+  "reviewed_delta": [
+    "Assigned closure lambda replaced by nested no-argument def returning the identical closing.read_source_namespace_record(None,None,None) call. It captures no changing loop variable; call/exception behavior is equivalent.",
+    "New Windows-shaped native key data control uses three distinct wide exact integers, populates coordination and source_coordination, checks all three key elements encoded as exact decimal strings while row mode and node[2] remain integers, decodes serialized canonical JSON to exact original record equality and checks raw key preservation.",
+    "This control distinguishes Windows three-part native keys from the three-field stat node whose third field is mode. It exercises E/D data semantics only, with no native Windows custody/admission claim."
+  ],
+  "prior_source_review": "All production/schema hashes exactly match r3 reviewed closure, retaining original finite E/D map and sealed original dependency baseline.",
+  "validation": {
+    "reviewer": "No tests, jobs, edits or posts. Static source/test refresh and exact hash comparison only.",
+    "parent_reported_originals": {
+      "passed": 196,
+      "skipped": 0,
+      "reports": 7,
+      "cohorts": {
+        "framework": 122,
+        "catalog": 30,
+        "mixed": 2,
+        "public": 5,
+        "initialized": 18,
+        "physical": 7,
+        "membership": 12
+      },
+      "tool_session": 99928,
+      "exit_code": 0
+    },
+    "parent_reported_new_controls": "Final twelve-control cohort running at review request; terminal status not independently inspected. Earlier eleven controls passed, zero skips.",
+    "limits": [
+      "Actual changed-source native Windows still pending.",
+      "No issue507 closure or full installed/native release acceptance claimed."
+    ]
+  }
+}
