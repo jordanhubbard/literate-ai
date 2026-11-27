@@ -162,6 +162,26 @@ class RetainedReadmissionPublicationOwnerTests(unittest.TestCase):
         reopened.rollback(acknowledgement=plan["identity"])
         self.assert_original()
 
+    def test_live_rollback_preserves_owner_deletion_until_acknowledged_recovery(self):
+        owner = self.create()
+        self.publish(owner)
+        target = self.root / "a.json"
+        target.unlink()
+        with self.assertRaisesRegex(
+            publication.ReadmissionPublicationError, "recovery_required"
+        ):
+            owner.rollback()
+        self.assertFalse(target.exists())
+        companion = self.root / "b.json"
+        self.assertEqual(companion.read_bytes(), self.before["b.json"])
+        self.assertEqual(companion.stat().st_ino, self.original["b.json"])
+        self.assertTrue((self.root / publication.ACTIVE).is_file())
+        reopened = publication.ReadmissionPublication.open_pending(self.root)
+        plan = reopened.recovery_plan()
+        self.assertTrue(plan["can_rollback"])
+        reopened.rollback(acknowledgement=plan["identity"])
+        self.assert_original()
+
     def test_same_byte_active_marker_replacement_refuses_without_effects(self):
         owner = self.create()
         active = self.root / publication.ACTIVE

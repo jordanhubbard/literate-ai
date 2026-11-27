@@ -171,3 +171,20 @@ a later accepted baseline. Initial publication closes its known
 written outputs after validation within its ordinary rollback span.
 Ordinary failure restores only still-owned bytes. Full root/initial/wrapper/public
 relocation and installed/native acceptance remain under ADR 0057's open owner.
+
+## Authored authority during harness readmission
+
+Retained-harness readmission preserves existing shim files byte for byte, except
+for one unambiguous generated baseline-summary paragraph in the wrapper
+Component. The plan exposes the summary's before/after facts. Missing or duplicate
+summaries refuse before execution; quoted Markdown examples do not grant ownership.
+The same rule applies to legacy and contained scaffold coordinates.
+
+Referenced specifications, interfaces, contracts, Flavors, workflows and routing
+remain pinned through qualification and publication. The authority comparison
+excludes only this operation's declared outputs, and recording the updated review
+binds both the expected authority identity and the original review-document bytes.
+The current publication journal guards every replacement. A late owner edit,
+deletion or nonregular replacement remains untouched; retained originals and the
+reviewed plan remain available for explicit acknowledged recovery. Readmission
+does not grant specification or release authority.

@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "77ae49d42e08363b926bf45d9d60ea7156878da0",
+  "continued_subject": "645c19f75511513b7e6e84380ff87325a9355928",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -974,7 +974,8 @@
       {
         "label": "head-authority496",
         "commit": "1044bc65e186a0bd91351b7225547902dedf4896",
-        "disposition": "preserved-for-reconciliation"
+        "disposition": "merged",
+        "reconciliation_subject": "645c19f75511513b7e6e84380ff87325a9355928"
       },
       {
         "label": "head-batch17",
@@ -1008,16 +1009,8 @@
       }
     ],
     "committed_head_counts": {
-      "merged": 4,
-      "preserved-for-reconciliation": 3
-    },
-    "pending_head_work": {
-      "label": "head-authority496",
-      "checkout": ".worktrees/hand49",
-      "head": "8921730f5889c3eb23af26abb09ac27bf21d8b91",
-      "merge_head": "1044bc65e186a0bd91351b7225547902dedf4896",
-      "pending_index_receipt_sha256": "7b5405927b87e73533deb48ec9ee2dcea49c4cb7e28d9a01be139bba3065e7d5",
-      "scope": "Uncommitted partial reconciliation only. Source conflicts currently resolved to current code, but authored-preservation implementation is still missing. Staged 484-line historical regression additions and 107-line installed probe must be retained and reconciled with modern namespace/journal owners. Do not commit this partial tree as a completed merge."
+      "merged": 5,
+      "preserved-for-reconciliation": 2
     }
   },
   "checks": {
@@ -1579,10 +1572,82 @@
       "log_sha256": "2e98734470a76f745ad60d0bef5f0bc289845f11535ed1114b97297f75d2534e",
       "production_sha256": "2274aa57fe65661db07c7c4d213e02d5e623c0291b8d555112a954cea7aaf8be",
       "scope": "Recovered authored-shim preservation test from the pending historical head runs against canonical current production modules with matching installed origin. Actual readmission planning proposes different replacement identities for existing authored shim content. Not a startup/origin refusal and not an apply success."
+    },
+    "reconciled_authored_authority": {
+      "status": "source controls passed; exact-commit installed probe pending",
+      "subject": "645c19f75511513b7e6e84380ff87325a9355928",
+      "source": {
+        "summary": {
+          "executed": 18,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 18,
+          "selected": 18,
+          "skipped": 0
+        },
+        "seconds": 301.909,
+        "log_sha256": "919ece5da33b35c9cefabf1aedb7833eeb882c4df9435ed49e31b118b6c14732",
+        "report_sha256": "b73dda4087eeb0ba342d303e54d2baa9c690604dc1e4cb0f082e0c9f32aec543"
+      },
+      "inputs": {
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "seconds": 4.205,
+        "log_sha256": "97b2ad5a71b4b979af459aeb602983de0cc1f1d23b382679200481c685f34956",
+        "report_sha256": "213c3037cde6490b1a76464e8b1a08a045570703815be14a649ec751cb128c0e"
+      },
+      "owner": {
+        "summary": {
+          "executed": 19,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 19,
+          "selected": 19,
+          "skipped": 0
+        },
+        "seconds": 6.002,
+        "log_sha256": "e16754915a76f2bdf67bc29cea12e57d7a79ffc0aacaac47cac05ccf999f436e",
+        "report_sha256": "93ac16a484540e7a113bab53b0f1cd0db3db615454fb78e5b809183a0a87a749"
+      },
+      "fixture_sha256": "8eaf054ac6b4414de4bae5c66f42ccf152ec80d14e992bef60511719c32678af",
+      "scope": "Legacy and actual contained readmission preserve all authored shim bytes except one recognized generated baseline summary. Exact full-inventory and referenced-input guards compose with modern per-write publication custody; live rollback preserves owner deletion and exact acknowledged recovery remains available. Original owner-byte/type and source-membership assertions preserved. Failed publication retains exact reviewed-plan history; prepublication failures still leave no history. No original source commands, deadlines, validation guards or authority pins relaxed.",
+      "existing_failures": {
+        "refined_command": {
+          "canonical_seconds": 6.716,
+          "scratch_seconds": 8.354,
+          "error": "FileNotFoundError for legacy root installation metadata in current contained fixture",
+          "canonical_log_sha256": "fb2f7aaa4b486b77c1c7b46b9e72f7d457f2c2c0f445d319f0f506f69affe746"
+        },
+        "initialization": {
+          "canonical_seconds": 4.294,
+          "scratch_seconds": 4.983,
+          "error": "Old root .gitignore assertion after default contained conversion",
+          "canonical_log_sha256": "3ac0cef4029da26ce6e5984583fdb48c664496e0b2efc93a91b861ee63efb15c"
+        },
+        "project_cli": {
+          "canonical_seconds": 3.262,
+          "scratch_seconds": 2.946,
+          "error": "Old root documentation path in review fixture",
+          "canonical_log_sha256": "7d0ea18504642ca3a235ce4e420104cd84da8ffc0ef64e35083e61a726295648"
+        },
+        "repository_style": {
+          "error": "Nineteen existing long lines in untouched installed-parent helper",
+          "log_sha256": "fec4f904676bb1242f62459c48dac5f427ded57e369ed55c8b58a1a686359ec3",
+          "changed_files_lint_and_format": "passed"
+        }
+      },
+      "prior_failed_attempts": "Preserved original ownership-regex, refined-membership and old empty-history diagnostic failures; no failed run presented as qualification. Final source module passes all eighteen cases.",
+      "release_evidence": false
     }
   },
   "remaining_requirements": [
-    "Reconcile the 37 preserved source snapshots and three remaining committed clean heads. Next, port head-authority496 authored-shim preservation and its reviewed baseline-summary ownership into current namespace-aware journaled readmission; retain its original regression/installed probes and modern recovery semantics.",
+    "Reconcile the 37 preserved source snapshots and two remaining committed clean heads. Qualify exact-commit installed authored-readmission probe and resulting composed source. Preserve modern namespace, role-observation and journal guards when integrating remaining proposals.",
     "Complete resulting composed-source qualification. Fourteen Cargo cases pass at f0a5da8eb; later retained-release/fixture changes have their own bounded controls. Diagnose canonical source metadata publication role-input refusal before the recovered forest capacity assertions; do not weaken its guards or expand declared budgets.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."

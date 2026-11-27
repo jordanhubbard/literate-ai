@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Preserve authored retained-wrapper requirements, interfaces and shim metadata
+  during harness readmission. Update only one recognized generated baseline
+  summary, fence referenced authority through publication, and retain foreign
+  edits or deletions for explicit recovery.
+
 - Bind retained release-policy inputs to the existing owner's declared root or
   contained path, preserving exact byte identity, ambiguity refusal and normal
   initialization/conversion eligibility checks.

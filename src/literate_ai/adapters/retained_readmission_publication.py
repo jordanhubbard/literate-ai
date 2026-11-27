@@ -1040,6 +1040,12 @@ class ReadmissionPublication:
             path = self.root / name
             if self._matches(original, path):
                 continue
+            # Ordinary failure rollback must not undo another actor's deletion.
+            # A reopened owner can restore absence only after exact recovery
+            # acknowledgement; original pins and evidence remain available.
+            if not self.reopened and not os.path.lexists(path):
+                foreign.append(name)
+                continue
             owned = next(
                 (
                     step["after"]
