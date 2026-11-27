@@ -87,6 +87,95 @@ if missing or not guard.is_file():
 print(json.dumps({"guard": True, "project_template": list(required)}, sort_keys=True))
 """
 
+INSTALLED_READMISSION_AUTHORITY_PROBE = """
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import sysconfig
+import unittest
+from pathlib import Path
+import literate_ai
+
+prefix = Path(sys.prefix).resolve(strict=True)
+if not sys.flags.isolated or sys.prefix == sys.base_prefix:
+    raise RuntimeError("isolated installed interpreter required")
+
+def require_installed_origins():
+    for name, module in tuple(sys.modules.items()):
+        filename = getattr(module, "__file__", None)
+        if (name == "literate_ai" or name.startswith("literate_ai.")) and filename:
+            if not Path(filename).resolve(strict=True).is_relative_to(prefix):
+                raise RuntimeError(
+                    "readmission imported framework outside installation"
+                )
+
+require_installed_origins()
+repository = Path(sys.argv[1]).resolve(strict=True)
+fixture = repository / "tests/e2e/test_retained_harness_readmission.py"
+fixture_identity = hashlib.sha256(fixture.read_bytes()).hexdigest()
+# Add only the maintained test package, with no checkout src/ on sys.path.
+sys.path.insert(0, str(repository))
+from tests.e2e.test_retained_harness_readmission import RetainedHarnessReadmissionTests
+
+launcher = Path(sysconfig.get_path("scripts")) / (
+    "litai.exe" if os.name == "nt" else "litai"
+)
+environment = dict(os.environ)
+for key in ("PYTHONPATH", "PYTHONHOME", "VIRTUAL_ENV", "PYTHONPYCACHEPREFIX",
+            "__PYVENV_LAUNCHER__"):
+    environment.pop(key, None)
+console_calls = []
+
+class InstalledConsolePreservation(RetainedHarnessReadmissionTests):
+    def invoke(self, *arguments):
+        completed = subprocess.run(
+            [str(launcher), "--json", "project", "retained-harness", "readmit",
+             "--project", str(self.root), *arguments],
+            cwd=Path.cwd(), env=environment, text=True, capture_output=True,
+            timeout=120, check=False,
+        )
+        console_calls.append(completed.returncode)
+        return completed.returncode, json.loads(
+            completed.stdout if completed.returncode == 0 else completed.stderr
+        )
+
+race_cases = (
+    "test_late_authored_metadata_edits_refuse_and_preserve_owner",
+    "test_late_authority_deletion_rolls_back_other_writes",
+    "test_late_directory_replacement_preserves_owner_and_rollback",
+    "test_late_link_replacement_preserves_owner_and_rollback",
+)
+suite = unittest.TestSuite([
+    InstalledConsolePreservation("test_readmission_preserves_authored_shim_authority"),
+    InstalledConsolePreservation(
+        "test_changed_phase_facts_apply_without_replacing_authored_authority"
+    ),
+    *(RetainedHarnessReadmissionTests(name) for name in race_cases),
+])
+result = unittest.TextTestRunner(verbosity=2).run(suite)
+skipped = {case.id(): reason for case, reason in result.skipped}
+allowed_skips = (
+    {RetainedHarnessReadmissionTests(race_cases[-1]).id()} if os.name == "nt" else set()
+)
+if (result.testsRun != 6 or not result.wasSuccessful()
+        or set(skipped) != allowed_skips or console_calls != [0, 0, 0, 0]):
+    raise RuntimeError("installed readmission authority preservation did not qualify")
+require_installed_origins()
+if hashlib.sha256(fixture.read_bytes()).hexdigest() != fixture_identity:
+    raise RuntimeError("readmission fixture changed during qualification")
+print(json.dumps({
+    "status": "passed", "selected": result.testsRun,
+    "passed": result.testsRun - len(skipped), "skipped": skipped,
+    "console_command_runs": len(console_calls),
+    "race_injection": "maintained in-process fault hooks",
+    "installed_module_origins_verified": True,
+    "fixture_sha256": fixture_identity,
+    "native_component_acceptance": False,
+}))
+"""
+
 INSTALLED_WORKER_CPU_PROBE = """
 import json
 import runpy
@@ -2882,6 +2971,23 @@ def _main() -> int:
         windows_retained_context = qualify_installed_windows_retained_context(
             repository, environment, python, root
         )
+        readmission_authority = {
+            "status": "not-qualified",
+            "platform": sys.platform,
+            "reason": "maintained retained fixture requires POSIX Make",
+        }
+        if os.name == "posix":
+            readmission_authority = json.loads(
+                run(
+                    str(python),
+                    "-I",
+                    "-B",
+                    "-c",
+                    INSTALLED_READMISSION_AUTHORITY_PROBE,
+                    str(repository),
+                    cwd=root,
+                ).stdout
+            )
         checkpoint_help = run(
             str(python),
             "-m",
@@ -3839,6 +3945,7 @@ def _main() -> int:
                     "maintained_controls": maintained_controls,
                     "worker_cpu": installed_worker_cpu,
                     "windows_retained_context": windows_retained_context,
+                    "retained_readmission_authority": readmission_authority,
                     "schema_catalog_versions": sorted(
                         key for key in schema_versions if key.startswith("v")
                     ),

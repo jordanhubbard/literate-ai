@@ -647,6 +647,7 @@ def _authority_review(
     workflows: tuple[dict[str, object], ...],
     routing: tuple[dict[str, object], ...],
     required: bool,
+    capture_inputs: dict[str, object] | None = None,
 ) -> ProjectAuthorityReview:
     raw_documents = documentation["document_contents"]
     raw_assets = documentation["asset_contents"]
@@ -709,6 +710,8 @@ def _authority_review(
             if not documentation_path_is_execution_queue(str(path))
         ),
     )
+    if capture_inputs is not None:
+        capture_inputs.update(inventory.to_canonical_value())
     try:
         return review_project_authority(inventory, required=required)
     except ProjectAuthorityError as exc:
@@ -763,7 +766,9 @@ def _project_and_layout(selected: Path):
     return project, layout
 
 
-def _read_project_authority_file_inputs(project, *, require_authority_review):
+def _read_project_authority_file_inputs(
+    project, *, require_authority_review, capture_inputs=None
+):
     """Compute local normative inventory without index/provider execution.
 
     This preserves the original authority-file reads and review semantics. It
@@ -851,6 +856,7 @@ def _read_project_authority_file_inputs(project, *, require_authority_review):
         workflows=workflows,
         routing=routing,
         required=require_authority_review,
+        capture_inputs=capture_inputs,
     )
     return (
         parent_selection,
@@ -897,6 +903,7 @@ class FilesystemProjectValidationAdapter:
             SourceIntelligenceStage.PROJECT_MAINTENANCE
         ),
         require_monorepo_current: bool = True,
+        include_authority_inputs: bool = False,
     ) -> dict[str, Any]:
         project, layout = _project_and_layout(selected)
         monorepo_components: dict[str, object] | None = None
@@ -921,6 +928,7 @@ class FilesystemProjectValidationAdapter:
                     "state": "stale",
                     "error": {"code": exc.code, "message": exc.message},
                 }
+        authority_inputs = {} if include_authority_inputs else None
         (
             parent_selection,
             repository_lineage,
@@ -935,7 +943,11 @@ class FilesystemProjectValidationAdapter:
             authority_graph,
             authority_review,
         ) = _read_project_authority_file_inputs(
-            project, require_authority_review=require_authority_review
+            project,
+            require_authority_review=require_authority_review,
+            **(
+                {"capture_inputs": authority_inputs} if include_authority_inputs else {}
+            ),
         )
         project_revision_identity = authority_review.authority_identity
         policy = project.definition.source_intelligence
@@ -1024,6 +1036,8 @@ class FilesystemProjectValidationAdapter:
             "authority_review": authority_review.to_dict(),
             "monorepo_components": monorepo_components,
         }
+        if authority_inputs is not None:
+            result["authority_review_inputs"] = authority_inputs
         doc_advisories = _doc_identity_advisories(project)
         if doc_advisories:
             result["advisories"] = doc_advisories
@@ -1049,16 +1063,21 @@ class FilesystemProjectValidationAdapter:
         assert isinstance(review, dict)
         return ContentIdentity.parse_uri(str(review["authority_identity"]))
 
-    def documentation_review(self, selected: Path) -> dict[str, object]:
+    def documentation_review(
+        self, selected: Path, *, include_inputs: bool = False
+    ) -> dict[str, object]:
         result = self.validate(
             selected,
             require_authority_review=False,
             synchronize_source_intelligence=False,
             source_intelligence_stage=SourceIntelligenceStage.STRUCTURAL_REVIEW,
             require_monorepo_current=False,
+            **({"include_authority_inputs": True} if include_inputs else {}),
         )
         review = result["authority_review"]
         assert isinstance(review, dict)
+        if include_inputs:
+            return {**review, "inputs": result["authority_review_inputs"]}
         return review
 
 

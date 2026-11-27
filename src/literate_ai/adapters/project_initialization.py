@@ -4275,6 +4275,8 @@ class FilesystemProjectInitializationAdapter:
         *,
         document: str | Path | None = None,
         require_current: Callable[[], None] | None = None,
+        expected_authority_identity: str | None = None,
+        expected_document_content: bytes | None = None,
     ) -> dict[str, object]:
         """Record the caller's explicit review of current project authority.
 
@@ -4289,8 +4291,24 @@ class FilesystemProjectInitializationAdapter:
             review = self._validation.documentation_review(Path(selected))
         except ProjectValidationError as exc:
             _initialization_error(exc)
+        if (
+            expected_authority_identity is not None
+            and review.get("authority_identity") != expected_authority_identity
+        ):
+            raise ProjectInitializationError(
+                "project.documentation_authority_review_changed",
+                "project authority changed after the caller's review",
+            )
         return self._record_authority_review(
-            Path(selected), review, document=document, require_current=require_current
+            Path(selected),
+            review,
+            document=document,
+            require_current=require_current,
+            **(
+                {"expected_document_content": expected_document_content}
+                if expected_document_content is not None
+                else {}
+            ),
         )
 
     def _record_authority_review(
@@ -4300,6 +4318,7 @@ class FilesystemProjectInitializationAdapter:
         *,
         document: str | Path | None,
         require_current: Callable[[], None] | None = None,
+        expected_document_content: bytes | None = None,
     ) -> dict[str, object]:
         state = review.get("state")
         expected_marker = review.get("expected_marker")
@@ -4390,13 +4409,25 @@ class FilesystemProjectInitializationAdapter:
                 "authority review marker must be recorded in declared Markdown",
             )
         try:
-            before = path.lstat() if require_current is not None else None
+            before = (
+                path.lstat()
+                if require_current is not None or expected_document_content is not None
+                else None
+            )
             content = path.read_bytes()
         except OSError as exc:
             raise ProjectInitializationError(
                 "project.documentation_authority_review_write_failed",
                 "authority review document is unreadable",
             ) from exc
+        if (
+            expected_document_content is not None
+            and content != expected_document_content
+        ):
+            raise ProjectInitializationError(
+                "project.documentation_authority_review_changed",
+                "authority review document changed after the caller's review",
+            )
         marker_matches = tuple(AUTHORITY_REVIEW_MARKER.finditer(content))
         placeholder_count = content.count(placeholder)
         if state == "missing":
@@ -4425,7 +4456,16 @@ class FilesystemProjectInitializationAdapter:
                     raise OSError("review document changed before replacement")
 
                 def close_publication_inputs():
-                    require_current()
+                    if require_current is not None:
+                        require_current()
+                    if (
+                        expected_document_content is not None
+                        and path.read_bytes() != expected_document_content
+                    ):
+                        raise ProjectInitializationError(
+                            "project.documentation_authority_review_changed",
+                            "authority review document changed before replacement",
+                        )
                     after = path.lstat()
                     if any(
                         getattr(before, name) != getattr(after, name)
@@ -4442,7 +4482,7 @@ class FilesystemProjectInitializationAdapter:
                             "review document changed during publication checks"
                         )
 
-                if require_current is None:
+                if require_current is None and expected_document_content is None:
                     _atomic_replace(path, updated)
                 else:
                     _atomic_replace(
@@ -4514,11 +4554,25 @@ def record_project_authority_review(
     *,
     document: str | Path | None = None,
     require_current: Callable[[], None] | None = None,
+    expected_authority_identity: str | None = None,
+    expected_document_content: bytes | None = None,
 ) -> dict[str, object]:
     """Record an explicit authority review after a caller layers project catalogs."""
 
     return FilesystemProjectInitializationAdapter().record_authority_review(
-        selected, document=document, require_current=require_current
+        selected,
+        document=document,
+        require_current=require_current,
+        **(
+            {"expected_authority_identity": expected_authority_identity}
+            if expected_authority_identity is not None
+            else {}
+        ),
+        **(
+            {"expected_document_content": expected_document_content}
+            if expected_document_content is not None
+            else {}
+        ),
     )
 
 
