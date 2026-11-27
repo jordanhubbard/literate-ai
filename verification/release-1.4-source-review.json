@@ -259,5 +259,16 @@
       "limit": "Independent actual replacement/foreign-residue/nested-original execution controls. Canonical expanded15-control cohort still running; no full source or release acceptance."
     }
   },
-  "review_scope": "All 462 frozen changed files independently inspected: runtime 65, SDK transfer 36, retained-layout transfer 36, authority 157 and remaining contracts 168. This is source review only."
+  "review_scope": "All 462 frozen changed files independently inspected: runtime 65, SDK transfer 36, retained-layout transfer 36, authority 157 and remaining contracts 168. This is source review only.",
+  "final_delta_review": {
+    "subject_commit": "1600b1444",
+    "attested_files": 19,
+    "all_post_frozen_production_deltas_hash_verified": true,
+    "reports": [
+      "verification/release-1.4-review-runtime-delta.json",
+      "verification/release-1.4-review-authority-delta.json",
+      "verification/release-1.4-review-contracts-delta.json"
+    ],
+    "limit": "Independent source review only. Full source, complete affected Python gate cohort, installed/native, platforms, goals and release acceptance remain pending."
+  }
 }

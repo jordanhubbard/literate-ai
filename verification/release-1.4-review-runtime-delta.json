@@ -1,0 +1,71 @@
+{
+  "reviewer": "review_runtime",
+  "attestation": "All seven exact current source files match independently closing-reviewed repair hashes; no extra unreviewed drift detected.",
+  "review_subject": "339cc31ada8abcf4c27cfb94e65bc31ba386fb6b",
+  "baseline": "9e4299d9457ce636b407946a26667b7effb58d17",
+  "attested_utc": "2026-11-27T06:19:21.172505+00:00",
+  "files": [
+    {
+      "file": "src/literate_ai/adapters/cache/_publication.py",
+      "sha256": "10743825136a604812947dfba9e85a7cdb8ff7f46464a54fd557f3f7c2ed0f0c",
+      "matches_independently_reviewed_repair": true,
+      "reviewed_sha256": "10743825136a604812947dfba9e85a7cdb8ff7f46464a54fd557f3f7c2ed0f0c"
+    },
+    {
+      "file": "src/literate_ai/adapters/cache/filesystem.py",
+      "sha256": "9e974682074f3fde24ef94bec99cb4ced3424a3589222f67b0a00f3c36eac17f",
+      "matches_independently_reviewed_repair": true,
+      "reviewed_sha256": "9e974682074f3fde24ef94bec99cb4ced3424a3589222f67b0a00f3c36eac17f"
+    },
+    {
+      "file": "src/literate_ai/application/native_root_run.py",
+      "sha256": "1726ebc8f997e84e22ab4b25a3a9511da8e1acd3a2100c5e60337fffd9447aee",
+      "matches_independently_reviewed_repair": true,
+      "reviewed_sha256": "1726ebc8f997e84e22ab4b25a3a9511da8e1acd3a2100c5e60337fffd9447aee"
+    },
+    {
+      "file": "src/literate_ai/application/standard_node_sdk_admission.py",
+      "sha256": "f435a41088437f9eb920616a6a6987e2feb8e022e928649479a58a4213aad1ed",
+      "matches_independently_reviewed_repair": true,
+      "reviewed_sha256": "f435a41088437f9eb920616a6a6987e2feb8e022e928649479a58a4213aad1ed"
+    },
+    {
+      "file": "src/literate_ai/adapters/_processes.py",
+      "sha256": "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb690",
+      "matches_independently_reviewed_repair": true,
+      "reviewed_sha256": "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb690"
+    },
+    {
+      "file": "src/literate_ai/project_template/scripts/_bootstrap_processes.py",
+      "sha256": "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb690",
+      "matches_independently_reviewed_repair": true,
+      "reviewed_sha256": "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb690"
+    },
+    {
+      "file": "src/literate_ai/adapters/retained_layout_forest_metadata_replay.py",
+      "sha256": "ba2500a2cc6ef97a8ba09d2c4461ba676713dd2f4743598a94e5fbe5402be231",
+      "matches_independently_reviewed_repair": true,
+      "reviewed_sha256": "ba2500a2cc6ef97a8ba09d2c4461ba676713dd2f4743598a94e5fbe5402be231"
+    }
+  ],
+  "current_delta_sha256": "9e8cddc7cd6607a1b4fa1ebbcc12af55935516dd8cb8bacdca0f74e3257c45c8",
+  "reviewed_repairs": [
+    "Lazy optional telemetry imports preserve standalone process helper bootstrap and original Windows Job/control cleanup semantics; shared and standalone helpers remain byte-identical.",
+    "Cache target configuration fenced before callbacks; original membership settlement closes last-callback mutation while preserving rollback policy and foreign staging replacements.",
+    "Original native and SDK contexts captured before callbacks; explicit caller callbacks compose with original owners and deadlines; callback-free SDK closing check follows last native callback.",
+    "Original contained metadata placement derives from committed saved manifest native/input/blob evidence with charged parse and exact producer staging/prospective roster; historical legacy replay remains supported."
+  ],
+  "supporting_evidence": [
+    "runtime-review-result.json",
+    "cache-dual-owner-closing-review.json",
+    "forest-contained-metadata-closing-review.json"
+  ],
+  "remaining_actionable_findings_in_attested_repairs": [],
+  "unreviewed_drift": [],
+  "limits": [
+    "Source review attestation for the specified exact seven-file working-tree delta. This is not full native or installed release acceptance.",
+    "Runtime/SDK/retained-layout frozen partitions reviewed separately; full scope records remain in their individual evidence files.",
+    "Independent local POSIX controls and focused reproductions were run as recorded in supporting evidence; no native Windows or full contained effects qualification asserted.",
+    "Canonical project Python/CLI/forest gates are root-owned validation; this attestation does not assert their final completion or resulting-main acceptance."
+  ]
+}
