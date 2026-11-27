@@ -31594,17 +31594,17 @@ qualification, admission and cache reuse remain open.
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
-- **Next action:** Integrate the late-discovered embedded Node SDK source and finish verified cleanup; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Next action:** Continue original retained-source role publication, changed-parent provenance and native/installed SDK acceptance from the reconciled source; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
   - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
-  - [ ] Integrate every unique source state with deliberate conflict resolution. All original 90 recovery snapshots are reconciled, including an explicit historical archive for the obsolete layout prototype. The final filesystem scan found one further dirty SDK snapshot and five clean detached heads, now published and awaiting integration.
+  - [x] Reconcile every saved source state deliberately. All 91 recovery snapshots and 12 additional clean heads join the integration history; the obsolete layout prototype has an explicit replayable archival disposition, without a functional-port claim.
   - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
   - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
   - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
 - **Evidence:**
   - [x] Verify every inventoried revision/recovery snapshot is reachable and transferred artifacts match their original hashes.
   - [x] Record narrow source and installed outcomes with their immutable subjects; preserve every earlier failure and scope limitation.
-  - [ ] Complete final reconciliation, resulting-head checks and source-host synchronization before closing this handoff.
+  - [x] Complete custody reconciliation, source-head ancestry checks and source-host synchronization. Original feature/platform/installed/review qualification remains open.
 
 **Custody and cleanup.** The [transfer observation](../../verification/work-custody-transfer.json)
 binds 269 original worktree revisions, 90 published dirty recovery commits, 11
@@ -31617,7 +31617,7 @@ and fast-forward synchronization were rechecked through `bdf384b3f`; synchronize
 again after subsequent checkpoints. New large outputs use the mounted shared
 workspace volume, preserving existing checkout paths and failed-fixture nodes.
 
-**Integration.** The latest reviewed history integration joins at `82fe2dc69`.
+**Integration.** The resulting source integration joins at `d93b31944`; the earlier telemetry merge is `82fe2dc69`.
 Reviewed history merges retain newer runtime code, original 1.4.0 goals, terminal
 failures, native qualification gates and source custody. The current snapshot
 counts above are established by actual ancestry. Six original proposed designs
@@ -32013,7 +32013,7 @@ those additions are refused and each merge retains the exact current tree.
 Seventeen factual failure controls pass (6.482s). Fourteen package-return controls
 pass, with one native FreeBSD case skipped (5.878s). Nonzero exits alone remain
 terminal; no native platform or release qualification is inferred. At that checkpoint four
-snapshots remained. The Cargo/promotion prototypes have since joined; `wt14` has since joined; only `layout14` remains for source reconciliation.
+snapshots remained. The Cargo/promotion prototypes have since joined; `wt14` has since joined; only `layout14` remained for source reconciliation; it is now explicitly archived below.
 
 **Cargo prototype reconciliation complete.** Thirty-nine focused original-owner
 controls pass across metadata, configuration, wrapper lifetime and receiving.
@@ -32046,7 +32046,7 @@ and prefix were reused across three corrected external-probe API/expectation
 errors, with no product-code or wheel changes; earlier failures remain recorded. No worker contact, native C
 execution/provisioning, native metrics, installed live-worker/SSH/command journey
 or complete-feature/release acceptance is inferred. Eighty-nine dirty snapshots
-and all seven clean heads are integrated; `layout14` remains.
+and all seven clean heads were integrated at that telemetry checkpoint; the later layout and embedded-SDK resolutions follow below.
 
 
 **Final original-layout reconciliation.** All fourteen modern admission controls
@@ -32066,3 +32066,44 @@ match independently, with no unstaged/untracked source. All five detached heads
 are ancestors of that snapshot. Transfer of ignored evidence, deliberate source
 integration and verified removal of redundant worktrees remain in progress.
 Clean pinned dependencies of other consuming projects retain their own authority.
+
+
+**Embedded SDK continuation reconciled.** Normal source merge `d93b31944` joins the
+late snapshot and all five detached heads. All 91 saved source states and twelve
+additional clean heads are now ancestors of the integration branch. Current
+native root continuation, external-library assembly, absolute deadlines,
+interrupts, telemetry and cooperative cache publication remain authoritative.
+Recovered live file/parent custody closes actual equal-byte replacement and
+foreign-membership retirement counterexamples; an added late native callback
+control retains the original earlier-read owner. Guarded SDK publication rolls
+back its own membership when ownership ends before commit. Ordinary unguarded
+legacy publication keeps its existing partial-publication policy.
+
+Focused source cohorts pass 671 executions and skip 255 explicit platform/tool
+cases across 926 selected discovery instances (including imported/reused cases).
+The explicit existing system Node/npm selection passes original admission;
+Homebrew's symlinked npm inventory remains refused. Original Cargo assertions pass
+with the existing host-selected cache wrapper using a task-owned short socket on
+the mounted volume; that server was stopped afterward. Existing source models
+and native skips do not qualify the complete SDK, scoped-validation backend,
+retained consumer, macOS/Windows cells or release.
+
+A fresh noneditable `d93b31944` wheel passes 133 scoped methods without skips,
+verifies 546 loaded framework module origins in its prefix, preserves exact CJS,
+new Flavor/skill and existing native-C package assets, and passes two real console
+help/version/catalog calls (44.063s). All 150 v2 schema files/669 resources, lint,
+formatting, layout and public export checks pass. The pinned SkillEvaluator passes
+all six static checks for four canonical/template views with advisories, using
+no LLM or dedup. Original failures and the narrow evidence limit for one reused
+early Rust log are recorded in the custody observation. Full source/native/
+installed-consumer, independent review and exact-head/resulting-main CI remain open.
+
+**Late cleanup accepted.** Independent full transfer comparison preserves the
+embedded Git database, original staged entries and every sibling source/evidence
+file. Cross-filesystem symlink modes differ; fifteen independently written loose
+Git objects have identical logical content despite different compression bytes.
+Five more development worktrees and seven artifact directories are removed: 273
+development worktrees and one legacy clone removed in total. The source host has
+one active standalone framework checkout. Frozen embedded Aviation and Kit inputs
+remain dependencies of their consuming projects; destination-host peer work stays
+preserved. No feature, authority review or release receipt is repinned by cleanup.
