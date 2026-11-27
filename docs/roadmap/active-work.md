@@ -24470,6 +24470,24 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   unchanged positive create/replace/rollback control now runs separately before
   the full Windows shard, with its JUnit retained in the always-upload artifact.
   Twelve scaffold source controls pass on Linux; no Windows success is inferred.
+- **Windows directory publication repair (source partial):** The unchanged
+  isolated Windows scaffold control reproduces WinError32 on its first native
+  replacement. Native rename opens its destination directory for FILE_ADD_FILE;
+  our directory pins denied write sharing. Only held/probe directory opens now
+  share writes, retaining deny-delete, original native name/type/identity,
+  strict leaf readers and fresh membership closures. Independent full consumer
+  review and 17 cleanup-model, 12 scaffold and 24 evidence controls pass. Actual
+  fixed Windows execution remains required; the distinct archive verifier's leaf
+  sharing concern is not changed or closed by this repair.
+- **Current qualification limits:** The first frozen-fef original native
+  completion case passes its unchanged 900-second deadline and graph-mutation
+  assertions; two cases remain. Its Python 3.15 installed run failed binary
+  worker export because pinned PyYAML 6.0.3 has no observed compatible binary on
+  that target. The identical pin resolves on native Python 3.14/aarch64; a fresh
+  full wheel gate uses 3.14.7 with the original binary-only contract. Full source
+  continues separately. The independent scope audit retains all 83 goals and
+  maps all 48 open/partial goals to their actual remaining acceptance work;
+  historical migration and real provider-to-consumer qualification remain open.
 - **Native Cargo deadline investigation (in progress):** The actual authored
   native completion control now reaches execution but retains a genuine original
   900-second deadline failure (1,039.733s including setup/closing). Live sampling

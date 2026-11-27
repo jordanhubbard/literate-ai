@@ -1,0 +1,9 @@
+{
+  "actual_source_windows_access_with_posix_backed_native_facade": true,
+  "directory_read_pins_and_current_probes_all_share_read_write_only": true,
+  "leaf_metadata_and_payload_reads_all_deny_write_delete": true,
+  "directory_open_count": 30,
+  "leaf_open_count": 2,
+  "remaining_native_handles": 0,
+  "no_native_windows_runtime_claim": true
+}

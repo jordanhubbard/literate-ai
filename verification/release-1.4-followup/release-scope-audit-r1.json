@@ -1,0 +1,1958 @@
+{
+  "schema": "literate-ai/independent-release-scope-audit@1",
+  "subject_revision": "fef411fafba81dfcf890dd159d69e388589acf4e",
+  "observed_head": "d5d4deccc0694770363e27cf18a2092545904b77",
+  "release": "1.4.0",
+  "audit_mode": "Read-only source/document acceptance audit; no gates, builds, worker dispatches, pins, source changes, publications or checkbox edits.",
+  "source_binding": [
+    {
+      "path": "docs/roadmap/release-goals.json",
+      "sha256": "33ba8b80958200d0b2bda4a78853505590a52e654272cf68e5e19ca00a456b2d"
+    },
+    {
+      "path": "docs/roadmap/active-work.md",
+      "sha256": "6636cc00de2f63508e8113c322afc6d7dfaca8192ef29a795bb50253c456fe66"
+    },
+    {
+      "path": "docs/roadmap/existing-repository-delivery.md",
+      "sha256": "ab5bfddaa53ee18fb144cd9ae6b01b7ae10f9356dfdf678921c9618c5688bf5a"
+    },
+    {
+      "path": "docs/roadmap/1.4-release-collateral.md",
+      "sha256": "36cfe70333f90f51d0b1f252fe4e0ac81080436dd3a7cf553fd8ee5800104390"
+    },
+    {
+      "path": "literate.release.json",
+      "sha256": "b4c0fe3cd17d361dc79833e698542f54fd2416ec5af52c6384b3e4cbc6ccff99"
+    },
+    {
+      "path": "docs/decisions/0071-derived-project-litai-directory.md",
+      "sha256": "35b539bb338361ac0aa0bffcd2717deeaa1660f42bb417c2efa4821591a832e0"
+    },
+    {
+      "path": "docs/decisions/0072-authored-native-graph-qualification.md",
+      "sha256": "a1f85965115c929b8411affbf38995c66ac3e65dbe2a0858613610d8819ef741"
+    },
+    {
+      "path": "docs/decisions/0073-native-root-acceptance-repair.md",
+      "sha256": "8133d6ee77bec163342efa477057609260e8c42b0ef9edc86f444a0cf6c4c18a"
+    },
+    {
+      "path": "docs/decisions/0074-existing-repository-delivery.md",
+      "sha256": "0bf87c232cd14eadd4cb9e6b7b9a3b17d8eecc584ec139427febaeff5565c029"
+    },
+    {
+      "path": "docs/user/project-layout.md",
+      "sha256": "ea3d219977749d1bfbb90b0570e182781f80d86088b06bc9ff105bdca941c4b8"
+    },
+    {
+      "path": "docs/user/retained-cargo.md",
+      "sha256": "222d354249ad24afdbd935d9eaa6b2cd06b52d0664672629db945635ecafd747"
+    },
+    {
+      "path": "docs/user/native-sdk-qualification.md",
+      "sha256": "3f7c8c9d7fe557c1188d48ac53fdb5f604f0f7e3ccecdb228991a28839351c29"
+    }
+  ],
+  "inventory_counts": {
+    "goals": 83,
+    "roadmap_checked": 35,
+    "roadmap_open": 46,
+    "roadmap_partial": 2,
+    "not_closed": 48
+  },
+  "scope_guards": [
+    "All 83 original manifest entries and their 1.4.0 release targets preserved.",
+    "Roadmap unchecked criteria copied through canonical roadmap_sections parser, including wrapped lines; no criterion rewritten or deleted.",
+    "Checked roadmap state preserved without claiming current candidate qualification.",
+    "literate.release.json global release qualification remains Linux/macOS/Windows with ci.mandatory=false. FreeBSD remains a concrete product requirement under the original goals, not an invented global fourth platform or kernel-testing scope.",
+    "No live external issue state, provider capacity, published media or installed native result was independently accepted here.",
+    "Commands are future evidence recommendations. Generic projection commands are inventory prerequisites, not substitutes for the concrete native/product operation described.",
+    "Historical checkpoints are explicitly bounded; old not-implemented narrative is not asserted to describe current source."
+  ],
+  "highest_remaining_requirements": [
+    {
+      "key": "contained-layout-public-migration",
+      "goals": [
+        "PROJECT-LAYOUT-001",
+        "ADOPT-RELOCATE-001",
+        "ADOPT-CLI-001",
+        "SDLC-001",
+        "ORIGINAL-ADOPT-001",
+        "PROJECT-ID-001"
+      ],
+      "requirement_type": "public lifecycle and supported-platform acceptance",
+      "unmet_acceptance": "Complete actual historically released legacy project migration into one litai authority, then ordinary update/reparent/renewal/discovery and native execution, with conflict, interruption, identity and stale receipt refusals.",
+      "bounded_recorded_evidence": "Installed macOS fresh creation/minimal adoption and acknowledged placement/recovery journeys are recorded, including an original 900s-bounded framework apply and Component renewal.",
+      "evidence_limit": "Several migration demonstrations start from explicit current legacy fixtures; metadata preservation is not historical-version upgrade or executed retained native product acceptance. Earlier source implementation prose is not treated as proof code is absent.",
+      "evidence_owners": [
+        {
+          "id": "ORIGINAL-ADOPT-001",
+          "owner": "Original-source adoption contracts, project command and conversion authority store"
+        },
+        {
+          "id": "ADOPT-RELOCATE-001",
+          "owner": "Framework core: adopted-project layout, inventory, updates, retained receipts and readmission"
+        },
+        {
+          "id": "PROJECT-ID-001",
+          "owner": "Framework adopted-project lifecycle"
+        },
+        {
+          "id": "PROJECT-LAYOUT-001",
+          "owner": "Framework core: derived-project layout, onboarding, lifecycle, templates and documentation; PROJECT Goals 1, 4 and 6"
+        },
+        {
+          "id": "SDLC-001",
+          "owner": "Original adoption, project context, release observation and worker provisioning owners"
+        },
+        {
+          "id": "ADOPT-CLI-001",
+          "owner": "CLI compatibility surface, ORIGINAL-ADOPT-001 and PROJECT-LAYOUT-001"
+        }
+      ],
+      "next_decisive_operation": "On the exact installed candidate, first obtain a plan from a preserved real released legacy project; after normal explicit acknowledgement test the full migration and ordinary lifecycle including root/descendant lookup and native outputs.",
+      "next_command_template": "litai --json project layout plan --project <preserved-legacy-project> --migration",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "docs/decisions/0071-derived-project-litai-directory.md",
+        "docs/decisions/0074-existing-repository-delivery.md",
+        "docs/user/project-layout.md"
+      ]
+    },
+    {
+      "key": "authored-provider-to-real-consumer",
+      "goals": [
+        "AUTHORED-GRAPH-QUALIFICATION-001",
+        "CARGO-COMPAT-001",
+        "RETAINED-RECEIPT-PROMOTE-001",
+        "RETAINED-PYTHON-BRIDGE-001"
+      ],
+      "requirement_type": "complete native feature acceptance",
+      "unmet_acceptance": "Finish real authored provider qualification and independent unchanged oracle/replay, then ordinary receiving consumer check, materialize, admit and explicitly controlled original source retirement with fresh execution/currentness.",
+      "bounded_recorded_evidence": "Roadmap records installed provider two clean runs plus transported/current authority replay at 0ddbc6cae and successful disposable prospective consumer build/test/package/run with three unchanged libraries.",
+      "evidence_limit": "Prospective consumer preparation and check/materialize do not establish importer admission or source retirement. Current native completion failures remain blocking, but passing them alone does not complete receiving consumer acceptance.",
+      "evidence_owners": [
+        {
+          "id": "CARGO-COMPAT-001",
+          "owner": "Framework retained Cargo contracts, materialization, graph and admission; PROJECT Goals 1, 4, 5 and 6"
+        },
+        {
+          "id": "RETAINED-PYTHON-BRIDGE-001",
+          "owner": "framework retained library bridge and sealed Python test workspace"
+        },
+        {
+          "id": "RETAINED-RECEIPT-PROMOTE-001",
+          "owner": "Retained-project lifecycle and project test receipts"
+        },
+        {
+          "id": "AUTHORED-GRAPH-QUALIFICATION-001",
+          "owner": "Framework authored authority and qualification admission; PROJECT Goals 1, 2, 4 and 6"
+        }
+      ],
+      "next_decisive_operation": "Retain actual provider archive and all binding/plan/policy/test identities; execute documented public authored check/materialize/admit route on the real consumer. Keep source retirement under explicit custody and prove absent retired roots plus fresh consumer gates.",
+      "next_command_template": "litai project retained-cargo check --project <consumer> --binding <binding.json> --plan <plan.json> --gate-policy <policy.json> --tests <tests.json> --reviewed-binding <binding-id> --binding-size <bytes> --provider-project <provider> --provider-component <component> --provider-profile <profile> --target <target> --archive <archive.zip> --store-id <store-id> --old-output-file-bytes 536870912 --old-output-total-bytes 4294967296",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "docs/decisions/0072-authored-native-graph-qualification.md",
+        "docs/user/retained-cargo.md"
+      ]
+    },
+    {
+      "key": "native-repair-real-provider-and-two-runs",
+      "goals": [
+        "NATIVE-ACCEPTANCE-REPAIR-001"
+      ],
+      "requirement_type": "installed native acceptance",
+      "unmet_acceptance": "Demonstrate repair against an actual held qualified provider and closed rejection/replacement replay lineage in two independent exact installed runs, preserving original deadlines and attribution.",
+      "bounded_recorded_evidence": "Controlled Rust/Cargo late package counterexample passes are recorded (317.312s), plus three mixed compiler/test/package exhaustion and third-candidate journeys (1154.766s).",
+      "evidence_limit": "Controlled provider/framework distribution observations and source history controls do not complete the held-provider public route or two independent installed release runs.",
+      "evidence_owners": [
+        {
+          "id": "NATIVE-ACCEPTANCE-REPAIR-001",
+          "owner": "Standard generated-candidate attempt chain and packaged independent acceptance; PROJECT Goals 1 and 4"
+        }
+      ],
+      "next_decisive_operation": "Produce and independently verify two actual installed native-root archive sets bound to the candidate and original acceptance policy; pass those archives to release file qualification only once ready.",
+      "next_command_template": "python scripts/qualify_release_files.py --native-root-archives <captured-native-inputs-path> --require-native-root-qualification",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "docs/decisions/0073-native-root-acceptance-repair.md",
+        "scripts/qualify_release_files.py",
+        "scripts/installed_native_root_inputs.py"
+      ]
+    },
+    {
+      "key": "freebsd-native-scale-and-shared-cache",
+      "goals": [
+        "RETAINED-UNIT-PACKAGE-001",
+        "RETAINED-SCALE-LIMITS-001",
+        "HTTP-CACHE-REFERENCE-001",
+        "RETAINED-SDK-PUBLIC-001",
+        "SDK-ADMISSION-LIMITS-001"
+      ],
+      "requirement_type": "product-specific FreeBSD/native capacity acceptance",
+      "unmet_acceptance": "Complete five-unit >100000-member native PACKAGE and fresh cold original-byte VERIFY with finite memory/time/bytes, corruption and ownership refusal; qualify catalog/load/lock/project validation and verified shared cache across two physical FreeBSD workers.",
+      "bounded_recorded_evidence": "Two-unit SDK-bearing native FreeBSD PACKAGE and fresh original archive VERIFY, plus corruption refusal, are recorded at 33f1e62. Five-unit metadata/capability preparation has 114929 files/links and 9898 directories.",
+      "evidence_limit": "Metadata authoring and two-unit success do not prove five-unit package/verify, actual scale behavior or two-host shared-cache throughput. Source-reviewed FreeBSD fixture repair is not a successful FreeBSD execution.",
+      "evidence_owners": [
+        {
+          "id": "RETAINED-SDK-PUBLIC-001",
+          "owner": "Retained public runtime and native SDK acquisition"
+        },
+        {
+          "id": "RETAINED-SCALE-LIMITS-001",
+          "owner": "project authority contracts, catalog traversal, pinned-input custody; GitHub issue 234"
+        },
+        {
+          "id": "HTTP-CACHE-REFERENCE-001",
+          "owner": "accepted ADR 0044 shared-cache transport and local quota/retention owners; issue 236"
+        },
+        {
+          "id": "RETAINED-UNIT-PACKAGE-001",
+          "owner": "Retained package front doors, canonical tree/package owners and authenticated PACKAGE transport; PROJECT Goals 1, 4 and 5; accepted ADR 0052; issue 235"
+        },
+        {
+          "id": "SDK-ADMISSION-LIMITS-001",
+          "owner": "Native SDK source admission; PROJECT goals 1 and 4"
+        }
+      ],
+      "next_decisive_operation": "Use actual aligned authorized FreeBSD qualification owner(s), original limits, genuine five-unit fixture and independent cold verification; retain native timing/resource and original-archive rejection receipts. The listed low-level cell command requires genuine wheel/framework/fixture inputs.",
+      "next_command_template": "python .github/qualifications/native_sdk/run_cell.py --wheel-dir <wheel-dir> --framework <framework> --fixture <five-unit-fixture> --test-source <test-source> --output <evidence-dir>",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "docs/user/native-sdk-qualification.md",
+        "docs/roadmap/active-work.md",
+        "literate.release.json"
+      ]
+    },
+    {
+      "key": "public-worker-execution-cleanup-and-feed",
+      "goals": [
+        "WORKER-001",
+        "COMMAND-WORKER-001",
+        "WORKER-TELEMETRY-001"
+      ],
+      "requirement_type": "public worker lifecycle and platform acceptance",
+      "unmet_acceptance": "Complete public action matrix and supported transport/resource closure, cleanup acknowledgement and physical TTL after controller death, uncertain recovery without duplicate allocation, and live authenticated bounded telemetry.",
+      "bounded_recorded_evidence": "Installed portable Python TEST on one private Linux route records all 16 evidence kinds, 85 files and 45 CAS members; source protocol and telemetry controls exist.",
+      "evidence_limit": "One TEST route, direct artifact execution and stub expiry cases do not establish ordinary public RUN/all actions/Windows/Cargo, provider-enforced termination, or live per-platform telemetry isolation.",
+      "evidence_owners": [
+        {
+          "id": "COMMAND-WORKER-001",
+          "owner": "Framework execution-worker contracts, shared remote transport and operator CLI; PROJECT Goals 1, 4 and 5"
+        },
+        {
+          "id": "WORKER-TELEMETRY-001",
+          "owner": "Worker process/action observations, shared transport and versioned telemetry contracts"
+        },
+        {
+          "id": "WORKER-001",
+          "owner": "framework CLI / lifecycle routing / private worker adapters"
+        }
+      ],
+      "next_decisive_operation": "After normal worker alignment by the responsible executor, perform the planned real public TEST/RUN/native action and failure/cleanup/TTL/recovery matrix with receipts, without allocating resources during this audit.",
+      "next_command_template": "litai worker align --all",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "skills/agent/align-workers/SKILL.md",
+        "docs/roadmap/active-work.md"
+      ]
+    },
+    {
+      "key": "final-collateral-and-real-labs",
+      "goals": [
+        "RELEASE-COLLATERAL-001",
+        "LAB-AUTHORITY-001"
+      ],
+      "requirement_type": "collateral and user-visible product acceptance",
+      "unmet_acceptance": "Finish final candidate-bound 1.4 documentation/examples, rendered accessible films/decks/document pairs and publish readback; exercise six lab graphs and actual browser/mobile behavior under canonical authority.",
+      "bounded_recorded_evidence": "Front door correctly distinguishes published 1.3.1 from main 1.4.0; historical 1.3.1 presentation/film artifacts and interim collateral labeling exist.",
+      "evidence_limit": "Historical media and source labels are not final 1.4 rendered inspection, accessible media, executed install/upgrade examples, live link checks or six actual lab/UI acceptance receipts.",
+      "evidence_owners": [
+        {
+          "id": "RELEASE-COLLATERAL-001",
+          "owner": "release-project skill, 1.4 release collateral and user documentation"
+        },
+        {
+          "id": "LAB-AUTHORITY-001",
+          "owner": "labs documentation and offline artifact builder"
+        }
+      ],
+      "next_decisive_operation": "Freeze the final candidate collateral inventory from the linked plan; execute each documented command and per-lab/UI acceptance, render and inspect media, then retain final document-pair acceptance and authorized publication/readback receipts.",
+      "next_command_template": "Read-only inventory: git show <candidate>:docs/roadmap/1.4-release-collateral.md",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "docs/roadmap/1.4-release-collateral.md",
+        "literate.release.json",
+        "docs/courses/README.md"
+      ]
+    },
+    {
+      "key": "exact-artifact-release-closure",
+      "goals": [
+        "RELEASE-CLOSURE-001",
+        "TEST-CACHE-001"
+      ],
+      "requirement_type": "release/artifact closure",
+      "unmet_acceptance": "Bind all original goals and acceptance to exact source/tree/artifacts/test environment/input inventory and candidate ledger; accept exact tested wheel/plugins, annotated tag object and current required cells, then sweep and publication/readback.",
+      "bounded_recorded_evidence": "Existing delivery work package E has strict coverage proof controls and explicitly tested_artifacts:false; current full-source/wheel/native runs are owned elsewhere and not evaluated by this audit.",
+      "evidence_limit": "Strict source coverage proof, a passing subset, roadmap checked state or launcher success is not tested artifact promotion or release acceptance. Historical delivery-plan counts of 81 are superseded by the actual 83-goal manifest.",
+      "evidence_owners": [
+        {
+          "id": "TEST-CACHE-001",
+          "owner": "`test_checkpointing`, `pinned_test_dispatch`, existing receipt and"
+        },
+        {
+          "id": "RELEASE-CLOSURE-001",
+          "owner": "Existing release policy, release CLI, provider observation and publication adapters"
+        }
+      ],
+      "next_decisive_operation": "After genuine native/product/collateral evidence is complete, project the full execution view and use normal release qualification/preparation with exact artifact/attempt/tag identity and required refusal cases.",
+      "next_command_template": "python scripts/summarize_release_roadmap.py 1.4.0 --execution-view --project .",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "docs/roadmap/existing-repository-delivery.md",
+        "docs/roadmap/release-goals.json",
+        "literate.release.json"
+      ]
+    },
+    {
+      "key": "cache-admission-real-consumer",
+      "goals": [
+        "ACCEPTED-CACHE-DISCOVERY-001",
+        "DIAGNOSTIC-CACHE-CUSTODY-001",
+        "QUALIFIED-CHILD-ADD-001",
+        "QUALIFIED-CHILD-REVISION-001"
+      ],
+      "requirement_type": "public receiving and immutable cache acceptance",
+      "unmet_acceptance": "Prove project-relative/default discovery, requested Component applicability, multi-Component successive revisions, public accepted-only build/run without an agent and immutable historical remote bytes; preserve typed diagnostic custody.",
+      "bounded_recorded_evidence": "Extensive fixture/source contracts and corrected receiving/custody paths are recorded.",
+      "evidence_limit": "Source or fixture acceptance does not demonstrate genuine current public consumer acceptance across original receiving/revision scenarios.",
+      "evidence_owners": [
+        {
+          "id": "ACCEPTED-CACHE-DISCOVERY-001",
+          "owner": "accepted-source discovery, Standard cache composition and execution dispatch; issues 196 and 197; PROJECT Goals 1 and 4"
+        },
+        {
+          "id": "DIAGNOSTIC-CACHE-CUSTODY-001",
+          "owner": "Framework diagnostics and cache-directory custody; PROJECT goals 1 and 4"
+        },
+        {
+          "id": "QUALIFIED-CHILD-ADD-001",
+          "owner": "Native child registration and conversion authority; PROJECT Goals 1, 4 and 6"
+        },
+        {
+          "id": "QUALIFIED-CHILD-REVISION-001",
+          "owner": "Native child registry, qualification and retained parent lifecycle; PROJECT Goals 1, 4 and 6"
+        }
+      ],
+      "next_decisive_operation": "Run the original accepted-cache and child add/revision user journeys on installed candidate with actual original artifact identities, then reject changed source/policy/bytes and diagnostic substitutions.",
+      "next_command_template": "Read-only requirements: python scripts/summarize_release_roadmap.py 1.4.0 --execution-view --project .",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "docs/roadmap/active-work.md"
+      ]
+    },
+    {
+      "key": "native-promotion-and-source-closure",
+      "goals": [
+        "NATIVE-PROMOTION-FLAVORS-001",
+        "RUST-HARNESS-DEPS-001",
+        "PYTHON-BINARY-CLOSURE-001",
+        "SOURCE-ASSET-PROMOTION-001",
+        "SOURCE-STATIC-INTAKE-001"
+      ],
+      "requirement_type": "real native product/dependency/source acceptance",
+      "unmet_acceptance": "Complete real Flavor promotion and retained dependency resolution closure; qualify Python binary closure and installed data-backed asset/static intake generation, independent qualification and key-free receiving with swapped-record refusals.",
+      "bounded_recorded_evidence": "Maintained fixtures include 121 asset/static intake controls, real signature/source-count checks and Rust dependency/source observation controls.",
+      "evidence_limit": "Fixture count and signatures alone are not actual serde_json offline-v2 resolution/lock/features/registry/config/tool closure, retained Python consumer acceptance or genuine installed generated asset promotion.",
+      "evidence_owners": [
+        {
+          "id": "NATIVE-PROMOTION-FLAVORS-001",
+          "owner": "source-to-specification promotion and qualification documentation; GitHub issue 218"
+        },
+        {
+          "id": "RUST-HARNESS-DEPS-001",
+          "owner": "Framework library acceptance, native Cargo source custody and qualification capture; PROJECT goals 1, 4 and 5"
+        },
+        {
+          "id": "PYTHON-BINARY-CLOSURE-001",
+          "owner": "Framework Python support policy and remote worker bootstrap"
+        },
+        {
+          "id": "SOURCE-ASSET-PROMOTION-001",
+          "owner": "source review, promotion materialization and existing immutable asset lifecycle"
+        },
+        {
+          "id": "SOURCE-STATIC-INTAKE-001",
+          "owner": "Local source review, static translation and source promotion; PROJECT goals 1, 2, 4 and 6"
+        }
+      ],
+      "next_decisive_operation": "Use actual reviewed native/provider/source fixtures in public installed authoring, qualification and consumer commands, retain original independent oracle and wrong-lock/config/record/source refusal evidence.",
+      "next_command_template": "Read-only requirements: python scripts/summarize_release_roadmap.py 1.4.0 --execution-view --project .",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "docs/roadmap/active-work.md"
+      ]
+    },
+    {
+      "key": "host-support-and-runtime-boundaries",
+      "goals": [
+        "HOST-WINARM-001",
+        "HOST-PROBE-ALIAS-001",
+        "RUNTIME-CAPABILITY-ENV-001",
+        "CUDA-SIGNAL-001"
+      ],
+      "requirement_type": "actual host/runtime acceptance",
+      "unmet_acceptance": "Complete native Windows ARM package-manager/MSVC acceptance, explicit rustup-only provider provenance, capability-isolated real runtime environment and original CUDA signal acceptance.",
+      "bounded_recorded_evidence": "Host and runtime source controls exist; individually checked earlier goals remain preserved.",
+      "evidence_limit": "Source refusal or host observation does not prove actual native install/tool execution/GPU behavior on the required target.",
+      "evidence_owners": [
+        {
+          "id": "HOST-PROBE-ALIAS-001",
+          "owner": "host-install capability observation; issue 214; PROJECT goals 1 and 5"
+        },
+        {
+          "id": "HOST-WINARM-001",
+          "owner": "Windows OS Flavor host-install realization and target-aware installer observations"
+        },
+        {
+          "id": "CUDA-SIGNAL-001",
+          "owner": "Framework inert source inventory and proposed Flavor evidence; PROJECT Goals 1, 2, 4 and 5"
+        },
+        {
+          "id": "RUNTIME-CAPABILITY-ENV-001",
+          "owner": "Framework Standard runtime provider environment; issue #422; LAB-AUTHORITY-001"
+        }
+      ],
+      "next_decisive_operation": "Use original goal-specific host/environment and installed candidate, retain real tool/runtime observations and original refusal cases; do not infer acceptance from a different architecture.",
+      "next_command_template": "Read-only requirements: python scripts/summarize_release_roadmap.py 1.4.0 --execution-view --project .",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "docs/roadmap/active-work.md"
+      ]
+    },
+    {
+      "key": "bounded-observation-and-diagnostics",
+      "goals": [
+        "SDK-OBSERVATION-COST-001",
+        "RETAINED-OBSERVATION-PERF-001",
+        "CLI-IMPORT-001",
+        "WIN-GATE-001",
+        "HTML-VERIFY-COST-001",
+        "ZERO-ARG-COVERAGE-001",
+        "QUALIFICATION-DIAGNOSTICS-001",
+        "QUALIFICATION-CASE-INVENTORY-001"
+      ],
+      "requirement_type": "performance and public qualification acceptance",
+      "unmet_acceptance": "Retain original public route budgets/refusal/case inventory and genuine per-case completion while measuring equivalent uninstrumented native profiles; prove failure diagnostics survive genuine failure/cleanup.",
+      "bounded_recorded_evidence": "Current narrow request-local syntax-data optimizations and fixture repairs have source review/control evidence; native and wheel qualification are in progress elsewhere.",
+      "evidence_limit": "No changed deadline, retried failing gate, skipped case or instrumented timing substitutes for the original bounded actual public execution. Source review is not the running native result.",
+      "evidence_owners": [
+        {
+          "id": "SDK-OBSERVATION-COST-001",
+          "owner": "Installed retained SDK authorization"
+        },
+        {
+          "id": "RETAINED-OBSERVATION-PERF-001",
+          "owner": "Standard installed-distribution, retained runtime and native dependency observers"
+        },
+        {
+          "id": "CLI-IMPORT-001",
+          "owner": "framework CLI project command dispatch and MAC contract projection"
+        },
+        {
+          "id": "WIN-GATE-001",
+          "owner": "Native Windows release gate"
+        },
+        {
+          "id": "HTML-VERIFY-COST-001",
+          "owner": "HTML verification and immutable catalog observation"
+        },
+        {
+          "id": "ZERO-ARG-COVERAGE-001",
+          "owner": "generated test contracts, public interface authority, recipe/lifecycle identity and installed native-child qualification; issues 132 and 48"
+        },
+        {
+          "id": "QUALIFICATION-DIAGNOSTICS-001",
+          "owner": "Framework native qualification recorder and diagnostic store"
+        },
+        {
+          "id": "QUALIFICATION-CASE-INVENTORY-001",
+          "owner": "Framework qualification derivation and captured evidence; PROJECT Goals 1 and 4"
+        }
+      ],
+      "next_decisive_operation": "Resolve current original qualification failures without weakening limits; then complete original installed public entrypoint, diagnostic archive and per-case inventory acceptance on required hosts.",
+      "next_command_template": "Read-only requirements: python scripts/summarize_release_roadmap.py 1.4.0 --execution-view --project .",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "docs/roadmap/active-work.md"
+      ]
+    },
+    {
+      "key": "source-operations-and-safe-retirement",
+      "goals": [
+        "WORKTREE-002",
+        "RETAINED-TREE-EXPLORER-001",
+        "SHADOW-001",
+        "CODEX-STATE-001"
+      ],
+      "requirement_type": "source custody and user-visible workflow acceptance",
+      "unmet_acceptance": "Complete audited retirement/provenance for ignored/untracked/index/object source, resumable journals and actual tree/state exploration; prove upstream mapped shadow operations, causal repair and accepted/rejected mergeback with real export/rebase.",
+      "bounded_recorded_evidence": "Source and maintained workflow controls exist.",
+      "evidence_limit": "A clean tracked tree or circular source/fixture proof does not establish source retirement, retained content provenance or actual user shadow workflow.",
+      "evidence_owners": [
+        {
+          "id": "WORKTREE-002",
+          "owner": "project worktree placement, peer survey, and evidence-preserving retirement"
+        },
+        {
+          "id": "RETAINED-TREE-EXPLORER-001",
+          "owner": "HTML observability contracts, retained-tree projection and atomic publication"
+        },
+        {
+          "id": "SHADOW-001",
+          "owner": "framework core / shadow repository lifecycle"
+        },
+        {
+          "id": "CODEX-STATE-001",
+          "owner": "Framework coding CLI process lifetime and provider command projection"
+        }
+      ],
+      "next_decisive_operation": "Run the original public explorer/shadow/state journeys and read-only source audit before any separately authorized retirement; retain interrupted/resumed and rejected mutation receipts.",
+      "next_command_template": "Read-only requirements: python scripts/summarize_release_roadmap.py 1.4.0 --execution-view --project .",
+      "command_status": "Recommendation only; not executed. Bracketed inputs require the actual candidate/project and current authorized executor.",
+      "sources": [
+        "docs/roadmap/active-work.md"
+      ]
+    }
+  ],
+  "all_goals": [
+    {
+      "id": "RETAINED-WIN-CONTEXT-001",
+      "manifest_entry": {
+        "id": "RETAINED-WIN-CONTEXT-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Bind native Windows retained system context",
+      "declared_owner": "Retained execution environment, dependency observation and native runtime custody",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:22745",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RETAINED-WIN-FIXTURE-001",
+      "manifest_entry": {
+        "id": "RETAINED-WIN-FIXTURE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Capture complete Windows retained fixture executable inputs",
+      "declared_owner": "Shared retained execution test fixture and platform coverage",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:22947",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "SDK-OBSERVATION-COST-001",
+      "manifest_entry": {
+        "id": "SDK-OBSERVATION-COST-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Bound repeated installed distribution observation",
+      "declared_owner": "Installed retained SDK authorization",
+      "remaining_acceptance": [
+        "Measure the installed public SDK route and reduce redundant observation without weakening drift detection.",
+        "Compare equivalent profiles and uninstrumented native timings; prove changed, redirected, missing or altered members fail closed during commands and qualify independent consumer acceptance."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:23393",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RETAINED-OBSERVATION-PERF-001",
+      "manifest_entry": {
+        "id": "RETAINED-OBSERVATION-PERF-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Bound retained authority and native observation cost",
+      "declared_owner": "Standard installed-distribution, retained runtime and native dependency observers",
+      "remaining_acceptance": [
+        "Implement operation-scoped observation reuse or lower-cost equivalent verification with current member bytes, native graph, authorization and revocation intact.",
+        "Changed, replaced, redirected, missing or unreadable members and changes during actual SDK commands fail closed; all existing tamper and revocation cases remain covered.",
+        "Compare equivalent instrumented counts and uninstrumented native timings, then pass full regression, exact wheel and canonical installed public CLI build/tests/docs/independent acceptance."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:23579",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RETAINED-SDK-PUBLIC-001",
+      "manifest_entry": {
+        "id": "RETAINED-SDK-PUBLIC-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Connect public retained execution to live native SDK producers",
+      "declared_owner": "Retained public runtime and native SDK acquisition",
+      "remaining_acceptance": [
+        "A real locked source-built SDK fixture passes the canonical installed public CLI retained build/test/docs/independent acceptance; missing authorization, producer drift, policy mismatch and revocation refuse before accepted evidence.",
+        "Full regression, static/driver/documentation checks, installed wheel and native renewal pass at the exact resulting candidate."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:23018",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "CLI-IMPORT-001",
+      "manifest_entry": {
+        "id": "CLI-IMPORT-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Defer optional MAC schema parser initialization",
+      "declared_owner": "framework CLI project command dispatch and MAC contract projection",
+      "remaining_acceptance": [
+        "Run both maintained startup/MAC controls from the noneditable installed wheel with verified module origins and no checkout imports, then renew exact-candidate native wheel/full qualification."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:23455",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "WIN-GATE-001",
+      "manifest_entry": {
+        "id": "WIN-GATE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Retain native Windows wheel timing evidence",
+      "declared_owner": "Native Windows release gate",
+      "remaining_acceptance": [
+        "Retain both native JUnit reports on the next full run. Audit found that hosted CI had the contention repair while the provided native gate still placed the 60-second live dependency case inside the parallel suite; final native/full qualification remains required.",
+        "Renew the configured host lifecycle/receipt and exact native wheel/full qualification."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:23496",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "HTML-VERIFY-COST-001",
+      "manifest_entry": {
+        "id": "HTML-VERIFY-COST-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Bound repeated installed HTML verification and catalog observation cost",
+      "declared_owner": "HTML verification and immutable catalog observation",
+      "remaining_acceptance": [
+        "Inspect actual caller overlap and bind reusable parsed catalog or framework observations to exact current bytes within one operation",
+        "Retain independent currentness checks and refuse changed, replaced, missing or redirected inputs before completing verification",
+        "Compare equivalent profiles and uninstrumented native timings; retain the original 5400-second failures and all raw evidence",
+        "Pass real mutation and stale-artifact controls plus full regression, installed-wheel and exact CI; renew the complete native Windows gate without skipped phases or increased deadlines"
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:23545",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "IGNORE-LIFECYCLE-001",
+      "manifest_entry": {
+        "id": "IGNORE-LIFECYCLE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Keep lifecycle lock state out of initialized and updated Git projects",
+      "declared_owner": "framework project initialization template and update path; issue 215",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:25523",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RUST-IMPORT-DEDUP-001",
+      "manifest_entry": {
+        "id": "RUST-IMPORT-DEDUP-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Verify overlapping Rust library capabilities without duplicate imports",
+      "declared_owner": "Standard library import verifier; issue 219",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:25540",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RELEASE-README-ORDER-001",
+      "manifest_entry": {
+        "id": "RELEASE-README-ORDER-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Clarify published README verification order and asset digest provenance",
+      "declared_owner": "release-project agent skill and canonical initialization template; issue 150",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:25559",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ZERO-ARG-COVERAGE-001",
+      "manifest_entry": {
+        "id": "ZERO-ARG-COVERAGE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Implement accepted exhaustive coverage for zero-argument callables",
+      "declared_owner": "generated test contracts, public interface authority, recipe/lifecycle identity and installed native-child qualification; issues 132 and 48",
+      "remaining_acceptance": [
+        "Complete the fresh installed registered-child journey and original refusal/recovery controls with its unchanged independent oracle.",
+        "Pass full regression, installed-wheel qualification and exact review/main CI before claiming issue 132 or dependent issue 48 complete."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:25587",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RUST-ADOPTION-DETECT-001",
+      "manifest_entry": {
+        "id": "RUST-ADOPTION-DETECT-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Detect Cargo workspaces ahead of incidental helper languages",
+      "declared_owner": "read-only harness language inventory and project adoption Flavor inference; issue 203",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:25622",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RETAINED-BUILD-COREQ-001",
+      "manifest_entry": {
+        "id": "RETAINED-BUILD-COREQ-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Keep retained wrapper locks on their delegation Flavor",
+      "declared_owner": "canonical retained-wrapper Component projection and conversion lock construction; issue 210",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:25645",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RETAINED-OUTPUT-DIAG-001",
+      "manifest_entry": {
+        "id": "RETAINED-OUTPUT-DIAG-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Distinguish retained command failures from capped diagnostic excerpts",
+      "declared_owner": "retained harness diagnostic wording; corrected issue 180",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:25663",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RELEASE-README-VERIFY-001",
+      "manifest_entry": {
+        "id": "RELEASE-README-VERIFY-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Verify the published release against the remote default-branch README",
+      "declared_owner": "release policy and read-only GitHub publication verification; issue 148",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:25683",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "NATIVE-PROMOTION-FLAVORS-001",
+      "manifest_entry": {
+        "id": "NATIVE-PROMOTION-FLAVORS-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Preserve reviewed build-system defaults in native child promotion",
+      "declared_owner": "source-to-specification promotion and qualification documentation; GitHub issue 218",
+      "remaining_acceptance": [
+        "Pass affected source promotion and qualification regressions, required review/main CI, and retain honest installed/native qualification boundaries."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:25722",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RETAINED-SCALE-LIMITS-001",
+      "manifest_entry": {
+        "id": "RETAINED-SCALE-LIMITS-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Admit explicitly bounded large retained catalogs and input closures",
+      "declared_owner": "project authority contracts, catalog traversal, pinned-input custody; GitHub issue 234",
+      "remaining_acceptance": [
+        "Measure real retained FreeBSD catalogs: load time, memory, lock resolution, litai verify and project validation before declaring issue 234 complete."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:25757",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "HTTP-CACHE-REFERENCE-001",
+      "manifest_entry": {
+        "id": "HTTP-CACHE-REFERENCE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Provide a bounded reference HTTP shared-cache service",
+      "declared_owner": "accepted ADR 0044 shared-cache transport and local quota/retention owners; issue 236",
+      "remaining_acceptance": [
+        "Retain real two-FreeBSD-worker shared-cache and throughput qualification under issue 236; reference-server tests alone do not complete that issue."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:25816",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "HOST-PROBE-ALIAS-001",
+      "manifest_entry": {
+        "id": "HOST-PROBE-ALIAS-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Preserve multicall executable names in host tool probes",
+      "declared_owner": "host-install capability observation; issue 214; PROJECT goals 1 and 5",
+      "remaining_acceptance": [
+        "Resolve the rustup-only provenance requirement through explicit host-install authority rather than bypassing all native package checks.",
+        "Require rustup-only readiness evidence and exact integrated CI before issue 214 closes."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:25845",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ADOPT-CATALOG-001",
+      "manifest_entry": {
+        "id": "ADOPT-CATALOG-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Keep retained implementation trees outside Component discovery",
+      "declared_owner": "Component catalog discovery, project validation and authority graph; issue 212; PROJECT goals 1 and 4",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:25872",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ADOPT-PLAN-READONLY-001",
+      "manifest_entry": {
+        "id": "ADOPT-PLAN-READONLY-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Keep onboard planning telemetry outside reviewed target mutations",
+      "declared_owner": "CLI dispatch read-only performance-span policy; issue 201; PROJECT goal 1",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:25916",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ADOPT-GIT-CUSTODY-001",
+      "manifest_entry": {
+        "id": "ADOPT-GIT-CUSTODY-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Preserve tracked ignored files and relative aliases through conversion moves",
+      "declared_owner": "conversion quarantine and rollback; issues 208 and 200; PROJECT goals 1 and 4",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:25955",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ADOPT-LIFT-ROLLBACK-001",
+      "manifest_entry": {
+        "id": "ADOPT-LIFT-ROLLBACK-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Restore original custody after failed lift-shift parity",
+      "declared_owner": "lift-shift move owner and conversion failure boundary; issue 209; PROJECT goals 1 and 4",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:26001",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ADOPT-JS-DEPS-001",
+      "manifest_entry": {
+        "id": "ADOPT-JS-DEPS-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Document explicit JavaScript dependencies for retained adoption sandboxes",
+      "declared_owner": "adoption documentation and public workspace-link interface; issue 204; PROJECT goal 1",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:26039",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ADOPT-FAILURE-DIAGNOSTICS-001",
+      "manifest_entry": {
+        "id": "ADOPT-FAILURE-DIAGNOSTICS-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Preserve bounded adoption failure diagnostics and recovery outcome",
+      "declared_owner": "conversion diagnostics, CLI error translation and private failure evidence; issue 202; PROJECT goal 1",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:26068",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ACCEPTED-CACHE-DISCOVERY-001",
+      "manifest_entry": {
+        "id": "ACCEPTED-CACHE-DISCOVERY-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Resolve accepted-source membership from declared targets and requested authority",
+      "declared_owner": "accepted-source discovery, Standard cache composition and execution dispatch; issues 196 and 197; PROJECT Goals 1 and 4",
+      "remaining_acceptance": [
+        "Resolve all declared readable targets consistently for provider discovery, retained-review recovery, Standard composition and remote materialization; forbid unbound or raw directory fallback.",
+        "Determine exact requested Component/target applicability before provider ambiguity, using existing authenticated current authority or a separately reviewed selector; retain refusal for genuinely ambiguous applicable membership.",
+        "Execute actual public retained-source admission, accepted-only build and run without coding-agent calls for default and project-relative targets, successive revisions and multiple Components. Verify absent, stale, malformed and ambiguous membership controls and unchanged historical bytes.",
+        "Run focused cache/discovery and installed/native/integrated checks; preserve all remaining 1.4 qualification requirements."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:26098",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "WORKTREE-002",
+      "manifest_entry": {
+        "id": "WORKTREE-002"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Own project-scoped worktree placement and audited retirement",
+      "declared_owner": "project worktree placement, peer survey, and evidence-preserving retirement",
+      "remaining_acceptance": [
+        "Capture complete bounded working-file bytes by streaming identity, including ignored/untracked content, links and directories; retain raw index, refs, reflog and all-object inventory observations without running content filters. Bind repeated observations before exposing audit inputs. Activity, normalization and nested-repository checks remain explicit pending gates, never an empty or successful substitute for a complete audit.",
+        "Retain immutable, collision-safe observation journals outside captured source and Git metadata; resume identical observations without overwriting prior evidence, and retain interruption/corruption/changed-input refusals.",
+        "Define and enforce canonical project-scoped placement across CLI and initialized/inherited guidance.",
+        "Audit legacy worktrees by common-directory identity, preserve or land useful state, and record each terminal disposition.",
+        "Make migration resumable and prevent new peer-directory worktrees.",
+        "Portable tests cover dirty, staged, untracked, ignored, detached, locked, active, submodule, independent-clone, concurrent-change, failed-landing, failed-removal, and resumed migration cases.",
+        "A reviewed migration report proves every removed worktree was revalidated and all useful state retained or landed."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:16111",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RETAINED-UNIT-PACKAGE-001",
+      "manifest_entry": {
+        "id": "RETAINED-UNIT-PACKAGE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Deliver per-unit retained tree packages and verified FreeBSD transport",
+      "declared_owner": "Retained package front doors, canonical tree/package owners and authenticated PACKAGE transport; PROJECT Goals 1, 4 and 5; accepted ADR 0052; issue 235",
+      "remaining_acceptance": [
+        "Introduce distinct versioned per-unit and package-set plans/results, bounded canonical descriptor shards and public schemas without changing legacy identities.",
+        "Bind every actual admitted payload file, alias and required empty directory to one explicit unit owner; preserve shared structural geometry and exact output ownership.",
+        "Extend the canonical tree owner with versioned composed projection for cross-unit target and ancestor closure; preserve standalone tree validation, alias/case rules and typed dependency DAG refusal.",
+        "Construct and independently verify native per-unit archives through existing tree/package providers, binding complete source, Component lock, recipe, target, resolved BOM, license and provider provenance including alias-only units.",
+        "Expose explicit opt-in read-only plan/inspect and live-owner execute/verify through existing retained/package front doors; preserve aggregate behavior and prior evidence on refusal.",
+        "Integrate a versioned tree-aware PACKAGE worker envelope and real remote FreeBSD round trip, rechecking live owner, provider, target, runtime and LINK scope immediately before admission.",
+        "Qualify the real retained tree beyond 100000 inputs with finite per-unit/set/shard, staging and transport budgets, measured peak memory/bytes/time, installed public lifecycle and exact integrated CI.",
+        "Public selected-path qualification proves per-unit native archives and composed closure, with no fictitious generated or SDK producer authority.",
+        "Regular files, symbolic file/directory aliases, hardlinks, required empty directories, cross-unit dependencies and alias-only provenance round trip exactly.",
+        "Missing or overlapping owners, stale locks/receipts, forged/rehashed descriptors, missing dependency packages, wrong target/provider/license, namespace collisions, escapes and alias/dependency cycles refuse without changing prior usable packages.",
+        "A real remote FreeBSD PACKAGE action carries live LINK and current producer/runtime scope; corrupted returned archives, changed custody and failed transport refuse canonical admission.",
+        "A complete real tree beyond the former input ceiling remains within declared entry/byte/unit/edge/decode/staging/transfer bounds and retains measured resource evidence.",
+        "Legacy aggregate identity/behavior controls, relevant complete regression, installed/native qualification and exact review/main CI pass; issue 235 remains open until decisive proof and green landing."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:26270",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "SDK-ADMISSION-LIMITS-001",
+      "manifest_entry": {
+        "id": "SDK-ADMISSION-LIMITS-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Admit modern SDK source sizes with explicit headroom",
+      "declared_owner": "Native SDK source admission; PROJECT goals 1 and 4",
+      "remaining_acceptance": [
+        "Install the exact new wheel and renew native source admission and SSH PACKAGE/LINK qualification; no failed setup is passing evidence."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:26581",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ORIGINAL-ADOPT-001",
+      "manifest_entry": {
+        "id": "ORIGINAL-ADOPT-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Bind original project authority without relocating source",
+      "declared_owner": "Original-source adoption contracts, project command and conversion authority store",
+      "remaining_acceptance": [
+        "Run full regression and native/installed renewal gates.",
+        "Reproduce the telemetry collision, pass the complete original-adoption module, and complete a fresh full gate and exact-head CI for the fixture repair."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:22340",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "SOURCE-SCAN-DUPLICATES-001",
+      "manifest_entry": {
+        "id": "SOURCE-SCAN-DUPLICATES-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Scan identical source content without duplicate finding identities",
+      "declared_owner": "Framework source security scanner",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:26615",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "DIAGNOSTIC-CACHE-CUSTODY-001",
+      "manifest_entry": {
+        "id": "DIAGNOSTIC-CACHE-CUSTODY-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Coordinate diagnostic output with canonical object-cache ownership",
+      "declared_owner": "Framework diagnostics and cache-directory custody; PROJECT goals 1 and 4",
+      "remaining_acceptance": [
+        "A public plan followed by first execution reuses a fresh custom object root; unrelated unmarked roots, symlink redirection and read-only source drift controls still refuse; independent review and full gates pass."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:26644",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "HOST-WINARM-001",
+      "manifest_entry": {
+        "id": "HOST-WINARM-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Add native Windows ARM64 host-install realization",
+      "declared_owner": "Windows OS Flavor host-install realization and target-aware installer observations",
+      "remaining_acceptance": [
+        "Implement the linked issue contract without relaxing existing validation",
+        "Run the issue acceptance cases and required integration qualification before closing"
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:21948",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "CPP-DISCOVERY-BUDGET-001",
+      "manifest_entry": {
+        "id": "CPP-DISCOVERY-BUDGET-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Allow five minutes for bounded C++ toolchain discovery",
+      "declared_owner": "C++ toolchain discovery and MSVC environment initialization",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:26692",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "HOST-STATUS-001",
+      "manifest_entry": {
+        "id": "HOST-STATUS-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Resolve adopted project host tools through canonical Flavor authority",
+      "declared_owner": "Operator status and canonical host-install Flavor composition; issue 268",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:26744",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ADOPT-RELOCATE-001",
+      "manifest_entry": {
+        "id": "ADOPT-RELOCATE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Support selected and relocated retained implementation layouts",
+      "declared_owner": "Framework core: adopted-project layout, inventory, updates, retained receipts and readmission",
+      "remaining_acceptance": [
+        "Trace every hard-coded wrapper/implementation path and establish one canonical resolver with backward-compatible legacy evidence.",
+        "Specify and review subdirectory, repository-root and custom Component-name ownership, collision rules, plan currentness, atomic movement, rollback and receipt invalidation before changing authority.",
+        "Implement supported initial placement and reviewed relocation through inventory, manifests, updates, retained-scope refresh, receipts and readmission; preserve original bytes, modes, internal aliases, hardlinks and Git custody.",
+        "Run real installed public CLI adoption, relocation, update, refresh, readmission and receipt-renewal journeys for a subdirectory, repository root and a non-default wrapper name.",
+        "Prove stale plans, destination collisions, escaping aliases, changed source and interrupted moves refuse without data loss; rollback restores exact original custody and prior evidence.",
+        "Verify legacy adopted projects keep their default layout and that changed placement cannot reuse an old receipt or manufacture live source authority."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:26778",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "CARGO-COMPAT-001",
+      "manifest_entry": {
+        "id": "CARGO-COMPAT-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Qualify reviewed retained Cargo workspace compatibility",
+      "declared_owner": "Framework retained Cargo contracts, materialization, graph and admission; PROJECT Goals 1, 4, 5 and 6",
+      "remaining_acceptance": [
+        "Add versioned workspace-plan, gate-policy, test-inventory and receiving codecs with exact provenance and unchanged v1 defaults.",
+        "Implement owned internal scratch materialization with collision-safe rollback and exact reviewed patch graph edges.",
+        "Observe libtest ignored cases, custom harnesses and permitted exclusions without inventing executed coverage.",
+        "Implement closed alias topology and finite streaming input budgets, then public CLI composition and receipts.",
+        "Qualify real native adopted/offline Cargo workspaces, scratch ownership and rollback, reviewed patch edges, ignored/custom/excluded targets and all corresponding refusals.",
+        "Prove native alias mutation/escape controls and a closure above 10000 entries and 256 MiB, with boundary, mutation and memory observations.",
+        "Preserve v1 positives/refusals and require installed non-editable and integrated exact-head qualification before completion."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:28119",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "COMMAND-WORKER-001",
+      "manifest_entry": {
+        "id": "COMMAND-WORKER-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Address workers through reviewed reachability commands",
+      "declared_owner": "Framework execution-worker contracts, shared remote transport and operator CLI; PROJECT Goals 1, 4 and 5",
+      "remaining_acceptance": [
+        "Add strict versioned remote descriptors with literal complete placeholders, finite argument budgets and unchanged v1 codecs and defaults.",
+        "Implement the shared execution/upload/download owner and adapt every connectivity, capability, storage, health, alignment, bootstrap, lifecycle and cleanup caller.",
+        "Expose operator CLI registration and diagnostics, then document private adapters and scope-specific discovery without direct-network fallback.",
+        "Use an actual private command-addressed POSIX worker for nonce handshake, native platform/storage observations, alignment, source upload, native Component execution and evidence download through the same route.",
+        "Try both applicable connector scopes, distinguish authentication failures from absence, and qualify jump/scheduler routing, quoting, configuration drift, transfer corruption/collision, output limits, deadlines and descendant cleanup.",
+        "Require complete v1 compatibility, installed non-editable and integrated exact-head checks; obtain native Windows evidence before claiming a Windows connector supported."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:28173",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RETAINED-TREE-EXPLORER-001",
+      "manifest_entry": {
+        "id": "RETAINED-TREE-EXPLORER-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Publish hierarchical retained-tree HTML information cards",
+      "declared_owner": "HTML observability contracts, retained-tree projection and atomic publication",
+      "remaining_acceptance": [
+        "Implement complete hierarchy and provenance commitments using canonical retained tree/unit owners, no new JS dependency, scalable declarations, atomic multi-file publication and tree freshness.",
+        "Add closed versioned tree declarations, explicit resource policy and bounded page/node/group/generation commitments alongside the unchanged single-view protocol.",
+        "Project the complete canonical retained/sharded namespace into directory cards and deterministic large-directory groups with safe no-script navigation and truthful captured facts.",
+        "Stage and verify an immutable generation; publish the separately owned index last under current output custody, preserving foreign changes and bounded recovery evidence.",
+        "Reopen all page/asset commitments and the complete output namespace, then renew canonical source observations for the additive tree-freshness gate.",
+        "Join actual retained-unit definitions, membership and qualified package provenance after #235; directory labels alone cannot assert Component ownership.",
+        "Installed noneditable native source/ports tree qualification, actual browser inspection, stale/tamper/partial publication and resource-bound refusals.",
+        "Per-unit Component-card joins after #235, independent review, full gates and exact integrated qualification."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:28203",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "WORKER-TELEMETRY-001",
+      "manifest_entry": {
+        "id": "WORKER-TELEMETRY-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Expose bounded authenticated read-only worker telemetry",
+      "declared_owner": "Worker process/action observations, shared transport and versioned telemetry contracts",
+      "remaining_acceptance": [
+        "Review necessary versioned telemetry contract/rate/authentication design under ADR 0006 before implementation, then compose existing transport with bounded safe observations.",
+        "Real live-worker action/stage/state and network/disk/cpu/memory observations with declared unsupported values, not invented measurements.",
+        "Authentication, secret/command/environment/path redaction, no-listener/no-job-mutation, volume/coalescing/cancellation controls, independent review and integrated native qualification."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:28248",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "WORKER-GPU-MEMORY-002",
+      "manifest_entry": {
+        "id": "WORKER-GPU-MEMORY-002"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Qualify permission-text NVIDIA memory observations after command-worker integration",
+      "declared_owner": "Execution-worker capability serialization and qualification; PROJECT Goals 1 and 4",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:28414",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "PYTHON-LIBRARY-IMPORT-001",
+      "manifest_entry": {
+        "id": "PYTHON-LIBRARY-IMPORT-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Preserve isolated standard-library imports in Python library qualification",
+      "declared_owner": "framework core / Python library import driver",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:28434",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "GIT-TOOL-CAPABILITY-001",
+      "manifest_entry": {
+        "id": "GIT-TOOL-CAPABILITY-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Align Git tool readiness with required checkout capabilities",
+      "declared_owner": "framework core / declared host tool prerequisites",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:28458",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RETAINED-PYTHON-BRIDGE-001",
+      "manifest_entry": {
+        "id": "RETAINED-PYTHON-BRIDGE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Consume qualified native library children from retained Python projects",
+      "declared_owner": "framework retained library bridge and sealed Python test workspace",
+      "remaining_acceptance": [
+        "Implement the accepted bridge without copying generated source into authored implementation or admitting arbitrary ambient paths.",
+        "Exercise a real retained Python consumer with an admitted committed-cache library through full public lifecycle and exact installed qualification.",
+        "Refuse cache, receipt, source, package-origin and consumer-scope drift while preserving existing Cargo and retained Python behavior."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:28484",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RUST-HARNESS-DEPS-001",
+      "manifest_entry": {
+        "id": "RUST-HARNESS-DEPS-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Execute reviewed offline Rust library verifier dependencies",
+      "declared_owner": "Framework library acceptance, native Cargo source custody and qualification capture; PROJECT goals 1, 4 and 5",
+      "remaining_acceptance": [
+        "Add typed reviewed dependency declarations and exact bounded v2 oracle loading while preserving the closed v1 field set and identities.",
+        "Compose the temporary manifest from closed values and exact qualified library; reuse canonical streaming Cargo input owners and config/tool custody, observe exact resolution/features/source identities, and run offline locked native Cargo under current execution policy.",
+        "Capture and reopen the versioned oracle, harness, lock, dependency/source/configuration closure, generated manifest, native tools and actual command/case results.",
+        "Exercise the public lifecycle with a real serde_json-using verifier and provisioned offline crates, including unchanged v1 positive/refusal behavior and actual incorrect-result refusal.",
+        "Refuse changed source/lock/manifest/features/registry/configuration, missing or unexpected dependencies, alias collisions, extracted-source/checksum disagreement and exact/over-budget inputs; retain actual command and output failures.",
+        "Obtain independent source review, canonical driver/documentation records, complete local and exact integrated CI gates, and fresh noneditable installed/native qualification before completion."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:28627",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RETAINED-RECEIPT-PROMOTE-001",
+      "manifest_entry": {
+        "id": "RETAINED-RECEIPT-PROMOTE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Promote a verified retained-project run into the project test receipt",
+      "declared_owner": "Retained-project lifecycle and project test receipts",
+      "remaining_acceptance": [
+        "Reuse complete retained completion/export/dependency verification and compare exact acceptance stdout, stderr, exit and filesystem expectations.",
+        "Bind the semantic test-policy inventory and reports in the runner identity, omitting only the actual circular policy reference.",
+        "Verify real historical admission evidence; capture missing facts only under the genuine live admission owner, or refuse unsupported requirements. Keep cache not-applicable bookkeeping distinct from operational cache evidence.",
+        "Preserve bounded currentness/custody, dry-run no-write behavior, candidate collision safety and unchanged receipt-update policy checks.",
+        "Real public promotion/update/currentness journey plus causal rehashed incorrect-output, inventory, missing/fabricated admission, resolved-output/dependency, cache-semantic, stale-policy and finite-resource refusals.",
+        "Canonical independent source review and supported driver/document records, required full-source gate, exact clean installed distribution and relevant native controls.",
+        "Genuine requesting-consumer retained-evidence policy qualification. The historical requested run's unavailable custody store is not proof; retain a complete fresh run if required."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:28688",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ADOPT-BASELINE-COMMANDS-001",
+      "manifest_entry": {
+        "id": "ADOPT-BASELINE-COMMANDS-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Select reviewed baseline commands for a single adoption root",
+      "declared_owner": "Framework onboarding root-plan selection and baseline execution; PROJECT Goal 1",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:28759",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "WHEEL-RUNTIME-ENV-001",
+      "manifest_entry": {
+        "id": "WHEEL-RUNTIME-ENV-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Isolate wheel runtime creation and installation from Python startup policy",
+      "declared_owner": "scripts/wheel_smoke.py installed-wheel qualification",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:28796",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "LIBRARY-EXPORT-ORDER-001",
+      "manifest_entry": {
+        "id": "LIBRARY-EXPORT-ORDER-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Verify JavaScript export maps without JSON key-order dependence",
+      "declared_owner": "Standard JavaScript library import verifier; PROJECT Goals 1 and 4",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:28827",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "LIBRARY-IMPORT-ISOLATION-001",
+      "manifest_entry": {
+        "id": "LIBRARY-IMPORT-ISOLATION-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Isolate generic Python library imports from ambient dependencies",
+      "declared_owner": "Standard generic Python library verifier; PROJECT Goals 1 and 4",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:28844",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "SOURCE-MODULE-VARIANTS-001",
+      "manifest_entry": {
+        "id": "SOURCE-MODULE-VARIANTS-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Preserve JavaScript and TypeScript module source in inert conversion",
+      "declared_owner": "source-to-specification inventory and static derivation; PROJECT Goals 1 and 4",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:29017",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "LIBRARY-IMPORT-COMMAND-001",
+      "manifest_entry": {
+        "id": "LIBRARY-IMPORT-COMMAND-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Fit complete library import authority in bounded verifier commands",
+      "declared_owner": "Standard library command projection; PROJECT Goals 1 and 4",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:28862",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "QUALIFIED-CHILD-ADD-001",
+      "manifest_entry": {
+        "id": "QUALIFIED-CHILD-ADD-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Add a qualified native child to a qualified retained parent atomically",
+      "declared_owner": "Native child registration and conversion authority; PROJECT Goals 1, 4 and 6",
+      "remaining_acceptance": [
+        "Propose and obtain design acceptance, then implement a public plan/apply transaction with current authority, registry, child and receipt binding plus recovery.",
+        "Qualify two dependency-free children through public APIs; reject unqualified, stale, changed, unsafe and duplicate inputs; verify rollback, installed/native behavior, independent review and exact-head CI."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:28885",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "SHADOW-001",
+      "manifest_entry": {
+        "id": "SHADOW-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Continuously qualify upstream branches through a separate shadow repository",
+      "declared_owner": "framework core / shadow repository lifecycle",
+      "remaining_acceptance": [
+        "Add reviewed shadow creation, branch addition and synchronization with versioned registry, exact upstream refs and restart-safe journal.",
+        "Map supported upstream operations into isolated lifecycle attempts and report unsupported or unbound operations as explicit gaps.",
+        "Prove causal failures, test targeted repairs in shadow lanes, export into fresh upstream layout and rerun actual upstream gates.",
+        "Reconcile accepted and rejected upstream outcomes without duplicate repair or lost rationale; expose read-only current status.",
+        "Real Git and forge multi-branch, add-branch, PR base/head drift, restart and idempotence journeys pass with bounded custody.",
+        "Mapped operation and gap behavior, code/test/environment/timeout/nondeterminism counterexamples and incomplete-green refusals pass.",
+        "Actual upstream-layout repair export/rebase and accepted merge-back plus rejected proposal retention pass without unearned admission.",
+        "Independent source review, full source and platform gates, and noneditable installed/native qualification pass at the exact head."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:28911",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "GO-001",
+      "manifest_entry": {
+        "id": "GO-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Restore buildable Go runtime tests and source custody",
+      "declared_owner": "Go Flavor, generation prompt, Standard commands, and guarded Go builder",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:28960",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RELEASE-COLLATERAL-001",
+      "manifest_entry": {
+        "id": "RELEASE-COLLATERAL-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Refresh all user-facing documentation and collateral for each release",
+      "declared_owner": "release-project skill, 1.4 release collateral and user documentation",
+      "remaining_acceptance": [
+        "Refresh all current material from the final 1.4 candidate source and preserve prior release or event material only as labeled history.",
+        "Review inventory and changes against final 1.4 source; verify rendered docs, media, slides, captions, links, installation commands and published assets on the exact release candidate; reject stale current-release or AI Unprompted claims; retain only clearly labeled historical 1.3.1 artifacts and complete the post-publication README/provider readback."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:29001",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "QUALIFIED-CHILD-REVISION-001",
+      "manifest_entry": {
+        "id": "QUALIFIED-CHILD-REVISION-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Revise a qualified native child through a recoverable public transaction",
+      "declared_owner": "Native child registry, qualification and retained parent lifecycle; PROJECT Goals 1, 4 and 6",
+      "remaining_acceptance": [
+        "Expose read-only revision planning, acknowledged apply, status and recovery using current canonical evidence readers and exact drift refusal.",
+        "Preserve both child trees and unaffected children; reserve publication inputs and refuse incomplete or foreign recovery state.",
+        "Use installed public CLI for a real v1/v2 plus unchanged sibling journey, prove actual consumer v2 behavior and fresh application acceptance.",
+        "Qualify stale inputs, unsigned/unqualified/wrong-target/unsafe/duplicate candidates, exact rollback, interruption and foreign-file preservation; require independent review and full exact-head native/platform gates."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:29038",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "WORKER-CPU-001",
+      "manifest_entry": {
+        "id": "WORKER-CPU-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Measure bounded native Windows CPU pressure",
+      "declared_owner": "Framework worker-health native CPU provider",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:29058",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "WORKER-WHEELHOUSE-GLIBC-001",
+      "manifest_entry": {
+        "id": "WORKER-WHEELHOUSE-GLIBC-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Resolve compatible glibc floors in cross-platform worker wheelhouse export",
+      "declared_owner": "Framework worker bootstrap and dependency closure",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:29100",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "REVIEW-AUTHORITY-CLI-001",
+      "manifest_entry": {
+        "id": "REVIEW-AUTHORITY-CLI-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Expose truthful policy review authority with explicit acceptance opt-in",
+      "declared_owner": "Specification review and source-acceptance CLI; existing review authority and promotion policy contracts",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:29123",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "PROJECT-ID-001",
+      "manifest_entry": {
+        "id": "PROJECT-ID-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Migrate adopted project identity through a reviewed transaction",
+      "declared_owner": "Framework adopted-project lifecycle",
+      "remaining_acceptance": [
+        "Verify the current integrated contained-layout migration through the maintained installed native journeys and exact-head gates; the earlier source/artifact audit below does not qualify later changes to migration, project-context and wheel-gate owners."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:29154",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "CODEX-STATE-001",
+      "manifest_entry": {
+        "id": "CODEX-STATE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Own per-invocation Codex SQLite and log state under finite limits",
+      "declared_owner": "Framework coding CLI process lifetime and provider command projection",
+      "remaining_acceptance": [
+        "Retain the original finite-file-limit failure and prove supported CLI configuration, native private state routing, process lifetime and unchanged parent environment.",
+        "Pass focused and full source gates, independent review before driver repin, installed/native finite-profile generation with an explicit operator model, and current-head integration gates.",
+        "Retain the failed native generation and syscall cause, prove the current and managed minimum provider accept the setting, pass maintained command/lifetime controls, and complete actual finite-profile source generation before independent review and final integration."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:29186",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "REMOTE-FILE-CEILING-001",
+      "manifest_entry": {
+        "id": "REMOTE-FILE-CEILING-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Preserve inherited file-size ceilings in remote evidence transport",
+      "declared_owner": "Framework core remote transport and native resource boundary",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:29229",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "QUALIFICATION-DIAGNOSTICS-001",
+      "manifest_entry": {
+        "id": "QUALIFICATION-DIAGNOSTICS-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Retain original bounded observations when native qualification fails",
+      "declared_owner": "Framework native qualification recorder and diagnostic store",
+      "remaining_acceptance": [
+        "Exercise a later failure after an earlier success; renew independent review, full source, installed/native and exact-head integration gates."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:29260",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "PROJECT-LAYOUT-001",
+      "manifest_entry": {
+        "id": "PROJECT-LAYOUT-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Contain derived-project Literate AI files under litai/",
+      "declared_owner": "Framework core: derived-project layout, onboarding, lifecycle, templates and documentation; PROJECT Goals 1, 4 and 6",
+      "remaining_acceptance": [
+        "Inventory all framework-owned derived-project files and directories, classify shared root integrations, and specify their canonical litai/ paths and minimal required delegates.",
+        "Update shared path resolution, create/adopt/init/update/reparent, templates, inheritance, validation, CLI discovery, agent entrypoints and lifecycle/release consumers to use the canonical litai/ authority without duplicate root copies.",
+        "Provide reviewed plan/apply migration for existing derived projects with collision and stale-plan refusal, interruption recovery, preserved custom files and source custody, and explicit evidence invalidation/renewal where path-bound identities change.",
+        "Update generated-project guidance, examples and release collateral; retain framework-repository authoring layout separately from the derived-project requirement.",
+        "Qualify fresh creation, adoption, existing-project migration, update and reparent through the installed public CLI on supported platforms; assert framework-owned files remain under litai/ except enumerated required root delegates.",
+        "Exercise verify, lock, plan, rebuild and release discovery from the repository root and subdirectories, inheritance and agent entrypoints; require fresh path-bound evidence after migration.",
+        "Prove collisions, aliases, stale plans and interrupted migration preserve application bytes, custom root instructions and recoverability; reject ambiguous dual authority and prevent migration from reusing invalid receipts."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:29329",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "QUALIFICATION-CASE-INVENTORY-001",
+      "manifest_entry": {
+        "id": "QUALIFICATION-CASE-INVENTORY-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Canonicalize shared case inventory across qualified graph nodes",
+      "declared_owner": "Framework qualification derivation and captured evidence; PROJECT Goals 1 and 4",
+      "remaining_acceptance": [
+        "Reproduce the nine-execution/three-raw-case diamond and qualify capture/replay, missing or failed provider refusal, per-suite duplicate refusal, installed/native and integrated gates."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:30736",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "AUTHORED-GRAPH-QUALIFICATION-001",
+      "manifest_entry": {
+        "id": "AUTHORED-GRAPH-QUALIFICATION-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Admit genuinely authored native graphs to public qualification",
+      "declared_owner": "Framework authored authority and qualification admission; PROJECT Goals 1, 2, 4 and 6",
+      "remaining_acceptance": [
+        "Implement truthful origin-specific authority, versioned profiles/plans/requests/results and the public acknowledged plan/apply route with current authored/lock/export custody.",
+        "Compose complete shared Standard regeneration, unchanged independent-oracle custody, recoverable publication, closed capture/replay and ordinary retained Cargo receiving/admission.",
+        "Qualify a genuine three-library diamond through installed public admission, two clean all-node runs, closed relocatable replay and retained Cargo check/materialize/admit; refuse stale, substituted, missing or failed evidence and preserve source-derived admission."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:30761",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "CUDA-SIGNAL-001",
+      "manifest_entry": {
+        "id": "CUDA-SIGNAL-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Keep vendor-only source attribution out of CUDA requirements",
+      "declared_owner": "Framework inert source inventory and proposed Flavor evidence; PROJECT Goals 1, 2, 4 and 5",
+      "remaining_acceptance": [
+        "Run focused and complete qualification, independent review before driver repin, noneditable installed controls and exact-head/main integration; keep source promotion and source-intelligence authority unchanged."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:31045",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "WHEEL-PYTHON-BINDING-001",
+      "manifest_entry": {
+        "id": "WHEEL-PYTHON-BINDING-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Bind installed continuation bytecode expectations to the selected Python",
+      "declared_owner": "Installed-wheel continuation qualification fixture",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:31125",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "QUALIFICATION-ERROR-001",
+      "manifest_entry": {
+        "id": "QUALIFICATION-ERROR-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Preserve native acceptance failure codes in qualification CLI",
+      "declared_owner": "Framework qualification CLI; PROJECT Goals 1 and 4",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:31146",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "NATIVE-ACCEPTANCE-REPAIR-001",
+      "manifest_entry": {
+        "id": "NATIVE-ACCEPTANCE-REPAIR-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Bind generated native-library acceptance rejection to bounded candidate repair",
+      "declared_owner": "Standard generated-candidate attempt chain and packaged independent acceptance; PROJECT Goals 1 and 4",
+      "remaining_acceptance": [
+        "Complete and integrate the separately versioned acceptance-repair contracts, codecs and schema with actual original attempt/request, root build, artifact graph, package plan/result, target/profile, approved authority, native custody and original run owner/deadline; preserve frozen v2 meanings and refuse mixed versions.",
+        "Continue the same original candidate counter after actual packaged-root rejection, preserving completed node observations and the rejected package without rewriting an accepted v2 attempt. Repeat every required fresh candidate stage through packaging and independent root acceptance.",
+        "Revalidate the original live continuation owner, deadline, source, verifier, tools and package at each boundary; retain immutable qualified dependencies without regenerating them, and preserve original failures for unsupported graph shapes.",
+        "Prove an actual packaged-root rejection after the early check succeeds, then a fresh same-authority replacement and complete packaged acceptance within the original shared budget; retain exact rejected package/request/workspace/source/observation history.",
+        "Preserve terminal behavior for wrong IDs/capabilities, malformed results, expired or changed authority/custody, retained/admitted source, changed dependencies and unsupported graphs; inspect bounded feedback for private-oracle and native-output exclusion.",
+        "Capture two independently allocated qualification runs and reopen each final candidate with its complete rejection/replacement/package lineage, refusing missing or substituted evidence without restoring authority from records.",
+        "Complete exact final integration source/noneditable-wheel qualification, required Linux/macOS/Windows installed/native cells, independent review and normal exact-head/resulting-main delivery before this release-goal owner closes. Controlled source-generator fixtures must remain explicit; synthetic framework observers cannot establish installed-wheel identity."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:31170",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "SOURCE-PROMOTION-ROOT-001",
+      "manifest_entry": {
+        "id": "SOURCE-PROMOTION-ROOT-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "x",
+      "title": "Expose explicit root lineage for standalone source promotion",
+      "declared_owner": "CLI source promotion and repository lineage",
+      "remaining_acceptance": [],
+      "roadmap_source": "docs/roadmap/active-work.md:31101",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "PYTHON-BINARY-CLOSURE-001",
+      "manifest_entry": {
+        "id": "PYTHON-BINARY-CLOSURE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Qualify binary framework dependency closure for every supported Python runtime",
+      "declared_owner": "Framework Python support policy and remote worker bootstrap",
+      "remaining_acceptance": [
+        "Preserve the original native Python 3.15 failure and pass the complete canonical whole-wheel and offline installed-worker paths for the affected supported runtime/target, minimum-runtime compatibility, meaningful refusals and exact integration gates."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:31360",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "LAB-AUTHORITY-001",
+      "manifest_entry": {
+        "id": "LAB-AUTHORITY-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Make lab diagrams, specifications and source provenance accurate",
+      "declared_owner": "labs documentation and offline artifact builder",
+      "remaining_acceptance": [
+        "Convert all six lessons to standalone canonical lab graphs with full UI specifications and progressively richer real Flavor/skill/workflow selections; derive displayed graphs from exact framework resolution, never hand-authored role counts.",
+        "Rebuild and structurally verify all six offline artifacts; reject changed embedded source or false graph/custody claims.",
+        "Actual desktop/mobile browser checks verify Grumpy Counter default, bounds, keyboard/pointer input, source parity, graph selection and offline behavior; authority and required repository checks pass."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:24268",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "SDLC-001",
+      "manifest_entry": {
+        "id": "SDLC-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Make existing repository delivery the primary 1.4 adoption path",
+      "declared_owner": "Original adoption, project context, release observation and worker provisioning owners",
+      "remaining_acceptance": [
+        "Reconcile duplicate IDs and obsolete execution guidance with explicit historical dispositions.",
+        "Deliver contained native onboarding, safe upgrade and removal through existing project owners.",
+        "Measure release spans and unknown time, then qualify exact candidate evidence reuse without weakening gates.",
+        "Complete command worker reconciliation, release and expiry while retaining static workers.",
+        "Qualify platform cells and skill activation, optional generation and deployment recovery boundaries.",
+        "Public native adoption pilots preserve application files and CI and prove repeat, failure, upgrade and removal behavior."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:31397",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "ADOPT-CLI-001",
+      "manifest_entry": {
+        "id": "ADOPT-CLI-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Make native adoption the primary existing-repository entry point",
+      "declared_owner": "CLI compatibility surface, ORIGINAL-ADOPT-001 and PROJECT-LAYOUT-001",
+      "remaining_acceptance": [
+        "Public CLI pilots preserve native source, build, tests and CI locations and prove repeat, failure, upgrade and removal behavior.",
+        "Legacy explicit conversion remains compatible; guidance and skill checks agree with actual defaults."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:11335",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "WORKER-001",
+      "manifest_entry": {
+        "id": "WORKER-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Route build, test, and run through declared execution workers",
+      "declared_owner": "framework CLI / lifecycle routing / private worker adapters",
+      "remaining_acceptance": [
+        "Add a provider-neutral pre-binding provisioning protocol for dynamic workers. First add local-only enablement (default false), provisioner command and credential-reference configuration, with `--help`/`help` discovery. Prove that disabled or missing enablement makes no provider invocation, including when the static catalog is empty. Reject a missing command or required credential bindings before allocation; do not bake provider-specific arguments into Literate AI. A configured provisioner receives exact target profile, declarative requirements, source-authority inputs, total deadline, and an idempotency key before an `ExecutionDispatchRequest` is created. Its bounded response returns one exact SSH worker descriptor plus opaque lease/recovery identity. Validate the returned worker and requirements, then construct and execute the existing canonical SSH lifecycle request without identity rewriting. Persist no private endpoint or lease data in project authority.",
+        "Add verified evidence-custody and cleanup handoff for provisioned workers. Import the out-of-band artifact/evidence manifest and bundle under controller custody, verify declared identities, byte sizes, worker/request binding, and immutable references, and emit a typed custody receipt before authorizing stop. Missing, corrupt, oversized, timed-out, or ambiguous evidence retains the lease and a recoverable operator status; delete remains a separate explicit action. One total timeout budget must cover provisioning, readiness, execution, transfer, verification, and cleanup.",
+        "Admit every canonical runtime resource reached by installed workflows, templates, schemas, skills, and remote guard launchers into the wheel structurally rather than by filename exception; add clean-wheel regressions for the prior missing `workflows/dev/workflow.md` and `remote_source_guard.py` failures. **In progress:** Physics Workbench sample's exact PR #2 executable matrix exposed this contract on real Python 3.12 x86-64 Standard workers after the pinned Linux and Windows wheelhouses bootstrapped successfully. The same 16 lifecycle cells fail before source evidence: Linux reports `rebuild.standard_distribution_unavailable` because the installed framework payload omits package, policy, or schema authority; Windows reports `project.source_intelligence_command_unavailable` because the required CodeGraph 1.1.1+ command is absent from the isolated worker environment. These are historical failures in an explicitly configured downstream project, not a universal framework prerequisite. ADR 0019 leaves provider installation with its operator. Preserve required-policy refusal and verify the configured executable and current evidence without adding a framework-owned companion package or weakening the selected policy.",
+        "Add installed-real-wheel, worker-equivalent Linux and Windows regressions that execute the lifecycle through Standard distribution resolution. Cover a default-none project without an indexer and an explicitly required project with its operator-provided command. Required unavailable evidence and check-only stale evidence must refuse; an authorized sync may establish fresh current evidence. Preserve the historical 16-cell failure classes as regression cases. Import/bootstrap smoke alone is insufficient.",
+        "Qualify the dynamic-provisioning handoff with a synthetic provider and one authorized live disposable worker. Contract tests must reject mismatched worker, request, lease, artifact, evidence, and custody identities; prove retry does not duplicate allocation or destructive cleanup; prove unknown SSH keys and insufficient observed hardware block execution; and prove evidence is imported and verified before default stop. The installed-wheel public CLI proof must run one LitAI project lifecycle through the provisioned SSH worker and leave no unclassified residual. Synthetic fixtures alone do not establish cloud support.",
+        "Repair Windows-native tests and behavior for source executable intent, accepted manifest identity, working-tree guard discovery, diagnostic-tail preservation, and projected C++ execution without weakening digest, path, or rollback checks. The first extraction slice now centralizes literal endpoint validation, noninteractive SSH/SCP argv construction, connection/operation timeouts, process termination, bounded output/diagnostics, and stable unavailable/timeout errors in a framework adapter consumed by the fan-out harness. Fifty-eight focused SSH, fan-out, and dispatch tests pass with two intentional platform skips. The next slice is a typed source-materialization envelope followed by the request/result remote lifecycle handler itself. The current dispatch request binds source content but deliberately has no Git-revision or archive-transfer locator, so an SSH handler cannot safely materialize that content without guessing. Add a closed, identity-bound choice between an exact Git repository/revision and a caller-staged archive; never derive transport authority from the worker's mutable checkout. The versioned envelope is now implemented as separate transport authority: it binds the exact dispatch request and extracted source-tree identity, admits only a 40/64-character Git object ID plus credential-free repository URL or the fixed caller-staged archive locator plus its byte identity, and rejects mixed modes, moving refs, file paths, queries, fragments, and embedded HTTPS credentials. Thirty-one focused contract/schema tests pass. The in-progress adapter slice will stage the current project as the archive form, invoke a packaged `litai worker execute` receiver (never a framework-checkout script), and retain artifacts in a worker-local content-addressed store for a later exact-worker run. A reconstruction audit also found that semantic Component/source/Flavor digests alone cannot tell the receiver which target or project-relative Component to invoke. The v2 dispatch request now carries and identity-binds the exact target profile, ordered Flavor selectors, and canonical project-relative Component path; all constructors move forward together with no legacy default. Fifty-five focused contract, schema, CLI, dispatcher, and artifact-export tests pass. The canonical remote source guard is now an installed, stdlib-only module that remains directly executable when uploaded before the transferred project is trusted or importable. The repository script is only a developer launcher, and Git/archive fan-out hashes and executes the installed-module source path. This preserves a single implementation of portable path validation, symlink confinement, archive/Git identity verification, and timeout supervision. All 59 source-guard, fan-out, and SSH transport tests pass with two platform-native skips. The controller archive-capture adapter now inventories only Git-visible or explicitly filtered authored files, excludes credentials ignored by Git and all derived `_build`/index/cache state, detects source mutation during capture, emits deterministic gzip/tar bytes, and binds the request, extracted tree, and transport-byte identities in the materialization envelope. Three focused tests prove exact extraction parity, ignored/derived exclusion, and no-overwrite staging behavior. The receiver/SSH mutation half remains in progress. The local receiver/controller composition now stages exactly four canonical files after one bounded setup, invokes the installed internal `litai worker execute` receiver, verifies archive bytes and extracted tree, drives the existing Standard rebuild boundary without recursive worker selection, persists accepted products plus execution commands in a worker-local content-addressed store, and resolves only that exact digest for `run`. The public build/test/run verbs now use `SshExecutionDispatcher` instead of the former unavailable branch. Result validation requires a successful run to preserve its input artifact. Observed toolchains come from the Standard runtime's discovered closure and are stored with the CAS entry; requested toolchain authority is never mislabeled as observation. Twenty-six focused receiver, capture, transport, CLI, and dispatch tests pass. Live packaged-worker qualification remains the next action. Live packaged qualification now passes on the private Ubuntu 26.04 worker from an initialized project using its inherited Standard lifecycle: `litai build` generated, compiled, tested, accepted, and stored `litai-worker-cas:sha256:72884c5079d3bd5d0f69bb3e38e04684cc90abcd52ccf9ac05a6faa3d9307570`; `litai run` consumed that exact digest and returned the known JSON greeting for `Remote`; and `litai test` completed independently with its own accepted CAS artifact. The receiver reports the observed Ubuntu 26.04/x86_64/16-core/61991-MiB environment and two exact toolchain identities. A live Ubuntu 24.04 attempt reached source generation but AppArmor denied Codex's unprivileged-user-namespace sandbox; this is retained as a host-bootstrap prerequisite, not weakened into unsandboxed Linux execution. Typed receiver failures now propagate their bounded stable code and message through the controller while untyped stderr remains hidden. The Linux Codex preflight now detects the exact restricted-AppArmor case before a model invocation: when unprivileged user namespaces are restricted, the regular `bwrap-userns-restrict` policy must already be provisioned. Focused tests prove both early rejection and admission with the prerequisite present. The receiver's lifecycle rebuild is also supplied through a typed adapter port by the CLI boundary, eliminating the adapter-to-CLI dependency exposed by CI. Packaged macOS qualification now passes from a clean initialized project: `build` stored `litai-worker-cas:sha256:22778b8918d4c9d52baff82ce8c4e94f69d7790220837939a377afb61699361c`, `run` reused it and returned the exact `Hello, Remote!` JSON, and `test` stored its own accepted artifact `litai-worker-cas:sha256:3bfe5204d257c2c13a4735235fede25cae260439e446d90ec620d1acb8bcb955`. The receiver observed macOS 26.6.1, arm64, 12 cores, and 64 GiB. On vanilla Windows, generation completed and the generated Python source compiled and passed all three generated tests manually, but dependency-closure setup pinned a core before the lifecycle build: `_is_pe` reread every candidate DLL in full merely to inspect its DOS and PE signatures. It now performs two stable bounded header reads and memoizes validity for each exact resolved DLL within the closure, with regressions proving an 8-MiB image requests only 64 and 4 bytes and repeated imports validate their candidate only once. Exact packaged Windows qualification remains pending on that repair. The next run then isolated an untyped exception after generation and before the first build subprocess; the lifecycle catch boundary now emits a bounded, secret-redacted exception only in verbose scope, and run-scoped diagnostics are explicitly copied into each parallel Component executor context. The following exact Windows run proved that propagation but produced more than 64 KiB of legitimate verbose stderr; the SSH transport incorrectly replaced the remote result with `execution.ssh_diagnostic_too_large`. Oversized diagnostics now retain an explicitly marked 64-KiB tail so the final typed envelope and exception remain available without permitting unbounded memory or terminal output. This preserves verbose mode while retaining the compact public failure contract. With those repairs installed from one exact wheel, the retained tail exposed a second boundary defect: truncation may begin within a UTF-8 code point, so strict decode downgraded a complete final typed error. Typed-envelope extraction now replaces only malformed diagnostic bytes while continuing to validate the final line strictly. Windows then reached the real generated build: the candidate paired a pytest-style free test function with `unittest discover`, which found zero tests and correctly rejected the build. The Python generation skill and initialized copy now require runner-compatible `unittest.TestCase` methods, execution of the exact ordinary build-system test target, and explicit rejection of zero-test discovery; focused regressions pass and SkillEvaluator grades the changed skill 91.5/A. With earlier repairs installed from one exact wheel, Windows now reaches candidate validation and the corrected runner completed a real build. The generated single-file export then failed its framework test mode because it imported `tests.litai_test` from the discarded source tree. The Python skill now also requires file-layout exports to embed their framework-mode dispatcher and proves both modes against the exact exported path before generation returns; source-only tests cannot become runtime dependencies of an allegedly self-contained artifact. With earlier repairs installed from one exact wheel, Windows now reaches candidate validation but a later candidate declared only `build`, `test`, and `run`; the locked Make profile correctly invoked required `all` and rejected it immediately. The Make skill had already required `all` while contradictorily forbidding Make execution during generation. It now requires an exact disposable `all`/`test`/export-mode validation loop while continuing to forbid fetches, package managers, publishing, and writes outside disposable roots. With earlier repairs installed from one exact wheel, Windows now reaches candidate validation promptly and rejects the latest generated source at `sbom.dependency-ref-dangling`. This is a generated-candidate defect, not a host prerequisite or compilation failure; the invalid candidate is not admitted to the accepted source cache. A follow-up audit found the receiver parsed the request's identity-bound `verbose` field but never activated its diagnostic scope, so remote `-v` silently omitted lifecycle traces. The receiver now scopes the whole materialize/execute operation to that request field, with focused coverage; this enables diagnosis without adding mutable environment authority.",
+        "Define and version a platform-neutral accepted source-cache tree identity that binds file type, relative path, content, and meaningful executable intent without making Windows reproduce POSIX permission bits it cannot represent. Archive and staging materialization must preserve safe executable semantics on POSIX, reject unsafe/special entries, and produce the same accepted identity under Windows-like mode behavior.",
+        "Add the smallest secure Standard worker bootstrap capability: accept only a coordinator-staged, non-editable Literate AI wheel/distribution whose exact SHA-256 identity is bound by the request; verify bytes before any import or execution; install into an isolated worker environment; and report the installed distribution identity. Do not add arbitrary remote shell, mutable package-index resolution, credential transport, or unauthenticated installation.",
+        "Leave allocation, readiness, bootstrap orchestration, cancellation, cleanup, retained sessions, retries, and task/lease persistence to the selected external dispatcher. Literate AI supplies a timeout/cancellation signal and records the external task/result identity; its built-in SSH lane continues to own only its existing bounded connection, source transfer, remote command, and cleanup steps.",
+        "Require the SSH worker or external dispatcher result to report observed OS/CPU/GPU/toolchain facts and reject contradictions before accepting lifecycle evidence. Apply exact source transfer, project/generated-tree CodeGraph checks, detect-before-install rules, and execution authorization without teaching LitAI how the external system found or created the worker.",
+        "Resolve artifact locality explicitly. `run --worker` submits a single request that retrieves/builds and runs a compatible artifact through that worker; `build --worker` requires a durable artifact export/cache result before the worker finishes. Cache identities bind declared requirements, exact toolchain, source/specification/Flavor identity, and artifact format\u2014not a fleet hostname.",
+        "Bind receipts and compact remote evidence to the selected worker declaration, worker/dispatcher task identity, observed capabilities, exact repository/source, specification and Flavor closure, toolchains, tests, execution result, artifact, and teardown disposition. Reuse bounded parallel scheduling and fail-fast checkpoints without treating a resumed diagnostic run as release attestation.",
+        "Return a versioned, digest-bound remote lifecycle evidence manifest plus bounded source/object/binary/package/test/receipt payloads or failure diagnostics before cleanup. The coordinator independently verifies and deterministically imports every declared byte into verifier-accessible custody, acknowledges the exact manifest, and only then permits idempotent bounded cleanup. Missing, tampered, partial, replayed, or unacknowledged transfer fails closed; worker-local paths never become coordinator attestation.",
+        "Keep the SSH lifecycle control result below its fixed one-MiB transport limit: inline only status, bound identities, manifest/bundle sizes and transfer handle, observed worker facts, and a bounded redacted summary. Transfer the complete manifest, stage evidence, artifacts, logs, and failure diagnostics through the existing acknowledged custody bundle; reject malformed or oversized controls, and verify the declared manifest and bundle bytes before coordinator acceptance.",
+        "Apply explicit secret and private-path redaction to nested stage failures, stdout/stderr, manifests, and cleanup status. Preserve the underlying source-index preflight cause across Windows cleanup, while retaining bounded diagnostics and no arbitrary remote-file fetch surface.",
+        "Update `litai init`, top-level/project skills, CLI help, configuration guidance, security documentation, diagrams, and synthetic examples so derived projects can configure SSH workers or plug in a private dispatcher skill without inheriting framework-only sample scripts.",
+        "Contract, schema, parser, and worker tests cover local/SSH/command workers; exact IDs; OS/CPU/core/memory/GPU requirements; typed parameters; unknown workers and parameters; invalid dispatcher output; observed-capability contradictions; secret redaction; and canonical round trips. Tests also prove there is no internal worker-matching, ranking, provisioning, or lease state.",
+        "Security tests prove request-file/stdin transport cannot inject arguments or a shell, dispatcher output cannot introduce unsafe artifacts or evidence, credentials never enter requests/receipts, and bounded failures propagate cancellation without Literate AI pretending to own external cleanup.",
+        "PR #29's full Python 3.11/3.12 Linux/macOS gates and Windows non-live gate pass from the same mergeable commit; its actual installed wheel exposes every runtime resource and its final target-specific wheelhouses bootstrap both workers before Physics Workbench sample consumes the pin.",
+        "The repaired exact Linux and Windows closures execute Physics Workbench sample's prior 16 Standard lifecycle cells per platform with current CodeGraph evidence and no `rebuild.standard_distribution_unavailable` or `project.source_intelligence_command_unavailable`; record parent commit, wheel, distribution, closure, capability, runtime-version, and executable identities.",
+        "Lifecycle tests prove build/test/run share one worker identity and one compatible target-profile identity and automatically select compatible platform Flavors; explicit contradictions fail before code generation; remotely built artifacts remain runnable after an ephemeral worker completes; and cache hits cannot cross incompatible requirements or toolchains.",
+        "User-configured macOS, Linux, and Windows targets produce same-revision receipts through the packaged verbs, while concurrent matrix selection, fast-fail resume, source provenance, known-output acceptance, and cleanup evidence remain intact.",
+        "A real installed-wheel Linux/Windows Physics Workbench sample rerun admits all 27 lifecycle cells per platform with evidence that would exceed one MiB inline, while the control result remains below the fixed bound. Focused regressions additionally reject tampered or missing bundles, preserve referenced failure diagnostics, prove retry/replay/idempotent acknowledgement behavior, and detect secret leakage."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:8765",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "TEST-CACHE-001",
+      "manifest_entry": {
+        "id": "TEST-CACHE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "~",
+      "title": "Complete dependency-bound qualification reuse",
+      "declared_owner": "`test_checkpointing`, `pinned_test_dispatch`, existing receipt and",
+      "remaining_acceptance": [
+        "Qualify the combined clean candidate through full source, installed and platform gates; development fixtures are not release evidence.",
+        "Complete the detailed plan's closure-completeness, composed pipeline, receipt/provenance, concurrency and bounded infrastructure-retry acceptance.",
+        "Measure development resume and fresh release runs separately, including duplicate builds, environment setup, runner use and unknown wall time."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:7777",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RUNTIME-CAPABILITY-ENV-001",
+      "manifest_entry": {
+        "id": "RUNTIME-CAPABILITY-ENV-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Bind declared runtime capability variables to accepted provider artifacts",
+      "declared_owner": "Framework Standard runtime provider environment; issue #422; LAB-AUTHORITY-001",
+      "remaining_acceptance": [
+        "Retain the real installed force-regeneration counterexample and unchanged verifier oracles; generated consumer uses the exact declared variable.",
+        "Pass focused collision, ambient-variable, phase/consumer scoping and stale-authority controls, complete source gates, independent non-author review before driver repin, and an actual corrected installed generated graph journey plus native/exact-head/main verification."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:31772",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "RELEASE-CLOSURE-001",
+      "manifest_entry": {
+        "id": "RELEASE-CLOSURE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": "~",
+      "title": "Make release closure executable and continuous",
+      "declared_owner": "Existing release policy, release CLI, provider observation and publication adapters",
+      "remaining_acceptance": [
+        "Bind release decisions to the newest exact workflow/run/attempt; refuse pending, failed, ambiguous or drifting observations and recheck before tagging.",
+        "Bind delegated CI coverage to the actual required job/cell contract without adding another matrix scheduler or silently changing legacy policy semantics.",
+        "Preserve exact artifact, current contribution, required collateral, branch ancestry and remote-state checks through the combined candidate.",
+        "Complete combined source, installed and affected native CI qualification; no stale run or weaker head policy may satisfy a release gate.",
+        "Missing/skipped platform jobs remain unqualified; native CI handoff records distinguish associated source, actual tested tree and promoted artifacts.",
+        "The current release sweep, collateral policy and publication readback bind the same exact candidate; live publication still requires authorization."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:11195",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "SOURCE-ASSET-PROMOTION-001",
+      "manifest_entry": {
+        "id": "SOURCE-ASSET-PROMOTION-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Preserve reviewed immutable assets through source promotion",
+      "declared_owner": "source review, promotion materialization and existing immutable asset lifecycle",
+      "remaining_acceptance": [
+        "Add canonical optional reviewed asset selectors and strict compatible graph wire handling.",
+        "Validate exact admitted source membership, pin, size and safe collision-free paths before promotion.",
+        "Promote immutable bytes through typed provenance into authored Component assets and normal locks.",
+        "Preserve metadata-only generation and existing overlay, qualification, admission and cache ownership.",
+        "Normal CLI reviews bind asset changes and preserve asset-free identities; malformed declarations and unknown fields fail closed.",
+        "Missing, changed, symbolic, unsafe or colliding assets fail before project writes; normal promotion retains exact data and lock metadata.",
+        "Actual generation-request metadata excludes asset payload; ordinary overlay, independent acceptance and cache reuse preserve exact bytes.",
+        "Managed source, promotion and existing compatibility checks pass; a clean non-editable wheel proves the public data-backed library route."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:31876",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    },
+    {
+      "id": "SOURCE-STATIC-INTAKE-001",
+      "manifest_entry": {
+        "id": "SOURCE-STATIC-INTAKE-001"
+      },
+      "release_target": "1.4.0",
+      "roadmap_state": " ",
+      "title": "Review exact credential-free source for local static intake",
+      "declared_owner": "Local source review, static translation and source promotion; PROJECT goals 1, 2, 4 and 6",
+      "remaining_acceptance": [
+        "Add typed signed review, read-only planning and fresh approval with bounded direct-file reads and independent hard exclusions.",
+        "Integrate reviewed static analysis, signed acceptance, versioned private provenance and measured qualification validation without changing original source identities.",
+        "Preserve ordinary bundle5/provenance3 and asset provenance4 writers and all existing qualified-provider identities.",
+        "Order the deduplicated retained-record union before archive encoding; retain strict reader and identity-conflict refusal.",
+        "Managed positive and adversarial source, signature, scope, custody, policy-opt-in, no-egress and compatibility tests pass.",
+        "A clean non-editable wheel proves public planning, approval, derive, accept, qualification and key-free admitted consumption with swapped-record refusal.",
+        "Real filesystem publication/reopening accepts reverse-ordered intake additions and identical duplicates, preserves ordinary archive bytes and refuses conflicting identities before store creation."
+      ],
+      "roadmap_source": "docs/roadmap/active-work.md:31912",
+      "current_candidate_qualified": null,
+      "qualification_note": "Roadmap completion state is not independent current candidate acceptance."
+    }
+  ],
+  "uncovered_open_goal_ids": [],
+  "acceptance_limits": [
+    "Document and acceptance scope audit, not a full independent implementation review of each of the 83 features.",
+    "No current full native, wheel, Windows, FreeBSD, browser/mobile, physical TTL or final collateral execution was performed.",
+    "No release readiness or complete-feature claim follows from this report; actual evidence owners must close original acceptance with current candidate receipts.",
+    "Source baseline frozen at fef411faf. Subsequent HEAD has workflow, tests, roadmap notes and verification records; these are recorded as drift and not silently substituted for frozen acceptance evidence."
+  ],
+  "observed_post_subject_changed_paths": [
+    ".github/workflows/ci.yml",
+    "docs/roadmap/active-work.md",
+    "tests/critical/test_authored_retained_cargo_scratch.py",
+    "tests/critical/test_release_atomic_writer.py",
+    "verification/release-1.4-followup/review-contracts-ci-b087-diagnosis.json",
+    "verification/release-1.4-followup/review-contracts-scratch-release-fixtures-closing.json",
+    "verification/release-1.4-followup/review-contracts-windows-scaffold-diagnostic-closing.json",
+    "verification/release-1.4-source-review.json"
+  ]
+}

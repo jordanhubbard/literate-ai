@@ -1,0 +1,51 @@
+{
+  "status": "independent_source_closing_review_accepted",
+  "head": "d5d4deccc0694770363e27cf18a2092545904b77",
+  "source_sha256": {
+    "src/literate_ai/adapters/evidence_files.py": "4cf4ae0ce51d5bd0130682a7516a50e27f2f3f1d5fa3b912a0bca1180affb699"
+  },
+  "delta": "Exactly2directory native open keyword changes in _WindowsAccess._hold and current probe: share_write=False becomes True. share_delete=False unchanged. Explanatory directory-only comment updated. Leaf metadata and payload-open sharing/code unchanged; every native name/ID/type check and namespace/byte/census/creator guard unchanged.",
+  "actual_native_failure": {
+    "revision": "d5d4deccc",
+    "run": 45976794040,
+    "job": 140430894978,
+    "log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-d5-windows-scaffold-isolated.log",
+    "artifact": 15187282852,
+    "junit": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-d5-windows-isolated-junit.zip",
+    "case": "ScaffoldCustodyTests.test_real_creators_replace_owned_file_then_retire_only_owned_outputs",
+    "result": "Only1test fails at FIRST scaffold_write_bytes(value,bfirst), before second replacement/rollback; scaffold_custody185 os.replace(<temp>/litai/nested/.s-*,<temp>/litai/nested/value) WinError32.1failed1.61seconds, JUnit testcase0.017seconds. No broad/boundary shard ran after this error.",
+    "inference": "Fresh isolated process reproduces broad b087 first replacement, eliminating prior-shard pollution as necessary explanation. Closed creator/checked metadata leaves leave native directory pins as concrete conflict tied to official destination-parent open contract."
+  },
+  "official_causal_contract": [
+    {
+      "url": "https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsa/87f86c9b-6c2a-4803-84b7-131a74a434fa",
+      "fact": "Rename algorithm2.1.5.15.12 opens destination directory for FILE_ADD_FILE plus SYNCHRONIZE for a data-file rename; this is directory write-data access. Failing that open fails rename."
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fsa/8c0e3f4f-0729-49f4-a14d-7f7add593819",
+      "fact": "Sharing algorithm2.1.5.1.2.2 rejects new write-data access when existing same-directory open denies FILE_SHARE_WRITE."
+    }
+  ],
+  "directory_identity_rationale": "Deny-delete remains on every held ancestor and fresh probe, pinning original directory name against rename/delete. Enabling write sharing is not writer authorization, child ownership or an exclusion. Directory handles were never a recursive child-write barrier: ordinary file/directory creations already occur under them. Original exact selected-leaf readers still deny writes/deletes, and explicit complete census/known-state/callback closure supplies membership guarantees.",
+  "consumer_review": {
+    "evidence_files.py": "copy_evidence_files and visit_evidence_files bracket complete source census and exact perleaf native/stream/byte postimages; directory.current retains name/type/native identity.",
+    "evidence_archive.py": "Native output parents use same base access; exact writer/verifier/native names/bytes and no-replace link closing remain. Distinct live deny-delete verifier issue is separate and no leaf change approved here.",
+    "remote_cleanup.py/windows_cleanup.py": "Original producer bindings, fresh snapshot/subset, finite controls and exact native disposition/guard remain. Metadata leaf READ_ATTRIBUTES/share7 behavior unchanged; native payload leaves strict.",
+    "evidence_staging.py": "Original descriptor birth/read-pin handoff, active creator tokens, known namespace set and seal/verify/foreign preservation remain.",
+    "scaffold_custody.py": "Actual nodes creator ledger and original postimages/complete verify/rollback guards remain; no enrollment from new write sharing.",
+    "release_atomic_writes.py": "Exact original source/destination read pins, writer/hash/native postimages, ownership callbacks and failure preservation remain.",
+    "release_worktree_custody.py": "Original source/Git parents/name/native IDs and known()->snapshot complete census + actual command producer boundaries remain.",
+    "driver_diagnostics.py": "Finite exclusive output creators, leaf read pins, original project/manifest/runtime/output authority and no deletion remain.",
+    "project_runtime.py": "Issued original inspection/stage/mutex/execution creator guards remain.",
+    "project_source_index.py": "Original source inventory/hash and exact receiving-stage/database creator guards remain.",
+    "release_files.py": "Original source exact-byte copy and receiving-stage.created/seal/verify/readpin custody remain.",
+    "project_releases.py": "Original wheel file source/creator/hash/named postimages and atomic no-replace link/foreign preservation remain."
+  },
+  "shared_vs_subclass": "No read-only consumer found treating directory deny-write alone as namespace/source authority. Shared base correction removes same parent-open mismatch for scaffold/cleanup AND base-access release/evidence/wheel output owners; Metadata-only subclass parameter would leave other original publications broken and split the directory identity contract.",
+  "independent_verification": {
+    "model": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-authority-windows-directory-sharing-model.json",
+    "model_result": "Actual _WindowsAccess with POSIX-backed Windows kernel facade:30directory opens use share3(read+write,no-delete);2leaf opens share1(read-only);0leaked native handles.",
+    "existing_controls": "40 original tests PASS1.715seconds, no skips: WindowsCleanupHandleTests17 plus ScaffoldCustodyTests12 plus ReleaseAtomicWriterTests11."
+  },
+  "limits": "Source/targeted model and local POSIX controls accepted only. Actual fixed native Windows isolated case and broader native group acceptance pending after commit. No production code edits by reviewer; no broad single-cause classification or archive-leaf repair claim."
+}

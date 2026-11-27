@@ -1026,5 +1026,63 @@
     },
     "native_windows_blocker": "Prior b087 native Windows group3 report222failures/65errors/1860passed/743skipped includes sharing violations, but full report is not classified as one cause. Writer and metadata leaf handles appear closed before first scaffold replace; no speculative production policy repair. Existing positive scaffold class absent from group3 JUnit, so added isolated execution supplies missing evidence.",
     "limits": "Frozenfef native900 and wheel gates still running independently. Complete source/native/installed/platform/collateral/contribution/all83goals/publication/readback remain required."
+  },
+  "qualification_followup_r7": {
+    "base_commit": "d5d4deccc0694770363e27cf18a2092545904b77",
+    "review_reports": [
+      "verification/release-1.4-followup/review-authority-windows-directory-sharing-final-closing.json",
+      "verification/release-1.4-followup/review-authority-windows-directory-sharing-model.json",
+      "verification/release-1.4-followup/review-contracts-wheelhouse-r8-diagnosis.json",
+      "verification/release-1.4-followup/release-scope-audit-r1.json"
+    ],
+    "current_reviewed_hashes": {
+      "src/literate_ai/adapters/evidence_files.py": "4cf4ae0ce51d5bd0130682a7516a50e27f2f3f1d5fa3b912a0bca1180affb699"
+    },
+    "native_reproduction": {
+      "head": "d5d4deccc0694770363e27cf18a2092545904b77",
+      "run": 45976794040,
+      "job": 140430894978,
+      "result": "Original positive scaffold control1failed at FIRST write os.replace/WinError32, before full shard. Writer and metadata leaves already closed; no shard pollution dependency."
+    },
+    "repair": "Only Windows directory held/probe opens share writes so native rename can open its destination parent for FILE_ADD_FILE. All directory opens still deny delete; native named/held IDs and types, fresh census closures, perleaf native/byte reads/sharing and original lifetimes remain. No new test skip/retry/deadline/sourceauthority waiver.",
+    "source_evidence": {
+      "windows-directory-sharing-model-r1": {
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        },
+        "report_sha256": "a7b3fcc9e25af02db895a97a335d305f639c2283a812c279fc8e7979f1443d0c"
+      },
+      "windows-directory-sharing-scaffold-r1": {
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        },
+        "report_sha256": "68d6e96114a400bd443cefedee348c411829d979883d01d8688a1b6892f0284f"
+      },
+      "windows-directory-sharing-evidence-r1": {
+        "summary": {
+          "executed": 24,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 24,
+          "selected": 24,
+          "skipped": 0
+        },
+        "report_sha256": "1bf974bf9e99b7e46e1a1765a5f566bfec2685935239d035ab856e6c817c650b"
+      }
+    },
+    "native900_state": "Frozenfef original first native completion case now has a success event including graph-change refusal assertions; secondcase running, thirdnotyetexecuted. No complete cohort/realprovider/completefeature acceptance inferred.",
+    "wheel_state": "Frozenfef Python3.15 wheel-full-r8 advanced beyond contained oracle lookup but failed binary dependency export: exactPyYAML6.0.3 lacks compatible observed3.15/aarch64 binary. Samepin resolves3.14/aarch64. Fresh complete wheel-full-r9 uses native3.14.7 on frozend5, preserving binary-only, versionpin,300second downloader, original assertions and failed3.15receipt.",
+    "scope_audit": "All83 immutable1.4goals retained:35checked,46open,2partial. Independent audit maps all48unclosed goals to12groups; actual historical migration, provider-to-consumer admission/source retirement,5unit100kFreeBSD cold verification+2physicalhosts, heldprovider independentruns, finalcollateral/labs and publication remain required.",
+    "limits": "Actual fixed Windows positive control and fullplatform qualification still required. Separate archive live-verifier leaf-sharing concern is unmodified/unqualified. Frozen source/native/wheel jobs remain independent; no resulting-main/release attestation."
   }
 }

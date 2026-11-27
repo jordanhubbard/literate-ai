@@ -99,15 +99,17 @@ class _WindowsAccess:
         self.root, self.stack = root, stack
         self.kernel = _Kernel32Windows()
         self.held = {}
-        # Pin each ancestor before any inspection/descent below it. Earlier
-        # handles deny write/delete sharing; final reparse nodes are never followed.
+        # Pin each ancestor against rename/delete before inspection/descent.
+        # Directory write sharing permits the destination-parent FILE_ADD_FILE
+        # open required by native child publication. Leaf readers remain strict;
+        # fresh namespace observations still close child membership changes.
         for path in (*reversed(root.parents), root):
             self._hold(path)
 
     def _hold(self, path):
         if path not in self.held:
             handle = self.kernel.open_reparse_aware(
-                str(path), share_delete=False, share_write=False
+                str(path), share_delete=False, share_write=True
             )
             self.stack.callback(self.kernel.close, handle)
             node = path.lstat()
@@ -194,7 +196,7 @@ class _WindowsAccess:
             if self.kernel.file_identity(handle) != expected:
                 raise EvidenceFileError("evidence directory identity changed")
             probe = self.kernel.open_reparse_aware(
-                str(path), share_delete=False, share_write=False
+                str(path), share_delete=False, share_write=True
             )
             try:
                 if self.kernel.file_identity(probe) != expected:
