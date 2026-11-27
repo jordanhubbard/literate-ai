@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "03553009cfff3fdc38e6dede15a812edc1dad0fb",
+  "continued_subject": "6352bb72f44b51b8e1be2d9d8b3ec733625540ea",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -53,8 +53,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 62,
-      "preserved-for-reconciliation": 28
+      "merged": 70,
+      "preserved-for-reconciliation": 20
     },
     "snapshots": [
       {
@@ -424,27 +424,33 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "3b2af06ea85f4bf93155f3e8ecafab013710476a",
         "branch": "recovery/puck-20261126/laycatalog1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 32,
-        "remaining_paths": 26
+        "remaining_paths": 0,
+        "reconciliation_commit": "1c30487434ca1e758639d8b7e53ecbafa26df674",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
       },
       {
         "label": "laycust1",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "4dbb045cb3b686fe2e5e1ebaab194cd8a358d066",
         "branch": "recovery/puck-20261126/laycust1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 22,
-        "remaining_paths": 18
+        "remaining_paths": 0,
+        "reconciliation_commit": "88232e10ea59eb4234631bc85a4660b486939ea4",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
       },
       {
         "label": "laygraph1",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "a6c85f222a3b084d429b311e48118e5954927ad8",
         "branch": "recovery/puck-20261126/laygraph1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 34,
-        "remaining_paths": 24
+        "remaining_paths": 0,
+        "reconciliation_commit": "d3823e93eb86718774598283a130cefbbda8e6ae",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
       },
       {
         "label": "layjoin1",
@@ -460,18 +466,22 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "4fb1c950bc6f33df466da7b36a40349776b30c32",
         "branch": "recovery/puck-20261126/laymove1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 22,
-        "remaining_paths": 18
+        "remaining_paths": 0,
+        "reconciliation_commit": "714bdbcaecb30dbad3087b7f283561b223420280",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
       },
       {
         "label": "laynext1",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "ee321752cdbffbb47e38251780920bdea33427c1",
         "branch": "recovery/puck-20261126/laynext1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 9,
-        "remaining_paths": 9
+        "remaining_paths": 0,
+        "reconciliation_commit": "6352bb72f44b51b8e1be2d9d8b3ec733625540ea",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
       },
       {
         "label": "layout14",
@@ -487,27 +497,33 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "1b4dca5978c04ff6179aa64c11b1d75ed42a5eee",
         "branch": "recovery/puck-20261126/layrefs1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 35,
-        "remaining_paths": 24
+        "remaining_paths": 0,
+        "reconciliation_commit": "3b69efc0bf19cfab20a599ae7bf5e9e9b67cae0e",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
       },
       {
         "label": "layrelease1",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "f9a728fb2e5c7e6e54ca5aa2d882317dc896047f",
         "branch": "recovery/puck-20261126/layrelease1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 37,
-        "remaining_paths": 26
+        "remaining_paths": 0,
+        "reconciliation_commit": "a7b276a4b5d25932e108df6d96b0c5cac11d3d32",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
       },
       {
         "label": "layskill1",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "5265b2c7e951c2cc4da445320a6fd83d01fb0524",
         "branch": "recovery/puck-20261126/layskill1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 31,
-        "remaining_paths": 26
+        "remaining_paths": 0,
+        "reconciliation_commit": "d8eed27e46dbff065fcb50fdf203e19ac583db34",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
       },
       {
         "label": "nativereadopt1",
@@ -947,7 +963,15 @@
         "cancust1",
         "arm14",
         "catcust1",
-        "catplace1"
+        "catplace1",
+        "laymove1",
+        "laycust1",
+        "laygraph1",
+        "layrefs1",
+        "laycatalog1",
+        "layskill1",
+        "layrelease1",
+        "laynext1"
       ],
       "roadmap_delta_test_methods_identical": 4,
       "roadmap_delta_added_prose_lines_retained": 17,
@@ -993,6 +1017,19 @@
         "merge": "881644cf2",
         "tree_unchanged": true,
         "scope": "Original source intent and installed wheel journey hook retained. Equality proves no source regression from the reconciliation; it does not prove the unresolved native qualification matrix."
+      },
+      "layout_eight_generalized_catalogs": {
+        "resolution_sha256": "9957e7d8bd03ca8a43465bdf779368008c0ba6511ceb660c38361cd40b064b34",
+        "inventory_sha256": "9e2050b432691294edcb841b9327667240ed23d882a9ecbd0393905c07dcde84",
+        "scopes": [
+          "contained native/generated reparent authority",
+          "layout-pending update holds and shared selector/reference custody",
+          "typed imported catalog placement with old-root shadow refusal",
+          "forward and reverse skills plus workflow/routing coordinates",
+          "root/contained release policy ownership",
+          "read-only layout planning and explicit receipt evidence location"
+        ],
+        "scope": "Current tree retained in all eight joins; history joins renew no qualification. Unresolved original changed-parent catalog provenance and native forest role-input refusals remain."
       }
     },
     "committed_heads": [
@@ -1065,7 +1102,7 @@
     },
     "next_source_work": {
       "label": "cg14b",
-      "status": "unique configuration/metadata bounds reviewed; original-owner runtime reproduction and port pending",
+      "status": "Three actual runtime gaps repaired and committed; final existing execution-input regression running before complete cg14b reconciliation.",
       "scope": "Current core require_metadata_paths builds a resolved file set and has no recovered explicit metadata path-count/memory preflight. Prototype verifies nearest captured owner and bounded internal alias resolution without opening metadata-selected paths. Hypothesis to reproduce: an external unowned symlink to a captured file may pass current resolve-based membership. Preserve current original materialization/scratch/environment/lifetime guards and independently pinned ancestor configuration, rather than restoring obsolete constructible prototype owners or rejecting all existing ancestor config.",
       "current_owner": "src/literate_ai/adapters/retained_cargo_execution_inputs_core.py",
       "original_helper_files": [
@@ -2403,6 +2440,138 @@
         "format_proof_sha256": "96777e4b09d0f08aabdee32beebff301c0e1132ed0d17a303d502c2b72973eb9"
       },
       "release_evidence": false
+    },
+    "recovered_cargo_input_custody": {
+      "status": "metadata, wrapper and receiving controls passed; full execution-input regression still running",
+      "source_commits": [
+        "c3358e21f",
+        "cac4efa22",
+        "ebfe2594a",
+        "4f788a94a"
+      ],
+      "original_counterexamples": {
+        "unowned_external_alias": {
+          "summary": {
+            "executed": 2,
+            "failed": 1,
+            "known_failed": 0,
+            "passed": 1,
+            "selected": 2,
+            "skipped": 0
+          },
+          "seconds": 189.662,
+          "report_sha256": "98dee9e2cecfe8777b9787578c9ba6553b9b3937db78d9dd0d8904cd1bd438ad",
+          "log_sha256": "7413ba3a274f6d4210dcc3b4d65149f3c7a4e8d16cf25b1994bfe20b4259dec9"
+        },
+        "ended_wrapper_rearmed": {
+          "summary": {
+            "executed": 1,
+            "failed": 1,
+            "known_failed": 0,
+            "passed": 0,
+            "selected": 1,
+            "skipped": 0
+          },
+          "seconds": 8.881,
+          "report_sha256": "77d5b159a0def9d5e5f3e7961f5badd95e7d5f04818222e28860a1b41c4fd41b",
+          "log_sha256": "aa57f4a30538fe94516a9e3e2b2cde654cfb794ec64439fccd1a00ba26c1aa55"
+        },
+        "late_ancestor_configuration": {
+          "summary": {
+            "executed": 2,
+            "failed": 1,
+            "known_failed": 0,
+            "passed": 1,
+            "selected": 9,
+            "skipped": 0
+          },
+          "seconds": 280.977,
+          "report_sha256": "8500929507c79d4678ba3a89fcd6ac84a5246cea80cb26337918f825e459d34f",
+          "log_sha256": "0f56e4a134ee9eba3946ba4b7ac6b47c8e54d7ece7faeeb82923e0d2c2da06d5"
+        }
+      },
+      "metadata": {
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "seconds": 402.903,
+        "report_sha256": "792239622e7af4b8ccf95d1724338518761cbaecac1140ee0daf3b8843a0e6a3",
+        "log_sha256": "9d6385db2e6022c284c656def5bca9eae46d244961439bc95e5fa748dbbe233b"
+      },
+      "wrapper_original_issuance": {
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        },
+        "seconds": 18.075,
+        "report_sha256": "46142f20373ff386cc640802da0377f6fb3aa9909c9bfcc637ec59b746b1a540",
+        "log_sha256": "de1883e958cc036377a243beff45d3c56b38b716ae8dc1425b575eef5fbd25b7"
+      },
+      "authored_wrapper": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "seconds": 65.145,
+        "report_sha256": "878013921fecc2d27e122e8199b4978b4d660097f2bbd7c2edc4a3ce4e9da893",
+        "log_sha256": "1f5742c5d13ca3cf2840ea281df316ba545760cde5b72daa4ba31bb3d964f068"
+      },
+      "python_observation": {
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        },
+        "seconds": 78.643,
+        "report_sha256": "eac0931e1279fd0d9bd03b2fd785887c5eb779442e66c7bdc3286539b56f1bd3",
+        "log_sha256": "87ffd60c6d25a7126bce40c166915584cbcbe0bd3dc4e1f19a4852e6b7c65dfa"
+      },
+      "receiving_recovered_controls": {
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "seconds": 139.27,
+        "report_sha256": "8d7b7746236c7968fef7acf136788ab4a95844061fba20d2e3c6d5349f05d738",
+        "log_sha256": "776466b471cef04e262a0e508906d7bfbb17684a464fccffc6e86d0abe2681cc"
+      },
+      "ports": {
+        "metadata": "Bounded logical projection and nearest captured-owner internal-alias resolution through shared original input facade; no metadata-selected filesystem resolve/open. Both complete original guards remain.",
+        "configuration": "Keep independently pinned ancestor config instead of restoring old uncaptured-config blanket refusal. Recheck original pinned bytes and absence after final materialization callback.",
+        "wrapper": "Exact issuer-registered core and facade, original lifetime/process/thread, closing checks and retirement invalidation; retain current context/native/source/lock guards.",
+        "materialization": "Keep current separate absent-only scratch reservation and archive-qualified package publication. Corrupt archive/revoked provider cannot publish packages; original empty reserved roots remain owned and unchanged. Do not restore obsolete arbitrary initial_contents or constructible scratch materialization.",
+        "execution": "Keep modern exact-source/authored native sessions, original measured tool owners, shared deadlines/output bounds and target protocols instead of prototype SimpleNamespace command grants."
+      },
+      "scope": "Actual adopted Make/Git, archive/scratch/filesystem custody and real thread/fork controls; fixture Cargo/provider declarations. No Cargo command, genuine generated provider, independent native product, macOS/Windows/FreeBSD or release qualification inferred.",
+      "canonical_style": {
+        "status": "passed",
+        "python_files": 2772,
+        "log_sha256": "b3b4b49409f6e40d227f7ae68d9a6232335fd23a0552a642837f3e7be09f097a"
+      },
+      "earlier_unqualified_diagnostics": [
+        "External test-discovery start directory refused as not importable before case execution; canonical Make discovery used for actual counterexample.",
+        "Raw ruff check dot included historical/lab examples and failed 703 findings outside canonical Make lint scope; these files were not changed."
+      ]
     }
   },
   "remaining_requirements": [

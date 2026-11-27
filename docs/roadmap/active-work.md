@@ -29155,10 +29155,10 @@ qualification, admission and cache reuse remain open.
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
-- **Next action:** Reconcile the remaining 37 snapshots and three clean heads; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Next action:** Reconcile the remaining 20 snapshots; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
   - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
-  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 53 of 90 recovery snapshots merged; 37 remain preserved. Four of seven additional committed heads are merged; three remain preserved.
+  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 70 of 90 recovery snapshots merged; 20 remain preserved. All seven additional committed heads are merged.
   - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
   - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
   - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
@@ -29174,11 +29174,11 @@ files. Seven otherwise unpushed heads are published too. After independent trans
 acceptance, 268 redundant worktrees and one legacy clone were removed. The sole
 source checkout retains 695 ignored/untracked paths and the legacy Git database;
 no separate framework sibling checkout or alias remains. Its clean registration
-and fast-forward synchronization were rechecked through `ecd6c20ca`; synchronize
+and fast-forward synchronization were rechecked through `cac4efa22`; synchronize
 again after subsequent checkpoints. New large outputs use the mounted shared
 workspace volume, preserving existing checkout paths and failed-fixture nodes.
 
-**Integration.** The latest original dirty integration joins at `6ca69e404`.
+**Integration.** The latest reviewed history integration joins at `6352bb72f`.
 Reviewed history merges retain newer runtime code, original 1.4.0 goals, terminal
 failures, native qualification gates and source custody. The current snapshot
 counts above are established by actual ancestry. Six original proposed designs
@@ -29547,9 +29547,21 @@ scripts and schemas and retains its original Unreleased feature documentation.
 Sixty-two snapshots and all seven clean heads are integrated; twenty-eight
 snapshots and explicit acceptance holds remain.
 
-Next, reproduce and port `cg14b`'s unique metadata projection/path bounds using
-actual current original Cargo materialization and scope owners. Current resolved
-membership may accept an unowned external alias pointing at a captured file;
-that is a hypothesis until exercised. Keep current lifetime/environment/native
-fences and independently pinned ancestor configuration; do not restore obsolete
-constructible owners or loosen/refuse host input authority just to pass old tests.
+**Recovered Cargo ownership and layout histories.** The actual original owner
+probe confirmed that resolved membership admitted an unowned external alias to a
+captured file. Five bounded metadata controls pass after porting captured-owner
+membership and allocation bounds. Nineteen wrapper controls pass after a separate
+retired-wrapper rearming counterexample; exact original object/process/thread
+custody now spans source Cargo, authored Cargo and read-only Python. Six archive
+receiving controls pass, including corrupt-archive and provider-revocation
+refusals with original reserved roots preserved.
+
+A real final-callback ancestor-config counterexample is repaired, keeping current
+independently pinned configuration and all lifetime/environment/native fences.
+Its fuller execution-input regression is still running before the complete
+`cg14b` history joins. Obsolete constructible prototype owners are not restored.
+Eight earlier layout stages join with unchanged trees after source/test and
+generalized catalog-owner review. Seventy snapshots and all seven clean heads
+are integrated; twenty snapshots remain. These history joins renew no platform
+or installed acceptance. Original failures and native/release holds remain in
+the custody observation.
