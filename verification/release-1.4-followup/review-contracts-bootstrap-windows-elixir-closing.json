@@ -1,0 +1,47 @@
+{
+  "scope": "Independent source closing review of Windows bootstrap clock/raw reader patch and Elixir fixture placement fixes in isolated maintained-followup worktree",
+  "verdict": "no_remaining_actionable_source_finding_in_reviewed_diffs",
+  "files": [
+    {
+      "path": "src/literate_ai/project_template/scripts/bootstrap_litai.py",
+      "sha256": "a69af3016c68b8b3e7940558280024189d3a8c36065d3773df765d65fa80aecf"
+    },
+    {
+      "path": "tests/smoke/test_bootstrap_litai.py",
+      "sha256": "478d6dbe9e30ad3350dfe3318661990d4dafe2a2b50817c1f52ad16c7b72abfe"
+    },
+    {
+      "path": "scripts/installed_maintained_controls.py",
+      "sha256": "d32c2392b413ba5a2a1df9699865251f2a1b509c93d84387c26aa61da6093901"
+    },
+    {
+      "path": "tests/smoke/test_elixir_flavor.py",
+      "sha256": "99c41341a8efc6ca8bd28850f830c1b2974b223ebaea3cdbfe388638d2f3f6e9"
+    }
+  ],
+  "bootstrap_review": [
+    "Both original raw os.open readers add O_BINARY while retaining existing nofollow/nonblock/type/size/exact-byte/digest fences.",
+    "dev/ino/mode/nlink/size/mtime still match across named-before,fd-opened,fd-after,named-final observations.",
+    "Named ctime closes within pathname channel and descriptor ctime within descriptor channel, allowing stable Python3.12 birth-vs-change semantics without dropping either witness.",
+    "Original observations retain BOTH ctimes so the outer post-probe check rejects either channel drifting.",
+    "Both new native-read controls are included in the maintained installed whitelist."
+  ],
+  "independent_execution": [
+    "ManifestNativeReadTests:2passed0.980s.",
+    "Actual standalone script with modeled named100/fd200 clocks reaches controlled real check probe and returnsready when stable.",
+    "Changing only named ctime after controlled probe returns project-invalid; changing only descriptor ctime likewise refuses; probe callback execution asserted."
+  ],
+  "canonical_receipt_inspected": "bootstrap-native-clocks-r1:17passed17.171s; source controls only.",
+  "elixir_review": [
+    "Uses actual ProjectConfigurationStore.context(target).framework_path for initialized Flavor/Skill parity and install assertions; explicitly checks default contained placement.",
+    "Canonicalizes only freshly owned TemporaryDirectory roots, preserving production nofollow ancestry checks and intentional root _locked_snapshot authoring/selection logic.",
+    "Original parity, skill, add-conflict, compiler/runtime and custody assertions retained."
+  ],
+  "qualification_limits": [
+    "Native Windows3.12 CI remains required; modeled clock and Linux source controls are not native Windows qualification.",
+    "elixir-fixtures-r1 remains failed:4executed,1error,1skip due installed distribution resolving multiple Git origins. This is a legitimate E1-primary/editable vs followup-module authority conflict; no origin mocks or production guard relaxation endorsed.",
+    "Root is preparing isolated E2 editable environment for actual Elixir cohort. No passing Elixir cohort, installed wheel, complete source gate or release acceptance asserted here.",
+    "Other dirty followup files belong to root/peer work and are outside this four-file closing scope.",
+    "No source edits,pins,commits,worker dispatch,publication or acceptance-marker change performed."
+  ]
+}

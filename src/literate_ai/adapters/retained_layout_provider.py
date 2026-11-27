@@ -290,7 +290,7 @@ class _Objects:
                 self.count_entry(str(parent))
                 self.ancestry[parent] = _signature(parent)[:3]
 
-    def external_path(self, base, value):
+    def external_path(self, base, value, *, _optional_include=False):
         _profile(self)
         target = Path(value)
         if len(target.parts) > 128 or len(value.encode("utf-8")) > 4096:
@@ -299,6 +299,13 @@ class _Objects:
             _fail("original provider external path contains control characters")
         current = Path(target.anchor) if target.is_absolute() else base
         for part in target.parts[1:] if target.is_absolute() else target.parts:
+            # Git ignores a missing optional include even when an intermediate
+            # directory is absent. Retain that first absence, not a fictional
+            # directory chain. Object-store paths remain strict.
+            if _optional_include and not os.path.lexists(current):
+                if self.snapshot(current, optional=True).signature is not None:
+                    _fail("original provider include ancestor changed")
+                return None
             # Preserve every traversed prefix, including ones canceled by '..'.
             self.directory(current)
             current = current.parent if part == ".." else current / part
@@ -348,7 +355,15 @@ class _Objects:
                     continue
                 if not separator or not value:
                     _fail("original provider include path is absent")
-                target = self.external_path(item.path.parent, value.decode("utf-8"))
+                text = value.decode("utf-8")
+                target = self.external_path(
+                    item.path.parent, text, _optional_include=True
+                )
+                if target is None:
+                    # Cached absence does not erase a declared occurrence from
+                    # the original entry/metadata/deadline accounting.
+                    self.count_entry(str(item.path.parent / text))
+                    continue
                 self.count_entry(str(target))
                 pending.append(self.snapshot(target, optional=True))
 

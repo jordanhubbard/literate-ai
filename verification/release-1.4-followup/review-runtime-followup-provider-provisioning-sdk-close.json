@@ -1,0 +1,49 @@
+{
+  "status": "source-closing-review-complete-no-findings",
+  "worktree": "/home/jkh/Src/literate-ai/.worktrees/release-maintained-followup-20261126",
+  "head": "ac2e88417a58fe0c2a1f4d318e3f7fb14811b1a1",
+  "files": {
+    "src/literate_ai/adapters/authored_retained_cargo_provisioning_monorepo.py": "4d11ed752ceeba829f54d1405d6faa92ed2a07e00e955c318bef94a9da872e29",
+    "src/literate_ai/adapters/retained_layout_provider.py": "1467d559828d7afa642ec6f43018aeee5a61c64c50671b083d377ad22ec13ecf",
+    ".github/qualifications/native_sdk/qualify_public_sdk.py": "f670c1504fb5f0960ddb11dc33d477fb6758acce3179be1838a0b017b57fbf7f",
+    "tests/critical/test_retained_layout_provider.py": "5ebd23167c7878508d3b65518ae460900c401c955c518ed5786e529e43a3fffa",
+    "tests/support/fixtures_retained_cargo_native_v2.py": "67153564258399caa6d62aab0f1efe4bc558f5b51b488e96300f4a28b588d583",
+    "tests/smoke/test_authored_reopened_native_execution.py": "99231d9d836f414f4c9f32714ce4dd5f99e41e21c1b6791a1f2b8ba361e48272",
+    "tests/critical/test_authored_monorepo_completion.py": "29734cd41ce4f015b0a4f3b3753c25d306b0f1014818cd4a01ba4496ed87f84b"
+  },
+  "source_delta_sha256": "4c84ecc7a21312837db3daabee440daf101eff99aa5772a0278ea7e34ef21c3c",
+  "reviewed_repairs": [
+    "Provisioning monorepo original producer placement captured before checker callbacks for metadata/component reads. Original installed source_root, residual allowance, native ancestry/file closure and original source lifetime checks preserved. Same retained_scaffold_coordinate helper preserves legacy/mixed/contained semantics.",
+    "Only config_graph opts into optional include traversal. First absent intermediate prefix is snapshotted optional with existing parent lineage, signatureNone required, remaining chain not descended. Existing close_native detects activation. Symlink/unsafe present prefixes remain refused; default strict object alternate traversal unchanged. Source-provider shared snapshot/lineage separation reviewed for compatibility.",
+    "Qualification harness uses captured actual project context manifest for all three policy reads and framework coordinates for component and Flavor files. Initial16 evidence-kind check and exact before/after policy comparisons retained. Old root verification/current.json absence retained and canonical framework absence added. Absolute generated paths passed to write preserve intended destination under Path composition.",
+    "Both native receiving fixture metadata reads now use same ProjectConfigurationStore.context(...).framework_path as existing scratch fixture. Native workspace/gate/test assertions unchanged.",
+    "Authored monorepo regression component/receipt lookup updates preserve original allowance/mutation assertions.",
+    "Closing refresh: optional missing include occurrence accounting restored; independently passed2 actual Git tests including64duplicate/entries40 refusal. Source completion test additional installation.json lookup uses canonical framework_root with same decode-budget assertion and removes only unused root locals. Other4 production/harness/native fixture hashes unchanged from previous closure."
+  ],
+  "independent_validation": [
+    {
+      "test": "tests.critical.test_retained_layout_provider.OptionalProviderIncludeTests",
+      "result": "PASS; one test with both unconditional and inactive conditional actual Git include subcases, plus activation/native-close refusal",
+      "seconds": 0.082
+    },
+    {
+      "check": "ast.parse all five changed production/harness/native fixture Python files",
+      "result": "PASS"
+    },
+    {
+      "command": "PYTHONPATH=src:. /home/jkh/Src/literate-ai/.venv/bin/python -m unittest tests.critical.test_retained_layout_provider.OptionalProviderIncludeTests",
+      "result": "PASS",
+      "tests": 2,
+      "seconds": 0.242,
+      "coverage": "Actual Git64duplicate missing include occurrences refused at files32/entries40, and unconditional/inactive conditional single missing include witnessing plus activation/native-close refusal still pass."
+    }
+  ],
+  "remaining_findings": [],
+  "limits": [
+    "Read-only source review plus focused actual-Git regression. No code/pin changes, worker dispatch or acceptance mutation.",
+    "Root reported provisioning3 passing; broader provider/native/source completion cohorts remain root-owned validation and are not asserted complete here.",
+    "No actual FreeBSD native SDK or full installed release success claimed. Qualification harness changes are source-reviewed only.",
+    "Legacy/mixed placement equivalence source-reviewed, not separately executed in this closing cohort."
+  ],
+  "budget_followup_evidence": "review-runtime-optional-include-budget-finding.json"
+}

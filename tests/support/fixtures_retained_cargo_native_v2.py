@@ -39,6 +39,7 @@ from literate_ai.contracts.retained_cargo_test_protocol import (
     RetainedCargoIgnoredCase,
     RetainedCargoLibtestProtocol,
 )
+from literate_ai.projects import ProjectConfigurationStore
 from tests.support.fixtures_test_retained_cargo_import import (
     RetainedCargoImportTests,
     blob,
@@ -81,7 +82,9 @@ class NativeReceivingFixture(RetainedCargoImportTests):
         super().setUp(package_files=package_files)
         project = self.base / "converted"
         implementation = json.loads(
-            (project / ".literate/legacy-lift-shift.json").read_bytes()
+            ProjectConfigurationStore.context(project)
+            .framework_path(".literate/legacy-lift-shift.json")
+            .read_bytes()
         )["implementation_directory"]
         workspace = project / implementation
         rustup_home = _rustup_home_before_isolation()

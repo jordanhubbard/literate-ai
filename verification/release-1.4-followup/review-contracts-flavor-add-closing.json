@@ -1,0 +1,43 @@
+{
+  "scope": "Independent full dirty Flavor-add production source and regression review in maintained-followup worktree",
+  "verdict": "source_reviewed_closed_no_remaining_actionable_finding",
+  "head": "ac2e88417a58fe0c2a1f4d318e3f7fb14811b1a1",
+  "files": [
+    {
+      "path": "src/literate_ai/adapters/flavor_add.py",
+      "sha256": "90736a661fa407bfd416d57733eee1332d80a45172543efa87bf3a12f77ac41a"
+    },
+    {
+      "path": "tests/smoke/test_flavor_add.py",
+      "sha256": "6ddfab4d3670f8f016cf44d907b8afaa184f3b8822ebccfd5b428525037b0012"
+    }
+  ],
+  "reviewed_behavior": [
+    "New canonical metadata uses actual selected manifest/framework context and requires declared catalog membership. Actual created[] paths are application-relative.",
+    "Existing unique declared Flavor placement is retained, including root-held metadata in mixed catalogs; duplicate/unsafe/unreadable authorities refuse before fallback/writes.",
+    "Current incoming authoring is coordinate-checked and used for inbound conflict assessment; its original bounded content/native observation is compared with a fresh read before stamp.",
+    "Existing selected current Flavor conflicts are read from declared catalogs, with packaged fallback only for genuine absence.",
+    "Associated shipped Skills follow original relative authority references within declared Skill catalogs; complete custom referenced regular files with safe parents are preserved without copying packaged bytes into arbitrary custom paths.",
+    "Output preflight preserves existing files/no-overwrite; absent leaf creation uses exclusive mode; no reinitialization/source relocation/new permission grant is inferred.",
+    "Original default-setting, nondefault installation, conflict/no-effect and lock invalidation behavior and assertions retained."
+  ],
+  "independent_controls": [
+    "Complete current FlavorAddTests:8passed7.703s,0skips/failures.",
+    "Actual equal-byte incoming-authoring inode replacement at post-conflict/pre-stamp seam refused flavor.add_changed before default selector mutation.",
+    "Actual missing custom Skill reference refused without creating packaged replacement or modifying metadata.",
+    "Actual symlink custom Skill reference refused and foreign symlink retained.",
+    "Actual outside-declared-Skill reference refused with original metadata unchanged."
+  ],
+  "canonical_receipts_inspected": {
+    "flavor-placement-r3": "8passed8.451s,0skips/failures",
+    "elixir-fixtures-r3": "14executed7.910s;13passed,1native-runtime skip; no failures"
+  },
+  "limitations": [
+    "Existing API remains nontransactional. Preflight and original incoming comparison are not a persistent namespace lease or rollback/hostile-concurrency guarantee.",
+    "A complete current custom Skill is preserved as existing data; this does not establish Skill semantic validity,generation admission,lock qualification or native execution eligibility.",
+    "Elixir source cohort skip is retained and must not be converted into native Elixir acceptance.",
+    "Fresh exact-head native CI and noneditable-wheel/complete-source/release requirements remain separate; no such acceptance claimed.",
+    "Other dirty files in the followup worktree are outside this two-file closing verdict.",
+    "No code edits,pins,commits,worker dispatch,publication or documentation authority marker changes performed."
+  ]
+}

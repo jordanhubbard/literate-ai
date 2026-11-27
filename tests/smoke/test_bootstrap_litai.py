@@ -12,6 +12,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 from literate_ai.adapters import project_initialization
@@ -73,6 +74,112 @@ class GeneratedBootstrapFixture(unittest.TestCase):
                 },
             }
         )
+
+
+class ManifestNativeReadTests(GeneratedBootstrapFixture):
+    def test_path_and_descriptor_change_clocks_are_independent_and_both_close(self):
+        for cut in (None, "named", "descriptor", "closing-descriptor"):
+            with self.subTest(cut=cut):
+                self._clock_channels(cut)
+
+    def _clock_channels(self, cut):
+        module = self.module()
+        manifest = self.root / "literate.project.json"
+        named_stat, fd_stat = Path.lstat, os.fstat
+        named_calls = fd_calls = 0
+        changed = False
+
+        def facts(node, clock):
+            return SimpleNamespace(
+                **{
+                    key: getattr(node, key)
+                    for key in (
+                        "st_dev",
+                        "st_ino",
+                        "st_mode",
+                        "st_nlink",
+                        "st_size",
+                        "st_mtime_ns",
+                    )
+                },
+                st_ctime_ns=clock,
+            )
+
+        original = manifest.stat()
+
+        def named(path, *args, **kwargs):
+            nonlocal named_calls
+            node = named_stat(path, *args, **kwargs)
+            if path == manifest:
+                named_calls += 1
+                return facts(node, 100 + int(cut == "named" and named_calls >= 2))
+            return node
+
+        def descriptor(handle):
+            nonlocal fd_calls
+            node = fd_stat(handle)
+            if (node.st_dev, node.st_ino) == (original.st_dev, original.st_ino):
+                fd_calls += 1
+                return facts(
+                    node, 200 + int((cut == "descriptor" and fd_calls >= 2) or changed)
+                )
+            return node
+
+        with (
+            mock.patch.object(Path, "lstat", named),
+            mock.patch.object(os, "fstat", descriptor),
+        ):
+            if cut in ("named", "descriptor"):
+                with self.assertRaisesRegex(ValueError, "changed during read"):
+                    module._native_manifest(manifest)
+            elif cut == "closing-descriptor":
+
+                def probe(project, executable, observed):
+                    nonlocal changed
+                    module._declared_project(project, _observed=observed)
+                    changed = True
+                    return {"state": "ready", "ok": True}
+
+                with mock.patch.object(module, "_check_snapshot", probe):
+                    self.assertEqual(
+                        module.check(self.root, None)["state"], "project-invalid"
+                    )
+            else:
+                observed = []
+                self.assertEqual(
+                    module._native_manifest(manifest, _observed=observed),
+                    json.loads(manifest.read_bytes()),
+                )
+                self.assertTrue(observed)
+
+    def test_exact_manifest_and_helper_reads_use_binary_descriptor_mode(self):
+        module = self.module()
+        manifest = self.root / "literate.project.json"
+        data = json.loads(manifest.read_bytes())
+        manifest.write_bytes(json.dumps(data, indent=2).replace("\n", "\r\n").encode())
+        helper = self.script.with_name("_bootstrap_processes.py")
+        payload = b"# raw CRLF and control-Z in comment: \x1a\r\nmarker = 42\r\n"
+        helper.write_bytes(payload)
+        module._OWNER_DIGEST = hashlib.sha256(payload).hexdigest()
+        original = os.open
+        marker = 1 << 29
+        seen = []
+
+        def open_binary(path, flags, *args, **kwargs):
+            if Path(path) in (manifest, helper):
+                self.assertTrue(flags & marker)
+                seen.append(Path(path))
+            return original(path, flags & ~marker, *args, **kwargs)
+
+        with (
+            mock.patch.object(
+                os, "O_BINARY", getattr(os, "O_BINARY", 0) | marker, create=True
+            ),
+            mock.patch.object(os, "open", open_binary),
+        ):
+            self.assertEqual(module._native_manifest(manifest), data)
+            self.assertEqual(module._process_owner().marker, 42)
+        self.assertEqual(seen, [manifest, helper])
 
 
 class ContainedGeneratedBootstrapTests(unittest.TestCase):

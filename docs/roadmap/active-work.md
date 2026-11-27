@@ -24435,6 +24435,44 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   installed and collateral requirements, then prepare, check, publish and verify
   through the release owner. No recovered snapshot or narrow passing cohort
   establishes release acceptance.
+- **Native Cargo deadline investigation (in progress):** The actual authored
+  native completion control now reaches execution but retains a genuine original
+  900-second deadline failure (1,039.733s including setup/closing). Live sampling
+  identifies multiplied complete tool/authority validation, including repeated
+  compiler probes and fresh image hashes. Preserve every guard, fresh byte read,
+  native probe, isolated observation frame and deadline. First reuse the existing
+  private bounded Skill-syntax DATA frame for one actual execution invocation;
+  it retains no membership/currentness/admission and retires copied contexts.
+  Require original frame controls, independent review and the same real native
+  control within its original deadline before claiming this repair sufficient.
+- **Flavor-add placement reconciliation (in progress):** The corrected Elixir
+  fixture reaches a real product failure: adding a shipped Flavor to a contained
+  project writes root catalogs despite declared contained roots. Preflight the
+  original declared Flavor/Skill locations, preserve a unique existing mixed
+  location, refuse duplicate or unsafe authority before writes, and report actual
+  application-relative created paths. Keep default/conflict and no-reinit/lock
+  assertions; add contained, mixed, idempotence and ambiguity controls, followed
+  by independent source review and installed/target-host qualification.
+- **Exact-head CI reconciliation (in progress):** Exact fe8a85293 logs retain
+  cross-platform fixture placement omissions, a real Git optional-include
+  observation refusal, a Windows bootstrap native-stat/raw-byte mismatch and an
+  inode-reuse false positive in the cleanup privacy control. Repair canonical
+  coordinates and channel-specific observations; keep missing Git-prefix absence
+  witnessed and pin original private-file identities in the privacy fixture.
+  Preserve original assertions, native/refusal deadlines and failed receipts;
+  require affected cohorts, independent review and actual target-platform CI.
+  The FreeBSD SDK artifact identifies the public qualifier's root-manifest lookup
+  as its first real failure; all later consumer catalog/policy coordinates need
+  actual canonical selection before renewed native qualification.
+- **Authored monorepo observation placement repair (in progress):** The frozen
+  fe8a85293 source gate retains 378 passes, 26 skips and one real observation
+  failure: the installed-monorepo checker selects contained metadata correctly,
+  while its supplemental authored observer still opens root metadata/Components.
+  Capture the producer's canonical metadata and Component coordinates before the
+  checker callback and use those originals throughout supplemental reads; retain
+  source coordinates, native closure, callback mutation and gate-absence refusals.
+  Require complete affected source controls and independent closing review before
+  renewing driver/documentation authority and whole-source/installed gates.
 - **Maintained packaged-process fixture reconciliation (source partial):** The fresh
   0918c2fe8 wheel clears the library-qualification failures and reaches one
   packaged-process recorder error in the 32-control installed batch. Its explicit

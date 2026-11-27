@@ -41,6 +41,15 @@ _CASE_SETS = {
                 "test_default_contained_bootstrap_keeps_pins_from_app_and_framework",
             ],
         },
+        {
+            "fixture": "tests/smoke/test_bootstrap_litai.py",
+            "module": "tests.smoke.test_bootstrap_litai",
+            "class": "ManifestNativeReadTests",
+            "methods": [
+                "test_path_and_descriptor_change_clocks_are_independent_and_both_close",
+                "test_exact_manifest_and_helper_reads_use_binary_descriptor_mode",
+            ],
+        },
     ],
     "bootstrap-posix": [
         {

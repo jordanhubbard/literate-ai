@@ -27,6 +27,7 @@ from literate_ai.contracts.repositories import RepositoryBuildEnvironment
 from literate_ai.contracts.retained_cargo_native_custody import (
     RetainedCargoOutputBudget,
 )
+from literate_ai.projects import ProjectConfigurationStore
 from tests.support.fixtures_authored_retained_cargo_native import (
     authored_native_receiving_fixture,
 )
@@ -329,7 +330,9 @@ class AuthoredReopenedNativeExecutionTests(unittest.TestCase):
                     actual_setup(candidate)
                     project = candidate.base / "converted"
                     implementation = json.loads(
-                        (project / ".literate/legacy-lift-shift.json").read_bytes()
+                        ProjectConfigurationStore.context(project)
+                        .framework_path(".literate/legacy-lift-shift.json")
+                        .read_bytes()
                     )["implementation_directory"]
                     workspace = project / implementation
                     # This is ordinary source, never Cargo configuration.

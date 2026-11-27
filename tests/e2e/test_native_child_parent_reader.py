@@ -48,7 +48,9 @@ class NativeChildParentReaderTests(unittest.TestCase):
         child = child_fixtures.RetainedProviderAuthorityTests()
         child.setUp()
         self.addCleanup(child.doCleanups)
-        destination = self.root / ".literate/native-projects/a"
+        destination = ProjectConfigurationStore.context(self.root).framework_path(
+            ".literate/native-projects/a"
+        )
         destination.parent.mkdir(exist_ok=True)
         shutil.copytree(child.root, destination)
         snapshot = ProjectConfigurationStore(self.root).read()
@@ -136,11 +138,15 @@ class NativeChildParentReaderTests(unittest.TestCase):
                 validate=lambda: read_current_parent(self.root),
             )
         self.assertEqual(
-            (self.root / conversion.NATIVE_PROJECTS_FILE).read_bytes(),
+            ProjectConfigurationStore.context(self.root)
+            .framework_path(conversion.NATIVE_PROJECTS_FILE)
+            .read_bytes(),
             self.parent.registry_bytes,
         )
         self.assertEqual(
-            (self.root / conversion.CONVERSION_AUTHORITY_FILE).read_bytes(),
+            ProjectConfigurationStore.context(self.root)
+            .framework_path(conversion.CONVERSION_AUTHORITY_FILE)
+            .read_bytes(),
             self.parent.state_bytes,
         )
         self.assertEqual(source.read_bytes(), b"foreign retained source edit\n")

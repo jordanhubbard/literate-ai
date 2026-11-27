@@ -513,7 +513,14 @@ except locks.CacheLockError:
                 stdout=stdout,
                 stderr=stderr,
             )
-        self.assertTrue(injected)
+        self.assertTrue(
+            injected,
+            {
+                "status": status,
+                "stdout": stdout.getvalue(),
+                "stderr": stderr.getvalue(),
+            },
+        )
         self.assertEqual(status, 2)
         response = json.loads(stderr.getvalue())
         self.assertEqual(

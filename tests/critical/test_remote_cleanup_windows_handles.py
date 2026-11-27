@@ -483,14 +483,23 @@ class WindowsCleanupHandleTests(unittest.TestCase):
     def test_cleanup_metadata_does_not_read_private_file_payload(self):
         with WindowsFacade(self).installed() as model:
             fixture = self.fixture()
-            inodes = {
-                (fixture.workspace / "first.txt").stat().st_ino,
-                (fixture.workspace / "child/last.txt").stat().st_ino,
-            }
+            # Hold the original inodes across deletion so a new journal leaf
+            # cannot reuse one and masquerade as a forbidden private read.
+            pins = self.enterContext(ExitStack())
+            identities = set()
+            for path in (
+                fixture.workspace / "first.txt",
+                fixture.workspace / "child/last.txt",
+            ):
+                descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+                pins.callback(os.close, descriptor)
+                node = os.fstat(descriptor)
+                identities.add((node.st_dev, node.st_ino))
             original = os.read
 
             def no_payload(descriptor, count):
-                if os.fstat(descriptor).st_ino in inodes:
+                node = os.fstat(descriptor)
+                if (node.st_dev, node.st_ino) in identities:
                     raise AssertionError("native cleanup read file payload")
                 return original(descriptor, count)
 

@@ -23,6 +23,9 @@ from literate_ai.adapters.monorepo_components import (
     INSTALLATION_ROOT,
     check_installed_monorepo_components,
 )
+from literate_ai.adapters.retained_scaffold_coordinates import (
+    retained_scaffold_coordinate,
+)
 from literate_ai.adapters.streamed_file_custody import _physical
 from literate_ai.contracts.identity import canonical_identity
 
@@ -124,7 +127,9 @@ def _capture_provisioning_monorepo(source, *, maximum_metadata_bytes=None):
     wrapper = source.wrapper
     project = source.current.reviewed.project
     context = wrapper._core._project_context
-    gate = project.framework_root / INSTALLATION_ROOT / "installation.json"
+    installation_root = retained_scaffold_coordinate(project.root, INSTALLATION_ROOT)
+    component_root = retained_scaffold_coordinate(project.root, "components")
+    gate = project.root / installation_root / "installation.json"
     present = _present(gate)
     original, files = None, None
     nodes = tuple(
@@ -142,12 +147,12 @@ def _capture_provisioning_monorepo(source, *, maximum_metadata_bytes=None):
             else maximum_metadata_bytes
         )
         files = _ProvisioningSupplementalFiles(source, allowance)
-        # Preserve actual legacy checker coordinates, distinct from its gate selector.
-        installation = _direct(project.root, INSTALLATION_ROOT + "/installation.json")
+        # Reuse original producer placement captured before checker callbacks.
+        installation = _direct(project.root, installation_root + "/installation.json")
         installed = files.document(installation)
         if {**installed, "identity": canonical_identity(installed).uri} != original:
             raise ValueError("retained.monorepo.completion-installation-changed")
-        bundle = _direct(project.root, INSTALLATION_ROOT + "/bundle")
+        bundle = _direct(project.root, installation_root + "/bundle")
         manifest = files.document(bundle / "bundle.json")
         plan = files.document(bundle / "plan.json")
         paths, _excluded = _validated_scope(plan["source_scope"])
@@ -171,12 +176,13 @@ def _capture_provisioning_monorepo(source, *, maximum_metadata_bytes=None):
             select(_direct(bundle, relative), metadata=True)
         for name in installed["components"]:
             select(
-                _direct(project.root, INSTALLATION_ROOT + f"/receipts/{name}.json"),
+                _direct(project.root, installation_root + f"/receipts/{name}.json"),
                 metadata=True,
             )
             for leaf in ("binding.json", "component.md"):
                 select(
-                    _direct(project.root, f"components/{name}/{leaf}"), metadata=True
+                    _direct(project.root, f"{component_root}/{name}/{leaf}"),
+                    metadata=True,
                 )
         for relative in paths:
             select(_direct(installed_source, relative))

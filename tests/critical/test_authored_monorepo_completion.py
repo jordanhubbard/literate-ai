@@ -136,7 +136,9 @@ class AuthoredMonorepoCompletionTests(unittest.TestCase):
             _state,
         ):
             project = inputs.materialized.files.reviewed.project
-            component = project.root / "components/legacy-project-wrapper/component.md"
+            component = project.root / monorepo.retained_scaffold_coordinate(
+                project.root, "components/legacy-project-wrapper/component.md"
+            )
             # This actual catalog closure is reusable local evidence outside
             # already-charged workspace/CARGO_HOME trees. Force each residual
             # allowance boundary independently; no successful admission is faked.
@@ -219,8 +221,11 @@ class AuthoredMonorepoCompletionTests(unittest.TestCase):
             _checked,
             _state,
         ):
-            root = inputs.materialized.files.reviewed.project.root
-            receipt = root / monorepo.INSTALLATION_ROOT / "receipts/kit.json"
+            receipt = (
+                inputs.materialized.files.reviewed.project.framework_root
+                / monorepo.INSTALLATION_ROOT
+                / "receipts/kit.json"
+            )
             original = monorepo.check_installed_monorepo_components
             calls = 0
 
@@ -282,8 +287,11 @@ class AuthoredMonorepoCompletionTests(unittest.TestCase):
             _checked,
             _state,
         ):
-            root = inputs.materialized.files.reviewed.project.root
-            path = root / monorepo.INSTALLATION_ROOT / "installation.json"
+            path = (
+                inputs.materialized.files.reviewed.project.framework_root
+                / monorepo.INSTALLATION_ROOT
+                / "installation.json"
+            )
             ledger = monorepo._SupplementalOriginalFiles(
                 inputs, inputs.scope.owners.maximum_metadata_bytes
             )

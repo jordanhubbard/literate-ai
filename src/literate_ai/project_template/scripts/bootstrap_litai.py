@@ -27,7 +27,12 @@ _OWNER_DIGEST = "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb69
 def _process_owner():
     """Load only the bundled, reviewed stdlib helper, including under Python -I."""
     path = Path(__file__).with_name("_bootstrap_processes.py")
-    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    flags = (
+        os.O_RDONLY
+        | getattr(os, "O_NOFOLLOW", 0)
+        | getattr(os, "O_NONBLOCK", 0)
+        | getattr(os, "O_BINARY", 0)
+    )
     with os.fdopen(os.open(path, flags), "rb") as stream:
         opened = os.fstat(stream.fileno())
         if not stat.S_ISREG(opened.st_mode) or opened.st_size > 65536:
@@ -177,7 +182,12 @@ def _native_manifest(path: Path, *, _observed=None) -> dict[str, object]:
         & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
     ):
         raise ValueError("Bootstrap project manifest is redirected or unavailable")
-    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    flags = (
+        os.O_RDONLY
+        | getattr(os, "O_NOFOLLOW", 0)
+        | getattr(os, "O_NONBLOCK", 0)
+        | getattr(os, "O_BINARY", 0)
+    )
     with os.fdopen(os.open(path, flags), "rb") as stream:
         opened = os.fstat(stream.fileno())
         if not stat.S_ISREG(opened.st_mode) or opened.st_size > 1024 * 1024:
@@ -197,10 +207,15 @@ def _native_manifest(path: Path, *, _observed=None) -> dict[str, object]:
             value.st_nlink,
             value.st_size,
             value.st_mtime_ns,
-            value.st_ctime_ns,
         )
 
-    if not (identity(before) == identity(opened) == identity(after) == identity(final)):
+    # Windows Python 3.12 exposes creation time through pathname ctime and
+    # native ChangeTime through fstat. Keep both clocks within their own channel.
+    if not (
+        identity(before) == identity(opened) == identity(after) == identity(final)
+        and before.st_ctime_ns == final.st_ctime_ns
+        and opened.st_ctime_ns == after.st_ctime_ns
+    ):
         raise ValueError("Bootstrap project manifest changed during read")
     if len(content) != opened.st_size:
         raise ValueError("Bootstrap project manifest changed size during read")
@@ -208,7 +223,9 @@ def _native_manifest(path: Path, *, _observed=None) -> dict[str, object]:
     if not isinstance(value, dict):
         raise ValueError("Bootstrap project manifest must be an object")
     if _observed is not None:
-        _observed.append((path, content, identity(final)))
+        _observed.append(
+            (path, content, identity(final), final.st_ctime_ns, after.st_ctime_ns)
+        )
     return value
 
 

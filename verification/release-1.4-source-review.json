@@ -85,7 +85,7 @@
       "reviewer": "authority",
       "path": "src/literate_ai/adapters/retained_python_original_gates.py",
       "required_outcome": "Retain foreign replacement namespace and failed native residue; no unconditional recursive temporary cleanup.",
-      "state": "fixed-independently-reviewed-affected-cohort-running"
+      "state": "fixed-targeted-and-independently-reviewed"
     },
     {
       "id": "python-product-owner",
@@ -256,7 +256,7 @@
       "skipped": 0,
       "failures": 0,
       "duration_seconds": 491.22,
-      "limit": "Independent actual replacement/foreign-residue/nested-original execution controls. Canonical expanded15-control cohort still running; no full source or release acceptance."
+      "limit": "Independent actual replacement/foreign-residue/nested-original execution controls; canonical expanded cohort also passed separately. No complete-source or release acceptance."
     }
   },
   "review_scope": "All 462 frozen changed files independently inspected: runtime 65, SDK transfer 36, retained-layout transfer 36, authority 157 and remaining contracts 168. This is source review only.",
@@ -270,5 +270,298 @@
       "verification/release-1.4-review-contracts-delta.json"
     ],
     "limit": "Independent source review only. Full source, complete affected Python gate cohort, installed/native, platforms, goals and release acceptance remain pending."
+  },
+  "followup_delta_review": {
+    "base_commit": "ac2e88417a58fe0c2a1f4d318e3f7fb14811b1a1",
+    "reviewed_dirty_python_files": {
+      ".github/qualifications/native_sdk/qualify_public_sdk.py": {
+        "sha256": "f670c1504fb5f0960ddb11dc33d477fb6758acce3179be1838a0b017b57fbf7f",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "scripts/installed_maintained_controls.py": {
+        "sha256": "d32c2392b413ba5a2a1df9699865251f2a1b509c93d84387c26aa61da6093901",
+        "review_report": "verification/release-1.4-followup/review-contracts-bootstrap-windows-elixir-closing.json"
+      },
+      "src/literate_ai/adapters/authored_retained_cargo_monorepo_observation.py": {
+        "sha256": "e5d5d4c8f33d9e42484a51efb2c4744fbfee6b6a149949803bbdb22c40ea9d4e",
+        "review_report": "verification/release-1.4-followup/review-runtime-authored-monorepo-placement-close.json"
+      },
+      "src/literate_ai/adapters/authored_retained_cargo_provisioning_monorepo.py": {
+        "sha256": "4d11ed752ceeba829f54d1405d6faa92ed2a07e00e955c318bef94a9da872e29",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "src/literate_ai/adapters/flavor_add.py": {
+        "sha256": "90736a661fa407bfd416d57733eee1332d80a45172543efa87bf3a12f77ac41a",
+        "review_report": "verification/release-1.4-followup/review-contracts-flavor-add-closing.json"
+      },
+      "src/literate_ai/adapters/retained_cargo_execution_core.py": {
+        "sha256": "3e141c0052f97100e4fdd9873beba8ec275d3e94eee51806b1234fe3ceaaedac",
+        "review_report": "verification/release-1.4-followup/review-authority-native-skill-frame-closing.json"
+      },
+      "src/literate_ai/adapters/retained_layout_provider.py": {
+        "sha256": "1467d559828d7afa642ec6f43018aeee5a61c64c50671b083d377ad22ec13ecf",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "src/literate_ai/project_template/scripts/bootstrap_litai.py": {
+        "sha256": "a69af3016c68b8b3e7940558280024189d3a8c36065d3773df765d65fa80aecf",
+        "review_report": "verification/release-1.4-followup/review-contracts-bootstrap-windows-elixir-closing.json"
+      },
+      "tests/critical/test_authored_monorepo_completion.py": {
+        "sha256": "29734cd41ce4f015b0a4f3b3753c25d306b0f1014818cd4a01ba4496ed87f84b",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "tests/critical/test_remote_cleanup_windows_handles.py": {
+        "sha256": "c03beb8411245bb17fdb2f231fc70088f0c2b13cf3b1f18cef9718ff01ef0ccb",
+        "review_report": "verification/release-1.4-followup/review-authority-ci-fixtures-closing.json"
+      },
+      "tests/critical/test_retained_layout_provider.py": {
+        "sha256": "5ebd23167c7878508d3b65518ae460900c401c955c518ed5786e529e43a3fffa",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "tests/e2e/test_native_child_parent_reader.py": {
+        "sha256": "131ec5cba0d67070d5ea3687267f995fe12cd223cbb271cf12e539567aca3449",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-final-refresh.json"
+      },
+      "tests/e2e/test_native_project_removal.py": {
+        "sha256": "a9e2e4665da1231ea47e9055ae955ea4864703b39a224313abf5eaa2d9bcbf89",
+        "review_report": "verification/release-1.4-followup/review-authority-ci-fixtures-closing.json"
+      },
+      "tests/smoke/test_authored_reopened_native_execution.py": {
+        "sha256": "99231d9d836f414f4c9f32714ce4dd5f99e41e21c1b6791a1f2b8ba361e48272",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "tests/smoke/test_bootstrap_litai.py": {
+        "sha256": "478d6dbe9e30ad3350dfe3318661990d4dafe2a2b50817c1f52ad16c7b72abfe",
+        "review_report": "verification/release-1.4-followup/review-contracts-bootstrap-windows-elixir-closing.json"
+      },
+      "tests/smoke/test_elixir_flavor.py": {
+        "sha256": "99c41341a8efc6ca8bd28850f830c1b2974b223ebaea3cdbfe388638d2f3f6e9",
+        "review_report": "verification/release-1.4-followup/review-contracts-bootstrap-windows-elixir-closing.json"
+      },
+      "tests/smoke/test_flavor_add.py": {
+        "sha256": "6ddfab4d3670f8f016cf44d907b8afaa184f3b8822ebccfd5b428525037b0012",
+        "review_report": "verification/release-1.4-followup/review-contracts-flavor-add-closing.json"
+      },
+      "tests/support/fixtures_retained_cargo_native_v2.py": {
+        "sha256": "67153564258399caa6d62aab0f1efe4bc558f5b51b488e96300f4a28b588d583",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      }
+    },
+    "reports": [
+      {
+        "path": "verification/release-1.4-followup/review-runtime-followup-final-refresh.json",
+        "sha256": "33dfc59b58293fc60d3d5fdc62937e3cd3aa9aadb0a8067d4fa17601cf33725c"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-runtime-authored-monorepo-placement-close.json",
+        "sha256": "1fae05120d26ae6e349501fb08c6364424cf63dda00ce5570454c44c1f0925f6"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json",
+        "sha256": "384264910658d32affbbae2476f0df8cfaff53f1355eef69e88356b3f4fc5ef6"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-runtime-qualification-fixture-close.json",
+        "sha256": "9169fed68481b8a70456fe2e6c8dd100405c5f30be51cf8bc3daa88972673450"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-contracts-followup-final-closing.json",
+        "sha256": "41653d81e33047b3a744f8a3463a4fc17dd6589b92ba06efad7252fdced61cb2"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-contracts-bootstrap-windows-elixir-closing.json",
+        "sha256": "77452085c2c0926f01cdca6d661490aa8f3eacf76f16573e60c08669a45f4e75"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-contracts-flavor-add-closing.json",
+        "sha256": "a60504aeb3f7e8b855f4b0372eaf03970d6b2b4a9e04e5127db3362c14be100d"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-authority-ci-fixtures-closing.json",
+        "sha256": "c137ee4f2645b711d0375b281e6f5272b1857ad42c4ffaecc2504a22a31b3de6"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-authority-native-skill-frame-closing.json",
+        "sha256": "66e744d978be53bd6788b54182dcb4a9db2dec3c9dc3b520b7b5c1921915799a"
+      }
+    ],
+    "targeted_evidence": {
+      "python-gate-custody-r2": {
+        "report_sha256": "d1cb3121d303ba4a4112b78136c34382a5fce012b8df8bab58a907a8f4b3e619",
+        "summary": {
+          "executed": 15,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 15,
+          "selected": 15,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "library-fixture-r2": {
+        "report_sha256": "9429355364ff3d96cad38660d1da776b8b22d1134b1ed431af813f016a084232",
+        "summary": {
+          "executed": 19,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 19,
+          "selected": 19,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "capture-fixture-r1": {
+        "report_sha256": "2accd174202b8878d5ebd23695968c89288873853649e5d348df65cb42293926",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "monorepo-placement-r3": {
+        "report_sha256": "986623a8c6271beb4e4d1e75ec008f88ee87831cc7995b01ea5a3fa89dfa2ac8",
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "provisioning-monorepo-r2": {
+        "report_sha256": "939d998c58ed7164376613695b62ca3954151cf4369dac298b7f6111ca1113ee",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "provider-includes-r2": {
+        "report_sha256": "1d049ea63017b438474a3cf610ac2ad386c49f8ffdaab507d3e3b2c455dd5eae",
+        "summary": {
+          "executed": 21,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 21,
+          "selected": 21,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "bootstrap-native-clocks-r1": {
+        "report_sha256": "071e8e6f19e30bee6e9fe989e9319652aa0a00028b031373a8a0e0fd4bf4bd88",
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "cleanup-privacy-r1": {
+        "report_sha256": "89c3491a0a82ea265c3285524067661e167d66737936d6acd2c9d3fdfc5e5b58",
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "native-removal-r1": {
+        "report_sha256": "bd812b61289c6208b52c5843472d4a8cfaa481a18490a2b601ed5e0b940bef28",
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "flavor-placement-r3": {
+        "report_sha256": "35dace06a2d538f3cd584c249cc1112f2c2c797eccb307f0eaab15afe28585d7",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "elixir-fixtures-r4": {
+        "report_sha256": "1af9736f1ba7200b323e1145a2ca2d4bba9c914b768a458a44993b5187df2904",
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 14,
+          "skipped": 1
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "skill-metadata-frame-r1": {
+        "report_sha256": "c061ef49fb499d3409b7d9d3fb2b6cfa4fd16eeafb0b1a8add6c291631580c96",
+        "summary": {
+          "executed": 14,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 14,
+          "selected": 14,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "authored-native-completion-r1": {
+        "report_sha256": "e375f5965860f81546e82b63bfc6c29cc2b884b857b3d792e5f6078dbad80dd5",
+        "summary": {
+          "executed": 1,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 0,
+          "selected": 3,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "native-parent-fixture-r3": {
+        "report_sha256": "c3609d240122e89bc91334f000ade42bbca77ff6c873daa3de7647ef1fc1a0eb",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        },
+        "limit": "Original e2e assertions preserved; local Linux source run only. No native Windows or release acceptance."
+      }
+    },
+    "remaining_acceptance": [
+      "Original authored-native-completion run failed genuine 900-second execution deadline; bounded syntax-only frame repair independently source-reviewed but actual native deadline result pending.",
+      "Existing authored-reopened-native-r1 remains live on original pre-optimization process; no terminal pass claimed.",
+      "Native Windows bootstrap/removal and actual FreeBSD SDK CI must be rerun; removal diagnostics do not establish its cause or repair.",
+      "Fresh complete-source and noneditable wheel gates, resulting-main, all immutable release goals, collateral, contribution readiness and release workflow remain required.",
+      "authored-native-completion-r2 is running the new syntax-only frame in the isolated followup; repair evidence only until terminal, exact committed-candidate gates still required."
+    ],
+    "limits": "Source review of exact hashes and focused terminal results only. Earlier final_delta_review is historical for original candidate and does not supersede newer per-file hashes."
   }
 }

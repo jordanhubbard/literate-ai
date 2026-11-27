@@ -10,6 +10,7 @@ import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 import tests.critical.test_retained_layout_ownership as fixtures
@@ -21,6 +22,87 @@ from literate_ai.adapters import retained_layout_transaction as transaction
 from literate_ai.adapters.builders.python import BuildError
 from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
 from literate_ai.projects import load_project
+
+
+@unittest.skipUnless(shutil.which("git"), "actual local Git configuration")
+class OptionalProviderIncludeTests(unittest.TestCase):
+    """Real Git objects with inert origin facts; no initializer admission claim."""
+
+    def test_missing_include_ancestor_is_witnessed_until_native_close(self):
+        for conditional in (False, True):
+            with self.subTest(conditional=conditional):
+                self._missing_include(conditional)
+
+    def test_duplicate_missing_includes_still_debit_the_original_entry_limit(self):
+        self._missing_include(False, occurrences=64, maximum_entries=40)
+
+    def _missing_include(self, conditional, *, occurrences=1, maximum_entries=256):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            checkout = root / "checkout"
+            checkout.mkdir()
+            environment = {
+                key: value
+                for key, value in os.environ.items()
+                if not key.upper().startswith("GIT_")
+            }
+            environment.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+
+            def git(*args):
+                return subprocess.check_output(
+                    ("git", "-c", "core.hooksPath=" + os.devnull, *args),
+                    cwd=checkout,
+                    env=environment,
+                    timeout=15,
+                )
+
+            git("init", "-q", "--initial-branch=main", "--template=")
+            git("remote", "add", "origin", checkout.as_uri())
+            (checkout / "original").write_bytes(b"original Git object")
+            git("add", "original")
+            git(
+                "-c",
+                "user.name=Fixture",
+                "-c",
+                "user.email=fixture@example.test",
+                "commit",
+                "-qm",
+                "original",
+            )
+            commit = git("rev-parse", "HEAD").decode().strip()
+            first_absent = root / "absent-include-parent"
+            selected = first_absent / "nested/config"
+            key = (
+                "includeIf.gitdir:/unmatched-checkout/.path"
+                if conditional
+                else "include.path"
+            )
+            for _ in range(occurrences):
+                git("config", "--add", key, str(selected))
+            git("config", "--includes", "--list")
+            arguments = (
+                checkout,
+                SimpleNamespace(repository_url=checkout.as_uri(), git_revision=commit),
+                RetainedCargoInputBudget(32, maximum_entries, 1024**2, 16 * 1024**2),
+                128 * 1024**2,
+            )
+            if occurrences > maximum_entries:
+                with self.assertRaisesRegex(ValueError, "path occurrences exceed"):
+                    provider._Objects(*arguments)
+                self.assertFalse(first_absent.exists())
+                return
+            objects = provider._Objects(*arguments)
+            self.assertIn(first_absent, objects.snapshots)
+            self.assertIsNone(objects.snapshots[first_absent].signature)
+            self.assertNotIn(selected, objects.snapshots)
+            objects.close_native()
+            first_absent.mkdir()
+            with self.assertRaisesRegex(
+                ValueError, "routing or object-store input changed"
+            ):
+                objects.close_native()
+            self.assertTrue(first_absent.is_dir())
+            self.assertFalse(selected.exists())
 
 
 @unittest.skipUnless(os.name == "posix", "actual Git and POSIX source transaction")

@@ -56,6 +56,9 @@ from literate_ai.adapters.retained_cargo_test_execution_v2 import (
     _ObservedRetainedCargoTests,
     observe_retained_cargo_tests_v2,
 )
+from literate_ai.application.agent_skill_catalog import (
+    read_only_skill_manifest_metadata,
+)
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.contracts.retained_cargo_test_protocol import (
     RetainedCargoCustomProtocol,
@@ -165,6 +168,9 @@ def _execute_cargo_consumer(
     )
 
 
+# A fresh, bounded syntax-only frame belongs to each invocation. Discovery,
+# original byte/image reads, native probes and all guard bookends remain fresh.
+@read_only_skill_manifest_metadata()
 def _execute_cargo_consumer_session(
     materialized: RetainedCargoMaterializationV2 | AuthoredRetainedCargoMaterialization,
     *,
