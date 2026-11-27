@@ -693,6 +693,7 @@ def _update_contained_root_project(args, project) -> dict[str, Any]:
                 if baseline.profile == "native"
                 else "framework-update",
                 require_path=require_lock_path,
+                layout_locked=True,
             ):
                 current = adapter.plan(project.root)
                 if canonical_identity(current.to_dict()).uri != identity:

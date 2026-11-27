@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retire only exact idle native lifecycle-lock residue after committed-profile
+  removal, allowing repeated adoption while preserving foreign runtime contents,
+  interrupted resources and active or already-open lifecycle contenders.
+
 - Preserve authored retained-wrapper requirements, interfaces and shim metadata
   during harness readmission. Update only one recognized generated baseline
   summary, fence referenced authority through publication, and retain foreign

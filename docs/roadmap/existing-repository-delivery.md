@@ -171,6 +171,14 @@ The native defect and repair were real. GitHub transport and job identities
 were simulated. The later hosted pilot below covers actual required checks and
 failed-job retry. Automatic activation and a changed-version contained upgrade remain open.
 
+A later installed C++ pilot restored the exact original Git tree after both
+cold and post-update removal. The framework's one-byte lifecycle lock still
+occupied `litai/`, so the exclusive adoption destination correctly refused
+another bootstrap. Under ORIGINAL-ADOPT-001 and ADOPT-CLI-001, make the
+owned lock-only state recoverable while excluding active and already-open
+lifecycle contenders. Prove repeated cold and post-update adoption and preserve
+foreign or redirected runtime contents and strict destination collision checks.
+
 A second installed pilot used the public ToolScheme v0.3.0 source at
 `b0a4d06db331a072681990cdb6773db0c0eaf551`, with its actual Makefile,
 C++ tests, release workflow and existing roadmap. The host had already run

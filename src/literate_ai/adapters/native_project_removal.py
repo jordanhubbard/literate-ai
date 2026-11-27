@@ -1,7 +1,8 @@
 """Finite committed-profile removal using Git's before-images and index owner.
 
 This stages deletions and never commits, cleans caches, or restores worktree
-bytes. An explicit immutable source commit permits fresh forward recovery.
+bytes. It can retire the exact contained idle lifecycle lock after removal.
+An explicit immutable source commit permits fresh forward recovery.
 """
 
 from __future__ import annotations
@@ -11,15 +12,25 @@ import json
 import os
 import re
 import stat
+from contextlib import ExitStack
 from dataclasses import dataclass
 from pathlib import Path
 
-from literate_ai._filesystem import path_is_link_or_reparse, require_safe_directory
+from literate_ai._cache_lock import CacheLockError, exclusive_cache_lock
+from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
+    path_is_link_or_reparse,
+    require_safe_directory,
+)
 from literate_ai.adapters.builders._process import run_bounded_process
 from literate_ai.adapters.builders.python import BuildError
+from literate_ai.adapters.exclusive_directory import (
+    directory_node,
+    publish_directory_between_owned_parents_exclusive,
+)
 from literate_ai.adapters.lifecycle_lock import (
-    project_lifecycle_lock,
-    project_lifecycle_lock_path,
+    ProjectLifecycleLockError,
+    _lock_coordinate,
 )
 from literate_ai.adapters.native_profile_git import (
     NativeProfileGitBoundaryError,
@@ -64,6 +75,7 @@ _METADATA = frozenset(
 )
 _MAXIMUM_BYTES = 4 * 1024 * 1024
 _AUTHORITY_METADATA = _METADATA - {"litai/docs/authority.md"}
+_RUNTIME_RETIREMENT = "literate-native-lock-retirement"
 
 
 class NativeProjectRemovalError(ValueError):
@@ -296,6 +308,101 @@ def _matches_committed_content(root, relative, content, committed):
     if setting.returncode or setting.stdout not in {b"true\n", b"false\n", b"input\n"}:
         _fail("transform_unsupported", "Git text conversion policy is unsupported")
     return setting.stdout in {b"true\n", b"input\n"}
+
+
+def _lock_only(framework, lock):
+    for directory, member in zip(
+        lock.parents[:3], (lock, *lock.parents[:2]), strict=True
+    ):
+        require_safe_directory(directory)
+        with os.scandir(directory) as entries:
+            names = (entry.name for entry in entries)
+            if next(names, None) != member.name or next(names, None) is not None:
+                return False
+    return lock.parents[2] == framework
+
+
+def _retire_idle_runtime(root, prepared, lock, expected):
+    framework = root / "litai"
+    git_directory = Path(prepared.document["git_directory"])
+    destination = git_directory / _RUNTIME_RETIREMENT
+    result = {"state": "retained", "path": "litai"}
+    if not os.path.lexists(framework):
+        if os.path.lexists(destination):
+            return {"state": "absent", "retirement_slot": str(destination)}
+        return {"state": "absent"}
+    if (
+        not prepared.document["runtime_cleanup"]["complete_profile_selected"]
+        or expected is None
+        or expected["identity"] != _digest(b"\0")
+    ):
+        return {**result, "reason": "unproved-runtime-ownership"}
+    relative = lock.relative_to(root).as_posix()
+    moved = False
+    try:
+        _require_remaining(root, prepared, set())
+        if any(relative.startswith("litai/") for relative in _index(root)):
+            return {**result, "reason": "runtime-destination-still-tracked"}
+        _require_git_boundary(root, (lock,))
+        if _worktree(root, relative) != expected or not _lock_only(framework, lock):
+            return {**result, "reason": "runtime-contents-changed-or-unowned"}
+        # One worktree-local slot bounds retained state. Existing entries need
+        # explicit disposition regardless of their names and contents.
+        if os.path.lexists(destination):
+            return {
+                **result,
+                "reason": "retirement-slot-occupied",
+                "retirement_slot": str(destination),
+            }
+        with exclusive_cache_lock(lock, timeout_seconds=0, existing_only=True):
+            _require_remaining(root, prepared, set())
+            _require_git_boundary(root, (lock,))
+            if _worktree(root, relative) != expected or not _lock_only(framework, lock):
+                return {**result, "reason": "runtime-contents-changed-or-unowned"}
+            framework_node = directory_node(framework)
+            root_node = directory_node(root)
+            git_node = directory_node(git_directory)
+            publish_directory_between_owned_parents_exclusive(
+                framework,
+                destination,
+                expected_source=framework_node,
+                expected_source_parent=root_node,
+                expected_destination_parent=git_node,
+            )
+            moved = True
+        archived = destination / lock.relative_to(framework)
+        with exclusive_cache_lock(archived, timeout_seconds=0, existing_only=True):
+            if (
+                not _lock_only(destination, archived)
+                or _worktree(destination, archived.relative_to(destination).as_posix())
+                != expected
+            ):
+                publish_directory_between_owned_parents_exclusive(
+                    destination,
+                    framework,
+                    expected_source=framework_node,
+                    expected_source_parent=git_node,
+                    expected_destination_parent=root_node,
+                )
+                return {**result, "reason": "runtime-contents-changed-or-unowned"}
+            # The relocated inode is exclusively held and cannot be acquired
+            # through its obsolete worktree name. Delete only this exact byte.
+            archived.unlink()
+        for directory in archived.parents[:3]:
+            directory.rmdir()
+        return {"state": "retired"}
+    except (
+        CacheLockError,
+        OSError,
+        ValueError,
+        UnsafeFilesystemPathError,
+    ):
+        if moved or (not os.path.lexists(framework) and os.path.lexists(destination)):
+            return {
+                "state": "retired-with-resource",
+                "retirement_slot": str(destination),
+            }
+        return {**result, "reason": "runtime-retirement-refused"}
 
 
 def _owned(root, tree, cache):
@@ -538,10 +645,19 @@ def prepare_native_project_removal(
         )
     _require_supported_content_transforms(root, selected)
     directories = _directories(root, selected, git_directory)
+    lock = _lock_coordinate(root.resolve(strict=True), root / "litai")
+    live = states[MANIFEST]["worktree"] is not None
     write_paths: tuple[str | Path, ...] = tuple(selected)
-    if states[MANIFEST]["worktree"] is not None:
-        write_paths += (project_lifecycle_lock_path(root),)
+    if live:
+        write_paths += (lock,)
     _require_git_boundary(root, write_paths)
+    try:
+        _require_git_boundary(root, (lock,))
+        lock_state = _worktree(root, lock.relative_to(root).as_posix())
+    except (NativeProjectRemovalError, UnsafeFilesystemPathError, OSError):
+        if live:
+            raise
+        lock_state = None
     value = {
         "schema": SCHEMA,
         "root": str(root),
@@ -569,7 +685,12 @@ def prepare_native_project_removal(
         ],
         "external_files": [],
         "coordination": "worktree Git administration and existing lifecycle locks",
-        "runtime_state": "preserved; no recursive cleanup",
+        "runtime_cleanup": {
+            "complete_profile_selected": set(selected) == set(tree),
+            "lifecycle_lock": lock_state,
+            "retirement_slot": str(git_directory / _RUNTIME_RETIREMENT),
+        },
+        "runtime_state": "exact idle lifecycle residue only; no recursive cleanup",
         "writes": False,
     }
     value["plan_identity"] = canonical_identity(value).uri
@@ -714,7 +835,6 @@ def apply_native_project_removal(
     prepared = prepare_native_project_removal(root, source=source, only=only)
     if prepared.document["plan_identity"] != expected:
         _fail("plan_changed", "Native removal plan changed after review")
-    from contextlib import ExitStack
 
     def require_lock_path(path):
         _require_git_boundary(root, (path,))
@@ -726,13 +846,28 @@ def apply_native_project_removal(
         # Missing-manifest recovery cannot rediscover an ancestor project or
         # create root lifecycle files. Its Git layout lock still owns publication.
         live = prepared.document["selected"][MANIFEST]["worktree"] is not None
+        lock = _lock_coordinate(root.resolve(strict=True), root / "litai")
+        expected_lock = prepared.document["runtime_cleanup"]["lifecycle_lock"]
         with ExitStack() as locks:
             if live:
-                locks.enter_context(
-                    project_lifecycle_lock(
-                        root, operation="native-remove", require_path=require_lock_path
+                require_lock_path(lock)
+                try:
+                    locks.enter_context(
+                        exclusive_cache_lock(
+                            lock,
+                            timeout_seconds=0,
+                            existing_only=expected_lock is not None,
+                        )
                     )
-                )
+                except CacheLockError as exc:
+                    raise ProjectLifecycleLockError(
+                        "lifecycle.project_locked",
+                        "Native removal could not acquire the existing lifecycle lock",
+                    ) from exc
+                locked = _worktree(root, lock.relative_to(root).as_posix())
+                if expected_lock is not None and locked != expected_lock:
+                    _fail("runtime_lock_changed", "The reviewed lifecycle lock changed")
+                expected_lock = locked
                 locks.enter_context(
                     ProjectConfigurationStore(root)._lock(
                         root, require_path=require_lock_path
@@ -763,6 +898,7 @@ def apply_native_project_removal(
                 if failure is exc:
                     raise
                 raise failure from exc
+        runtime = _retire_idle_runtime(root, prepared, lock, expected_lock)
     return {
         "schema": SCHEMA,
         "state": "removed",
@@ -780,5 +916,6 @@ def apply_native_project_removal(
         "source_commit": prepared.document["source_commit"],
         "recovery_argv": prepared.document["recovery_argv"],
         "committed": False,
-        "runtime_state": "preserved; no recursive cleanup",
+        "runtime_state": "exact idle lifecycle residue only; no recursive cleanup",
+        "runtime_cleanup": runtime,
     }
