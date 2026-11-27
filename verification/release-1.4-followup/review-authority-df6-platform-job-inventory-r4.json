@@ -1,0 +1,452 @@
+{
+  "head": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+  "run": 45997696262,
+  "platforms": {
+    "other": [
+      {
+        "job": 140501357873,
+        "name": "profile",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501673926,
+        "name": "Conference labs / source and browser",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501673960,
+        "name": "Changed skill admission",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501673992,
+        "name": "Documentation and presentation integrity",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501673998,
+        "name": "CI change-scope policy",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674026,
+        "name": "Qualification fixtures / Linux",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      }
+    ],
+    "freebsd": [
+      {
+        "job": 140501672992,
+        "name": "FreeBSD POSIX.1e ACL preflight",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501673205,
+        "name": "freebsd-native-sdk / Installed public SDK / FreeBSD 15.1 amd64",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Require copied-back native qualification success"
+        ]
+      }
+    ],
+    "macos": [
+      {
+        "job": 140501673294,
+        "name": "macos-latest / Python 3.11 (authored 1 of 4)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run full macOS conformance partition"
+        ]
+      },
+      {
+        "job": 140501673310,
+        "name": "macos-latest / Python 3.14 (smoke)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run full macOS conformance partition"
+        ]
+      },
+      {
+        "job": 140501673317,
+        "name": "macos-latest / Python 3.14 (authored 3 of 4)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run full macOS conformance partition"
+        ]
+      },
+      {
+        "job": 140501673348,
+        "name": "macos-latest / Python 3.14 (authored 1 of 4)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run full macOS conformance partition"
+        ]
+      },
+      {
+        "job": 140501673351,
+        "name": "macos-latest / Python 3.11 (1 of 4)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run full macOS conformance partition"
+        ]
+      },
+      {
+        "job": 140501673375,
+        "name": "macos-latest / Python 3.11 (authored 2 of 4)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run full macOS conformance partition"
+        ]
+      },
+      {
+        "job": 140501673378,
+        "name": "macos-latest / Python 3.11 (3 of 4)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run full macOS conformance partition"
+        ]
+      },
+      {
+        "job": 140501673380,
+        "name": "macos-latest / Python 3.11 (authored 4 of 4)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run full macOS conformance partition"
+        ]
+      },
+      {
+        "job": 140501673382,
+        "name": "macos-latest / Python 3.14 (authored 4 of 4)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run full macOS conformance partition"
+        ]
+      },
+      {
+        "job": 140501673404,
+        "name": "macos-latest / Python 3.14 (authored 2 of 4)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run full macOS conformance partition"
+        ]
+      },
+      {
+        "job": 140501673440,
+        "name": "macos-latest / Python 3.11 (2 of 4)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501673458,
+        "name": "macos-latest / Python 3.11 (4 of 4)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501673485,
+        "name": "macos-latest / Python 3.11 (authored 3 of 4)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501673918,
+        "name": "Qualification fixtures / macOS",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674015,
+        "name": "Sample composition / macos-latest",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674274,
+        "name": "Elixir 1.18.0 / OTP 27.0 / macos-15",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674281,
+        "name": "Elixir 1.20.4 / OTP 29.1.1 / macos-15",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674359,
+        "name": "macOS / Python 3.14 / PR smoke (not release qualification)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      }
+    ],
+    "linux": [
+      {
+        "job": 140501673953,
+        "name": "Sample composition / ubuntu-latest",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501673958,
+        "name": "ubuntu-latest / Python 3.11 (partition 6 of 8)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job": 140501674009,
+        "name": "ubuntu-latest / Python 3.11 (partition 7 of 8)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674013,
+        "name": "ubuntu-latest / Python 3.11 (partition 4 of 8)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674020,
+        "name": "ubuntu-latest / Python 3.14",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job": 140501674050,
+        "name": "ubuntu-latest / Python 3.11 (partition 8 of 8)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job": 140501674056,
+        "name": "ubuntu-latest / Python 3.11",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job": 140501674113,
+        "name": "ubuntu-latest / Python 3.14 (partition 2 of 8)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674130,
+        "name": "ubuntu-latest / Python 3.11 (partition 3 of 8)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job": 140501674132,
+        "name": "ubuntu-latest / Python 3.11 (partition 5 of 8)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674139,
+        "name": "ubuntu-latest / Python 3.11 (partition 2 of 8)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674222,
+        "name": "ubuntu-latest / Python 3.14 (partition 3 of 8)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job": 140501674328,
+        "name": "ubuntu-latest / Python 3.14 (partition 4 of 8)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674335,
+        "name": "ubuntu-latest / Python 3.14 (partition 5 of 8)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job": 140501674373,
+        "name": "Elixir 1.18.0 / OTP 27.0 / ubuntu-24.04",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674374,
+        "name": "ubuntu-latest / Python 3.14 (partition 8 of 8)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674416,
+        "name": "Elixir 1.20.4 / OTP 29.1.1 / ubuntu-24.04",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674418,
+        "name": "ubuntu-latest / Python 3.14 (partition 7 of 8)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674494,
+        "name": "ubuntu-latest / Python 3.14 (partition 6 of 8)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run conformance gates"
+        ]
+      },
+      {
+        "job": 140501674600,
+        "name": "Native C++ library / ubuntu-latest",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      }
+    ],
+    "windows": [
+      {
+        "job": 140501673972,
+        "name": "Qualification fixtures / Windows",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674197,
+        "name": "Sample composition / windows-latest",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674242,
+        "name": "Windows / Python 3.12 / tests (3 of 3)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run this shard's tests"
+        ]
+      },
+      {
+        "job": 140501674250,
+        "name": "Windows / Python 3.12 / PR smoke (not release qualification)",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674297,
+        "name": "Windows / Python 3.12 / tests (1 of 3)",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674310,
+        "name": "Elixir 1.20.4 / OTP 29.1.1 / windows-2022",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674325,
+        "name": "Windows / Python 3.12 / lint, OpenSpec, wheel",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Verify the installed wheel outside the checkout"
+        ]
+      },
+      {
+        "job": 140501674332,
+        "name": "Windows / Python 3.12 / tests (2 of 3)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run this shard's tests"
+        ]
+      },
+      {
+        "job": 140501674355,
+        "name": "Native C++ library / windows-latest",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "job": 140501674448,
+        "name": "Elixir 1.18.0 / OTP 27.0 / windows-2022",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      }
+    ]
+  }
+}

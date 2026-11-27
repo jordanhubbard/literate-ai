@@ -1,0 +1,72 @@
+{
+  "review": "read-only full forest prerequisite ordering design and issue draft",
+  "issue_title": "Reject missing forest acknowledgement before native witness inspection",
+  "issue_draft": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/forest-prerequisite-order-issue-draft-r1.md",
+  "external_posted": false,
+  "tracker_duplicate_search": {
+    "queries": [
+      "forest acknowledgement",
+      "borrowed FD",
+      "admission acknowledgement",
+      "forest operation",
+      "native inspection"
+    ],
+    "matching_issue": null,
+    "unrelated_broad_matches": "393/307/216/311/137 and closed69 do not describe this concrete preflight ordering defect."
+  },
+  "observed_failure": {
+    "jobs": [
+      140501674130,
+      140501674222
+    ],
+    "test": "ForestOperationTests.test_copied_or_unacknowledged_operation_refuses_before_borrowed_fds",
+    "subtest": "NoneType acknowledgement,allow=True",
+    "actual_native_read": "New owned safe-context directory FD os.fstat via current configured coordinate discovery.",
+    "not_proved": "No evidence of borrowed control-pool FD use or source-movement effect; global trap wording alone cannot establish that."
+  },
+  "exact_execute_front_gate": {
+    "placement": "After exacttype issuedproposal lookup and existing bindingNone creating-proposal refusal; before first _require(binding).",
+    "predicate": "type(acknowledged_operation_identity) is not ContentIdentity OR allow_host_execution is not True",
+    "refusal": "Existing _fail exact complete operation acknowledgement and host authority required; ValueError namespace layout.forest-operation unchanged.",
+    "purity": "Only builtin exacttype and singleton identity; no __eq__,__str__,property,proposal.identity,URI,JSON,paths,currentness or descriptor.",
+    "preserve": "Retain original full later guard, including preparation/pool/proposal objectidentity, exacttype, ack equality to sealed proposal.identity, allowisTrue; keep _require before that equality and every original later revalidation/admission/partition/terminal cleanup.",
+    "ContentIdentity_contract": "Exact frozen nominal type has original SHA256/digest constructor constraints; new gate does not coerce, ducktype, reparse or replace those contracts and does not turn a typed object into authority without later original seals."
+  },
+  "complete_original_negative_test": {
+    "execution_cases": [
+      "None acknowledgement",
+      "Impostor acknowledgement with poisoned equality/str/currentness",
+      "actual identity but allow=False",
+      "copied issued proposal preserves creating refusal"
+    ],
+    "additional_planning_cases": [
+      "Impostor pool",
+      "copied actual pool",
+      "Impostor metadata coordinate"
+    ],
+    "inferred_next_failure_if_only_execute_fixed": "Planning currently calls _state before both plain coordinate type checks and livepool validation, thus same context fstat would hit the unchanged trap. This is source-callpath inference; no new gate rerun performed.",
+    "planning_front_gate": "Keep existing coordinate exacttype checks, move those pure checks before _state. Add/reuse owner-defined exactpoolclass+live-map-membership reference validation with no native guard/caller methods. Leave full livepool checks and fieldseals after original _state.",
+    "avoid": "Calling existing _require_live_control_pool early is not pure: it calls pool._guard. Moving equality/path conversions to front could trigger caller callbacks before original seals."
+  },
+  "later_source_closure_preserved": [
+    "preparation.require_current and _require repeats",
+    "effect-area current snapshots under original _reads",
+    "_admit_preparation original plan/pool forest_operation binding",
+    "canonical _source_phase_context and complete_partition budgets",
+    "move_source, publish_metadata, finalize_controls",
+    "terminal record completion, result byte seal, outcome error/operation cleanup"
+  ],
+  "sha256": {
+    "src/literate_ai/adapters/retained_layout_forest_operation.py": "6aa58c7bb4a6ab8d755b2058bd354bda445a47f2908eb7eecdc32e9d9d1b8469",
+    "src/literate_ai/adapters/retained_layout_control_publication.py": "91c5a228aee11724ff2e86f62e62603d0a57ccd00588582d3c0e6779053b6db1",
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": "3b591a2d3546a7f3ba84409faaf09233421b847007e941846d5804b27988b883",
+    "src/literate_ai/adapters/retained_layout_source_authored.py": "28356d3db84ac845da511f96a230c764fa42edb12031e69ab3c2ab7c5db1f9f3",
+    "src/literate_ai/adapters/retained_scaffold_coordinates.py": "dd5a4d668232eaadfd50e7c03c8f8b9d922e3dab33a4fa2ca5f1c3232caafeb5",
+    "tests/critical/test_retained_layout_forest_operation.py": "23c3dca561c96c0764f444a6cc7b2d57a67a5a73c943602f9ba30dd3c3f56f12"
+  },
+  "limits": [
+    "Read-only design and tracker search, no source edits, gate rerun, issue post or original test change.",
+    "Preserve all original no-native-before-prerequisite assertions; do not relabel this as environmental or only erase global trap.",
+    "Implementation and actual source/platform/fullrelease acceptance require independent later evidence."
+  ]
+}

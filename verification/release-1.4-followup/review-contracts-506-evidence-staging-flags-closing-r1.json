@@ -1,0 +1,39 @@
+{
+  "status": "source-reviewed-closed-no-new-finding",
+  "issue": 506,
+  "head": "2d10c8a9deceecb8a8c75459dd5157f9c99a2655",
+  "files": {
+    "src/literate_ai/adapters/evidence_staging.py": "61e185b72ebe868590026187665701efb53e8ea61c5fcc8e9dc82e77b563be51",
+    "tests/critical/test_evidence_staging_flags.py": "e0dc7ac3c6321c70b5e30cfea629e7d5bca795f2f484152b9934f57b52b92df4"
+  },
+  "production_delta": "Exactly two original reader flag expressions now use os.O_RDONLY | getattr(os,\"O_NONBLOCK\",0). AST equals original HEAD after undoing only those2replacements. Original Windows binary/native handles, writer-close/read-handoff sequence, original inode/native guards, closing census, broken flag, primary exception precedence and retirement unchanged.",
+  "new_tests_reviewed": {
+    "count": 4,
+    "missing_attribute": "Actual os namespace attribute removed in restoring patch.dict scope around original owner.write; real staging/partial-write/seal/disposal exercised; no os.name fake or native-guard replacement.",
+    "success": "Actual bytes and relative row, actual seal+absence+retired asserted.",
+    "body_failure": "Original os.write forwarded for1byte then exact original RuntimeError raised; same object survives, owned stage actually disposed/retired.",
+    "foreign": "Actual foreign private file inode/bytes retained and original owner.retired false; no permission from absence alone.",
+    "present_flag": "Transparent actual access.open spy forwards original operation. On platforms with O_NONBLOCK verifies bit; when absent verifies original reader reached and bytes/retirement, not POSIX-bit support.",
+    "skips_added": 0
+  },
+  "canonical_evidence_read": {
+    "log": "evidence-stage-flags-r1.log",
+    "report": "evidence-stage-flags-r1-report.json",
+    "summary": {
+      "executed": 13,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 13,
+      "selected": 13,
+      "skipped": 0
+    },
+    "elapsed_seconds": 2.533
+  },
+  "limits": [
+    "Closes43 identical missing-attribute source failure sites only; not every downstream Windows test outcome or native-clock/sharing candidate.",
+    "Actual original/new cohort passes on current Linux source. NativeWindows affected original cohorts remain required; missing-attribute model does not attest Windows handle/file-clock semantics.",
+    "No installed wholewheel/browser/native-scale/full-feature/release acceptance.",
+    "Reviewer made no source/test edits and did not rerun canonical tests.",
+    "Other dirty502/HTML changes remain governed by their separate exact-file reviews."
+  ]
+}

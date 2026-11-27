@@ -1,0 +1,172 @@
+{
+  "review": "read-only existing df6 Linux deadline artifacts and original limits",
+  "subject": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+  "run": 45997696262,
+  "observed_at_utc": "2026-11-27T17:19:40.747259+00:00",
+  "acquisition": "Existing four completed CI artifacts9-54KiB, no qualification rerun or new native execution; ZIP members read with no extraction.",
+  "receipts": [
+    {
+      "job": 140501674050,
+      "artifact_id": 15198186122,
+      "archive_sha256": "e0272ba6aac9d561e7596dc14576d16f29502718998579f5e35e6b5c05b91244",
+      "archive_bytes": 9243,
+      "timing_member": "evidence/20261127T122145Z-03cbe3/n0002/fd6c58b65172/module-timing.ndjson",
+      "timing_sha256": "ba4ad7f0f23576a6a6869b5eb32c5b7dbe21ddc971e74e008c3f9606a2682566",
+      "module": "tests.smoke.test_authored_retained_cargo_native_completion",
+      "cases_selected": 3,
+      "serial": true,
+      "worker_budget_seconds": null,
+      "spawn_seconds_from_invocation": 0.045507111,
+      "cleanup_begin_seconds_from_invocation": 1115.888829861,
+      "exit_seconds_from_invocation": 1115.888720977,
+      "execution_to_cleanup_seconds": 1115.843323,
+      "cleanup_parent_seconds": 5.4e-05,
+      "returncode": 1,
+      "disposition": "failed-report",
+      "report_observed": {
+        "done": true,
+        "failed": true,
+        "invalid": false,
+        "terminal_cases": 1
+      },
+      "overlapping_other_modules_same_invocation": [],
+      "test_report_summary": {
+        "executed": 1,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 0,
+        "selected": 8,
+        "skipped": 0
+      },
+      "inner_worker_event_output_stack_or_profile_files_present": false
+    },
+    {
+      "job": 140501673958,
+      "artifact_id": 15203061308,
+      "archive_sha256": "f0f216dc4caae4849f8f382ac26299b8a02356c4540b7a145b923b6ab3a0f20f",
+      "archive_bytes": 11987,
+      "timing_member": "evidence/20261127T122151Z-3da196/n0002/dfd1a4206f40/module-timing.ndjson",
+      "timing_sha256": "9b7136baf466515af2e90ef89f3b6a432982f8a610fceb94a97d0ae0d98b44d0",
+      "module": "tests.smoke.test_authored_reopened_native_execution",
+      "cases_selected": 4,
+      "serial": true,
+      "worker_budget_seconds": 3600,
+      "spawn_seconds_from_invocation": 1320.625500643,
+      "cleanup_begin_seconds_from_invocation": 4920.62978698,
+      "exit_seconds_from_invocation": 4920.645209195,
+      "execution_to_cleanup_seconds": 3600.004286,
+      "cleanup_parent_seconds": 0.015463,
+      "returncode": -9,
+      "disposition": "deadline",
+      "report_observed": {
+        "done": false,
+        "failed": true,
+        "invalid": true,
+        "terminal_cases": 2
+      },
+      "overlapping_other_modules_same_invocation": [],
+      "test_report_summary": {
+        "executed": 22,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 21,
+        "selected": 25,
+        "skipped": 0
+      },
+      "inner_worker_event_output_stack_or_profile_files_present": false
+    },
+    {
+      "job": 140501674494,
+      "artifact_id": 15203727939,
+      "archive_sha256": "ed850eb852906e539a107854763c12597cd8f8f8e4460c0c930c571b191d6ec2",
+      "archive_bytes": 11991,
+      "timing_member": "evidence/20261127T122154Z-45e4bc/n0002/ebe8aa0b4fa8/module-timing.ndjson",
+      "timing_sha256": "38d9f436daead3a8f78857abe2b808f79e5ee6fc02004b3811b3b9654d21e3a6",
+      "module": "tests.smoke.test_authored_reopened_native_execution",
+      "cases_selected": 4,
+      "serial": true,
+      "worker_budget_seconds": 3600,
+      "spawn_seconds_from_invocation": 2167.756537735,
+      "cleanup_begin_seconds_from_invocation": 5767.766050102,
+      "exit_seconds_from_invocation": 5767.78144496,
+      "execution_to_cleanup_seconds": 3600.009512,
+      "cleanup_parent_seconds": 0.015425,
+      "returncode": -9,
+      "disposition": "deadline",
+      "report_observed": {
+        "done": false,
+        "failed": true,
+        "invalid": true,
+        "terminal_cases": 1
+      },
+      "overlapping_other_modules_same_invocation": [],
+      "test_report_summary": {
+        "executed": 22,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 21,
+        "selected": 25,
+        "skipped": 0
+      },
+      "inner_worker_event_output_stack_or_profile_files_present": false
+    },
+    {
+      "job": 140501674335,
+      "artifact_id": 15207372912,
+      "archive_sha256": "bf0f1eb44a51cbd3e96802ccf99492632c95b75dd6ec10ffc8aabc61109d2599",
+      "archive_bytes": 54269,
+      "timing_member": "evidence/20261127T122142Z-5654cf/n0002/4789c762c73d/module-timing.ndjson",
+      "timing_sha256": "ea1bb23f7db1f8f4f34997171fed31efc8177f7cb098c4c4d9c47a919a62b50a",
+      "module": "tests.smoke.test_authored_owning_admission",
+      "cases_selected": 4,
+      "serial": true,
+      "worker_budget_seconds": 6600,
+      "spawn_seconds_from_invocation": 2579.369582697,
+      "cleanup_begin_seconds_from_invocation": 9179.379209745,
+      "exit_seconds_from_invocation": 9179.394611037,
+      "execution_to_cleanup_seconds": 6600.009627,
+      "cleanup_parent_seconds": 0.015447,
+      "returncode": -9,
+      "disposition": "deadline",
+      "report_observed": {
+        "done": false,
+        "failed": true,
+        "invalid": true,
+        "terminal_cases": 3
+      },
+      "overlapping_other_modules_same_invocation": [],
+      "test_report_summary": {
+        "executed": 228,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 227,
+        "selected": 253,
+        "skipped": 12
+      },
+      "inner_worker_event_output_stack_or_profile_files_present": false
+    }
+  ],
+  "established": [
+    "900consumer failure exits child normally with report; parent cleanup negligible. No parent tree-drain latency explains1115.9s child runtime. Preparation/actual command/innerguard/childcleanup costs remain unseparated.",
+    "Reopened and owning workers are killed by actual parent MODULE3600/6600 limit with returncode-9; parent cleanup15-16milliseconds.",
+    "All4target modules serial, no overlapping sibling module worker in same scheduler invocation. This rules out same-invocation parallel module overlap as observed cause, not external CPU/IO contention.",
+    "Original per-operation budgets900/1800/3600 unchanged. Module deadlines and consumer deadlines are distinct original owners.",
+    "Artifacts retain module timing/checkpoint/testreport but no native stage events, innerworker output log, stack sampling or profiling. Actual hotguard/byteparse/subprocess/namespace cost cannot be attributed from them."
+  ],
+  "printed_positive_control_limit": "Earlier native OK lines show completed assertions at that time. A later module worker failure invalidates entire module group for reusable checkpoint outcomes; printed OK is not a reusable fullmodule or release receipt.",
+  "historical_local_comparison": {
+    "receipt": "review-contracts-authored-native-completion-r4-acceptance.json",
+    "subject": "fef411fafba81dfcf890dd159d69e388589acf4e",
+    "passed": 3,
+    "skipped": 0,
+    "elapsed_seconds": 2394.692,
+    "original_test_file_exactbytes_fef_vs_df6": true,
+    "limits": "One historicalnativehost positive receipt with original900 limit; not evidence hosteddf6 API/environmentcause or latestcandidate qualification. Originalprovider products are explicitly modeled in thatfixture."
+  },
+  "bounded_next_diagnosis": "Use already retained native per-stage evidence if another original artifact owns it; these selected archives have none. If future authorized unchanged qualification provides owned stack/phase samples, measure repeated source/tool/native guards and subprocess cost before changing code. Do not substitute deadlineincrease/newskip/retry or genericenvironment explanation.",
+  "limits": [
+    "No source/config/worker/job modifications or requests, no native reruns.",
+    "Only registered diagnostic members and exact raw job logs used; all initial failedgates remain preserved.",
+    "No fullrelease/nativeallplatform acceptance."
+  ]
+}

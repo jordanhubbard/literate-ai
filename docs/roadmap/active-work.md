@@ -24427,18 +24427,44 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
-- **Standalone bootstrap custody (open integration subtask):**
+- **Verified integration follow-ups (open; original 83-goal scope retained):**
+  [#503](https://github.com/jordanhubbard/literate-ai/issues/503) owns catalog
+  finalization with an explicitly proved framework successor's exact directory
+  membership; the actual historical catalog finalize refused legitimate new
+  framework siblings. Preserve strict unknown-content refusal and recovery order.
+  [#504](https://github.com/jordanhubbard/literate-ai/issues/504) owns the missing
+  Codex runtime owner during accepted-cache metadata replay.
+  [#505](https://github.com/jordanhubbard/literate-ai/issues/505) owns pure forest
+  prerequisite refusal before native context inspection.
+  [#506](https://github.com/jordanhubbard/literate-ai/issues/506) owns absent
+  Windows `O_NONBLOCK`: both reader expressions are repaired, with 13 focused
+  controls passing and independent review closed; native Windows remains open.
+  [#507](https://github.com/jordanhubbard/literate-ai/issues/507) owns lossless
+  wide native-ID serialization across proof, plan, codec and comparison joins.
+  [#508](https://github.com/jordanhubbard/literate-ai/issues/508) owns native
+  Windows control observations; actual mismatched fields remain unproven.
+  Next: integrate these repairs with original guards and deadlines, obtain native
+  evidence, then repeat exact-candidate qualification. Full `df6` CI is terminal
+  (33 success, 22 failure, one cancellation). All failed jobs and 1,751 original
+  Windows skip events are inventoried in the r17 source-review evidence; neither
+  passing printed cases inside failed modules nor historical host passes qualify
+  those failed modules. The whole installed-wheel r14 remains failed; the repaired
+  HTML fixture separately passes all 31 expected installed command exits.
+- **Standalone bootstrap custody (source qualified; integration open):**
   [GitHub issue #502](https://github.com/jordanhubbard/literate-ai/issues/502).
   Exact `df6` Linux/Python 3.14 CI fails before the original process-timeout
   assertions because the bundled shared helper imports a release-only sibling
-  that is not shipped with the standalone bootstrap. Independent diagnosis
-  requires a stdlib-only shared observer boundary installed by the original
-  release-worktree owner for its full lifetime, including cleanup. Preserve all
-  original timeout/partial-stream/ownership assertions, active release custody,
-  exact canonical-copy/digest parity and synthetic digest-loader coverage.
-  Retain the failed CI evidence; no missing-import fallback or new skip is
-  acceptance. This refines the existing bootstrap qualification scope and adds
-  no release goal or deferral.
+  that is not shipped with the standalone bootstrap. The reviewed repair uses
+  a stdlib-only observer installed by the original release-worktree owner for
+  its full lifetime, including cleanup. Nested replacement is refused. Exact
+  canonical-copy/digest parity, original timeout/partial-stream/ownership
+  assertions and original release custody remain intact. Three new controls
+  prove real isolated synthetic loading with no framework import, active owner
+  admission and expired-context refusal. Original process controls pass nine
+  cases with four original native FreeBSD skips; seven release-custody and 17
+  bootstrap-loader cases pass with zero skips. Fresh installed/platform and
+  resulting-main acceptance remain open. The failed CI evidence is retained;
+  this adds no release goal or deferral.
 - **Resident release-policy reference (open integration subtask):**
   [GitHub issue #501](https://github.com/jordanhubbard/literate-ai/issues/501).
   Actual installed `bf6551038` framework plans from the historical application
@@ -24452,8 +24478,16 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   controls pass, including real publication, interrupted recovery and changed-
   policy refusal; the original framework cohort passes 122 cases and release
   regression passes 17, with zero skips. Independent source and native review
-  are closed. Next qualify the final frozen source and new installed public
-  plans, then review the actual plan before application and normal renewal.
+  are closed. Frozen `2d10c8a9d` passes all 152 relevant cases with zero skips.
+  Its actual installed root/descendant plans agree and are applicable. Reviewed
+  public framework placement passes in 49.098 seconds under the original
+  1800-second bound. Independent review verifies all 36 saved originals, 37
+  published outputs and 577 other original files, preserving native application,
+  receipt, Git and prior catalog archives. Original wrapper `host` renewal is
+  current with no writes. Framework finalization succeeds and independent review
+  verifies the exact three archived source-control inodes. Catalog finalization
+  remains blocked by #503; normal downstream documentation/Standard/receipt
+  acceptance remains open.
   Optional external policy-parser shapes remain unsupported as documented;
   source closure does not complete their admission or the full release goal.
   Independent review verifies the provisional wheel's 1,637 package members,

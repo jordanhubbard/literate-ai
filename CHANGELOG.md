@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Keep evidence-stage reader flags portable on platforms without `O_NONBLOCK`,
+  preserving native custody and retirement checks.
+
+- Restore standalone bootstrap process execution and preserve release Git
+  cleanup custody and exact bundled-helper verification.
+
 - Preserve coding CLI invocation names when launching pinned native images,
   including multicall launchers, while retaining executable drift checks.
 

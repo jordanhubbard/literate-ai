@@ -528,8 +528,11 @@ def main():
             project_plan["plan_identity"],
         ),
     )
+    from literate_ai.projects import ProjectConfigurationStore
+
+    project_context = ProjectConfigurationStore.context(project)
     require(
-        created["applied"] is True and (project / "literate.project.json").is_file(),
+        created["applied"] is True and project_context.manifest_path.is_file(),
         "real installed onboard did not initialize project",
     )
     source, output = project / "source", project / "view"

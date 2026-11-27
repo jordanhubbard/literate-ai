@@ -1,0 +1,233 @@
+{
+  "status": "closed-fixture-only-no-new-finding",
+  "file": "tests/support/installed_tree_html_journey.py",
+  "sha256": "0103739885171a2132c5b3b925f8d54ee9c7794618ff9c37d1c3551079d9f84a",
+  "original_frozen_sha256": "488dda717008b090c68b4cbdd70172bc0508beb2c4347f41c57eb0bcd10a60a2",
+  "review": "Exact delta adds local installed ProjectConfigurationStore import and one context capture after real onboard; substitutes captured manifest_path.is_file only. Original applied is True conjunct and refusal message retained.",
+  "validation": {
+    "AST": "After removing only new import/context assignment and restoring only original manifest expression, full module AST exactly equals frozen qualification-r11 original. All original assertions, native CLI argv,180s process timeout,64call bound, output limits and identities unchanged.",
+    "compile": "compile(source,filename,exec) PASS without writing pycache",
+    "scoped_driver": {
+      "stdout": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/installed-tree-html-coordinate-r1.stdout",
+      "stderr_bytes": 0,
+      "result": {
+        "budget_interruption_preserved": true,
+        "foreign_output_preserved": true,
+        "framework_distribution": "sha256:ba6bbc7b83ac36fb638abc123b5d6a411deb4ce1edcd213f99d2ad791837b21f",
+        "generation_manifest_digest": "4b77872aa60a56ccce44c6b72aa5e664f2cc2b3471f40fdf75bc48e8cccec2ff",
+        "index_identity": "sha256:27e08b372ce599d67a3d63c5d0112a122840fc3f1041c0086c33b00b58c54df0",
+        "offline_complete": true,
+        "original_payload_topology_preserved": true,
+        "page_count": 9,
+        "project_tree_gate": true,
+        "qualified": true,
+        "rerender_recovery_units_browser_native_scale": "not-qualified",
+        "runtime_source_mutation_race": "not-qualified",
+        "scope": "initial-directory-metadata-and-readonly-freshness",
+        "source_identity": "sha256:00c485bf44649c3d562a0a79fd17ffafb5b40faba3d2062abe8558b3e3405d3c",
+        "stale_ack_refused": true,
+        "standalone_freshness": true,
+        "transient_index_replacement": "source-review-only"
+      },
+      "call_count": 31,
+      "all_actual_exit_codes_match_expected": true,
+      "all_call_distributions_match": true,
+      "installed_interpreter": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/literate-wheel-smoke-glsdcnun/environment/bin/python",
+      "calls": [
+        {
+          "call": "call-01",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "28efab250a902d1d2895978f231a4fe62f1ba58096fa9a7bef80ec25b4ab9b29"
+        },
+        {
+          "call": "call-02",
+          "actual_exit": 2,
+          "expected_exit": 2,
+          "argv_sha256": "bb5c5e916a780e14c1162042f2ed0e7c4fdc7dbf2597664547f886d96b3fa4ce"
+        },
+        {
+          "call": "call-03",
+          "actual_exit": 2,
+          "expected_exit": 2,
+          "argv_sha256": "a76e27d317cd46245727b29a6329a4debd2f1c95e66f6c28eb2bed1e9cf70878"
+        },
+        {
+          "call": "call-04",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "4f0b311c54e5240015d0259afec4f0507f1653c5ed4dde97a2ae71ef21c05f9f"
+        },
+        {
+          "call": "call-05",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "a8f57b711a95a082af62babe9b871bc1609440dc7b789e000066014fef74ae4e"
+        },
+        {
+          "call": "call-06",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "3c4967b26c684faaf21957b3c96cfb2f927da40d6995cb89f2b107948f92417f"
+        },
+        {
+          "call": "call-07",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "cfefbab864c90f364a40bb98cfc2af6c4fdc35ebf72de08336e6d5df11ece188"
+        },
+        {
+          "call": "call-08",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "cfefbab864c90f364a40bb98cfc2af6c4fdc35ebf72de08336e6d5df11ece188"
+        },
+        {
+          "call": "call-09",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "cfefbab864c90f364a40bb98cfc2af6c4fdc35ebf72de08336e6d5df11ece188"
+        },
+        {
+          "call": "call-10",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "cfefbab864c90f364a40bb98cfc2af6c4fdc35ebf72de08336e6d5df11ece188"
+        },
+        {
+          "call": "call-11",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "929613bc26369242f00d1675359ce24206c2d696e693e108945ad27938a3f56f"
+        },
+        {
+          "call": "call-12",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "9b4903d7d4735c32403c1b51cd665e91102700aa12963e1b221f325037e1c467"
+        },
+        {
+          "call": "call-13",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "7d224e2e39192dff94eba62a0ec767d035798cdc71f2c0ff43f622a5d2cfc568"
+        },
+        {
+          "call": "call-14",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "a2d6fef778e7d9d7652ad90d8fb29bc4bc5819d65005aa4fa8fba8b55f67f8de"
+        },
+        {
+          "call": "call-15",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "c597845a5fc3f5137117e356c93c0f975416ceb8a544ce48c4a0813076b58401"
+        },
+        {
+          "call": "call-16",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "f100a3b1224b0791fbc178dd031e730c96c31526d83869fc83777e30604133ae"
+        },
+        {
+          "call": "call-17",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "a2d6fef778e7d9d7652ad90d8fb29bc4bc5819d65005aa4fa8fba8b55f67f8de"
+        },
+        {
+          "call": "call-18",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "a2d6fef778e7d9d7652ad90d8fb29bc4bc5819d65005aa4fa8fba8b55f67f8de"
+        },
+        {
+          "call": "call-19",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "a2d6fef778e7d9d7652ad90d8fb29bc4bc5819d65005aa4fa8fba8b55f67f8de"
+        },
+        {
+          "call": "call-20",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "a2d6fef778e7d9d7652ad90d8fb29bc4bc5819d65005aa4fa8fba8b55f67f8de"
+        },
+        {
+          "call": "call-21",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "a2d6fef778e7d9d7652ad90d8fb29bc4bc5819d65005aa4fa8fba8b55f67f8de"
+        },
+        {
+          "call": "call-22",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "a2d6fef778e7d9d7652ad90d8fb29bc4bc5819d65005aa4fa8fba8b55f67f8de"
+        },
+        {
+          "call": "call-23",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "3118e7d2d2c32bd917947fc3779d2bfab9d26f27ac4742a8593b5661e8720f79"
+        },
+        {
+          "call": "call-24",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "0d4988b552e0a834327ae80c149e94c36055ddd8ff4e0c2148f388053f74fe66"
+        },
+        {
+          "call": "call-25",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "869db12742cb74efaf1d4654edf1839d4dcf7dbf77d06dc428f31f9d0ecba0af"
+        },
+        {
+          "call": "call-26",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "3bbb33e318fc4d18cffb9ae8e1275dde5fbedb2fdc074ba2d61ace460c602243"
+        },
+        {
+          "call": "call-27",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "d7f9c393aff30bf0676be770b936398e09a2b76469df8d3cf313a1e0c0b247d9"
+        },
+        {
+          "call": "call-28",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "7b9695f3ca114c5b53e64027f3bf5f99094ce72e2133bcd32306314691c71d13"
+        },
+        {
+          "call": "call-29",
+          "actual_exit": 0,
+          "expected_exit": 0,
+          "argv_sha256": "9e0b961e2604976d3c8bffeb5667d8fc957b9d9b485fb5044e68e34b3e35150f"
+        },
+        {
+          "call": "call-30",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "032ad5c53fa040df88441ad1990789fb1fc6ea827082c665da876b3874360b92"
+        },
+        {
+          "call": "call-31",
+          "actual_exit": 1,
+          "expected_exit": 1,
+          "argv_sha256": "9e0b961e2604976d3c8bffeb5667d8fc957b9d9b485fb5044e68e34b3e35150f"
+        }
+      ]
+    }
+  },
+  "coordinate_review": "All later source/view/view.json/registry coordinates intentionally remain application-root per existing tree owner; none rebased into litai.",
+  "limits": [
+    "Actual scoped driver uses immutable original5f3 installed wheel and fresh owned workspace; this is bounded initial-directory-metadata/read-only-freshness/project-tree-gate evidence only.",
+    "Original wheel-full-r14 remains FAILED and original retained failing project is not qualified by this scoped rerun.",
+    "No wholewheel, nativebrowser, rerender/recovery/per-unit/native-scale/source-mutation-race/full-release acceptance.",
+    "Reviewer performed no source edits or driver rerun."
+  ]
+}

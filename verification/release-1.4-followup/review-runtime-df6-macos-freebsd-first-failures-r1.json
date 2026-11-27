@@ -1,0 +1,1036 @@
+{
+  "schema": "literate-ai/independent-df6-macos-freebsd-ci-first-failure-review@1",
+  "run": 45997696262,
+  "pull_request_head": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+  "actual_all11_checkout_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+  "scope": "All10failedmacOSjobs+1failedFreeBSDjob; Linux andWindows owned by other reviewers",
+  "jobs": [
+    {
+      "job": 140501673294,
+      "name": "macos-latest / Python 3.11 (authored 1 of 4)",
+      "conclusion": "failure",
+      "phase": "full macOS conformance / python-check",
+      "checked_out_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "signature": "cache-runtime-owner",
+      "first_test_or_error": "2026-11-27T14:46:24.8445990Z ERROR: test_real_child_keeps_original_candidate_key_and_provenance (tests.smoke.test_authored_coding_cli.AuthoredCodingCLITests.test_real_child_keeps_original_candidate_key_and_provenance)",
+      "first_failure_excerpt": [
+        {
+          "line": 1287,
+          "text": "2026-11-27T14:46:24.8445990Z ERROR: test_real_child_keeps_original_candidate_key_and_provenance (tests.smoke.test_authored_coding_cli.AuthoredCodingCLITests.test_real_child_keeps_original_candidate_key_and_provenance)"
+        },
+        {
+          "line": 1290,
+          "text": "2026-11-27T14:46:24.8449670Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/smoke/test_authored_coding_cli.py\", line 81, in test_real_child_keeps_original_candidate_key_and_provenance"
+        },
+        {
+          "line": 1293,
+          "text": "2026-11-27T14:46:24.8452400Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/source_generation.py\", line 479, in __call__"
+        },
+        {
+          "line": 1296,
+          "text": "2026-11-27T14:46:24.8454690Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/cache/generated_source.py\", line 226, in generate"
+        },
+        {
+          "line": 1299,
+          "text": "2026-11-27T14:46:24.8456610Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/cache/generated_source.py\", line 543, in _load"
+        },
+        {
+          "line": 1302,
+          "text": "2026-11-27T14:46:24.8459020Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/models/coding_cli.py\", line 3909, in _command"
+        },
+        {
+          "line": 1305,
+          "text": "2026-11-27T14:46:24.8460890Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/models/coding_cli.py\", line 3129, in _coding_cli_command"
+        },
+        {
+          "line": 1308,
+          "text": "2026-11-27T14:46:24.8463130Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/models/coding_cli.py\", line 3098, in _codex_runtime_arguments"
+        },
+        {
+          "line": 1309,
+          "text": "2026-11-27T14:46:24.8463960Z     raise CodingCliError("
+        },
+        {
+          "line": 1310,
+          "text": "2026-11-27T14:46:24.8464730Z literate_ai.adapters.models.coding_cli.CodingCliError: Codex invocation requires owned private runtime state"
+        },
+        {
+          "line": 1313,
+          "text": "2026-11-27T14:46:24.8466060Z Ran 227 tests in 2296.797s"
+        },
+        {
+          "line": 1315,
+          "text": "2026-11-27T14:46:24.8466380Z FAILED (errors=1)"
+        }
+      ],
+      "cell_command": "LITAI_REQUIRE_PINNED_PIP_WHEEL=1 PYTHONPATH=src python scripts/litai_step.py --name python-check -- python scripts/run_checkpointed_unittests.py --state \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-checkpoint.json\" --start-directory \"tests\" --pattern \"test_authored_[!r]*.py\" --verbosity \"2\" --workers \"auto\" --worker-timeout \"6600\" --report \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-report.json\"",
+      "raw_log": "ci-df6-140501673294.raw.log",
+      "raw_bytes": 162376,
+      "raw_sha256": "96a7f6e051c91fe6175163c47f15ee747619c7b65714203c32f1a572beeedb84"
+    },
+    {
+      "job": 140501673310,
+      "name": "macos-latest / Python 3.14 (smoke)",
+      "conclusion": "failure",
+      "phase": "full macOS conformance / python-check",
+      "checked_out_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "signature": "macos-var-fixture",
+      "first_test_or_error": "2026-11-27T14:57:21.6534940Z ERROR: test_cyclic_proposal_rejects_whole_batch_before_any_replace (tests.critical.test_documentation_update.DocumentationUpdateTests.test_cyclic_proposal_rejects_whole_batch_before_any_replace)",
+      "first_failure_excerpt": [
+        {
+          "line": 1852,
+          "text": "2026-11-27T14:57:21.6534940Z ERROR: test_cyclic_proposal_rejects_whole_batch_before_any_replace (tests.critical.test_documentation_update.DocumentationUpdateTests.test_cyclic_proposal_rejects_whole_batch_before_any_replace)"
+        },
+        {
+          "line": 1855,
+          "text": "2026-11-27T14:57:21.6558620Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 228, in _ensure_safe_directory_posix"
+        },
+        {
+          "line": 1858,
+          "text": "2026-11-27T14:57:21.6562620Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 269, in _open_readonly_directory_component"
+        },
+        {
+          "line": 1860,
+          "text": "2026-11-27T14:57:21.6565580Z NotADirectoryError: [Errno 20] Not a directory: 'var'"
+        },
+        {
+          "line": 1865,
+          "text": "2026-11-27T14:57:21.6567970Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 362, in direct_directory"
+        },
+        {
+          "line": 1868,
+          "text": "2026-11-27T14:57:21.6570700Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 211, in require_safe_directory"
+        },
+        {
+          "line": 1875,
+          "text": "2026-11-27T14:57:21.6601170Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 251, in _ensure_safe_directory_posix"
+        },
+        {
+          "line": 1876,
+          "text": "2026-11-27T14:57:21.6601920Z     raise UnsafeFilesystemPathError("
+        },
+        {
+          "line": 1879,
+          "text": "2026-11-27T14:57:21.6603770Z literate_ai._filesystem.UnsafeFilesystemPathError: directory component is unsafe: var"
+        },
+        {
+          "line": 1884,
+          "text": "2026-11-27T14:57:21.6606670Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/critical/test_documentation_update.py\", line 119, in test_cyclic_proposal_rejects_whole_batch_before_any_replace"
+        },
+        {
+          "line": 1886,
+          "text": "2026-11-27T14:57:21.6608700Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/critical/test_documentation_update.py\", line 78, in project"
+        },
+        {
+          "line": 1888,
+          "text": "2026-11-27T14:57:21.6610160Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 2068, in load_project"
+        },
+        {
+          "line": 1890,
+          "text": "2026-11-27T14:57:21.6611740Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 490, in read"
+        },
+        {
+          "line": 1893,
+          "text": "2026-11-27T14:57:21.6613610Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 478, in _root"
+        },
+        {
+          "line": 1896,
+          "text": "2026-11-27T14:57:21.6615350Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 424, in context"
+        },
+        {
+          "line": 1899,
+          "text": "2026-11-27T14:57:21.6617250Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 364, in direct_directory"
+        },
+        {
+          "line": 1900,
+          "text": "2026-11-27T14:57:21.6618060Z     raise ProjectError("
+        },
+        {
+          "line": 1903,
+          "text": "2026-11-27T14:57:21.6619240Z literate_ai.projects.ProjectError: framework directory must be direct and unredirected"
+        },
+        {
+          "line": 1906,
+          "text": "2026-11-27T14:57:21.6620380Z Ran 705 tests in 1451.006s"
+        },
+        {
+          "line": 1908,
+          "text": "2026-11-27T14:57:21.6620950Z FAILED (errors=1, skipped=29)"
+        }
+      ],
+      "cell_command": "LITAI_REQUIRE_PINNED_PIP_WHEEL=1 PYTHONPATH=src python scripts/litai_step.py --name python-check -- python scripts/run_checkpointed_unittests.py --state \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-checkpoint.json\" --start-directory \"tests\" --pattern \"test_[!anr]*.py\" --verbosity \"2\" --workers \"auto\" --worker-timeout \"3600\" --report \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-report.json\"",
+      "raw_log": "ci-df6-140501673310.raw.log",
+      "raw_bytes": 253656,
+      "raw_sha256": "8e834814422f40947b3b5b303a624e5a4cf370ba995d60dd281e37feaa5f98a5"
+    },
+    {
+      "job": 140501673317,
+      "name": "macos-latest / Python 3.14 (authored 3 of 4)",
+      "conclusion": "failure",
+      "phase": "full macOS conformance / python-check",
+      "checked_out_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "signature": "module-worker-3600",
+      "first_test_or_error": "2026-11-27T14:03:34.6827340Z ERROR: test_same_byte_workspace_replacement_refuses (tests.critical.test_authored_retained_cargo_completion_files.AuthoredConsumerCompletionFileTests.test_same_byte_workspace_replacement_refuses)",
+      "first_failure_excerpt": [
+        {
+          "line": 1145,
+          "text": "2026-11-27T14:03:34.6827340Z ERROR: test_same_byte_workspace_replacement_refuses (tests.critical.test_authored_retained_cargo_completion_files.AuthoredConsumerCompletionFileTests.test_same_byte_workspace_replacement_refuses)"
+        },
+        {
+          "line": 1147,
+          "text": "2026-11-27T14:03:34.6838870Z parallel test worker failed: worker exceeded its finite deadline"
+        },
+        {
+          "line": 1150,
+          "text": "2026-11-27T14:03:34.6840200Z Ran 84 tests in 3600.162s"
+        },
+        {
+          "line": 1152,
+          "text": "2026-11-27T14:03:34.6854820Z FAILED (errors=1)"
+        }
+      ],
+      "cell_command": "LITAI_REQUIRE_PINNED_PIP_WHEEL=1 PYTHONPATH=src python scripts/litai_step.py --name python-check -- python scripts/run_checkpointed_unittests.py --state \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-checkpoint.json\" --start-directory \"tests\" --pattern \"test_authored_retained_cargo_[!n]*.py\" --verbosity \"2\" --workers \"auto\" --worker-timeout \"3600\" --report \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-report.json\"",
+      "raw_log": "ci-df6-140501673317.raw.log",
+      "raw_bytes": 134548,
+      "raw_sha256": "df97ac48ad9889d21b6c1e0d68838a35d2df7ee29d70d268a2414fd619af7448"
+    },
+    {
+      "job": 140501673348,
+      "name": "macos-latest / Python 3.14 (authored 1 of 4)",
+      "conclusion": "failure",
+      "phase": "full macOS conformance / python-check",
+      "checked_out_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "signature": "cache-runtime-owner",
+      "first_test_or_error": "2026-11-27T14:50:53.4370530Z ERROR: test_real_child_keeps_original_candidate_key_and_provenance (tests.smoke.test_authored_coding_cli.AuthoredCodingCLITests.test_real_child_keeps_original_candidate_key_and_provenance)",
+      "first_failure_excerpt": [
+        {
+          "line": 1288,
+          "text": "2026-11-27T14:50:53.4370530Z ERROR: test_real_child_keeps_original_candidate_key_and_provenance (tests.smoke.test_authored_coding_cli.AuthoredCodingCLITests.test_real_child_keeps_original_candidate_key_and_provenance)"
+        },
+        {
+          "line": 1291,
+          "text": "2026-11-27T14:50:53.4380010Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/smoke/test_authored_coding_cli.py\", line 81, in test_real_child_keeps_original_candidate_key_and_provenance"
+        },
+        {
+          "line": 1293,
+          "text": "2026-11-27T14:50:53.4382770Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/source_generation.py\", line 479, in __call__"
+        },
+        {
+          "line": 1299,
+          "text": "2026-11-27T14:50:53.4385640Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/cache/generated_source.py\", line 226, in generate"
+        },
+        {
+          "line": 1305,
+          "text": "2026-11-27T14:50:53.4388460Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/cache/generated_source.py\", line 543, in _load"
+        },
+        {
+          "line": 1308,
+          "text": "2026-11-27T14:50:53.4390810Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/models/coding_cli.py\", line 3909, in _command"
+        },
+        {
+          "line": 1314,
+          "text": "2026-11-27T14:50:53.4393900Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/models/coding_cli.py\", line 3129, in _coding_cli_command"
+        },
+        {
+          "line": 1317,
+          "text": "2026-11-27T14:50:53.4396060Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/models/coding_cli.py\", line 3098, in _codex_runtime_arguments"
+        },
+        {
+          "line": 1318,
+          "text": "2026-11-27T14:50:53.4396670Z     raise CodingCliError("
+        },
+        {
+          "line": 1321,
+          "text": "2026-11-27T14:50:53.4398070Z literate_ai.adapters.models.coding_cli.CodingCliError: Codex invocation requires owned private runtime state"
+        },
+        {
+          "line": 1324,
+          "text": "2026-11-27T14:50:53.4399150Z Ran 226 tests in 2335.512s"
+        },
+        {
+          "line": 1326,
+          "text": "2026-11-27T14:50:53.4399530Z FAILED (errors=1)"
+        }
+      ],
+      "cell_command": "LITAI_REQUIRE_PINNED_PIP_WHEEL=1 PYTHONPATH=src python scripts/litai_step.py --name python-check -- python scripts/run_checkpointed_unittests.py --state \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-checkpoint.json\" --start-directory \"tests\" --pattern \"test_authored_[!r]*.py\" --verbosity \"2\" --workers \"auto\" --worker-timeout \"6600\" --report \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-report.json\"",
+      "raw_log": "ci-df6-140501673348.raw.log",
+      "raw_bytes": 162723,
+      "raw_sha256": "ff885296aedbaf23b92c1c497c56a36c8e0ec4c78af3ab73a304d0755588045c"
+    },
+    {
+      "job": 140501673351,
+      "name": "macos-latest / Python 3.11 (1 of 4)",
+      "conclusion": "failure",
+      "phase": "full macOS conformance / python-check",
+      "checked_out_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "signature": "macos-var-fixture",
+      "first_test_or_error": "2026-11-27T14:05:19.5494900Z ERROR: test_cyclic_proposal_rejects_whole_batch_before_any_replace (tests.critical.test_documentation_update.DocumentationUpdateTests.test_cyclic_proposal_rejects_whole_batch_before_any_replace)",
+      "first_failure_excerpt": [
+        {
+          "line": 1812,
+          "text": "2026-11-27T14:05:19.5494900Z ERROR: test_cyclic_proposal_rejects_whole_batch_before_any_replace (tests.critical.test_documentation_update.DocumentationUpdateTests.test_cyclic_proposal_rejects_whole_batch_before_any_replace)"
+        },
+        {
+          "line": 1815,
+          "text": "2026-11-27T14:05:19.5497530Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 228, in _ensure_safe_directory_posix"
+        },
+        {
+          "line": 1818,
+          "text": "2026-11-27T14:05:19.5499760Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 269, in _open_readonly_directory_component"
+        },
+        {
+          "line": 1821,
+          "text": "2026-11-27T14:05:19.5501150Z NotADirectoryError: [Errno 20] Not a directory: 'var'"
+        },
+        {
+          "line": 1826,
+          "text": "2026-11-27T14:05:19.5502610Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 362, in direct_directory"
+        },
+        {
+          "line": 1828,
+          "text": "2026-11-27T14:05:19.5503820Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 211, in require_safe_directory"
+        },
+        {
+          "line": 1830,
+          "text": "2026-11-27T14:05:19.5504880Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 251, in _ensure_safe_directory_posix"
+        },
+        {
+          "line": 1831,
+          "text": "2026-11-27T14:05:19.5505380Z     raise UnsafeFilesystemPathError("
+        },
+        {
+          "line": 1832,
+          "text": "2026-11-27T14:05:19.5505840Z literate_ai._filesystem.UnsafeFilesystemPathError: directory component is unsafe: var"
+        },
+        {
+          "line": 1837,
+          "text": "2026-11-27T14:05:19.5507510Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/critical/test_documentation_update.py\", line 119, in test_cyclic_proposal_rejects_whole_batch_before_any_replace"
+        },
+        {
+          "line": 1840,
+          "text": "2026-11-27T14:05:19.5509090Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/critical/test_documentation_update.py\", line 78, in project"
+        },
+        {
+          "line": 1843,
+          "text": "2026-11-27T14:05:19.5510810Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 2068, in load_project"
+        },
+        {
+          "line": 1846,
+          "text": "2026-11-27T14:05:19.5512450Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 490, in read"
+        },
+        {
+          "line": 1849,
+          "text": "2026-11-27T14:05:19.5513910Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 478, in _root"
+        },
+        {
+          "line": 1851,
+          "text": "2026-11-27T14:05:19.5514850Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 424, in context"
+        },
+        {
+          "line": 1854,
+          "text": "2026-11-27T14:05:19.5516210Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 364, in direct_directory"
+        },
+        {
+          "line": 1855,
+          "text": "2026-11-27T14:05:19.5516630Z     raise ProjectError("
+        },
+        {
+          "line": 1856,
+          "text": "2026-11-27T14:05:19.5517050Z literate_ai.projects.ProjectError: framework directory must be direct and unredirected"
+        },
+        {
+          "line": 1859,
+          "text": "2026-11-27T14:05:19.5517880Z Ran 695 tests in 438.444s"
+        },
+        {
+          "line": 1861,
+          "text": "2026-11-27T14:05:19.5518090Z FAILED (errors=1, skipped=29)"
+        }
+      ],
+      "cell_command": "LITAI_REQUIRE_PINNED_PIP_WHEEL=1 PYTHONPATH=src python scripts/litai_step.py --name python-check -- python scripts/run_checkpointed_unittests.py --state \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-checkpoint.json\" --start-directory \"tests\" --pattern \"test_[!anr]*.py\" --verbosity \"2\" --workers \"auto\" --worker-timeout \"3600\" --report \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-report.json\"",
+      "raw_log": "ci-df6-140501673351.raw.log",
+      "raw_bytes": 249289,
+      "raw_sha256": "c77c29980dffb2d55505241687d6a11e4647dc1a368ac67da0835d2edc7bc791"
+    },
+    {
+      "job": 140501673375,
+      "name": "macos-latest / Python 3.11 (authored 2 of 4)",
+      "conclusion": "failure",
+      "phase": "full macOS conformance / python-check",
+      "checked_out_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "signature": "retained-execution-1800",
+      "first_test_or_error": "2026-11-27T15:58:27.1585370Z ERROR: test_both_modes_use_fresh_same_consumer_children_and_original_completion (tests.smoke.test_authored_reopened_native_execution.AuthoredReopenedNativeExecutionTests.test_both_modes_use_fresh_same_consumer_children_and_original_completion)",
+      "first_failure_excerpt": [
+        {
+          "line": 1115,
+          "text": "2026-11-27T15:58:27.1585370Z ERROR: test_both_modes_use_fresh_same_consumer_children_and_original_completion (tests.smoke.test_authored_reopened_native_execution.AuthoredReopenedNativeExecutionTests.test_both_modes_use_fresh_same_consumer_children_and_original_completion)"
+        },
+        {
+          "line": 1118,
+          "text": "2026-11-27T15:58:27.1588760Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 496, in _execute_cargo_consumer_session"
+        },
+        {
+          "line": 1121,
+          "text": "2026-11-27T15:58:27.1591890Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_test_execution_v2.py\", line 114, in observe_retained_cargo_tests_v2"
+        },
+        {
+          "line": 1124,
+          "text": "2026-11-27T15:58:27.1595210Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_test_execution_v2.py\", line 315, in _observe_retained_cargo_test_session_v2"
+        },
+        {
+          "line": 1126,
+          "text": "2026-11-27T15:58:27.1597290Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 438, in run"
+        },
+        {
+          "line": 1128,
+          "text": "2026-11-27T15:58:27.1598840Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 377, in guard"
+        },
+        {
+          "line": 1129,
+          "text": "2026-11-27T15:58:27.1599580Z     raise ValueError(\"retained.execution.v2-deadline\")"
+        },
+        {
+          "line": 1130,
+          "text": "2026-11-27T15:58:27.1601210Z ValueError: retained.execution.v2-deadline"
+        },
+        {
+          "line": 1135,
+          "text": "2026-11-27T15:58:27.1604680Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/smoke/test_authored_reopened_native_execution.py\", line 104, in test_both_modes_use_fresh_same_consumer_children_and_original_completion"
+        },
+        {
+          "line": 1138,
+          "text": "2026-11-27T15:58:27.1606980Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/authored_retained_cargo_execution.py\", line 64, in execute_authored_retained_cargo_consumer"
+        },
+        {
+          "line": 1141,
+          "text": "2026-11-27T15:58:27.1663800Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 151, in _execute_cargo_consumer"
+        },
+        {
+          "line": 1144,
+          "text": "2026-11-27T15:58:27.1666090Z   File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/contextlib.py\", line 81, in inner"
+        },
+        {
+          "line": 1147,
+          "text": "2026-11-27T15:58:27.1667890Z   File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/contextlib.py\", line 81, in inner"
+        },
+        {
+          "line": 1150,
+          "text": "2026-11-27T15:58:27.1669440Z   File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/contextlib.py\", line 81, in inner"
+        },
+        {
+          "line": 1153,
+          "text": "2026-11-27T15:58:27.1671700Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 534, in _execute_cargo_consumer_session"
+        },
+        {
+          "line": 1154,
+          "text": "2026-11-27T15:58:27.1672530Z     raise RetainedCargoExecutionError("
+        },
+        {
+          "line": 1155,
+          "text": "2026-11-27T15:58:27.1673210Z literate_ai.adapters.retained_cargo_execution.RetainedCargoExecutionError: retained.execution.v2-failed"
+        },
+        {
+          "line": 1158,
+          "text": "2026-11-27T15:58:27.1674410Z Ran 23 tests in 5110.958s"
+        },
+        {
+          "line": 1160,
+          "text": "2026-11-27T15:58:27.1674660Z FAILED (errors=1)"
+        }
+      ],
+      "cell_command": "LITAI_REQUIRE_PINNED_PIP_WHEEL=1 PYTHONPATH=src python scripts/litai_step.py --name python-check -- python scripts/run_checkpointed_unittests.py --state \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-checkpoint.json\" --start-directory \"tests\" --pattern \"test_authored_re[!t]*.py\" --verbosity \"2\" --workers \"auto\" --worker-timeout \"6600\" --report \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-report.json\"",
+      "raw_log": "ci-df6-140501673375.raw.log",
+      "raw_bytes": 128694,
+      "raw_sha256": "ede427408d817828160799328af9586705435d7a5cd2c55c5c8af5a19603a862"
+    },
+    {
+      "job": 140501673378,
+      "name": "macos-latest / Python 3.11 (3 of 4)",
+      "conclusion": "failure",
+      "phase": "full macOS conformance / python-check",
+      "checked_out_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "signature": "macos-var-fixture",
+      "first_test_or_error": "2026-11-27T14:56:11.0763760Z ERROR: test_isolated_default_helper_skips_an_already_ahead_branch (tests.critical.test_release_atomic_writer.ReleaseAtomicWriterTests.test_isolated_default_helper_skips_an_already_ahead_branch)",
+      "first_failure_excerpt": [
+        {
+          "line": 1091,
+          "text": "2026-11-27T14:56:11.0763760Z ERROR: test_isolated_default_helper_skips_an_already_ahead_branch (tests.critical.test_release_atomic_writer.ReleaseAtomicWriterTests.test_isolated_default_helper_skips_an_already_ahead_branch)"
+        },
+        {
+          "line": 1094,
+          "text": "2026-11-27T14:56:11.0766960Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 228, in _ensure_safe_directory_posix"
+        },
+        {
+          "line": 1097,
+          "text": "2026-11-27T14:56:11.0769880Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 269, in _open_readonly_directory_component"
+        },
+        {
+          "line": 1100,
+          "text": "2026-11-27T14:56:11.0771990Z NotADirectoryError: [Errno 20] Not a directory: 'var'"
+        },
+        {
+          "line": 1105,
+          "text": "2026-11-27T14:56:11.0774140Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 362, in direct_directory"
+        },
+        {
+          "line": 1107,
+          "text": "2026-11-27T14:56:11.0775830Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 211, in require_safe_directory"
+        },
+        {
+          "line": 1109,
+          "text": "2026-11-27T14:56:11.0777280Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/_filesystem.py\", line 251, in _ensure_safe_directory_posix"
+        },
+        {
+          "line": 1110,
+          "text": "2026-11-27T14:56:11.0778160Z     raise UnsafeFilesystemPathError("
+        },
+        {
+          "line": 1111,
+          "text": "2026-11-27T14:56:11.0778900Z literate_ai._filesystem.UnsafeFilesystemPathError: directory component is unsafe: var"
+        },
+        {
+          "line": 1116,
+          "text": "2026-11-27T14:56:11.0781380Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/critical/test_release_atomic_writer.py\", line 292, in test_isolated_default_helper_skips_an_already_ahead_branch"
+        },
+        {
+          "line": 1119,
+          "text": "2026-11-27T14:56:11.0784080Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/project_releases.py\", line 5896, in _advance_default_branch_after_publish"
+        },
+        {
+          "line": 1121,
+          "text": "2026-11-27T14:56:11.0786200Z   File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/contextlib.py\", line 137, in __enter__"
+        },
+        {
+          "line": 1124,
+          "text": "2026-11-27T14:56:11.0789030Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/project_releases.py\", line 2257, in _release_backport_worktree"
+        },
+        {
+          "line": 1127,
+          "text": "2026-11-27T14:56:11.0791430Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/project_releases.py\", line 2780, in _release_build_root"
+        },
+        {
+          "line": 1130,
+          "text": "2026-11-27T14:56:11.0793980Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 424, in context"
+        },
+        {
+          "line": 1133,
+          "text": "2026-11-27T14:56:11.0796170Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/projects.py\", line 364, in direct_directory"
+        },
+        {
+          "line": 1134,
+          "text": "2026-11-27T14:56:11.0796820Z     raise ProjectError("
+        },
+        {
+          "line": 1135,
+          "text": "2026-11-27T14:56:11.0797490Z literate_ai.projects.ProjectError: framework directory must be direct and unredirected"
+        },
+        {
+          "line": 1138,
+          "text": "2026-11-27T14:56:11.0798760Z Ran 32 tests in 23.531s"
+        },
+        {
+          "line": 1140,
+          "text": "2026-11-27T14:56:11.0799180Z FAILED (errors=1)"
+        }
+      ],
+      "cell_command": "LITAI_REQUIRE_PINNED_PIP_WHEEL=1 PYTHONPATH=src python scripts/litai_step.py --name python-check -- python scripts/run_checkpointed_unittests.py --state \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-checkpoint.json\" --start-directory \"tests\" --pattern \"test_re[!p]*.py\" --verbosity \"2\" --workers \"auto\" --worker-timeout \"3600\" --report \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-report.json\"",
+      "raw_log": "ci-df6-140501673378.raw.log",
+      "raw_bytes": 127671,
+      "raw_sha256": "81d84b28d65ebe0ea1ab161fbeabd9a14d3537437b751d4a54fc838f447c5000"
+    },
+    {
+      "job": 140501673380,
+      "name": "macos-latest / Python 3.11 (authored 4 of 4)",
+      "conclusion": "failure",
+      "phase": "full macOS conformance / python-check",
+      "checked_out_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "signature": "retained-execution-900",
+      "first_test_or_error": "2026-11-27T15:09:25.4663670Z ERROR: test_inspector_graph_change_refuses_even_when_original_files_stay_current (tests.smoke.test_authored_retained_cargo_native_completion.AuthoredNativeCompletionTests.test_inspector_graph_change_refuses_even_when_original_files_stay_current)",
+      "first_failure_excerpt": [
+        {
+          "line": 1063,
+          "text": "2026-11-27T15:09:25.4663670Z ERROR: test_inspector_graph_change_refuses_even_when_original_files_stay_current (tests.smoke.test_authored_retained_cargo_native_completion.AuthoredNativeCompletionTests.test_inspector_graph_change_refuses_even_when_original_files_stay_current)"
+        },
+        {
+          "line": 1066,
+          "text": "2026-11-27T15:09:25.4701620Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 496, in _execute_cargo_consumer_session"
+        },
+        {
+          "line": 1069,
+          "text": "2026-11-27T15:09:25.4718640Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_test_execution_v2.py\", line 114, in observe_retained_cargo_tests_v2"
+        },
+        {
+          "line": 1072,
+          "text": "2026-11-27T15:09:25.4726070Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_test_execution_v2.py\", line 398, in _observe_retained_cargo_test_session_v2"
+        },
+        {
+          "line": 1074,
+          "text": "2026-11-27T15:09:25.4733800Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 377, in guard"
+        },
+        {
+          "line": 1075,
+          "text": "2026-11-27T15:09:25.4735540Z     raise ValueError(\"retained.execution.v2-deadline\")"
+        },
+        {
+          "line": 1076,
+          "text": "2026-11-27T15:09:25.4736910Z ValueError: retained.execution.v2-deadline"
+        },
+        {
+          "line": 1081,
+          "text": "2026-11-27T15:09:25.4742170Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/smoke/test_authored_retained_cargo_native_completion.py\", line 124, in test_inspector_graph_change_refuses_even_when_original_files_stay_current"
+        },
+        {
+          "line": 1083,
+          "text": "2026-11-27T15:09:25.4758080Z   File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/contextlib.py\", line 137, in __enter__"
+        },
+        {
+          "line": 1086,
+          "text": "2026-11-27T15:09:25.4761950Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/smoke/test_authored_retained_cargo_native_completion.py\", line 53, in executed"
+        },
+        {
+          "line": 1089,
+          "text": "2026-11-27T15:09:25.4783770Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/authored_retained_cargo_execution.py\", line 64, in execute_authored_retained_cargo_consumer"
+        },
+        {
+          "line": 1092,
+          "text": "2026-11-27T15:09:25.4799680Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 151, in _execute_cargo_consumer"
+        },
+        {
+          "line": 1095,
+          "text": "2026-11-27T15:09:25.4807800Z   File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/contextlib.py\", line 81, in inner"
+        },
+        {
+          "line": 1098,
+          "text": "2026-11-27T15:09:25.4939530Z   File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/contextlib.py\", line 81, in inner"
+        },
+        {
+          "line": 1101,
+          "text": "2026-11-27T15:09:25.4947970Z   File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/contextlib.py\", line 81, in inner"
+        },
+        {
+          "line": 1104,
+          "text": "2026-11-27T15:09:25.4955450Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 534, in _execute_cargo_consumer_session"
+        },
+        {
+          "line": 1105,
+          "text": "2026-11-27T15:09:25.4956190Z     raise RetainedCargoExecutionError("
+        },
+        {
+          "line": 1106,
+          "text": "2026-11-27T15:09:25.4960490Z literate_ai.adapters.retained_cargo_execution.RetainedCargoExecutionError: retained.execution.v2-failed"
+        },
+        {
+          "line": 1109,
+          "text": "2026-11-27T15:09:25.4967830Z Ran 1 test in 1248.189s"
+        },
+        {
+          "line": 1111,
+          "text": "2026-11-27T15:09:25.4968100Z FAILED (errors=1)"
+        }
+      ],
+      "cell_command": "LITAI_REQUIRE_PINNED_PIP_WHEEL=1 PYTHONPATH=src python scripts/litai_step.py --name python-check -- python scripts/run_checkpointed_unittests.py --state \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-checkpoint.json\" --start-directory \"tests\" --pattern \"test_authored_retained_cargo_n*.py\" --verbosity \"2\" --workers \"auto\" --worker-timeout \"3600\" --report \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-report.json\"",
+      "raw_log": "ci-df6-140501673380.raw.log",
+      "raw_bytes": 123180,
+      "raw_sha256": "daa4cea9479e721698de4e7d212a81c01e5ef772fe117ae483fefb725d7ee0aa"
+    },
+    {
+      "job": 140501673382,
+      "name": "macos-latest / Python 3.14 (authored 4 of 4)",
+      "conclusion": "failure",
+      "phase": "full macOS conformance / python-check",
+      "checked_out_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "signature": "retained-execution-900",
+      "first_test_or_error": "2026-11-27T14:31:05.0282090Z ERROR: test_inspector_graph_change_refuses_even_when_original_files_stay_current (tests.smoke.test_authored_retained_cargo_native_completion.AuthoredNativeCompletionTests.test_inspector_graph_change_refuses_even_when_original_files_stay_current)",
+      "first_failure_excerpt": [
+        {
+          "line": 1061,
+          "text": "2026-11-27T14:31:05.0282090Z ERROR: test_inspector_graph_change_refuses_even_when_original_files_stay_current (tests.smoke.test_authored_retained_cargo_native_completion.AuthoredNativeCompletionTests.test_inspector_graph_change_refuses_even_when_original_files_stay_current)"
+        },
+        {
+          "line": 1064,
+          "text": "2026-11-27T14:31:05.0290350Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 496, in _execute_cargo_consumer_session"
+        },
+        {
+          "line": 1070,
+          "text": "2026-11-27T14:31:05.0302970Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_test_execution_v2.py\", line 114, in observe_retained_cargo_tests_v2"
+        },
+        {
+          "line": 1080,
+          "text": "2026-11-27T14:31:05.0311230Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_test_execution_v2.py\", line 315, in _observe_retained_cargo_test_session_v2"
+        },
+        {
+          "line": 1090,
+          "text": "2026-11-27T14:31:05.0318660Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 388, in run"
+        },
+        {
+          "line": 1093,
+          "text": "2026-11-27T14:31:05.0321710Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 377, in guard"
+        },
+        {
+          "line": 1094,
+          "text": "2026-11-27T14:31:05.0323540Z     raise ValueError(\"retained.execution.v2-deadline\")"
+        },
+        {
+          "line": 1095,
+          "text": "2026-11-27T14:31:05.0324230Z ValueError: retained.execution.v2-deadline"
+        },
+        {
+          "line": 1100,
+          "text": "2026-11-27T14:31:05.0327530Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/smoke/test_authored_retained_cargo_native_completion.py\", line 124, in test_inspector_graph_change_refuses_even_when_original_files_stay_current"
+        },
+        {
+          "line": 1103,
+          "text": "2026-11-27T14:31:05.0331090Z   File \"/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py\", line 141, in __enter__"
+        },
+        {
+          "line": 1105,
+          "text": "2026-11-27T14:31:05.0333150Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/smoke/test_authored_retained_cargo_native_completion.py\", line 53, in executed"
+        },
+        {
+          "line": 1111,
+          "text": "2026-11-27T14:31:05.0343750Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/authored_retained_cargo_execution.py\", line 64, in execute_authored_retained_cargo_consumer"
+        },
+        {
+          "line": 1121,
+          "text": "2026-11-27T14:31:05.0358190Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 151, in _execute_cargo_consumer"
+        },
+        {
+          "line": 1127,
+          "text": "2026-11-27T14:31:05.0361150Z   File \"/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py\", line 85, in inner"
+        },
+        {
+          "line": 1129,
+          "text": "2026-11-27T14:31:05.0365810Z   File \"/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py\", line 85, in inner"
+        },
+        {
+          "line": 1131,
+          "text": "2026-11-27T14:31:05.0367370Z   File \"/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py\", line 85, in inner"
+        },
+        {
+          "line": 1133,
+          "text": "2026-11-27T14:31:05.0368960Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 534, in _execute_cargo_consumer_session"
+        }
+      ],
+      "cell_command": "LITAI_REQUIRE_PINNED_PIP_WHEEL=1 PYTHONPATH=src python scripts/litai_step.py --name python-check -- python scripts/run_checkpointed_unittests.py --state \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-checkpoint.json\" --start-directory \"tests\" --pattern \"test_authored_retained_cargo_n*.py\" --verbosity \"2\" --workers \"auto\" --worker-timeout \"3600\" --report \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-report.json\"",
+      "raw_log": "ci-df6-140501673382.raw.log",
+      "raw_bytes": 124643,
+      "raw_sha256": "7f1dbba71f16baf19aed1b9946657a40d05830edc89946758519d2d18a8fe3ba"
+    },
+    {
+      "job": 140501673404,
+      "name": "macos-latest / Python 3.14 (authored 2 of 4)",
+      "conclusion": "failure",
+      "phase": "full macOS conformance / python-check",
+      "checked_out_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "signature": "retained-execution-1800",
+      "first_test_or_error": "2026-11-27T15:33:41.3115730Z ERROR: test_both_modes_use_fresh_same_consumer_children_and_original_completion (tests.smoke.test_authored_reopened_native_execution.AuthoredReopenedNativeExecutionTests.test_both_modes_use_fresh_same_consumer_children_and_original_completion)",
+      "first_failure_excerpt": [
+        {
+          "line": 1085,
+          "text": "2026-11-27T15:33:41.3115730Z ERROR: test_both_modes_use_fresh_same_consumer_children_and_original_completion (tests.smoke.test_authored_reopened_native_execution.AuthoredReopenedNativeExecutionTests.test_both_modes_use_fresh_same_consumer_children_and_original_completion)"
+        },
+        {
+          "line": 1088,
+          "text": "2026-11-27T15:33:41.3127930Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 496, in _execute_cargo_consumer_session"
+        },
+        {
+          "line": 1094,
+          "text": "2026-11-27T15:33:41.3143270Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_test_execution_v2.py\", line 114, in observe_retained_cargo_tests_v2"
+        },
+        {
+          "line": 1104,
+          "text": "2026-11-27T15:33:41.3153980Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_test_execution_v2.py\", line 315, in _observe_retained_cargo_test_session_v2"
+        },
+        {
+          "line": 1114,
+          "text": "2026-11-27T15:33:41.3165420Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 388, in run"
+        },
+        {
+          "line": 1117,
+          "text": "2026-11-27T15:33:41.3168650Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 377, in guard"
+        },
+        {
+          "line": 1118,
+          "text": "2026-11-27T15:33:41.3170170Z     raise ValueError(\"retained.execution.v2-deadline\")"
+        },
+        {
+          "line": 1119,
+          "text": "2026-11-27T15:33:41.3170740Z ValueError: retained.execution.v2-deadline"
+        },
+        {
+          "line": 1124,
+          "text": "2026-11-27T15:33:41.3176980Z   File \"/Users/runner/work/literate-ai/literate-ai/tests/smoke/test_authored_reopened_native_execution.py\", line 104, in test_both_modes_use_fresh_same_consumer_children_and_original_completion"
+        },
+        {
+          "line": 1126,
+          "text": "2026-11-27T15:33:41.3179310Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/authored_retained_cargo_execution.py\", line 64, in execute_authored_retained_cargo_consumer"
+        },
+        {
+          "line": 1136,
+          "text": "2026-11-27T15:33:41.3185500Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 151, in _execute_cargo_consumer"
+        },
+        {
+          "line": 1142,
+          "text": "2026-11-27T15:33:41.3189070Z   File \"/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py\", line 85, in inner"
+        },
+        {
+          "line": 1144,
+          "text": "2026-11-27T15:33:41.3190320Z   File \"/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py\", line 85, in inner"
+        },
+        {
+          "line": 1146,
+          "text": "2026-11-27T15:33:41.3191720Z   File \"/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py\", line 85, in inner"
+        },
+        {
+          "line": 1148,
+          "text": "2026-11-27T15:33:41.3195310Z   File \"/Users/runner/work/literate-ai/literate-ai/src/literate_ai/adapters/retained_cargo_execution_core.py\", line 534, in _execute_cargo_consumer_session"
+        },
+        {
+          "line": 1149,
+          "text": "2026-11-27T15:33:41.3197780Z     raise RetainedCargoExecutionError("
+        },
+        {
+          "line": 1152,
+          "text": "2026-11-27T15:33:41.3202050Z literate_ai.adapters.retained_cargo_execution.RetainedCargoExecutionError: retained.execution.v2-failed"
+        },
+        {
+          "line": 1155,
+          "text": "2026-11-27T15:33:41.3205160Z Ran 23 tests in 5159.368s"
+        },
+        {
+          "line": 1157,
+          "text": "2026-11-27T15:33:41.3206060Z FAILED (errors=1)"
+        }
+      ],
+      "cell_command": "LITAI_REQUIRE_PINNED_PIP_WHEEL=1 PYTHONPATH=src python scripts/litai_step.py --name python-check -- python scripts/run_checkpointed_unittests.py --state \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-checkpoint.json\" --start-directory \"tests\" --pattern \"test_authored_re[!t]*.py\" --verbosity \"2\" --workers \"auto\" --worker-timeout \"6600\" --report \"/Users/runner/work/literate-ai/literate-ai/_build/python-test-report.json\"",
+      "raw_log": "ci-df6-140501673404.raw.log",
+      "raw_bytes": 128108,
+      "raw_sha256": "087b52512a7a536dcf097d28128816d8cda9db3f3d960a8c0142b013bbf3d0db"
+    },
+    {
+      "job": 140501673205,
+      "name": "freebsd-native-sdk / Installed public SDK / FreeBSD 15.1 amd64",
+      "conclusion": "failure",
+      "phase": "native guest canonical-sdk authorized public retained build",
+      "checked_out_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "signature": "freebsd-public-build-3600",
+      "first_test_or_error": "2026-11-27T14:00:09.4927886Z Traceback (most recent call last):",
+      "first_failure_excerpt": [
+        {
+          "line": 1542,
+          "text": "2026-11-27T14:00:09.4951557Z   File \"/home/litai-qual/qualification/harness/run_cell.py\", line 288, in <module>"
+        },
+        {
+          "line": 1543,
+          "text": "2026-11-27T14:00:09.4952295Z     raise SystemExit(main())"
+        },
+        {
+          "line": 1545,
+          "text": "2026-11-27T14:00:09.4953007Z   File \"/home/litai-qual/qualification/harness/run_cell.py\", line 206, in main"
+        },
+        {
+          "line": 1547,
+          "text": "2026-11-27T14:00:09.4953760Z   File \"/home/litai-qual/qualification/harness/run_cell.py\", line 38, in command"
+        },
+        {
+          "line": 1548,
+          "text": "2026-11-27T14:00:09.4954139Z     raise RuntimeError("
+        },
+        {
+          "line": 1549,
+          "text": "2026-11-27T14:00:09.4954472Z RuntimeError: canonical-sdk failed: exit 1; see retained logs"
+        },
+        {
+          "line": 1574,
+          "text": "2026-11-27T14:00:09.9284378Z RuntimeError: guest qualification failed: exit 1; inspect retained diagnostics"
+        }
+      ],
+      "cell_command": null,
+      "raw_log": "ci-df6-140501673205.raw.log",
+      "raw_bytes": 156507,
+      "raw_sha256": "e5b4bc140a5fd59d82decdaaaaf41846dabf9d0f8ccff49076e729e50745e155"
+    }
+  ],
+  "deduplicated_signatures": {
+    "cache-runtime-owner": {
+      "classification": "Confirmed current product defect",
+      "severity": "P1 release blocker",
+      "owner": "src/literate_ai/adapters/cache/generated_source.py:543 -> models/coding_cli.py:_codex_runtime_arguments",
+      "cause": "Accepted Codex cache replay reconstructs delegate._command(root,model) without the private runtime_state required by original command owner. First real child succeeds and accepted publication succeeds; cache-hit replay fails. Current source still makes same unowned call.",
+      "recommendation": "Give cache replay a truthful admitted provenance-only representation/original validated command metadata without constructing an executable Codex invocation outside its private runtime owner. Preserve original cache/request/recipe/tool identities, same candidate tree, one original child execution; never fake runtime ownership or launch a second child. Review format/compatibility in proper cache owner.",
+      "decisive_control": "Run original AuthoredCodingCLITests.test_real_child_keeps_original_candidate_key_and_provenance on macOS after source repair; keep execution-count1 and all identity assertions."
+    },
+    "macos-var-fixture": {
+      "classification": "Current fixture portability defect; original strict native guard correctly refuses aliased path",
+      "severity": "P2",
+      "owner": [
+        "tests/critical/test_documentation_update.py:119 / project helper:38",
+        "tests/critical/test_release_atomic_writer.py:282 / fixture.initialize(Path(directory))"
+      ],
+      "cause": "tempfile.TemporaryDirectory returns lexical /var/... on macOS; /var is a symlink to /private/var. New direct native context properly rejects ancestor redirection before actual semantic assertions.",
+      "recommendation": "Canonicalize only owned TemporaryDirectory root at fixture boundary (Path(directory).resolve(strict=True)); retain original native symlink/redirect refusal tests and production strict guards. Do not globally permit aliases or relax native path checks.",
+      "decisive_control": "Original two named tests on macOS with original assertions; production context alias refusal remains."
+    },
+    "retained-execution-900": {
+      "classification": "Open native performance/deadline acceptance failure; no weakened deadline justified",
+      "owner": "retained_cargo_execution_core.guard:377 with test execution source/currentness guards",
+      "cause": "Original900 expires in test session before completion object is yielded; graph-change refusal assertions never reached. Python3.11 guard at retained_cargo_test_execution_v2.py398 after tests; Python3.14 guard in run at execution_core.py388 before target command.",
+      "decisive_control": "Profile same actual macOS consumer/current_identity guards inside unchanged original900 control; no retry-only acceptance/deadline extension."
+    },
+    "retained-execution-1800": {
+      "classification": "Open native performance/deadline acceptance failure; distinct original bound",
+      "owner": "test_authored_reopened_native_execution.arguments timeout_seconds=1800; execution_core.guard:377",
+      "cause": "Both Python versions expire during original reopened native execution test session (v2.py315). Python3.11 guard core438, Python3.14 core388. Do not describe as900.",
+      "decisive_control": "Profile actual reopened first/second mode staging and repeated current guards with original1800; preserve fresh-child/native cleanup assertions."
+    },
+    "module-worker-3600": {
+      "classification": "Outer module worker finite-deadline failure; inner root cause unresolved",
+      "owner": "checkpointed unittest module process for tests.critical.test_authored_retained_cargo_completion_files",
+      "cause": "Artifact timing proves module13 spawned at0.035535s, deadline cleanup at3600.1382935s, return-9; report has7terminal cases/9selected. Active test attributed same_byte_workspace_replacement_refuses; no original inner exception. Do not infer same900/1800 cause.",
+      "decisive_control": "Preserve original3600 module bound; inspect same-module case timing/native stacks to identify slow or stuck stage, rather than extend timeout."
+    },
+    "freebsd-public-build-3600": {
+      "classification": "Actual authorized SDK public build timed out; inner cause unresolved",
+      "owner": ".github/qualifications/native_sdk/qualify_public_sdk.py:575 cli(authorized-execution,timeout=3600)",
+      "cause": "Copied-back canonical-sdk.stderr shows subprocess.TimeoutExpired for installed public retained build after3599.9999297s; authorized-execution stdout/stderr empty. Prior initialization,document review,component lock,final validation,original plan/apply,retained plan and authorization refusals completed; no source-metadata missing-path evidence.",
+      "decisive_control": "Retain original3600, collect stage/stack/native process evidence during actual FreeBSD authorized build on exact candidate, including compiler/source admission ownership. No native success inferred from prior controls."
+    }
+  },
+  "signature_job_counts": {
+    "cache-runtime-owner": 2,
+    "macos-var-fixture": 3,
+    "retained-execution-900": 2,
+    "retained-execution-1800": 2,
+    "module-worker-3600": 1,
+    "freebsd-public-build-3600": 1
+  },
+  "freebsd_retained_diagnostics": {
+    "artifact_id": 15203613726,
+    "zip_sha256": "da63b3313f2e61e222c2347646a92f97c96387a54def040715dd44a95cc5e9b0",
+    "wheel": {
+      "revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "wheel": "literate_ai-1.4.0-py3-none-any.whl",
+      "qualification_harness_revision": "d8b28048df5cae2b3b0fac3ef90ca3427cc9a2b4",
+      "pull_request_head": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+      "pull_request_base": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
+      "sha256": "1bed9b7356206550fe22f6be695b9d882805ca4a8a1c9dd1723d522cdba4d5af",
+      "test_source_sha256": "ee70ddab147abfa7af53f9766e41fb41fbae6f9490a2df6dd691c944936d4597",
+      "full_source_requested": false
+    },
+    "progress": {
+      "stage": "authorized-execution"
+    },
+    "canonical_sdk_stderr": "Traceback (most recent call last):\n  File \"/home/litai-qual/qualification/harness/qualify_public_sdk.py\", line 575, in <module>\n    result = cli(\n             ^^^^\n  File \"/home/litai-qual/qualification/harness/qualify_public_sdk.py\", line 100, in cli\n    result = subprocess.run(\n             ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/subprocess.py\", line 550, in run\n    stdout, stderr = process.communicate(input, timeout=timeout)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/subprocess.py\", line 1209, in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/subprocess.py\", line 2141, in _communicate\n    self.wait(timeout=self._remaining_time(endtime))\n  File \"/usr/local/lib/python3.12/subprocess.py\", line 1264, in wait\n    return self._wait(timeout=timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/subprocess.py\", line 2045, in _wait\n    raise TimeoutExpired(self.args, timeout)\nsubprocess.TimeoutExpired: Command '['/home/litai-qual/venv/bin/python', '-I', '-m', 'literate_ai.cli', '--json', 'build', '--project', '/home/litai-qual/qualification/consumer', '--target', 'host', '--retained-project', 'manifest.json', '--retained-project-profile', 'profile.json', '--obj-dir', '/home/litai-qual/qualification/result/transport/qualification/objects', '--build-dir', '/home/litai-qual/qualification/result/transport/qualification/products', '--authorize-retained-project', 'sha256:36786c77777f2b6093e9647685fac41fe072c9c4cf9bbd48b877bce145e30efc', '--allow-host-execution']' timed out after 3599.9999297329996 seconds\nTraceback (most recent call last):\n  File \"/home/litai-qual/qualification/harness/source_transport.py\", line 207, in <module>\n    assert child.returncode == 0\n           ^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+    "authorized_execution_stdout_bytes": 0,
+    "authorized_execution_stderr_bytes": 0,
+    "guest_file_manifest_hashes_verified": true
+  },
+  "macos_outer_worker_diagnostics": {
+    "artifact_id": 15203669769,
+    "zip_sha256": "67b1431123ae0442e4ed8760d0f131a7b353f38c42b5c2cf8e61b9ea2405a80e",
+    "module13_events": [
+      {
+        "schema": "literate-ai/parallel-unittest-timing@1",
+        "invocation": "5d15403e6d59",
+        "sequence": 3,
+        "offset_ns": 8622167,
+        "kind": "selected",
+        "module_id": 13,
+        "module": "tests.critical.test_authored_retained_cargo_completion_files",
+        "cases": 9,
+        "serial": false
+      },
+      {
+        "schema": "literate-ai/parallel-unittest-timing@1",
+        "invocation": "5d15403e6d59",
+        "sequence": 22,
+        "offset_ns": 26690833,
+        "kind": "setup_begin",
+        "module_id": 13
+      },
+      {
+        "schema": "literate-ai/parallel-unittest-timing@1",
+        "invocation": "5d15403e6d59",
+        "sequence": 23,
+        "offset_ns": 28190542,
+        "kind": "spawn_begin",
+        "module_id": 13
+      },
+      {
+        "schema": "literate-ai/parallel-unittest-timing@1",
+        "invocation": "5d15403e6d59",
+        "sequence": 24,
+        "offset_ns": 35535000,
+        "kind": "spawn_returned",
+        "module_id": 13
+      },
+      {
+        "schema": "literate-ai/parallel-unittest-timing@1",
+        "invocation": "5d15403e6d59",
+        "sequence": 115,
+        "offset_ns": 3600138293500,
+        "kind": "cleanup_begin",
+        "module_id": 13,
+        "disposition": "deadline"
+      },
+      {
+        "schema": "literate-ai/parallel-unittest-timing@1",
+        "invocation": "5d15403e6d59",
+        "sequence": 116,
+        "offset_ns": 3600144210458,
+        "kind": "exit_observed",
+        "module_id": 13,
+        "returncode": -9
+      },
+      {
+        "schema": "literate-ai/parallel-unittest-timing@1",
+        "invocation": "5d15403e6d59",
+        "sequence": 117,
+        "offset_ns": 3600144259500,
+        "kind": "cleanup_complete",
+        "module_id": 13
+      },
+      {
+        "schema": "literate-ai/parallel-unittest-timing@1",
+        "invocation": "5d15403e6d59",
+        "sequence": 118,
+        "offset_ns": 3600144267333,
+        "kind": "scratch_retained",
+        "module_id": 13
+      },
+      {
+        "schema": "literate-ai/parallel-unittest-timing@1",
+        "invocation": "5d15403e6d59",
+        "sequence": 121,
+        "offset_ns": 3600144370500,
+        "kind": "report_observed",
+        "module_id": 13,
+        "done": false,
+        "failed": true,
+        "invalid": true,
+        "terminal_cases": 7
+      }
+    ],
+    "normalized_report_summary": {
+      "executed": 75,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 74,
+      "selected": 106,
+      "skipped": 0
+    },
+    "raw_unittest_summary": "Ran84tests3600.162s; normalizedreportexecuted75/74pass/1fail; preserve both original accounting forms, no all-tests success."
+  },
+  "current_fix_relationship": {
+    "501": "No first failure overlaps resident policy migration owner changes.",
+    "502": "Current dirty shared standalone process custody repair does not change cache _load/private Codex runtime construction or lexical fixture roots; no evidence it resolves retained/FreeBSD timeout causes. Do not count these deadline failures closed.",
+    "HTML": "Current installed-tree HTML fixture edit unrelated to these11first failures.",
+    "current_source_verification": "Read current cache543->command/_codex_runtime_arguments requiredowner; rawmac tempfilefixtures remain; original900/1800/3600 bounds and guards remain. git diff df6..HEAD across affectedowner/test files empty. Actual merge d8 object unavailable locally; logs and preservedartifact bind tested source, no claim localcheckout equals merge commit."
+  },
+  "limits": [
+    "Read-only CI/artifact/source diagnosis only. No reruns, builds, source changes, worker dispatch/cancel, posts or acceptance claims.",
+    "Raw logs preserved unmodified; only sanitized/truncated excerpts in report. No broad raw terminal output required.",
+    "One first failure perjob; later undiscovered test failures remain outside evidence.",
+    "Performance/hang root causes not established by deadline alone; no deadline increase, retry or assertion removal recommended."
+  ]
+}

@@ -1,0 +1,911 @@
+{
+  "schema": "literate-ai/independent-historical-framework-postapply-review@1",
+  "status": "Readback closed; no actionable finding. Normal producer/currentness and source finalization remain pending.",
+  "candidate_revision": "2d10c8a9deceecb8a8c75459dd5157f9c99a2655",
+  "acknowledged_plan": "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+  "journal": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/framework-placement-98052cad2cfdd3e394627de243966f13280905e5749b69b61c911d38df15e285",
+  "public_apply": {
+    "argv": [
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r16/environment/bin/python",
+      "-I",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r16/environment/bin/litai",
+      "--json",
+      "project",
+      "layout",
+      "apply",
+      "--place-framework-authority",
+      "--rewrite-reference",
+      "litai/literate.release.json",
+      "--acknowledge",
+      "--plan-identity",
+      "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+      "--project",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+    ],
+    "exit": 0,
+    "seconds": 49.097884490009164,
+    "timeout_seconds": 1800
+  },
+  "result_fields": {
+    "applied": true,
+    "full_containment": false,
+    "journal": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/framework-placement-98052cad2cfdd3e394627de243966f13280905e5749b69b61c911d38df15e285",
+    "operation": "apply",
+    "producer_state": "unclassified",
+    "qualification": false,
+    "schema": "literate-ai/project-layout-framework-authority-result@1",
+    "writes": true
+  },
+  "joins": {
+    "journal_plan_equals_ack": true,
+    "public_result_plan_equals_ack": true,
+    "canonical_intent_and_identity_recomputed_exact": true,
+    "intent_identity": "sha256:dcd88e6b6cbdea3434d62f021486628d9db5386a8d08250d65b03034265eb5e9",
+    "intent_sha256": "94a5c368866bca0c34c88935e40dc334f235f22dfa58282ae145ff92c55832a0",
+    "placed_marker_exact": true
+  },
+  "file_and_native_checks": {
+    "entry_checks": [
+      {
+        "source": ".cursor/rules/literate-ai.mdc",
+        "group": "delegate_edits",
+        "destination": ".cursor/rules/literate-ai.mdc",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": null,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "AGENTS.md",
+        "group": "delegate_edits",
+        "destination": "AGENTS.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": null,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "CLAUDE.md",
+        "group": "delegate_edits",
+        "destination": "CLAUDE.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": null,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "SKILL.md",
+        "group": "owned_placements",
+        "destination": "litai/SKILL.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "agents/openai.yaml",
+        "group": "delegate_edits",
+        "destination": "agents/openai.yaml",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": null,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "components/legacy-project-wrapper/component.lock.json",
+        "group": "placements",
+        "destination": "litai/components/legacy-project-wrapper/component.lock.json",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "components/legacy-project-wrapper/component.md",
+        "group": "placements",
+        "destination": "litai/components/legacy-project-wrapper/component.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "components/legacy-project-wrapper/component.resolution-audit.host.json",
+        "group": "placements",
+        "destination": "litai/components/legacy-project-wrapper/component.resolution-audit.host.json",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/README.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/README.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/architecture/authority-learning-loop.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/architecture/authority-learning-loop.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/architecture/design-traceability.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/architecture/design-traceability.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/architecture/mission-specification-composition.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/architecture/mission-specification-composition.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/architecture/skills.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/architecture/skills.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/roadmap/active-work.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/roadmap/active-work.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/roadmap/native-rewrite-program.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/roadmap/native-rewrite-program.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/roadmap/release-goals.json",
+        "group": "owned_placements",
+        "destination": "litai/docs/roadmap/release-goals.json",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/user/framework-flow.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/user/framework-flow.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/user/getting-started.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/user/getting-started.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/user/models-and-generation.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/user/models-and-generation.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/user/project-layout.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/user/project-layout.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/user/security.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/user/security.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/user/specifications.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/user/specifications.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "docs/user/test-matrix.md",
+        "group": "owned_placements",
+        "destination": "litai/docs/user/test-matrix.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "flavors/legacy-project-shim/flavor.md",
+        "group": "placements",
+        "destination": "litai/flavors/legacy-project-shim/flavor.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "flavors/legacy-project-shim/openspec/spec.md",
+        "group": "placements",
+        "destination": "litai/flavors/legacy-project-shim/openspec/spec.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "litai.harness.mk",
+        "group": "placements",
+        "destination": "litai/litai.harness.mk",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "litai/.gitignore",
+        "group": "owned_creations",
+        "destination": "litai/.gitignore",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": null,
+        "no_saved_original": true
+      },
+      {
+        "source": "litai/.literate/initialization-baseline.json",
+        "group": "resident_edits",
+        "destination": "litai/.literate/initialization-baseline.json",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": null,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "litai/.literate/update-bases.json",
+        "group": "resident_edits",
+        "destination": "litai/.literate/update-bases.json",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": null,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "litai/literate.project.json",
+        "group": "resident_edits",
+        "destination": "litai/literate.project.json",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": null,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "litai/literate.release.json",
+        "group": "reference_edits",
+        "destination": "litai/literate.release.json",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": null,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "literate.test.example.json",
+        "group": "owned_placements",
+        "destination": "litai/literate.test.example.json",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "literate.workers.example.json",
+        "group": "owned_placements",
+        "destination": "litai/literate.workers.example.json",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "routing/legacy-adoption.json",
+        "group": "placements",
+        "destination": "litai/routing/legacy-adoption.json",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "skills/specification-to-source/legacy-project-shim/SKILL.md",
+        "group": "placements",
+        "destination": "litai/skills/specification-to-source/legacy-project-shim/SKILL.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "skills/specification-to-source/portable-application/SKILL.md",
+        "group": "placements",
+        "destination": "litai/skills/specification-to-source/portable-application/SKILL.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      },
+      {
+        "source": "workflows/legacy-adoption/workflow.md",
+        "group": "placements",
+        "destination": "litai/workflows/legacy-adoption/workflow.md",
+        "placed_sha256_matches": true,
+        "placed_mode_matches": true,
+        "placed_native_matches": true,
+        "source_absent_if_moved": true,
+        "saved_sha256_matches": true,
+        "saved_node_matches": true,
+        "beforefact_matches": {
+          "sha256": true,
+          "bytes": true,
+          "device": true,
+          "inode": true,
+          "mode": true,
+          "mtime_ns": true
+        }
+      }
+    ],
+    "unchanged_original_other_files": 577,
+    "untouched_changed": [],
+    "untouched_missing": [],
+    "before_slots": 36,
+    "after_slots": 0
+  },
+  "preservation": {
+    "original_native6": {
+      "components/legacy-project-wrapper/implementation/.gitignore": true,
+      "components/legacy-project-wrapper/implementation/Makefile": true,
+      "components/legacy-project-wrapper/implementation/__pycache__/app.cpython-314.pyc": true,
+      "components/legacy-project-wrapper/implementation/app.py": true,
+      "components/legacy-project-wrapper/implementation/app.zip": true,
+      "components/legacy-project-wrapper/implementation/test_app.py": true
+    },
+    "rawGit": {
+      ".git/HEAD": true,
+      ".git/index": true,
+      ".git/refs/heads/main": true
+    },
+    "old_catalog_archive_file_count": 251,
+    "old_catalog_archive_files_exact": true,
+    "old_catalog_archive_directory_nodes_and_mtimes_exact": true,
+    "other577original_files_exact": true,
+    "receipt_policy_exact": true,
+    "standard_binding_exact": true,
+    "current_receipt_unchanged_no_new_currentness_claim": true
+  },
+  "semantics": {
+    "policy_only_leaf_changed": "/contributions/roadmap_goal_manifest: docs/roadmap/release-goals.json -> litai/docs/roadmap/release-goals.json; every other policy field exact",
+    "ledger_only_leaf_changed": "/roadmap: docs/roadmap/active-work.md -> litai/docs/roadmap/active-work.md; every goal/release field exact",
+    "manifest_changed_top_fields": [
+      "agent_skill",
+      "component_roots",
+      "documentation_roots",
+      "flavor_roots",
+      "routing_roots",
+      "workflow_roots"
+    ],
+    "all_outputs_match_reviewed_to_hashes_modes_native_nodes": true,
+    "creation_exact": "litai/.gitignore only; acknowledged finitecreation hash/mode/afterinode match and no before slot"
+  },
+  "actual_components": {
+    "framework": [
+      {
+        "destination_root": "litai/components/legacy-project-wrapper",
+        "manifest_identity": "sha256:c0c822d25a9e2bfd64136da8445cb8cae0e411a874b70ca2c67de9ed30291f3d",
+        "source_root": "components/legacy-project-wrapper",
+        "target_names": [
+          "host"
+        ]
+      }
+    ],
+    "catalog": [
+      {
+        "destination_root": "litai/components/backend-application",
+        "manifest_identity": "sha256:da66902e7177842cf156e178974a8e031a29a35b9bbe1bc93e85ba092365c363",
+        "source_root": "components/backend-application",
+        "target_names": []
+      },
+      {
+        "destination_root": "litai/components/document-pair",
+        "manifest_identity": "sha256:4a351ce67fee19439f468f02bc4798d5cd567e1991547f26fd70eccf97d1e126",
+        "source_root": "components/document-pair",
+        "target_names": []
+      },
+      {
+        "destination_root": "litai/components/frontend-application",
+        "manifest_identity": "sha256:0cd401dd29fd93e6c96b7e8c2478de6ad9fbad47105ff108569b41dccefcb971",
+        "source_root": "components/frontend-application",
+        "target_names": []
+      },
+      {
+        "destination_root": "litai/samples/hello-component",
+        "manifest_identity": "sha256:f8f3c7033bb73c2b9db742a7e058b445d431fd79e2038c656d92a1d8fe15f67c",
+        "source_root": "samples/hello-component",
+        "target_names": []
+      },
+      {
+        "destination_root": "litai/components/invoice-service",
+        "manifest_identity": "sha256:ca4d0224ebb390b281544dcb936abfdde13856a23607d054defdc653e033abcd",
+        "source_root": "components/invoice-service",
+        "target_names": []
+      },
+      {
+        "destination_root": "litai/components/literate-ai-overview",
+        "manifest_identity": "sha256:239a00138d1a03c3874ebed8784f6c7a1c90721e36a11aa654463b55212bb101",
+        "source_root": "components/literate-ai-overview",
+        "target_names": []
+      },
+      {
+        "destination_root": "litai/components/mcp-application/webmcp",
+        "manifest_identity": "sha256:6b4d03dab1537472438117dfcd4112b66f20bd9833d513cccefde545ba361c88",
+        "source_root": "components/mcp-application/webmcp",
+        "target_names": []
+      },
+      {
+        "destination_root": "litai/components/money-calculation",
+        "manifest_identity": "sha256:13247895dd412983fd92351a6bf107f4232545fa97d56962bbbfb356baf5e715",
+        "source_root": "components/money-calculation",
+        "target_names": []
+      }
+    ],
+    "catalog_target_pair_count": 0
+  },
+  "next_order": {
+    "1_framework_host_renew": [
+      "project",
+      "layout",
+      "renew",
+      "--place-framework-authority",
+      "--acknowledge",
+      "--plan-identity",
+      "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+      "--project",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native",
+      "--component",
+      "litai/components/legacy-project-wrapper",
+      "--target",
+      "host",
+      "--flavor-root",
+      "litai/flavors"
+    ],
+    "original_flavor_selection": "Original defaults: ['+flavor://literate-ai/lang-python', '+flavor://literate-ai/build-make', '+flavor://literate-ai/package-pip', '+flavor://literate-ai/os-linux']. Do not add legacy-adoption/build-legacy-shim: actual old lock selected build-make (revision9a24d40...). --flavor flags are omitted to preserve configured defaults without duplicating them.",
+    "2_framework_finalize": [
+      "project",
+      "layout",
+      "finalize",
+      "--place-framework-authority",
+      "--acknowledge",
+      "--plan-identity",
+      "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+      "--project",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+    ],
+    "3_catalog_finalize": [
+      "project",
+      "layout",
+      "finalize",
+      "--place-imported-catalogs",
+      "--acknowledge",
+      "--plan-identity",
+      "sha256:0a083149cd38189d11b86dbb7a8e72248cc779498e76752287a1e548ecfec915",
+      "--successor-plan-identity",
+      "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+      "--project",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+    ],
+    "ordering_reason": "Complete native journal normal producer/source closure before changing docs marker or Standard manifest. Existing finalizers require original exact published nonproducer bytes. Catalog finalization explicitly joins framework successor holding prior catalog metadata postimages. No targets invented for8catalog Components whose original target_names are empty.",
+    "4_after_source_finalization": [
+      "Inspect/review/record actual relocated documentation authority delta using public owner if required.",
+      "Obtain and independently review public lifecycle rebind-standard plan to installed409d2a2e...; configured driver still a378112f45... . Preserve original11roles/min1/runner and policy; use only explicit public authorized rebind.",
+      "Inspect documentation currentness again and record actual reviewed delta only if needed.",
+      "Run original retained lifecycle, fresh receipt update and require-current; check root/implementation-descendant discovery, originalsource/native/Git preservation."
+    ],
+    "refusals": "Preserve any real typed refusal and diagnose; no manual manifest/marker/target edits to bypass currentness."
+  },
+  "evidence_sha256": {
+    "2d1-framework-apply.stdout": "268e7cb22379fc79f51747e4053bb1f69d70d3b5aac6138e56edb1bb774e593d",
+    "2d1-framework-apply.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "2d1-framework-apply.json": "b5e50cab3b9ad1004b0aaac469f2a42a03f010d8195eaa46c17ce0e40419ef54"
+  },
+  "limits": [
+    "No mutation/renewal/finalization/newplan/record/rebind/apply by reviewer.",
+    "Qualification/full_containment false and producer_state unclassified retained; no full wheel/release/nativegeneration acceptance.",
+    "Original12heldcatalogblockers remain separate."
+  ]
+}

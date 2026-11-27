@@ -204,7 +204,7 @@ class EvidenceStage:
                     access.kernel.close(handle)
                     raise
             else:
-                reader = access.open(parts, os.O_RDONLY | os.O_NONBLOCK)
+                reader = access.open(parts, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
             if _descriptor_identity(access, reader) != native:
                 _fail("created file changed during read-custody handoff")
             yield descriptor
@@ -219,7 +219,9 @@ class EvidenceStage:
                 os.close(descriptor)
                 if reader is not None:
                     state.current()
-                    strict = access.open(parts, os.O_RDONLY | os.O_NONBLOCK)
+                    strict = access.open(
+                        parts, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0)
+                    )
                     try:
                         if _descriptor_identity(access, strict) != native:
                             _fail("original created inode changed after writer close")

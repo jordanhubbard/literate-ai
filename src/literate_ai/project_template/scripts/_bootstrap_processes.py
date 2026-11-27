@@ -7,14 +7,30 @@ import os
 import signal
 import subprocess
 import threading
-from collections.abc import Mapping, Sequence
-from contextlib import suppress
+from collections.abc import Callable, Mapping, Sequence
+from contextlib import contextmanager, suppress
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 _TASKKILL_WAIT_SECONDS = 5
 _ORIGINAL_POPEN = subprocess.Popen
+_COMMAND_CUSTODY_OBSERVER = ContextVar("command_custody_observer", default=None)
+
+
+@contextmanager
+def _command_custody_scope(observer: Callable[[Sequence[str]], Any]):
+    """Install a caller-owned observer without importing its domain into this core."""
+    if _COMMAND_CUSTODY_OBSERVER.get() is not None:
+        raise ValueError("active command custody observer cannot be replaced")
+    if not callable(observer):
+        raise TypeError("command custody observer must be callable")
+    token = _COMMAND_CUSTODY_OBSERVER.set(observer)
+    try:
+        yield
+    finally:
+        _COMMAND_CUSTODY_OBSERVER.reset(token)
 
 
 def read_original_job_accounting(kernel32: Any, handle: int) -> Any:
@@ -603,9 +619,8 @@ def run_with_tree_kill(
     handling.
     """
 
-    from .release_worktree_custody import begin_command
-
-    custody = begin_command(args)
+    observer = _COMMAND_CUSTODY_OBSERVER.get()
+    custody = None if observer is None else observer(args)
     ownership = create_process_tree_ownership()
     process = None
     primary = None

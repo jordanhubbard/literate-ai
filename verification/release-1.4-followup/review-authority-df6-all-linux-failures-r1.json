@@ -1,0 +1,205 @@
+{
+  "review": "complete read-only ALL Linux terminal failed-job firstfailure triage",
+  "subject": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+  "run": 45997696262,
+  "observed_at_utc": "2026-11-27T17:08:38.332287+00:00",
+  "coverage": {
+    "linux_failed_jobs": 8,
+    "raw_logs_retrieved_and_first_failures_inspected": 8,
+    "unreviewed_linux_failed_jobs": [],
+    "deduplicated_signatures": 5,
+    "source_fixed_signature_jobs": 2,
+    "new_admission_order_signature_jobs": 2,
+    "unresolved_native_or_module_deadline_jobs": 4
+  },
+  "jobs": [
+    {
+      "job": 140501673958,
+      "name": "ubuntu-latest / Python 3.11 (partition 6 of 8)",
+      "failed_step": "Run conformance gates",
+      "signature": "reopened_module_3600_deadline",
+      "first_failure": "ERROR: test_final_live_callback_cannot_change_output_after_full_capture (tests.smoke.test_authored_reopened_native_execution.AuthoredReopenedNativeExecutionTests.test_final_live_callback_cannot_change_output_after_full_capture)",
+      "module_or_gate_summary": {
+        "tests": 24,
+        "seconds": 4920.647
+      },
+      "raw_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501673958.raw.log",
+      "raw_sha256": "6de138ae4f40e38a071a3b691b739a62605953ba6fb00ef305e83d2ffcb81e53",
+      "sanitized_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501673958.log"
+    },
+    {
+      "job": 140501674020,
+      "name": "ubuntu-latest / Python 3.14",
+      "failed_step": "Run conformance gates",
+      "signature": "bundled_process_domain_import",
+      "first_failure": "ERROR: tests.critical.test_process_tree.RunWithTreeKillTests.test_exhausted_cleanup_preserves_original_partial_streams (helper='literate_ai.project_template.scripts._bootstrap_processes')",
+      "module_or_gate_summary": {
+        "tests": 1336,
+        "seconds": 982.121
+      },
+      "raw_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674020.raw.log",
+      "raw_sha256": "599c43ff1cd88414e6b7b05af11cefe376b332ca8173572e0aaca726f9499e4d",
+      "sanitized_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674020.log"
+    },
+    {
+      "job": 140501674050,
+      "name": "ubuntu-latest / Python 3.11 (partition 8 of 8)",
+      "failed_step": "Run conformance gates",
+      "signature": "native_execution_900_deadline",
+      "first_failure": "ERROR: test_inspector_graph_change_refuses_even_when_original_files_stay_current (tests.smoke.test_authored_retained_cargo_native_completion.AuthoredNativeCompletionTests.test_inspector_graph_change_refuses_even_when_original_files_stay_current)",
+      "module_or_gate_summary": {
+        "tests": 1,
+        "seconds": 1115.891
+      },
+      "raw_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674050.raw.log",
+      "raw_sha256": "52b6360a60d75aef470f39311b0d6b3ce0458556371938b0f40b4c261f483531",
+      "sanitized_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674050.log"
+    },
+    {
+      "job": 140501674056,
+      "name": "ubuntu-latest / Python 3.11",
+      "failed_step": "Run conformance gates",
+      "signature": "bundled_process_domain_import",
+      "first_failure": "ERROR: tests.critical.test_process_tree.RunWithTreeKillTests.test_exhausted_cleanup_preserves_original_partial_streams (helper='literate_ai.project_template.scripts._bootstrap_processes')",
+      "module_or_gate_summary": {
+        "tests": 1349,
+        "seconds": 1133.491
+      },
+      "raw_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674056.raw.log",
+      "raw_sha256": "c7be62d750c41a58c951e4f0e10005553973aa46a52a3ee8be5648e294691025",
+      "sanitized_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674056.log"
+    },
+    {
+      "job": 140501674130,
+      "name": "ubuntu-latest / Python 3.11 (partition 3 of 8)",
+      "failed_step": "Run conformance gates",
+      "signature": "forest_missing_ack_before_native_io",
+      "first_failure": "FAIL: tests.critical.test_retained_layout_forest_operation.ForestOperationTests.test_copied_or_unacknowledged_operation_refuses_before_borrowed_fds (ack='NoneType', allow=True)",
+      "module_or_gate_summary": {
+        "tests": 517,
+        "seconds": 5182.952
+      },
+      "raw_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674130.raw.log",
+      "raw_sha256": "9feee14764781a000f2af2303976c468f994f92bbab82b4ab85ffe64d310c314",
+      "sanitized_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674130.log"
+    },
+    {
+      "job": 140501674222,
+      "name": "ubuntu-latest / Python 3.14 (partition 3 of 8)",
+      "failed_step": "Run conformance gates",
+      "signature": "forest_missing_ack_before_native_io",
+      "first_failure": "FAIL: tests.critical.test_retained_layout_forest_operation.ForestOperationTests.test_copied_or_unacknowledged_operation_refuses_before_borrowed_fds (ack='NoneType', allow=True)",
+      "module_or_gate_summary": {
+        "tests": 514,
+        "seconds": 4057.178
+      },
+      "raw_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674222.raw.log",
+      "raw_sha256": "7699e7e258a8a445476e1359da606f4af3b975fc9a6cd466225b3e4afad25515",
+      "sanitized_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674222.log"
+    },
+    {
+      "job": 140501674335,
+      "name": "ubuntu-latest / Python 3.14 (partition 5 of 8)",
+      "failed_step": "Run conformance gates",
+      "signature": "owning_module_6600_deadline",
+      "first_failure": "ERROR: test_provider_closer_unselected_output_drift_is_preserved_and_no_receipt_issued (tests.smoke.test_authored_owning_admission.AuthoredOwningAdmissionTests.test_provider_closer_unselected_output_drift_is_preserved_and_no_receipt_issued)",
+      "module_or_gate_summary": {
+        "tests": 243,
+        "seconds": 9179.396
+      },
+      "raw_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674335.raw.log",
+      "raw_sha256": "1bf667373c0fe0b59359164a097b3fa7214d266d89ea2a04a87aba70fa105523",
+      "sanitized_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674335.log"
+    },
+    {
+      "job": 140501674494,
+      "name": "ubuntu-latest / Python 3.14 (partition 6 of 8)",
+      "failed_step": "Run conformance gates",
+      "signature": "reopened_module_3600_deadline",
+      "first_failure": "ERROR: test_both_modes_use_fresh_same_consumer_children_and_original_completion (tests.smoke.test_authored_reopened_native_execution.AuthoredReopenedNativeExecutionTests.test_both_modes_use_fresh_same_consumer_children_and_original_completion)",
+      "module_or_gate_summary": {
+        "tests": 23,
+        "seconds": 5767.783
+      },
+      "raw_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674494.raw.log",
+      "raw_sha256": "a13a0aed68f383b8c20b3fc7175ad9cae81169843193a9d7b17f027920aeb138",
+      "sanitized_log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-df6-140501674494.log"
+    }
+  ],
+  "signatures": {
+    "bundled_process_domain_import": {
+      "jobs": [
+        140501674020,
+        140501674056
+      ],
+      "classification": "source-fixed locally#502; frozen df6 CI failed correctly",
+      "test": "tests.critical.test_process_tree.RunWithTreeKillTests.test_exhausted_cleanup_preserves_original_partial_streams",
+      "phase": "Bundled helper entry before Popen/process ownership",
+      "cause": "Mandatory relative release_worktree_custody import absent from template scripts.",
+      "fix_evidence": "review-authority-bootstrap-process-custody-final-closing-r1.json; canonical/bundle26ecb3c53bec50fb967f586628a7f75739f8eefb258c557620626e196c0dd67c and original pin/runner/timeout checks retained. Not pushed/qualified as df6."
+    },
+    "forest_missing_ack_before_native_io": {
+      "jobs": [
+        140501674130,
+        140501674222
+      ],
+      "classification": "new concrete admission-order control failure; unchanged local source at initial inspection",
+      "test": "tests.critical.test_retained_layout_forest_operation.ForestOperationTests.test_copied_or_unacknowledged_operation_refuses_before_borrowed_fds",
+      "subtest": "ack=NoneType,allow=True",
+      "phase": "execute_prepared_forest_operation293 _require -> _state -> _require_witness -> _endpoint_names -> retained_scaffold_path -> ProjectStore.context -> require_safe_directory -> os.fstat",
+      "cause": "Missing acknowledgement is tested only after original-binding/currentness validation now performs actual native context-directory inspection. Global fstat trap observes that earlier native read.",
+      "proof_limit": "Actual stack uses newly opened safe-directory descriptor; does not independently demonstrate borrowed control-pool FD use, source mutation or effect. Existing no-native-before-rejection assertion fails nevertheless.",
+      "bounded_repair_candidate": "Perform early pure exact ContentIdentity type and allow_host_execution is True refusal before _require; retain all original issuedbinding/seal/currentness and exact identity equality checks afterward. Do not move caller equality/path callbacks before original type/field fences, remove _require or weaken existing test."
+    },
+    "native_execution_900_deadline": {
+      "jobs": [
+        140501674050
+      ],
+      "classification": "unresolved real native execution budget blocker; not known fixture#502 or proven environment-only",
+      "test": "tests.smoke.test_authored_retained_cargo_native_completion.AuthoredNativeCompletionTests.test_inspector_graph_change_refuses_even_when_original_files_stay_current",
+      "phase": "Entering executed() setup before negative inspector body; retained_cargo_test_execution_v2:398 source_guard ->core377 guard",
+      "actual_error": "retained.execution.v2-deadline, wrapped retained.execution.v2-failed",
+      "deadline_seconds": 900,
+      "limits": "Original deadline remains. No source assertion at inspector body reached; no runtime-hotspot root cause established from this log alone."
+    },
+    "reopened_module_3600_deadline": {
+      "jobs": [
+        140501673958,
+        140501674494
+      ],
+      "classification": "unresolved whole-module test-worker deadline, not standalone per-case timeout",
+      "attributed_cases": {
+        "140501673958": "tests.smoke.test_authored_reopened_native_execution.AuthoredReopenedNativeExecutionTests.test_final_live_callback_cannot_change_output_after_full_capture",
+        "140501674494": "tests.smoke.test_authored_reopened_native_execution.AuthoredReopenedNativeExecutionTests.test_both_modes_use_fresh_same_consumer_children_and_original_completion"
+      },
+      "phase": "parallel_unittests.py564 checks time.monotonic()-worker.started against module timeout; current running case attributed, no inner stack",
+      "worker_module_deadline_seconds": 3600,
+      "original_inner_execution_budget_seconds": 1800,
+      "positive_exact_df6_evidence": "Linux3.11 records actual test_both_modes... OK before module expires during later case.",
+      "limits": "Total module worker budget includes previous tests. Cannot infer attributed test alone consumed3600 or reached seeded final callback. Linux3.14 expires while first both_modes case still running. No fresh native success or environmental explanation inferred."
+    },
+    "owning_module_6600_deadline": {
+      "jobs": [
+        140501674335
+      ],
+      "classification": "unresolved whole-module test-worker deadline",
+      "attributed_case": "tests.smoke.test_authored_owning_admission.AuthoredOwningAdmissionTests.test_provider_closer_unselected_output_drift_is_preserved_and_no_receipt_issued",
+      "phase": "parallel module worker expires during current case; no inner stack",
+      "worker_module_deadline_seconds": 6600,
+      "original_inner_execution_budget_seconds": 3600,
+      "positive_exact_df6_evidence": [
+        "test_actual_native_consumer_receipt_is_minted_only_after_all_owners_close OK",
+        "test_final_archive_observation_keeps_original_path_after_equal_byte_retarget OK",
+        "test_provider_closer_error_emits_no_receipt_after_actual_native_execution OK"
+      ],
+      "limits": "Three preceding actual native controls consumed same module budget. Module failure does not erase their terminal OK, but no complete module/lastnegative assertion acceptance exists."
+    }
+  },
+  "global_limits": [
+    "No original deadlines, assertions, skips, retries or worker module scheduling changed; no new source writes/posts/jobactions.",
+    "Actual module expiry is distinct from actual consumer900 deadline. Preserve both original limits; no recommendation to increase/remove them or rerun away evidence.",
+    "No provider/outage/toolchain/environment-only root cause proven for deadline failures. Performance or worker scheduling diagnosis requires existing original per-module timing/events/stack evidence, not inference from terminal label.",
+    "MacOS/FreeBSD/Windows failures assigned other reviewers; platform inventory retained separately.",
+    "Local#502 source closure is distinct from frozen df6 CI failure and latest-source/full installed release acceptance."
+  ]
+}

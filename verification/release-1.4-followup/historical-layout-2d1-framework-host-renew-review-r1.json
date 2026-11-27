@@ -1,0 +1,100 @@
+{
+  "schema": "literate-ai/independent-historical-framework-normal-renewal-review@1",
+  "status": "Readback closed; recorded wrapper host pair genuinely current without writes. Framework finalization is next eligible public operation, subject to its fresh original guards.",
+  "candidate_revision": "2d10c8a9deceecb8a8c75459dd5157f9c99a2655",
+  "public_execution": {
+    "argv": [
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r16/environment/bin/python",
+      "-I",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r16/environment/bin/litai",
+      "--json",
+      "project",
+      "layout",
+      "renew",
+      "--place-framework-authority",
+      "--acknowledge",
+      "--plan-identity",
+      "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+      "--project",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native",
+      "--component",
+      "litai/components/legacy-project-wrapper",
+      "--target",
+      "host",
+      "--flavor-root",
+      "litai/flavors"
+    ],
+    "exit": 0,
+    "seconds": 17.61503459600499,
+    "timeout_seconds": 1800
+  },
+  "result": {
+    "current": true,
+    "destination_component": "litai/components/legacy-project-wrapper",
+    "finalized": false,
+    "full_containment": false,
+    "journal": null,
+    "operation": "renew",
+    "plan_identity": "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+    "project": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native",
+    "qualification": false,
+    "schema": "literate-ai/project-layout-framework-producer-result@1",
+    "source_component": "components/legacy-project-wrapper",
+    "target": "host",
+    "writes": false
+  },
+  "normal_selection": {
+    "target": "host",
+    "slot": "build-system",
+    "axis": "build.system",
+    "capability": "legacy.pipeline",
+    "selected_value": "make",
+    "selected_flavor_revision": "sha256:9a24d40b995d76a74ff1c7ff916180e043a88beb5320462f4e7a5d8881ff012f",
+    "original_build_make_lock_unchanged": true,
+    "flavor_root": "litai/flavors",
+    "explicit_extra_flavor_flags": [],
+    "configured_original_defaults_preserved": [
+      "+flavor://literate-ai/lang-python",
+      "+flavor://literate-ai/build-make",
+      "+flavor://literate-ai/package-pip",
+      "+flavor://literate-ai/os-linux"
+    ]
+  },
+  "journal": {
+    "result_journal": null,
+    "writes": false,
+    "expected_renewal_directory": "litai/.literate/framework-renewal-f6b2d20ea8300daf3424cdc4b80d8afa18eaf8a162747f09ebebec7e19768da0",
+    "expected_renewal_directory_absent": true,
+    "meaning": "Original normal check returned status current, so no renewal payload/history/slot needed; fresh producer check still executed. Finalizer supports no-history current pairs and reruns normal producer currentness."
+  },
+  "preservation": {
+    "all37_framework_postimages_bytes_modes_native_nodes_unchanged": true,
+    "all577_other_original_files_bytes_size_dev_inode_mode_mtime_unchanged": true,
+    "original_native6_preserved": true,
+    "rawGitHEAD_index_refs_bytes_nativefacts_unchanged": true,
+    "current_receipt_bytes_nativefacts_unchanged": true,
+    "receipt_policy_and_manifest_unchanged": true,
+    "no_receipt_refresh_or_new_qualification": true
+  },
+  "next_public_argv": [
+    "project",
+    "layout",
+    "finalize",
+    "--place-framework-authority",
+    "--acknowledge",
+    "--plan-identity",
+    "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+    "--project",
+    "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+  ],
+  "following_order": "Catalog finalize with original0a083149... and explicit framework successor febac...; then documentation review/Standard rebind/new receipt under their own public authority. Do not mutate manifest/docs before source journals finalized.",
+  "evidence_sha256": {
+    "2d1-framework-wrapper-host-renew.stdout": "ab1188f05d3739503e2b616e571d83469ab17bc7de27d6d9f3a8d8fa2a04463e",
+    "2d1-framework-wrapper-host-renew.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "2d1-framework-wrapper-host-renew.json": "883d6184b5e8eb63f9f9e3d28b5f00aa8ac1b17e84dae78bde989eeec314a9af"
+  },
+  "limits": [
+    "No reviewer mutation,normalproducer call,finalization,newplan,receipt update or rebind. Existing public result and native readback only.",
+    "Current normal producer pair does not establish native build/run/generation/full containment/full wheel/full release acceptance."
+  ]
+}

@@ -19,6 +19,7 @@ from pathlib import Path
 from literate_ai._filesystem import ensure_safe_directory
 from literate_ai.projects import ProjectConfigurationStore
 
+from ._processes import _command_custody_scope
 from .evidence_files import _descriptor_identity, _native_access
 from .evidence_staging import _entry, _root, _value
 from .remote_cleanup import _access
@@ -368,6 +369,7 @@ def release_git_worktree(root, output_root, reference, run_git, *, detached=Fals
             run_git,
             detached,
         )
+        stack.enter_context(_command_custody_scope(begin_command))
         token = _CURRENT.set(owner)
         try:
             run_git(

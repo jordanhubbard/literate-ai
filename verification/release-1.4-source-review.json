@@ -1659,5 +1659,150 @@
       "Original policy JSONDecoder/recompiler/escaped consumer holes independently reproduced, retained and fixed before source closure.",
       "Project validation r1 correctly refused concurrent active-work documentation mutation; final stable r2 passes."
     ]
+  },
+  "qualification_followup_r17": {
+    "baseline": "2d10c8a9deceecb8a8c75459dd5157f9c99a2655",
+    "owning_issues": [
+      502,
+      506
+    ],
+    "reviews": [
+      "verification/release-1.4-followup/review-authority-bootstrap-process-custody-final-closing-r1.json",
+      "verification/release-1.4-followup/review-contracts-506-evidence-staging-flags-closing-r1.json",
+      "verification/release-1.4-followup/review-contracts-wheel-r14-tree-html-coordinate-closing-r1.json",
+      "verification/release-1.4-followup/historical-layout-2d1-framework-approved-plan-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-2d1-framework-postapply-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-2d1-framework-host-renew-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-2d1-framework-finalize-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-2d1-catalog-finalize-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-authority-df6-platform-job-inventory-r4.json",
+      "verification/release-1.4-followup/review-authority-df6-all-linux-failures-r1.json",
+      "verification/release-1.4-followup/review-authority-df6-linux-native-deadline-artifacts-r1.json",
+      "verification/release-1.4-followup/review-runtime-df6-macos-freebsd-first-failures-r1.json",
+      "verification/release-1.4-followup/review-contracts-df6-windows-all-cases-r1.json",
+      "verification/release-1.4-followup/review-contracts-df6-windows-deep-triage-r2.json",
+      "verification/release-1.4-followup/review-contracts-df6-windows-artifact-outcomes-r1.json",
+      "verification/release-1.4-followup/review-runtime-cache-runtime-owner-design-r1.json",
+      "verification/release-1.4-followup/review-authority-forest-prerequisite-order-design-r1.json",
+      "verification/release-1.4-followup/review-runtime-503-successor-census-implementation-plan-r1.json"
+    ],
+    "repairs": {
+      "502": "Replace mandatory domain import with stdlib ContextVar observer installed by original release custody owner across create/use/cleanup; refuse nested replacement; retain exact runner semantics and bundled helper digest parity.",
+      "506": "Use platform-available O_NONBLOCK at both existing staging read sites; retain native handoff, identity, disposal and primary exception behavior.",
+      "html_fixture": "Derive onboarded manifest from original ProjectConfigurationStore.context; preserve original assertions and application output coordinates."
+    },
+    "receipts": {
+      "bootstrap-custody-r2-report.json": {
+        "sha256": "90c21963433e84f36f4719b3419e9fdec0ce785e866d9ae3a49e12082302c643",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      },
+      "bootstrap-original-process-r1-report.json": {
+        "sha256": "2a0729dc2deed91203a4431462b2554bdc5ebd9ff1169c2e5fd74d31c9cd106c",
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 13,
+          "skipped": 4
+        }
+      },
+      "bootstrap-original-release-custody-r1-report.json": {
+        "sha256": "8667fc837adcfee7213745336162a5ae4ea6e8393a361a2ce15d79dd77b74163",
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        }
+      },
+      "bootstrap-original-loader-r1-report.json": {
+        "sha256": "4b6bdff52b68eff920c167ce9f7a5fb2b99098d983ff9bdb574b35b0138c8b5c",
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        }
+      },
+      "evidence-stage-flags-r1-report.json": {
+        "sha256": "179e7c68d9da0f06b90a06d2d7949e4ad45713c6026ead5e6f8d85d3b08715ec",
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 13,
+          "skipped": 0
+        }
+      },
+      "policy-frozen-framework-r2-report.json": {
+        "sha256": "85f46c285109c878db2fc7a7d7756a386bf9c6f6140addb81f91eccf20dcfae6",
+        "summary": {
+          "executed": 122,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 122,
+          "selected": 122,
+          "skipped": 0
+        }
+      },
+      "policy-frozen-native-r2-report.json": {
+        "sha256": "7ddd5d09ab4b5046be753f17d00ea6a3d12047c5371b124b7e31ecc68b38a6e7",
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 13,
+          "skipped": 0
+        }
+      },
+      "policy-frozen-release-r2-report.json": {
+        "sha256": "b9074c73d50543814b382772eb865e404f3724a8bce0456fb0d0d42f2ea0a167",
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        }
+      }
+    },
+    "installed_html": "Fresh scoped journey against immutable5f3 installed prefix passes all31 expected command exits and9page inspection. Whole wheel r14 remains FAILED at old root-manifest assumption; no whole-wheel acceptance.",
+    "historical_2d1": "Actual approved framework apply49.098s within original1800; independent originals/postimages/native/Git readback; configured original host renewal current with no writes; framework finalize succeeds and archives exact3 source controls. Catalog finalize correctly refuses new framework-owned catalog siblings; #503 blocks continuation before documentation or Standard rebind.",
+    "ci": "Exact df6 run45997696262 terminal33success22failure1cancelled. All8Linux,11Mac/FreeBSD and370Windows detailed failures/errors inventoried;1751 original Windows skip events reconciled. Native deadlines lack inner stack evidence; native Windows control mismatches lack field-pair evidence. Do not infer causes or weaken deadlines/guards/skips.",
+    "new_included_issues": {
+      "503": "Catalog successor exact membership",
+      "504": "Codex cache runtime owner",
+      "505": "Forest pure prerequisites before native context",
+      "506": "Portable staging flags",
+      "507": "Lossless wide native IDs",
+      "508": "Windows native observations"
+    },
+    "limits": "All83 original release goals retained. Included issues remain open. Full source/installed/platform, historical catalog successor, genuine second historical starter, actual model, workers, native deadlines, collateral, resulting-main and publication acceptance remain incomplete. No prepare/tag/publish.",
+    "driver_pin": "sha256:e9e54cc24abfb90b894b17c267e41c36e48e18f4182d2d6ed4ac7c4c0294b7a8",
+    "validation": {
+      "project_validate": "passed",
+      "project_validate_sha256": "a5bf3d2b418a71f4de7f1256963e29a364c49a0b6aeb9232b8c9a403f010d324",
+      "documentation_review": "recorded",
+      "public_export": "passed",
+      "ruff_lint": "passed",
+      "ruff_format": "8files already formatted",
+      "diff_check": "passed",
+      "release_acceptance": false
+    }
   }
 }

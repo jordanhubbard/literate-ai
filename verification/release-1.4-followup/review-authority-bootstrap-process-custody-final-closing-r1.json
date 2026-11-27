@@ -1,0 +1,89 @@
+{
+  "review": "independent final502 shared standalone command custody closing",
+  "observed_at_utc": "2026-11-27T16:58:55.142193+00:00",
+  "base_head": "2d10c8a9deceecb8a8c75459dd5157f9c99a2655",
+  "scope": "Four production files and one new test module reviewed. Separate dirty installed_tree_html_journey.py belongs to another task and is not included.",
+  "sha256": {
+    "src/literate_ai/adapters/_processes.py": "26ecb3c53bec50fb967f586628a7f75739f8eefb258c557620626e196c0dd67c",
+    "src/literate_ai/adapters/release_worktree_custody.py": "f6025b6634868857a28cdd30a50b38d0826f462dd8a39a74adf7666fb7cbecb9",
+    "src/literate_ai/project_template/scripts/_bootstrap_processes.py": "26ecb3c53bec50fb967f586628a7f75739f8eefb258c557620626e196c0dd67c",
+    "src/literate_ai/project_template/scripts/bootstrap_litai.py": "c18c37000c659083b2e3b492012e8f1513bdef73280dfb468aad6d5e9af36738",
+    "tests/critical/test_standalone_process_custody.py": "cadfc4a2e0bdd5b3f6e0c87b52ecbcd31dedfcf192104c0c02c605cc02574ddb"
+  },
+  "findings": [],
+  "closed_findings": [
+    {
+      "finding": "Mandatory relative domain import makes bundled standalone run_with_tree_kill fail before process control",
+      "closure": "Shared core now stdlib-only neutral observer lookup on default runner path; original release owner registers original begin_command for its exact active lifetime; actual isolated digest synthetic loader invokes real default runner with zero framework imports."
+    },
+    {
+      "finding": "Initial nested observer scope could replace active original fence with no-op",
+      "closure": "Final contextmanager refuses any nonNone active observer before set, requires callable otherwise, restores original token; earlier controlled reproducer now0Popen and original observer remains usable. Actual domain fixture independently verifies nested refusal and continued original Git/cleanup."
+    }
+  ],
+  "source_invariants": {
+    "scope_ordering": "Original owner allocated before neutral registration; neutral entered last in original ExitStack immediately before original _CURRENT.set(owner). All create/yield/remove callbacks and namespace closure remain inside both original scopes. owner.closed and _CURRENT reset precede neutral stack exit, which resets before original native access closers.",
+    "copied_expiry": "Copied original release context preserves original owner reference, whose closed/current/process/thread checks refuse after original exit before Popen; actual new control proves it. No callable no-op nested replacement can bypass the fence.",
+    "canonical_fencing": "All shared runner calls in active original release scope continue through original begin_command; not narrowed to individual _git wrappers. Original nonGit call refuses before process creation.",
+    "runner_ast": "All statements after the replaced initial domain import/begin pair are exactly AST-equivalent to original run_with_tree_kill. Original actualPopen identity, not_started/complete/broken/primary notes, TimeoutExpired/rawstream handling, threecommunicate path, finite waits, kill, ownership release, return/check behavior unchanged.",
+    "distribution": "Canonical and bundled helper byte-identical26ecb3c53bec50fb967f586628a7f75739f8eefb258c557620626e196c0dd67c; bootstrap _OWNER_DIGEST matches. Original digest-read/size/nofollow/tamper controls unchanged.",
+    "separate_optional_features": "Existing lazy optional Windows telemetry imports are not added to default bootstrap or runner path; actual-I-S-B zero-framework-import control proves required standalone closure. No framework dependency tree copied."
+  },
+  "independent_execution": {
+    "new_controls": {
+      "selected": 3,
+      "passed": 3,
+      "skipped": 0,
+      "seconds": 1.115,
+      "method": "Existing frozen r6 interpreter with explicit current-source PYTHONPATH and mounted task-volume TMPDIR; actual original public-release fixtures, no modified test assertions.",
+      "cases": [
+        "Actual digest synthetic loader under-I-S-B, real child stdout,0framework imports.",
+        "Actual original release nested noop refusal, direct nonGit shared runner denied beforePopen, validGit continued, exact checkout/registration cleanup and originalHEAD preserved.",
+        "Copied expired actual release context refuses beforePopen, outputs remain retired."
+      ]
+    },
+    "controlled_reproducer": "Original nested-override counterexample rerun after final guard: nestedrefused,1originaladmission/0Popen, original token restored."
+  },
+  "original_cohort_evidence": {
+    "bootstrap-original-process-r1-report.json": {
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 13,
+        "skipped": 4
+      },
+      "report_sha256": "2a0729dc2deed91203a4431462b2554bdc5ebd9ff1169c2e5fd74d31c9cd106c"
+    },
+    "bootstrap-original-release-custody-r1-report.json": {
+      "summary": {
+        "executed": 7,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 7,
+        "selected": 7,
+        "skipped": 0
+      },
+      "report_sha256": "8667fc837adcfee7213745336162a5ae4ea6e8393a361a2ce15d79dd77b74163"
+    },
+    "bootstrap-original-loader-r1-report.json": {
+      "summary": {
+        "executed": 17,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 17,
+        "selected": 17,
+        "skipped": 0
+      },
+      "report_sha256": "4b6bdff52b68eff920c167ce9f7a5fb2b99098d983ff9bdb574b35b0138c8b5c"
+    }
+  },
+  "failed_history": "Original df6 native CI failed mandatory import; initial new-test r1 wrong missing mandatory timeout caused TypeError and was corrected only in two new negative calls to timeout5. Final acceptance above does not erase either failure.",
+  "limits": [
+    "Reviewer made no source edits, bootstrap copies, issues/posts, worker changes, CI retry/cancel/push or original test/deadline modifications.",
+    "Four original nativeFreeBSD process controls skipped on thisLinux host; native Windows/FreeBSD platform execution and installed candidate full wheel/release acceptance remain separate.",
+    "Original cohorts were retained parent-run canonical evidence independently inspected; reviewer independently ran new3 and controlled nested counterexample.",
+    "Exact current source closing is not latest release qualification or permission to cancel active df6 native CI."
+  ]
+}
