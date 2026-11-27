@@ -327,7 +327,20 @@
     "literate-ai/project-layout-catalog-producer-result@1",
     "literate-ai/project-layout-source-finalization-result@1",
     "literate-ai/retained-project-historical-admission@1",
-    "literate-ai/retained-project-test-runner@2"
+    "literate-ai/retained-project-test-runner@2",
+    "literate-ai/worker-telemetry-request@2",
+    "literate-ai/worker-telemetry-sample@1",
+    "literate-ai/worker-telemetry-response@2",
+    "literate-ai/worker-telemetry-scope@1",
+    "literate-ai/authenticated-worker-telemetry-request@2",
+    "literate-ai/authenticated-worker-telemetry-response@2",
+    "literate-ai/worker-telemetry-query-result@1",
+    "literate-ai/worker-telemetry-namespace-initialization@1",
+    "literate-ai/private-native-provider-build-plan@1",
+    "literate-ai/private-worker-telemetry-native-provider@2",
+    "literate-ai/worker-telemetry-native-initialization@1",
+    "literate-ai/worker-telemetry-native-build-planning@1",
+    "literate-ai/private-native-provider-published@1"
   ],
   "read_paths": [
     {

@@ -1049,6 +1049,9 @@ def _parser() -> JsonArgumentParser:
     worker_commands = worker.add_subparsers(
         dest="worker_command", required=True, parser_class=JsonArgumentParser
     )
+    from .worker_telemetry import add_telemetry_arguments
+
+    add_telemetry_arguments(worker_commands)
     from .worker_registry import add_registry_arguments
 
     add_registry_arguments(worker_commands)
@@ -3736,6 +3739,13 @@ def main(
     scoped_retained_cargo = command == "project.retained-cargo"
     deferred_retained_harness = command == "project.retained-harness"
     scoped_worker_health = command == "worker.health"
+    scoped_worker_telemetry = command in {
+        "worker.telemetry",
+        "worker.telemetry-initialize",
+        "worker.telemetry-native-initialize",
+        "worker.telemetry-native-plan",
+        "worker.telemetry-native-provision",
+    }
     scoped_agent_entrypoints = command == "project.agent-entrypoints"
     scoped_native_ci = command == "project.ci"
     scoped_layout = command == "project.layout"
@@ -3744,6 +3754,7 @@ def main(
     scoped_orchestration = (
         scoped_orchestration
         or scoped_worker_health
+        or scoped_worker_telemetry
         or scoped_agent_entrypoints
         or scoped_native_ci
         or scoped_layout
@@ -3835,12 +3846,16 @@ def main(
                     "qualification.authored.scoped_options"
                     if scoped_authored_qualification
                     else (
-                        "worker.health_read_only_options"
-                        if scoped_worker_health
+                        "worker.telemetry_scoped_options"
+                        if scoped_worker_telemetry
                         else (
-                            "render.tree.scoped_options"
-                            if scoped_tree_render
-                            else "orchestration.read_only_options"
+                            "worker.health_read_only_options"
+                            if scoped_worker_health
+                            else (
+                                "render.tree.scoped_options"
+                                if scoped_tree_render
+                                else "orchestration.read_only_options"
+                            )
                         )
                     )
                 ),

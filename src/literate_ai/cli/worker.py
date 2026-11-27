@@ -67,6 +67,16 @@ def _existing(path: Path) -> WorkerHardwareObservationCatalog:
 
 
 def worker_from_args(args: Any) -> tuple[dict[str, object], int]:
+    if args.worker_command in {
+        "telemetry",
+        "telemetry-initialize",
+        "telemetry-native-initialize",
+        "telemetry-native-plan",
+        "telemetry-native-provision",
+    }:
+        from .worker_telemetry import worker_telemetry_from_args
+
+        return worker_telemetry_from_args(args)
     if args.worker_command in {"provisioner", "provision"}:
         from .worker_provisioning import provisioning_from_args
 

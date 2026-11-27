@@ -85,7 +85,7 @@ grpcio-reflection = ["grpc_reflection"]
 grpcio-status = ["grpc_status"]
 
 [tool.setuptools.package-data]
-literate_ai = ["py.typed", "_distribution_origin.json"]
+literate_ai = ["py.typed", "_distribution_origin.json", "native/*.c"]
 "literate_ai.project_template" = [
   "project.gitignore",
   "CHANGELOG.md",

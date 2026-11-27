@@ -364,6 +364,19 @@ _COMPATIBILITY_WRITE_CONTRACT_ALLOWLIST = frozenset(
         "literate-ai/native-root-continuation-ledger@1",
         "literate-ai/native-root-acceptance-closure@1",
         "literate-ai/native-root-execution-result@1",
+        "literate-ai/worker-telemetry-request@2",
+        "literate-ai/worker-telemetry-sample@1",
+        "literate-ai/worker-telemetry-response@2",
+        "literate-ai/worker-telemetry-scope@1",
+        "literate-ai/authenticated-worker-telemetry-request@2",
+        "literate-ai/authenticated-worker-telemetry-response@2",
+        "literate-ai/worker-telemetry-query-result@1",
+        "literate-ai/worker-telemetry-namespace-initialization@1",
+        "literate-ai/private-native-provider-build-plan@1",
+        "literate-ai/private-worker-telemetry-native-provider@2",
+        "literate-ai/worker-telemetry-native-initialization@1",
+        "literate-ai/worker-telemetry-native-build-planning@1",
+        "literate-ai/private-native-provider-published@1",
     }
 )
 _COMPATIBILITY_READ_PATH_ALLOWLIST = frozenset(

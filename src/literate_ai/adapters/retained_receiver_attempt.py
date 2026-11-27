@@ -10,12 +10,49 @@ import hashlib
 import json
 import os
 import secrets
+import threading
+import weakref
 from contextlib import contextmanager, suppress
 
 from literate_ai._cache_lock import exclusive_cache_lock
 from literate_ai._filesystem import require_safe_directory
 from literate_ai.adapters.cache.filesystem import _read_regular_file
 from literate_ai.contracts import canonical_json_bytes
+
+_CONTEXT_ISSUER = object()
+
+
+class _ActualReceiverAttemptContext:
+    """Weak original-instance witness while the canonical reservation lock lives."""
+
+    __slots__ = ("_values",)
+
+    def __init__(self, parent, *, _issuer):
+        if _issuer is not _CONTEXT_ISSUER:
+            raise TypeError("an actual receiver reservation context is required")
+        active = threading.Event()
+        active.set()
+        object.__setattr__(self, "_values", (weakref.ref(parent), os.getpid(), active))
+
+    def __setattr__(self, name, value):
+        raise TypeError("receiver reservation context witnesses are immutable")
+
+    def require_current(self, parent):
+        original, pid, active = self._values
+        if not active.is_set() or os.getpid() != pid or original() is not parent:
+            raise ValueError("retained.receiver.actual-context-ended")
+
+    def close(self):
+        self._values[2].clear()
+
+    def __copy__(self):
+        raise TypeError("receiver reservation context witnesses cannot be copied")
+
+    def __deepcopy__(self, memo):
+        raise TypeError("receiver reservation context witnesses cannot be copied")
+
+    def __reduce__(self):
+        raise TypeError("receiver reservation context witnesses cannot be restored")
 
 
 class _OwnedReceiverAttempt:
@@ -80,6 +117,12 @@ class _OwnedReceiverAttempt:
             != self.content
         ):
             raise ValueError("retained.receiver.attempt-ownership-changed")
+
+    def require_actual_observation_context(self):
+        context = getattr(self, "_observation_context", None)
+        if type(context) is not _ActualReceiverAttemptContext:
+            raise ValueError("retained.receiver.actual-context-required")
+        context.require_current(self)
 
     def release_after_native_empty(self):
         self.require_current()
@@ -213,7 +256,13 @@ class _OwnedReceiverAttempt:
 
 @contextmanager
 def reserve_retained_receiver_attempt(
-    config_path, request, registration, deadline, *, preflight=None
+    config_path,
+    request,
+    registration,
+    deadline,
+    *,
+    preflight=None,
+    observation_publisher=None,
 ):
     if preflight is not None and not callable(preflight):
         raise TypeError("retained.receiver.preflight-must-be-callable")
@@ -227,8 +276,37 @@ def reserve_retained_receiver_attempt(
             preflight()
             deadline.remaining()
         owned = _OwnedReceiverAttempt(path, request, registration)
+        context = None
         try:
-            yield owned
+            if observation_publisher is None:
+                yield owned
+            else:
+                # This startup catch must never enclose the caller's yield body.
+                try:
+                    context = _ActualReceiverAttemptContext(
+                        owned, _issuer=_CONTEXT_ISSUER
+                    )
+                    owned._observation_context = context
+                    from .worker_telemetry_reservation import (
+                        observe_protected_receiver_attempt,
+                    )
+                except Exception:
+                    if context is not None:
+                        with suppress(Exception):
+                            context.close()
+                    context = None
+                if context is None:
+                    yield owned
+                else:
+                    with observe_protected_receiver_attempt(
+                        observation_publisher, owned, deadline
+                    ):
+                        yield owned
         finally:
-            with suppress(OSError):
-                os.close(owned.descriptor)
+            try:
+                if context is not None:
+                    with suppress(Exception):
+                        context.close()
+            finally:
+                with suppress(OSError):
+                    os.close(owned.descriptor)
