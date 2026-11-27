@@ -21,6 +21,7 @@ from literate_ai.adapters.project_tracker import (
 )
 from literate_ai.application.roadmap_dependencies import (
     RoadmapDependencyError,
+    RoadmapSection,
     roadmap_sections,
     validate_roadmap_sections,
 )
@@ -54,12 +55,33 @@ class ReleaseContributionsError(RuntimeError):
 def _roadmap_release_goals(
     root: Path, *, release: str, manifest_path: str
 ) -> dict[str, object]:
+    report, _ = read_release_goal_authority(
+        root, release=release, manifest_path=manifest_path
+    )
+    return report
+
+
+def _manifest_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate roadmap goal manifest key: {key}")
+        result[key] = value
+    return result
+
+
+def read_release_goal_authority(
+    root: Path, *, release: str, manifest_path: str
+) -> tuple[dict[str, object], dict[str, RoadmapSection]]:
     """Validate the durable release-goal ledger against its roadmap authority."""
 
     manifest_file = root / manifest_path
     try:
-        manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        manifest = json.loads(
+            manifest_file.read_text(encoding="utf-8"),
+            object_pairs_hook=_manifest_object,
+        )
+    except (OSError, ValueError) as exc:
         raise ReleaseContributionsError(
             "release.roadmap_goal_manifest_invalid",
             f"cannot read roadmap goal manifest: {manifest_path}",
@@ -166,7 +188,7 @@ def _roadmap_release_goals(
     for goal, section in sections.items():
         if section.release_target == release and goal not in seen:
             invalid.append({"id": goal, "reason": "roadmap-goal-missing-from-manifest"})
-    return {
+    report = {
         "manifest": manifest_path,
         "roadmap": roadmap_path,
         "goals": normalized,
@@ -174,6 +196,7 @@ def _roadmap_release_goals(
         "invalid": invalid,
         "ready": not open_goals and not invalid,
     }
+    return report, sections
 
 
 def _run(

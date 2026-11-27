@@ -268,6 +268,50 @@ def validate_roadmap_dependencies(
     validate_roadmap_sections(roadmap_sections(content), manifest)
 
 
+@dataclass(frozen=True, slots=True)
+class RoadmapPrerequisites:
+    known_work: tuple[str, ...]
+    strict: tuple[str, ...]
+    legacy_context: tuple[str, ...]
+
+
+def roadmap_prerequisites(
+    section: RoadmapSection, sections: Mapping[str, RoadmapSection]
+) -> RoadmapPrerequisites:
+    """Read the same typed prerequisites used by the roadmap graph."""
+    known_work = []
+    strict = []
+    legacy_context = []
+    for field, value in _FIELD.findall(section.declarations):
+        value = value.strip()
+        if field == "Completion prerequisites":
+            if "\n" in value:
+                raise RoadmapDependencyError(
+                    "roadmap.dependency_field_invalid",
+                    "Completion prerequisites must use one line",
+                )
+            if value != "none":
+                strict.extend(part.strip() for part in value.split(","))
+        elif not re.match(r"none\b", value, re.I):
+            prefix = re.split(r"[;(]", value, maxsplit=1)[0]
+            phases = tuple(
+                token.strip("`") for token in re.findall(r"release:[^\s,;()]+", prefix)
+            )
+            work = tuple(
+                dependency
+                for dependency in re.findall(rf"\b{_ID}\b", prefix)
+                if dependency in sections
+            )
+            strict.extend(phases)
+            known_work.extend(work)
+            if any(
+                word.strip("`") not in phases + work
+                for word in re.findall(r"[^\s,]+", value)
+            ):
+                legacy_context.append(" ".join(value.split()))
+    return RoadmapPrerequisites(tuple(known_work), tuple(strict), tuple(legacy_context))
+
+
 def validate_roadmap_sections(
     sections: Mapping[str, RoadmapSection], manifest: Mapping[str, object] | None = None
 ) -> None:
@@ -287,27 +331,12 @@ def validate_roadmap_sections(
         if target is not None and re.fullmatch(_VERSION, target):
             releases.add(target)
             graph.setdefault(f"release:{target}:ready", set()).add(work_id)
-        for field, value in _FIELD.findall(section.declarations):
-            value = value.strip()
-            if field == "Completion prerequisites":
-                if "\n" in value:
-                    raise RoadmapDependencyError(
-                        "roadmap.dependency_field_invalid",
-                        f"{work_id}: Completion prerequisites must use one line",
-                    )
-                if value != "none":
-                    strict.extend((work_id, part.strip()) for part in value.split(","))
-            else:
-                if re.match(r"none\b", value, re.I):
-                    continue
-                prefix = re.split(r"[;(]", value, maxsplit=1)[0]
-                strict.extend(
-                    (work_id, token.strip("`"))
-                    for token in re.findall(r"release:[^\s,;()]+", prefix)
-                )
-                for dependency in re.findall(rf"\b{_ID}\b", prefix):
-                    if dependency in sections:
-                        graph[work_id].add(dependency)
+        try:
+            declared = roadmap_prerequisites(section, sections)
+        except RoadmapDependencyError as exc:
+            raise RoadmapDependencyError(exc.code, f"{work_id}: {exc.message}") from exc
+        strict.extend((work_id, dependency) for dependency in declared.strict)
+        graph[work_id].update(declared.known_work)
     if manifest is not None:
         declared = manifest.get("releases")
         if not isinstance(declared, Mapping):

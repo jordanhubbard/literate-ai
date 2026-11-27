@@ -29499,3 +29499,20 @@ current code lacks its execution-view entry point, typed prerequisite projection
 and shared release-goal authority reader. Port the original feature through the
 current declared namespace owners. The six existing summary smoke cases pass
 (0.768s), but do not cover that missing feature or authorize discarding it.
+
+
+**Recovered release execution view restored.** `execview1` adds the missing
+`--execution-view` entry point, shared duplicate-rejecting release-goal reader
+and typed prerequisite projection through the existing validated roadmap graph.
+It reads the configured ledger/queue and declares external inputs and release
+phases unverified. Nine summary/view cases pass (14.555s), including actual
+initialized/converted contained authority, a separate root application queue,
+policy-shadow refusal and exact byte/inode/mtime preservation. Twenty-three
+dependency cases pass (1.538s) and twenty contribution cases pass (1.379s).
+The initial fixture merely moved root metadata and correctly failed discovery;
+final qualification uses actual conversion and leaves eligibility checks intact.
+
+The actual current 1.4.0 queue projects 83 included goals, 35 closed and 48 open
+with 198 unchecked criteria. These are observed planning counts, not a readiness
+or evidence attestation. Sixty of ninety dirty snapshots and all seven clean
+heads are integrated; thirty dirty snapshots and existing acceptance holds remain.

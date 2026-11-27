@@ -53,8 +53,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 59,
-      "preserved-for-reconciliation": 31
+      "merged": 60,
+      "preserved-for-reconciliation": 30
     },
     "snapshots": [
       {
@@ -318,9 +318,10 @@
         "base": "441ee05b35ecfa087dac4f9e1b1a876eb726cc1d",
         "commit": "e0c20fba44eabfcc26261bb3e9a57187f50b9030",
         "branch": "recovery/puck-20261126/execview1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 5,
-        "remaining_paths": 5
+        "remaining_paths": 5,
+        "resolution": "Restore genuine missing read-only execution view, shared duplicate-rejecting release-goal authority reader and typed prerequisite projection through original validated dependency graph. Original eight controls plus actual acknowledged contained conversion/shadow/refusal/metadata preservation case pass; current namespace/release eligibility owners unchanged."
       },
       {
         "label": "fc14",
@@ -1038,14 +1039,6 @@
     "actual_missing_file_review": {
       "sha256": "827ac36f381b72102367dd26324e46412dd3f88a795baf78292a1584dd8ce77a",
       "scope": "Only actual current filesystem absence, not absence from an original snapshot parent. Remaining missing paths occur in authoredgraph1 historical evidence, cg14b bounded Cargo helpers/tests, fp14 materialization test, layout14 prototype modules/tests and wt14 telemetry modules/schemas/tests. Other pending snapshots still require semantic reconciliation; symbol presence is not completion."
-    },
-    "next_source_work": {
-      "label": "execview1",
-      "commit": "e0c20fba44eabfcc26261bb3e9a57187f50b9030",
-      "status": "genuine missing implementation confirmed; no merge started",
-      "scope": "Current summarize_release_roadmap.py has no execution_view or CLI flags; roadmap_dependencies lacks typed RoadmapPrerequisites/roadmap_prerequisites and release_contributions lacks read_release_goal_authority/_manifest_object. Port original five-file feature through current namespace-aware release/goal owners, retaining strict prerequisite/cycle/duplicate/stale validation. Current six roadmap summary smoke cases pass (0.768s) but do not cover the missing feature.",
-      "baseline_log_sha256": "8c7b45cc1c1ae44c84810bc39d9e7cac108a7672809d70a436c8b2d276080f33",
-      "baseline_report_sha256": "1bfe333ca95ceb79245cfaf52a134ff1c2850375f345b89f42c8754d994b7d40"
     }
   },
   "checks": {
@@ -2272,10 +2265,64 @@
       },
       "scope": "Original three SDK cases, thirty contract/capture/readonly/schema cases and full actual public journey pass after phase polling change. Bound full-currentness count to 2..8 in recovered SDK control while retaining per-record deadline checks, original overall 300-second deadline, metadata/memory/payload caps, full closing authority and no native SDK rebuild or CAS mutation. Timings are bounded local observations, not a controlled speed benchmark.",
       "release_evidence": false
+    },
+    "release_execution_view": {
+      "status": "passed",
+      "summary": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "seconds": 14.555,
+        "report_sha256": "f2cc00653a9c9e3f84ae4dbe71c3a911a80f330443ac09efeeecf8b03ad9a5b2",
+        "log_sha256": "867f23034d979345ec737efb5c4cc5c062506e4e67166deac2fb270911a602ed"
+      },
+      "dependency_graph": {
+        "summary": {
+          "executed": 23,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 23,
+          "selected": 23,
+          "skipped": 0
+        },
+        "seconds": 1.538,
+        "report_sha256": "8f3241865a4b59253f1336acc659eb7f3ccfee86527ee1a6e7026cd46f417eaa",
+        "log_sha256": "b65dfbb32babd30ca78c6e2b541f3ac935aecd37bba0410d162b36ae63a1884a"
+      },
+      "contributions": {
+        "summary": {
+          "executed": 20,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 20,
+          "selected": 20,
+          "skipped": 0
+        },
+        "seconds": 1.379,
+        "report_sha256": "f0e67ce764c2c7eccd3a17ebe1433152706921aa7d6cefd4b27f3cf173e3d877",
+        "log_sha256": "036f069acbeaf1f8f4d8c50a0ecc95495fe5f580f6896b27ca2860672091d310"
+      },
+      "actual_repository": {
+        "exit_code": 0,
+        "release": "1.4.0",
+        "included_goals": 83,
+        "closed_goals": 35,
+        "open_goals": 48,
+        "unchecked_criteria": 198,
+        "stdout_sha256": "d1bd0347a34482a61fcdd816b91c113bc72ca50d4dc58d005302cab19d695f21",
+        "stderr_empty": true
+      },
+      "scope": "Queue/ledger planning projection only. Read configured policy/manifest/queue, refuse stale/duplicate/cyclic authority, preserve unknown external inputs and release phases as unverified. Current six baseline cases did not contain this feature; recovered cases and actual contained conversion control establish restored behavior. Native release eligibility and root policy-shadow refusal remain original owner decisions. Initial moved-metadata fixture lacked a declared contained project and correctly refused; replaced with actual initialization/conversion, not fabricated baseline authority.",
+      "release_evidence": false
     }
   },
   "remaining_requirements": [
-    "Reconcile the 31 preserved source snapshots. All seven additional clean heads are integrated. Preserve unique bounded Cargo metadata/configuration, layout and native telemetry intent while retaining current namespace, lifetime, per-write journal and historical custody guards. Canonical promotion exact-wheel controls pass at 2ec59a540; later phase-polling changes have their own bounded source checks.",
+    "Reconcile the 30 preserved source snapshots. All seven additional clean heads are integrated. Preserve unique bounded Cargo metadata/configuration, layout and native telemetry intent while retaining current namespace, lifetime, per-write journal and historical custody guards. Canonical promotion exact-wheel controls pass at 2ec59a540; later phase-polling changes have their own bounded source checks.",
     "Complete resulting composed-source qualification. Fourteen Cargo cases pass at f0a5da8eb; later retained-release/fixture changes have their own bounded controls. Diagnose canonical source metadata publication role-input refusal before the recovered forest capacity assertions; do not weaken its guards or expand declared budgets.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."

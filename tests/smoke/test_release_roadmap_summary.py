@@ -11,6 +11,198 @@ from scripts.summarize_release_roadmap import summarize
 
 
 class ReleaseRoadmapSummaryTests(unittest.TestCase):
+    def execution_fixture(self, *, contained=False):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        project = Path(temporary.name)
+        repository = Path(__file__).resolve().parents[2]
+        if contained:
+            from literate_ai.projects import ProjectConfigurationStore
+            from tests.support.fixtures_refined_conversion_custody import (
+                RefinedConversionCustodyFixture,
+            )
+
+            fixture = RefinedConversionCustodyFixture()
+            self.addCleanup(fixture.doCleanups)
+            fixture.setUp()
+            fixture.initialize()
+            project = fixture.target
+            framework = ProjectConfigurationStore.context(project).framework_root
+        else:
+            framework = project
+            (framework / "literate.project.json").write_bytes(
+                (repository / "literate.project.json").read_bytes()
+            )
+        (framework / "literate.release.json").write_bytes(
+            (repository / "literate.release.json").read_bytes()
+        )
+        policy_path = framework / "literate.release.json"
+        policy = json.loads(policy_path.read_bytes())
+        policy["contributions"]["roadmap_goal_manifest"] = (
+            (framework / "docs/roadmap/release-goals.json")
+            .relative_to(project)
+            .as_posix()
+        )
+        policy_path.write_text(json.dumps(policy))
+        queue = framework / "docs/roadmap/active-work.md"
+        queue.parent.mkdir(parents=True, exist_ok=True)
+        queue.write_text(
+            "### [ ] TASK-123 — Await the integrated check\n"
+            "- **Release target:** 1.4.0\n"
+            "- **Owner:** Release verification\n"
+            "- **Next action:** Run the installed wheel check\n"
+            "  and reopen its receipt.\n"
+            "- **Completion prerequisites:** BLOCK-001, DONE-002, "
+            "release:1.3.0:verified\n"
+            "- **Depends on:** External reviewer assignment still pending\n"
+            "  - [ ] Preserve all nine cases\n"
+            "### [~] BLOCK-001 — Verify the dependency\n"
+            "- **Release target:** 1.4.0\n"
+            "- **Owner:** Dependency verifier\n"
+            "\n~~~md\n- **Next action:** example only\n~~~\n\n"
+            "  - [~] Reopen the two-node archive\n"
+            "    using its declared reference.\n"
+            "### [x] DONE-002 — Historical approval\n"
+            "- **Release target:** 1.4.0\n"
+        )
+        manifest = queue.parent / "release-goals.json"
+        manifest.write_text(
+            json.dumps(
+                {
+                    "schema": "literate-ai/release-roadmap-goals@1",
+                    "roadmap": queue.relative_to(project).as_posix(),
+                    "releases": {
+                        "1.4.0": [
+                            {"id": "TASK-123"},
+                            {"id": "BLOCK-001"},
+                            {"id": "DONE-002"},
+                        ],
+                        "1.3.0": [],
+                    },
+                }
+            )
+        )
+        command = [
+            sys.executable,
+            str(repository / "scripts/summarize_release_roadmap.py"),
+            "1.4.0",
+            "--execution-view",
+            "--project",
+            str(project),
+        ]
+        return queue, manifest, command
+
+    def test_execution_view_projects_next_actions_and_unverified_prerequisites(self):
+        queue, manifest, command = self.execution_fixture()
+        contents = (queue.read_bytes(), manifest.read_bytes())
+        result = subprocess.run(command, capture_output=True, text=True, timeout=25)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(
+            "3 goals · 1 closed · 2 open · 2 unchecked criteria", result.stdout
+        )
+        self.assertIn("TASK-123\n  Owner: Release verification", result.stdout)
+        self.assertIn(
+            "Next action (declared): Run the installed wheel check "
+            "and reopen its receipt.",
+            result.stdout,
+        )
+        self.assertIn(
+            "Unresolved prerequisites: BLOCK-001, release:1.3.0:verified (unverified)",
+            result.stdout,
+        )
+        self.assertIn(
+            "Legacy dependency context (unverified): External reviewer assignment",
+            result.stdout,
+        )
+        self.assertIn("BLOCK-001\n  Owner: Dependency verifier", result.stdout)
+        self.assertIn(
+            "First unchecked criterion: Reopen the two-node archive "
+            "using its declared reference.",
+            result.stdout,
+        )
+        self.assertNotIn("DONE-002", result.stdout)
+        self.assertNotIn("example only", result.stdout)
+        self.assertEqual((queue.read_bytes(), manifest.read_bytes()), contents)
+
+    def test_execution_view_refuses_stale_and_duplicate_authority(self):
+        queue, manifest, command = self.execution_fixture()
+        content, ledger = queue.read_text(), manifest.read_text()
+        for source, authority, expected in (
+            (
+                content,
+                ledger.replace('{"id": "DONE-002"}', '{"id": "TASK-123"}'),
+                "invalid-or-duplicate-goal-id",
+            ),
+            (
+                content + "\n### [ ] TASK-123 — second owner\n",
+                ledger,
+                "duplicate visible work ID",
+            ),
+            (
+                content.replace("1.4.0", "1.5.0", 1),
+                ledger,
+                "roadmap-release-target-mismatch",
+            ),
+            (
+                content,
+                ledger.replace('"1.3.0": []', '"1.4.0": []'),
+                "cannot read roadmap goal manifest",
+            ),
+            (
+                content.replace(
+                    "- **Owner:** Release verification",
+                    "- **Owner:** Release verification\n- **Owner:** Other",
+                ),
+                ledger,
+                "duplicate Owner declaration",
+            ),
+        ):
+            with self.subTest(expected=expected):
+                queue.write_text(source)
+                manifest.write_text(authority)
+                result = subprocess.run(
+                    command, capture_output=True, text=True, timeout=25
+                )
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertIn(expected, result.stderr)
+                self.assertEqual(result.stdout, "")
+
+    def test_contained_execution_view_uses_declared_queue_and_refuses_policy_shadow(
+        self,
+    ):
+        queue, _manifest, command = self.execution_fixture(contained=True)
+        project = queue.parents[3]
+        shadow = project / "docs/roadmap/active-work.md"
+        shadow.parent.mkdir(parents=True, exist_ok=True)
+        shadow.write_text("### [ ] BAD-001 — application-owned queue\n" * 2)
+
+        def snapshot():
+            return {
+                path.relative_to(project).as_posix(): (
+                    path.read_bytes(),
+                    path.stat().st_ino,
+                    path.stat().st_mtime_ns,
+                )
+                for path in project.rglob("*")
+                if path.is_file()
+            }
+
+        before = snapshot()
+        result = subprocess.run(command, capture_output=True, text=True, timeout=25)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("TASK-123\n  Owner: Release verification", result.stdout)
+        self.assertNotIn("BAD-001", result.stdout)
+        self.assertEqual(snapshot(), before)
+        (project / "literate.release.json").write_bytes(
+            (project / "litai/literate.release.json").read_bytes()
+        )
+        before = snapshot()
+        result = subprocess.run(command, capture_output=True, text=True, timeout=25)
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertIn("shadows the declared contained policy", result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(snapshot(), before)
+
     def test_duplicate_owner_cannot_hide_in_another_release_or_untargeted_section(self):
         current = "### [ ] AUD-ONE — current\n- **Release target:** 1.4.0\n"
         for target in ("", "- **Release target:** 1.1.0\n"):

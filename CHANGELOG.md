@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Restore the optional release execution view with declared owners, next actions
+  and unresolved prerequisites from the configured ledger and queue; reject stale,
+  duplicate or cyclic authority and keep external inputs explicitly unverified.
+
 - Keep retained promotion's per-record deadline polling while checking complete
   project and SDK authority at phase boundaries and closing, avoiding repeated
   whole-project replanning for every historical graph record.
