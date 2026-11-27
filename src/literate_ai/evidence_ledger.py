@@ -27,7 +27,7 @@ import sys
 import threading
 import time
 from collections.abc import Callable, Iterator, Mapping, Sequence
-from contextlib import AbstractContextManager, contextmanager
+from contextlib import AbstractContextManager, ExitStack, contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -969,6 +969,7 @@ def _run_streaming(
         return None if deadline is None else max(0.0, deadline - time.monotonic())
 
     process = None
+    operation_failed = False
     streams: dict[str, list[str]] = {"stdout": [], "stderr": []}
     files: dict[str, Any] = {}
     threads: list[threading.Thread] = []
@@ -1000,7 +1001,8 @@ def _run_streaming(
             try:
                 decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
                 while True:
-                    chunk = pipe.read(4096)
+                    # Buffered read() can wait for 4 KiB despite child flush.
+                    chunk = getattr(pipe, "read1", pipe.read)(4096)
                     text = decoder.decode(chunk, final=not chunk)
                     streams[label].append(text)
                     encoded = text.encode("utf-8")
@@ -1011,16 +1013,6 @@ def _run_streaming(
                     elif tee:
                         parent.write(text)
                         parent.flush()
-                    if tee and target is not None:
-                        persisted = redact_secrets(text, environment).encode("utf-8")
-                        target.write(persisted)
-                        target.flush()
-                        if pointer_stats is not None:
-                            hasher, total = pointer_stats.setdefault(
-                                label, (hashlib.sha256(), 0)
-                            )
-                            hasher.update(persisted)
-                            pointer_stats[label] = (hasher, total + len(persisted))
                     if not chunk:
                         break
             except BaseException:
@@ -1056,6 +1048,7 @@ def _run_streaming(
             if thread.is_alive():
                 raise subprocess.TimeoutExpired(list(argv), timeout)
     except BaseException:
+        operation_failed = True
         if process is not None:
             try:
                 terminate_process_tree(process, ownership=ownership)
@@ -1067,39 +1060,54 @@ def _run_streaming(
                     thread.join()
         raise
     finally:
-        if not tee:
-            for label, target in files.items():
-                try:
-                    text = (
-                        "".join(streams[label])
-                        .replace("\r\n", "\n")
-                        .replace("\r", "\n")
-                    )
-                    persisted = redact_secrets(text, environment).encode("utf-8")
-                    target.write(persisted)
-                    if pointer_stats is not None:
-                        pointer_stats[label] = (
-                            hashlib.sha256(persisted),
-                            len(persisted),
-                        )
-                except Exception:
-                    pass
-        for target in files.values():
+        # Tee stays live; persisted transcripts remain empty until complete-stream
+        # redaction. Preserve only this invocation's incoming process failure.
+        unwinding = operation_failed
+        secondary = None
+
+        def finalize(work):
+            nonlocal secondary
             try:
-                target.close()
-            except Exception:
-                pass
-        if process is not None:
-            for pipe in (process.stdout, process.stderr):
-                if pipe is not None:
-                    try:
-                        pipe.close()
-                    except Exception:
-                        pass
+                work()
+            except BaseException as error:
+                if (
+                    not unwinding
+                    and not isinstance(error, Exception)
+                    and secondary is None
+                ):
+                    secondary = error
+
         try:
-            ownership.release()
-        except Exception:
-            pass
+            with ExitStack() as cleanup:
+                cleanup.callback(finalize, ownership.release)
+                if process is not None:
+                    for pipe in (process.stdout, process.stderr):
+                        if pipe is not None:
+                            cleanup.callback(finalize, pipe.close)
+                for target in files.values():
+                    cleanup.callback(finalize, target.close)
+                for label, target in files.items():
+
+                    def persist(label=label, target=target):
+                        text = "".join(streams[label])
+                        if not tee:
+                            text = text.replace("\r\n", "\n").replace("\r", "\n")
+                        persisted = redact_secrets(text, environment).encode("utf-8")
+                        target.write(persisted)
+                        if pointer_stats is not None:
+                            pointer_stats[label] = (
+                                hashlib.sha256(persisted),
+                                len(persisted),
+                            )
+
+                    finalize(persist)
+            if secondary is not None:
+                raise secondary
+        except BaseException:
+            if not unwinding:
+                raise
+        finally:
+            secondary = None
     captured = {label: "".join(chunks) for label, chunks in streams.items()}
     if not tee:
         # Match subprocess.run(text=True)'s universal-newline return values.
@@ -1149,7 +1157,11 @@ def record_subprocess(
     tee: bool = True,
     node: EvidenceNode | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    """Run one child, teeing live output and retaining redacted transcripts."""
+    """Tee live output and retain complete-stream-redacted transcripts.
+
+    Persisted stream files remain empty until finalization, so a secret split
+    across child writes cannot escape redaction. Console output stays live.
+    """
 
     base_environment = dict(os.environ if environment is None else environment)
     try:

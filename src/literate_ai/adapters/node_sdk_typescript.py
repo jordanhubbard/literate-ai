@@ -74,58 +74,133 @@ def _inventory(
 
 
 def _rows(files: tuple[DirectoryExportFile, ...]) -> list[dict[str, str]]:
-    return [
-        {"path": item.path, "content": base64.b64encode(item.content).decode("ascii")}
-        for item in files
-    ]
+    rows = []
+    item = None
+    try:
+        for item in files:
+            rows.append((item.path, item.content, item.mode))
+        return _typescript_sdk_packet_rows(tuple(rows))
+    finally:
+        files = item = None
+        rows.clear()
+
+
+def _typescript_sdk_packet_rows(rows):
+    """Original packet encoding over detached immutable file DATA."""
+    result = []
+    row = path = content = _mode = encoded = None
+    try:
+        for row in rows:
+            path, content, _mode = row
+            encoded = base64.b64encode(content).decode("ascii")
+            result.append({"path": path, "content": encoded})
+        return result
+    except BaseException:
+        result.clear()
+        raise
+    finally:
+        rows = row = path = content = _mode = encoded = result = None
 
 
 def _typescript_sdk_identity(files):
     """Pure original snapshot identity, shared with capture revalidation."""
-    return canonical_identity(
-        {
-            "schema": "literate-ai/typescript-sdk-snapshot@1",
-            "files": [
-                {
-                    "path": item.path,
-                    "size": len(item.content),
-                    "sha256": hashlib.sha256(item.content).hexdigest(),
-                }
-                for item in files
-            ],
-        }
-    )
+    rows = []
+    item = None
+    try:
+        for item in files:
+            rows.append((item.path, item.content, item.mode))
+        return _typescript_sdk_identity_rows(tuple(rows))
+    finally:
+        files = item = None
+        rows.clear()
+
+
+def _typescript_sdk_identity_rows(rows):
+    """Original SDK identity preimage over detached immutable file DATA."""
+    result = []
+    row = path = content = _mode = digest = None
+    try:
+        for row in rows:
+            path, content, _mode = row
+            digest = hashlib.sha256(content).hexdigest()
+            result.append({"path": path, "size": len(content), "sha256": digest})
+        return canonical_identity(
+            {"schema": "literate-ai/typescript-sdk-snapshot@1", "files": result}
+        )
+    finally:
+        rows = row = path = content = _mode = digest = None
+        result.clear()
+        result = None
 
 
 def _typescript_compiler_identity(compiler):
     """Pure original compiler preimage; never reload framework resources."""
-    return canonical_identity(
-        {
-            "schema": "literate-ai/node-sdk-typescript-compiler@1",
-            "sdk": compiler.sdk.identity.uri,
-            "node": compiler.node.identity,
-            "helper_sha256": hashlib.sha256(
-                compiler._helper.encode("utf-8")
-            ).hexdigest(),
-            "bootstrap_sha256": hashlib.sha256(
-                compiler._bootstrap.encode("utf-8")
-            ).hexdigest(),
-            "sdk_packet_sha256": hashlib.sha256(
-                compiler._sdk_packet.encode("utf-8")
-            ).hexdigest(),
-            "timeout_seconds": _TIMEOUT,
-            "heap_mib": _HEAP_MIB,
-            "input_bytes": _MAX_INPUT,
-            "output_bytes": _MAX_OUTPUT,
-            "environment_policy": SDK_TOOL_ENVIRONMENT_POLICY,
-            "command": list(compiler.command),
-            **(
-                {"selection": compiler.selection_identity.to_dict()}
+    try:
+        return _typescript_compiler_identity_values(
+            sdk_identity=compiler.sdk.identity.uri,
+            node_identity=compiler.node.identity,
+            helper=compiler._helper,
+            bootstrap=compiler._bootstrap,
+            sdk_packet=compiler._sdk_packet,
+            command=compiler.command,
+            selection=(
+                compiler.selection_identity.to_dict()
                 if compiler.selection_identity is not None
-                else {}
+                else None
             ),
-        }
-    )
+        )
+    finally:
+        compiler = None
+
+
+def _typescript_compiler_identity_values(
+    *, sdk_identity, node_identity, helper, bootstrap, sdk_packet, command, selection
+):
+    """Same canonical preimage for the compiler and detached private DATA."""
+    try:
+        return canonical_identity(
+            {
+                "schema": "literate-ai/node-sdk-typescript-compiler@1",
+                "sdk": sdk_identity,
+                "node": node_identity,
+                "helper_sha256": hashlib.sha256(helper.encode("utf-8")).hexdigest(),
+                "bootstrap_sha256": hashlib.sha256(
+                    bootstrap.encode("utf-8")
+                ).hexdigest(),
+                "sdk_packet_sha256": hashlib.sha256(
+                    sdk_packet.encode("utf-8")
+                ).hexdigest(),
+                "timeout_seconds": _TIMEOUT,
+                "heap_mib": _HEAP_MIB,
+                "input_bytes": _MAX_INPUT,
+                "output_bytes": _MAX_OUTPUT,
+                "environment_policy": SDK_TOOL_ENVIRONMENT_POLICY,
+                "command": list(command),
+                **({"selection": selection} if selection is not None else {}),
+            }
+        )
+    finally:
+        sdk_identity = node_identity = helper = bootstrap = sdk_packet = None
+        command = selection = None
+
+
+def _typescript_compiler_command_values(
+    node_command, bootstrap, helper_hash, packet_hash
+):
+    """One original command layout for live compiler and detached DATA."""
+    try:
+        return (
+            *node_command,
+            f"--max-old-space-size={_HEAP_MIB}",
+            "--input-type=commonjs",
+            "--eval",
+            bootstrap,
+            "--",
+            helper_hash,
+            packet_hash,
+        )
+    finally:
+        node_command = bootstrap = helper_hash = packet_hash = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -244,13 +319,9 @@ class NodeSDKTypeScriptCompiler:
     @property
     def command(self) -> tuple[str, ...]:
         """Actual worker command binding captured helper and SDK hashes."""
-        return (
-            *self.node.command,
-            f"--max-old-space-size={_HEAP_MIB}",
-            "--input-type=commonjs",
-            "--eval",
+        return _typescript_compiler_command_values(
+            self.node.command,
             self._bootstrap,
-            "--",
             self._helper_sha256,
             self._sdk_packet_sha256,
         )

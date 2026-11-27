@@ -17,6 +17,7 @@ from literate_ai.adapters import node_sdk_verifier_runtime as runtime_owner
 from literate_ai.adapters.node_sdk_project_acceptance import (
     LocalNodeSDKProjectAcceptance,
 )
+from literate_ai.adapters.process_liveness import _close_preserving_primary_failure
 from tests.smoke import test_canonical_sdk_runtime as runtime_fixture
 
 
@@ -28,6 +29,14 @@ from tests.smoke import test_canonical_sdk_runtime as runtime_fixture
 )
 class NativeRuntimeInspectionEnrollmentTests(unittest.TestCase):
     def test_original_two_provider_root_subpath_enrollment_and_publication(self):
+        self._exercise_enrolled_runtime()
+
+    def _exercise_enrolled_runtime(self, *, scan_capture=None, diagnostic=None):
+        if diagnostic is not None:
+            from tests.support.sdk_runtime_diagnostic import SDKRuntimeDiagnostic
+
+            if type(diagnostic) is not SDKRuntimeDiagnostic:
+                raise TypeError("native controller requires the fixed test diagnostic")
         original_provider = admission.register_node_verifier_provider
         original_accept = LocalNodeSDKProjectAcceptance.accept
         operations, tickets, provider_slots, roots = [], [], [], []
@@ -62,6 +71,8 @@ class NativeRuntimeInspectionEnrollmentTests(unittest.TestCase):
                         copy.copy(ticket).require_current()
                     with self.assertRaises(AttributeError):
                         object.__setattr__(operation, "_state", "forged")
+                    if scan_capture is not None:
+                        self.assertIsNone(scan_capture(operation, handle, ticket))
                 gc.collect()
                 self.assertIsNone(tools())
                 ticket.require_current()
@@ -93,6 +104,8 @@ class NativeRuntimeInspectionEnrollmentTests(unittest.TestCase):
                     )
                     self.assertIn("root_test", handle.description.inputs)
                     ticket.require_current()
+                    if scan_capture is not None:
+                        self.assertIsNone(scan_capture(operation, handle, ticket))
                 ticket.require_current()
             roots.append(operation)
             tickets.append(ticket)
@@ -133,25 +146,52 @@ class NativeRuntimeInspectionEnrollmentTests(unittest.TestCase):
                 raise
 
         case = runtime_fixture.CanonicalSDKRuntimeTests()
-        with (
-            mock.patch.object(runtime_owner, "_finite_metadata", observed_metadata),
-            mock.patch.object(
-                admission,
-                "register_node_verifier_provider",
-                side_effect=observe_provider,
-            ),
-            mock.patch.object(
-                LocalNodeSDKProjectAcceptance,
-                "accept",
-                autospec=True,
-                side_effect=observe_root,
-            ),
-        ):
-            case._exercise_authored_runtime(
-                second_provider=True,
-                public_subpath=True,
-                provider_runtime="source/counter/runtime/add.cjs",
-            )
+        original_outcome = case._outcome
+        case._outcome = self._outcome
+        primary = None
+
+        def cleanup_case():
+            successful = False
+            try:
+                successful = case.doCleanups()
+                self.assertIs(
+                    successful, True, "original authored fixture cleanup failed"
+                )
+            finally:
+                if diagnostic is not None:
+                    diagnostic._capture(
+                        lambda: diagnostic.record_lifecycle_cleanup(successful is True)
+                    )
+
+        try:
+            with (
+                mock.patch.object(runtime_owner, "_finite_metadata", observed_metadata),
+                mock.patch.object(
+                    admission,
+                    "register_node_verifier_provider",
+                    side_effect=observe_provider,
+                ),
+                mock.patch.object(
+                    LocalNodeSDKProjectAcceptance,
+                    "accept",
+                    autospec=True,
+                    side_effect=observe_root,
+                ),
+            ):
+                case._exercise_authored_runtime(
+                    second_provider=True,
+                    public_subpath=True,
+                    provider_runtime="source/counter/runtime/add.cjs",
+                )
+        except BaseException as error:
+            primary = error
+            raise
+        finally:
+            try:
+                _close_preserving_primary_failure(cleanup_case, primary)
+            finally:
+                case._outcome = original_outcome
+                primary = None
         self.assertEqual(len(roots), 1)
         self.assertGreaterEqual(len(operations), 3)
         self.assertEqual(len(provider_slots), 2 * len(operations))

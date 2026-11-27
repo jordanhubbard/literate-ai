@@ -59,42 +59,86 @@ def path_is_link_or_reparse(path: Path) -> bool:
     return stat_is_link_or_reparse(metadata)
 
 
-def capture_directory_ancestries(paths: tuple[Path, ...]):
+def capture_directory_ancestries(paths: tuple[Path, ...], *, _with_release=False):
     """Close original directory identities without pinning sibling activity.
 
     Callers bound their input inventory. This finite observation grants no path
     or execution authority and invokes no caller callbacks. Filesystems lacking
     usable inode identity require their platform's handle-based owner instead.
+    Exact-bool opt-in returns (guard, release), with sticky failure and explicit
+    retirement. The caller settles readers before releasing outside owner locks.
     """
-    if type(paths) is not tuple:
-        raise TypeError("directory ancestry capture requires finite path DATA")
-    directories = {}
-    for raw in paths:
-        directory = Path(str(raw))
-        if not directory.is_absolute() or ".." in directory.parts:
-            raise UnsafeFilesystemPathError("directory ancestry must be absolute")
-        for ancestor in (*reversed(directory.parents), directory):
-            directories.setdefault(ancestor, None)
 
     def identity(path):
-        value = path.lstat()
-        if (
-            stat_is_link_or_reparse(value)
-            or not stat.S_ISDIR(value.st_mode)
-            or value.st_ino == 0
-        ):
-            raise UnsafeFilesystemPathError("directory ancestry identity unavailable")
-        return value.st_dev, value.st_ino, value.st_mode
+        try:
+            value = path.lstat()
+            if (
+                stat_is_link_or_reparse(value)
+                or not stat.S_ISDIR(value.st_mode)
+                or value.st_ino == 0
+            ):
+                raise UnsafeFilesystemPathError(
+                    "directory ancestry identity unavailable"
+                )
+            return value.st_dev, value.st_ino, value.st_mode
+        finally:
+            path = value = None
 
-    original = tuple((path, identity(path)) for path in directories)
+    original = None
+    retired = failed = False
+
+    def release():
+        nonlocal original, retired
+        retired = True
+        original = None
 
     def close():
-        for path, expected in original:
-            if identity(path) != expected:
-                raise UnsafeFilesystemPathError("original directory ancestry changed")
+        nonlocal failed
+        try:
+            if retired or failed:
+                raise UnsafeFilesystemPathError(
+                    "directory ancestry observation retired"
+                )
+            for path, expected in original:
+                if identity(path) != expected:
+                    raise UnsafeFilesystemPathError(
+                        "original directory ancestry changed"
+                    )
+            if retired:
+                raise UnsafeFilesystemPathError(
+                    "directory ancestry observation retired"
+                )
+        except BaseException:
+            if _with_release:
+                failed = True
+            raise
+        finally:
+            path = expected = None
 
-    close()
-    return close
+    try:
+        if type(_with_release) is not bool:
+            raise TypeError("directory ancestry release selection requires exact bool")
+        if type(paths) is not tuple:
+            raise TypeError("directory ancestry capture requires finite path DATA")
+        directories = {}
+        for raw in paths:
+            directory = Path(str(raw))
+            if not directory.is_absolute() or ".." in directory.parts:
+                raise UnsafeFilesystemPathError("directory ancestry must be absolute")
+            for ancestor in (*reversed(directory.parents), directory):
+                directories.setdefault(ancestor, None)
+        rows = []
+        for path in directories:
+            rows.append((path, identity(path)))
+        original = tuple(rows)
+        close()
+        return (close, release) if _with_release else close
+    except BaseException:
+        retired = True
+        original = None
+        raise
+    finally:
+        paths = directories = raw = directory = ancestor = path = rows = None
 
 
 def name_or_magic_is_native_or_wasm(name: str, magic: bytes) -> bool:

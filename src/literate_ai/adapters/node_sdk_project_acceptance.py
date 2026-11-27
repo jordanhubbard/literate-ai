@@ -185,23 +185,33 @@ class LocalNodeSDKProjectAcceptance:
         execution_plan,
         invocation,
         oracle,
-        authorize_verifier,
+        authorize_verifier=None,
+        verifier_acknowledgement=None,
         require_current,
         environment,
         inspection_operation=None,
     ):
+        if (authorize_verifier is None) == (verifier_acknowledgement is None):
+            raise TypeError(
+                "SDK policy requires exactly one verifier authorization mode"
+            )
+        self.verifier_acknowledgement = self._original_verifier_acknowledgement = (
+            verifier_acknowledgement
+        )
+        self._verifier_intent = self._require_verifier_intent()
         if (
             type(ports) is not LocalStandardLifecyclePorts
             or type(snapshot) is not LockedGenerationAuthoritySnapshot
             or type(execution_plan) is not ComponentExecutionPlan
             or type(invocation) is not BoundNodeSDKGenerationInvocation
             or type(oracle) is not NodeLibraryAcceptance
-            or not callable(authorize_verifier)
+            or (authorize_verifier is not None and not callable(authorize_verifier))
             or not callable(require_current)
         ):
             raise TypeError("SDK acceptance requires original typed host authority")
         for callback in (authorize_verifier, require_current):
-            require_node_sdk_process_observer(callback)
+            if callback is not None:
+                require_node_sdk_process_observer(callback)
         self.ports, self.snapshot, self.execution, self.invocation, self.oracle = (
             ports,
             snapshot,
@@ -242,21 +252,40 @@ class LocalNodeSDKProjectAcceptance:
         self._identity = self._config_identity()
         self._require_config_bytes(installed=False)
 
-    def _config_identity(self):
-        return canonical_identity(
-            {
-                "schema": "literate-ai/local-node-sdk-project-policy@1",
-                "authority": self.snapshot.authority.identity.uri,
-                "execution": self.execution.identity.uri,
-                "invocation": self.invocation.identity.uri,
-                "oracle": self.oracle.identity.uri,
-                "target": self.target.identity.uri,
-                "contract": self.contract.identity.uri,
-                "revision": self.revision.identity.uri,
-            }
+    def _require_verifier_intent(self):
+        if self.verifier_acknowledgement is not self._original_verifier_acknowledgement:
+            raise ValueError("SDK policy verifier intent changed")
+        if self.verifier_acknowledgement is None:
+            return None
+        from literate_ai.adapters.node_sdk_verifier_authorization import (
+            _ORIGINAL_VERIFIER_INTENT_IDENTITY,
+            _verifier_intent_identity,
         )
 
+        if _ORIGINAL_VERIFIER_INTENT_IDENTITY is not _verifier_intent_identity:
+            raise ValueError("fixed SDK verifier host seam changed")
+
+        return _verifier_intent_identity(self.verifier_acknowledgement)
+
+    def _config_identity(self):
+        document = {
+            "schema": "literate-ai/local-node-sdk-project-policy@1",
+            "authority": self.snapshot.authority.identity.uri,
+            "execution": self.execution.identity.uri,
+            "invocation": self.invocation.identity.uri,
+            "oracle": self.oracle.identity.uri,
+            "target": self.target.identity.uri,
+            "contract": self.contract.identity.uri,
+            "revision": self.revision.identity.uri,
+        }
+        if self.verifier_acknowledgement is not None:
+            document["schema"] = "literate-ai/local-node-sdk-project-policy@2"
+            document["verifier_acknowledgement"] = self._verifier_intent
+        return canonical_identity(document)
+
     def _require_config_bytes(self, *, installed=True):
+        if self._require_verifier_intent() != self._verifier_intent:
+            raise ValueError("SDK policy verifier identity changed")
         from literate_ai.adapters.node_sdk_host import (
             current_node_sdk_project_acceptance,
         )
@@ -276,6 +305,23 @@ class LocalNodeSDKProjectAcceptance:
         root = self.snapshot.authority.lock.root_revision
         if self.inspection_operation is not self._original_inspection_operation:
             raise ValueError("SDK project inspection operation changed")
+        if self._original_verifier_acknowledgement is not None:
+            from literate_ai.adapters.node_sdk_verifier_authorization import (
+                _ORIGINAL_REQUIRE_HOST_VERIFIER_OPERATION,
+                _require_host_verifier_operation,
+            )
+
+            if (
+                _ORIGINAL_REQUIRE_HOST_VERIFIER_OPERATION
+                is not _require_host_verifier_operation
+            ):
+                raise ValueError("fixed SDK verifier host seam changed")
+
+            _require_host_verifier_operation(
+                self._original_verifier_acknowledgement,
+                self.inspection_operation,
+                self.ports,
+            )
         if self.inspection_operation is not None:
             from literate_ai.adapters.node_sdk_verifier_runtime import (
                 require_node_verifier_invocation,
@@ -463,7 +509,57 @@ class LocalNodeSDKProjectAcceptance:
         require_package_current()
         authority_stamps = self._authority_inputs.capture_current_stamps()
         describe_request()
-        authorization = self.authorize_verifier(request)
+        if self._original_verifier_acknowledgement is None:
+            authorization = self.authorize_verifier(request)
+        else:
+            from literate_ai.adapters.node_library_verifier_inspection import (
+                capture_node_sdk_project_verifier_inspection,
+            )
+            from literate_ai.adapters.node_sdk_verifier_authorization import (
+                _ORIGINAL_ISSUE_HOST_VERIFIER_CAPTURE,
+                _ORIGINAL_REQUIRE_HOST_VERIFIER_OPERATION,
+                _issue_host_verifier_capture,
+                _require_host_verifier_operation,
+                require_node_verifier_authorization,
+            )
+
+            if (
+                _ORIGINAL_ISSUE_HOST_VERIFIER_CAPTURE
+                is not _issue_host_verifier_capture
+            ):
+                raise ValueError("fixed SDK verifier host seam changed")
+
+            if (
+                _ORIGINAL_REQUIRE_HOST_VERIFIER_OPERATION
+                is not _require_host_verifier_operation
+            ):
+                raise ValueError("fixed SDK verifier host seam changed")
+
+            _require_host_verifier_operation(
+                self._original_verifier_acknowledgement,
+                self.inspection_operation,
+                ports,
+            )
+            with capture_node_sdk_project_verifier_inspection(
+                self,
+                ports,
+                component_lock,
+                execution_plan,
+                project_build_plan,
+                package_plan,
+                package_result,
+                root_test,
+                packaged_execution,
+            ) as capture:
+                authorization = _issue_host_verifier_capture(
+                    self._original_verifier_acknowledgement,
+                    self.inspection_operation,
+                    ports,
+                    capture,
+                )
+            require_node_verifier_authorization(
+                ports, self.inspection_operation, authorization, request
+            )
         if type(authorization) is not BuildAuthorization:
             if inspect.iscoroutine(authorization) or inspect.isgenerator(authorization):
                 authorization.close()
@@ -490,6 +586,11 @@ class LocalNodeSDKProjectAcceptance:
             oracle=self.oracle,
             compiler=self.target.typescript.compiler,
             authorization=authorization,
+            **(
+                {"verifier_operation": self.inspection_operation}
+                if self._original_verifier_acknowledgement is not None
+                else {}
+            ),
             workspace=workspace_parent / uuid4().hex,
             require_current=require_host_current,
             consume=consume,

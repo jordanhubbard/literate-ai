@@ -23,6 +23,25 @@ METHODS = (
     "test_two_provider_root_subpath_runtime_execution",
 )
 REBUILD_METHODS = ("test_original_installed_adapter_rebuild_returns_bound_receipts",)
+TYPED_HOST_METHODS = (
+    "test_original_binding_dependency_guard_observes_consumed_acknowledgement",
+    "test_original_two_provider_root_subpath_typed_runtime",
+)
+TYPED_HOST_CASES = tuple(
+    "tests.smoke.test_node_sdk_typed_host_native.TypedVerifierHostNativeTests." + name
+    for name in TYPED_HOST_METHODS
+)
+TYPED_HOST_SCHEMA = "literate-ai/installed-node-sdk-typed-host-preflight@1"
+TYPED_HOST_SCOPE = "authored-macos-installed-typed-host-python-api"
+# Declared inputs of the reviewed, hash-bound native helpers, not measured grant
+# timestamps or a claim that an external revocation feed is supported.
+TYPED_HOST_ACKNOWLEDGEMENT_PROFILE = {
+    "binding": {"lifetime_seconds": 600, "deadline_offset_seconds": 1200},
+    "runtime": {"lifetime_seconds": 3600, "deadline_offset_seconds": 3600},
+    "identity_only_node_and_non_source_data": True,
+    "renewal": False,
+    "revocations": "constructor-owned-immutable-empty@1",
+}
 MAX_FILES = 100_000
 MAX_BYTES = 256 * 1024 * 1024
 
@@ -167,14 +186,27 @@ def namespace_guard(root, table, *, complete=True):
 
 
 def run_runtime_cases(case_type):
+    return _run_runtime_methods(case_type, METHODS)
+
+
+def run_typed_host_cases(case_type):
+    require(
+        tuple(case_type(method).id() for method in TYPED_HOST_METHODS)
+        == TYPED_HOST_CASES,
+        "original typed host case identities changed",
+    )
+    return _run_runtime_methods(case_type, TYPED_HOST_METHODS)
+
+
+def _run_runtime_methods(case_type, methods):
     """Preserve original fixture prints on stderr; stdout is result protocol."""
     require(
-        set(unittest.defaultTestLoader.getTestCaseNames(case_type)) == set(METHODS),
+        set(unittest.defaultTestLoader.getTestCaseNames(case_type)) == set(methods),
         "original SDK runtime case inventory changed",
     )
     with redirect_stdout(sys.stderr):
         result = unittest.TextTestRunner(verbosity=2).run(
-            unittest.TestSuite(case_type(method) for method in METHODS)
+            unittest.TestSuite(case_type(method) for method in methods)
         )
         # unittest already measured these through case cleanup. Reporting them
         # here adds no clocks or callbacks inside an active native lifetime.
@@ -182,10 +214,54 @@ def run_runtime_cases(case_type):
         if durations:
             rows = [
                 (str(case)[:512], seconds)
-                for case, seconds in durations[: len(METHODS)]
+                for case, seconds in durations[: len(methods)]
             ]
             print("Installed SDK case elapsed: " + json.dumps(rows), file=sys.stderr)
         return result
+
+
+def require_typed_host_report(report):
+    """Closed typed cell identity; never accept a manual or whole-wheel claim."""
+    from literate_ai.contracts import canonical_identity
+
+    expected = {
+        "schema": TYPED_HOST_SCHEMA,
+        "scope": TYPED_HOST_SCOPE,
+        "qualified": False,
+        "preflight_passed": True,
+        "authorization_mode": "inspected-verifier@1",
+        "selected": 2,
+        "passed": 2,
+        "skipped": 0,
+        "cases": list(TYPED_HOST_CASES),
+        "declared_acknowledgement_profile": TYPED_HOST_ACKNOWLEDGEMENT_PROFILE,
+        "installed_module_origins_verified": True,
+        "source_execution_policy": "isolated-no-write-empty-private-pycache@1",
+        "original_namespace_custody_verified": True,
+    }
+    require(type(report) is dict, "typed host result must be an object")
+    for key, value in expected.items():
+        require(
+            type(report.get(key)) is type(value)
+            and canonical_identity(report.get(key)) == canonical_identity(value),
+            "original installed typed host preflight evidence required",
+        )
+    for key in ("wheel_sha256", "helper_manifest_sha256", "driver_sha256"):
+        value = report.get(key)
+        require(
+            type(value) is str
+            and len(value) == 64
+            and all(character in "0123456789abcdef" for character in value),
+            "typed host evidence requires exact input digests",
+        )
+    distribution = report.get("framework_distribution")
+    require(
+        type(distribution) is str
+        and distribution.startswith("sha256:")
+        and len(distribution) == 71
+        and all(character in "0123456789abcdef" for character in distribution[7:]),
+        "typed host evidence requires its installed distribution identity",
+    )
 
 
 def run_rebuild_case(case_type, *, observer=None):
@@ -290,11 +366,12 @@ def stage_resources(bundle, package, prefix, payload):
 def main():
     profile_probes = sys.argv[7:] == ["--authored-rebuild", "--profile-node-probes"]
     rebuild_preflight = sys.argv[7:] == ["--authored-rebuild"] or profile_probes
+    typed_host = sys.argv[7:] == ["--typed-host"]
     require(
         __debug__
         and sys.flags.isolated
         and sys.dont_write_bytecode
-        and (len(sys.argv) == 7 or rebuild_preflight),
+        and (len(sys.argv) == 7 or rebuild_preflight or typed_host),
         "isolated installed Python and exact SDK inputs required",
     )
     root, installation, wheel = (
@@ -446,7 +523,15 @@ def main():
         "foreign test package already loaded",
     )
     sys.path.insert(0, str(bundle))
-    if rebuild_preflight:
+    if typed_host:
+        require(
+            os.environ.get("LITAI_NODE_SDK_TYPED_HOST_PREFLIGHT") == "1",
+            "explicit installed typed host mode required",
+        )
+        from tests.smoke import test_node_sdk_typed_host_native as typed_fixture
+
+        case_type = typed_fixture.TypedVerifierHostNativeTests
+    elif rebuild_preflight:
         require(
             os.environ.get("LITAI_NODE_SDK_REBUILD_PREFLIGHT") == "1",
             "explicit installed rebuild mode required",
@@ -476,6 +561,8 @@ def main():
             case_type, **({"observer": observer} if profile_probes else {})
         )
         if rebuild_preflight
+        else run_typed_host_cases(case_type)
+        if typed_host
         else run_runtime_cases(case_type)
     )
     if rebuild_preflight:
@@ -537,6 +624,17 @@ def main():
             passed=1,
             rebuild=rebuild_fixture.REBUILD_EVIDENCE,
         )
+    if typed_host:
+        report.update(
+            schema=TYPED_HOST_SCHEMA,
+            scope=TYPED_HOST_SCOPE,
+            qualified=False,
+            preflight_passed=True,
+            authorization_mode="inspected-verifier@1",
+            cases=list(TYPED_HOST_CASES),
+            declared_acknowledgement_profile=TYPED_HOST_ACKNOWLEDGEMENT_PROFILE,
+        )
+        require_typed_host_report(report)
     if profile_probes:
         report.update(
             schema="literate-ai/installed-node-sdk-rebuild-diagnostic@1",

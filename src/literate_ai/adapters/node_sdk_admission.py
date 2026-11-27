@@ -65,10 +65,19 @@ class LocalNodeSDKGenerationAdmission:
         compiler,
         revisions,
         oracles,
-        authorize_verifier,
+        authorize_verifier=None,
+        verifier_acknowledgement=None,
         require_current,
         environment,
     ):
+        if (authorize_verifier is None) == (verifier_acknowledgement is None):
+            raise TypeError(
+                "SDK policy requires exactly one verifier authorization mode"
+            )
+        self.verifier_acknowledgement = self._original_verifier_acknowledgement = (
+            verifier_acknowledgement
+        )
+        self._verifier_intent = self._require_verifier_intent()
         if (
             type(ports) is not LocalStandardLifecyclePorts
             or type(consumer) is not ComponentCommandContract
@@ -81,14 +90,15 @@ class LocalNodeSDKGenerationAdmission:
             or consumer.language_compiler_identity != compiler.identity
             or consumer.language_runtime_identity
             != ContentIdentity.parse_uri(compiler.node.identity)
-            or not callable(authorize_verifier)
+            or (authorize_verifier is not None and not callable(authorize_verifier))
             or not callable(require_current)
         ):
             raise TypeError(
                 "SDK admission requires exact local consumer, policy and tools"
             )
         for callback in (authorize_verifier, require_current):
-            require_node_sdk_process_observer(callback)
+            if callback is not None:
+                require_node_sdk_process_observer(callback)
         self.ports, self.consumer, self.profile, self.compiler = (
             ports,
             consumer,
@@ -123,28 +133,51 @@ class LocalNodeSDKGenerationAdmission:
         )
         self._environment = tuple(sorted(self.environment.items()))
         self._policy = self._policy_identity()
-        self._require_config()
+        if self._original_verifier_acknowledgement is None:
+            self._require_config()
+        else:
+            # The host consumes typed intent before the first owner callback.
+            self._require_config_bytes()
 
-    def _policy_identity(self):
-        return canonical_identity(
-            {
-                "schema": "literate-ai/local-node-sdk-operation-policy@1",
-                "consumer": self.consumer.identity.uri,
-                "profile": self.profile.identity.uri,
-                "compiler": self.compiler.identity.uri,
-                "command": list(self.compiler.command),
-                "providers": [
-                    [
-                        key,
-                        self.revisions[key].identity.uri,
-                        self.oracles[key].identity.uri,
-                    ]
-                    for key in sorted(self.revisions)
-                ],
-            }
+    def _require_verifier_intent(self):
+        if self.verifier_acknowledgement is not self._original_verifier_acknowledgement:
+            raise ValueError("SDK policy verifier intent changed")
+        if self.verifier_acknowledgement is None:
+            return None
+        from literate_ai.adapters.node_sdk_verifier_authorization import (
+            _ORIGINAL_VERIFIER_INTENT_IDENTITY,
+            _verifier_intent_identity,
         )
 
+        if _ORIGINAL_VERIFIER_INTENT_IDENTITY is not _verifier_intent_identity:
+            raise ValueError("fixed SDK verifier host seam changed")
+
+        return _verifier_intent_identity(self.verifier_acknowledgement)
+
+    def _policy_identity(self):
+        document = {
+            "schema": "literate-ai/local-node-sdk-operation-policy@1",
+            "consumer": self.consumer.identity.uri,
+            "profile": self.profile.identity.uri,
+            "compiler": self.compiler.identity.uri,
+            "command": list(self.compiler.command),
+            "providers": [
+                [
+                    key,
+                    self.revisions[key].identity.uri,
+                    self.oracles[key].identity.uri,
+                ]
+                for key in sorted(self.revisions)
+            ],
+        }
+        if self.verifier_acknowledgement is not None:
+            document["schema"] = "literate-ai/local-node-sdk-operation-policy@2"
+            document["verifier_acknowledgement"] = self._verifier_intent
+        return canonical_identity(document)
+
     def _require_config_bytes(self):
+        if self._require_verifier_intent() != self._verifier_intent:
+            raise ValueError("SDK policy verifier identity changed")
         if (
             self.ports is not self._original_ports
             or self.authorize_verifier is not self._original_authorizer
@@ -231,6 +264,23 @@ class LocalNodeSDKGenerationAdmission:
             and type(expected) is not BoundNodeSDKGenerationInvocation
         ):
             raise TypeError("SDK renewal requires an exact invocation record")
+        if self._original_verifier_acknowledgement is not None:
+            from literate_ai.adapters.node_sdk_verifier_authorization import (
+                _ORIGINAL_REQUIRE_HOST_VERIFIER_OPERATION,
+                _require_host_verifier_operation,
+            )
+
+            if (
+                _ORIGINAL_REQUIRE_HOST_VERIFIER_OPERATION
+                is not _require_host_verifier_operation
+            ):
+                raise ValueError("fixed SDK verifier host seam changed")
+
+            _require_host_verifier_operation(
+                self._original_verifier_acknowledgement,
+                inspection_operation,
+                self.ports,
+            )
         self._require_config()
         if (
             prepared.plan.component_revision != self.consumer.component_revision
@@ -367,7 +417,51 @@ class LocalNodeSDKGenerationAdmission:
                         oracle=self.oracles[key],
                         compiler=self.compiler,
                     )
-                    grant = self.authorize_verifier(request)
+                    if self._original_verifier_acknowledgement is None:
+                        grant = self.authorize_verifier(request)
+                    else:
+                        from literate_ai.adapters import (
+                            node_library_verifier_inspection as verifier_captures,
+                        )
+                        from literate_ai.adapters import (
+                            node_sdk_verifier_authorization as issuer,
+                        )
+
+                        operation_owner = (
+                            issuer._ORIGINAL_REQUIRE_HOST_VERIFIER_OPERATION
+                        )
+                        issue_capture = issuer._ORIGINAL_ISSUE_HOST_VERIFIER_CAPTURE
+                        require_grant = issuer._ORIGINAL_NODE_VERIFIER_AUTHORIZATION
+                        if (
+                            operation_owner
+                            is not issuer._require_host_verifier_operation
+                            or issue_capture is not issuer._issue_host_verifier_capture
+                            or require_grant
+                            is not issuer.require_node_verifier_authorization
+                        ):
+                            raise ValueError("fixed SDK verifier host seam changed")
+                        capture_provider = (
+                            verifier_captures.capture_node_provider_verifier_inspection
+                        )
+                        operation_owner(
+                            self._original_verifier_acknowledgement,
+                            inspection_operation,
+                            self.ports,
+                        )
+                        with capture_provider(
+                            self.ports,
+                            scope,
+                            revision=self.revisions[key],
+                            oracle=self.oracles[key],
+                            compiler=self.compiler,
+                        ) as capture:
+                            grant = issue_capture(
+                                self._original_verifier_acknowledgement,
+                                inspection_operation,
+                                self.ports,
+                                capture,
+                            )
+                        require_grant(self.ports, inspection_operation, grant, request)
                     if type(grant) is not BuildAuthorization:
                         if inspect.iscoroutine(grant) or inspect.isgenerator(grant):
                             grant.close()
@@ -402,6 +496,11 @@ class LocalNodeSDKGenerationAdmission:
                         oracle=self.oracles[key],
                         compiler=self.compiler,
                         authorization=grant,
+                        **(
+                            {"verifier_operation": inspection_operation}
+                            if self._original_verifier_acknowledgement is not None
+                            else {}
+                        ),
                         workspace=workspace,
                         require_current=self._require_config,
                         consume=verified,

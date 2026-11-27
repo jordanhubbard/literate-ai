@@ -145,7 +145,14 @@ class SecurityScanReport:
 class RuleBasedSourceScanner:
     """Scan text as inert bytes; source is never imported or executed."""
 
-    def __init__(self, scanner_identity: str, rules: tuple[ScanRule, ...]) -> None:
+    def __init__(
+        self,
+        scanner_identity: str,
+        rules: tuple[ScanRule, ...],
+        *,
+        maximum_findings: int | None = None,
+    ) -> None:
+        self._require_finding_limit(maximum_findings)
         if not scanner_identity or not rules:
             raise ValueError("scanner requires identity and at least one rule")
         if len({rule.rule_id for rule in rules}) != len(rules):
@@ -153,8 +160,16 @@ class RuleBasedSourceScanner:
         self.scanner_identity = scanner_identity
         self.rules = rules
         self.rule_set_digest = _digest([asdict(rule) for rule in rules])
+        self.maximum_findings = maximum_findings
+
+    @staticmethod
+    def _require_finding_limit(limit: int | None) -> None:
+        if limit is not None and (type(limit) is not int or limit <= 0):
+            raise ValueError("source scanner finding limit must be a positive integer")
 
     def scan(self, modules: tuple[SourceModule, ...]) -> SecurityScanReport:
+        limit = self.maximum_findings
+        self._require_finding_limit(limit)
         findings: list[SecurityFinding] = []
         observed: set[tuple[str, str, int]] = set()
         for module in sorted(modules, key=lambda item: item.path):
@@ -171,6 +186,8 @@ class RuleBasedSourceScanner:
                     occurrence = (module.source_digest, rule.rule_id, match_index)
                     if occurrence in observed:
                         continue
+                    if limit is not None and len(findings) >= limit:
+                        raise ValueError("source scanner finding budget exceeded")
                     observed.add(occurrence)
                     identity = _digest(
                         {

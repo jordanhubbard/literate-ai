@@ -199,6 +199,7 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
         public_subpath=False,
         provider_runtime="source/counter/api.js",
         rebuild_setup=None,
+        typed_verifier=False,
     ):
         if rebuild_setup is not None:
             from tests.smoke.test_canonical_sdk_rebuild import AuthoredSDKRebuildSetup
@@ -277,11 +278,24 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
             publications = []
             checked = []
             checking_package = []
+            typed_grant_roles = set()
 
             def stage(message):
                 print("Authored SDK runtime: " + message, flush=True)
 
             def host_current():
+                if typed_verifier and configuration._binding is not None:
+                    state = configuration._binding._inspection_registration.active
+                    if state is not None:
+                        typed_grant_roles.add(
+                            tuple(
+                                sorted(
+                                    slot[0]
+                                    for slot, row in state._tickets.items()
+                                    if row[0] in state._grant_payloads
+                                )
+                            )
+                        )
                 if rebuild_setup is not None:
                     rebuild_setup.require_project_configuration_current()
                 return None
@@ -350,12 +364,34 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                 generated.append(prepared.plan.component_revision)
                 return output
 
+            verifier_mode = {"authorize_verifier": authorize}
+            if typed_verifier:
+                from datetime import UTC, datetime
+
+                from literate_ai.adapters import (
+                    node_sdk_verifier_authority as membership,
+                )
+                from literate_ai.adapters.node_sdk_verifier_authorization import (
+                    acknowledge_node_sdk_verifier_execution,
+                )
+
+                acknowledgement = acknowledge_node_sdk_verifier_execution(
+                    snapshot=snapshot,
+                    execution=execution,
+                    actor="isolated original authored SDK fixture",
+                    reason="typed provider and root runtime qualification",
+                    authorization_lifetime=timedelta(hours=1),
+                    authorization_deadline=datetime.now(UTC) + timedelta(hours=1),
+                    acknowledge_identity_only_inputs=True,
+                )
+                self.addCleanup(membership._retire_acknowledgement, acknowledgement)
+                verifier_mode = {"verifier_acknowledgement": acknowledgement}
             configuration = LocalNodeSDKHostConfiguration(
                 snapshot=snapshot,
                 expected_execution=execution,
                 provider_oracles=provider_oracles,
                 root_oracle=root_oracle,
-                authorize_verifier=authorize,
+                **verifier_mode,
                 require_current=host_current,
                 environment=environment,
             )
@@ -510,7 +546,14 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                     if membership is not None
                 },
             )
-            self.assertGreaterEqual(len(grants), len(providers) * 2 + 1)
-            self.assertEqual(len({g.authorization_id for g in grants}), len(grants))
+            if typed_verifier:
+                self.assertEqual(grants, [])
+                self.assertIn(
+                    tuple(sorted(["provider"] * len(providers) + ["root"])),
+                    typed_grant_roles,
+                )
+            else:
+                self.assertGreaterEqual(len(grants), len(providers) * 2 + 1)
+                self.assertEqual(len({g.authorization_id for g in grants}), len(grants))
             self.assertIsNone(current_node_sdk_project_acceptance(ports))
             runtime._require_sdk_host(snapshot)

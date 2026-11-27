@@ -128,25 +128,35 @@ class LocalNodeSDKHostConfiguration:
         expected_execution,
         provider_oracles,
         root_oracle,
-        authorize_verifier,
+        authorize_verifier=None,
+        verifier_acknowledgement=None,
         require_current,
         environment,
     ):
+        if (authorize_verifier is None) == (verifier_acknowledgement is None):
+            raise TypeError("SDK host requires exactly one verifier authorization mode")
         if (
             type(snapshot) is not LockedGenerationAuthoritySnapshot
             or type(expected_execution) is not ComponentExecutionPlan
             or type(root_oracle) is not NodeLibraryAcceptance
-            or not callable(authorize_verifier)
+            or (authorize_verifier is not None and not callable(authorize_verifier))
             or not callable(require_current)
         ):
             raise TypeError("SDK host configuration requires original typed authority")
         for callback in (authorize_verifier, require_current):
-            require_node_sdk_process_observer(callback)
+            if callback is not None:
+                require_node_sdk_process_observer(callback)
         self.snapshot, self.expected_execution, self.root_oracle = (
             snapshot,
             expected_execution,
             root_oracle,
         )
+        self.verifier_acknowledgement = self._original_verifier_acknowledgement = (
+            verifier_acknowledgement
+        )
+        self._binding = self._original_binding = None
+        self._binding_attempt = None
+        self._verifier_intent = self._require_verifier_intent()
         self.provider_oracles = dict(provider_oracles)
         if not 1 <= len(self.provider_oracles) <= MAX_NODE_SDK_PROVIDERS or any(
             type(k) is not str or type(v) is not NodeLibraryAcceptance
@@ -172,25 +182,45 @@ class LocalNodeSDKHostConfiguration:
         self._provider_map = self.provider_oracles
         self._providers = tuple(sorted(self.provider_oracles.items()))
         self._environment = tuple(sorted(self.environment.items()))
-        self._binding = self._original_binding = None
         self._identity = self._config_identity()
         self._require_bytes()
 
-    def _config_identity(self):
-        return canonical_identity(
-            {
-                "schema": "literate-ai/local-node-sdk-host-configuration@1",
-                "authority": self.snapshot.authority.identity.uri,
-                "execution": self.expected_execution.identity.uri,
-                "root_oracle": self.root_oracle.identity.uri,
-                "providers": [
-                    [key, value.identity.uri]
-                    for key, value in sorted(self.provider_oracles.items())
-                ],
-            }
+    def _require_verifier_intent(self):
+        if self.verifier_acknowledgement is not self._original_verifier_acknowledgement:
+            raise NodeSDKHostConfigurationError("SDK host verifier intent changed")
+        if self.verifier_acknowledgement is None:
+            return None
+        from literate_ai.adapters.node_sdk_verifier_authorization import (
+            _ORIGINAL_REQUIRE_HOST_VERIFIER_INTENT,
+            _require_host_verifier_intent,
         )
 
+        if _ORIGINAL_REQUIRE_HOST_VERIFIER_INTENT is not _require_host_verifier_intent:
+            raise ValueError("fixed SDK verifier host seam changed")
+
+        return _require_host_verifier_intent(
+            self.verifier_acknowledgement, self, self._binding
+        )
+
+    def _config_identity(self):
+        document = {
+            "schema": "literate-ai/local-node-sdk-host-configuration@1",
+            "authority": self.snapshot.authority.identity.uri,
+            "execution": self.expected_execution.identity.uri,
+            "root_oracle": self.root_oracle.identity.uri,
+            "providers": [
+                [key, value.identity.uri]
+                for key, value in sorted(self.provider_oracles.items())
+            ],
+        }
+        if self.verifier_acknowledgement is not None:
+            document["schema"] = "literate-ai/local-node-sdk-host-configuration@2"
+            document["verifier_acknowledgement"] = self._verifier_intent
+        return canonical_identity(document)
+
     def _require_bytes(self):
+        if self._require_verifier_intent() != self._verifier_intent:
+            raise NodeSDKHostConfigurationError("SDK host verifier identity changed")
         actual = (
             self.snapshot,
             self.expected_execution,
@@ -218,17 +248,63 @@ class LocalNodeSDKHostConfiguration:
             )
 
     def bind(self, ports, toolchain_closure):
-        self._require_bytes()
-        if self._binding is not None:
-            raise NodeSDKHostConfigurationError(
-                "SDK host configuration is already bound"
-            )
-        bound = _BoundAdmission(self, ports, toolchain_closure)
-        # No callback or await between these original membership assignments.
-        ports._node_sdk_host_binding = bound
-        self._binding = self._original_binding = bound
-        bound.require_current()
-        return MappingProxyType({self.expected_execution.root_revision.uri: bound})
+        attempt = None
+        try:
+            if self._binding_attempt is not None:
+                raise NodeSDKHostConfigurationError("SDK host binding cannot reenter")
+            attempt = object()
+            self._binding_attempt = attempt
+            self._require_bytes()
+            if self._binding is not None:
+                raise NodeSDKHostConfigurationError(
+                    "SDK host configuration is already bound"
+                )
+            bound = _BoundAdmission(self, ports, toolchain_closure)
+            if self._binding_attempt is not attempt:
+                raise NodeSDKHostConfigurationError("SDK host binding attempt changed")
+            # No callback or await between original membership installation and
+            # consumption of typed intent. A failed binding is never replayed.
+            ports._node_sdk_host_binding = bound
+            self._binding = self._original_binding = bound
+            if self.verifier_acknowledgement is not None:
+                from literate_ai.adapters.node_sdk_verifier_authorization import (
+                    _ORIGINAL_BIND_HOST_VERIFIER_INTENT,
+                    _bind_host_verifier_intent,
+                )
+
+                if (
+                    _ORIGINAL_BIND_HOST_VERIFIER_INTENT
+                    is not _bind_host_verifier_intent
+                ):
+                    raise ValueError("fixed SDK verifier host seam changed")
+
+                _bind_host_verifier_intent(self.verifier_acknowledgement, self, bound)
+                # Generic toolchain preparation has already completed. Validation
+                # owned by this typed binding starts only after consumption.
+                bound._require_inputs()
+                bound._require_installed()
+                toolchain_closure.require_unchanged()
+                bound._require_inputs()
+                bound._require_installed()
+            bound.require_current()
+            self._require_bytes()
+            return MappingProxyType({self.expected_execution.root_revision.uri: bound})
+        except BaseException:
+            if self._original_verifier_acknowledgement is not None:
+                from literate_ai.adapters import (
+                    node_sdk_verifier_authority as membership,
+                )
+
+                try:
+                    membership._poison_preserving_failure(
+                        membership._state(self._original_verifier_acknowledgement)
+                    )
+                except BaseException:
+                    pass
+            raise
+        finally:
+            if attempt is not None and self._binding_attempt is attempt:
+                self._binding_attempt = None
 
     def require_runtime(self, runtime, snapshot):
         self._require_bytes()
@@ -271,7 +347,8 @@ class _BoundAdmission:
                 "SDK host requires unconfigured original local runtime ports"
             )
         ports._require_full_command_scope()
-        closure.require_unchanged()
+        if getattr(configuration, "verifier_acknowledgement", None) is None:
+            closure.require_unchanged()
         expected = configuration.expected_execution
         root = expected.root_revision.uri
         nodes = {
@@ -399,6 +476,9 @@ class _BoundAdmission:
             revisions=self.revisions,
             oracles=configuration.provider_oracles,
             authorize_verifier=configuration.authorize_verifier,
+            verifier_acknowledgement=getattr(
+                configuration, "verifier_acknowledgement", None
+            ),
             require_current=current,
             environment=configuration.environment,
         )
@@ -516,6 +596,9 @@ class _BoundAdmission:
                 invocation=invocation,
                 oracle=self.configuration.root_oracle,
                 authorize_verifier=self.configuration.authorize_verifier,
+                verifier_acknowledgement=getattr(
+                    self.configuration, "verifier_acknowledgement", None
+                ),
                 require_current=self.require_current,
                 environment=self.configuration.environment,
                 inspection_operation=inspection_operation,

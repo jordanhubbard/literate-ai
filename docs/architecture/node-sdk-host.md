@@ -9,13 +9,25 @@ acceptance owners. It grants no command, model, network or verifier permission.
 
 Construct it with the original `LockedGenerationAuthoritySnapshot`, an
 `expected_execution` plan, `provider_oracles` keyed by exact provider revision URI,
-the original loaded `root_oracle`, an explicit `authorize_verifier` callback,
-a synchronous `require_current` callback and the selected clean `environment`.
+the original loaded `root_oracle`, a synchronous `require_current` callback and
+the selected clean `environment`. Choose exactly one verifier mode: an explicit
+`authorize_verifier` callback, or `verifier_acknowledgement` from the fixed
+`acknowledge_node_sdk_verifier_execution` factory. Neither mode is inferred from
+ordinary host-execution permission. Manual configuration keeps its version-1
+identity and callback ordering. Typed configuration uses version 2, binds the
+original acknowledgement identity and consumes it once for its original runtime
+before the first host-owner callback. Failed/reused binding poisons that intent;
+it cannot be replayed or copied into a new configuration.
+Generic toolchain projection and ordinary ports assembly remain independent:
+their existing guards confer no verifier permission. Inside typed `bind`, original
+binding metadata is installed and intent is consumed before that binding invokes
+toolchain/dependency validation or the host-owner callback. Fresh typed-bind checks
+still reject mutation or reentry attempted during earlier generic preparation.
 The configuration requires one TypeScript dual-format SDK root and a nonempty
 exact inventory of sealed CommonJS JavaScript providers with declarations. Its
 count ceiling shares the composition profile's existing 32-provider bound;
 aggregate byte/custody and liveness budgets remain independent and can refuse a
-smaller inventory. Native qualification covers the complete explicit two-provider
+smaller inventory. Earlier exact source revisions qualified the complete explicit two-provider
 SDK lifecycle and independent packaged root/subpath acceptance on the macOS cell.
 Authored-generator `runtime.execute` orchestration is also qualified separately
 below for the one-provider control and two-provider/root-subpath cell. A
@@ -63,8 +75,9 @@ retains original callback, tool binding, source registry, target, oracle and gra
 identities across callbacks. Each earlier provider remains in its original
 custody scope while later providers are verified. Closing checks every original
 witness and independent verifier grant, including after nested contexts retire.
-Nested error cleanup can surface a retired-scope error above the original witness
-or expiry failure; the exception chain retains that original diagnostic.
+Earlier nested cleanup could surface a retired-scope error above the original
+witness or expiry failure. Reviewed cleanup now preserves the primary failure at
+the corrected boundaries; broader arbitrary nested-frame cleanup is not claimed.
 The terminal SDK operation uses the shared process-liveness context for entry and
 successful-exit validation. Standalone calls immediately adjacent to that context
 are redundant and removed. The context still polls the complete original cohort;
@@ -181,7 +194,8 @@ seed acceptance, then fails cold SDK processing on restored private modes
 neither is a cold pass or an expiry failure. The successful source-replacement
 record preserves the original authority-change rejection.
 
-Next qualify the authored noneditable installed Python API using the two original
+At the earlier runner-plan checkpoint, the next step was to qualify the authored
+noneditable installed Python API using the two original
 runtime controls. Reuse the existing wheel runner, qualified-wheel artifact custody
 and fresh installed-distribution observations. A frozen test-helper-only bundle
 must obtain its Flavors/skills and schemas from the exact installed wheel, verify
@@ -200,7 +214,8 @@ same original namespace observations through execution, including package,
 metadata, schemas, helpers and private cache. Resource and pre-capture reads reuse
 the shared bounded no-follow/nonblocking regular-file reader. Fourteen focused
 controls and seven existing wheel controls pass with no skips. The installed
-runtime matrix itself is still pending; these controls do not establish it.
+runtime matrix was still pending at that implementation checkpoint; the later
+installed results below supply their own separate evidence.
 
 The first complete opt-in wheel attempt at `886ccf14` stopped before either SDK
 case: the existing installed public Rust rebuild rejected the shared assembler's
@@ -290,8 +305,9 @@ Independent review confirms the routing delta and its exact 1,277-member TCB
 `sha256:9c07d5d88d8acb82a15d756522a56d66812d1b2c43a793916d27544bb26db2fc`.
 The earlier installed wheel remains qualified only at source `403386cb`.
 
-The next action is actual authored generation through this rebuild adapter,
-followed by ordinary model-backed CLI integration with verifier-owned oracle
+At that adapter checkpoint, actual authored generation was the next action. The
+later authored results below do not finish ordinary model-backed CLI integration,
+which still requires verifier-owned oracle
 resolution and a separately constrained verifier-authorization owner. Build-intent
 authorization does not authorize the SDK verifier's exact `BuildRequest`.
 
@@ -322,8 +338,9 @@ runtime tests, shared exercise, grants, matrices and candidate/provenance suffix
 A source AST comparison confirms the moved write/metadata statements differ only
 by a plain Component-revision argument. The later explicit rebuild hooks extend
 the shared exercise while preserving both original test methods and their default
-runtime path, original assertions and 30-minute verifier grants. Production TCB remains `9c07d5d8...26db2fc`. The next installed authored
-rebuild case must use fresh candidate wheel bytes and the existing installation,
+runtime path, original assertions and 30-minute verifier grants. At that
+checkpoint the TCB was `9c07d5d8...26db2fc`; its next installed authored rebuild
+case required fresh candidate wheel bytes and the existing installation,
 namespace and module-origin guards. Give that focused case a separate closed
 inventory; preserve the original two-case wheel gate and forbid qualified-wheel
 manifest output for a focused preflight.
@@ -604,3 +621,517 @@ additional adjacent guard. With an observer, the original before/after guards
 and `finally` cleanup remain in force, including mutation and exception paths.
 This local deduplication does not cache authority, change grants or establish
 multi-provider orchestration expiry margin.
+
+<a id="planned-continuation-of-inspected-verifier-custody"></a>
+### Inspected verifier custody and remaining authorization
+
+Status: bounded original capture/closing transfer, accounting, cleanup/ticket
+ordering and fresh primitive compiler views are integrated and source reviewed.
+The current native candidate, verifier-specific authorization and ordinary CLI
+qualification remain pending. Historical support checkpoints below retain their
+original evidence scope; the wired producer/consumer is described afterward.
+The owning work remains LIBRARY-ARTIFACT-001. Current capture, scan and membership
+results do not grant classification or execution authority.
+
+Original provider scopes legitimately retire before the outer runtime operation
+finishes. A continuation must be captured from the exact enrolled CAPTURING
+entry, bracketed by the original full validation, and become usable only after
+that entry reports successful CLOSED status. It may run only during the original
+operation's CLOSING phase. It cannot recreate or call a retired provider scope.
+Fresh publication entry receives fresh witnesses.
+
+Capture cleanup now owns terminal ticket publication. Enrollment records the same
+weak membership pair in the live entry and its reservation. Only the outer owner
+reports CLOSED, after identity removal, settlement/drain and journal removal;
+cleanup failure or uncertain reporting fails the exact original ticket. Journal
+recovery releases resources without replaying CLOSED. Focused synthetic and
+actual provider controls cover enrollment/terminal publication cancellation.
+
+The existing `capture_materialized_files` observation already retains only
+original paths, file/directory stamps and ancestry observations after readback.
+Provider and registered package roots persist beyond their inspection scopes, so
+this observation can continue their file custody without retaining captured
+artifact rows. Original namespace, replacement, mode, link and POSIX ctime checks
+must remain intact.
+
+`PinnedInputClosure.capture_current_stamps` has a different lifetime: its entry
+check retains the original closure and content. Reusing it after releasing the
+capture's byte reservation would retain uncharged payloads. Native-tool
+continuation instead needs detached exact command/launcher/runtime/version/digest
+preimages and original path/stamp/ancestry observations, bracketed by the existing
+full tool checks. Tool binary bytes remain identity-only inputs and their capture
+readsets must still collect after release.
+
+At the standalone-observer checkpoint, the detached direct-Node helper was
+implemented separately from runtime integration. It brackets metadata capture with the original full byte
+checks, preserves the two existing labels and retains no pinned-input closure or
+binary payload. Its sticky continuation checks original tool metadata, file
+stamps and directory ancestry without reopening the readset. Sixteen synthetic
+POSIX controls pass, including closure collection, substitution, replacement,
+restored-mtime writes and ancestor changes. This is source-level observation
+support only. At that checkpoint, membership and closing joins were unwired.
+Those bounded joins are now integrated; native execution and performance
+qualification remain separate.
+
+At the earlier storage-observer checkpoint, live captures snapshotted the
+original compiler, SDK, Node, file and identity
+field storage through original C descriptors and class/namespace fences. The
+identity algorithm's primitive instance storage is independently fenced. The
+sticky guard retains original source references and does not independently admit
+initial digests; both original full `_rows` validations bracket its capture.
+Compiler/SDK identities or length/digest records alone remain insufficient for
+continuing original-object membership. Closing must still transfer the necessary
+original compiler, SDK and snapshot references under quota.
+
+That earlier capture reserved an additional 256 MiB before constructing the
+storage snapshot, then retained its measured conservative charge alongside
+portable rows and tool bytes. The later capped-view integration replaces that
+up-front maximum with prepaid sizing and fresh bounded observations.
+The shared 512-MiB ceiling is unchanged; this stronger accounting may refuse
+concurrent captures previously admitted by the incomplete byte accounting.
+After all original closing checks, explicit release severs guard cells and source
+references even when body exception tracebacks survive. Live-entry removal gates
+lease settlement: an uncertain removal keeps the exact lease charged in the
+existing journal until metadata cleanup resumes. Release remains outside locks,
+and registry/release failures preserve the original body error or cancellation.
+Provider and root wrapper references also clear before outer settlement.
+
+The focused controls include a retained original body traceback, external compiler
+owner removal, actual compiler collection and private source-reference collection.
+They do not establish compiler custody after capture retirement. Retain the
+necessary original compiler, SDK and snapshot references under transferred quota.
+Deduplicate only within one operation and only for the identical original compiler
+and snapshot facts. Do not share such witnesses across operations.
+
+The quota now accepts bounded exact tuple descriptions of those facts. It checks
+tuple structure and original leaf identity, without value equality or caller
+iteration. Equivalent freshly allocated containers can deduplicate within the
+same operation; changed leaf references fail. This is accounting support only:
+the fixed compiler owner must still capture original mutable field storage,
+reserve its retention first and perform the required full byte validations.
+
+Live capture now creates an oracle observation with fresh weak references to the
+original oracle, loaded registry entry and pinned-input authority. It checks the
+same original registry entry, exact C field storage, closed JSON/CID metadata and
+original file/ancestry stamps. The existing loaded weakref's callback and bound
+scope/file-checking methods are not retained. Neither registry replacement nor a
+reloaded entry can supply a new baseline. Detached file observation permits
+unrelated sibling activity while rejecting file replacement, ctime and ancestry
+changes. The factory itself admits no initial bytes: the live owner brackets it
+with the original full oracle scope checks.
+
+Reserve 128 MiB before retaining oracle metadata. Sequence this after measured
+compiler storage admission, retaining the unchanged shared ceiling. The measured
+charge includes primitive source estimates and 32 MiB for bounded metadata/path
+observations; the primitive estimate alone is not a heap/quota measurement. The
+shared finite metadata observer preserves its default callable API and adds an
+exact-bool opt-in returning guard, idempotent release and primitive estimate,
+including mapping keys. It severs snapshot/iteration cells on release and failed
+construction, with retained-traceback controls for this closed JSON/CID projection.
+The shared `_record_values` reader now clears its original record/dictionary,
+current item and partial field buffer in `finally`. Source-bearing RecipeDocument
+controls retain actual validation/construction failure tracebacks and prove source
+release with substituted getters uncalled. This extends field-reader cleanup
+coverage; it does not establish runtime phase ownership or general heap authority.
+Oracle release clears its observation cells before final resource-charge removal.
+Successful handoffs retain those cells through capture settlement.
+
+The standalone observation works after original input-scope exit but grants no
+runtime phase ownership. The later original-operation join supplies bounded
+closing transfer. The observation alone cannot revive a
+scope, reload an oracle, authorize execution or stand in for phase enrollment.
+Closing must transfer the original references, charge and release ownership as
+one transaction rather than releasing them when the live capture ends.
+
+The pool now supports durable cleanup of an exact private closing payload before
+it detaches that payload or removes its charge. The original class release entry
+and helper are bound explicitly; class/MRO/namespace checks and original C-slot
+failure bookkeeping refuse substituted helpers/getters. Compiler, oracle and file
+release components progress independently. An uncertain completion retries only
+idempotent DATA cleanup, while recorded completed components are not called again.
+All three components run outside quota locks with the original record/charge retained.
+Allocation failure after component cleanup resumes detachment without replaying
+completed releases. Closing-reader borrow still defers retirement cleanup. This
+support was integrated into pool draining before operations could create, enroll
+or transfer payloads into CLOSING. The later original producer now supplies those
+joins.
+
+Original compiler tuple-valued fields (SDK files and Node command) now use an
+immutable tuple-backed identity anchor distinct from structural fact tuples.
+Fresh structural containers can deduplicate, while replacement of an original
+tuple field refuses immediately. The anchor cannot be rebased through attribute
+or item assignment; captured original tuple operations read its storage without
+getter dispatch. Compiler
+source deduplication also needs each observation's metadata charged separately.
+The runtime handoff preparation support now adds 2 MiB for every retained
+compiler observation, including the first; live file/path accounting is described
+below. Retain the full active base until durable ownership,
+record PREPARED versus COMMITTED joins, and release closing views outside the
+binding lock, preserving the original body/closing failure.
+
+The runtime now lazily allocates one resource owner per operation and original
+pool. A bounded publication journal precedes allocation, and the pool records
+the opaque owner in that journal before returning it. Concurrent losing owners
+and interrupted allocations retire outside the binding lock. Operation publication
+is inside the cancellation cleanup boundary. Failed retirement keeps its original
+pool/owner and active binding until metadata cleanup succeeds; recovery does not
+replay the operation body, closing checks or CLOSED reporting. This lifecycle
+support initially did not attach captures or closing payloads to those owners.
+The later producer now attaches them through original operation membership.
+
+Before bounding retained file metadata, the original materialization helpers now
+clear source-bearing locals in their own `finally` blocks. This includes both
+persistent APIs, immediate readback, primitive row snapshotting, file reads and
+the complete/selected capture engine. An explicit snapshot loop makes partial
+construction cleanup visible rather than leaving a generator failure frame.
+Retained byte-mismatch/cancellation tracebacks release their source references
+without replacing the original exception or clearing external traceback frames.
+Successful guards retain only metadata, including their owned-move continuation.
+That frame cleanup alone does not account path/stamp storage; the subsequent
+live-accounting integration is described below. That cleanup alone supplies no
+transfer; full native handoff qualification remains open.
+
+The capture owner's cleanup boundary now includes initial field extraction,
+reservations and file/tool capture. Explicit snapshot loops and local `finally`
+cleanup also cover `_compiler_values` and `_rows` source-bearing frames. Both
+public wrappers protect initial entry failures while preserving their original
+inner cleanup before reservation settlement. The original body/cancellation
+remains primary, absent cleanup owners are skipped, and live detachment still
+precedes quota settlement. These are bounds on the reviewed original frames,
+not a claim that arbitrary nested failure tracebacks cannot retain source.
+
+A standalone file-metadata preflight now returns detached root/rows and a
+conservative charge. Its caller must reserve 32 MiB before construction and
+separately retain the original live source-byte charge. Exact primitive bounds
+precede path parsing: root length 4,096/depth 64, at most 16,384 rows with paths
+up to 1,024 characters/depth 64, and at most 65,536 derived rows. Each root
+ancestor and each file/parent prefix is charged without deduplication, using the
+full path length to overcount quadratic parent-string construction. The model
+includes temporary dictionaries/sets, path components, stamps, owned-move names
+and a fixed allowance for one unexpected filesystem entry before refusal.
+The complete detached set still passes canonical cross-host alias/tree checks.
+Original file C-slot reads reuse the compiler observer's namespace fence.
+Partial construction clears its own source references through retained errors.
+This is a bounded accounting model, not a general heap measurement or initial
+filesystem admission. Live capture now reserves its 32-MiB maximum alongside the
+compiler reservation before preflight and original full materialization checks.
+All subsequent resizes and final admission retain the measured file charge.
+The materialization and ancestry observers have exact-bool opt-in guard/release
+pairs. Failed opt-in guards remain retired after restoration; release clears
+original shared cells and iteration locals, including retained failure frames.
+Default callable APIs and owned moves remain compatible. Opt-in observers refuse
+moves until descendant release ownership and metadata accounting are supported.
+Capture attempts file release independently after live detachment and before
+quota settlement, outside the capture lock, preserving the original failure.
+Closing transfer and native qualification remain separate.
+
+Enrollment now records the original shared pool and opaque capture lease with
+each ticket. Transaction support journals only pool/owner/lease handles and its
+PREPARING/PREPARED/COMMITTING/COMMITTED state under the binding lock. Pool
+preparation, payload attachment and commit run outside that lock. Repeated,
+foreign or uncertain joins poison the operation; commit and CLOSED are never
+replayed. Any prepared join must be COMMITTED before successful CLOSED reporting.
+The closing-pool interface can require the exact bounded original lease set,
+rejecting duplicates, foreign handles and active/failed/uncommitted captures.
+New journal maps detach under binding and clear outside it. Pool preparation,
+attachment and error decorators clear their own source-bearing failure locals;
+caller cleanup cannot sever those nested frames. Exact ticket types precede
+weak/dict lookups, so foreign hashing/equality cannot run at this boundary.
+The capture engine now calls the transaction APIs and transfers its original
+observations after every original closing callback succeeds. A capture-owned
+pending payload journal retains cleanup custody before preparation and through
+uncertain commit or release. Full live base charge remains required until the
+transaction and original cleanup settle. Failed or unacknowledged transfer never
+publishes CLOSED; metadata recovery cannot replay commit.
+
+Actual provider controls with an injected operation binding close detached
+observations after original source scopes exit. They establish bounded producer
+behavior, not original native invocation provenance. Compiler sizing now shares
+one exact-slot traversal with capped observation construction. Both compiler
+serializers accept only its immutable primitive view; fresh observations reread
+original slots and reject reference changes before retaining rows. The same
+baseline guard brackets both full byte/identity checks. A fresh view also proves
+the original direct Node identity preimage, closing the sizing-boundary gap.
+Scratch remains charged through every resize until views and observers drop.
+
+The conservative ASCII source policy uses two bytes per character only on
+reviewed CPython 3.12–3.14: character storage plus a separate possible UTF-8 copy,
+with independent record/header/container allowance. Python 3.11 retains the old
+policy because its legacy wchar cache requires more storage. Other interpreters,
+unreviewed versions, non-ASCII strings and bytes keep their previous accounting.
+The storage distinction follows [PEP 623](https://peps.python.org/pep-0623/)
+and [CPython's Unicode size accounting](https://github.com/python/cpython/blob/3.13/Objects/unicodeobject.c#L12895-L12918).
+This is a source-accounting policy, not total interpreter heap measurement.
+The absolute compiler and shared ceilings remain 256 and 512 MiB. Two actual
+independent provider operations fit without cross-operation compiler deduplication.
+A three-lease quota control reuses actual reservation sizes and one original
+compiler; its extra leases are synthetic and establish no provider/root provenance.
+The full two-provider-plus-root native case remains a separate qualification.
+Original Pin failure frames can retain their own readsets; this support does not
+claim arbitrary nested-frame cleanup.
+
+The closing consumer now checks complete original enrollment/commit membership,
+borrows exactly those leases outside binding and calls the captured original
+typed payload observer. A private C-slot publication records pool/owner/token
+before borrowing, including an unreturned view. After dropping every local and
+iteration reference, the reader publishes its dropped proof and completes only
+that original token. Exact owner/token/flag DATA checks prevent foreign lookups.
+Failed or repeated preparation cannot clear another active reader, even when a
+mutable claimed flag is inaccurate. Retirement retains the owner/publication and
+charge while a reader is active or its drop proof is unknown. Once the proof is
+recorded, metadata completion is idempotent through failures before or after its
+transition; recovery never borrows, reruns observations or publishes CLOSED.
+Closing rechecks original active identity, phase, poison, joined leases and
+metadata witnesses after guards and after successful settlement, whose draining
+can run cleanup outside locks. The old binding-lock decorator no longer encloses
+pool calls or observations. The wired producer/consumer support does not qualify
+the full multi-capture native scenario, expiry recovery or typed execution
+permission.
+
+A single capture-to-closing lease must preserve the shared 33-slot/512-MiB bound
+without double-counting slots or briefly releasing a retained payload's charge.
+Reserve before retaining source references and outside the binding lock; commit
+membership under that lock. Abort and retirement release outside it as well.
+Do not hold a quota lock while running owner callbacks or releasing the final
+payload reference. Keep its charge until that release settles. Release is allowed
+only after operation retirement and the final in-flight capture reference are
+both settled, including early unwind and concurrent completion. Failed or
+uncommitted handoffs remain sticky failures and never become closing witnesses.
+
+Required controls include refusal before retention at capacity, operation-local
+exact compiler deduplication versus changed snapshots, concurrent reserve/retire,
+early unwind, double release and source-reference collection. Integration must
+also prove successful scope handoff, replacement/mode/restored-mtime/ancestor
+refusal, original oracle retirement/replacement refusal, final-clock mutation and
+zero scope revival. Native integration, typed verifier-specific permission,
+classification, installed CLI qualification and Aviation cutover remain separate.
+
+### Planned verifier-specific authorization join
+
+The source implementation joins the existing original capture, enrollment, scan and
+closing owners. It does not replace the manual authorizer or infer verifier
+permission from the ordinary host-execution acknowledgement. This section is the
+implementation contract; typed source selection now joins original issuance and
+live/closing enforcement. The qualification limits below remain separate.
+
+One opaque, explicit acknowledgement selects the original locked snapshot and
+execution, the fixed verifier policy and scanner, actor/reason, a finite grant
+lifetime and the original overall deadline. Its API separately acknowledges that
+the selected Node executable and non-source DATA receive identity checks rather
+than text scanning. A copied value or a digest lookup is not acknowledgement
+ownership. The fixed factory creates its original registration; host assembly
+consumes it once and binds that registration to the original configuration and
+runtime. Failed or foreign binding poisons the registration. Keep this bounded
+registration in a dependency-light authority module; it must not import the
+runtime, scanner or issuer or introduce a general callback-based policy factory.
+
+Configuration selects exactly one mode before callbacks: the existing manual
+authorizer or the genuine typed acknowledgement. Manual configuration/request
+identities and callback ordering remain unchanged. Typed configuration gets its
+own versioned identity. Do not expose this configuration branch with a placeholder
+or permissive fallback: add it only with working original-capture issuance. The
+runtime retains an opaque registration and bounded primitive witnesses, rather
+than recursively inspecting policy/scanner objects through finite metadata.
+
+The fixed issuer reserves an operation-local issuing slot before callbacks and
+accepts only the exact live operation, original capture and enrolled ticket. It
+obtains both canonical preimages and the scan through their original owners,
+checking custody and enrollment again after scanning and before publication.
+Caller-supplied scan JSON, request documents, classifications and attestations
+cannot enter this route. The local observation binds the full role/path/mode/
+content inventory, both preimages, owner revision, scan policy/report, original
+acknowledged authority and identity-only Node binding. Its attestation records
+local custody, with `vendor_signature_verified:false`; it makes no vendor-origin
+claim. Preserve the six source suffixes' text-rule coverage and explicit
+identity-only coverage for other DATA. Apart from the separately acknowledged
+direct Node binding, executable-mode files outside those source suffixes refuse.
+The initial DATA-only set is JSON, source maps, plain text/Markdown and the
+original license/notice names; an unrecognized suffix is unsupported rather than
+silently treated as non-executable. This is a narrow policy choice, not a claim
+that static text rules prove arbitrary program safety.
+
+The selected original TypeScript SDK also contains two executable JavaScript
+launchers without suffixes: `compiler/bin/tsc` and `compiler/bin/tsserver`.
+The version-2 scan policy recognizes only those exact role/path pairs with their
+canonical UTF-8 bytes: `#!/usr/bin/env node\nrequire('../lib/tsc.js')\n` and
+`#!/usr/bin/env node\nrequire('../lib/tsserver.js')\n`, respectively. It scans
+them as CommonJS under deterministic logical paths ending in `.cjs`, while the
+inventory retains each original role, path, mode and content identity and records
+the scan path. Their disjoint `compiler-launcher/` scan namespace cannot alias an
+ordinary original role; duplicate mapped paths refuse before scanning. The policy
+identity includes the mapping and those exact required content digests.
+This is explicit source coverage, not an executable-DATA exception. Changed
+launcher bytes, other paths or roles do not acquire this coverage; unsupported
+executable DATA still refuses. The six ordinary source suffixes and the existing
+bounded rule set remain unchanged.
+
+Classification and issuance reuse `SecurityPolicy` and `PolicyBuildAuthorizer`.
+The fixed policy knows only `execute-library-verifier`, accepts only the two
+existing verifier builders and their exact sandbox/compiler/revision/source/
+output contracts, and never enables YOLO. Use the existing maximum lifetime and
+original deadline as ceilings; no grant renewal, deadline extension or mutation
+replay follows from this workflow. Validate the issued original authorization
+against the unchanged request before returning it.
+
+The issuer constructs one original immutable-empty `AuthorizationRevocationSet`
+and a fixed live verifier over that original state. Supplied feeds/providers are
+unsupported in the first profile. Its closing witness checks original identity
+and empty contents without callbacks; this supplies no external-revocation
+coverage. Every live/closing join still validates the original grant's request,
+expiration and revocation fields.
+
+Register each grant before returning it in that operation's existing bounded
+aggregate: at most 32 providers and the reserved root slot. Publication requires
+the original successful capture handoff, exact request/grant joins and CLOSED
+membership. After all callback-bearing closing/cleanup work, obtain the final
+shared clock cut and finish with callback-free identity checks; do not adopt a
+new baseline after it. A fresh publication operation gets a fresh aggregate.
+Failure poisons its original operation without reviving a scope or grant.
+
+Required controls cover absent/foreign/copied acknowledgements and tickets,
+manual/typed mutual exclusion before callbacks, substituted preimages/results,
+blocked findings, unsupported coverage, reentry, callback-time mutation, exact
+request/lifetime/deadline constraints, immutable-empty revocation, aggregate
+capacity and uncertain cleanup. The original authored native case, installed
+wheel, ordinary model-backed CLI and Aviation consumer/cutover gates remain
+separate from metadata and injected-state controls.
+
+The current source implements the explicit fixed acknowledgement factory, a
+private original-capture classifier and a private operation-owned grant issuer.
+The factory binds the original snapshot,
+execution, scanner/policy identities, actor/reason, finite lifetime and original
+UTC deadline. Its fixed source witness has explicit release ownership through
+both explicit and weak registration retirement; release runs outside the
+registry mutex, including when a guard failure traceback remains retained.
+The acknowledgement remains weakly referenced by its fixed policy owner.
+Capture and original provider-request construction fence description and
+serialization dependencies after their own custody callbacks, including nested
+request construction. The classifier produces a local-custody observation and
+existing `SecurityPolicy` classification, then rechecks original membership and
+deadline. These detached classification values grant no execution permission.
+
+The private issuer obtains that classification itself and reuses the original
+`PolicyBuildAuthorizer` with its acknowledged actor/reason, lifetime, original
+deadline and YOLO disabled. Each intent owns an original immutable-empty
+revocation set and fixed live verifier; substituted providers or nonempty state
+refuse. A bounded journal holds at most 64 original operations with their original
+request/grant/witness pointers and identities, separately from the runtime's
+mutable metadata maps. Independent runtime membership prevents clearing an
+intent field from disabling enforcement and covers cancellation before intent
+publication. Every original ticket receives one reservation before callbacks;
+prior grant expiry prevents later issuance. All issued grants remain valid
+through live use, committed capture handoff and exact CLOSED membership.
+
+Typed table keys, records, intent, phase and boolean flags are checked as closed
+DATA before hashing, equality or truthiness. Closing records original successful
+membership after view settlement. Actual resource-owner retirement then performs
+the final authority/revocation preparation and shared clock cut before checking
+the original aggregate, grants and configuration again. Swallowed retirement
+reentry, late poison, expiry and configuration replacement withhold success.
+An in-flight token prevents nested cleanup from draining ownership early. Terminal
+validation failure still drains grant metadata, records authoritative retirement
+completion and propagates failure. Original grant witnesses and intent references
+release outside operation and journal mutexes; uncertain cleanup retains the
+original registration and denies further typed issuance when necessary.
+
+The shared provider/root verifier runner also accepts an explicitly threaded
+`verifier_operation`. Its fixed grant-use boundary requires the original issued
+grant object from that operation's independent journal, its successfully closed
+capture and committed handoff, original ports and an exact current request
+identity. A fresh equal request description is allowed; a copied grant refuses.
+Closed metadata validation precedes request serialization. The boundary runs
+before execution and after the runner's final clock, subject and ownership
+callbacks, so a late loss withholds results. Omitting the operation cannot select
+manual execution while the original bound operation has typed grant membership,
+including when its mutable intent field is cleared. An absent typed operation
+preserves the existing manual authorization path. These checks neither issue
+authority nor supply an operation from ambient context.
+The independent marker retains weak original ports/state references until grant
+retirement finishes. Marker publication, removal and snapshots share a mutex;
+unrelated manual execution does not depend on a retiring operation's live lookup.
+Original execution seams are captured during trusted module initialization and
+checked before use; explicit operations without typed membership refuse before
+authorization lookup.
+
+Typed host configuration now selects this producer explicitly. Provider admission
+captures the original accepted scope; root acceptance captures the original
+prepared package inputs. Both enroll in their exact operation, issue through the
+fixed owner, finish successful capture settlement and check the exact original
+grant against the actual request before entering the shared runner. Typed policy
+identities are version 2; manual identities and callbacks remain version 1.
+Typed base construction performs finite checks only until host binding consumes
+the intent; the binding's original closure/dependency validation and host-owner
+callbacks run afterward. Manual construction retains its original validation
+sequence. Fixed original helper references survive custody callbacks, and a
+substituted integration helper refuses before the replacement can run.
+These source and injected-construction controls do not establish original-root
+issuance, native or installed host-mode acceptance, ordinary model-backed CLI
+qualification or Aviation cutover. The combined native matrix finished in
+2,008.415 seconds with three passes and one error: the full typed lifecycle
+reached packaged-root acceptance, then its original provider's ordinary BUILD
+grant expired during declaration-check custody validation. Root acceptance did
+not return and publication was not qualified. The typed verifier's one-hour
+acknowledgement does not extend the separate ordinary 30-minute BUILD policy.
+Keep that policy, clocks and original grants unchanged; diagnose legitimate
+overhead before another qualification attempt.
+
+A separate opt-in sampling diagnostic ran the original typed fixture with
+`SDKRuntimeDiagnostic.observe(observe_grants=False)`. It installs no grant-method
+wrapper, leaves the fixed acknowledgement factory's namespace intact and records
+`grant_observation_enabled:false` with an empty grant list. Default diagnostic
+behavior is unchanged. Sampling retains only bounded logical file/function/line
+metadata from the original test thread, with existing persistence and cleanup
+protections; it cannot establish worker CPU distribution or reliable expiry
+margin. Scenario cancellation remains primary through later cleanup/persistence
+errors. A cleanup error after a successful scenario remains a failure even when
+the caller is handling an unrelated exception. These diagnostics always remain
+`qualified:false` and do not establish native or installed acceptance.
+
+That diagnostic failed with the same ordinary BUILD expiry after 1,918.561s.
+Observer and lifecycle cleanup complete, with zero capture errors. Its 9,293
+samples include dropped frames and depth truncation: 4,308 show the original
+thread waiting for lifecycle workers, so they do not attribute worker CPU.
+Separate three-call configuration profiles measure about 72ms per bound-host
+check and 83ms per base-admission check, each with one snapshot check per call.
+Those profiles omit active invocations and grant aggregates.
+
+[Accepted ADR 0075](../decisions/0075-scoped-direct-node-validation.md) describes
+an opt-in direct-native runtime-observation profile. The directing user accepted
+it as written on November 19. It changes
+the temporal validation policy and requires a qualified closed launch-input
+boundary; an executable digest or detached file witness cannot supply it. No
+activation or native qualification follows from acceptance. Planning and
+implementation are now admitted under #452; current default runtime probing and
+every grant limit remain unchanged.
+
+### Installed typed-host preflight
+
+`make wheel-sdk-typed-host-preflight` builds a fresh candidate from a clean exact
+Git revision and runs a separate installed-Python cell. It preserves the existing
+manual two-case wheel matrix. This mode refuses supplied wheels, rebuild/probe
+diagnostics and qualified-wheel publication; it cannot create whole-wheel or
+release qualification.
+
+The reviewed helper extension selects exactly the genuine binding/dependency-guard
+case and the two-provider/root-subpath typed authored runtime case. The latter
+retains its original acceptance/publication receipt checks, observes actual
+provider-plus-root grant roles and asserts that the manual verifier authorizer never ran.
+Both cases execute outside the checkout under `-I -B`, with an empty private
+bytecode-cache prefix and original installed namespace/origin custody checks.
+
+The separate `installed-node-sdk-typed-host-preflight@1` protocol records
+`qualified:false`, `preflight_passed:true`, exact case IDs/counts and
+`authorization_mode:"inspected-verifier@1"`. Both the result file and stdout must
+match that typed scope; old manual result schemas refuse. Evidence retains the
+exact wheel, installed distribution, helper manifest and driver hashes. Declared
+fixture inputs are separately labelled: binding lifetime/deadline offset of
+600/1,200 seconds, runtime limits of 3,600/3,600 seconds, explicit identity-only
+input coverage, no renewal and constructor-owned immutable-empty revocations.
+Those are hash-bound fixture inputs, not observations of grant timestamps or
+remaining expiry margin.
+
+The source/protocol and filesystem controls do not establish installed execution.
+The actual preflight remains pending passing source-native qualification and exact candidate
+artifact review. An eventual pass proves only this authored macOS installed
+Python API cell; ordinary model-backed CLI, other platform/browser, retained
+consumer and Aviation cutover gates remain separate.

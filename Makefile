@@ -265,6 +265,10 @@ wheel-check: python-version $(RUNTIME_PREREQUISITE) ## Build and smoke-test the 
 wheel-sdk-rebuild-preflight: python-version $(RUNTIME_PREREQUISITE) ## Run the authored installed SDK rebuild case; retain an unqualified candidate.
 	$(STEP) wheel-sdk-rebuild-preflight -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py --node-sdk-rebuild-preflight $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",)
 
+.PHONY: wheel-sdk-typed-host-preflight
+wheel-sdk-typed-host-preflight: python-version $(RUNTIME_PREREQUISITE) ## Run original typed SDK host cases under an isolated wheel; never qualify or publish it.
+	$(STEP) wheel-sdk-typed-host-preflight -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py --node-sdk-typed-host-preflight $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",)
+
 .PHONY: wheel-sdk-rebuild-probe-diagnostic
 wheel-sdk-rebuild-probe-diagnostic: python-version $(RUNTIME_PREREQUISITE) ## Observe actual guarded SDK probe phases; never qualify preflight acceptance.
 	$(STEP) wheel-sdk-rebuild-probe-diagnostic -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py --node-sdk-rebuild-preflight --diagnostic-node-probes

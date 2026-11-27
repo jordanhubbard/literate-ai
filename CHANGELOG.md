@@ -2,6 +2,92 @@
 
 ## Unreleased
 
+- Bound compiler serialization with a prepaid immutable view and fresh original
+  storage checks, sharing existing command/identity formats. Use a conservative
+  ASCII source policy on reviewed CPython 3.12–3.14 while preserving fallbacks
+  and memory ceilings. Three measured quota sequences and two actual independent
+  provider operations fit; full native root qualification remains separate.
+
+- Wire original verifier captures to prepare/commit detached observations after
+  original closing checks, retaining pending payload cleanup and charges through
+  cancellation and lost acknowledgments. Actual provider controls with injected
+  operation binding pass after source-scope exit. The full native scenario,
+  expiry recovery and typed execution permission remain open.
+
+- Borrow joined verifier observations during final verification outside the
+  binding lock, with original-token publication before borrowing and explicit
+  dropped-view proof before completion. Recover interrupted metadata completion
+  without replaying guards; recheck closing identity after cleanup. Full native
+  qualification remains open.
+
+- Bind verifier enrollment to its original pool/lease and add metadata-only
+  PREPARED/COMMITTED handoff support with no uncertain-commit replay. Account each
+  compiler observation separately from shared source, require all three cleanup
+  owners, and clear failed method/decorator source references. Full native
+  qualification remains open.
+
+- Charge bounded file metadata during live verifier capture and explicitly retire
+  original file/ancestry observations outside the capture lock before settlement.
+  Add opt-in guard/release pairs while preserving default callers and owned moves;
+  releasing observers refuse moves until descendant custody is implemented.
+
+- Add a bounded file-metadata preflight for verifier closing custody. Measure
+  root ancestry and repeated parent/path storage before canonical inventory
+  parsing; detach primitive rows and clear failed construction references.
+  Capture-to-closing transfer and native qualification remain open.
+
+- Protect initial verifier capture setup and wrapper entry failures with source
+  cleanup. Keep wrapper release before quota settlement and preserve original
+  errors through early reservation/file/tool refusal and local snapshot failure.
+
+- Clear original file-source references from materialized-file validation failure
+  frames, including partial snapshots and cancellation. Preserve original errors,
+  byte/namespace checks and the source-free successful metadata guard.
+
+- Preserve original compiler tuple-field identity with immutable anchors, and add
+  lazy operation resource ownership with durable allocation/retirement journals.
+  Recover interrupted metadata cleanup outside binding locks while preserving
+  the original failure. Capture-to-closing transfer remains unfinished.
+
+- Add durable, fixed-ABI closing-payload cleanup to verifier quota draining. Keep
+  charges through partial component release and final detachment, reject getter
+  substitution and clear source-bearing field-reader failure frames. Runtime
+  closing handoff enrollment and native qualification remain open.
+
+- Add charged live oracle observation using fresh weak original roots, exact
+  registry/storage membership and detached file/ancestry stamps. Preserve full
+  original byte checks and add explicit metadata release through retained
+  tracebacks; operation-closing custody and native qualification remain open.
+
+- Reserve and account original compiler storage during live Node verifier capture,
+  with exact private-field, SDK-file and identity/enum observations bracketed by
+  full byte checks. Explicit cleanup severs retained traceback references, keeps
+  uncertain live-entry removal charged and preserves original failures. Runtime
+  closing transfer and native qualification remain open.
+
+- Support bounded nested original-reference facts for operation-local Node
+  compiler quota sharing. Refuse changed leaves and substituted containers
+  without invoking equality; compiler custody integration remains open.
+
+- Defer Node verifier CLOSED tickets until original capture cleanup settles.
+  Preserve sticky failure through cancellation and uncertain terminal reporting;
+  recovery releases resources without replaying successful acknowledgment.
+
+- Add a detached direct-Node tool observation with original full capture checks
+  and payload-free sticky file/ancestry continuation. Sixteen synthetic controls
+  pass; runtime closing integration and native qualification remain open.
+
+- Centralize Node verifier capture storage in one bounded transferable quota.
+  Retain ended-capture cleanup through cancellation, remove original identity
+  before releasing its charge, and destroy retained references outside locks.
+  Runtime closing-witness integration and native qualification remain open.
+
+- Add bounded inert scanning for exact live SDK verifier captures. A separate
+  six-suffix JavaScript/TypeScript rule policy preserves baseline scan identities,
+  refuses finding/metadata overflow and labels uncovered DATA separately. Original
+  capture/ticket joins and fixed dependency checks withhold substituted results;
+  returned metadata grants no origin, classification or execution authority.
+
 - Bind Node verifier inspections to their original host operation, provider scope
   and actual SDK invocation. Opaque membership tickets retire with the operation;
   capture failures remain sticky and closing checks use pinned storage without

@@ -6070,7 +6070,12 @@ class LocalStandardLifecyclePorts:
 
     def library_provider_verifier_request(self, scope, *, revision, oracle, compiler):
         """Validate live custody before describing request DATA; grant nothing."""
+        from literate_ai.adapters.node_library_verifier_request import (
+            require_original_verifier_request_implementation,
+        )
+
         self.require_library_provider_custody(scope)
+        require_original_verifier_request_implementation()
         return _node_provider_verifier_request(
             scope, revision=revision, oracle=oracle, compiler=compiler
         )
@@ -6113,6 +6118,7 @@ class LocalStandardLifecyclePorts:
         consume,
         environment,
         observe_process=None,
+        verifier_operation=None,
     ):
         """Run an explicitly granted verifier and consume DATA within live custody.
 
@@ -6220,6 +6226,7 @@ class LocalStandardLifecyclePorts:
             ),
             require_subject=require_subject,
             require_membership=require_membership,
+            verifier_operation=verifier_operation,
         )
 
     def _with_verified_node_library_checks(
@@ -6240,6 +6247,7 @@ class LocalStandardLifecyclePorts:
         require_membership,
         provider,
         observe_process=None,
+        verifier_operation=None,
     ):
         """Shared synchronous verifier lifetime; subject owners supply no grants.
 
@@ -6256,11 +6264,17 @@ class LocalStandardLifecyclePorts:
             node_sdk_tool_environment,
             require_node_sdk_process_observer,
         )
+        from literate_ai.adapters.node_sdk_verifier_runtime import (
+            _ORIGINAL_NODE_VERIFIER_GRANT_USE,
+            require_node_verifier_grant_use,
+        )
         from literate_ai.adapters.process_liveness import (
             _close_preserving_primary_failure,
             process_liveness,
         )
 
+        if _ORIGINAL_NODE_VERIFIER_GRANT_USE is not require_node_verifier_grant_use:
+            raise ValueError("fixed SDK verifier execution seam changed")
         self._require_full_command_scope()
         for callback in (require_current, consume):
             if not callable(callback):
@@ -6270,6 +6284,9 @@ class LocalStandardLifecyclePorts:
         request = describe_request()
         if type(authorization) is not BuildAuthorization:
             raise TypeError("provider verifier requires an explicit execution grant")
+        _ORIGINAL_NODE_VERIFIER_GRANT_USE(
+            self, verifier_operation, authorization, request
+        )
         configured = node_sdk_tool_environment(dict(environment))
         close_files = capture_materialized_files(scope.root, scope.files)
         active = True
@@ -6309,6 +6326,9 @@ class LocalStandardLifecyclePorts:
             # stamp baseline after the final callback.
             close_files()
             oracle_stamps()
+            _ORIGINAL_NODE_VERIFIER_GRANT_USE(
+                self, verifier_operation, authorization, request
+            )
 
         def require_live():
             nonlocal active

@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 
 from literate_ai.contracts.identity import ContentIdentity, canonical_json_bytes
 from literate_ai.security import BuildRequest
+from literate_ai.security import policy as security_policy
 
 MAX_INPUT_BYTES = 16 * 1024
 MAX_REQUEST_BYTES = 4096
@@ -226,3 +227,52 @@ class NodeLibraryVerifierRequestDescription:
             or _request_content(request) != self.request_content
         ):
             _refuse()
+
+
+_ORIGINAL_REQUEST_CLASSES = tuple(
+    (cls, type.__getattribute__(cls, "__mro__"), tuple(vars(cls).items()))
+    for cls in (NodeLibraryVerifierRequestDescription, BuildRequest)
+)
+_ORIGINAL_REQUEST_ROLES = tuple(_ROLES.items())
+_ORIGINAL_REQUEST_DEPENDENCIES = (
+    (json, "loads", json.loads),
+    (json, "dumps", json.dumps),
+    (hashlib, "sha256", hashlib.sha256),
+    (security_policy, "json", json),
+    (security_policy, "hashlib", hashlib),
+)
+
+
+def require_original_verifier_request_implementation():
+    """Fence description construction after a capture's owner callbacks."""
+    for name, original in _ORIGINAL_REQUEST_BINDINGS:
+        if globals().get(name) is not original:
+            raise ValueError("Node verifier request dependency changed")
+    for module, name, original in _ORIGINAL_REQUEST_DEPENDENCIES:
+        if vars(module).get(name) is not original:
+            raise ValueError("Node verifier request dependency changed")
+    for cls, mro, namespace in _ORIGINAL_REQUEST_CLASSES:
+        current = type.__getattribute__(cls, "__dict__")
+        if (
+            type.__getattribute__(cls, "__mro__") is not mro
+            or any(type(key) is not str for key in current)
+            or len(current) != len(namespace)
+            or any(current.get(name) is not original for name, original in namespace)
+        ):
+            raise ValueError("Node verifier request DATA class changed")
+    if (
+        any(type(key) is not str for key in _ROLES)
+        or len(_ROLES) != len(_ORIGINAL_REQUEST_ROLES)
+        or any(
+            dict.get(_ROLES, key) is not original
+            for key, original in _ORIGINAL_REQUEST_ROLES
+        )
+    ):
+        raise ValueError("Node verifier closed request roles changed")
+
+
+_ORIGINAL_REQUEST_BINDINGS = tuple(
+    (name, value)
+    for name, value in tuple(globals().items())
+    if not name.startswith("__")
+)

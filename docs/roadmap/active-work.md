@@ -1881,17 +1881,770 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       fence scanner/input/report primitives across owner callbacks. Inventory all
       rows with explicit source-rule coverage versus data/identity-only inputs;
       return bounded detached metadata and retain only its CID in the operation.
+      The independently source-reviewed scan implementation is now in progress:
+      a separate SDK policy covers .js/.cjs/.mjs/.ts/.cts/.mts with 1,024 findings,
+      4 MiB inventory-metadata and 8 MiB result ceilings. It reserves scanning
+      before owner callbacks, requires the exact live capture enrollment, fences
+      original construction/serialization and scanner dependencies, and poisons
+      swallowed failures. All 72 focused cases pass without skips: four shared
+      budget controls (0.003s), 13 SDK policy/actual-capture controls (9.389s),
+      19 operation-state cases (4.121s), 17 original capture cases (10.316s),
+      three existing security cases (0.002s), 12 host cases (4.682s) and four
+      root cases (0.319s). The actual-capture controls use injected operation
+      state; they do not establish original runtime assembly. Constructor,
+      serializer and module-alias substitutions refuse with zero replacement
+      calls; late tool/rule mutation and swallowed reentry withhold results.
+      Independent source review accepts this slice and the shared native
+      controller extraction. Its original two-provider/root-subpath scan and
+      publication run fails after 1,909.193 seconds under unchanged grants and
+      deadlines at frozen TCB
+      `aaa2cbbccfe1d771641ae4cd2d361f1d1267007bb49ffd18caedaddc05ad057f`.
+      Original packaged root acceptance returns, but source-cache publication
+      refuses `security.authorization_expired`. Preserve this terminal failure;
+      elapsed time alone does not identify the expired grant or its cause.
+      Before retrying, identify the exact grant and measure original validation
+      work with bounded default-off diagnostics. Do not extend deadlines, remove
+      freshness checks or substitute a successful delegate. No native scan
+      acceptance, TCB repin or public activation is claimed.
+      A separate default-off diagnostic now samples only the original
+      test thread's package-relative function/line metadata (512 keys/64 frames),
+      retain at most 64 already-issued grant timing records with owner ordinals,
+      and bound the detached aggregate to 32 KiB. Read no frame locals, arguments,
+      source, credentials or session text; add no authorization clocks or grants.
+      Sampler/thread/wrapper overhead and GIL bias remain explicit. Persist only
+      after original lifecycle cleanup; no diagnostic pass qualifies the SDK.
+      Independent source/privacy review now accepts the opt-in original native
+      driver. Fifteen diagnostic controls pass (0.256s) and eight nested-cleanup/
+      driver controls pass (0.007s), without skips. They cover target-thread-only
+      bookkeeping, exact original exception preservation across secondary
+      BaseExceptions, false/unknown lifecycle cleanup, private bounded output,
+      and exclusive creation without replacing retained evidence. The ordinary
+      driver collects one case and skips it without the explicit output option;
+      this skip is not native evidence. The explicitly labeled original native
+      diagnostic fails after 1,908.698 seconds under unchanged grants/deadlines.
+      It identifies original provider BUILD grant ordinal 0, checked 12,150 times,
+      expiring during source-cache publication through BUILD input validation,
+      current-provider custody and process liveness. Its final recorded check is
+      83.682 milliseconds after the original expiry; this is failure attribution,
+      not a grant-margin or performance guarantee. Both fixture and observer
+      cleanup complete, with zero capture errors and no dropped grant records.
+      All six diagnostic/helper hashes and the candidate TCB remain unchanged.
+      The 9,244 target-thread samples include 39,146 dropped frame observations
+      and depth truncation; 3,246 samples show waiting for workers. This bounded
+      evidence cannot rank all worker CPU costs. Independent evidence review
+      confirms the original failure, source identities and these limits. Two
+      publication entries remain entries, not acknowledgments. Resume the
+      reviewed continuing-custody/accounting design before another qualification
+      attempt; do not retry the unchanged candidate, relax deadlines or repin.
       No classification or grant follows from a scan. Actual native tool identity
       preimages and continuing readset witnesses must join before provenance and
-      classification. Then add a separate verifier-specific acknowledgement and
+      classification. The [reviewed continuation design](../architecture/node-sdk-host.md#planned-continuation-of-inspected-verifier-custody)
+      records the actual compiler's missing host-owned byte baseline, required
+      accounted retention, operation-local deduplication, exact weak oracle
+      membership and acquisition/release lock ordering. It is not implemented.
+      Capture admission now uses one shared resource pool with the original
+      33-slot/512-MiB ceilings; the old independent byte counter is removed.
+      A bounded ended-capture journal retains the exact lease and its charge if
+      identity removal or settlement is interrupted. Original source references
+      drop outside the capture lock before settlement, including cancellation;
+      uncertain cleanup withholds acknowledgment and resumes idempotently.
+      The pool also supplies operation-local compiler deduplication, transactional
+      handoff and deferred capture/closing-reader release, but those runtime
+      handoffs are not wired yet. Failed captures cannot become closing witnesses
+      or resize away retained charges. Independent review corrected lost release
+      queues, drainer/view publication gaps, identity-before-charge ordering and
+      final-reference destruction under locks. The final focused canonical Make
+      matrix passes all 82 cases without skips: 24 resource controls (0.281s),
+      nine actual accounting controls (0.005s), 17 original capture cases (9.519s),
+      13 scan cases (8.843s) and 19 state cases (3.707s). Independent source/evidence
+      review recomputes the exact 1,282-member TCB as
+      `4f0254494d88a02f8e2130683c07ab4281578dc6d0ec6ef50ea670be1a161639`.
+      This is accounting support, not integrated continuing-custody or native
+      qualification; the production pin remains unchanged. Next join original
+      tool/compiler/oracle witnesses, preserving the original scope and clocks.
+      Capture terminal ordering is now implemented: the same weak enrollment pair
+      is published into capture and reservation metadata, and only the outer
+      reservation owner reports CLOSED after identity removal, lease settlement,
+      draining and journal removal. Cleanup failure or uncertain terminal
+      publication fails the original ticket; recovery never replays CLOSED.
+      Independent source/test review covers publication interruptions after ticket
+      creation, between metadata writes and at lock exit, plus actual provider
+      captures that remain CAPTURING through settlement and fail on cancellation.
+      The focused regression passes 64 cases without skips: 13 accounting controls
+      (0.006s), 21 runtime controls (4.694s), 17 original capture cases (9.165s)
+      and 13 scan cases (8.720s). This supersedes the pre-ordering checkpoint for
+      these changed surfaces. Independent source/evidence review confirms all
+      four reports and the earlier 1,283-member terminal-ordering candidate
+      `252c74e0b1a6ed0c8edea289f21a97865dbc8edf4ebf08714cfa4f7706fc2024`.
+      No repin, native expiry resolution or runtime custody handoff qualification
+      follows.
+      Compiler quota facts now support bounded exact tuple structure, comparing
+      original leaves by identity without equality, hashing or user iteration.
+      Fresh equivalent snapshot containers share the existing operation-local
+      charge; a changed nested leaf refuses and poisons rather than replacing
+      the baseline. Exact tuple subclasses, excessive depth, width and aggregate
+      nodes refuse before quota locking; shared tuple containers remain valid.
+      All 29 resource cases pass (0.265s) and all 13 actual capture-accounting
+      cases pass (0.007s), without skips. Independent source/evidence review
+      confirms both reports and the earlier 1,283-member nested-facts checkpoint
+      `5434f98f48a7c263020b7b776208e64d80db232cef8e57c05d1c16b1c0e46b05`.
+      The production pin remains unchanged. Live compiler storage observation
+      is now integrated: reserve 256 MiB before capture; snapshot exact original
+      compiler/SDK/Node/file/identity fields with C descriptors and namespace
+      fences, including algorithm enum primitives; bracket it with both original
+      full `_rows` validations; and include conservative retained source/metadata
+      in the final capture charge. The unchanged 512-MiB ceiling can now refuse
+      concurrency that the incomplete earlier accounting admitted. Explicit
+      release severs snapshot/readset cells and wrapper references before outer
+      settlement, including retained exception tracebacks. A live-entry removal
+      failure keeps the exact lease charged and journal cleanup resumable;
+      registry/release errors preserve the original body error or cancellation.
+      The final focused canonical Make regression passes all 85 cases without
+      skips: 14 compiler storage controls (0.073s), 24 actual capture cases
+      (17.054s), 21 runtime cases (5.489s), 13 scan cases (10.237s) and 13 actual
+      accounting cases (0.007s). The retained-traceback control drops the external
+      compiler owner and verifies compiler/private-source collection; it retains
+      the actual traceback with explicit try/except until final test cleanup.
+      Independent source/evidence review recomputed the earlier 1,284-member
+      live-compiler candidate as
+      `9ad72a1fc0a3590e36a8430e46bcc5598f3f0a8c4ed6e2799dcf5c1317342d18`
+      with seven production deltas and confirms all five final reports. The
+      production pin remains unchanged.
+      Failed fixture attempts remain retained: the first synthetic Node path did
+      not exist, an early reference-count baseline shared prior literal bytes,
+      and an initial traceback control used assertRaises, which clears frames.
+      These were corrected in fixtures rather than relaxing production checks.
+      Live compiler observation is not runtime closing custody. The oracle
+      observation is now integrated into live captures as well: fresh weak
+      original oracle/loaded-entry/pinned-authority references, mandatory same
+      registry membership, exact C storage/closed JSON/CID observations and
+      detached original file/ancestry stamps. It retains no existing weakref
+      callback or bound loader/scope checker. Reserve 128 MiB after measured
+      compiler admission before snapshot retention; preserve both full original
+      oracle checks around capture, account source/metadata and release its cells
+      independently while still charged. The reused finite metadata observer's
+      default callable API is preserved; opt-in exact-bool release clears records
+      through retained failure tracebacks and reports a primitive estimate that
+      includes mapping keys. Oracle accounting adds its conservative metadata
+      allowance rather than treating that estimate as a complete quota measure.
+      The final focused canonical Make matrix passes 100 cases without skips:
+      six metadata-release controls (0.039s), 20 oracle controls (0.157s), 27 actual
+      capture cases (19.202s), 21 runtime cases (5.753s), 13 scan cases (10.579s)
+      and 13 actual accounting cases (0.007s). The oracle controls prove original
+      root/loaded-entry/authority collection while the guard remains live,
+      replacement/refusal, closed metadata, file/ancestry checks and retained
+      traceback release. Independent source/evidence review recomputes the
+      earlier 1,285-member live-oracle candidate as
+      `e309596771bf687728664d36691aee5c71ad979ab3f31c0b45e539940e530226`
+      with eight production deltas and confirms all six final reports/logs.
+      The production pin remains unchanged. The shared `_record_values` reader
+      now also clears its original record/dictionary, current item and partial
+      field buffer through failure. Two source-bearing RecipeDocument controls
+      retain real validation/construction tracebacks, replace the external source
+      owner and verify collection with substituted getters uncalled. The metadata
+      release suite now passes eight cases; this is field-reader cleanup coverage,
+      not general heap, phase or execution authority.
+      An earlier control expected the wrong ancestry exception;
+      a separate failed control found an actual strong authority reference in the
+      snapshot, which was removed in favor of the original weak authority check.
+      Failed reports remain retained. This is live integrity/accounting support,
+      not operation closing custody or native qualification. Next transfer the
+      original tool/compiler/oracle witnesses, their charges and release ownership
+      into the exact operation's closing phase without changing clocks or grants.
+      Fixed closing-payload cleanup support is now integrated into pool draining:
+      keep the exact payload and charge attached while its two release components
+      run outside locks; record component completion durably; resume uncertain
+      idempotent DATA cleanup without replaying completed components or CLOSED.
+      Only the exact private class uses the captured original release/helper ABI;
+      namespace/storage fences refuse substitutions without invoking getters.
+      Final payload references drop outside locks before accounting removal.
+      The frozen focused regression passes all 139 cases without skips: eight
+      metadata-release controls (0.067s), eight closing-payload controls (0.018s),
+      29 resource cases (0.260s), 21 runtime cases (5.796s), 27 actual captures
+      (18.884s), 13 scan cases (10.345s), 20 oracle cases (0.147s) and 13 actual
+      accounting cases (0.006s). Independent source/evidence review confirms all
+      eight reports/logs and recomputes that earlier 1,286-member candidate as
+      `c908b547d474e3caf5d9631e54f544628d39d30889cc5d33a7fd52491cc81ea1`
+      with nine production deltas. The production pin remains unchanged.
+      Original compiler tuple-valued fields now use immutable identity anchors;
+      fresh structural tuples may deduplicate, but equal replacement SDK-file or
+      Node-command tuples refuse immediately. Stored anchors cannot be rebased
+      through attribute or item assignment. Lazy per-operation resource ownership
+      now journals allocation before pool side effects, recovers unreturned owners,
+      retires concurrent losers outside the binding lock and retains incomplete
+      retirement on the active binding. Metadata-only recovery preserves the
+      original body failure without replaying body/closing/CLOSED. Independent
+      source review accepted these changes. The frozen canonical Make regression
+      passes 173 cases with no skips: metadata release 8 (0.047s), closing payload
+      8 (0.019s), resources 37 (0.249s), runtime 31 (5.874s), actual capture 27
+      (18.999s), scan 13 (10.543s), oracle 20 (0.158s), accounting 13 (0.006s),
+      and compiler witness 16 (0.063s). Independent source/evidence/docs review
+      confirms all nine reports/logs and recomputes the 1,286-member candidate as
+      `c31db46c21b092c911f44d078624e2d5c6e7b0fb5945668f66fe344dac84475e`;
+      the production pin is unchanged. Runtime handoff remains unwired. Before
+      joining it, account duplicate compiler observation metadata and measured
+      bounded file/path metadata, and implement PREPARED/COMMITTED joins and
+      closing-view cleanup outside binding locks.
+      A subsequent prerequisite fixes original materialized-file failure frames:
+      public capture/readback wrappers, row snapshotting, file reads and the
+      shared capture engine clear their own source-bearing locals in `finally`.
+      The explicit partial snapshot loop preserves validation order and original
+      exceptions. Independent source/evidence review accepts 13 custody controls
+      (0.026s, no skips), including retained real failure tracebacks, cancellation
+      identity, partial snapshot failure and source-free successful guards with
+      owned-move continuation. Fresh actual verifier capture passes 27 cases
+      (33.883s) and directory reader passes four (0.007s), both without skips.
+      Independent source/evidence/docs review confirms all three reports/logs
+      and recomputes the 1,286-member candidate as
+      `ac5b93e82e7691edbf7bc50e8d7a9e126676c85458d985504a4fe434d6e49bb4`
+      with ten production deltas; the production pin is unchanged.
+      The 44 passes qualify this cleanup surface only; measured file/path
+      metadata, closing transfer and native execution remain open.
+      The capture cleanup boundary now covers initial owner extraction,
+      reservations and file/tool capture. `_compiler_values` and `_rows` clear
+      their own source-bearing failure locals, with explicit snapshot loops and
+      the original field evaluation order. Both public wrappers protect entry
+      failures and keep inner cleanup before reservation settlement. Independent
+      source review accepts this bounded scope. The revised frozen Make matrix
+      passes 74 cases without skips: 30 actual captures (22.167s), 31 runtime
+      cases (6.040s) and 13 accounting cases (0.008s). New controls retain original
+      ValueError/KeyboardInterrupt tracebacks at initial reserve, file and tool
+      construction, prove compiler/source release and zero remaining charge,
+      exercise the two helper failures and inspect source release at the exact
+      reservation-settlement boundary. An intermediate revision moved wrapper
+      cleanup too late; the corrected revision preserves both inner cleanup and
+      outer entry protection. Independent source/evidence/docs review confirms
+      all three reports/logs and recomputes the 1,286-member candidate as
+      `f8746507c0794c94563ef0076d8eecfbce60d631733b8072cf595a5d6a3b390f`
+      with ten production deltas and unchanged, unrecorded production pin.
+      No arbitrary nested-frame/general-heap, preflight accounting, closing
+      transfer or native qualification follows from these controls.
+      The standalone file-metadata preflight now bounds exact root/path text,
+      inventory/depth/derived rows before parsing and conservatively measures
+      original ancestry, repeated parent prefixes, path/stamp storage and temporary
+      collections under a 32-MiB maximum reservation. File C-slot reads reuse the
+      existing compiler namespace fence, and detached rows retain the original
+      canonical alias/file-ancestor checks. Independent source review accepts the
+      model's bounded scope. Seven focused controls pass without skips (0.004s):
+      cheap refusal before parsing, repeated-parent exhaustion, retained failed
+      construction release, original getter/subclass-iteration refusal and
+      charge growth with path/root depth and repeated parents. That standalone
+      checkpoint did not qualify live reservation/capture integration. Source/evidence/docs
+      review confirms the report/log and recomputes the 1,287-member candidate as
+      `0e47ef6721e735c86e0d0b68c5126a5fb980108edf828b64ddd8a2ef8cf6cc37`
+      with eleven production deltas and unchanged, unrecorded pin.
+      Live capture now reserves the file-metadata maximum before preflight and
+      original full materialization checks, retains the measured charge through
+      all resizes/final admission and attempts explicit file release outside the
+      capture lock before quota settlement. Both materialization and ancestry
+      observers preserve default callable/move APIs and add exact-bool opt-in
+      guard/release pairs. Release clears original shared cells and iteration
+      locals; failed/retired opt-in guards refuse reuse. Opt-in owned moves refuse
+      before transfer until descendant metadata/release ownership is supported.
+      Independent source review accepts the observer and live integration scope.
+      The frozen seven-suite canonical Make regression passes 134 cases without
+      skips: custody 20 (0.030s), actual captures 32 (23.503s), runtime 31 (5.737s),
+      accounting 13 (0.008s), metadata 7 (0.003s), oracle 20 (0.148s) and retained
+      filesystem 11 (18.167s). New controls cover capacity refusal before preflight,
+      reserved/charged lifetime, release outside the lock, original body failures,
+      sticky ancestry/file failure and retained construction/guard frames.
+      Independent source/evidence review confirms all seven reports/logs and
+      recomputes the 1,287-member candidate as
+      `886a20d7936b32ec00327969ab3aa35c48549e0405c770c23af409622a304ee0`
+      with twelve production deltas and unchanged, unrecorded pin. Independent
+      docs review also accepts the corrected standalone/live-accounting boundaries.
+      This remains live DATA accounting, not general heap measurement, CLOSING
+      transfer, phase/execution authority or native qualification.
+      Runtime enrollment now binds each ticket to the original pool/opaque lease;
+      an actual capture fixture checks those exact identities. Metadata-only
+      transaction support journals PREPARING/PREPARED/COMMITTING/COMMITTED, runs
+      pool preparation/attachment/commit outside binding and refuses uncertain
+      commit replay or CLOSED on an uncommitted join. Each payload keeps another
+      2 MiB for its compiler observation even when compiler source deduplicates.
+      Fixed closing cleanup now requires all three compiler/oracle/file release
+      owners with independent durable progress. Pool closing can require the
+      exact bounded original lease set; duplicate, foreign and failed leases
+      refuse. Exact ticket checks precede weak/dict lookups; new journal maps
+      detach under binding and clear outside it. A retained-traceback control
+      found additional compiler retention in the error decorator's arguments;
+      the original pool method and decorators now clear their own references.
+      Attachment also clears its incoming payload after leaving the quota lock.
+      A direct-function fault fixture isolates original attachment frames from
+      Mock-owned argument frames. Earlier failed reports remain retained.
+      Independent source review accepts this support scope. The frozen canonical
+      Make matrix passes 138 cases with zero skips: closing payload 9 (0.019s),
+      handoff controls 16 (0.146s), resources 37 (0.209s), runtime 31 (5.719s),
+      actual captures 32 (23.777s) and accounting 13 (0.010s). Independent
+      source/evidence/docs review confirms all six reports/logs and recomputes
+      the 1,287-member candidate as
+      `1b223ec3f3f85a59532fb033fb98d3379a816de9b4fbb8d65c811527166f391c`
+      with twelve production deltas and unchanged, unrecorded production pin.
+      That checkpoint still lacked capture prepare/commit and the closing
+      consumer. The original capture engine remains unwired; its full original
+      closing checks and cleanup must precede CLOSED. This checkpoint grants no
+      phase or execution authority and proves neither scope handoff nor native
+      execution/expiry recovery.
+      The closing consumer now checks the exact joined lease set under binding,
+      borrows/observes outside it and drops every view/compiler/payload/facts
+      local before completion. A private original pool/owner/token publication
+      precedes borrowing and covers an unreturned view. Only a recorded dropped
+      proof permits idempotent cleanup of that exact token. Unknown proof keeps
+      the original owner/publication and charge; production retirement never
+      guesses that references were dropped. The controlled interrupted-proof
+      fixture inspects its original frame before explicit teardown, not automatic
+      recovery. Reused publications with an inaccurate claimed flag cannot clear
+      another live borrow. Exact owner/token/flag DATA refuses foreign hashing,
+      equality and boolean callbacks. A successful settlement rechecks active
+      identity, CLOSING, poison, joined leases and metadata witnesses after its
+      outside-lock draining; swallowed reentry cannot publish stale success.
+      Failed completion before/after its transition resumes metadata only, with
+      no guard or borrow replay. Independent source review accepts this consumer
+      scope. The frozen canonical Make regression passes 154 cases without skips:
+      payload 9 (0.018s), handoff/borrow 32 (0.198s), resources 37 (0.250s), runtime
+      31 (5.640s), actual capture 32 (22.349s), accounting 13 (0.006s). Controls
+      include publication lock-exit cancellation, unreturned views, both sides of
+      acknowledgment, live-reader retirement refusal, retained guard traceback
+      collection and final metadata drift. Independent source/evidence/docs
+      review confirms all six reports/logs and recomputes the 1,287-member
+      candidate as
+      `2d51c32347d336fc34e94122ce7e45a98afa0ed689f30af5b0921b8103cb9ce5`
+      with twelve deltas and unchanged, unrecorded production pin.
+      The following producer candidate now prepares/commits the original
+      enrolled capture's actual tool/compiler/oracle/file observations. It takes
+      detached tool metadata while the original input scope is live, preserves
+      every original closing callback, and transfers release ownership only
+      after those callbacks succeed. A pending payload journal retains source
+      and its charge across failed preparation, lost commit acknowledgment and
+      interrupted release; recovery settles metadata without replaying commit
+      or reporting an uncertain capture CLOSED. Actual provider controls use
+      an injected operation binding: detached observations survive original
+      source-scope exit and are consumed by closing, without reviving a capture.
+      These controls do not establish original native invocation provenance.
+      The validated detached row size now replaces its earlier maximum in the
+      oracle-continuation reservation, retaining all other independent charges.
+      Consecutive captures exposed a capacity blocker: the conservative compiler
+      reservation plus an earlier retained payload can exceed the unchanged
+      512-MiB shared limit. A sizing-only prototype was rejected because growth
+      before earlier serializers could escape its measured bound; it is not
+      active source. Keep the 256-MiB compiler reservation until an immutable
+      bounded view drives every snapshot/serializer, or original operation-local
+      ownership safely proves reuse. Two providers plus root remain unqualified;
+      do not start another full native run before resolving that boundary.
+      Independent source review accepts this bounded producer support. Its
+      canonical Make regression passes 192 cases without skips: payload 10,
+      handoff 32, resources 37, runtime 36, actual captures 32, accounting 13,
+      compiler storage 16 and detached tool 16. Reports/logs use ignored prefix
+      `producer-final-`, with payload retry `r2` and the other suites `r1`.
+      The retained original `__new__` substitution fixture altered CPython type
+      allocation state after teardown; the final in-process constructor refusal
+      control covers `__init__` only. The failed first report is retained.
+      Read-only TCB review computes
+      `9149b0945cfb592a4b0f83f21bae115a197d9af74b3ad01ff7a47e338237c594`
+      with twelve production deltas; the production pin remains unchanged and
+      unrecorded. Original Pin method tracebacks can retain their own readsets;
+      this producer checkpoint does not claim arbitrary nested-frame cleanup.
+      The next candidate replaces the compiler reservation barrier with a shared
+      sizing/capture walk and a capped immutable primitive view. Both serializers
+      consume that view exclusively. Fresh C-slot reads compare every reference
+      against the original baseline before retaining rows; full byte checks remain
+      separately bracketed by original guards. Node identity is recomputed from
+      fresh primitive fields, refusing sizing-boundary version replacement.
+      Original SDK packet/identity documents and command layout use shared pure
+      helpers. Explicit serializer loops clear partial results and source locals
+      even when their original failure traceback is retained.
+      View scratch remains charged through all resizes until references drop.
+      A conservative two-byte ASCII policy is limited to CPython 3.12–3.14,
+      with separate metadata/header allowance; Python 3.11's legacy wchar cache,
+      other interpreters and unreviewed versions retain the old fallback.
+      Non-ASCII and byte accounting and both absolute ceilings remain unchanged.
+      An initial quota model still refused its third capture at a 325,289,911-byte
+      stage; the revised source policy now fits all three measured reservation
+      sequences with one original compiler. Only the first capture in that model
+      is a genuine provider; the other two leases are explicit quota fixtures.
+      Separately, two actual independent operations fit without cross-operation
+      compiler deduplication. Neither result establishes native root provenance.
+      Independent source review accepts the view, accounting, serializer cleanup
+      and fresh Node guard. Nine canonical Make suites pass 243 cases without
+      skips: payload 10, handoff 32, resources 37, runtime 37, actual captures 35,
+      accounting 13, compiler storage/view 28, detached tool 16 and real
+      TypeScript 35. Retained reports use `compiler-view-` prefixes; earlier
+      failed controls are historical. Read-only TCB review computes
+      `c4f75770f860dae4ef8bfa5993def85f04a16fa0eaf8fa8ffe8cdb2ea33faf00`
+      with thirteen production deltas and the unchanged/unrecorded pin.
+      The existing full two-provider-plus-root native case completed under
+      `aviation-compiler-view-native-r1` on the aligned local macOS worker:
+      one test failed after 1,911.797 seconds with unchanged grants/deadlines.
+      Original packaged-root acceptance returned, but root source-cache
+      publication reported `security.authorization_expired`; the lifecycle was
+      unsuccessful. This does not qualify native transfer or expiry margin.
+      Retain the failed report and earlier failures. Trace the original
+      publication guard/timing before another full run; no deadline extension,
+      grant renewal, repin or readiness claim follows from the focused matrix.
+      A separate bounded original-provider diagnostic profiles five custody
+      checks; an unprofiled six-batch experiment then compares 1,500 checks per
+      variant with unchanged grants and original cleanup. Exact built-in
+      normalization shortcuts reduce aggregate time from 8.651s to 8.434s
+      (about 2.5%). This is not whole-runtime timing or qualification, and the
+      small observed benefit does not justify changing shared identity code.
+      The experiment remains ignored diagnostic evidence under
+      `provider-builtin-normalization-r1`; production normalization is unchanged.
+      A subsequent real live-capture profile identifies repeated compiler class
+      namespace checks; the isolated grouped-sweep prototype also gives only a
+      modest, variable improvement and is not integrated. The independently
+      reviewed `publication-stage-timing-native-r1` diagnostic completed through
+      the original bounded process owner with unchanged child grants/deadlines.
+      Its one original native case passed in 1,876.829s, with no skips. Before/
+      after source freezes both match `c4f75770…`. The earlier expiry failure
+      remains retained; this diagnostic pass establishes neither reliable expiry
+      margin nor release qualification.
+      Source tracing then found an upstream 4-KiB buffered evidence tee, so these
+      downstream arrivals cannot attribute phase durations. A real child
+      handshake confirms the delay and rejects a naive `read1` change that leaks
+      a fixture secret split across reads. The isolated complete-stream-redaction
+      prototype passes six controls (`live-tee-probe-r7`, no skips), including
+      live console delivery, split-secret refusal, UTF-8/CRLF fidelity, exact
+      persisted-byte hashes/counts in both tee modes, and original cancellation
+      with actual owned-child reaping. Additional persistence/close cancellation
+      controls preserve the invocation's own primary and propagate a new
+      finalization cancellation inside an unrelated outer exception handler.
+      After terminal completion, the reviewed fix and six maintained controls are
+      applied. Console tee uses available reads, while persisted streams receive
+      complete-stream redaction at finalization. Cleanup preserves this invocation's
+      primary and drains every registered closer. The maintained live-output case
+      fails against the earlier source; the actual updated evidence suite passes
+      22 cases (2.575s) and the step harness passes two (0.763s), all without skips.
+      Strict lint and formatting pass. Read-only TCB review now computes
+      `bb1651b83771a107075986b5f9b68b361099533b47fa2a7ddd8a63f580cc3df5`
+      with exactly fourteen production deltas; the additional file is
+      `src/literate_ai/evidence_ledger.py`. The pin remains unchanged/unrecorded.
+      On-disk partial transcripts remain empty until finalization; this is not a
+      native expiry fix or renewed native proof for the new whole TCB.
+      Typed permission, native execution and expiry recovery remain open.
+      The first acknowledgement membership owner is now implemented separately
+      from issuance. Its private 64-registration seam binds exact primitive
+      pre-binding facts to original authority owners, then consumes one original
+      handle for weak configuration/runtime membership. It refuses copied/forged
+      handles, bool/integer substitution, dead weak targets, changed class/slot
+      storage and repeated binding. Failure poisoning uses the original registry
+      mutex; uncertain poison updates deny further process-local use while
+      allowing retirement. Original owner references retire outside the registry
+      lock body. Independent source review accepts this support-only core.
+      Seventeen canonical controls pass without skips, including controlled
+      concurrent binding, lock-exit cancellation, restored/deleted storage,
+      normal weak retirement and an isolated process-denial/cleanup case.
+      Strict lint and formatting pass. Read-only TCB review computes
+      `b1dd8d3f9e8b146a63d62bd778b1239a5bee73145122724b5433f213db724d83`
+      with fifteen production deltas and the unchanged/unrecorded pin. There is
+      no public acknowledgement factory, classification, issuance or typed host
+      selector yet; the manual authorizer and its identities are unchanged.
+      Canonical recording of the reviewed design refreshes documentation
+      authority; `verifier-authority-post-review-verify-r1` passes authority,
+      fails the unchanged stale-receipt gate and records three unconfigured
+      skips. It is not whole-project acceptance.
+      A subsequent private integration seam attaches one opaque fixed-policy
+      owner to that existing registration before binding. The future issuer must
+      retain only a weak acknowledgement backreference; the registry neither
+      inspects policy DATA nor introduces a second authority lookup. Runtime
+      metadata now reserves classification before scanning, rejects adoption of
+      an earlier scan and changed acknowledgement identity, refuses unfinished
+      classifications at close, and drains the bounded primitive witnesses on
+      retirement. The shared runtime failure guard now includes lock entry/exit
+      cancellation as well as method failures before unlock. Independent source
+      review accepts the correction. Canonical controls pass 21 acknowledgement
+      cases (0.456s), 46 runtime cases (10.711s) and 13 real-capture scan cases
+      with injected operation state (10.585s), all without skips. The broader
+      scan run exposed existing fixtures that swallowed the initial expected
+      refusal but incorrectly expected successful handoff afterward; an isolated
+      staged-source diagnostic reproduces that failure. Corrected expectations
+      retain the inner refusal/trap assertions and verify complete registry,
+      journal and resource-charge cleanup after retirement. The failed run and
+      staged-baseline diagnostic remain retained separately. Read-only TCB review
+      computes `30ea9452e4a1d62c059892ab1200699d610657f127ede136363737ce84ed780f`
+      with the same fifteen production deltas and unchanged/unrecorded pin.
+      This adds classification lifecycle metadata only: the fixed public factory,
+      actual original-capture policy decision, issuance, typed configuration and
+      native/installed/model-backed CLI/Aviation gates remain open.
+      The following checkpoint implements the fixed explicit acknowledgement
+      factory and private original-capture classifier. Intent binds the original
+      snapshot/execution, actor/reason, policy/scanner, finite lifetime, original
+      UTC deadline and explicit identity-only-input acknowledgement. The existing
+      registry owns fixed source-witness release on explicit and weak retirement,
+      outside its mutex; a retained original guard-failure traceback no longer
+      keeps the planner alive. Original capture and provider-request construction
+      fence request/serializer dependencies after first, post-scan and nested
+      custody callbacks, before constructing or validating descriptions. Exact
+      `AuthoredLibraryImport` joins the closed finite-metadata type registry;
+      foreign types/subclasses remain unsupported. The classifier obtains its
+      own original scan and preimages, creates a truthful local-custody observation
+      (`vendor_signature_verified:false`) and existing SecurityPolicy decision,
+      then rechecks original ownership and deadline before publication.
+      Actual inventory exposed two executable extensionless TypeScript JavaScript
+      launchers. The independently reviewed version-2 scan policy recognizes only
+      their exact compiler role/path/bytes, scans them in a disjoint logical
+      namespace, retains original inventory identities/modes, binds the mapping
+      and required digests in policy, and rejects mapped-path collisions before
+      scanning. Changed launchers and other executable DATA remain unsupported.
+      All 144 canonical controls pass without skips: 16 factory/classification
+      cases (13.499s), 46 runtime (11.107s), 23 registration/retirement (0.426s),
+      16 scan/mapping (10.274s), and 43 original capture/request cases (24.430s).
+      The earlier failed controls remain retained separately. Strict lint,
+      formatting and staging checks pass. Independent source/evidence/docs review
+      recomputes the 1,289-member TCB as
+      `78938cf04aecc74c32b9c6dc877a6ca859d75b33a60f7d882a3538d07e4a5abc`,
+      with exactly eighteen production deltas and unchanged/unrecorded pin.
+      Canonical recording makes documentation review current at
+      `bd1c6caf415b2e92d78bb13f266cd79931b7d80005f45f0488fec21c2eea9fe8`.
+      `verifier-fixed-classifier-post-review-verify-r1` passes authority, fails the
+      unchanged stale-receipt gate and reports three unconfigured skips. These
+      source/injected-runtime controls issue no grant and establish no native
+      host-mode, installed, ordinary model-backed CLI or Aviation cutover proof.
+      The classification controls use actual original provider captures with
+      injected operation/binding metadata; original root classification remains
+      unqualified as well.
+      Next join exact-request issuance and immutable-empty live revocation to
+      bounded operation grants and aggregate closing, then expose typed host
+      selection together with the working producer/enforcement path.
+      The next reviewed source checkpoint implements that private issuer and
+      original operation grant custody. Each intent constructs its own original
+      immutable-empty revocation set, fixed live verifier and existing
+      PolicyBuildAuthorizer with the acknowledged lifetime/deadline and YOLO off.
+      Issuance reserves before callbacks, obtains its own original classification
+      and request, validates and registers the original grant before returning.
+      A separate bounded 64-operation journal retains original payload/witness
+      pointers and identities, preventing coordinated runtime map replacement
+      from adopting a new grant. Independent membership also prevents clearing
+      intent from disabling enforcement and survives cancellation before intent
+      publication. Closed dict/key/record/intent/flag/phase checks precede hashing,
+      equality and truthiness. Earlier grant expiry blocks later issuance without
+      changing original timestamps. Exact committed capture/CLOSED membership is
+      sealed after closing-view settlement, then actual resource retirement runs
+      the final authority/revocation preparation and shared clock cut. Expiry,
+      swallowed retirement reentry/poison and late configuration replacements
+      withhold success while completing cleanup and allowing binding recovery.
+      An in-flight token prevents nested retirement from draining ownership early;
+      original DTO witnesses and intent references release outside both mutexes.
+      Source, evidence and documentation review pass. All 171 canonical controls
+      pass without skips: 27 issuance cases (47.369s), 16 factory/classification
+      (14.049s), 46 runtime (11.575s), 16 scan (11.149s), 43 original capture/request
+      (24.807s) and 23 registration/retirement cases (0.424s). These include actual
+      provider inputs and controlled injected runtime joins; capacity/weak cleanup
+      cases are metadata controls. Earlier failed matrices remain retained.
+      Strict lint, format and staging checks pass. Independent review recomputes
+      the 1,289-member TCB as
+      `4f03755f3ad4121721a4c624c640c653010ef46fb3e74b14286f16e3f6963f68`,
+      with the same eighteen production deltas and unchanged/unrecorded pin.
+      Documentation review is canonically current at
+      `e9804b0f868513bb146f2ce40558768f03c8a7be019014cd0e57855f69595d32`.
+      `verifier-issuance-post-review-verify-r1` passes authority, retains the stale
+      receipt failure and three unconfigured skips. No host mode or build is
+      activated. Next wire typed host selection and exact original-grant use
+      alongside unchanged manual configuration identities/callback ordering, then
+      qualify original-root issuance, the full native operation, installed wheel,
+      ordinary model-backed CLI and Aviation consumer/cutover gates.
+      The following reviewed grant-use checkpoint connects the shared provider/
+      root verifier runner to an explicitly threaded operation. Execution requires
+      that operation's exact original issued grant, successfully CLOSED capture,
+      committed handoff, original ports and matching current request identity.
+      Fresh equal request DATA is allowed; copied grants and callback-bearing
+      request fields refuse. Entry and final post-clock/ownership cuts enforce the
+      same boundary. Original execution seams are captured at trusted module
+      initialization, avoiding both callback substitution and an eager-import
+      cycle. Untyped explicit operations refuse before authorization lookup.
+      Independent weak ports/state membership prevents missing-operation fallback
+      after mutable host/intent pointers are cleared or replaced and survives the
+      retirement interval after live operation lookup is removed. Synchronized
+      marker snapshots/publication/removal preserve unrelated manual execution;
+      metadata checks run after releasing the marker mutex.
+      The final canonical candidate passes 176 controls without skips: 22 exact
+      grant-use cases (53.562s), 66 issuer/factory/registration (61.630s), 46 runtime
+      (10.787s), 12 host (4.079s), four root-plan (0.300s) and 26 actual manual
+      provider cases (140.955s). Grant-use cases include actual provider verifier
+      children under original issuance with injected runtime joins, copied-grant
+      refusal before children, final-clock failure, both helper substitutions
+      before entry/during custody, cleared/replaced host pointers and untyped
+      operations. A controlled concurrent metadata case performs 100 actual
+      private registrations/retirements alongside 1,000 unrelated manual cuts;
+      it does not establish host/native concurrency acceptance. Earlier failed
+      attempts and the pre-lock passing matrix remain retained. Source, TCB and
+      documentation review pass; strict lint/format/staging checks pass.
+      The unchanged 1,289-member/18-delta TCB now computes
+      `e5e1a06968614e01f977cf4f14b1e5f45c53a605c8d200bd429ce156738e4fb9`;
+      the production pin remains unchanged and unrecorded. Documentation review
+      is current at
+      `0dcf2d39d689085aabc1cdb84718f4e979137e1c96d3fadd6f9c7729432271ad`.
+      `verifier-grant-use-post-review-verify-r1` passes authority and retains the
+      stale-receipt failure plus three unconfigured skips. Typed host selection
+      remains unavailable; no runtime/build is activated. Next implement explicit
+      mutually exclusive typed host configuration and provider/root issuance,
+      preserving original manual identities and callback ordering, then complete
+      original-root/native/installed/CLI and Aviation cutover qualification.
+      The next source-reviewed candidate implements typed host selection and
+      both original provider/root issuance routes. Host and subordinate policies
+      select exactly one manual callback or original verifier acknowledgement
+      before user mappings/callbacks; typed identities use version 2 while manual
+      identities retain version 1. Typed binding installs its original membership,
+      consumes the acknowledgement, then runs its original closure/dependency
+      validation and host-owner callback, with fresh finite checks afterward.
+      Generic toolchain projection/ordinary ports assembly stay independent and
+      grant no verifier permission. Failed/reused/reentrant binding poisons intent
+      without replay or rollback of installed membership. Original helper aliases
+      are captured/pinned and checked before use; custody-time replacements cannot
+      run before their own fences. Provider and root capture owners enroll and
+      issue in their exact operation, complete original capture settlement, then
+      check the exact grant/current request before the shared runner.
+      Source and TCB/documentation review pass. The frozen 1,289-member candidate
+      has 21 production deltas and computes
+      `048e87af4042c433fbd8bc837433831318c37a6c8206028b932de0882ab226f7`;
+      the production pin stays unchanged/unrecorded. Documentation review is
+      current at
+      `34d1849c1f138b539651a1357e650668e09527bd698cbfe006800106d83871c5`.
+      `typed-verifier-host-post-review-verify-r1` passes authority and retains the
+      stale-receipt failure and three unconfigured skips. Configuration-r3 passes
+      16 controls (3.260s); construction-order cases explicitly inject graph
+      construction. Issuer-r1 passes 66 (62.107s), grant-use-r1 22 (52.387s),
+      runtime-r1 46 (10.891s) and manual-host-r2 12 (4.273s), all without skips.
+      Combined controls-r3 has passed its two original-custody substitution cases
+      with injected operation joins and the genuine-projection/original-binding
+      dependency-guard case. The matrix is terminal: three pass and one error in
+      2008.415s, without skips. The full two-provider/root-subpath typed runtime
+      entered original packaged-root acceptance, then ordinary provider BUILD
+      authorization expired during root declaration custody validation. Root
+      acceptance did not return and publication is unqualified. Retain the failed
+      evidence; do not extend the ordinary 30-minute grant or retry unchanged.
+      The manual-provider regression passes all 26 cases (143.125s), without skips.
+      These scoped passes do not establish native success. The initial native-r1 attempt was deliberately
+      interrupted for the binding/helper review findings (terminal exit 2), with
+      failed evidence retained; controls-r3 is the replacement frozen candidate.
+      No source repin, installed build, model-backed CLI qualification, runtime
+      activation or Aviation cutover follows from these source/scoped results.
+      The following reviewed harness checkpoint adds the separate
+      `wheel-sdk-typed-host-preflight` Make target and literal controller mode.
+      It preserves the manual matrix, stages a closed one-file helper extension
+      and selects exactly the genuine bind and full typed two-provider/root-
+      subpath cases. Installed isolation, empty private cache, original namespace
+      and module-origin custody are unchanged. File/stdout protocols require the
+      distinct typed schema, exact case IDs/counts, authorization mode and declared
+      acknowledgement limits. The declared, helper-hash-bound inputs are not
+      observed timestamps or expiry-margin evidence. Manual result schemas refuse;
+      both success and failure retention keep exact candidate bytes/evidence
+      separate from whole-wheel qualification. Mixed modes, supplied wheels and
+      qualified-wheel publication refuse before tools. Source/evidence/docs review
+      passes; all 43 canonical metadata/filesystem controls pass without skips:
+      ten new (0.135s), 26 existing installed guards (0.303s), seven wheel-smoke
+      controls (0.359s). These are not installed SDK acceptance. The production
+      TCB remains `048e87af4042c433fbd8bc837433831318c37a6c8206028b932de0882ab226f7`
+      at 1,289 members/21 deltas with unchanged/unrecorded pin. Documentation is
+      current at
+      `2e356af50d2cecb3151a8f65d8152165d2794499b189f4b730d2697a4a4875e2`.
+      The installed preflight is not run. It requires passing source-native qualification,
+      fresh health and a reviewed exact clean candidate snapshot/artifact. Preserve
+      the active checkout, source-only staging and retained attempts when making
+      the separate local qualification checkout; no activation or publication is
+      implied. Ordinary model-backed CLI and Aviation cutover remain open.
+      A separately reviewed sampling-only diagnostic ran the original full
+      typed scenario under `typed-host-native-sampling-r1`. It leaves ordinary
+      BUILD and typed verifier policies, clocks and deadlines unchanged, and does
+      not replace grant validation (`observe_grants=False`). Twenty diagnostic
+      controls pass without skips (1.042s), including exact-bool selection, real
+      factory behavior and primary-failure/cleanup preservation. Sampling retains
+      bounded original-thread stack metadata without locals or arguments; it
+      cannot establish worker CPU distribution, reliable expiry margin, native
+      qualification or installed acceptance. The single diagnostic is terminal:
+      one error in 1918.561s, with the same ordinary provider BUILD expiry after
+      entering original packaged-root acceptance. Observer/lifecycle cleanup both
+      complete; the report is saved with zero capture errors, 9,293 samples,
+      46,559 dropped frame samples and depth truncation. Of the retained rows,
+      4,308 samples show the original thread waiting for lifecycle workers;
+      `canonical_identity` has 1,694 leaf samples and `ComponentLock.identity`
+      1,373 inclusive samples. These overlap and do not attribute worker CPU.
+      Use a bounded isolated snapshot-validation profile to distinguish the exact
+      lower owner before changing production overhead; do not infer an expiry
+      margin or retry unchanged. No detached qualification snapshot was created.
+      Production TCB/pin
+      remain unchanged. Reviewed documentation was recorded at
+      `1ef8eb9d669ecbc3fdefbec0a9455605ed03913e39cf5952c26829bc85521d84`.
+      `typed-host-sampling-post-review-verify-r1` passes authority, retains the
+      stale-receipt failure and skips three unconfigured gates. Analyze the
+      diagnostic evidence before choosing a performance fix or qualification retry.
+      The separately reviewed `typed-host-snapshot-profile-r1` then profiles
+      three original `snapshot.require_unchanged()` calls on a fresh three-node,
+      two-provider/root-subpath fixture, with setup outside the measured region.
+      Calls take 0.0545/0.0553/0.0550s under cProfile; owned cleanup completes.
+      Catalog replanning contributes 0.1394s of the combined 0.1648s, including
+      423 canonical-identity calls (0.0370s cumulative). These are isolated-owner
+      costs with profiler overhead and a small fixture, not full-path attribution,
+      worker CPU, native margin or acceptance. Next measure the composed original
+      owner guard/callback multiplicity before choosing an optimization. No
+      production source, grant limit or authority pin changes at this checkpoint.
+      The reviewed `typed-host-composed-guards-profile-r1` separately profiles
+      three original bound-host checks (0.0717–0.0729s each) and three original
+      base-admission checks (0.0825–0.0840s each). Setup uses genuine toolchain
+      projection/binding, a finite original acknowledgement, a no-op child-free
+      fixture host callback and no active invocation. Both groups make exactly
+      three original snapshot checks; canonical-identity counts are 573 and 621.
+      Thus these configuration-only paths do not show multiplied snapshot checks.
+      Original acknowledgement/fixture cleanup restores the resource registries
+      to baseline. Profiler overhead and omitted live grant aggregates/invocation
+      work prevent full-runtime attribution. Retain prior builtin-normalization
+      and grouped-namespace experiments; their modest results do not justify
+      repeating or integrating those changes. Active provider/invocation
+      composition remains the unmeasured path before any production optimization.
+      The current Node runtime probe launches a bounded child whose polling
+      re-enters the active liveness owners. Historical active-cohort profiling
+      identifies that amplification; it is a lead, not a current speedup claim.
+      [ADR 0075](../decisions/0075-scoped-direct-node-validation.md) was accepted
+      as written by the directing user on November 19
+      for a separate opt-in direct-native validation profile. It requires a
+      genuinely probed original owner, a qualified closed launch-input backend,
+      independent liveness/grant fences and an original closing probe. Unsupported
+      inputs retain the ordinary profile under its actual identity or refuse;
+      no unenrolled operation may claim the new profile. This is a temporal
+      validation-policy decision reviewed under ADR 0006. Planning and
+      implementation are now admitted; changed limits, profile activation and
+      unreviewed native retries remain excluded. Existing source/native,
+      installed, CLI and downstream acceptance obligations remain open.
+      - [ ] Define and independently review the explicit macOS direct-Node
+        backend's closed launch-input/trust boundary and refusal cases.
+      - [ ] Implement the original-owner entry/closing probe lifecycle with fresh
+        intermediate custody checks and every existing grant/liveness fence.
+      - [ ] Verify provenance, loader/dependency/launchability drift, lifecycle,
+        cleanup and default-profile compatibility under original limits.
+      - [ ] Measure and qualify the genuine serial two-provider/root-subpath
+        native SDK cell and separate installed distribution before activation
+        or downstream cutover; retain all earlier failed receipts.
+      A separate current-code counterexample,
+      `process-liveness-cross-owner-cut-r1`, confirms why the second captured
+      process-liveness cut cannot simply be removed when `caller_guard` is None.
+      A later synthetic liveness callback invalidates an earlier owner without
+      retiring that guard; the next original cut refuses before the process
+      factory runs. Original failure identity and both context variables are
+      preserved/restored, with zero children. This is an existing-fence diagnostic,
+      not implementation or qualification of the proposed validation profile.
+      The detached direct-Node witness helper now passes 16 synthetic POSIX
+      controls (0.044s, no skips), with independent source review. It preserves
+      both existing tool labels, brackets metadata with full byte validation and
+      retains no binary payload or pinned-input closure. These controls do not
+      qualify native execution or performance. At that earlier checkpoint,
+      runtime enrollment/closing joins were unwired. The preceding 1,282-member
+      digest describes the accounting
+      checkpoint before this additional helper, not the combined candidate.
+      Independent source/evidence review recomputed the earlier 1,283-member
+      detached-tool checkpoint as
+      `ece5dc6393e59393235cee3d2ed6a82bf6b40edf5f88dbf397fc30287552ce2d`
+      with exactly six production deltas. The production pin is unchanged.
+      Then add a separate verifier-specific acknowledgement and
       narrowly scoped policy issuance, preserving manual callbacks/identities
       with explicit mutual exclusion. Only constructor-owned immutable-empty
       revocation state is initially supported; arbitrary callbacks/unsupported
       feeds refuse. Retain bounded live/closing/terminal grant witnesses through
       aggregate publication closure; fresh publication reentry gets a new aggregate.
       Installed-wheel, ordinary model-backed CLI and Aviation cutover remain open.
-      Broad verification passes authority; its existing test-receipt gate remains
-      stale and three unconfigured lock/source-intelligence/HTML gates skip.
+      After independent documentation review and canonical marker recording,
+      `compiler-view-post-review-verify-r1` passes authority and fails the receipt
+      gate with `project.test_receipt_stale`: the configured receipt does not bind
+      the current authority revision. Three unconfigured lock,
+      source-intelligence and HTML gates skip. This documentation review does not
+      qualify the native runtime, refresh the test receipt or change the TCB pin.
       These scoped passes do not establish whole-project or release readiness.
       Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
