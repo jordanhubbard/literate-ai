@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "d0a2a72c491e1a2f74c02dab36b05379f15337b7",
+  "continued_subject": "908c1678bb36c2a63d6d0bb4e4782ac391d7bf80",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -53,8 +53,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 54,
-      "preserved-for-reconciliation": 36
+      "merged": 57,
+      "preserved-for-reconciliation": 33
     },
     "snapshots": [
       {
@@ -511,9 +511,10 @@
         "base": "441ee05b35ecfa087dac4f9e1b1a876eb726cc1d",
         "commit": "0f5db42608cb25d4a3376377b01af1ba1ea1c46f",
         "branch": "recovery/puck-20261126/nativereadopt1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 8,
-        "remaining_paths": 8
+        "remaining_paths": 8,
+        "resolution": "Normal merge 7eb417e58 after unique runtime-retirement patch a5343bb7b. Same recovered tree as clean head 6fe9f65e; modern CRLF/Git/index/namespace guards retained. Exact tree equality checked against tested implementation."
       },
       {
         "label": "np14",
@@ -538,9 +539,10 @@
         "base": "75125268c86915bd2e535a24cc58ad2a88878d8c",
         "commit": "fd99a412110ae0305b73ee8d56558a15a1c430aa",
         "branch": "recovery/puck-20261126/nv14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 14,
-        "remaining_paths": 13
+        "remaining_paths": 13,
+        "resolution": "Normal merge ace2f7d87 retains identical current tree. Original native deadline/admission/source/coding CLI/receipt behavior preserved; current original-root claim, contained-runtime, observer pairing and retained-identity guards retained."
       },
       {
         "label": "pf14",
@@ -841,9 +843,10 @@
         "base": "707978ce6dc6bf7aa6be2143e180aad9527e6cfb",
         "commit": "b0f71eb4e26801662367aa4be35fd575af41d927",
         "branch": "recovery/puck-20261126/wheelinv2",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 1,
-        "remaining_paths": 0
+        "remaining_paths": 0,
+        "resolution": "Normal merge 908c1678b retains identical current tree. Both original installed case selectors already present; original diamond-case and CUDA identifier controls observed against exact installed wheel. Modern source/custody/release and Windows CPU authority retained."
       },
       {
         "label": "wi14",
@@ -1011,7 +1014,7 @@
       {
         "label": "head-nativereadopt-wheel1",
         "commit": "6fe9f65e08c6567473286429225dccc08fafaf7f",
-        "disposition": "preserved-for-reconciliation"
+        "disposition": "merged"
       },
       {
         "label": "head-sad14",
@@ -1020,18 +1023,8 @@
       }
     ],
     "committed_head_counts": {
-      "merged": 5,
-      "preserved-for-reconciliation": 2
-    },
-    "next_source_work": {
-      "label": "head-nativereadopt-wheel1",
-      "commit": "6fe9f65e08c6567473286429225dccc08fafaf7f",
-      "same_tree_snapshot": "nativereadopt1",
-      "same_tree": "7f4d844b98d3898a7def6846bc22ec46a0782fc4",
-      "status": "reviewed unique extension; implementation and integration pending",
-      "scope": "Current code lacks existing-only cache lock acquisition, coordinated lifecycle namespace selection, exact idle contained runtime retirement and six readoption controls. Preserve current CRLF/native index/nested-owner guards when porting the original final commit delta. Parent 441ee05b3 also changes older shared owners: a 52-file symbol inventory is preparatory, not proof that all parent intent is superseded. Metadata-path ownership check moved into retained_cargo_execution_inputs_core; renamed/current closed owners need semantic review before completing merge.",
-      "symbol_inventory_sha256": "7c3329398dea0c602f0e4e0ea869e01f697eeb1191bb3d8f68b676021161934a",
-      "next_step": "Port unique readoption runtime ownership behavior and original refusal/readoption controls. Reconcile remaining parent changes before counting either head or same-tree snapshot merged."
+      "merged": 6,
+      "preserved-for-reconciliation": 1
     }
   },
   "checks": {
@@ -1764,10 +1757,314 @@
       },
       "scope": "Original nested Git, lock-path, recovery and index custody controls retained. Later CRLF and Windows-specific fixture behavior remains intact. Actual Linux source-development controls only; installed readoption/runtime-retirement extension remains pending.",
       "release_evidence": false
+    },
+    "native_readoption": {
+      "status": "source and scoped exact-wheel controls passed",
+      "tested_tree_subject": "a5343bb7b",
+      "installed_subject": "7eb417e5855d8e3fcd6f119849aa11ca5f9caa08",
+      "source": {
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        },
+        "seconds": 81.75,
+        "log_sha256": "5b4a7e9604b756adebd81aa6859c52a5db353b63613513148314a4cb11d002fb",
+        "report_sha256": "454d144e785ab44189d41ef8df8ecc0adb5ab717b5a2ac81ff9ed25d1d2dd649"
+      },
+      "update": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "seconds": 20.011,
+        "log_sha256": "2b4b5e36667bf4a6a5f7905bccc3ef1601159caf0ff580612c3b5f557eb8fa8e",
+        "report_sha256": "545af9ab70a1417e4bbcd8143323fb5366a81e0efdcb00890efac5eccf665f1e"
+      },
+      "cache": {
+        "summary": {
+          "executed": 1,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 1,
+          "skipped": 0
+        },
+        "seconds": 0.275,
+        "log_sha256": "02b82aeb6774d227cb9c7725bb0c7bb099b0970706ef63c7981fef48663fbef5",
+        "report_sha256": "9e7b2fde89c4ff8283964e4856b8e3fb05e1aaa80ed162c055c4daf0810f5d32"
+      },
+      "lifecycle": {
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        },
+        "seconds": 0.387,
+        "log_sha256": "df0da65e0e4dc9861a801ac1fc98af6903ef7dbb9dc2133faf5c4534cb400f94",
+        "report_sha256": "95d8320276f16b4c863b0ac2bcb3b5adbccbdc49070accd04aa18628b68ae59f"
+      },
+      "installed": {
+        "schema": "literate-ai/takeover-native-readoption-installed@1",
+        "subject": "7eb417e5855d8e3fcd6f119849aa11ca5f9caa08",
+        "origin": "https://github.com/jordanhubbard/literate-ai",
+        "wheel": "literate_ai-1.4.0-py3-none-any.whl",
+        "wheel_sha256": "191e0e190c8a38f620bf3acaad31ac21873ead1678272a9ec05f073ac61c2576",
+        "seconds": 33.770029494015034,
+        "seed": {
+          "all_record_paths_contained": true,
+          "distributions_checked": 1,
+          "mode": "seed",
+          "outside_record_counts": {},
+          "records_checked": 889,
+          "seeded_pip_record_checked": true
+        },
+        "binding": {
+          "distribution": "sha256:2a9dc74253000d24b55809f467aac4cf31f461e20077bf14ada76d929b72ecad",
+          "members": 1720,
+          "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+        },
+        "probe": {
+          "status": "passed",
+          "selected": 6,
+          "passed": 6,
+          "skipped": 0,
+          "cases": [
+            "test_cold_and_warm_removal_allow_repeated_public_adoption",
+            "test_cross_device_refusal_is_a_retryable_retained_runtime",
+            "test_exact_legacy_retry_preserves_foreign_slot_and_runtime_contents",
+            "test_interruption_after_move_reports_the_bounded_slot_for_disposition",
+            "test_open_legacy_waiter_cannot_enter_the_readopted_project",
+            "test_process_with_active_lifecycle_lock_preserves_worktree_and_index"
+          ],
+          "console_calls": [
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "update",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 2
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 2
+            }
+          ],
+          "installed_module_origins_verified": true,
+          "framework_module_count": 348,
+          "fixture_identities": {
+            "tests/e2e/test_native_project_removal.py": "46157a4466088afaf30b3aafd428a41c50ad027e7d44efbdfb0be1916e4c6983",
+            "tests/support/native_repository.py": "549228a7ec11c731818deac7456c4851465148a7e0064b005aeb160053673aec"
+          },
+          "fault_injection": "original maintained in-process hooks",
+          "native_component_acceptance": false
+        },
+        "release_evidence": false,
+        "receipt_sha256": "44e1ab2a052c69b888e5341fe109931106597bd1bbd4fe699dc4e8b3f7dfaef8",
+        "scope": "Fresh noneditable exact-commit wheel; six original maintained controls with 34 actual public console invocations. Original 90-second per-console deadline, fixtures and mutation/refusal assertions unchanged. All framework module origins inside installation. Not the full wheel matrix, other-platform/native Component or release acceptance."
+      },
+      "merge_resolution_sha256": "dbf5b1266ea87ee0317b6b11862b91af77ce7a65fe6b1cc73bc9ae2ebf7e9bed",
+      "scope": "Retire only exact idle native lock residue, preserve foreign or interrupted resources, serialize namespace selection, refuse active or already-open stale contenders, and support repeated cold/post-update readoption. Keep current Git/CRLF/index and lifetime guards. Initial unpublished duplicate-helper merge was corrected before publication; both normal merges resolve to the tested tree.",
+      "release_evidence": false
+    },
+    "reconciled_native_run": {
+      "status": "focused controls passed; broader control refused ambient input",
+      "subject": "7eb417e5855d8e3fcd6f119849aa11ca5f9caa08",
+      "focused": {
+        "summary": {
+          "executed": 43,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 43,
+          "selected": 43,
+          "skipped": 0
+        },
+        "seconds": 0.412,
+        "log_sha256": "c39a67ab99ee517589eebee64d076fdaa116563675407d32cffcec008cbca017",
+        "report_sha256": "7ef02cb1e42b5c43359f7963d24a2c80facc0ef530cfc2b2257f2052edaf0095"
+      },
+      "broader": {
+        "summary": {
+          "executed": 10,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 631,
+          "skipped": 0
+        },
+        "seconds": 1.54,
+        "log_sha256": "e99f65838b847d725343b9fcbace4df81581bd62d5c207b5273a2331765a7d4d",
+        "error": "Original offline Rust verifier refuses existing ancestor Cargo configuration. Nine passed and one errored before stopping; 631 selected, remaining 621 not run. Guard/source unchanged; no Cargo configuration modified or hidden."
+      },
+      "scope": "Forty-three original native-run, bridge, admission and runtime-plan controls. Source-only modeled tool/runtime observations, not actual native product acceptance.",
+      "release_evidence": false
+    },
+    "reconciled_installed_inventory": {
+      "status": "CUDA inventory passed; broader diagnostics failed; both recovered selectors observed passed",
+      "installed_subject": "7eb417e5855d8e3fcd6f119849aa11ca5f9caa08",
+      "cuda": {
+        "selected": 16,
+        "passed": 16,
+        "skipped": 0,
+        "receipt_sha256": "2de67434798e0363c893d98ad21f1f4a0fac4d0def8dfea6c97d0782d92d2956",
+        "log_sha256": "8a510fcdc714bc0d68d3b4fd613608d39e60750d7f978fe325cab5251d4c2e3b",
+        "installed_module_origins_verified": true
+      },
+      "diagnostics": {
+        "status": "failed",
+        "methods": 32,
+        "reported_errors": 12,
+        "seconds": 4.194,
+        "error": "Existing mocked verified-promotion objects lack required authored_asset_bindings; current guard unchanged. No mock/default fabricated and no broader pass inferred.",
+        "log_sha256": "26765107bb042c7bce6854bd49fdeb35dc3f03ef3f1957b091c7cffe3db7cf2a",
+        "recovered_diamond_case": "passed as explicitly observed in original log"
+      },
+      "release_evidence": false
+    },
+    "readoption_repository_style": {
+      "status": "passed",
+      "subject": "ace2f7d87",
+      "log_sha256": "0d526005067b5482e39da1c761ae949b860f7f954159b8c5139c1c65d6b6117c",
+      "formatted_python_files": 2759
     }
   },
   "remaining_requirements": [
-    "Reconcile the 36 preserved source snapshots and two remaining committed clean heads. Continue resulting composed-source qualification; exact-commit authored-readmission installed probe has passed at 645c19f75. Preserve modern namespace, role-observation and journal guards when integrating remaining proposals.",
+    "Reconcile the 33 preserved source snapshots and remaining committed clean head head-batch17. Preserve unique promotion/runner and bounded Cargo metadata behavior while keeping current namespace, role-observation and journal guards. Exact installed readoption controls pass at 7eb417e58; broad qualification still has explicit unresolved failures.",
     "Complete resulting composed-source qualification. Fourteen Cargo cases pass at f0a5da8eb; later retained-release/fixture changes have their own bounded controls. Diagnose canonical source metadata publication role-input refusal before the recovered forest capacity assertions; do not weaken its guards or expand declared budgets.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."

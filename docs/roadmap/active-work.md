@@ -29389,3 +29389,40 @@ matrix or native Component/release acceptance. The temporary hand49 checkout is
 removed only after proving clean state and ancestry and archiving all 390 generated
 files (archive SHA-256
 `12535b4aa61c63e29ce108ffdaa75771e78a9a84448e9865c369f00f1f599504`).
+
+
+**Native readoption recovered and installed.** Clean head `6fe9f65e` and same-tree
+snapshot `nativereadopt1` are reconciled through `8bc0c20fa` and `7eb417e58` after
+porting unique runtime retirement at `a5343bb7b`. Retire only the exact idle lock;
+preserve foreign contents and interrupted resources; fence native namespace
+selection against active and already-open contenders. Thirty removal cases pass
+(81.750s), nine update cases pass (20.011s), and the cache/lifecycle controls pass.
+The current CRLF, nested Git, original index and source ownership guards remain.
+An initial unpublished merge duplicated helpers; it was corrected before pushing,
+and both final normal merges match the tested implementation tree exactly.
+
+A fresh noneditable wheel at exact `7eb417e58` passes six maintained readoption
+controls through 34 actual console invocations (33.770s outer probe), preserving
+all original mutation/refusal assertions and deadlines. Wheel SHA-256:
+`191e0e190c8a38f620bf3acaad31ac21873ead1678272a9ec05f073ac61c2576`.
+Installed distribution identity:
+`sha256:2a9dc74253000d24b55809f467aac4cf31f461e20077bf14ada76d929b72ecad`.
+All framework modules resolve inside the isolated installation. This is scoped
+Linux evidence, not full wheel, platform, native Component or release acceptance.
+
+**Native-run and installed-inventory histories.** Normal merges of `nv14` and
+`wheelinv2` preserve identical current trees. Forty-three focused native-run,
+bridge, admission and runtime-plan controls pass (0.412s). The broader 631-case
+selection stops after nine passes and one original verifier refusal of the host's
+ancestor Cargo configuration (1.540s); the remaining 621 cases did not run and
+the configuration/guard remain unchanged. Sixteen installed CUDA inventory
+cases pass. Both recovered installed selectors, including shared diamond case
+inventory, explicitly pass in logs; the broader 32-method diagnostics scope
+reports twelve errors because old mock promotion objects lack current required
+`authored_asset_bindings`. No broad pass or fabricated mock authority is inferred.
+Full repository lint and formatting pass (2,759 Python files).
+
+Fifty-seven of ninety dirty snapshots and six of seven clean heads are now
+ancestors. Thirty-three snapshots and `head-batch17` remain, including unique
+promotion/runner code and bounded Cargo metadata controls. Original changed-parent
+provenance, source role-input and release qualification holds remain open.
