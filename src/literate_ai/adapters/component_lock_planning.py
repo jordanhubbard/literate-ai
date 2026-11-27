@@ -2224,7 +2224,14 @@ def _pin_catalog_reference(
                 if component
                 else root
             )
-            configured = _configured_content_path(base, reference.uri)
+            selected = (
+                configured_catalog_path(
+                    boundary, base, reference.uri, kind=reference.kind
+                )
+                if component
+                else base / reference.uri
+            )
+            configured = _configured_content_path(selected.parent, selected.name)
             expected_uri = reference.identity.uri
             content = closure._try_pin_direct(
                 configured,

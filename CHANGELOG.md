@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Resolve contained Component catalog references consistently during ordinary
+  lock reads and descriptor capture, preserving file identity and redirect refusal.
+
 - Keep application and SDK Flavor profiles available in the shared sample catalog
   when they share a target, while refusing duplicate coordinates and retaining
   exact lock-based selection and pinned input checks.

@@ -29133,6 +29133,20 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Lock capture placement parity (source partial):** Fresh full source qualification
+  stops during actual retained Cargo fixture adoption: ordinary Component reads
+  resolve recorded contained catalog coordinates, but the descriptor-capture
+  optimization reconstructs an old-root skill path. Route capture through the
+  same typed catalog-placement owner before opening descriptors. Preserve URI,
+  digest, quotas, directory custody and custom-reader fallback. Require real
+  contained project capture/ordinary parity, original mutation and path-refusal
+  controls and the unchanged authored-input fixture. All 21 native POSIX capture
+  controls pass (2.817s), including real contained workflow/routing/skill bytes,
+  closure identity and quota parity, and matching rejection of equal-byte foreign
+  symlinks at mapped paths. Both original authored-input-session controls pass
+  (38.312s); repository lint/format pass. Complete source, installed and platform
+  regression remain open; this does not qualify a move or retire source authority.
+
 - **Installed maintenance corrections (macOS partial):** A fresh noneditable
   07f28edc7 wheel passes all 13 commands against the exact finalized original
   b45a48ac4 fixture that rejected both maintenance operations. Root/descendant

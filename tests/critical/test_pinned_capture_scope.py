@@ -83,6 +83,81 @@ class PinnedCaptureScopeTests(unittest.TestCase):
             self.assertEqual(caught.exception.errno, errno.EBADF)
         self.closure.require_unchanged()
 
+    def test_component_capture_uses_real_contained_catalog_placement(self):
+        from tests.support.fixtures_test_retained_harness_receipts import _adapter
+
+        root = self.root / "contained"
+        _adapter().initialize(root, empty=True, source_intelligence_provider="none")
+        context = projects.ProjectConfigurationStore.context(root)
+        self.assertEqual(context.framework_root, root / "litai")
+        for kind, uri in (
+            ("workflow", "workflows/production/staging/dev/workflow.md"),
+            ("routing-policy", "routing/production/staging/dev/routing.json"),
+            (
+                "specification-to-source-skill",
+                "skills/specification-to-source/python-portable-application/SKILL.md",
+            ),
+        ):
+            with self.subTest(kind=kind):
+                content = context.framework_path(uri).read_bytes()
+                reference = ContentReference(
+                    kind,
+                    uri,
+                    ContentIdentity.parse_uri(
+                        "sha256:" + hashlib.sha256(content).hexdigest()
+                    ),
+                )
+                ordinary = projects.PinnedInputClosure()
+                captured = projects.PinnedInputClosure()
+                arguments = dict(
+                    boundary=root,
+                    label="contained-reference",
+                    component=True,
+                )
+                expected = planning._pin_catalog_reference(
+                    ordinary, root, reference, capture=None, **arguments
+                )
+                with planning._reference_capture_scope(captured) as capture:
+                    self.assertEqual(
+                        planning._pin_catalog_reference(
+                            captured, root, reference, capture=capture, **arguments
+                        ),
+                        expected,
+                    )
+                self.assertEqual(expected, content)
+                self.assertEqual(captured.identity, ordinary.identity)
+                self.assertEqual(captured.total_bytes, ordinary.total_bytes)
+                captured.require_unchanged()
+                self.assertFalse((root / uri).exists())
+                target = context.framework_path(uri)
+                outside = self.root / f"foreign-{kind}"
+                outside.write_bytes(content)
+                target.unlink()
+                target.symlink_to(outside)
+                errors = []
+                try:
+                    for direct in (False, True):
+                        closure = projects.PinnedInputClosure()
+                        with self.assertRaises(
+                            (
+                                planning.ComponentLockPlanningError,
+                                projects.PinnedInputClosureError,
+                            )
+                        ) as caught:
+                            with planning._reference_capture_scope(closure) as scope:
+                                planning._pin_catalog_reference(
+                                    closure,
+                                    root,
+                                    reference,
+                                    capture=scope if direct else None,
+                                    **arguments,
+                                )
+                        errors.append(caught.exception.code)
+                    self.assertEqual(errors, ["component_lock.content_unsafe"] * 2)
+                finally:
+                    target.unlink()
+                    target.write_bytes(content)
+
     def test_byte_replacement_and_same_byte_rewrite_during_read_refuse_admission(self):
         read = os.read
         for replace in (False, True):
