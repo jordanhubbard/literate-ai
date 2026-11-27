@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Keep application and SDK Flavor profiles available in the shared sample catalog
+  when they share a target, while refusing duplicate coordinates and retaining
+  exact lock-based selection and pinned input checks.
+
 - Restore the optional release execution view with declared owners, next actions
   and unresolved prerequisites from the configured ledger and queue; reject stale,
   duplicate or cyclic authority and keep external inputs explicitly unverified.

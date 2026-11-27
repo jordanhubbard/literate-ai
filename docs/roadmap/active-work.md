@@ -24438,6 +24438,15 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   mounted filesystem preserves all four workers, original assertions and
   deadlines; the three real compiler-cache cases then pass in parallel
   (3.336s). No cache availability assertion or product admission is relaxed.
+- **Sample catalog integration:** Full source qualification now
+  reaches recipe planning and exposes a global one-target-per-Flavor assumption.
+  The application and SDK TypeScript profiles legitimately share a target while
+  retaining distinct coordinates and packaging constraints. Admit distinct catalog
+  coordinates, preserve duplicate-coordinate refusal and required target coverage,
+  and leave selection to the existing lock resolver. Require focused coexistence
+  and duplicate-identity controls and unchanged all-host recipe assertions pass
+  through `make python-check` (six passes, six explicit live/native opt-in skips).
+  Complete source qualification remains the next action before release acceptance.
 - **Current release intake:** Include context-bound roadmap validation
   [#492](https://github.com/jordanhubbard/literate-ai/issues/492) /
   [#493](https://github.com/jordanhubbard/literate-ai/pull/493) under

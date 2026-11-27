@@ -44,6 +44,7 @@ from tests.conformance.support.sample_runner import (
     _ExecutionVariant,
     _load_sample,
     _sample_runtime_recipe,
+    _shared_flavors,
     discover,
     execute_standard_sample_variant,
     plan_recipes,
@@ -671,6 +672,35 @@ class NeutralSampleLadderTests(unittest.TestCase):
         self.assertEqual(result["build_cache"]["hits"], 0)
         self.assertEqual(cached["build_cache"]["misses"], 0)
         self.assertEqual(cached["build_cache"]["hits"], 3)
+
+    def test_shared_catalog_retains_distinct_profiles_for_the_same_target(self):
+        catalog = _shared_flavors(SAMPLES)
+        typescript = {
+            item.definition.coordinate.name: item
+            for item in catalog
+            if item.definition.primary_axis
+            is FlavorAxis.IMPLEMENTATION_LANGUAGE_ECOSYSTEM
+            and item.descriptor.axis_value == "typescript"
+        }
+        self.assertIn("lang-typescript", typescript)
+        self.assertIn("lang-typescript-library", typescript)
+        self.assertNotEqual(
+            typescript["lang-typescript"].descriptor.revision_identity,
+            typescript["lang-typescript-library"].descriptor.revision_identity,
+        )
+
+    def test_shared_catalog_refuses_duplicate_coordinates(self):
+        project = mock.Mock()
+        project.root = REPO_ROOT
+        project.roots.return_value = (REPO_ROOT / "flavors",) * 2
+        with mock.patch(
+            "tests.conformance.support.sample_runner.discover_project",
+            return_value=project,
+        ):
+            with self.assertRaisesRegex(
+                SampleFailure, "duplicate shared Flavor coordinate"
+            ):
+                _shared_flavors(SAMPLES)
 
     def test_all_host_recipes_compose_from_specs_and_real_flavors(self):
         plans = plan_recipes(SAMPLES)

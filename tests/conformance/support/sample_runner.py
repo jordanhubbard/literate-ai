@@ -2435,6 +2435,7 @@ def _shared_flavor_input_closure(
 def _shared_flavors(samples_root: Path) -> tuple[_SharedFlavor, ...]:
     flavors: list[_SharedFlavor] = []
     keys: set[tuple[FlavorAxis, str]] = set()
+    coordinates: set[str] = set()
     project = discover_project(samples_root)
     catalog_roots = (
         project.roots("flavor") if project is not None else (samples_root / "_flavors",)
@@ -2460,8 +2461,10 @@ def _shared_flavors(samples_root: Path) -> tuple[_SharedFlavor, ...]:
             raise SampleFailure(f"shared Flavor must select one target: {root.name}")
         axis_value = definition.supported_targets[0]
         key = (definition.primary_axis, axis_value)
-        if key in keys:
-            raise SampleFailure(f"duplicate shared Flavor target: {root.name}")
+        coordinate = definition.coordinate.uri
+        if coordinate in coordinates:
+            raise SampleFailure(f"duplicate shared Flavor coordinate: {coordinate}")
+        coordinates.add(coordinate)
         keys.add(key)
         loaded = OpenSpecProvider().load(
             root, tuple(item.uri for item in definition.specification_fragments)
