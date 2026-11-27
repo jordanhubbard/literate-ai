@@ -81,6 +81,41 @@ class RetainedCargoReceivingV2Tests(unittest.TestCase):
             )
         )
 
+    def test_corrupt_archive_cannot_publish_packages_or_replace_reserved_roots(self):
+        from literate_ai.adapters.exclusive_directory import directory_node
+
+        roots = tuple(
+            self.context.workspace / item.path
+            for item in self.reviewed.plan.scratch_roots
+        )
+        before = {path: directory_node(path) for path in roots}
+        with self.assertRaises(ValueError):
+            self.receive(read_archive=lambda *_args: self.provider.archive[:-1])
+        self.assertEqual({path: directory_node(path) for path in roots}, before)
+        self.assertTrue(all(not any(path.iterdir()) for path in roots))
+        for _, destination in self.reviewed.binding.common.destinations:
+            self.assertFalse(os.path.lexists(self.reviewed.project.root / destination))
+
+    def test_provider_revocation_cannot_publish_packages(self):
+        reads = []
+
+        def current():
+            reads.append(True)
+            if len(reads) == 1:
+                return self.current
+            return replace(
+                self.current,
+                current=replace(
+                    self.current.current, configured_store_id="revoked-store"
+                ),
+            )
+
+        with self.assertRaisesRegex(ValueError, "importer-authority-mismatch"):
+            self.receive(read_current=current)
+        self.assertGreaterEqual(len(reads), 2)
+        for _, destination in self.reviewed.binding.common.destinations:
+            self.assertFalse(os.path.lexists(self.reviewed.project.root / destination))
+
     def test_source_addition_is_never_hidden_by_owned_package_output(self):
         original = receiver.publish_directory_exclusive
 
