@@ -29347,7 +29347,7 @@ including actual contained readmission, CRLF/Unicode, changed phase facts, quote
 or ambiguous ownership refusal, reference drift and late metadata replacements.
 Seven source-input cases pass (4.205s), nineteen publication-owner cases pass
 (6.002s), and the earlier source review/authority-file controls remain bounded
-supporting evidence. Exact-commit installed six-case qualification is pending.
+supporting evidence. The exact clean `645c19f75` wheel passes all six installed cases (185.370s outer probe; 184.531s unittest), including four real console invocations and isolated installed module-origin checks.
 
 The original regression's empty-history assertions have been reconciled with the
 modern publication protocol: after publication starts, assert exact retained
@@ -29375,3 +29375,17 @@ six public cases. AST-identical formatting of the old installed-parent helper
 repairs the existing style failure; full lint and formatting pass (2,759 Python
 files). This does not repair the separately reproduced old root-path fixtures,
 renew the historical driver/review/receipt pins or complete release acceptance.
+
+
+**Installed authored-readmission checkpoint.** A freshly built non-editable wheel
+at exact `645c19f75` passes the maintained six-case probe with four real console
+invocations. Wheel SHA-256 is
+`36187a62b0f4ef7da9be9079d571dafd81cd582eabf17b3111555417677d8766`;
+installed distribution identity is
+`sha256:cdff8ac05956c290fa790b33079278247830fbce1973718263296e347d7345f3`.
+All framework module origins remain inside the isolated installation and original
+fixture bytes are unchanged. This is the scoped probe, not the entire wheel smoke
+matrix or native Component/release acceptance. The temporary hand49 checkout is
+removed only after proving clean state and ancestry and archiving all 390 generated
+files (archive SHA-256
+`12535b4aa61c63e29ce108ffdaa75771e78a9a84448e9865c369f00f1f599504`).
