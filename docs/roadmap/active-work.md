@@ -29160,10 +29160,10 @@ qualification, admission and cache reuse remain open.
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
-- **Next action:** Reconcile the remaining layout-relocation snapshot; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Next action:** Integrate the late-discovered embedded Node SDK source and finish verified cleanup; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
   - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
-  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 89 of 90 recovery snapshots merged; one remains preserved. All seven additional committed heads are merged.
+  - [ ] Integrate every unique source state with deliberate conflict resolution. All original 90 recovery snapshots are reconciled, including an explicit historical archive for the obsolete layout prototype. The final filesystem scan found one further dirty SDK snapshot and five clean detached heads, now published and awaiting integration.
   - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
   - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
   - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
@@ -29613,3 +29613,22 @@ errors, with no product-code or wheel changes; earlier failures remain recorded.
 execution/provisioning, native metrics, installed live-worker/SSH/command journey
 or complete-feature/release acceptance is inferred. Eighty-nine dirty snapshots
 and all seven clean heads are integrated; `layout14` remains.
+
+
+**Final original-layout reconciliation.** All fourteen modern admission controls
+pass without skips (513.718s). Their fixture now follows contained metadata and
+the actual selected Component, including late workflow/source mutation cuts.
+The older unregistered layout prototype is retained as an
+[exact replayable historical patch](../history/implementation/retained-layout-prototype.md).
+Its original tree is reproduced byte-for-byte in an alternate Git index; this is
+an archival integration decision, not a functional port or completed relocation.
+All original native/source/public/installed/review requirements remain open.
+
+**Late independent Git directory discovered.** A complete filesystem scan also
+found active framework SDK work in a consuming project's embedded parent and five
+clean detached worktrees attached to that independent Git directory. The exact
+61-path staged tree is published as recovery `1cb1ef461`; its original index bytes
+match independently, with no unstaged/untracked source. All five detached heads
+are ancestors of that snapshot. Transfer of ignored evidence, deliberate source
+integration and verified removal of redundant worktrees remain in progress.
+Clean pinned dependencies of other consuming projects retain their own authority.

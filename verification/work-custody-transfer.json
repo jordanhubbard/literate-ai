@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "82fe2dc69ebcf76f2d363522ef48cac5f089bc22",
+  "continued_subject": "3da5a0b6a314ec8dc602309ef90cc75e90427bd9",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -53,7 +53,7 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 89,
+      "merged": 90,
       "preserved-for-reconciliation": 1
     },
     "snapshots": [
@@ -494,9 +494,12 @@
         "base": "2b9c392d9bb869f31f95a04a4a7a867456dbc58e",
         "commit": "9a449c3ec6d49923e56b1e604f804dc04696abc6",
         "branch": "recovery/puck-20261126/layout14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 28,
-        "remaining_paths": 28
+        "remaining_paths": 0,
+        "reconciliation_commit": "3da5a0b6a314ec8dc602309ef90cc75e90427bd9",
+        "resolution": "Exact complete replayable original delta retained as historical patch and blob manifest; superseded unregistered prototype is not restored as a second effect path. Current native owners retained; high-level relocation remains unfinished.",
+        "tree_unchanged_from_first_parent": true
       },
       {
         "label": "layrefs1",
@@ -961,6 +964,16 @@
         "disposition": "merged",
         "changed_paths": 1,
         "remaining_paths": 0
+      },
+      {
+        "label": "embedded-node-sdk",
+        "base": "8927c66d2d08efb3344a80cd5c78c1e876c681cd",
+        "commit": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+        "branch": "recovery/puck-20261126/embedded-node-sdk",
+        "disposition": "preserved-for-reconciliation",
+        "changed_paths": 61,
+        "remaining_paths": 61,
+        "scope": "Late complete filesystem scan found active framework work in an embedded project parent repository, outside the original common Git directory. Published exact staged tree; source HEAD/index retained."
       }
     ],
     "historical_proposals": "docs/history/decisions/recovered-proposals.md",
@@ -1117,6 +1130,15 @@
         },
         "historical_notes": "docs/history/roadmap/recovered-telemetry-prototype.md",
         "native_guard_resolution": "Retain current confirmed Job termination and failed-kill fallback. New deferral is separate from successful kernel termination. Preserve live native-root clamping, absolute deadlines, original process registration, native command admission/closure and interrupt relay. Optional observation cannot claim the Job or execute fallback from a reader thread."
+      },
+      "layout_prototype_archive": {
+        "subject": "3da5a0b6a314ec8dc602309ef90cc75e90427bd9",
+        "patch_sha256": "9f2424297b7f2d3b72523ffba6e508ce0b03aa385dd4c3f94818dbdba9083232",
+        "replayed_tree": "99146eaabbad130a05a9b136c287a5a74e9b0194",
+        "original_tree": "99146eaabbad130a05a9b136c287a5a74e9b0194",
+        "changed_paths": 28,
+        "functional_equivalence": false,
+        "active_requirements": "Native source role-input publication, compiler/inspection/workspace/public composition, independent review and original platform/installed gates remain open."
       }
     },
     "committed_heads": [
@@ -1156,11 +1178,41 @@
         "label": "head-sad14",
         "commit": "71cbd1eafee43bb102390dbf01369e0d74dc736e",
         "disposition": "merged"
+      },
+      {
+        "label": "embedded-sdk-1158d5f4",
+        "commit": "1158d5f4fdcced53447abfc89825020d77d5a9d4",
+        "disposition": "preserved-for-reconciliation",
+        "preserved_in": "1cb1ef461d6df7d4c6092a460308ec811c044283"
+      },
+      {
+        "label": "embedded-sdk-8c2e108f",
+        "commit": "8c2e108ff685e4ed6574f4c4fe4581a16fb5ba9b",
+        "disposition": "preserved-for-reconciliation",
+        "preserved_in": "1cb1ef461d6df7d4c6092a460308ec811c044283"
+      },
+      {
+        "label": "embedded-sdk-b57e6687",
+        "commit": "b57e6687b0c758f8c5603c44f377d19cd4e75b03",
+        "disposition": "preserved-for-reconciliation",
+        "preserved_in": "1cb1ef461d6df7d4c6092a460308ec811c044283"
+      },
+      {
+        "label": "embedded-sdk-2b6fb2a3",
+        "commit": "2b6fb2a31411c9be1e33f424f95cd8dc42c02649",
+        "disposition": "preserved-for-reconciliation",
+        "preserved_in": "1cb1ef461d6df7d4c6092a460308ec811c044283"
+      },
+      {
+        "label": "embedded-sdk-cf652de5",
+        "commit": "cf652de551d14bb5db1735117ef3216a21dcb7c9",
+        "disposition": "preserved-for-reconciliation",
+        "preserved_in": "1cb1ef461d6df7d4c6092a460308ec811c044283"
       }
     ],
     "committed_head_counts": {
       "merged": 7,
-      "preserved-for-reconciliation": 0
+      "preserved-for-reconciliation": 5
     },
     "actual_missing_file_review": {
       "scope": "Only layout14 remains unreconciled, including its 13 absent prototype paths. Obsolete cg14b configuration/materializer/test APIs were intentionally superseded by current opaque-owner APIs and 39 scoped controls; wt14 uses separate versioned contract/codec/authentication/fixture/receiver-test files to preserve legacy telemetry bytes. Original snapshots and historical notes remain reachable.",
@@ -1188,10 +1240,10 @@
       "resolution_sha256": "24423dbda3dff34870af24e938d6affbc4c06aa1842c39e438ffcec0345a0c61"
     },
     "next_source_work": {
-      "label": "layout14",
-      "status": "last unique source prototype requires current-owner port and qualification",
-      "scope": "Thirteen prototype files span compiler/inspection/planning/workspace/public relocation, plus eleven original named controls including the wrapper issuance control now ported. Current lower-level native forest/source transaction and journal owners and the original canonical role-input refusal remain authoritative. Recover functional intent through current exact owners; do not restore old data/plan-based grants or infer public/native relocation acceptance from helper presence.",
-      "inventory_sha256": "3f55400d51066f034bbe10310a5b4c6b071f98bcc6b8b2cb3f67d5733697cafa"
+      "label": "embedded-node-sdk",
+      "status": "Exact snapshot published; current native/SDK owner integration in progress",
+      "scope": "Sealed Node SDK implementation, verifier lifetime/resource/metadata controls and accepted scoped-validation proposal. Preserve current native root, cooperative cache publication, process cleanup, all original source/installed/native/review gates.",
+      "snapshot": "1cb1ef461d6df7d4c6092a460308ec811c044283"
     }
   },
   "checks": {
@@ -2843,10 +2895,26 @@
         "python_files": 2805,
         "log_sha256": "3cd2efdfb5373ce5937870792e303ef5cc701225dbf101ac1853bd48ef432ca0"
       }
+    },
+    "retained_layout_current_admission": {
+      "subject": "16a3185fdfc25075c898a2886d5766e155acae63",
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      },
+      "seconds": 513.718,
+      "report_sha256": "48aa0227a1ec2f022a25220023eff05fbb24a60783c984501b61f21ee0d0bde7",
+      "log_sha256": "5124d3298762128ff43e5a14a676a41ee61baebf509ff32804569b2ead33362e",
+      "scope": "Fourteen existing modern admission controls pass without skips after fixture paths follow configured contained metadata and actual selected Component declaration. Actual local Git/filesystem/layout/readmission; modeled Cargo. No native Cargo, high-level public relocation or release acceptance.",
+      "prior_failures": "Four original failed fixture attempts retained. Hardcoded metadata paths, implementation-parent-as-Component rename and workflow path replaced by actual configured owners; assertions, guards and deadlines retained."
     }
   },
   "remaining_requirements": [
-    "Reconcile the 28 preserved source snapshots. All seven additional clean heads are integrated. Preserve unique bounded Cargo metadata/configuration, layout and native telemetry intent while retaining current namespace, lifetime, per-write journal and historical custody guards. Canonical promotion exact-wheel controls pass at 2ec59a540; later phase-polling changes have their own bounded source checks.",
+    "Complete current-owner reconciliation of the newly discovered embedded Node SDK snapshot and its five clean detached ancestors. All original 90 dirty snapshots and seven additional clean heads are reconciled, including explicit archival disposition of the obsolete layout prototype. Finish independent transfer verification and cleanup of late-discovered worktrees.",
     "Complete resulting composed-source qualification. Fourteen Cargo cases pass at f0a5da8eb; later retained-release/fixture changes have their own bounded controls. Diagnose canonical source metadata publication role-input refusal before the recovered forest capacity assertions; do not weaken its guards or expand declared budgets.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
@@ -2863,5 +2931,18 @@
       "scope": "Historical Windows checkpoint retained verbatim; no current native Windows acceptance or superseding failure is inferred.",
       "queue_prose": "- **Windows qualification follow-up (2026-11-01):** The native gate at\n  `7763e23de54a5c51a4a155b3bcdd8c724fb41e56` preserved a clean checkout but failed\n  worktree discovery when a native filesystem identifier exceeded canonical JSON's\n  signed 64-bit integer range. The preceding actual admitted-receiver integration\n  case passed. Preserve exact raw filesystem comparisons and represent only wide\n  observation-signature integers losslessly in the identity document; retain the\n  global canonical integer bounds. Native Windows discovery/audit checks and fresh\n  full regression are required before landing this correction.\n"
     }
-  ]
+  ],
+  "late_filesystem_discovery": {
+    "dirty_recovery_commits": 1,
+    "additional_clean_heads": 5,
+    "registered_checkouts": 6,
+    "staged_paths": 61,
+    "index_sha256": "26669968d09e3ae9b07e30e3709eb67e6fb80413304ad6336f3fb0da545b5067",
+    "snapshot_tree": "8733c389cad39c124f35d367fe0afc16a9650b55",
+    "snapshot": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+    "standalone_worktrees": 5,
+    "artifact_directories": 7,
+    "transfer": "In progress; independent full archive comparison required before deletion.",
+    "consuming_projects": "Clean pinned Kit framework dependency and clean hosted pilot consumer fixtures are dependency/project inputs, not additional active framework development. Preserve their consuming project authority."
+  }
 }
