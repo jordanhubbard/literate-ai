@@ -24435,6 +24435,14 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   installed and collateral requirements, then prepare, check, publish and verify
   through the release owner. No recovered snapshot or narrow passing cohort
   establishes release acceptance.
+- **Maintained library fixture reconciliation (source partial):** The fresh exact
+  fe8a85293 installed wheel passes the repaired bootstrap setup and reaches 13
+  maintained library-qualification errors. Explicit modeled promotion/root
+  authoring fixtures omit newly required authored-asset fields. Declare their
+  original empty asset rosters and legacy framework placement, retaining actual
+  production asset validation and all original qualification/rebind assertions.
+  All 19 source controls pass without skips. Require independent review and a
+  fresh noneditable-wheel run; prior wheel receipts remain failed.
 - **Contained qualification audit repair (source partial):** The actual contained
   CLI promotion passes, but qualification's literal root Flavor prefix selects no
   files from its verified audit and masks the required intake trust refusals.

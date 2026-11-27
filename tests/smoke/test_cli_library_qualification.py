@@ -55,6 +55,7 @@ class PublicLibraryQualificationTests(unittest.TestCase):
         self.addCleanup(self.fixture.doCleanups)
         self.project = self.fixture.project
         self.project.definition.flavor_roots = ()
+        self.project.definition.framework_directory = None
         (self.project.root / "component.md").write_bytes(b"# Fixture library\n")
         self.source = self.fixture.root / "baseline"
         self.source.mkdir()
@@ -74,7 +75,7 @@ class PublicLibraryQualificationTests(unittest.TestCase):
         lock.root_revision = revision.identity
         lock.target_profile_identity = identity("target")
         self.fixture.snapshot.authority.root_authoring = SimpleNamespace(
-            resolved_kind="library", coordinate=self.coordinate
+            resolved_kind="library", coordinate=self.coordinate, assets=()
         )
         self.projection = SimpleNamespace(
             identity=identity("projection"),
@@ -129,6 +130,7 @@ class PublicLibraryQualificationTests(unittest.TestCase):
             inverse_evidence_custody=None,
             inverse_evidence_custody_identity=None,
             promotion_input_audits=(),
+            authored_asset_bindings=(),
             standard_rebind_migration=None,
         )
         self.verified = verified
