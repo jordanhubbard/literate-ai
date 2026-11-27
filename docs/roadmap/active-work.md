@@ -29358,3 +29358,20 @@ reproduced on canonical `cfe9ec185`. Changed files pass lint/format; repository 
 exposes nineteen prior long lines in the installed-parent helper. No broad suite,
 platform, independent review or release pass is inferred. Original failure logs
 and pending provenance/role-input investigations remain preserved.
+
+
+**Native removal history and composed guards.** Snapshot `rmguard1` is reconciled
+by normal merge `5c6dbc6de` with an unchanged tree: current native Git/lifecycle
+checks, original role observations and CRLF policy supersede its earlier forms.
+The merge's duplicate legacy Git helper definitions were rejected so they cannot
+shadow current foreground maintenance and Windows lock handling. Twenty-four
+actual removal cases and nine update cases pass. Fifty-four of ninety preserved
+dirty snapshots and five of seven clean heads are now ancestors; thirty-six
+snapshots and two clean heads remain. The separate installed-native readoption
+head contains additional idle runtime retirement behavior and remains pending.
+
+Composed authored-readmission publication passes all twenty owner controls and
+six public cases. AST-identical formatting of the old installed-parent helper
+repairs the existing style failure; full lint and formatting pass (2,759 Python
+files). This does not repair the separately reproduced old root-path fixtures,
+renew the historical driver/review/receipt pins or complete release acceptance.

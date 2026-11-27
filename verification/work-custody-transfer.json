@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "645c19f75511513b7e6e84380ff87325a9355928",
+  "continued_subject": "c9fceb6440f115d4fbe380780ae48aa4b7a6ea38",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -43,8 +43,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 53,
-      "preserved-for-reconciliation": 37
+      "merged": 54,
+      "preserved-for-reconciliation": 36
     },
     "snapshots": [
       {
@@ -602,9 +602,10 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "22735143d8fd7caead991e7d767d76fdd2278ef2",
         "branch": "recovery/puck-20261126/rmguard1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 12,
-        "remaining_paths": 9
+        "remaining_paths": 9,
+        "resolution": "Normal merge 5c6dbc6de retains byte-identical current tree. Preserve newer original role/namespace/CRLF, native index and lifecycle boundary guards; prevent duplicate historical Git helpers from shadowing maintenance and Windows lock handling."
       },
       {
         "label": "sc14",
@@ -1643,11 +1644,75 @@
         }
       },
       "prior_failed_attempts": "Preserved original ownership-regex, refined-membership and old empty-history diagnostic failures; no failed run presented as qualification. Final source module passes all eighteen cases.",
+      "release_evidence": false,
+      "composed_owner": {
+        "summary": {
+          "executed": 20,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 20,
+          "selected": 20,
+          "skipped": 0
+        },
+        "seconds": 6.348,
+        "log_sha256": "f5f18230ca5c1697d22385ce15ff395b499917c93973a22f98545acce9aef4be",
+        "report_sha256": "05c7bc1ac21afb4418b6ab0f499c0139c6ad86e56fa216f3e5f844261e909796"
+      },
+      "composed_publication": {
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "seconds": 13.57,
+        "log_sha256": "b972be46026602414b57ca41ac3d1b49be4a4cb8a76ad1f9104a751f5494caf5",
+        "report_sha256": "fc27766d347501936cd1381bc95327bb103b766de1af4fc071f6a091e372c18f"
+      },
+      "repository_style": {
+        "status": "passed",
+        "log_sha256": "0d526005067b5482e39da1c761ae949b860f7f954159b8c5139c1c65d6b6117c",
+        "formatted_python_files": 2759,
+        "repair": "AST-identical formatting of existing installed-parent helper; no product/test behavior changed."
+      }
+    },
+    "native_removal_reconciliation": {
+      "status": "passed",
+      "subject": "c9fceb6440f115d4fbe380780ae48aa4b7a6ea38",
+      "removal": {
+        "summary": {
+          "executed": 24,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 24,
+          "selected": 24,
+          "skipped": 0
+        },
+        "seconds": 53.895,
+        "log_sha256": "28c6d47b839395f25f0d515c86d68698b21543fccee70406cf0b382272416b48",
+        "report_sha256": "2bf9b6b55fe55389d22a9eab1eac94febc1b1c49d8fc1c2a521aeacecfc294c5"
+      },
+      "update": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "seconds": 20.453,
+        "log_sha256": "1fa3f016f1697c70a9e1e539dd4737a5e1b5f31827edd3b755f1b632c2d6af2a",
+        "report_sha256": "a1df3fb43c41b89f3d9bde34c955b90c35d96fe0c961f7316e267737935bca89"
+      },
+      "scope": "Original nested Git, lock-path, recovery and index custody controls retained. Later CRLF and Windows-specific fixture behavior remains intact. Actual Linux source-development controls only; installed readoption/runtime-retirement extension remains pending.",
       "release_evidence": false
     }
   },
   "remaining_requirements": [
-    "Reconcile the 37 preserved source snapshots and two remaining committed clean heads. Qualify exact-commit installed authored-readmission probe and resulting composed source. Preserve modern namespace, role-observation and journal guards when integrating remaining proposals.",
+    "Reconcile the 36 preserved source snapshots and two remaining committed clean heads. Qualify exact-commit installed authored-readmission probe and resulting composed source. Preserve modern namespace, role-observation and journal guards when integrating remaining proposals.",
     "Complete resulting composed-source qualification. Fourteen Cargo cases pass at f0a5da8eb; later retained-release/fixture changes have their own bounded controls. Diagnose canonical source metadata publication role-input refusal before the recovered forest capacity assertions; do not weaken its guards or expand declared budgets.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
