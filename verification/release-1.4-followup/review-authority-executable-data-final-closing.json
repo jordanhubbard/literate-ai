@@ -1,0 +1,29 @@
+{
+  "status": "independent_source_closing_review_accepted",
+  "head": "7128d6e4cd4584b5bc3c3a7f9e765574b2fb4333",
+  "sha256": {
+    "src/literate_ai/adapters/builders/_executable_digest_data.py": "0b070c0a19b68293cbe22b5190e2d7524efc10bde2bffa794f30d10c8d2fee5e",
+    "src/literate_ai/adapters/builders/python.py": "44844a5fda032f8eebad6b7523ce4d6073c6f794d8a30c9a3a2e0a0779e61930",
+    "src/literate_ai/adapters/retained_cargo_execution_core.py": "9e56f68c9b6222127feeed1f0cdbe870dfcdfef126718487afe1453c01c4dbd6",
+    "tests/critical/test_executable_digest_data.py": "70062081dd09a99ae0470e12e36b7e6e1a1eda58398cad3fdde079cc4de3c97b"
+  },
+  "coverage": "All3production changes/new source and entire10test file actual contents independently inspected. No reviewer code edits.",
+  "core_function_ast_body_unchanged": true,
+  "core_signature_ast_unchanged": true,
+  "original_finding_closed": "Original mutable _Frame/_Entry poisoning could return original digest for foreign freshly read bytes. Association/index/limits/active/readers now source-closure-owned with immutable tuple entries; detached statistics/object attributes cannot replace originals. No externally supplied digest object used for publication.",
+  "independent_validation": {
+    "canonical_case_file": "All10focused controls PASS0.006seconds; no skips.",
+    "extra_reproducers": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-authority-executable-data-r2-extra-controls.json",
+    "extra_outcomes": [
+      "Original field/projection poison now returns true foreign digest and preserves first original association.",
+      "Bytearray/memoryview hit chunks and nonuniform short-read geometry hash correctly without replacing first entry.",
+      "Mutable first-read chunks retain nothing.",
+      "Partial read OSError preserves exact BuildError cause with no admission.",
+      "Retirement during stream close yields correct bytes digest and inactive empty frame.",
+      "Direct private caller fabricated stream can publish only its true SHA256; later real-file call returns true real-file digest; supplied fake hasher argument rejected."
+    ]
+  },
+  "safety_assessment": "Every public executable digest opens/reads through EOF/closes original stream. Original SHA factory instantiated once before IOError translation; stream errors retain BuildError mapping; finish stays outside that boundary. Native OpenSSL deterministic builtin only eligible; default and substituted factories uncached. Count/bytes/path limits captured in private invocation; RLock/nonblocking busy paths preserve native reads; retirement prevents admission and restores exact outer token. No native probe/currentness/membership/permissions or filesystem-state reuse.",
+  "trust_boundary": "Same private module/closure-cell-introspection boundary as Skill DATA scope, explicitly documented. No claim of protection from arbitrary module dispatch/closure rewriting and no new native/admission/issued-owner registry.",
+  "limits": "Targeted source/control acceptance only, not unchanged900second native-case success or installed/native release acceptance. Full session deadline/probes/guards body unchanged but actual performance acceptance remains parent-owned pending native reruns. Unrelated dirty scripts outside4file scope unreviewed here."
+}

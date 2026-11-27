@@ -1,0 +1,24 @@
+{
+  "scope": "Read-only design review of proposed operation-owned exact-byte comparison frame; implementation not inspected or accepted here.",
+  "assessment": "Defensible data-only optimization if every original stream byte is freshly read through EOF and exactly compared; reusing SHA256 digest for identical immutable byte strings is mathematically sound and does not substitute metadata/currentness/native observation.",
+  "conditions": [
+    "Only original deterministic SHA256 implementation eligible. Same callable identity since frame entry is insufficient if a substituted factory is stateful; replacements fall back original uncached behavior.",
+    "Capture immutable exact builtin bytes only; reject custom equality/mutable aliases for reuse. Bound number of chunks/objects as well as entries/filebytes/aggregatebytes.",
+    "Fresh stream uses original1MiB read requests and EOF/close every call. On mismatch replay only verified-equal original prefix then changed+remaining fresh chunks; truncation/empty/extension handled. Never reopen after partial consumption.",
+    "No changed-entry replacement. Original entry hit after intervening change still requires fresh raw reads. Overflow caps only retention and comparison opportunity, never refuse or truncate original reads.",
+    "Aggregate cap includes staged candidates plus committed entries. Entry admission requires complete successful EOF and stream close. Failed/partial reads or closes never admitted.",
+    "Original factory/update/hexdigest OSError boundaries and BuildError code/message must remain; custom factory path always original semantics.",
+    "Nonblocking lock busy/reentrant fallback must not deadlock or restart partially consumed stream. Retirement cannot block on same lock during a read callback; immediately inactive, forbid in-flight publication, clear/defer storage safely.",
+    "Fresh private invocation scope overrides/restores ambient cache; copied contexts see inactive after retirement; no membership/currentness/native probe/FS state cached."
+  ],
+  "regressions": [
+    "First/middle/last mismatch; shorter ending exactly at original chunk boundary; empty; extension beyond cached EOF; changed then original.",
+    "Fresh open/read-all/EOF/close counts remain; same size restoredmtime writable mmap changes still detected by downstream digest checks.",
+    "Entry, perfile, aggregate and object-count limits with short reads; cap overflow returns original digest.",
+    "Mutable/subclass buffer/path or substituted stateful SHA factory uses original behavior.",
+    "Concurrent/reentrant busy fallback and synchronous callback retirement; in-flight copied context after retirement cannot publish retained data.",
+    "Open/read/close/factory/update/hexdigest errors preserve exact exception behavior and no partial entries."
+  ],
+  "performance_estimate": "Using sampled28.9% executable_file_digest direct cost and separately measured3.6x stream-hash vs read+memcmp improvement, ideal local-window estimate1/(0.711+0.289/3.6) about1.26x total. This is a short-window bound-like estimate, not whole-run prediction: misses/oversize/entrycaps/concurrency and other runtime-image hashes/native probes reduce benefit. More relevant target than syntax-only work but original900-second actual case rerun still required.",
+  "limits": "No source changes, no implementation acceptance, no native execution success claim."
+}

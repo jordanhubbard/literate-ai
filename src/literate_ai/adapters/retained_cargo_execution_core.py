@@ -32,6 +32,9 @@ from literate_ai.adapters.authored_retained_cargo_reopened_output import (
 from literate_ai.adapters.authored_retained_cargo_tool_completion import (
     _capture_authored_consumer_tools,
 )
+from literate_ai.adapters.builders._executable_digest_data import (
+    read_only_executable_digest_data,
+)
 from literate_ai.adapters.cargo_workspace_patches_v2 import (
     verify_cargo_workspace_patches_v2,
 )
@@ -168,8 +171,9 @@ def _execute_cargo_consumer(
     )
 
 
-# A fresh, bounded syntax-only frame belongs to each invocation. Discovery,
-# original byte/image reads, native probes and all guard bookends remain fresh.
+# Fresh bounded DATA frames belong to each invocation. Discovery, every original
+# byte/image read, native probes and all guard bookends remain fresh.
+@read_only_executable_digest_data()
 @read_only_skill_manifest_metadata()
 def _execute_cargo_consumer_session(
     materialized: RetainedCargoMaterializationV2 | AuthoredRetainedCargoMaterialization,

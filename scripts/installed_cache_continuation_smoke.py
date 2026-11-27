@@ -92,9 +92,11 @@ def scenario(root: Path, *, declared: bool, author_fixture) -> dict:
         parent_selection=RepositoryParentSelection.root(),
         source_intelligence_provider="none",
     )
+    store = ProjectConfigurationStore(project)
+    context = store.context(project)
+    component = context.framework_path(COMPONENT).relative_to(context.root).as_posix()
     cache = root / "build/accepted-source-cache"
     if declared:
-        store = ProjectConfigurationStore(project)
         snapshot = store.read()
         store.update(
             snapshot,
@@ -117,7 +119,7 @@ def scenario(root: Path, *, declared: bool, author_fixture) -> dict:
         record_project_authority_review(project)
         cache = project / "generated/committed-source-cache"
     source = root / "retained"
-    author_fixture(project, source)
+    author_fixture(project, source, component_path=component)
     identities, expected = [], []
     previous = {}
     for revision in range(2):
@@ -135,7 +137,7 @@ def scenario(root: Path, *, declared: bool, author_fixture) -> dict:
         expected.append(compiled.read_bytes())
         rebuild = (
             "rebuild",
-            COMPONENT,
+            component,
             "--allow-host-execution",
             "--update-receipt",
             "--retained-source",
@@ -159,20 +161,20 @@ def scenario(root: Path, *, declared: bool, author_fixture) -> dict:
             raise RuntimeError("successive admission changed historical cache bytes")
         previous = current
         if revision == 0:
-            invoke(project, "build", COMPONENT, "--from-accepted-source")
-    receipt = project / "verification/current.json"
+            invoke(project, "build", component, "--from-accepted-source")
+    receipt = project / store.read().definition.test_receipt
     committed = receipt.read_bytes()
     invoke(
         project,
         "build",
-        COMPONENT,
+        component,
         "--from-accepted-source",
         error="execution.accepted_source_provider_ambiguous",
     )
     invoke(
         project,
         "build",
-        COMPONENT,
+        component,
         "--from-accepted-source",
         "--source-cache-entry",
         "sha256:" + "0" * 64,
@@ -184,7 +186,7 @@ def scenario(root: Path, *, declared: bool, author_fixture) -> dict:
         built = invoke(
             project,
             "build",
-            COMPONENT,
+            component,
             "--from-accepted-source",
             "--source-cache-entry",
             identities[index],
@@ -195,9 +197,9 @@ def scenario(root: Path, *, declared: bool, author_fixture) -> dict:
         ):
             raise RuntimeError("installed exact selection exported different bytes")
         payload = {"name": "Ada"}
-        if "| `messages` |" in (project / COMPONENT / "component.md").read_text():
+        if "| `messages` |" in (project / component / "component.md").read_text():
             payload["messages"] = ["hello", "world"]
-        ran = invoke(project, "run", COMPONENT, json.dumps([payload]))["result"]
+        ran = invoke(project, "run", component, json.dumps([payload]))["result"]
         if ran["exit_status"] != 0:
             raise RuntimeError("installed accepted-source run failed")
     if inventory(cache) != previous:

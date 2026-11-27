@@ -1,0 +1,30 @@
+{
+  "status": "source-fixture-closed-no-findings",
+  "worktree": "/home/jkh/Src/literate-ai",
+  "head": "7128d6e4cd4584b5bc3c3a7f9e765574b2fb4333",
+  "file": "tests/critical/test_authored_retained_cargo_review.py",
+  "sha256": "118b508102944ec2287835830c66e5d65419c7b33403e3ae2d91624b167b5825",
+  "diff_sha256": "3de03de60b0ab8f212c02fa5f1e769e7224bca1ccbd1d95373fedaca5d772cf1",
+  "explicit_legacy_reconstruction_tests": [
+    "test_contained_context_tracks_actual_manifest_and_refuses_late_conflict",
+    "test_contained_directory_replacement_does_not_restore_saved_context"
+  ],
+  "default_contained_tests": [
+    "test_exact_reviewed_files_are_read_only_and_detect_later_edits",
+    "test_candidate_cannot_approve_itself_or_substitute_legacy_codec",
+    "test_literal_reviewed_policy_and_inventory_bytes_are_pinned",
+    "test_foreign_importer_noncanonical_plan_and_invalid_limits_refuse"
+  ],
+  "verification": [
+    "Exact change adds enum import and only2 existing optional _layout keyword selections.",
+    "AST confirmed contain_manifest unchanged and all original assertion calls/arguments unchanged across test methods.",
+    "Shared scratch_review_fixture existing _layout forwarding and defaultNone unchanged by this repair.",
+    "Production untouched by this fixture delta."
+  ],
+  "shared_fixture_sha256": "808e03f32b05afabf94a47ddec9561f6074c38f0b4fb1c802eb14b41342bb1be",
+  "findings": [],
+  "limits": [
+    "Read-only source/AST review; canonical whole6 cohort authored-review-layout-r1 remains root-owned validation, not independently rerun.",
+    "Prior failed full-source-r10 artifacts and original900/native/refusal semantics remain untouched; no acceptance claim."
+  ]
+}

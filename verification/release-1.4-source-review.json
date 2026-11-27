@@ -684,5 +684,62 @@
     "installed_state": "wheel-full-r5 failed retained-layout inventory; current corrected224method list independently matches discovery, but fresh installed execution still required.",
     "platform_state": "Actual native Windows removal and all other original target-platform/release acceptance remain pending.",
     "validation": "Formatting, lint and renewed driver/runner/documentation require-current gates pass; root project validation recorded separately."
+  },
+  "qualification_followup_r4": {
+    "base_commit": "7128d6e4cd4584b5bc3c3a7f9e765574b2fb4333",
+    "review_reports": [
+      "verification/release-1.4-followup/review-authority-native-byte-frame-design.json",
+      "verification/release-1.4-followup/review-authority-executable-data-final-closing.json",
+      "verification/release-1.4-followup/review-authority-executable-data-r2-extra-controls.json",
+      "verification/release-1.4-followup/review-contracts-installed-cache-continuation-closing.json",
+      "verification/release-1.4-followup/review-runtime-authored-review-layout-fixture-close.json",
+      "verification/release-1.4-followup/executable-byte-data-benchmark-r2.json"
+    ],
+    "current_reviewed_hashes": {
+      "src/literate_ai/adapters/builders/_executable_digest_data.py": "0b070c0a19b68293cbe22b5190e2d7524efc10bde2bffa794f30d10c8d2fee5e",
+      "src/literate_ai/adapters/builders/python.py": "44844a5fda032f8eebad6b7523ce4d6073c6f794d8a30c9a3a2e0a0779e61930",
+      "src/literate_ai/adapters/retained_cargo_execution_core.py": "9e56f68c9b6222127feeed1f0cdbe870dfcdfef126718487afe1453c01c4dbd6",
+      "tests/critical/test_executable_digest_data.py": "70062081dd09a99ae0470e12e36b7e6e1a1eda58398cad3fdde079cc4de3c97b",
+      "scripts/installed_cache_continuation_smoke.py": "ef4b854381ecf00c93c1e8820af4cf9d1759bdc57ade900c26763e257802ce49",
+      "tests/critical/test_authored_retained_cargo_review.py": "118b508102944ec2287835830c66e5d65419c7b33403e3ae2d91624b167b5825"
+    },
+    "changes": [
+      "Fresh executable reads still consume all original raw bytes through EOF and close. A bounded private closure may reuse SHA DATA only after exact original bytes match; no native/probe/currentness/membership observation is cached. Default and substituted factories remain uncached.",
+      "Closure-owned original associations replace unsafe exposed prototype records; projection poisoning, mmap writes, mutable buffers, geometry changes, reentry/retirement and original errors are independently checked. Native session body/signature, all guards and original900 deadline unchanged.",
+      "Installed cache-continuation scenario derives actual component and declared receipt coordinates, retaining both distinct cache-owner declarations and every original acceptance/refusal assertion.",
+      "Only two manual manifest-reconstruction tests explicitly select legacy input; four other tests retain default contained layout. Shared defaults, helper operations and every original assertion remain."
+    ],
+    "source_evidence": {
+      "executable-byte-data-r2": {
+        "report_sha256": "b3e9e2e21f5f1086d6fc6a5c3a5e26503190409e56125ce8b677d6318490771e",
+        "summary": {
+          "executed": 10,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 10,
+          "selected": 10,
+          "skipped": 0
+        },
+        "limit": "Focused source validation only, not native900/installed/release acceptance."
+      },
+      "authored-review-layout-r1": {
+        "report_sha256": "043fa7a67ecb545389801112a56424f3381c68a475fe6b8db0bbeac612a5258a",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "limit": "Focused source validation only, not native900/installed/release acceptance."
+      }
+    },
+    "prior_whole_gate_failures": {
+      "full-source-r10": "Frozen40d report:525passed,26skipped,1failed,8442selected; failed at missing legacy rootmanifest in contained-manifest fixture. Not a complete-source pass.",
+      "wheel-full-r6": "Frozen7128 fails cache-continuation fixture root samples lookup. No installed continuation/fullwheel pass."
+    },
+    "native_performance": "Reviewed final implementation repeated fresh-read microbenchmark2.33x median hash-data speedup on20,172,120byte rustup image, after population. This does not establish original native900 deadline or whole-work speedup. Fresh exact-candidate actual control required.",
+    "limits": "Existing Skill DATA private-module/closure-cell trust boundary; no new unforgeability/native-admission registry claimed. All83 immutable goals, full source/installed/platform/collateral/contribution/resulting-main/release acceptance remain required."
   }
 }

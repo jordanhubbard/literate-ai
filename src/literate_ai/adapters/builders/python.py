@@ -81,19 +81,25 @@ def _require_digest(value: str, label: str) -> None:
 
 
 def executable_file_digest(path: Path) -> str:
-    """Hash an exact executable without retaining its potentially large contents."""
+    """Read every executable byte; optional private DATA reuse is bounded."""
 
-    digest = hashlib.sha256()
-    try:
-        with path.open("rb") as stream:
-            while chunk := stream.read(_FILE_DIGEST_CHUNK_BYTES):
-                digest.update(chunk)
-    except OSError as exc:
-        raise BuildError(
-            "builder.toolchain_unavailable",
-            f"Toolchain executable is unavailable: {path}",
-        ) from exc
-    return f"sha256:{digest.hexdigest()}"
+    from ._executable_digest_data import executable_digest_observation
+
+    factory = hashlib.sha256
+    with executable_digest_observation(path, factory, _FILE_DIGEST_CHUNK_BYTES) as (
+        consume,
+        finish,
+    ):
+        try:
+            with path.open("rb") as stream:
+                consume(stream)
+        except OSError as exc:
+            raise BuildError(
+                "builder.toolchain_unavailable",
+                f"Toolchain executable is unavailable: {path}",
+            ) from exc
+        value = finish()
+        return f"sha256:{value}"
 
 
 def _run_bounded_process(*args: object, **kwargs: object):

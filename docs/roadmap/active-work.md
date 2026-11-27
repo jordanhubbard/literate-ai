@@ -24459,6 +24459,22 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   deadline at the final guard after metadata (1,031.043s including setup/closing).
   It does not establish a performance repair; retain the failure and investigate
   further measured syntax-only work without caching currentness or native probes.
+  Direct executable hashing is about 29% of sampled time. A reviewed bounded
+  private DATA frame now compares every freshly read byte before reusing SHA
+  data; original reads through EOF, close, probes, guards and deadline remain.
+  Constructor-owned closure state closes the prototype's association-poisoning
+  defect. Ten focused controls pass and repeated local hash checks measure a
+  2.33x median speedup after population; actual native completion within the
+  original deadline is still required before claiming a performance repair.
+- **Whole-gate fixture reconciliation (source partial):** Frozen 40d source
+  qualification retains 525 passes, 26 skips and a manifest-reconstruction
+  fixture failure. Only its two intentional legacy-to-contained reconstruction
+  cases now select legacy input explicitly; all six controls pass unchanged.
+  Frozen 7128 installed qualification reaches a separate cache-continuation
+  fixture path error. Its reviewed scenario now selects the actual component
+  and declared receipt, while preserving distinct default/external and explicit
+  project-relative cache owners and all original refusal/acceptance assertions.
+  Fresh whole source and actual installed continuation remain required.
 - **Flavor-add placement reconciliation (in progress):** The corrected Elixir
   fixture reaches a real product failure: adding a shipped Flavor to a contained
   project writes root catalogs despite declared contained roots. Preflight the

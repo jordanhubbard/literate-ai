@@ -10,6 +10,7 @@ from pathlib import Path
 from literate_ai.adapters.authored_retained_cargo_review import (
     read_authored_retained_cargo_review,
 )
+from literate_ai.adapters.project_scaffold_placement import ScaffoldLayout
 from literate_ai.contracts.authored_qualification_reference import (
     AuthoredQualificationReference,
 )
@@ -181,7 +182,10 @@ class AuthoredRetainedCargoReviewTests(unittest.TestCase):
 
     def test_contained_context_tracks_actual_manifest_and_refuses_late_conflict(self):
         with tempfile.TemporaryDirectory() as directory:
-            with scratch_review_fixture(Path(directory).resolve(strict=True)) as old:
+            with scratch_review_fixture(
+                Path(directory).resolve(strict=True),
+                _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE,
+            ) as old:
                 root = old.project.root
                 configuration = self.contain_manifest(old)
                 reference = self.write_binding(root, self.fixture(old))
@@ -205,7 +209,10 @@ class AuthoredRetainedCargoReviewTests(unittest.TestCase):
 
     def test_contained_directory_replacement_does_not_restore_saved_context(self):
         with tempfile.TemporaryDirectory() as directory:
-            with scratch_review_fixture(Path(directory).resolve(strict=True)) as old:
+            with scratch_review_fixture(
+                Path(directory).resolve(strict=True),
+                _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE,
+            ) as old:
                 root = old.project.root
                 configuration = self.contain_manifest(old)
                 reference = self.write_binding(root, self.fixture(old))
