@@ -29155,10 +29155,10 @@ qualification, admission and cache reuse remain open.
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
-- **Next action:** Reconcile the remaining 20 snapshots; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Next action:** Reconcile the remaining four snapshots; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
   - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
-  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 70 of 90 recovery snapshots merged; 20 remain preserved. All seven additional committed heads are merged.
+  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 86 of 90 recovery snapshots merged; four remain preserved. All seven additional committed heads are merged.
   - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
   - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
   - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
@@ -29178,7 +29178,7 @@ and fast-forward synchronization were rechecked through `cac4efa22`; synchronize
 again after subsequent checkpoints. New large outputs use the mounted shared
 workspace volume, preserving existing checkout paths and failed-fixture nodes.
 
-**Integration.** The latest reviewed history integration joins at `6352bb72f`.
+**Integration.** The latest reviewed history integration joins at `8e769f26f`.
 Reviewed history merges retain newer runtime code, original 1.4.0 goals, terminal
 failures, native qualification gates and source custody. The current snapshot
 counts above are established by actual ancestry. Six original proposed designs
@@ -29561,7 +29561,17 @@ independently pinned configuration and all lifetime/environment/native fences.
 Its fuller execution-input regression is still running before the complete
 `cg14b` history joins. Obsolete constructible prototype owners are not restored.
 Eight earlier layout stages join with unchanged trees after source/test and
-generalized catalog-owner review. Seventy snapshots and all seven clean heads
-are integrated; twenty snapshots remain. These history joins renew no platform
+generalized catalog-owner review. Eighty-six snapshots and all seven clean heads
+are integrated; four snapshots remain. These history joins renew no platform
 or installed acceptance. Original failures and native/release holds remain in
 the custody observation.
+
+**Overlapping stages reconciled.** Sixteen further snapshots retain the current
+shared input/wrapper identity owners, contained update helper, typed package return,
+canonical promotion, native readoption and CI controls. Their merge previews would
+duplicate existing Git fixture/runtime helpers or already-present goal prose;
+those additions are refused and each merge retains the exact current tree.
+Seventeen factual failure controls pass (6.482s). Fourteen package-return controls
+pass, with one native FreeBSD case skipped (5.878s). Nonzero exits alone remain
+terminal; no native platform or release qualification is inferred. The remaining
+snapshots are `cg14b`, `fp14`, `layout14` and `wt14`.

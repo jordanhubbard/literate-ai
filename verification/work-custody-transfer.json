@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "6352bb72f44b51b8e1be2d9d8b3ec733625540ea",
+  "continued_subject": "8e769f26f43a7164fd1f1772ca8068c5ec3e52c1",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -53,8 +53,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 70,
-      "preserved-for-reconciliation": 20
+      "merged": 86,
+      "preserved-for-reconciliation": 4
     },
     "snapshots": [
       {
@@ -457,9 +457,11 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "7a7851cc6ee3006c1e59031700f4780ce697da6f",
         "branch": "recovery/puck-20261126/layjoin1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 123,
-        "remaining_paths": 56
+        "remaining_paths": 0,
+        "reconciliation_commit": "8286954e14260799e097f2a5caedef67724cf567",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "laymove1",
@@ -549,9 +551,11 @@
         "base": "75125268c86915bd2e535a24cc58ad2a88878d8c",
         "commit": "633e6d71c93c9c2f50867076db5150e599d7c54d",
         "branch": "recovery/puck-20261126/nt14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 103,
-        "remaining_paths": 103
+        "remaining_paths": 0,
+        "reconciliation_commit": "b0470a4b8899ca1ab926ac0d6e25592921fdf32e",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "nv14",
@@ -589,27 +593,33 @@
         "base": "6b1f33d81a003b268ffc72a2be811e30d0cfa1ec",
         "commit": "8cf4a1af0062a747b385dbf02a6741d5788dacd4",
         "branch": "recovery/puck-20261126/r353",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 26,
-        "remaining_paths": 26
+        "remaining_paths": 0,
+        "reconciliation_commit": "2f7c4bde4bed3e730874f3b2210cc945d2ce1a9a",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "reljn1",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "5175e2e0dd6411528cce97a475d4d441f9ee7b5f",
         "branch": "recovery/puck-20261126/reljn1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 126,
-        "remaining_paths": 54
+        "remaining_paths": 0,
+        "reconciliation_commit": "8eaa97c09fb994894117298cf7b4a784f48fadd3",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "reljoin1",
         "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
         "commit": "2332fa57d79af3109c9710dfa583fe66abe3fd14",
         "branch": "recovery/puck-20261126/reljoin1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 100,
-        "remaining_paths": 45
+        "remaining_paths": 0,
+        "reconciliation_commit": "4c1727058a3a57dddc59c7ff2d4d7e592c55ac14",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "relwheel1",
@@ -664,72 +674,88 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "ee18dafd6081eb35bb22d8a2f98e3b021745dccf",
         "branch": "recovery/puck-20261126/sdlcn2",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 57,
-        "remaining_paths": 34
+        "remaining_paths": 0,
+        "reconciliation_commit": "6c26923298a2340629c6087035c3f4ff475dfade",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "sdlcn3",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "915417cd31a415d3263f628e79028f833f36f834",
         "branch": "recovery/puck-20261126/sdlcn3",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 80,
-        "remaining_paths": 46
+        "remaining_paths": 0,
+        "reconciliation_commit": "9dba00ea5bef75b1f966864ee663c0fecf898341",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "sdlcn4",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "2428797d2c50fb2b295f4dfc198c8bde238a35bd",
         "branch": "recovery/puck-20261126/sdlcn4",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 107,
-        "remaining_paths": 52
+        "remaining_paths": 0,
+        "reconciliation_commit": "d1eb141ae0417608b2240912a95a88101ce8907a",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "sdlcn5",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "849e866dcc1a61f216cb93d8d785d615982de2ba",
         "branch": "recovery/puck-20261126/sdlcn5",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 113,
-        "remaining_paths": 52
+        "remaining_paths": 0,
+        "reconciliation_commit": "9e1803afd179ea3c1a8615e59ca4ad4dfb19eee4",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "sdlcn6",
         "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
         "commit": "c5620d3be0ae0f578d10f513fa7e07f10977e4b1",
         "branch": "recovery/puck-20261126/sdlcn6",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 95,
-        "remaining_paths": 43
+        "remaining_paths": 0,
+        "reconciliation_commit": "51257e68f90a1b6eaa373a6e0be1bf2060bc5a22",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "sdlcn7",
         "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
         "commit": "909035616185010722191c299f3e268267b584ff",
         "branch": "recovery/puck-20261126/sdlcn7",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 100,
-        "remaining_paths": 48
+        "remaining_paths": 0,
+        "reconciliation_commit": "0f4ee80c56391b18338e1c004003263d63adffbe",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "sdlcq4",
         "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
         "commit": "2312a6c815ae9cbeb71f918b58c169cc414b5247",
         "branch": "recovery/puck-20261126/sdlcq4",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 69,
-        "remaining_paths": 37
+        "remaining_paths": 0,
+        "reconciliation_commit": "f545f564f24caa15848e3454ce99a0d943774466",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "sdlcq5",
         "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
         "commit": "459cd654027a154d48b8ac456489d1213b445d53",
         "branch": "recovery/puck-20261126/sdlcq5",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 77,
-        "remaining_paths": 37
+        "remaining_paths": 0,
+        "reconciliation_commit": "c1d79f3675e077660302dfd7fcdb79b48100c377",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "sdlcw",
@@ -828,18 +854,22 @@
         "base": "fa95e5e6edf7ac9827a7e8e6f5bd2d99d1c04950",
         "commit": "fa51bb2b2e167f691eb8ebdfe8c946dc0e3ed6de",
         "branch": "recovery/puck-20261126/ur14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 85,
-        "remaining_paths": 42
+        "remaining_paths": 0,
+        "reconciliation_commit": "24e9d70952874d35260dd7377b4e65bb7f0643a2",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "ux14",
         "base": "fa95e5e6edf7ac9827a7e8e6f5bd2d99d1c04950",
         "commit": "19eb541d767244b46592d4a31738db92a927b35e",
         "branch": "recovery/puck-20261126/ux14",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 69,
-        "remaining_paths": 35
+        "remaining_paths": 0,
+        "reconciliation_commit": "81a87c43bc572b4cbb43408c4aa4a2712c7aff0b",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "wf14",
@@ -884,9 +914,11 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "fca64b921a19fd3438653daf5336474d998ddef9",
         "branch": "recovery/puck-20261126/wkcust1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 129,
-        "remaining_paths": 58
+        "remaining_paths": 0,
+        "reconciliation_commit": "8e769f26f43a7164fd1f1772ca8068c5ec3e52c1",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
       },
       {
         "label": "workscope1",
@@ -971,7 +1003,23 @@
         "laycatalog1",
         "layskill1",
         "layrelease1",
-        "laynext1"
+        "laynext1",
+        "layjoin1",
+        "nt14",
+        "r353",
+        "reljn1",
+        "reljoin1",
+        "sdlcn2",
+        "sdlcn3",
+        "sdlcn4",
+        "sdlcn5",
+        "sdlcn6",
+        "sdlcn7",
+        "sdlcq4",
+        "sdlcq5",
+        "ur14",
+        "ux14",
+        "wkcust1"
       ],
       "roadmap_delta_test_methods_identical": 4,
       "roadmap_delta_added_prose_lines_retained": 17,
@@ -1030,6 +1078,11 @@
           "read-only layout planning and explicit receipt evidence location"
         ],
         "scope": "Current tree retained in all eight joins; history joins renew no qualification. Unresolved original changed-parent catalog provenance and native forest role-input refusals remain."
+      },
+      "overlapping_sixteen_shared_owners": {
+        "plan_sha256": "5c8dd512d5c214bc9a29c7218dc46a408d888959824da1a99652cee2a2d3b5a6",
+        "resolution_sha256": "bac5c8f849dab4c84f4d9cbfa96f4ed552a3572e5661d5415b0be51fcd5d360e",
+        "scope": "Reviewed identity methods now inherit shared cores; native update helper generalized to contained root updates; original transfer receiver generalized to typed RetainedUnitReturnCustody. All original changed named tests present except nonzero-alone retry test deliberately replaced by stronger retained-but-terminal test. Automatic merge additions consist only of duplicate existing Git/runtime functions or already-present PROJECT.md goal text. No source change or qualification renewal in these history joins."
       }
     },
     "committed_heads": [
@@ -2572,6 +2625,36 @@
         "External test-discovery start directory refused as not importable before case execution; canonical Make discovery used for actual counterexample.",
         "Raw ruff check dot included historical/lab examples and failed 703 findings outside canonical Make lint scope; these files were not changed."
       ]
+    },
+    "reconciled_failure_and_return_owners": {
+      "factual_failure": {
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        },
+        "seconds": 6.482,
+        "report_sha256": "57de08bfa547c0f2b11573962a19bf7a26a0d562c07bcdcfa3d3d62951e790d2",
+        "log_sha256": "5398ef9e21b76a2b9f7a2ed0528d30a45df5106d4aebd08ec5c86d872d1f36ea"
+      },
+      "typed_package_return": {
+        "summary": {
+          "executed": 14,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 14,
+          "selected": 15,
+          "skipped": 1
+        },
+        "seconds": 5.878,
+        "report_sha256": "52c804e51f658024769df83eb7ae2d00f53e19759409dac24b4aac2e4121b17a",
+        "log_sha256": "12086d45eb5f0cb48b958b49ca2da8d929dbea5b6168ce4ebb6e3b7b802bc3b9"
+      },
+      "scope": "Actual Python owner/CAS and finite transfer behavior, modeled process outcomes/FreeBSD declarations. Nonzero exit alone remains terminal. One original native FreeBSD case skipped on Linux; no FreeBSD/native product acceptance inferred.",
+      "earlier_discovery": "Incorrect nonexistent test_retained_unit_transfer.py selector returned no tests; runner refused before cases. Correct existing test_freebsd_tree_packaging.py module used for the recorded 15-case result."
     }
   },
   "remaining_requirements": [
