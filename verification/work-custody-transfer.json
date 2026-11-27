@@ -53,8 +53,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 57,
-      "preserved-for-reconciliation": 33
+      "merged": 58,
+      "preserved-for-reconciliation": 32
     },
     "snapshots": [
       {
@@ -560,9 +560,10 @@
         "base": "d64f9c917dc6cc54e3036edae94e3254593b1b34",
         "commit": "19e9bfbd7d445345f6b59cf60e6571a711054663",
         "branch": "recovery/puck-20261126/pr312-profile",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 2,
-        "remaining_paths": 2
+        "remaining_paths": 2,
+        "resolution": "Normal merge of original two-file profile patch. Per-record polling retains original 300-second deadline and byte/memory/payload bounds; full current project/SDK authority reopened at phase boundaries and closing. Original SDK test proves 2..8 full checks, unchanged producer counts/CAS and no owner rehydration."
       },
       {
         "label": "r353",
@@ -1026,6 +1027,10 @@
     "committed_head_counts": {
       "merged": 7,
       "preserved-for-reconciliation": 0
+    },
+    "actual_missing_file_review": {
+      "sha256": "827ac36f381b72102367dd26324e46412dd3f88a795baf78292a1584dd8ce77a",
+      "scope": "Only actual current filesystem absence, not absence from an original snapshot parent. Remaining missing paths occur in authoredgraph1 historical evidence, cg14b bounded Cargo helpers/tests, fp14 materialization test, layout14 prototype modules/tests and wt14 telemetry modules/schemas/tests. Other pending snapshots still require semantic reconciliation; symbol presence is not completion."
     }
   },
   "checks": {
@@ -2064,7 +2069,7 @@
       "formatted_python_files": 2759
     },
     "retained_promotion_canonical_reconciliation": {
-      "status": "source controls passed; exact-wheel qualification pending",
+      "status": "source and scoped exact-wheel controls passed",
       "recovered_head": "11740f084256ee3ae54cd3faf6135db6896fa2b9",
       "contracts": {
         "summary": {
@@ -2164,11 +2169,98 @@
       },
       "scope": "Actual public run/promotion/separate update on default contained fixture, strict no-write/no-command provider behavior, canonical complete captured contexts, pure runner policy projection, 15 acceptance controls including both native and document drift seams. Preserve current SDK closure/environment/dependency forgery assertions and move current actual journey schema-injection controls to the recovered public module. Original native tool observer pairing and command/complete-currentness distinction retained.",
       "prior_failures": "Initial missing dependency to_dict; root-only manifest/release fixture paths; obsolete consumer callback and historical-reader import. Corrected at their owning source/fixture surfaces, without weakening guards, counts, limits or assertions. All original failed logs retained.",
+      "release_evidence": false,
+      "installed": {
+        "schema": "literate-ai/takeover-canonical-promotion-installed@1",
+        "subject": "2ec59a540c8ef1e9b5eb08b3c610297cd82a0f68",
+        "origin": "https://github.com/jordanhubbard/literate-ai",
+        "wheel": "literate_ai-1.4.0-py3-none-any.whl",
+        "wheel_sha256": "992e4203b15805e1433d3ee78f343284cc0b3b483c2409372b39df1b98d4dbf8",
+        "seconds": 173.19023582397494,
+        "seed": {
+          "all_record_paths_contained": true,
+          "distributions_checked": 1,
+          "mode": "seed",
+          "outside_record_counts": {},
+          "records_checked": 889,
+          "seeded_pip_record_checked": true
+        },
+        "binding": {
+          "distribution": "sha256:cff9457c3c00d253f4cfc583fc2ab1b7f11cd576f0a43e64a58752bf23e544ed",
+          "members": 1725,
+          "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+        },
+        "probe": {
+          "status": "passed",
+          "selected": 36,
+          "passed": 36,
+          "skipped": 0,
+          "installed_module_origins_verified": true,
+          "packaged_schema_catalog_verified": true,
+          "framework_module_count": 623,
+          "fixture_identities": {
+            "tests/critical/test_retained_promotion_capture_scope.py": "45c95246c0674ad471cae407d4a0b93926df53698f7fc4c1ac15815865dce556",
+            "tests/critical/test_retained_promotion_contract.py": "ae13218585b24cf7b8648b6d9dd41b033697a50f5b4ad9fa028fb540c1184e07",
+            "tests/critical/test_retained_promotion_public_readonly.py": "367ed854ff4b05241f9814161c69b165e5b2c3caccd6bcdf19eae1780275ca74",
+            "tests/critical/test_retained_promotion_schemas.py": "52af85ceb4a604ed465f6494de8ff4c6acf3bfe06b67ad6bd0a10374c34fcc85",
+            "tests/critical/test_retained_receipt_promotion.py": "d86f06ea65e917e9571d07dab2822d62d3089db363331a2c6edfd8603d807f63"
+          },
+          "console_invocations": 0,
+          "scope": "Original contract/capture/readonly/schema/receipt controls against installed production modules; public CLI readonly checks use maintained in-process entry point; framework observations remain explicit fixtures.",
+          "native_component_acceptance": false
+        },
+        "release_evidence": false,
+        "receipt_sha256": "5659fdf35e984c06c767fe18ba2ffb4efb34049dc0cf21d641720b3216f0938c",
+        "scope": "Fresh exact 2ec59a540 noneditable wheel; 36 maintained contract/capture/readonly/schema/receipt cases, no skips. All 623 loaded framework module origins and complete packaged schema catalog verified under installed prefix. In-process CLI checks and explicit framework observations remain modeled; no full wheel matrix/native Component or release qualification claim."
+      }
+    },
+    "retained_promotion_phase_checks": {
+      "status": "passed",
+      "sdk": {
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        },
+        "seconds": 71.376,
+        "report_sha256": "f7da329d7e04060dc3c88a5d1a9562fa2753df1a8374cca04120609cb66d4c1a",
+        "log_sha256": "b04f7f40beab76e282d987691a857aa9cf378d87cfb198d231e4e6b102543bb6"
+      },
+      "contracts": {
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        },
+        "seconds": 32.683,
+        "report_sha256": "25fef3cd990480ab3f6421281ab91ad9b0180aaf33ee2004dbc39b578759e27f",
+        "log_sha256": "b5c8f09e4d29a87fb0618f3daec12491ff939cbbf8b594176f724db8e0cb2ab8"
+      },
+      "public": {
+        "summary": {
+          "executed": 1,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 1,
+          "skipped": 0
+        },
+        "seconds": 133.188,
+        "report_sha256": "ab659d0860592a068e413cd80b1251715530a52670306a793b2e9c079ece26c1",
+        "log_sha256": "22c00abcf79f9d2714ad03d381575ad0bab51b51b686575391bb63b7e1e1a995"
+      },
+      "scope": "Original three SDK cases, thirty contract/capture/readonly/schema cases and full actual public journey pass after phase polling change. Bound full-currentness count to 2..8 in recovered SDK control while retaining per-record deadline checks, original overall 300-second deadline, metadata/memory/payload caps, full closing authority and no native SDK rebuild or CAS mutation. Timings are bounded local observations, not a controlled speed benchmark.",
       "release_evidence": false
     }
   },
   "remaining_requirements": [
-    "Reconcile the 33 preserved source snapshots. All seven additional clean heads are now integrated. Complete exact-wheel canonical promotion checks and continue remaining source qualifications while preserving namespace, lifetime, per-write journal and bounded input guards.",
+    "Reconcile the 32 preserved source snapshots. All seven additional clean heads are integrated. Preserve unique bounded Cargo metadata/configuration, layout and native telemetry intent while retaining current namespace, lifetime, per-write journal and historical custody guards. Canonical promotion exact-wheel controls pass at 2ec59a540; later phase-polling changes have their own bounded source checks.",
     "Complete resulting composed-source qualification. Fourteen Cargo cases pass at f0a5da8eb; later retained-release/fixture changes have their own bounded controls. Diagnose canonical source metadata publication role-input refusal before the recovered forest capacity assertions; do not weaken its guards or expand declared budgets.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."

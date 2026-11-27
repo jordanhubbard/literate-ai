@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Keep retained promotion's per-record deadline polling while checking complete
+  project and SDK authority at phase boundaries and closing, avoiding repeated
+  whole-project replanning for every historical graph record.
+
 - Reopen retained-run promotion from complete canonical historical action and
   dependency facts without restoring live execution owners. Preserve strict
   read-only authority checks, finite metadata bounds and the separate receipt

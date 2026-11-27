@@ -29459,3 +29459,25 @@ keep all original mutation/refusal and metadata assertions, not synthetic data.
 All seven additional clean heads are now integrated. Thirty-three of ninety
 preserved dirty snapshots remain; source, platform, review and release holds are
 not closed by these bounded source checks.
+
+
+**Canonical promotion installed and phase checks reconciled.** Fresh noneditable
+wheel `2ec59a540` passes all 36 original capture/contract/read-only/schema/receipt
+controls in 173.190s, with all 623 loaded framework module origins and the complete
+packaged catalog inside the isolated installation. Wheel SHA-256:
+`992e4203b15805e1433d3ee78f343284cc0b3b483c2409372b39df1b98d4dbf8`;
+distribution identity:
+`sha256:cff9457c3c00d253f4cfc583fc2ab1b7f11cd576f0a43e64a58752bf23e544ed`.
+These controls retain explicit modeled framework observations and in-process
+CLI checks; they do not establish the full wheel/native/platform release matrix.
+
+Recovered snapshot `pr312-profile` retains per-record deadline polling while
+reopening full original project/SDK authority at historical phase edges and
+closing. The original 300-second limit and all byte/memory/payload bounds remain.
+All three real SDK cases pass (71.376s), including the recovered 2..8 full-check
+bound, unchanged producers/CAS and both original forgery/private-filesystem
+controls. All thirty contract/read-only cases pass (32.683s); the full public
+journey passes again (133.188s). These local timings are not a controlled speed
+benchmark. Fifty-eight of ninety dirty snapshots are integrated, with thirty-two
+remaining; all seven additional clean heads are ancestors. Source, review,
+provenance, original role-input and full release holds remain explicit.
