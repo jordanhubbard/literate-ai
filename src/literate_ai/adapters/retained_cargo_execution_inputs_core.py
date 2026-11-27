@@ -7,7 +7,6 @@ materializations. These shared mechanics cannot mint execution permission.
 from __future__ import annotations
 
 from collections.abc import Mapping
-from pathlib import Path
 
 from literate_ai.adapters.retained_cargo_execution_inputs import _state
 from literate_ai.contracts.identity import canonical_identity
@@ -45,40 +44,26 @@ class _CargoConsumerExecutionInputMethods:
         return identity
 
     def require_metadata_paths(self, metadata, *, environment):
-        """Require every source/manifest to resolve within captured input owners."""
+        """Join bounded logical paths through the exact original captured owners."""
+        from .retained_cargo_metadata_inputs_v2 import (
+            _paths,
+            _projection_memory,
+            _require_membership,
+            _scope_matches,
+        )
+
+        # Keep both original complete observations, including independently
+        # pinned ancestor configuration and native materialization/scratch state.
         self.current_identity(environment=environment)
-        files = {
-            (tree.root / relative).resolve(strict=True)
-            for _, tree in self.scope.owners.trees
-            for relative, _, _ in tree.files
-        }
-        for package in self.materialized.packages:
-            files.update((package.root / item.path) for item in package.files)
-        if not isinstance(metadata, dict) or not isinstance(
-            metadata.get("packages"), list
-        ):
-            raise ValueError("retained.inputs.v2-metadata-invalid")
-        for package in metadata["packages"]:
-            if not isinstance(package, dict) or not isinstance(
-                package.get("targets"), list
-            ):
-                raise ValueError("retained.inputs.v2-metadata-invalid")
-            paths = [package.get("manifest_path")]
-            for target in package["targets"]:
-                if not isinstance(target, dict):
-                    raise ValueError("retained.inputs.v2-metadata-invalid")
-                paths.append(target.get("src_path"))
-            for value in paths:
-                if not isinstance(value, str):
-                    raise ValueError("retained.inputs.v2-metadata-invalid")
-                path = Path(value)
-                if (
-                    not path.is_absolute()
-                    or ".." in path.parts
-                    or path.resolve(strict=True) not in files
-                ):
-                    raise ValueError("retained.inputs.v2-uncaptured-package-path")
+        _scope_matches(self.materialized, self.scope, environment)
+        maximum_paths = self.scope.policy.input_custody.aggregate.maximum_entries * 2
+        memory = _projection_memory(self.materialized, self.scope)
+        paths = _paths(metadata, maximum_paths, memory)
+        _require_membership(paths, self.materialized, self.scope)
         self.current_identity(environment=environment)
+        # Exact built-in containers/strings are reprojected without callbacks.
+        if _paths(metadata, maximum_paths, memory) != paths:
+            raise ValueError("retained.inputs.v2-metadata-changed")
 
 
 def _capture_consumer_ancestor_configuration(workspace, scope, policy):
