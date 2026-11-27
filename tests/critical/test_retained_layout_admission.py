@@ -18,7 +18,11 @@ from literate_ai.adapters.retained_cargo_wrapper_v2 import (
 )
 from literate_ai.adapters.retained_layout import RetainedLayoutDeclaration
 from literate_ai.contracts.identity import canonical_json_bytes
-from literate_ai.projects import PinnedInputClosureError, load_project
+from literate_ai.projects import (
+    PinnedInputClosureError,
+    ProjectConfigurationStore,
+    load_project,
+)
 from tests.support.fixtures_retained_cargo_scratch import scratch_review_fixture
 from tests.support.fixtures_test_retained_harness_receipts import _invoke
 
@@ -195,15 +199,21 @@ class RetainedLayoutAdmissionTests(unittest.TestCase):
             # Author an independently selected wrapper fixture. This is not a
             # claim that public wrapper relocation is implemented. Only genuine
             # readmission below earns its selected current lock and reports.
-            old = project / "components/legacy-project-wrapper"
-            selected = project / "components/retained-wrapper"
-            old.rename(selected)
-            path = project / ".literate/retained-layout.json"
+            layout_context = ProjectConfigurationStore.context(project)
+            self.assertEqual(layout_context.framework_root, project / "litai")
+            path = layout_context.framework_path(".literate/retained-layout.json")
             value = json.loads(path.read_bytes())
-            value["wrapper_component"] = "components/retained-wrapper"
+            old = project / value["wrapper_component"]
+            selected = old.with_name("retained-wrapper")
+            self.assertTrue((old / "component.md").is_file())
+            old.rename(selected)
+            self.selected_wrapper = selected
+            value["wrapper_component"] = selected.relative_to(project).as_posix()
             declaration = RetainedLayoutDeclaration.from_dict(value)
             path.write_bytes(canonical_json_bytes(declaration.to_dict()) + b"\n")
-            lift_path = project / ".literate/legacy-lift-shift.json"
+            lift_path = layout_context.framework_path(
+                ".literate/legacy-lift-shift.json"
+            )
             lift = json.loads(lift_path.read_bytes())
             lift.update(
                 wrapper_component=declaration.wrapper_component,
@@ -232,8 +242,10 @@ class RetainedLayoutAdmissionTests(unittest.TestCase):
             with retained_cargo_wrapper_context_v2(reviewed) as context:
                 self.assertEqual(context.implementation, self.destination)
                 roots = [catalog.root for _, catalog in context.bindings]
-                self.assertIn(self.project / "components/retained-wrapper", roots)
-                path = self.project / ".literate/retained-layout.json"
+                self.assertIn(self.selected_wrapper, roots)
+                path = ProjectConfigurationStore.context(self.project).framework_path(
+                    ".literate/retained-layout.json"
+                )
                 original = path.read_bytes()
                 try:
                     path.write_bytes(original + b"\n")
@@ -343,7 +355,9 @@ class RetainedLayoutAdmissionTests(unittest.TestCase):
         def checked(reviewed):
             with original_context(reviewed) as context:
                 relative = "workflows/legacy-adoption/workflow.md"
-                path = reviewed.project.root / relative
+                path = ProjectConfigurationStore.context(
+                    reviewed.project.root
+                ).framework_path(relative)
                 original = path.read_bytes()
                 self.assertTrue(
                     any(
@@ -397,9 +411,9 @@ class RetainedLayoutAdmissionTests(unittest.TestCase):
             with original_context(reviewed) as context:
                 path = context.implementation / "app.py"
                 inventory = json.loads(
-                    (
-                        reviewed.project.root / ".literate/harness-inventory.json"
-                    ).read_bytes()
+                    ProjectConfigurationStore.context(reviewed.project.root)
+                    .framework_path(".literate/harness-inventory.json")
+                    .read_bytes()
                 )
                 self.assertIn("app.py", inventory["source_scope"]["paths"])
                 original = path.read_bytes()

@@ -1,0 +1,208 @@
+{
+  "schema": "literate-ai/recovered-layout-prototype-archive@1",
+  "snapshot": "9a449c3ec6d49923e56b1e604f804dc04696abc6",
+  "base": "2b9c392d9bb869f31f95a04a4a7a867456dbc58e",
+  "snapshot_tree": "99146eaabbad130a05a9b136c287a5a74e9b0194",
+  "replayed_tree": "99146eaabbad130a05a9b136c287a5a74e9b0194",
+  "patch": "retained-layout-prototype.patch",
+  "patch_sha256": "9f2424297b7f2d3b72523ffba6e508ce0b03aa385dd4c3f94818dbdba9083232",
+  "changed_paths": [
+    {
+      "path": "docs/roadmap/active-work.md",
+      "snapshot_blob": "7a196982f1196b641eb4754f9dca890835c0ba00",
+      "sha256": "f636bb36c48043fba083737b9d736c8597fdb31d48d33637c7fb93ce647bfba1",
+      "bytes": 2706408,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/harness_inventory.py",
+      "snapshot_blob": "32cf21e5c6e352568db43e3b7fb376ae1365a850",
+      "sha256": "75b6e930a035c00f4c1935a1ca514b5c001c50b5581217eecb618a591f74229e",
+      "bytes": 97231,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/harness_test_discovery.py",
+      "snapshot_blob": "65ad19280a8b188eb0120ccf7aebcff30c6d43ff",
+      "sha256": "e456a47c0c2abf88b1dc2fd213dce03542030c3396374d86104c1d10c641e70a",
+      "bytes": 17680,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/native_sdk_tree_custody.py",
+      "snapshot_blob": "4f341e159a28802dfcc5246f4460d8cd6ca4ad58",
+      "sha256": "33b6d1baa6e9adb0dcda636a1bc68203d8399b9d14d04861a9bc91dc713af945",
+      "bytes": 25240,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/project_initialization.py",
+      "snapshot_blob": "2949eafb0ef7e717fb2c10ee97f6930d3deb7a87",
+      "sha256": "aaadda234adc09422661f43b192559d33d9c6ebc911f64851f915a56b4f2889f",
+      "bytes": 173370,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/project_updates.py",
+      "snapshot_blob": "e2535dc0fb134ea943913480c656bb8b8c501a5a",
+      "sha256": "67183644fe102c01aad9cc5d6af7834ac485e5a0d47dfadd7c075d30e96e84b5",
+      "bytes": 23193,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/repository_lineage.py",
+      "snapshot_blob": "5c386ebe933aca3760c180c1e72c45b6a850b0ae",
+      "sha256": "cc68e6a7afb15adcf8ed7ac2c3e624ee5617baac5f76cf64054f58082f7874e6",
+      "bytes": 35195,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_wrapper_v2.py",
+      "snapshot_blob": "8b673e2f9c613661d9f8cc24f2e83d33668d90b4",
+      "sha256": "bc0efd302e0f72862f86616dae33c238fdc0d4083280878b002d3d2e238d1f3a",
+      "bytes": 12016,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_harness_receipts.py",
+      "snapshot_blob": "c1acf0700a5d17b61463e44dbdafa6b75a4f6088",
+      "sha256": "183c63f3a5d09017a1bfbd4e916bbddb7c5403057321847894729b1a8f29cdc6",
+      "bytes": 40445,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout.py",
+      "snapshot_blob": "65d30156f9fbd54a189c36c1aa8b71d523fc079f",
+      "sha256": "d5c5a097211e1ef8b04b6ae8c1d7da222f725ed4e3b3e479b0dbe337fb7a1710",
+      "bytes": 14026,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_compiler.py",
+      "snapshot_blob": "f836c9dfc22a2e2f00cb657a92da5793b965e1c4",
+      "sha256": "7cdbfde8f42375d4ffca11e12adb105caa37810d56921993d7fa10ae66948ee9",
+      "bytes": 3382,
+      "live_path_present": false
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_execution.py",
+      "snapshot_blob": "166a2331b3446c6130ea96bd3ee9e1f72eb2c0d6",
+      "sha256": "07202cf10ecbcdb41d276bea4d7059c83f45ec54a8385132671691b2966e7be9",
+      "bytes": 10548,
+      "live_path_present": false
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_inspection.py",
+      "snapshot_blob": "3fc92a7d3cd3670194a9ed33518d42317af7218e",
+      "sha256": "770194dfdb0684d2db1477102590cd98469836643bbb8a64e16403fc25008e34",
+      "bytes": 15998,
+      "live_path_present": false
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_journal.py",
+      "snapshot_blob": "9aad8438dba20e082d50fc79439051e598d82a2c",
+      "sha256": "b4bc6463b263b5584cbed152e5087e4413bb7b59b557a38767aac85e00861e08",
+      "bytes": 78147,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_metadata.py",
+      "snapshot_blob": "ec806e84bc53342d0a98d44aa2df8f693f84c214",
+      "sha256": "14fcb468c0d4ed217dbe4ca0e039fdbff1fbb52bd626d858dc06bc06aec26e54",
+      "bytes": 16516,
+      "live_path_present": false
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_partition.py",
+      "snapshot_blob": "190de195a52c641995086c4343c0a91dfef63279",
+      "sha256": "c43341705341b1219a3fb0af6b15662f5f739dffb0c4e0a93d6854f223c9152a",
+      "bytes": 32811,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_planning.py",
+      "snapshot_blob": "d98d98b0e8338bea59fa2b7160c30df9176e7547",
+      "sha256": "8e03b3f5a4d26643097bcb08dd4457e084751a74b8347485b38c1d7ca024a6cd",
+      "bytes": 19082,
+      "live_path_present": false
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_recovery.py",
+      "snapshot_blob": "f8bbb92d9e77c70ae52123de67c4ed30c0527f08",
+      "sha256": "c3af188c53ddb60d66ee001cda1c60c96195845da932ab62e5348f2ad764bfeb",
+      "bytes": 9197,
+      "live_path_present": false
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_service.py",
+      "snapshot_blob": "c711c53eeafd23fc70bc2f36260e9a96057ff535",
+      "sha256": "cf12bbdf98214236128e15009c75e050a9162c33e961e36e8b9e7a3ec4046af5",
+      "bytes": 19129,
+      "live_path_present": false
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "snapshot_blob": "02c77e31a5bb70298f8704cec81e173f49cba26a",
+      "sha256": "b534acd30120a954b645d6fbce42a816c88a573ad7cc6d8f33df5d7d33568f76",
+      "bytes": 7523,
+      "live_path_present": true
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_workspace.py",
+      "snapshot_blob": "403cc7e9681e9b1ff3594dda20f4f10f77612d7b",
+      "sha256": "3b1e13d3228a2ccd2819fb635517939f3f5fbfe087cadf265a603b1415468598",
+      "bytes": 8463,
+      "live_path_present": false
+    },
+    {
+      "path": "src/literate_ai/cli/retained_layout.py",
+      "snapshot_blob": "0934e27c6633d65780e6203436fbb3b164f30fc1",
+      "sha256": "93b2c3f91a899ee83725978e103ddbed45d8c4bf2541b443683de03c7bbdaa7b",
+      "bytes": 5540,
+      "live_path_present": false
+    },
+    {
+      "path": "src/literate_ai/contracts/retained_layout.py",
+      "snapshot_blob": "5fda32df7c9a3002cd4ef83b2bd781479c334d56",
+      "sha256": "5c8d04feb44657fb6133f9a1760d603e05f85cedce026cf7ee3c02f3a93b0bd9",
+      "bytes": 9691,
+      "live_path_present": false
+    },
+    {
+      "path": "tests/critical/test_retained_cargo_materialization.py",
+      "snapshot_blob": "4f513e8c0ba5d94d5ab42051202de6e8de49aced",
+      "sha256": "31de64d32dcf9c5a04dd0c0bed33a15116c424855f765de9eeec399a0f2a4f7d",
+      "bytes": 16335,
+      "live_path_present": true
+    },
+    {
+      "path": "tests/e2e/test_harness_inventory.py",
+      "snapshot_blob": "ec5859ff37006282ab85e6c628ae0121c14c4854",
+      "sha256": "578f6e2de9aae5025a5bf47919071013365eefb29f67d7f94be63dddfbcffe27",
+      "bytes": 60477,
+      "live_path_present": true
+    },
+    {
+      "path": "tests/e2e/test_retained_layout_publication.py",
+      "snapshot_blob": "87ca8fc5fc41a60b15a270ee2d2bb8bf16199b89",
+      "sha256": "9e5c6c2265e85342cef6beba9c3956febb0b74ed9345917fd1e2ff62b11300bd",
+      "bytes": 15624,
+      "live_path_present": false
+    },
+    {
+      "path": "tests/e2e/test_retained_layout_root_geometry.py",
+      "snapshot_blob": "d052787c859d09cb7fb8181e38cfb3f3507ff628",
+      "sha256": "a67cedcb8bc245d1ed124c72a5cd41c0582fa649566fbe0a906afe6e93e0519e",
+      "bytes": 16219,
+      "live_path_present": false
+    },
+    {
+      "path": "tests/e2e/test_retained_layout_transition.py",
+      "snapshot_blob": "fe317f2232c11291535b04741bc8e168f3c83e70",
+      "sha256": "e6e3602b0230a43aee10d1e4351e14bf3d25642ef37df2185e582d0fb2709c9e",
+      "bytes": 4893,
+      "live_path_present": false
+    }
+  ],
+  "scope": "Exact historical full source/test/roadmap delta, not a runtime implementation or qualification receipt. Applied to an alternate Git index only; replay reproduces the original snapshot tree exactly. Current working source is untouched. Current native source preparation/forest/journal owners remain authoritative, including their unfinished phase/effect and original role-input refusal. No functional equivalence, public relocation, recovery, native or release acceptance is claimed."
+}
