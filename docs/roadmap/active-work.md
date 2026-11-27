@@ -24433,7 +24433,15 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   membership; the actual historical catalog finalize refused legitimate new
   framework siblings. Preserve strict unknown-content refusal and recovery order.
   [#504](https://github.com/jordanhubbard/literate-ai/issues/504) owns the missing
-  Codex runtime owner during accepted-cache metadata replay.
+  Codex runtime owner during accepted-cache metadata replay. The source repair
+  scopes the original private runtime owner around prospective command metadata
+  construction only. Three portable controls pass with a real cache, original
+  delegate and the existing process fixture: unchanged cache/recipe/request/tree
+  joins, one generation call, live private state during reconstruction, retirement
+  after success or the identical metadata exception, and non-Codex compatibility.
+  Independent source review closes with no findings; 29 original generation,
+  cache-runner and runtime-state controls also pass, zero skips. Actual native
+  macOS child/platform and full release acceptance remain open.
   [#505](https://github.com/jordanhubbard/literate-ai/issues/505) owns pure forest
   prerequisite refusal before native context inspection.
   [#506](https://github.com/jordanhubbard/literate-ai/issues/506) owns absent

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Restore accepted Codex source-cache replay by owning private runtime state
+  while reconstructing invocation metadata, without another generation call.
+
 - Keep evidence-stage reader flags portable on platforms without `O_NONBLOCK`,
   preserving native custody and retirement checks.
 

@@ -1804,5 +1804,68 @@
       "diff_check": "passed",
       "release_acceptance": false
     }
+  },
+  "qualification_followup_r18": {
+    "baseline": "a59c64522",
+    "owning_issue": 504,
+    "review": "verification/release-1.4-followup/review-runtime-504-cache-runtime-closing-r1.json",
+    "repair": "Original private runtime scope only around prospective cache-hit command metadata; no new child or model call, keys/schema/pins and original guards unchanged.",
+    "tests": {
+      "cache-original-cached_coding_cli_source_generation_runner-r18-report.json": {
+        "sha256": "134f1e68cf8fb070d3ae2fde45dd5399dacff771283c052bb013996f41542ec6",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      },
+      "cache-original-codex_runtime_state-r18-report.json": {
+        "sha256": "30e6d71f1f860b8ae439aa22f3503d8d6fa7c907ad6e0bf79fbe26c89cf1e76b",
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        }
+      },
+      "cache-original-coding_cli_generation-r18-report.json": {
+        "sha256": "52177b7f054c9bb0db16d31598b8a825463d231ec0e45cec8f5e4b979fdb32e7",
+        "summary": {
+          "executed": 22,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 22,
+          "selected": 22,
+          "skipped": 0
+        }
+      },
+      "cache-runtime-r18-report.json": {
+        "sha256": "65e7c34b14e7c74791d2de44cf3eea5047cccd2a39aeb2319362fc47131e8266",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      }
+    },
+    "limits": "Process seam controls are not actual native Darwin authored-child acceptance. #504 remains open pending platform/integration/landing. All83 goals retained; no prepare/tag/publish.",
+    "driver_pin": "sha256:cdf8b55d40cf3172dafc97d49388c096aa5ab78091f467b0cd4f623b89be7b29",
+    "validation": {
+      "project_validate": "passed",
+      "report_sha256": "9072df05c7a5f06a869271e0b360a2ca2e474970150422cbd2b3e15598776666",
+      "public_export": "passed",
+      "ruff_lint": "passed",
+      "ruff_format": "passed",
+      "documentation_review": "recorded",
+      "diff_check": "passed"
+    }
   }
 }

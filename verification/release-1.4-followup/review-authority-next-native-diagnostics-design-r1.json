@@ -1,0 +1,60 @@
+{
+  "review": "read-only nextcandidate test-owned native stack and original Windows guard diagnostic design",
+  "action_scope": "Recommendation only for next changed candidate; no current gate rerun/job/source changes.",
+  "existing_hooks": {
+    "faulthandler": "No faulthandler/dump_traceback hook found in current src/tests/scripts.",
+    "module_timing": "parallel_unittest_timing.ModuleTiming already registers module-timing.ndjson below original evidence run node; selected/spawn/cleanup/reap/terminal counts available in original uploaded artifacts.",
+    "worker_boundary": "parallel_unittests._spawn starts separate Python -m literate_ai.parallel_unittest_worker per module; worker scratch TMPDIR/OBJ_DIR/BUILD_DIR/config/state reset, evidence run/parent env removed. Parent watchdog is not inherited into an exec-created Python worker.",
+    "artifact_boundary": "ci.yml conformance always-upload path recursively includes _build/evidence; macOS full qualification upload does likewise. Current native artifact lacks module worker output.log/events.jsonl or innerstack/profile.",
+    "measured_need": "Original module timers hit exact3600/6600, controller teardown15ms, alltargetmodules serial/nooverlap. Actualworker hot Python or awaited child needs observation; parentcontroller timing is already sufficient to rule out its cleanup delay."
+  },
+  "minimal_stack_design": {
+    "owner": "A small test-only stdlib helper used only by AuthoredNativeCompletionTests, AuthoredReopenedNativeExecutionTests and AuthoredOwningAdmissionTests, armed at case setUp before fixture construction, disarmed with original cleanup. No generic installed product profiling framework.",
+    "file_owner": "CI precreates explicit absolute fresh per-job root such as workspace/_build/evidence/native-stacks. Pass only dedicated test-owned path variable; helper uses that explicit root, exclusive private binary files, short stable test-id hash/module-id/PID names. Do not derive artifact root from worker TMPDIR/OBJ_DIR/BUILD_DIR or native fixture roots.",
+    "why_outside": "Those worker scratch locations contain source/currentness/output namespaces; writing diagnostics there can itself invalidate native closure. Artifact root must be outside every observed source/output/native scratch and retain its own original directory ownership.",
+    "timer": "One faulthandler.dump_traceback_later(300,repeat=False,file=held_binary_fd,exit=False) per selected case. Timer changes no original deadline, exception or result. Cancel in finally BEFORE closing FD; no stderr fallback. Keep file reference/FD alive; do not rotate or rebind it while armed.",
+    "bounds": "One-shot per finite selected case (3+4+4cases in named modules), with Python3.11/3.14 documented finite thread/frame/string output bounds. This is structural boundedness, not an independently enforced arbitrary64KiB file cap. Do not use unbounded repeat=True, resource-limit signals or blocked bounded pipes.",
+    "overhead": "C watchdog timer, no Python sampling loop, clock polling or probes inside original hot guards. No code line source, locals, environment, argv, prompts, provider routes or credential dump. Use common3.11/3.14 parameters only; no3.15-only max_threads argument. Do not enable C-stack dumping, which can be slow.",
+    "phase_context": "Header contains only public static case/module label and process ID. Existing module-timing plus captured stack function/line identifies current layer. If more phase labels are needed, add finite test-boundary markers outside product guard callbacks, never repeated native probes or currentness changes.",
+    "diagnostic_failure": "Diagnostic setup/cancel/write errors must not mask or convert original test outcomes; unavailable/incomplete stack is explicitly unknown evidence. CI artifact-root setup can fail its own diagnostic preparation step. No test skip or assumed pass because sample absent.",
+    "single_watchdog_ownership": "faulthandler timer is process-global and repeated arming replaces prior timer. Keep helper non-nested and limited to these case owners; no competing timers. Exclude diagnostic cleanup from original source/native artifact owners.",
+    "parent_vs_inner": "Primary hook belongs INSIDE actual module test worker through test class/context. Parent-only hook would miss worker hot stacks and mostly show waiting scheduler. Add separate test-owned parent hook only if future evidence implicates parent; repository test adapter could scope it without altering original argv/protocol, but no such hook needed by current measured evidence. Do not inject startup hooks/sitecustomize/PYTHONFAULTHANDLER into reviewed toolchain or observed source. If worker stack waits on another Python child, first identify that original call path; do not wrap/change executable identity to force child profiling."
+  },
+  "windows_control_probe": {
+    "original_owner": "remote_cleanup._control original open check, using metadata node/native, existing os.fstat opened, existing _descriptor_identity, existing signatures.",
+    "recommendation": "Failure-only bounded note on exact original exception at original failed guard. Preserve original shortcircuit and call count: native mismatch branch must not evaluate signatures originally skipped; when native agrees evaluate each original signature exactly once, preserve equality check.",
+    "report_fields": [
+      "which existing predicate failed",
+      "original expected and observed native identity primitive fields",
+      "signature field order mode,uid,gid,size,mtime_ns,ctime_ns,nlink",
+      "precomputed named/fd values and mismatch field names"
+    ],
+    "no_extra_observations": "No additional lstat/fstat/open/read/hash/native identity query, currentness/callback, clock or content read. Do not add observer callbacks, serialize arbitrary metadata projections or inspect traceback locals.",
+    "error_preservation": "Keep original RemoteCleanupError type/message/code/refusal and original control/descriptor cleanup; guarded add_note cannot mask original exception. No catch-and-return, new skip, repeatedprobe, relaxed metadata signature or ctime removal.",
+    "serialization": "Only bounded exact primitive tuples/ints and fixed labels, no private path/credential/env/payload strings. Do not canonical-identity hash native unsigned IDs; they may exceed signed64 schema range. Note formatting failure leaves original error unchanged.",
+    "preflight_comparison": "A separate owned native API sample can show generic API clock/identity compatibility but cannot prove original failing control values or predicate. It adds different opens/state. Prefer exact original guard note; do not weaken production based solely on standalone preflight."
+  },
+  "regression_seams": [
+    "Test helper in temporary diagnostic root: forcedshort diagnostic-only delay emits file,stdout/stderr untouched; normal finish cancels beforeclose and no late write/FDreuse; nestedtimerrefused; optionaldiagnosticfailure cannotmask originaltesterror. No original targetdeadline change.",
+    "Actualworker child scope control proves stack file belongs module PID, not only parent, and independent artifact root stays outside fixture source/output census.",
+    "Windows model records exact existing metadata/identity/signature call order and counts baselinevsdiagnostic identical on success/native mismatch/signature mismatch. Original errors stillsame, notes contain only finite precomputedfields.",
+    "Actual nextcandidate Windows guardfailure or success evidence needed; modeledfieldnotes do not establish native Windows fix."
+  ],
+  "official_docs": {
+    "python311": "https://docs.python.org/3.11/library/faulthandler.html",
+    "python314": "https://docs.python.org/3.14/library/faulthandler.html",
+    "relevant_contract": "Delayed traceback uses watchdog thread; defaultFalse repeat/exit, repeated call replaces timer; retain FD until dump/cancel. Traceback includes filename/function/line, not locals/source, finite100thread/100frame/500character-string format."
+  },
+  "source_sha256": {
+    "src/literate_ai/parallel_unittests.py": "b3c3321d11a59a3daec7200c26c7bc73eba9bb28de1cb39aff40688928ec53e0",
+    "src/literate_ai/parallel_unittest_worker.py": "4ee6b152f299feefe384cda1a1f3e082be8a306152f12f378978f27402bc9a8f",
+    "src/literate_ai/parallel_unittest_timing.py": "be84f0154047d6e244115c2f0d5909eac6073143feff9bb7ac0c26169f8647c8",
+    "src/literate_ai/adapters/remote_cleanup.py": "72a303635dc42219f51a62028548472612527e56f4a309174b1d8de58e1c284f",
+    ".github/workflows/ci.yml": "49c2ce6c7d77c4cc0656947c28e5f054b0cf99b4a0fc9e1ceef65d00e4cb29df"
+  },
+  "limits": [
+    "No code, workflow, test, job, external post, API-model request, dispatch or source mutation.",
+    "No future stack collection has happened. One-shot snapshot localizes a sampled path; it is not a statistical profile or proof of dominant cost.",
+    "No deadline/assertion/result/currentness/custody permission or qualification semantics changed by this design."
+  ]
+}

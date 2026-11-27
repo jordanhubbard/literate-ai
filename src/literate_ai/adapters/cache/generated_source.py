@@ -39,6 +39,7 @@ from literate_ai.adapters.models.coding_cli import (
     _acceptance_argument_vectors,
     _acceptance_result_shape,
     _coding_cli_environment,
+    _coding_cli_runtime_state,
     _planned_generation_prompt,
     _requested_route_digests,
     _requested_stage_ids,
@@ -540,7 +541,10 @@ class CachedCodingCliSourceGenerator:
                 "generated-source cache provenance differs from the current plan"
             )
         model = recipe.model_for(self.selection.name)
-        command = tuple(self.delegate._command(root, model))
+        # Cache hits reconstruct current invocation metadata without launching a
+        # child. Own the same private provider state while constructing argv.
+        with _coding_cli_runtime_state(self.selection, workspace=root) as runtime:
+            command = tuple(self.delegate._command(root, model, runtime_state=runtime))
         process_environment = _coding_cli_environment(
             self.delegate.environment,
             self.selection,

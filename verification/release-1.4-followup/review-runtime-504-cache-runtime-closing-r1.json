@@ -1,0 +1,81 @@
+{
+  "schema": "literate-ai/independent-cached-command-runtime-source-review@1",
+  "issue": 504,
+  "baseline": "a59c64522",
+  "status": "Source/test review closed; no actionable finding",
+  "reviewed_sha256": {
+    "src/literate_ai/adapters/cache/generated_source.py": "176226a3a9fc30ea1ffc0d887043d1c532cd7ec0a9cc4f986d1c0601ad8f47de",
+    "tests/critical/test_cached_command_runtime.py": "fbd6160903b3c15da74dd73e800388d023390dcf9254aa16ed58dde9a779b918"
+  },
+  "production_delta": "Import original _coding_cli_runtime_state and construct exactly same delegate command tuple inside its real context, passing actual runtime_state. No other production edits in this partition (5added/1removed).",
+  "design_conformance": {
+    "truthful_command_semantics": "Cache entry v1 still stores no originalcommand. Hit still reconstructs prospective currentroot/model argv; comment explicitly says nochildlaunch. command_identity remains exact canonicalhash of returnedcommand. Original spentargv is not invented/reused.",
+    "ownership": "Real existing Codex helper creates private runtime/state/log outside outputroot and retires it with contextmanager on ordinary/exceptional exit. Original _codex_runtime_arguments(None) guard unchanged. NonCodex yieldsNone through same realhelper.",
+    "keys_pins_schema": "_SCHEMA,_key/request/recipe/model/tool/source-semantics derivations and publicationmanifest unchanged. New runtimepaths only affect reconstructed commandmetadata asalready intended, not sourcecachekey.",
+    "validation": "Outputroot safety, cachefile/native/hash/provenance checks, suite/SBOM validation, sourceintelligence index/verify, expectedstages/routes, selection.require_unchanged and normal lifecycle all unchanged.",
+    "no_extra_provider_work": "Added scope calls no compatibilityprobe, delegate.generate,_run_bounded,modelrequest,worker,bootstrap or nativeacceptance operation. Normalprocessenvironment assembly unchanged."
+  },
+  "new_test_review": {
+    "class": "CachedCommandRuntimeTests",
+    "controls": [
+      "Codexrealcache/delegate firstgeneration accepted, realcachehit receives existingstate/log outsidefreshoutput, exactreplayfiles/recipe/request/suite/key and commandhash; only1existingprocessseam call; stategone afterward",
+      "Original exception from commandmetadata builder is sameobject and private runtimegone afterward; only1processseam call",
+      "Claude/nonCodexcachehit receivesNone and same replay/key/provenance assertions"
+    ],
+    "fixture_scope": "Real private filesystem, actualcache/delegate/commandbuilder and frozenSQLiteintelligence fixture; _run_bounded is explicit existing process seam and executablelookup uses original Python. Existing LinuxCodexprerequisite seam reused. No actualmodel/Codex invocation; no claimotherwise.",
+    "assess": "Meaningful tests cover diagnosed lifetime failure without weakening original runtimeguard or manufacturingmodel/runtimeacceptance. No required change identified."
+  },
+  "validation_observed": {
+    "parent_existing_run": "cache-runtime-r18",
+    "log": "cache-runtime-r18.log",
+    "log_sha256": "bc7929628ebac0d83db62dbaf6e348345b8690c46e48c8f1c8a694e826a7bb35",
+    "terminal": "Ran3tests2.645s OK",
+    "independent_execution": "None: parent explicitly requested no rerun; read existing terminal log only.",
+    "original_cohort_reports": {
+      "cache-original-cached_coding_cli_source_generation_runner-r18-report.json": {
+        "sha256": "134f1e68cf8fb070d3ae2fde45dd5399dacff771283c052bb013996f41542ec6",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      },
+      "cache-original-codex_runtime_state-r18-report.json": {
+        "sha256": "30e6d71f1f860b8ae439aa22f3503d8d6fa7c907ad6e0bf79fbe26c89cf1e76b",
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        }
+      },
+      "cache-original-coding_cli_generation-r18-report.json": {
+        "sha256": "52177b7f054c9bb0db16d31598b8a825463d231ec0e45cec8f5e4b979fdb32e7",
+        "summary": {
+          "executed": 22,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 22,
+          "selected": 22,
+          "skipped": 0
+        }
+      }
+    },
+    "total_new_and_original_cases": 32,
+    "all_skipped": 0
+  },
+  "remaining_evidence_limits": [
+    "Actual originally failing Darwin AuthoredCodingCLITests replay still needs exact-current target qualification; portable process-seam tests establish source/runtime ownership behavior only.",
+    "Broader native/fullwheel/release acceptance not established by this source review.",
+    "No source/test/project/pin edits,posts,builds orreruns by reviewer."
+  ],
+  "design_reference": {
+    "file": "review-runtime-cache-runtime-owner-design-r1.json",
+    "sha256": "ba403be716d14cace97891bbfe8cf396590cff9c9d3f6f1833577790ef868edc"
+  }
+}
