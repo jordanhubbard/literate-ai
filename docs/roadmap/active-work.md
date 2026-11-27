@@ -24433,6 +24433,11 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   hashes match, the warm build is a disk hit, and the shared cache inventory
   remains unchanged. The isolated launcher forwards standalone version probes
   without startup flags, as required by the native Bazel argument parser.
+  Parallel worker nesting made the task-specific temporary root exceed Unix
+  socket address bounds. Selecting the shorter temporary base on the same
+  mounted filesystem preserves all four workers, original assertions and
+  deadlines; the three real compiler-cache cases then pass in parallel
+  (3.336s). No cache availability assertion or product admission is relaxed.
 - **Current release intake:** Include context-bound roadmap validation
   [#492](https://github.com/jordanhubbard/literate-ai/issues/492) /
   [#493](https://github.com/jordanhubbard/literate-ai/pull/493) under
