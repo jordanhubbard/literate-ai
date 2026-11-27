@@ -1,0 +1,35 @@
+{
+  "status": "closed-no-findings",
+  "files": {
+    "src/literate_ai/projects.py": "b3cf623844d23c2d51d72c28d9820f260c8e2235d1486bebd15535aee0d7926b",
+    "src/literate_ai/adapters/retained_cargo_execution_core.py": "b6f805f6356581461a69d7a55ef4c649f5ece10f9dfa6e5e181695936435559b",
+    "tests/critical/test_manifest_declaration_metadata.py": "c28b1c31c948a781bc09f171d4709132aad8d14e5248df678f5855b544ce5f44"
+  },
+  "review": [
+    "Scalar result is parsed from the exact immutable bytekey by original captured fullparser; no JSONfield shortcut or mutable ProjectDefinition retention.",
+    "_read_manifest and fullparse ASTidentical toHEAD; declared reads native/bytes before every metadata lookup; no path/context/native placement result retained.",
+    "All existing context conflict/pending/direct-root/symlink/ancestry guards remain outsidecache.",
+    "Private frame shadows ambient,16entries/2MiB bounded retention, exactNone membership hit, fullparse fallback and noerrorcache, detached stats, copiedcontext retirement/clear and default token restore.",
+    "Native session body ASTidentical toHEAD; import/decorator only. Existing outer native guards/probes/deadline semantics unchanged."
+  ],
+  "findings_in_implementation": [],
+  "unresolved": [],
+  "limits": [
+    "No native900 acceptance; original1028.493 failure preserved. No full native retry performed by reviewer."
+  ],
+  "initial_independent_test": {
+    "command": ".venv/bin/python -m unittest tests.critical.test_manifest_declaration_metadata",
+    "tests": 8,
+    "passed": 6,
+    "errors": 2,
+    "seconds": 0.016,
+    "error_cause": "Two newfixturecases encode framework_directory:null. Full original schema correctly refuses a present null field. Valid Noneprojection requires absent key."
+  },
+  "independent_test": {
+    "command": ".venv/bin/python -m unittest tests.critical.test_manifest_declaration_metadata",
+    "tests": 8,
+    "result": "PASS",
+    "seconds": 0.013
+  },
+  "fixture_correction_review": "Only2invalid null setups now remove framework_directory key; sameinode fixture pads removed-key JSON back to original length and retains exact inode,size,mtime assertions. Source2filehashes unchanged from completed adversarial review."
+}

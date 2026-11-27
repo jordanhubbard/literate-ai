@@ -53,12 +53,28 @@ _HELPER_PAIRS = {
 }
 
 # Preserve every earlier transition. This additional edge admits only the
-# initializer's exact finite publication-port delegation; it changes neither
-# template endpoints nor the ordinary writer's prior body/callback contract.
+# initializer's finite publication-port delegation and explicit original-review
+# custody arguments; neither changes template endpoints or the default writer.
 _PUBLICATION_HELPER_PAIRS = {
     "_atomic_replace": (
         "bf35a9eda50c6f1fc60cbde970de8443306e37a22546a6c6806eea6e64f406d1",
         "acad25c12a254240132dc74614a77da563fc145eb337bde5cb567067d2db7894",
+    ),
+    "record_project_authority_review": (
+        "de80b293e659fd69a798644948a7b13a352017398a92422729d10bde23d98ec5",
+        "670e428db5e96f35313130fd6d98b8be585040a8311241e38b2600ae91e338a2",
+    ),
+    "record_authority_review": (
+        "544676dc1435c88a364e63ef1d16505f5e38a841a70807716ab43a883cfc2f71",
+        "a93ffc48baef90bb67cd9310c01859dca2c3c6536f8beecf07a723383b1d6476",
+    ),
+    "_record_authority_review": (
+        "e4af97fdba51837d8f6e88ebafa25e14f0ce3aecc86b08482fed7dc9407b7f16",
+        "2284a865ff8b2ecbc10be3987b0f0c81d03aad68b96e6410148fa688cd83c5fb",
+    ),
+    "prepare_native_rewrite_program": (
+        "0daa476af5335b0f5ba5cb1c8ab131fa47f99cc9807e01b819acaeb2276bb9f0",
+        "87b63ac61fc356813920beb86efbc5d313268b25d1f14be4338fad032ab9afea",
     ),
 }
 

@@ -24445,6 +24445,23 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   Eight focused source controls pass; actual Windows CI and complete installed
   qualification remain required. The maintained installed inventory now includes
   all 224 methods in actual discovery order, without relaxing equality or skips.
+- **Reviewed qualification follow-up (source partial, 2026-11-27):** Strict
+  library-import wire projections, finite initializer helper transitions and eager
+  import AST portability, optional Git-include ancestor witnesses, canonical SDK
+  policy/oracle coordinates and three owned macOS temporary-root fixtures have
+  independent closing reviews. Ten affected cohorts pass with their original
+  assertions. The bounded manifest declaration DATA frame retains full parsing on
+  misses and fresh guarded bytes on every lookup. Three complete native input
+  guards measure 6.74–6.80 seconds versus the prior 9.39-second diagnostic, with
+  one schema parse and 32,861 exact-byte hits across those three calls. This is
+  diagnostic evidence only: frozen b087 still failed the original 900-second
+  native control and the installed wheel's conventional oracle lookup. Require
+  fresh exact-candidate native/source/wheel gates. Latest b087 CI additionally
+  exposes separate Windows staged-file publication, macOS release-writer alias
+  and modeled wrapper-view lifetime failures under investigation; all original
+  platform and release acceptance remains open. Exact source hashes, review
+  closures and scoped evidence are in
+  [the release source review](../../verification/release-1.4-source-review.json).
 - **Native Cargo deadline investigation (in progress):** The actual authored
   native completion control now reaches execution but retains a genuine original
   900-second deadline failure (1,039.733s including setup/closing). Live sampling

@@ -1,0 +1,20 @@
+{
+  "status": "independent_source_closing_review_accepted",
+  "baseline": "b08783b92e5e9383610eb85f1ee382d7ffa5f393",
+  "file": "tests/critical/test_cli_locked_generation.py",
+  "sha256": "640f27c12fb53f74076aaa395664fcf29bb5eea5a61db245f5c16500a0bf6726",
+  "exact_delta": "Exactly three owned TemporaryDirectory root assignments append .resolve(strict=True), at125/192/224. All other file bytes unchanged.",
+  "assertion_ast_expressions_unchanged": 17,
+  "assessment": "Canonicalizes only newly owned test parents before framework fixtures are created. Production ancestry checks, lock-currentness gates, test cases, mocks, deadlines and stale/no-agent assertions unchanged. Addresses macOS /var alias fixture failure.",
+  "cache_continuation_prior_closure_reconfirmed": {
+    "script_sha256": "ef4b854381ecf00c93c1e8820af4cf9d1759bdc57ade900c26763e257802ce49",
+    "shared_helper_sha256": "a090a7e7f3f7c0e8d01e8328b2ea731c23f33ee0c4bca4e8360c614ed6f9fcd6",
+    "status": "Exact previously reviewed hashes retained at b087 HEAD; fresh wheel-r7 execution parent-owned and no result claimed."
+  },
+  "limits": "Read-only source closure. No actual macOS rerun, installed/native/full-gate or release acceptance claimed; Linux cohort receipt parent-owned.",
+  "observed_parent_linux_receipt": {
+    "log": "locked-generation-fixtures-r1.log",
+    "result": "Ran3tests3.213seconds OK",
+    "execution": "Parent executed; reviewer read terminal log. No macOS equivalence claimed."
+  }
+}

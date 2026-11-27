@@ -79,3 +79,18 @@ class InitializerAstTests(unittest.TestCase):
 
     def test_exact_five_reviewed_transitions_match_historical_and_current_syntax(self):
         self.assertEqual(len(profile_vectors()), 5)
+
+    def test_explicit_eager_import_default_is_portable_but_lazy_is_distinct(self):
+        for source in ("import math", "from math import sqrt"):
+            with self.subTest(source=source):
+                node = ast.parse(source).body[0]
+                expected = initializer_ast_fingerprint(node)
+                node._fields = tuple(
+                    name for name in node._fields if name != "is_lazy"
+                ) + ("is_lazy",)
+                for eager in (0, False):
+                    node.is_lazy = eager
+                    self.assertEqual(initializer_ast_fingerprint(node), expected)
+                for different in (1, True, 0.0):
+                    node.is_lazy = different
+                    self.assertNotEqual(initializer_ast_fingerprint(node), expected)

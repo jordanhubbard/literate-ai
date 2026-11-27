@@ -2307,7 +2307,9 @@ def assert_installed_operator_golden_paths(
         create_apply.get("applied") is not True
         or create_status.get("project", {}).get("kind") != "created"
         or create_validation.get("profile") != "canonical"
-        or not (created_project / "samples/hello-component/component.md").is_file()
+        or not (
+            created_project / "litai/samples/hello-component/component.md"
+        ).is_file()
     ):
         raise RuntimeError("installed onboard create did not reach a validated hello")
 

@@ -1,0 +1,15 @@
+{
+  "status": "independent_source_closing_review_accepted",
+  "head": "b08783b92e5e9383610eb85f1ee382d7ffa5f393",
+  "sha256": {
+    ".github/qualifications/native_sdk/qualify_public_sdk.py": "5a6dd6cdc36b2d753e5bc15c1d64f1abb333cb44780cf9d8398b3143cf175117",
+    "scripts/wheel_smoke.py": "5f45b19884b2f851f71bf424877cd26c20708b745da30fb288ce92b4dddb4d96"
+  },
+  "scope": "Entire actual2file dirty delta independently inspected against HEAD; no reviewer source edits.",
+  "assessment": {
+    ".github/qualifications/native_sdk/qualify_public_sdk.py": "Release policy is selected once through already original project context; manifest role uses exact application-root-relative POSIX coordinate and profile hashes that same canonical file. Other application-owned src/tools/sysroot/vendor/build/profile/test/manual roles and original inventory limits/assertions unchanged.",
+    "scripts/wheel_smoke.py": "Golden created-starter physical assertion explicitly requires normative default litai/samples/hello-component/component.md. This independently checks required default layout rather than accepting whichever layout a dynamic project selector discovers. Original applied=True/kind=created/profile=canonical checks and existence condition unchanged."
+  },
+  "verification": "Both current exact files compile successfully without executing harness or writing pycache. Source-only changes need no new mirror tests.",
+  "limits": "Source closing only, not actual Windows wheel or FreeBSD SDK success. Original first-failure diagnoses and compound-Windows-predicate limit remain. Unrelated dirty production/test files outside2file scope unreviewed here."
+}

@@ -13,12 +13,24 @@ from pathlib import Path
 from literate_ai.adapters.authority import FileAuthorityProjectionStore
 from literate_ai.adapters.component_markdown import parse_component_markdown
 from literate_ai.cli import main
-from literate_ai.cli._wire import component_graph_from_wire, component_graph_to_wire
+from literate_ai.cli._wire import (
+    component_graph_from_wire,
+    component_graph_to_wire,
+    review_from_wire,
+    review_to_wire,
+)
 from literate_ai.contracts import ContentIdentity
 from literate_ai.contracts.component_locking import ComponentLock
 from literate_ai.contracts.component_locking.authoring import ComponentAssetSelector
+from literate_ai.contracts.library_imports import AuthoredLibraryImport
 from literate_ai.projects import ProjectConfigurationStore
-from literate_ai.source_to_specification import canonical_digest
+from literate_ai.source_to_specification import (
+    DraftArtifact,
+    ProviderValidation,
+    ReviewAuthority,
+    SpecificationReviewDecision,
+    canonical_digest,
+)
 from literate_ai.source_to_specification.errors import SourceToSpecificationError
 from literate_ai.source_to_specification.inventory import (
     SourceFileClassification,
@@ -90,6 +102,44 @@ def invoke(*args):
 
 
 class ReviewedSourceAssetTests(unittest.TestCase):
+    def test_native_library_import_graph_and_review_roundtrip_keep_strict_branch(self):
+        for language, module in (
+            ("python", "tiny.api"),
+            ("javascript", "tiny/api"),
+            ("rust", "tiny::api"),
+            ("cpp", "tiny/api.hpp"),
+            ("elixir", "Tiny.API"),
+        ):
+            with self.subTest(language=language):
+                imported = AuthoredLibraryImport(
+                    language, "tiny", "fixture.lookup", module, ("lookup",)
+                )
+                value = graph_value()
+                value["nodes"][0]["library_imports"] = [imported.to_dict()]
+                graph = component_graph_from_wire(value)
+                encoded = component_graph_to_wire(graph)
+                self.assertEqual(encoded, value)
+                self.assertEqual(component_graph_from_wire(encoded), graph)
+                review = SpecificationReviewDecision(
+                    "review",
+                    "draft",
+                    None,
+                    "reviewer",
+                    ReviewAuthority.HUMAN,
+                    "Review exact native import names",
+                    (),
+                    (),
+                    (DraftArtifact("specs/spec.md", "# Reviewed fixture"),),
+                    ProviderValidation("fixture", "1", True),
+                    graph,
+                )
+                self.assertEqual(review_from_wire(review_to_wire(review)), review)
+                for field, invalid in (("node_module", None), ("node_sdk_exports", [])):
+                    malformed = copy.deepcopy(encoded)
+                    malformed["nodes"][0]["library_imports"][0][field] = invalid
+                    with self.assertRaises(ValueError):
+                        component_graph_from_wire(malformed)
+
     def test_asset_free_identity_and_wire_are_unchanged(self):
         value = graph_value()
         graph = component_graph_from_wire(value)

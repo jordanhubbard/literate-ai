@@ -1,0 +1,35 @@
+{
+  "status": "wire-closed-wrapper-edge-correct-full-helper-profile-open",
+  "head": "b08783b92e5e9383610eb85f1ee382d7ffa5f393",
+  "files": {
+    "src/literate_ai/cli/_wire.py": "6e703c52cddfc28694916182114af135405ec160d86d4577df9df1fe94ba5bba",
+    "src/literate_ai/adapters/retained_layout_provider.py": "b921b14d67c7940d49f10684b5676a748f08431f45f045f1b2740e22349f7029",
+    "tests/critical/test_reviewed_source_assets.py": "87408025e1e1fdb36baf2975f214de3454bff52e8e5e019e42b7bf10d0bcb846"
+  },
+  "wire_closing_review": "Shared result/graph/review projection now uses typed AuthoredLibraryImport.to_dict beside existing typed asset encoding. Decoder strictness, review signing and identity implementations unchanged. Empty import projection stays omitted as before, reconstructed typed graph/review canonical semantic identities retained. No whole-input parser weakening.",
+  "wire_independent_test": {
+    "name": "tests.critical.test_reviewed_source_assets.ReviewedSourceAssetTests.test_native_library_import_graph_and_review_roundtrip_keep_strict_branch",
+    "result": "PASS",
+    "seconds": 0.003,
+    "coverage": "Python,JavaScript,Rust,C++,Elixir graph and review roundtrips, and explicit node_module=None/node_sdk_exports=[] strict refusal."
+  },
+  "regression_correction": "Original added test used imported.lookup against fixture.lookup graph and correctly refused before roundtrip. Current fixture.lookup correction preserves strict contract rather than weakening validator. Failed reviewed-import-wire-r1 retained; no broader cohort success asserted.",
+  "requested_wrapper_edge_review": {
+    "status": "exact-edge-source-reviewed",
+    "old": "de80b293e659fd69a798644948a7b13a352017398a92422729d10bde23d98ec5",
+    "new": "670e428db5e96f35313130fd6d98b8be585040a8311241e38b2600ae91e338a2",
+    "provenance": "645c19f75 adds optional expected_authority_identity/expected_document_content conditional forwarding. Existing5historical pairs and matching logic unchanged."
+  },
+  "unresolved_full_helper_profile": {
+    "record_authority_review": "a93ffc48baef90bb67cd9310c01859dca2c3c6536f8beecf07a723383b1d6476",
+    "_record_authority_review": "2284a865ff8b2ecbc10be3987b0f0c81d03aad68b96e6410148fa688cd83c5fb",
+    "prepare_native_rewrite_program": "87b63ac61fc356813920beb86efbc5d313268b25d1f14be4338fad032ab9afea"
+  },
+  "profile_evidence": "Canonical initializer-ast-custody-r1 fails nextrecord_authority_review; direct profile_vectors confirms failure. Full helper roster cannot be declared closed after only wrapperedge.",
+  "native_child_journey": "Observed actual native-child-wire-r1.log terminal12tests PASS233.633s. Root-owned cohort; no actual native two-build/release acceptance inferred.",
+  "limits": [
+    "Read-only source + focused wire test. Original full native acceptance and final900 result remain pending/root-owned.",
+    "Missing GitHub ancestor Git-control repair not implemented/reviewed here."
+  ],
+  "remaining_helper_provenance": "review-runtime-initializer-remaining-edges-provenance.json"
+}

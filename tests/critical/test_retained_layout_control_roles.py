@@ -473,6 +473,52 @@ class RetainedLayoutControlRoleTests(unittest.TestCase):
         self.git("config", "--local", "include.path", str(included))
         self._assert_declared_include_writer_is_reserved(included)
 
+    def _assert_unreachable_include_is_absence_only(self, key):
+        self.init_git()
+        missing = self.root / "missing-include-parent"
+        target = missing / "nested/config.cfg"
+        self.git("config", "--local", key, str(target))
+        observed = observe_layout_git_controls(self.project)
+        self.assertIn((missing, None), observed.files.native_files)
+        self.assertNotIn(
+            target, {item.path for item in observed.files.configuration_files}
+        )
+        writers = {item.path for item in observed.targets()}
+        self.assertNotIn(missing.with_name(missing.name + ".lock"), writers)
+        self.assertNotIn(target.with_name(target.name + ".lock"), writers)
+        self.assertFalse(missing.exists())
+        observed.close_native_inputs()
+        missing.mkdir()
+        with self.assertRaisesRegex(ValueError, "native file facts"):
+            observed.close_native_inputs()
+        with self.assertRaises(ValueError):
+            observed.require_unchanged()
+        self.assertTrue(missing.is_dir())
+        self.assertFalse(target.exists())
+
+    def test_missing_include_ancestor_is_native_absence_without_writer_authority(self):
+        self._assert_unreachable_include_is_absence_only("include.path")
+
+    def test_inactive_include_missing_ancestor_is_native_absence_only(self):
+        self._assert_unreachable_include_is_absence_only(
+            "includeIf.gitdir:never-matching.path"
+        )
+
+    def test_unreachable_include_targets_still_charge_file_bound(self):
+        self.init_git()
+        missing = self.root / "missing-include-parent"
+        for index in range(64):
+            self.git(
+                "config",
+                "--local",
+                "--add",
+                "include.path",
+                str(missing / str(index) / "config.cfg"),
+            )
+        with self.assertRaisesRegex(ValueError, "file count"):
+            observe_layout_git_controls(self.project)
+        self.assertFalse(missing.exists())
+
     def test_relative_nested_include_uses_declaring_file_parent(self):
         self.init_git()
         directory = self.root / "config-files"

@@ -741,5 +741,235 @@
     },
     "native_performance": "Reviewed final implementation repeated fresh-read microbenchmark2.33x median hash-data speedup on20,172,120byte rustup image, after population. This does not establish original native900 deadline or whole-work speedup. Fresh exact-candidate actual control required.",
     "limits": "Existing Skill DATA private-module/closure-cell trust boundary; no new unforgeability/native-admission registry claimed. All83 immutable goals, full source/installed/platform/collateral/contribution/resulting-main/release acceptance remain required."
+  },
+  "qualification_followup_r5": {
+    "base_commit": "b08783b92e5e9383610eb85f1ee382d7ffa5f393",
+    "review_reports": [
+      "verification/release-1.4-followup/review-runtime-wire-initializer-edge-close.json",
+      "verification/release-1.4-followup/review-runtime-provider-finite-edges-final-close.json",
+      "verification/release-1.4-followup/review-runtime-initializer-eager-import-portability-close.json",
+      "verification/release-1.4-followup/review-authority-git-optional-ancestor-final-closing.json",
+      "verification/release-1.4-followup/review-contracts-locked-generation-fixtures-closing.json",
+      "verification/release-1.4-followup/review-authority-ci-7128-sdk-wheel-final-closing.json",
+      "verification/release-1.4-followup/review-authority-oracle-placement-final-closing.json",
+      "verification/release-1.4-followup/review-runtime-manifest-declaration-data-source-review.json"
+    ],
+    "current_reviewed_hashes": {
+      ".github/qualifications/native_sdk/qualify_public_sdk.py": "5a6dd6cdc36b2d753e5bc15c1d64f1abb333cb44780cf9d8398b3143cf175117",
+      "scripts/wheel_smoke.py": "5f45b19884b2f851f71bf424877cd26c20708b745da30fb288ce92b4dddb4d96",
+      "src/literate_ai/adapters/component_acceptance.py": "1c6d88ac400415d9259adf2b2a42936f6a8f1812c29778cdacbe8d29a519bc4b",
+      "src/literate_ai/adapters/retained_cargo_execution_core.py": "b6f805f6356581461a69d7a55ef4c649f5ece10f9dfa6e5e181695936435559b",
+      "src/literate_ai/adapters/retained_layout_ast.py": "4d0a468fb03dd8c4857da64822764f8230675e2e7537e5c0643e985c8d527b73",
+      "src/literate_ai/adapters/retained_layout_git_controls.py": "f7dfe2ec5acf8b89567c1f536de37d5517afa8e8b7e3f8ce981691554e1d9b89",
+      "src/literate_ai/adapters/retained_layout_provider.py": "ebcf66c4f61db19008414b20b77621fda57615c6f8ba57f0e390df388946f835",
+      "src/literate_ai/cli/_wire.py": "6e703c52cddfc28694916182114af135405ec160d86d4577df9df1fe94ba5bba",
+      "src/literate_ai/projects.py": "b3cf623844d23c2d51d72c28d9820f260c8e2235d1486bebd15535aee0d7926b",
+      "tests/critical/test_cli_locked_generation.py": "640f27c12fb53f74076aaa395664fcf29bb5eea5a61db245f5c16500a0bf6726",
+      "tests/critical/test_retained_layout_ast.py": "b94fa2726c6b0ec4e56498fe326c6177a33cd3d77570ff41c36ce7aa8b8b69b7",
+      "tests/critical/test_retained_layout_control_roles.py": "daa64a4fc72cc17df65dfa660b081bd70ef8d2e445217b90faedc2bfd940669e",
+      "tests/critical/test_reviewed_source_assets.py": "87408025e1e1fdb36baf2975f214de3454bff52e8e5e019e42b7bf10d0bcb846",
+      "tests/critical/test_acceptance_oracle_placement.py": "0847c10004fcc9d4bc168eb6ab1028f96a96dfe95e468465aa494c1caf0af427",
+      "tests/critical/test_manifest_declaration_metadata.py": "c28b1c31c948a781bc09f171d4709132aad8d14e5248df678f5855b544ce5f44"
+    },
+    "changes": [
+      "Typed library imports use their strict branch-aware wire projection for result, graph and signed review roundtrips; strict decoders, identities and signing unchanged.",
+      "Initializer recognition retains all historical fingerprints and matching rules, adding only independently reviewed finite custody/context/scaffold transitions. Syntax normalization ignores only eager import is_lazy false/exact integer zero for cross-version AST parity.",
+      "Optional absent interior Git include prefixes retain native absence and existing parent witnesses without synthetic config-file or writer-lock roles. Activation and callback closing are still refused; file budgets remain.",
+      "Three owned macOS temporary roots are physically resolved without changing original assertions. SDK release-policy roles use original canonical framework coordinates; installed starter asserts normative contained placement.",
+      "Default acceptance oracle lookup uses canonical framework placement after unchanged name validation; explicit paths and legacy bare-root fallback remain.",
+      "Per-native-invocation manifest DATA frame stores only a full parser-derived primitive after fresh guarded exact bytes. No context, placement, native probe, currentness or guard result is retained; closure lifetime, bounds and retirement are independently checked."
+    ],
+    "source_evidence": {
+      "reviewed-import-wire-r2": {
+        "report_sha256": "0eb22aba869181429221ef410c7681d7ac107302d67320d1e043747dc94737b8",
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        }
+      },
+      "native-child-wire-r1": {
+        "report_sha256": "de651ba5a64abd4ae09e21dc4463e0999c2fec8ad33e6b39fe204d4ec64357ae",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      },
+      "provider-custody-edge-r2": {
+        "report_sha256": "08adb67e3f77b1614fc20c0b46a493c0d71397af704eb2181e3727839d5002eb",
+        "summary": {
+          "executed": 21,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 21,
+          "selected": 21,
+          "skipped": 0
+        }
+      },
+      "initializer-ast-portability-r3": {
+        "report_sha256": "e7c283e63f3f9d545c3f9d0f4dd164780ba63365923f18d3c079f77dddf4be11",
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        }
+      },
+      "git-control-optional-ancestor-r2": {
+        "report_sha256": "bae9265c94ed5403846d1717c8844a9f83087ecac80dd7eb7202a7692bbcd4b8",
+        "summary": {
+          "executed": 25,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 25,
+          "selected": 25,
+          "skipped": 0
+        }
+      },
+      "bounded-git-optional-ancestor-r1": {
+        "report_sha256": "24e88766dac5bce2032d7e048f2da94f29f43f0d08d8a936975832576e872305",
+        "summary": {
+          "executed": 32,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 32,
+          "selected": 32,
+          "skipped": 0
+        }
+      },
+      "locked-generation-fixtures-r1": {
+        "report_sha256": "094909e6ae08bdf3e97289558f2e103c587d7e2e45b3f6f8f56f601c92b5c427",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      },
+      "oracle-placement-r3": {
+        "report_sha256": "846543d974f0ee2e73d22291c938ce3f910f7056638095a1a5976d217ad72891",
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        }
+      },
+      "oracle-lint-render-r1": {
+        "report_sha256": "1243a0efbe81470cf325afc941a06dfd8cd23401f39af80186c063528ec98754",
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        }
+      },
+      "manifest-declaration-data-r2": {
+        "report_sha256": "88196212829b8108846f610b057e388f4d9d8f7ab7ff366d9f233657c8341f15",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        }
+      }
+    },
+    "native_guard_diagnostic": {
+      "measurements": [
+        {
+          "stage": "fixture_ready",
+          "seconds": 90.73238530100207
+        },
+        {
+          "stage": "complete_guard",
+          "iteration": 0,
+          "seconds": 6.741269182006363,
+          "executable_data": {
+            "active": true,
+            "entries": 2,
+            "payload_bytes": 22506208,
+            "digests": [
+              "9f608c142e0e38a78957d0661ba1dfaf0b6fb37184cfaa4b9a0aa57af6184282",
+              "db0c9200524653ed0ff20a2950b49402879887ad4932c4de18606df9de5cf3d9"
+            ]
+          },
+          "manifest_data": {
+            "active": true,
+            "entries": 1,
+            "payload_bytes": 3625,
+            "hits": 10953,
+            "parses": 1
+          }
+        },
+        {
+          "stage": "complete_guard",
+          "iteration": 1,
+          "seconds": 6.74307499002316,
+          "executable_data": {
+            "active": true,
+            "entries": 2,
+            "payload_bytes": 22506208,
+            "digests": [
+              "9f608c142e0e38a78957d0661ba1dfaf0b6fb37184cfaa4b9a0aa57af6184282",
+              "db0c9200524653ed0ff20a2950b49402879887ad4932c4de18606df9de5cf3d9"
+            ]
+          },
+          "manifest_data": {
+            "active": true,
+            "entries": 1,
+            "payload_bytes": 3625,
+            "hits": 21907,
+            "parses": 1
+          }
+        },
+        {
+          "stage": "complete_guard",
+          "iteration": 2,
+          "seconds": 6.800409830000717,
+          "executable_data": {
+            "active": true,
+            "entries": 2,
+            "payload_bytes": 22506208,
+            "digests": [
+              "9f608c142e0e38a78957d0661ba1dfaf0b6fb37184cfaa4b9a0aa57af6184282",
+              "db0c9200524653ed0ff20a2950b49402879887ad4932c4de18606df9de5cf3d9"
+            ]
+          },
+          "manifest_data": {
+            "active": true,
+            "entries": 1,
+            "payload_bytes": 3625,
+            "hits": 32861,
+            "parses": 1
+          }
+        }
+      ],
+      "baseline_unprofiled_seconds": 9.388,
+      "limit": "Complete-input-guard diagnostic only; not original native900 execution acceptance. Prior cProfile31.442 seconds includes instrumentation overhead and is not baseline."
+    },
+    "prior_whole_gate_failures": {
+      "authored-native-completion-r3": "Frozen b087 fails unchanged900 execution deadline,1028.493seconds overall. Existing executable DATA frame was active and insufficient.",
+      "wheel-full-r7": "Frozen b087 fails component_acceptance.oracle_missing at legacy root path for contained starter; no complete installed pass.",
+      "full-source-r10": "Frozen40d fails;525passed,26skipped,1failed out of8442selected. Original failed evidence retained."
+    },
+    "review_supersession": "Wire report retains historical unresolved helper endpoints and intermediate provider hash; final finite-edge and AST portability reports close those source findings at current hashes.",
+    "limits": "Source closing and diagnostic only. All83 immutable release goals, complete source/installed/native/platform/collateral/contribution/resulting-main/publication/readback requirements remain open unless individually evidenced elsewhere. No deadline or original assertion relaxed."
   }
 }

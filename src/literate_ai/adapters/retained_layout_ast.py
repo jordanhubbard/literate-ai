@@ -15,6 +15,14 @@ def _syntax(value):
     if isinstance(value, ast.AST):
         fields = {}
         for name, item in ast.iter_fields(value):
+            # Python 3.15 makes eager import's prior implicit default explicit.
+            # Preserve lazy imports and every nondefault/unknown field value.
+            if (
+                isinstance(value, (ast.Import, ast.ImportFrom))
+                and name == "is_lazy"
+                and (item is False or type(item) is int and item == 0)
+            ):
+                continue
             if item is None and not (
                 isinstance(value, ast.Constant) and name == "value"
             ):

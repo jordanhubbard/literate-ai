@@ -406,6 +406,7 @@ write(
     "verification/retained-project-acceptance.json",
     canonical_json_bytes(accept.to_dict()),
 )
+release_policy = context.framework_path("literate.release.json")
 roles = {
     "src": "source",
     "tools": "toolchain",
@@ -417,7 +418,7 @@ roles = {
     "tests": "test-definition",
     "manual-input.md": "docs-definition",
     "retained-tests.json": "test-policy",
-    "literate.release.json": "release-policy",
+    release_policy.relative_to(root).as_posix(): "release-policy",
 }
 limits = RetainedProjectLimits(2000, 512 * 1024 * 1024, 2 * 1024 * 1024 * 1024)
 write("profile.json", "{}\n")
@@ -443,8 +444,7 @@ profile = RetainedProjectProfile(
         + hashlib.sha256((root / "retained-tests.json").read_bytes()).hexdigest()
     ),
     ContentIdentity.parse_uri(
-        "sha256:"
-        + hashlib.sha256((root / "literate.release.json").read_bytes()).hexdigest()
+        "sha256:" + hashlib.sha256(release_policy.read_bytes()).hexdigest()
     ),
     tools,
     (

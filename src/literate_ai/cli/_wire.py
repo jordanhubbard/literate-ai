@@ -204,7 +204,7 @@ def result_to_wire(result: SourceToSpecificationResult) -> dict[str, Any]:
     document = canonical_value(result)
     graph = document.get("component_graph_draft")
     if graph is not None:
-        _encode_graph_assets(graph, result.component_graph_draft)
+        _encode_graph_authoring(graph, result.component_graph_draft)
         legacy = any(
             node.kind == "unknown" for node in result.component_graph_draft.nodes
         )
@@ -352,22 +352,26 @@ def result_from_wire(value: Any) -> SourceToSpecificationResult:
     )
 
 
-def _encode_graph_assets(document: dict[str, Any], graph: ComponentGraphDraft) -> None:
+def _encode_graph_authoring(
+    document: dict[str, Any], graph: ComponentGraphDraft
+) -> None:
     for node, typed in zip(document["nodes"], graph.nodes, strict=True):
         if typed.assets:
             node["assets"] = [asset.to_dict() for asset in typed.assets]
+        if typed.library_imports:
+            node["library_imports"] = [item.to_dict() for item in typed.library_imports]
 
 
 def component_graph_to_wire(graph: ComponentGraphDraft) -> dict[str, Any]:
     document = canonical_value(graph)
-    _encode_graph_assets(document, graph)
+    _encode_graph_authoring(document, graph)
     return document
 
 
 def review_to_wire(review: SpecificationReviewDecision) -> dict[str, Any]:
     document = canonical_value(review)
     if review.component_graph_draft is not None:
-        _encode_graph_assets(
+        _encode_graph_authoring(
             document["component_graph_draft"], review.component_graph_draft
         )
     return document

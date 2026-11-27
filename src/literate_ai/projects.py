@@ -182,6 +182,79 @@ def parse_project_configuration(content: bytes) -> ProjectDefinition:
         ) from exc
 
 
+_MANIFEST_DECLARATION_METADATA: ContextVar[Callable[[bytes], str | None] | None] = (
+    ContextVar("read_only_manifest_declaration_metadata", default=None)
+)
+
+
+@contextmanager
+def read_only_project_manifest_metadata() -> Iterator[None]:
+    """Reuse only a full parser's immutable declaration field after fresh reads.
+
+    This private closure has the same module/closure-introspection boundary as
+    Skill DATA. No context, native observation or placement decision is cached.
+    """
+    parser = parse_project_configuration
+    entry_limit, byte_limit = _PROJECT_PARSE_MAX_ENTRIES, _PROJECT_PARSE_MAX_BYTES
+    entries: dict[bytes, str | None] = {}
+    retained_bytes = hits = parses = 0
+    active = True
+    lock = threading.RLock()
+
+    def load(content):
+        nonlocal retained_bytes, hits, parses
+        with lock:
+            retired = not active
+            if not retired and type(content) is bytes and content in entries:
+                hits += 1
+                return entries[content]
+            parses += 1
+        if retired:
+            return parse_project_configuration(content).framework_directory
+        # Full schema validation still runs on every miss. Never replace it with
+        # a permissive JSON-field lookup, nor retain exceptions or parsed objects.
+        directory = parser(content).framework_directory
+        if type(content) is not bytes or not (
+            directory is None or type(directory) is str and directory == "litai"
+        ):
+            return directory
+        size = len(content) + (0 if directory is None else 4 * len(directory)) + 64
+        with lock:
+            if (
+                active
+                and content not in entries
+                and len(entries) < entry_limit
+                and retained_bytes + size <= byte_limit
+            ):
+                entries[content] = directory
+                retained_bytes += size
+        return directory
+
+    def statistics():
+        with lock:
+            return {
+                "active": active,
+                "entries": len(entries),
+                "payload_bytes": retained_bytes,
+                "hits": hits,
+                "parses": parses,
+            }
+
+    load.statistics = statistics
+    owner = _MANIFEST_DECLARATION_METADATA
+    token = owner.set(load)
+    try:
+        yield
+    finally:
+        active = False
+        try:
+            with lock:
+                entries.clear()
+                retained_bytes = 0
+        finally:
+            owner.reset(token)
+
+
 def serialize_project_configuration(definition: ProjectDefinition) -> bytes:
     if not isinstance(definition, ProjectDefinition):
         raise TypeError("project configuration must be a ProjectDefinition")
@@ -340,7 +413,13 @@ class ProjectConfigurationStore:
                     f"project root must contain {PROJECT_FILENAME}",
                 )
             content = ProjectConfigurationStore(path.parent)._read_manifest(path)
-            return parse_project_configuration(content).framework_directory == "litai"
+            metadata = _MANIFEST_DECLARATION_METADATA.get()
+            directory = (
+                parse_project_configuration(content).framework_directory
+                if metadata is None
+                else metadata(content)
+            )
+            return directory == "litai"
 
         if direct_directory(root, missing=True) is None:
             return observed(root, root)

@@ -1,0 +1,24 @@
+{
+  "status": "independent_source_closing_review_accepted",
+  "head": "b08783b92e5e9383610eb85f1ee382d7ffa5f393",
+  "sha256": {
+    "src/literate_ai/adapters/retained_layout_git_controls.py": "f7dfe2ec5acf8b89567c1f536de37d5517afa8e8b7e3f8ce981691554e1d9b89",
+    "tests/critical/test_retained_layout_control_roles.py": "daa64a4fc72cc17df65dfa660b081bd70ef8d2e445217b90faedc2bfd940669e"
+  },
+  "coverage": "Full actual source delta, original surrounding observation/targets/close/reobserve contracts, all3newcontrols and existing canceled/symlink traversal test inspected. Read-only; no reviewer source edits.",
+  "original_finding_closed": "Initial except FileNotFoundError could not catch wrapped _lineage missing parent. Actual tiny Git repo confirmed RetainedLayoutError caused by UnsafeFilesystemPathError. Corrected optional=True lexical walk now detects first absence through _presence while current parent is verified; no broad wrapped-exception catch.",
+  "safety": "Only declared optional include targets use absence handling. First absent interior prefix has existing parent ancestry and becomes native_files None only; no config-file/writer/exclusion authority. Ordinary missing leaf keeps original config/writer role. Existing/canceled redirected prefixes still require original _lineage. Missing target spellings charge original64file bound. Original256parts and8MiB config bounds retained. Explicit absence close follows last Git configuration callback, and original native closure/reobserve detect activation.",
+  "independent_verification": {
+    "fixture_tests": "All3newtests plus existing redirected-parent-traversal test passed2.652seconds,4tests no skips.",
+    "actual_git_extra_controls": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-authority-git-optional-ancestor-r2-controls.json",
+    "extra_results": [
+      "Unconditional and inactive unreachable ancestor accepted as absence only, no target/prefix writer.",
+      "Post-capture directory activation refused by original native closure.",
+      "Ordinary absent leaf retains configuration_file and writer target.",
+      "Missing canceled prefix /../file correctly witnesses first absent directory and refuses activation.",
+      "Inactive symlink ancestor refused.",
+      "Prefix creation in original final configuration snapshot callback refused before returning observation."
+    ]
+  },
+  "limits": "Scoped source/targeted actual local POSIX Git acceptance only, no Windows/FreeBSD run or native SDK/project admission claim. Other dirty files outside2file scope unreviewed here."
+}

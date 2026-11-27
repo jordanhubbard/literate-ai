@@ -122,7 +122,7 @@ def _arguments(component: Path, flavors: Path, output: Path, **overrides):
 class LockedGenerationCliTests(unittest.TestCase):
     def test_prepare_uses_only_locked_authority_and_not_legacy_resolvers(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve(strict=True)
             component, flavors = _generation_fixture(root)
             lock = _write_lock(component, flavors)
             coding_cli = root / "bin" / "codex"
@@ -189,7 +189,7 @@ class LockedGenerationCliTests(unittest.TestCase):
         cases = ("missing", "stale", "target", "selector")
         for case in cases:
             with self.subTest(case=case), tempfile.TemporaryDirectory() as temporary:
-                root = Path(temporary)
+                root = Path(temporary).resolve(strict=True)
                 component, flavors = _generation_fixture(root)
                 if case != "missing":
                     _write_lock(component, flavors)
@@ -221,7 +221,7 @@ class LockedGenerationCliTests(unittest.TestCase):
 
     def test_live_closure_is_rechecked_immediately_before_agent_egress(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve(strict=True)
             component, flavors = _generation_fixture(root)
             _write_lock(component, flavors)
             specification = component / "specs" / "spec.md"

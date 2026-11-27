@@ -67,6 +67,7 @@ from literate_ai.contracts.retained_cargo_test_protocol import (
     RetainedCargoCustomProtocol,
     RetainedCargoExcludedProtocol,
 )
+from literate_ai.projects import read_only_project_manifest_metadata
 
 
 def _require_distinct_extra_guard(tool, extra_guard):
@@ -175,6 +176,7 @@ def _execute_cargo_consumer(
 # byte/image read, native probes and all guard bookends remain fresh.
 @read_only_executable_digest_data()
 @read_only_skill_manifest_metadata()
+@read_only_project_manifest_metadata()
 def _execute_cargo_consumer_session(
     materialized: RetainedCargoMaterializationV2 | AuthoredRetainedCargoMaterialization,
     *,

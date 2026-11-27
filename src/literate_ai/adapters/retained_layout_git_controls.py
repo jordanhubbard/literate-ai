@@ -148,7 +148,7 @@ def _configuration_inputs(root, git_directory, common_directory, identity, inclu
         files = _configuration_files(git_directory, common_directory, False)
         if files is None:
             _fail("Git configuration files are unavailable or redirected")
-        return files, ()
+        return files, (), ()
     raw = _git(root, "config", "--null", "--show-origin", "--list", "--includes")
     fields = raw.split(b"\0")
     if fields[-1] != b"" or len(fields) % 2 != 1:
@@ -158,13 +158,15 @@ def _configuration_inputs(root, git_directory, common_directory, identity, inclu
     if "sha256:" + hashlib.sha256(content).hexdigest() != identity:
         _fail("Git configuration changed during origin discovery")
     traversed = {}
+    absent = {}
+    unreachable = set()
 
-    def configuration_path(base, value):
+    def configuration_path(base, value, *, optional=False):
         raw = base / value.decode("utf-8")
         if len(raw.parts) > 256:
             _fail("Git configuration path exceeds its ancestry bound")
         current = Path(raw.anchor)
-        for part in raw.parts[1:]:
+        for index, part in enumerate(raw.parts[1:]):
             if part == "..":
                 # Validate and retain a canceled prefix before normalizing it.
                 # Otherwise link/../file could select a different native target
@@ -175,7 +177,19 @@ def _configuration_inputs(root, git_directory, common_directory, identity, inclu
                 traversed[current] = ancestry
                 current = current.parent
             else:
-                current /= part
+                candidate = current / part
+                if optional and index < len(raw.parts) - 2:
+                    # Validate the existing parent before inspecting its child.
+                    # Never call _lineage on an absent descendant or follow a
+                    # redirected parent while searching for an absence witness.
+                    ancestry = _lineage(current)
+                    if current in traversed and traversed[current] != ancestry:
+                        _fail("Git configuration traversal changed")
+                    if _presence(candidate) is None:
+                        traversed[current] = ancestry
+                        absent[candidate] = None
+                        return None
+                current = candidate
         return current
 
     paths = {common_directory / "config", git_directory / "config.worktree"}
@@ -192,8 +206,9 @@ def _configuration_inputs(root, git_directory, common_directory, identity, inclu
     # path values (including ~/ and its native prefix rules), then resolve any
     # relative value against the actual declaring file, never the worktree.
     # Conditional targets are conservatively reserved even when inactive. This
-    # grants only writer exclusion; neither the file nor its parent is source
-    # ownership or an exclusion. A missing/redirected parent refuses below.
+    # grants only writer exclusion; neither file nor parent is source ownership.
+    # An unreachable optional target instead retains its first absent prefix as
+    # native input DATA, never as a synthetic config file or writer target.
     declared = _git(
         root,
         "config",
@@ -218,9 +233,18 @@ def _configuration_inputs(root, git_directory, common_directory, identity, inclu
         declaring = configuration_path(root, origin[5:])
         if declaring not in paths:
             _fail("Git include declaring origin changed")
-        target = configuration_path(declaring.parent, value)
+        target = configuration_path(declaring.parent, value, optional=True)
+        if target is None:
+            unreachable.add((declaring.parent, value))
+            if len(paths) + len(unreachable) > 64:
+                _fail("Git configuration file count exceeds its bound")
+            continue
+        ancestry = _lineage(target.parent)
+        if target.parent in traversed and traversed[target.parent] != ancestry:
+            _fail("Git configuration parent ancestry changed")
+        traversed[target.parent] = ancestry
         paths.add(target)
-        if len(paths) > 64:
+        if len(paths) + len(unreachable) > 64:
             _fail("Git configuration file count exceeds its bound")
     for parent in sorted({path.parent for path in paths}, key=str):
         ancestry = _lineage(parent)
@@ -236,7 +260,9 @@ def _configuration_inputs(root, git_directory, common_directory, identity, inclu
         _fail("Git configuration bytes exceed their bound")
     if tuple((path, _lineage(path)) for path, _ in parents) != parents:
         _fail("Git configuration parent ancestry changed")
-    return files, parents
+    if any(_presence(path) is not None for path in absent):
+        _fail("Git configuration absent prefix changed")
+    return files, parents, tuple(sorted(absent.items(), key=lambda item: str(item[0])))
 
 
 @dataclass(frozen=True, slots=True)
@@ -442,7 +468,7 @@ def observe_layout_git_controls(project_root, *, reservations=None):
             ):
                 _fail("retained worktree control requires explicit recovery")
     locator = _file(git_directory / "commondir", optional=True, maximum_bytes=4096)
-    configuration_files, config_lineages = _configuration_inputs(
+    configuration_files, config_lineages, config_absence = _configuration_inputs(
         git_root, git_directory, common_directory, configuration, includes
     )
     original = dict(lineages)
@@ -463,7 +489,7 @@ def observe_layout_git_controls(project_root, *, reservations=None):
         inputs.append(boundary)
     if worktree_lock is not None:
         inputs.append(worktree_lock)
-    native_files = []
+    native_files = list(config_absence)
     for observed in inputs:
         owned_lock = (
             worktree_lock is not None
@@ -485,6 +511,8 @@ def observe_layout_git_controls(project_root, *, reservations=None):
         native_files.append((observed.path, presence))
     if _configuration_snapshot(git_root, clean=False)[0] != configuration:
         _fail("Git configuration changed during role observation")
+    if any(_presence(path) != expected for path, expected in config_absence):
+        _fail("Git configuration absent prefix changed during role observation")
     files = _GitFiles(
         git_directory,
         common_directory,
