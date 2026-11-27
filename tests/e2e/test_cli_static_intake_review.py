@@ -10,6 +10,7 @@ from unittest import mock
 
 from literate_ai.cli import main
 from literate_ai.contracts import ProjectInitializationOrigin
+from literate_ai.projects import ProjectConfigurationStore
 from literate_ai.source_to_specification.contracts import canonical_value
 from literate_ai.source_to_specification.inventory import inventory_source
 from literate_ai.version import DISTRIBUTION_VERSION
@@ -396,14 +397,20 @@ class StaticIntakeCliTests(unittest.TestCase):
         self.assertFalse(project.exists())
         code, payload = self.invoke(*arguments, "--allow-authorized-policy-intake")
         self.assertEqual(code, 0, payload)
-        component = next((project / "components").glob("*/component.md")).parent
+        context = ProjectConfigurationStore.context(project)
+        self.assertEqual(context.framework_root, project / "litai")
+        component = next(
+            (context.framework_root / "components").glob("*/component.md")
+        ).parent
         projection = FileAuthorityProjectionStore(project).current(
             "component://" + coordinate
         )
         evidence = verify_source_promotion_evidence(project, projection)
         self.assertEqual(evidence.static_intake_review.authority, "authorized-policy")
         self.assertIsNone(evidence.static_intake_validation)
-        provenance = next((project / "provenance/source-promotion").iterdir())
+        provenance = next(
+            (context.framework_root / "provenance/source-promotion").iterdir()
+        )
         record = json.loads((provenance / "reference.json").read_text())
         self.assertEqual(
             record["schema"], "urn:literate-ai:schema:v5:source-promotion-provenance"

@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
+import locale
 import os
 import re
 import shutil
@@ -176,7 +178,9 @@ def _read_json(path: str | Path) -> dict[str, Any]:
         ) from exc
 
 
-def _read_stable_bounded_regular_file(path: str | Path, *, maximum_bytes: int) -> bytes:
+def _read_stable_bounded_regular_file(
+    path: str | Path, *, maximum_bytes: int, _maximum_selector=None
+) -> bytes:
     """Read one direct regular file without following or racing its pathname."""
 
     candidate = Path(os.path.abspath(path))
@@ -206,11 +210,14 @@ def _read_stable_bounded_regular_file(path: str | Path, *, maximum_bytes: int) -
             flags |= getattr(os, name, 0)
         descriptor = os.open(candidate, flags)
         opened = os.fstat(descriptor)
-        if (
-            not stat.S_ISREG(opened.st_mode)
-            or opened.st_size > maximum_bytes
-            or not named_file_matches(descriptor, opened)
+        if not stat.S_ISREG(opened.st_mode) or not named_file_matches(
+            descriptor, opened
         ):
+            raise OSError
+        if _maximum_selector is not None:
+            maximum_bytes = _maximum_selector(descriptor, opened.st_size)
+            os.lseek(descriptor, 0, os.SEEK_SET)
+        if opened.st_size > maximum_bytes:
             raise OSError
         content = bytearray()
         while len(content) <= maximum_bytes:
@@ -913,10 +920,51 @@ def _flavor_drafts(
     return drafts
 
 
+def _read_bundle_json(path):
+    """Select the schema ceiling before allocation on the same original file."""
+    from ._bundle_schema_scan import scan_bundle_envelopes
+
+    maximum = 16 * 1024 * 1024
+    encoding = io.text_encoding(None)
+    if encoding == "locale":
+        encoding = locale.getencoding()
+
+    def ceiling(descriptor, size):
+        if size <= maximum:
+            return maximum
+        envelope = scan_bundle_envelopes(descriptor, size, encoding=encoding)
+        if isinstance(envelope, dict) and envelope.get("schema") == CLI_RESULT_SCHEMA:
+            envelope = envelope.get("result")
+        if isinstance(envelope, dict) and envelope.get("schema") in {
+            "literate-ai/source-to-specification-audit@1",
+            "literate-ai/source-to-specification-refresh@1",
+        }:
+            envelope = envelope.get("bundle")
+        if (
+            isinstance(envelope, dict)
+            and envelope.get("schema") == REVIEWED_INTAKE_BUNDLE_SCHEMA
+        ):
+            return maximum
+        # Legacy formats have no fixed ceiling: retain their original finite
+        # descriptor size, not a new global restriction on existing bundles.
+        return size
+
+    try:
+        content = _read_stable_bounded_regular_file(
+            path, maximum_bytes=maximum, _maximum_selector=ceiling
+        )
+        data = _object(json.loads(content.decode(encoding)), str(path))
+    except (OSError, ValueError, UnicodeError, RecursionError, CliFailure) as error:
+        raise CliFailure(
+            "cli.invalid_json", "bundle requires stable bounded JSON input"
+        ) from error
+    return data, content
+
+
 def _unwrap_bundle(
     path: str | Path,
 ) -> tuple[dict[str, Any], SourceToSpecificationResult]:
-    data = _read_json(path)
+    data, content = _read_bundle_json(path)
     if data.get("schema") == CLI_RESULT_SCHEMA:
         data = _object(data.get("result"), "CLI result")
     if data.get("schema") in {
@@ -934,12 +982,21 @@ def _unwrap_bundle(
     }:
         raise CliFailure("cli.unsupported_bundle", "input is not a result bundle")
     if data.get("schema") == REVIEWED_INTAKE_BUNDLE_SCHEMA:
+        from literate_ai.source_to_specification.promotion_materialization import (
+            _require_direct_directory,
+        )
         from literate_ai.source_to_specification.static_intake import (
             StaticIntakeReview,
-            read_static_intake_document,
+            _parse_static_intake_json,
         )
 
-        data = read_static_intake_document(path, maximum_bytes=16 * 1024 * 1024)
+        selected_parent = Path(path).absolute().parent
+        original_parent = _require_direct_directory(
+            selected_parent, label="static intake metadata"
+        )
+        data = _parse_static_intake_json(content)
+        _require_direct_directory(original_parent, label="static intake metadata")
+        _require_direct_directory(selected_parent, label="static intake metadata")
         if data.get("schema") in {
             "literate-ai/source-to-specification-audit@1",
             "literate-ai/source-to-specification-refresh@1",

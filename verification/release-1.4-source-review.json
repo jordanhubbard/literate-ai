@@ -29,7 +29,7 @@
       "reviewer": "contracts",
       "path": "src/literate_ai/cli/source_to_specification.py",
       "required_outcome": "Enforce the finite input ceiling before initial bundle read/decode and schema dispatch.",
-      "state": "open"
+      "state": "fixed-targeted-and-independently-reviewed"
     },
     {
       "id": "catalog-fifo-open",
@@ -125,6 +125,14 @@
       "reviewer": "runtime",
       "path": "src/literate_ai/adapters/retained_layout_forest_metadata_replay.py",
       "required_outcome": "Replay metadata using independently validated original contained placement coordinates.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "contained-qualification-audit-prefix",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "src/literate_ai/cli/source_to_specification.py",
+      "required_outcome": "Select audited Flavor inputs through original recorded catalog placement so default contained promotion reaches original trust checks.",
       "state": "open"
     }
   ],
@@ -217,6 +225,22 @@
       "skipped": 6,
       "failures": 0,
       "limit": "Original declared live/native opt-in skips; source recipe checks only."
+    },
+    "forest-contained-metadata": {
+      "run": "forest-metadata-r3",
+      "selected": 9,
+      "passed": 9,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Affected source controls and independent closing review only; full native/installed and release acceptance remain pending."
+    },
+    "intake-prebound-read": {
+      "run": "bundle-input-r4",
+      "selected": 5,
+      "passed": 5,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Affected source controls and independent closing review only; full native/installed and release acceptance remain pending."
     }
   },
   "review_scope": "All 462 frozen changed files independently inspected: runtime 65, SDK transfer 36, retained-layout transfer 36, authority 157 and remaining contracts 168. This is source review only."

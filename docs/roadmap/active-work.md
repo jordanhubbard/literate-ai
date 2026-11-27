@@ -24435,13 +24435,33 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   installed and collateral requirements, then prepare, check, publish and verify
   through the release owner. No recovered snapshot or narrow passing cohort
   establishes release acceptance.
-- **Forest metadata placement repair (in progress):** A real contained initializer
+- **Contained qualification audit repair (in progress):** The actual contained
+  CLI promotion passes, but qualification's literal root Flavor prefix selects no
+  files from its verified audit and masks the required intake trust refusals.
+  Resolve the selected exact catalog placement against that original audit; keep
+  nonempty/identity checks and every existing trust assertion, then require the
+  full CLI cohort and independent review. No trust guard is waived.
+- **Bundle preallocation repair (source partial):** Review reproduces an oversized
+  reviewed-intake read before its 16 MiB guard; valid larger legacy bundles have
+  no such fixed cap. Discriminate only finite envelope fields with bounded memory
+  on the original no-follow descriptor before payload allocation, then decode and
+  close those same original bytes under the selected schema policy. Preserve
+  reordered/escaped/wrapped/duplicate-last legacy dispatch and strict reviewed
+  JSON. All five source controls and independent exact-boundary, descriptor,
+  encoding and parent-substitution controls pass. The existing CLI promotion
+  fixture now follows actual contained component/provenance paths and exposes a
+  separate qualification audit-prefix refusal before original trust checks.
+  Preserve those checks and repair their canonical placement join before broader
+  CLI or release acceptance.
+- **Forest metadata placement repair (source partial):** A real contained initializer
   and saved source-to-root plan reproduce legacy-path lookup failure in replay.
   Derive finite metadata coordinates from the saved original manifest and its
   native/blob commitments, retaining the producer's wrapper/lift/layout order.
   Refuse contradictory placement and malformed target rosters without consulting
   current relocated paths. Require contained and legacy source controls plus
-  independent review; canonical root/shared execution remains separately blocked.
+  independent review. All nine affected source controls pass without skips and
+  independent review closes this finding; canonical root/shared execution remains
+  separately blocked.
 - **Original Python gate disposal repair (in progress):** A failed copy can
   replace a temporary pathname before unconditional recursive cleanup. Reuse
   native execution custody and its original copier/producer postimage hooks,

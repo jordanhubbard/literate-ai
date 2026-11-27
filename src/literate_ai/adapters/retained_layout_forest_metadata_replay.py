@@ -19,6 +19,7 @@ from literate_ai.contracts.identity import (
     canonical_identity,
     canonical_json_bytes,
 )
+from literate_ai.projects import parse_project_configuration
 
 from .catalog_copy_plan import _Observation
 from .retained_layout_forest_native import _Action, _advance_move, _rows
@@ -195,6 +196,78 @@ def _bound_effects(saved, program, native, effects, allowance):
     return metadata, initial, lineage, retirement, retired_node, retirement_lineage
 
 
+def _original_metadata_targets(saved, original, *, allowance):
+    """Derive finite producer placement from committed original manifest bytes."""
+    plan = saved.plan_document["plan"]
+    root = original.root
+    rows = plan["inputs"]
+    inputs = {item["path"]: item for item in rows}
+    if len(inputs) != len(rows):
+        _fail("duplicate original metadata input")
+    nodes = dict(original.native)
+    blobs = {name: blob for name, blob, _ in original.payloads}
+    manifests = tuple(
+        name
+        for name in ("literate.project.json", "litai/literate.project.json")
+        if str(root / name) in inputs
+        and inputs[str(root / name)]["content"] is not None
+    )
+    if len(manifests) != 1:
+        _fail("one original project manifest coordinate required")
+    name = manifests[0]
+    before, node, blob = inputs[str(root / name)], nodes.get(name), blobs.get(name)
+    if node is None or blob is None:
+        _fail("original project manifest native commitment required")
+    signature = (
+        node.device,
+        node.inode,
+        node.mode,
+        node.size,
+        node.modified_ns,
+        node.changed_ns,
+    )
+    if (
+        not stat.S_ISREG(node.mode)
+        or node.links != 1
+        or _decode(before["signature"]) != signature
+        or before["content"]["content_identity"] != "sha256:" + blob.digest
+    ):
+        _fail("original project manifest differs from native commitment")
+    from literate_ai.projects import DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES
+
+    if blob.size > min(
+        allowance.budget.maximum_file_bytes, DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES
+    ):
+        _fail("original project manifest exceeds fresh file limit")
+    allowance.bytes += blob.size
+    allowance.charge_records(16, 8 * blob.size)
+    raw = saved.body(blob.digest)
+    if len(raw) != blob.size:
+        _fail("original project manifest byte witness changed")
+    definition = parse_project_configuration(raw)
+    prefix = "litai/" if definition.framework_directory == "litai" else ""
+    if name != prefix + "literate.project.json":
+        _fail("original project manifest placement contradicts declaration")
+    wrapper_prefix = (
+        prefix
+        if (
+            "litai/components" in definition.component_roots
+            and "components" not in definition.component_roots
+        )
+        else ""
+    )
+    targets = (
+        wrapper_prefix + HARNESS_WRAPPER_FILENAME,
+        prefix + _LIFT,
+        prefix + RETAINED_LAYOUT_PATH,
+    )
+    if tuple(name for name, _ in plan["prospective"]) != tuple(
+        reversed(targets)
+    ) or any(str(root / target) not in inputs for target in targets):
+        _fail("exact original producer metadata roster required")
+    return targets
+
+
 def replay_forest_metadata(saved, program, native, effects, *, allowance):
     """Replay already bound descriptions, without current I/O or any lease grant."""
     if type(saved) is not _SavedOriginalState or type(allowance) is not _Observation:
@@ -214,7 +287,10 @@ def replay_forest_metadata(saved, program, native, effects, *, allowance):
     source_blobs = {n: b for n, b, _ in program.span.roots[0].payloads}
     area = len(native.span.roots)
     steps = []
-    for index, name in enumerate(_TARGETS):
+    targets = _original_metadata_targets(
+        saved, program.span.roots[0], allowance=allowance
+    )
+    for index, name in enumerate(targets):
         before = inputs[str(root / name)]
         old_node = source_nodes.get(name)
         signature = (
