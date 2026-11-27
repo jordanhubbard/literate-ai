@@ -610,5 +610,79 @@
     "prior_candidate_disposition": "wheel-full-r4 failed exact method ordering; exact-head CI partitions3 failed absent fixture ignore; full-source-r9 intentionally SIGINT after those confirmed failures, cleanup exited130. Partial results are not a complete-source pass.",
     "native_original_disposition": "authored-reopened-native-r1 reached two event successes then failed original 3600-second worker deadline on third control. Report records one failure; no full cohort pass or new-code acceptance.",
     "remaining_acceptance": "New native completion repair run still active; fresh complete source and installed wheel, target Windows/FreeBSD CI, all original release goals and collateral remain required."
+  },
+  "qualification_followup_r3": {
+    "base_commit": "40d28c36a24c9d0ae2ffb094862d8b07a23b7b74",
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-all-maintained-inventory-closing.json",
+      "verification/release-1.4-followup/review-authority-ci-9d75-diagnosis.json",
+      "verification/release-1.4-followup/review-authority-native-lock-owner-final-closing.json"
+    ],
+    "current_reviewed_hashes": {
+      "src/literate_ai/adapters/native_project_removal.py": "99ea408fa44626e48afe335cfe2135f1eee2dccc26f752b55b1ed8950e5da88e",
+      "tests/critical/test_native_removal_lock_observation.py": "22cea54478bc576b02bddb5c07f1ab5ca7a85de4f3f727f8e9ea47f9f1bcc78f",
+      "scripts/installed_maintained_controls.py": "81fe3d62c89095c97e2a09c1c230d25edb395a9b538940663601dfb0eaf2a885"
+    },
+    "changes": [
+      "Installed maintained inventory now matches actual26classes/9scopes/224methods, retaining every prior control and strict equality; mismatch diagnostic names class and expected/observed methods.",
+      "Three held lifecycle-lock reads use original cache-owner descriptor, with expiring observation, original byte limit, native identity fallback, distinct named/held metadata and offset restoration. Unlocked reads remain fresh path reads.",
+      "Final native identity callback is followed by exact closing bytes and metadata; mutation with restored timestamp refuses and preserves foreign archived bytes.",
+      "Per-read original cancellation identity survives restoration failure; unrelated ambient exceptions cannot suppress a restoration-only failure."
+    ],
+    "targeted_evidence": {
+      "native-lock-owner-r3": {
+        "report_sha256": "e62894a71fb7d34c941958c13c8f149a79c0dca1f2cee84ea47337ec08d9b5ae",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        },
+        "limit": "Source validation only; original skips/failures retained, not installed/platform/release acceptance."
+      },
+      "retained-update-installed-inventory-r1": {
+        "report_sha256": "76da69987a54153ad2ca93032235deeb4245277124f7acc5aaf516dac4bd096c",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        },
+        "limit": "Source validation only; original skips/failures retained, not installed/platform/release acceptance."
+      },
+      "authored-native-completion-r2": {
+        "report_sha256": "9d3ad85b94349f52b05ca50c3f5b71546846ed6dd734ad816e9073f54e655fc6",
+        "summary": {
+          "executed": 1,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 0,
+          "selected": 3,
+          "skipped": 0
+        },
+        "limit": "Source validation only; original skips/failures retained, not installed/platform/release acceptance."
+      },
+      "native-removal-owner-r4": {
+        "report_sha256": "4fbcd91a79d5ed9a50e255a56a178f248503a8e4b470722df9d9b2c5496b2fa7",
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        },
+        "limit": "All original30 local Linux e2e controls pass after final helper changes; native Windows, installed and release acceptance remain separate."
+      }
+    },
+    "native_performance_blocker": "authored-native-completion-r2 still fails original900-second deadline at final guard after metadata;1031.043seconds total. Bounded Skill syntax frame is not sufficient. No deadline change or unchanged gate retry is authorized by this result.",
+    "full_source_state": "Clean40d full-source-r10 continues separately in frozen qualification-r2 checkout as prior-candidate evidence. It does not qualify the later lock/inventory repairs; a complete final-candidate source gate remains required.",
+    "installed_state": "wheel-full-r5 failed retained-layout inventory; current corrected224method list independently matches discovery, but fresh installed execution still required.",
+    "platform_state": "Actual native Windows removal and all other original target-platform/release acceptance remain pending.",
+    "validation": "Formatting, lint and renewed driver/runner/documentation require-current gates pass; root project validation recorded separately."
   }
 }

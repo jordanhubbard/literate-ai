@@ -1,0 +1,36 @@
+{
+  "status": "independent_closing_review_accepted",
+  "head": "40d28c36a24c9d0ae2ffb094862d8b07a23b7b74",
+  "sha256": {
+    "src/literate_ai/adapters/native_project_removal.py": "99ea408fa44626e48afe335cfe2135f1eee2dccc26f752b55b1ed8950e5da88e",
+    "tests/critical/test_native_removal_lock_observation.py": "22cea54478bc576b02bddb5c07f1ab5ca7a85de4f3f727f8e9ea47f9f1bcc78f"
+  },
+  "scope": "Complete dirty native_project_removal.py source delta and all8 new meaningful controls inspected read-only. No changes authored by reviewer.",
+  "findings_closed": [
+    {
+      "finding": "P2 original Windows second-handle read while lifecycle byte0 owner held",
+      "resolution": "All3 held lock observations now use original exact on_locked descriptor via expiring private observer; unlocked path observations unchanged. Owner positions restored, bounded raw byte/metadata and native Windows identity preserved.",
+      "limit": "Native Windows first failure is actual log evidence; fixed native Windows acceptance not run by reviewer."
+    },
+    {
+      "finding": "P2 last native identity callback changes same-inode lock after read; archived retirement deleted foreign byte",
+      "resolution": "Original bounded descriptor bytes reread after final native identity callback; first and second bytes must match; separate full original path/held metadata close. Original helper counterexample now refuses/preserves, actual archived-route counterexample returns retired-with-resource preserving foreign byte.",
+      "evidence": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-authority-native-lock-owner-r2-reproductions.json"
+    },
+    {
+      "finding": "P3 offset restoration failure replaces primary read cancellation",
+      "resolution": "Per-read local primary is explicitly captured by except BaseException and reraised; restoration failure adds guarded diagnostic note while preserving exact primary identity. Restore-only failure surfaces.",
+      "evidence": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-authority-native-lock-owner-r2-reproductions.json"
+    },
+    {
+      "finding": "P3 sys.exception-based restoration suppresses restore-only failure inside ambient handler",
+      "resolution": "No sys.exception use; explicit local primary includes only this read failure. Independent ambient-handler counterexample now raises exact restore failure and leaves ambient exception unmodified.",
+      "evidence": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-authority-native-lock-ambient-exception-fixed.json"
+    }
+  ],
+  "independent_checks": {
+    "new_controls": "All8 test_native_removal_lock_observation tests passed0.016seconds, no skips on this POSIX host.",
+    "reproducers": "Final native callback refused/preserved; original primary preserved; actual archived POSIX move route preserved foreign byte; ambient restore-only error exact identity propagated. Prior first3 results retained across final narrow per-read primary-capture correction; ambient rerun and8controls inspect current exact bytes."
+  },
+  "limits": "Targeted source/controls only. Actual directory-retirement reproducer uses original POSIX owner/move/unlink mechanisms but models unrelated Git/index/selected preconditions. Full original30 e2e acceptance and native Windows CI are parent-owned pending checks, not inferred from focused tests. No full installed native release acceptance."
+}

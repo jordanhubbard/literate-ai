@@ -12,11 +12,15 @@ import json
 import os
 import re
 import stat
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
-from literate_ai._cache_lock import CacheLockError, exclusive_cache_lock
+from literate_ai._cache_lock import (
+    CacheLockError,
+    _identity_matches,
+    exclusive_cache_lock,
+)
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
     path_is_link_or_reparse,
@@ -175,7 +179,10 @@ def _blob(root, entry, *, cache):
 
 
 def _node(path):
-    value = path.lstat()
+    return _file_node(path.lstat())
+
+
+def _file_node(value):
     return {
         "device": str(value.st_dev),
         "inode": str(value.st_ino),
@@ -242,6 +249,99 @@ def _worktree_content(root, relative):
     if _node(path) != before:
         _fail("path_changed", "A selected native-profile file changed while read")
     return {"identity": _digest(content), "node": before}, content
+
+
+@contextmanager
+def _runtime_lock(path, *, existing_only):
+    # Windows byte-range locks prohibit reading through a second handle. Keep
+    # the original lock descriptor private and read it only while its owner lives.
+    descriptor = None
+    active = False
+
+    def remember(value):
+        nonlocal descriptor
+        descriptor = value
+
+    def observe():
+        if not active or descriptor is None:
+            _fail("runtime_lock_changed", "The lifecycle lock owner is unavailable")
+        require_safe_directory(path.parent)
+        named = path.lstat()
+        held = os.fstat(descriptor)
+        before = _file_node(named)
+        if (
+            path_is_link_or_reparse(path)
+            or not stat.S_ISREG(named.st_mode)
+            or not stat.S_ISREG(held.st_mode)
+            or named.st_nlink != 1
+            or held.st_nlink != 1
+            or named.st_size > 256 * 1024
+            or any(
+                _file_node(held)[key] != before[key]
+                for key in ("mode", "links", "size", "modified_ns")
+            )
+            or not _identity_matches(path, named, descriptor, held)
+        ):
+            _fail("runtime_lock_changed", "The lifecycle lock custody changed")
+
+        def read_content():
+            position = os.lseek(descriptor, 0, os.SEEK_CUR)
+            content = bytearray()
+            primary = None
+            try:
+                os.lseek(descriptor, 0, os.SEEK_SET)
+                while len(content) <= 256 * 1024:
+                    chunk = os.read(
+                        descriptor, min(65536, 256 * 1024 + 1 - len(content))
+                    )
+                    if not chunk:
+                        break
+                    content.extend(chunk)
+                return bytes(content)
+            except BaseException as error:
+                primary = error
+                raise
+            finally:
+                try:
+                    os.lseek(descriptor, position, os.SEEK_SET)
+                except BaseException as cleanup:
+                    if primary is None:
+                        raise
+                    try:
+                        primary.add_note(
+                            "Lifecycle lock offset restoration also failed: "
+                            + type(cleanup).__name__
+                        )
+                    except BaseException:
+                        pass
+
+        content = read_content()
+        if not _identity_matches(path, path.lstat(), descriptor, os.fstat(descriptor)):
+            _fail("runtime_lock_changed", "The lifecycle lock custody changed")
+        # The native identity probe is a callback boundary too. Close its exact
+        # original bytes afterwards, even if a writer restores the timestamp.
+        closed_content = read_content()
+        require_safe_directory(path.parent)
+        final_named = path.lstat()
+        final_held = os.fstat(descriptor)
+        if (
+            len(content) != before["size"]
+            or closed_content != content
+            or _file_node(final_named) != before
+            or _file_node(final_held) != _file_node(held)
+            or path_is_link_or_reparse(path)
+        ):
+            _fail("runtime_lock_changed", "The lifecycle lock changed while read")
+        return {"identity": _digest(bytes(content)), "node": before}
+
+    with exclusive_cache_lock(
+        path, timeout_seconds=0, existing_only=existing_only, on_locked=remember
+    ):
+        active = True
+        try:
+            yield observe
+        finally:
+            active = False
 
 
 def _require_supported_content_transforms(root, paths):
@@ -354,10 +454,10 @@ def _retire_idle_runtime(root, prepared, lock, expected):
                 "reason": "retirement-slot-occupied",
                 "retirement_slot": str(destination),
             }
-        with exclusive_cache_lock(lock, timeout_seconds=0, existing_only=True):
+        with _runtime_lock(lock, existing_only=True) as observe_lock:
             _require_remaining(root, prepared, set())
             _require_git_boundary(root, (lock,))
-            if _worktree(root, relative) != expected or not _lock_only(framework, lock):
+            if observe_lock() != expected or not _lock_only(framework, lock):
                 return {**result, "reason": "runtime-contents-changed-or-unowned"}
             framework_node = directory_node(framework)
             root_node = directory_node(root)
@@ -371,12 +471,8 @@ def _retire_idle_runtime(root, prepared, lock, expected):
             )
             moved = True
         archived = destination / lock.relative_to(framework)
-        with exclusive_cache_lock(archived, timeout_seconds=0, existing_only=True):
-            if (
-                not _lock_only(destination, archived)
-                or _worktree(destination, archived.relative_to(destination).as_posix())
-                != expected
-            ):
+        with _runtime_lock(archived, existing_only=True) as observe_lock:
+            if not _lock_only(destination, archived) or observe_lock() != expected:
                 publish_directory_between_owned_parents_exclusive(
                     destination,
                     framework,
@@ -852,19 +948,15 @@ def apply_native_project_removal(
             if live:
                 require_lock_path(lock)
                 try:
-                    locks.enter_context(
-                        exclusive_cache_lock(
-                            lock,
-                            timeout_seconds=0,
-                            existing_only=expected_lock is not None,
-                        )
+                    observe_lock = locks.enter_context(
+                        _runtime_lock(lock, existing_only=expected_lock is not None)
                     )
                 except CacheLockError as exc:
                     raise ProjectLifecycleLockError(
                         "lifecycle.project_locked",
                         "Native removal could not acquire the existing lifecycle lock",
                     ) from exc
-                locked = _worktree(root, lock.relative_to(root).as_posix())
+                locked = observe_lock()
                 if expected_lock is not None and locked != expected_lock:
                     _fail("runtime_lock_changed", "The reviewed lifecycle lock changed")
                 expected_lock = locked

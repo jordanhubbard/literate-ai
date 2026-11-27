@@ -427,7 +427,12 @@ _CASE_SETS = {
             "module": "tests.critical.test_retained_update_layout",
             "class": "RetainedUpdateLayoutTests",
             "methods": [
+                "test_contained_catalogs_preserve_shim_without_relocating_source",
+                "test_duplicate_declared_shim_flavors_refuse_ambiguous_authority",
                 "test_invalid_recorded_source_refuses_update_classification",
+                "test_missing_current_dependent_does_not_protect_obsolete_shim",
+                "test_mixed_catalogs_select_current_wrapper_and_keep_source_at_root",
+                "test_project_owned_component_selectors_protect_current_catalog_inputs",
                 "test_update_preserves_selected_wrapper_shim",
                 "test_update_preserves_shim_at_historical_coordinate",
             ],
@@ -594,7 +599,11 @@ def qualify(repository: Path, scope: str) -> dict[str, object]:
         case_type = getattr(module, entry["class"])
         inventory = unittest.defaultTestLoader.getTestCaseNames(case_type)
         if inventory != entry["methods"]:
-            raise RuntimeError("maintained installed case inventory changed")
+            raise RuntimeError(
+                "maintained installed case inventory changed for "
+                f"{entry['module']}.{entry['class']}: "
+                f"expected {entry['methods']!r}; observed {inventory!r}"
+            )
         cases.extend(case_type(method) for method in inventory)
     expected_cases = sorted(case.id() for case in cases)
     with contextlib.redirect_stdout(sys.stderr):

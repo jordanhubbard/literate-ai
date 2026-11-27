@@ -1,0 +1,764 @@
+{
+  "schema": "independent-all-maintained-inventory-closing@1",
+  "reviewer": "review_contracts",
+  "observed_at_utc": "2026-11-27T08:11:52.575355+00:00",
+  "repository": "/home/jkh/Src/literate-ai",
+  "head": "40d28c36a24c9d0ae2ffb094862d8b07a23b7b74",
+  "python": "3.15.2 (main, Oct 25 2026, 16:57:51) [GCC 13.3.0]",
+  "script": "scripts/installed_maintained_controls.py",
+  "script_sha256": "81fe3d62c89095c97e2a09c1c230d25edb395a9b538940663601dfb0eaf2a885",
+  "verdict": "All26 explicit fixture inventories exactly match actual unittest discovery including order; no remaining inventory source finding.",
+  "fixture_entries": 26,
+  "scope_count": 9,
+  "listed_method_count": 224,
+  "inventories": [
+    {
+      "scope": "bootstrap",
+      "fixture": "tests/smoke/test_bootstrap_litai.py",
+      "class": "GeneratedBootstrapTests",
+      "expected": [
+        "test_bootstrap_environment_is_not_source_without_git",
+        "test_completed_probe_cannot_hide_changed_pin_or_project_selection",
+        "test_generated_route_and_missing_cli_are_read_only",
+        "test_incompatible_and_ready_runtime_checks_preserve_custom_rules",
+        "test_private_probe_accepts_exact_byte_bounds_before_installation",
+        "test_private_probe_enforces_real_deadline",
+        "test_probe_setup_error_releases_created_owner_before_returning",
+        "test_process_helper_is_exact_reviewed_core_and_tampering_refuses_launch",
+        "test_reader_setup_error_acquires_no_process_owner",
+        "test_update_adds_bootstrap_files_without_replacing_custom_rules",
+        "test_wheel_checksum_and_missing_file_fail_closed"
+      ],
+      "discovered": [
+        "test_bootstrap_environment_is_not_source_without_git",
+        "test_completed_probe_cannot_hide_changed_pin_or_project_selection",
+        "test_generated_route_and_missing_cli_are_read_only",
+        "test_incompatible_and_ready_runtime_checks_preserve_custom_rules",
+        "test_private_probe_accepts_exact_byte_bounds_before_installation",
+        "test_private_probe_enforces_real_deadline",
+        "test_probe_setup_error_releases_created_owner_before_returning",
+        "test_process_helper_is_exact_reviewed_core_and_tampering_refuses_launch",
+        "test_reader_setup_error_acquires_no_process_owner",
+        "test_update_adds_bootstrap_files_without_replacing_custom_rules",
+        "test_wheel_checksum_and_missing_file_fail_closed"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "478d6dbe9e30ad3350dfe3318661990d4dafe2a2b50817c1f52ad16c7b72abfe"
+    },
+    {
+      "scope": "bootstrap",
+      "fixture": "tests/smoke/test_bootstrap_litai.py",
+      "class": "ContainedGeneratedBootstrapTests",
+      "expected": [
+        "test_default_contained_bootstrap_keeps_pins_from_app_and_framework"
+      ],
+      "discovered": [
+        "test_default_contained_bootstrap_keeps_pins_from_app_and_framework"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "478d6dbe9e30ad3350dfe3318661990d4dafe2a2b50817c1f52ad16c7b72abfe"
+    },
+    {
+      "scope": "bootstrap",
+      "fixture": "tests/smoke/test_bootstrap_litai.py",
+      "class": "ManifestNativeReadTests",
+      "expected": [
+        "test_exact_manifest_and_helper_reads_use_binary_descriptor_mode",
+        "test_path_and_descriptor_change_clocks_are_independent_and_both_close"
+      ],
+      "discovered": [
+        "test_exact_manifest_and_helper_reads_use_binary_descriptor_mode",
+        "test_path_and_descriptor_change_clocks_are_independent_and_both_close"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "478d6dbe9e30ad3350dfe3318661990d4dafe2a2b50817c1f52ad16c7b72abfe"
+    },
+    {
+      "scope": "bootstrap-posix",
+      "fixture": "tests/smoke/test_bootstrap_litai.py",
+      "class": "GeneratedBootstrapPosixTests",
+      "expected": [
+        "test_probe_bounds_both_streams_and_retires_overflow_writer",
+        "test_probe_launcher_result_keeps_status_and_retires_helpers",
+        "test_probe_timeout_retires_original_helper"
+      ],
+      "discovered": [
+        "test_probe_bounds_both_streams_and_retires_overflow_writer",
+        "test_probe_launcher_result_keeps_status_and_retires_helpers",
+        "test_probe_timeout_retires_original_helper"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "478d6dbe9e30ad3350dfe3318661990d4dafe2a2b50817c1f52ad16c7b72abfe"
+    },
+    {
+      "scope": "diagnostics",
+      "fixture": "tests/critical/test_qualification_capture.py",
+      "class": "QualificationCaptureTests",
+      "expected": [
+        "test_authority_drift_during_final_package_read_exposes_no_capture",
+        "test_changed_or_mutable_package_bytes_refuse",
+        "test_real_packaged_process_recorder_reopens_after_cleanup",
+        "test_rehashed_parity_observations_cannot_preserve_a_false_pass",
+        "test_shared_case_inventory_reopens_all_diamond_suites"
+      ],
+      "discovered": [
+        "test_authority_drift_during_final_package_read_exposes_no_capture",
+        "test_changed_or_mutable_package_bytes_refuse",
+        "test_real_packaged_process_recorder_reopens_after_cleanup",
+        "test_rehashed_parity_observations_cannot_preserve_a_false_pass",
+        "test_shared_case_inventory_reopens_all_diamond_suites"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "c75d1a95ceec2969fa02352bf6f24bc80a1378110c5e8c0c5610b4fe235cfb73"
+    },
+    {
+      "scope": "diagnostics",
+      "fixture": "tests/critical/test_qualification_diagnostics.py",
+      "class": "QualificationDiagnosticTests",
+      "expected": [
+        "test_existing_byte_and_record_bounds_include_diagnostic_metadata",
+        "test_later_adapter_failure_drops_every_prior_qualified_capture",
+        "test_launch_failure_binds_the_active_case_without_an_invented_observation",
+        "test_original_process_failure_records_survive_and_cannot_admit_products",
+        "test_rehashed_success_header_and_cross_plan_case_records_refuse",
+        "test_stream_bytes_cannot_assign_themselves_a_case_role",
+        "test_timeout_retains_partial_streams_and_the_active_run_case",
+        "test_timeout_retention_bounds_never_replace_the_original_refusal"
+      ],
+      "discovered": [
+        "test_existing_byte_and_record_bounds_include_diagnostic_metadata",
+        "test_later_adapter_failure_drops_every_prior_qualified_capture",
+        "test_launch_failure_binds_the_active_case_without_an_invented_observation",
+        "test_original_process_failure_records_survive_and_cannot_admit_products",
+        "test_rehashed_success_header_and_cross_plan_case_records_refuse",
+        "test_stream_bytes_cannot_assign_themselves_a_case_role",
+        "test_timeout_retains_partial_streams_and_the_active_run_case",
+        "test_timeout_retention_bounds_never_replace_the_original_refusal"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "03439b21871d9d3190163f7561f6b791660bd5bf10e8cc85a875ab471d6ea81b"
+    },
+    {
+      "scope": "diagnostics",
+      "fixture": "tests/smoke/test_cli_library_qualification.py",
+      "class": "PublicLibraryQualificationTests",
+      "expected": [
+        "test_failed_public_qualification_retains_only_a_diagnostic_reference",
+        "test_foreign_diagnostic_path_preserves_original_public_failure",
+        "test_legacy_inventory_requires_verified_rebind_migration",
+        "test_legacy_parity_executes_and_reopens_accepted_inventory",
+        "test_legacy_parity_rejects_source_drift_after_execution",
+        "test_native_acceptance_failure_preserves_code_with_or_without_retention",
+        "test_prior_project_configuration_rejects_oversized_file",
+        "test_prior_project_configuration_rejects_symlink",
+        "test_prior_project_configuration_requires_recertification",
+        "test_prior_project_configuration_uses_windows_handle_identity",
+        "test_public_qualification_still_rejects_a_changed_verifier_harness",
+        "test_public_qualification_uses_library_oracle_and_projects_accepted_result",
+        "test_recertification_rejects_profile_drift_before_archive_publication",
+        "test_recertify_current_qualified_publishes_archive_and_new_projection",
+        "test_recertify_current_qualified_requires_retained_store",
+        "test_retention_write_failure_prevents_qualification_admission",
+        "test_unavailable_diagnostic_helper_preserves_original_public_failure",
+        "test_verified_rebind_accepts_entry_compatible_legacy_inventory",
+        "test_verified_rebind_rejects_source_change_during_qualification"
+      ],
+      "discovered": [
+        "test_failed_public_qualification_retains_only_a_diagnostic_reference",
+        "test_foreign_diagnostic_path_preserves_original_public_failure",
+        "test_legacy_inventory_requires_verified_rebind_migration",
+        "test_legacy_parity_executes_and_reopens_accepted_inventory",
+        "test_legacy_parity_rejects_source_drift_after_execution",
+        "test_native_acceptance_failure_preserves_code_with_or_without_retention",
+        "test_prior_project_configuration_rejects_oversized_file",
+        "test_prior_project_configuration_rejects_symlink",
+        "test_prior_project_configuration_requires_recertification",
+        "test_prior_project_configuration_uses_windows_handle_identity",
+        "test_public_qualification_still_rejects_a_changed_verifier_harness",
+        "test_public_qualification_uses_library_oracle_and_projects_accepted_result",
+        "test_recertification_rejects_profile_drift_before_archive_publication",
+        "test_recertify_current_qualified_publishes_archive_and_new_projection",
+        "test_recertify_current_qualified_requires_retained_store",
+        "test_retention_write_failure_prevents_qualification_admission",
+        "test_unavailable_diagnostic_helper_preserves_original_public_failure",
+        "test_verified_rebind_accepts_entry_compatible_legacy_inventory",
+        "test_verified_rebind_rejects_source_change_during_qualification"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "a025357b8d0621eea03640b45b8474639120f7523e992cef4e4c4343a17fe025"
+    },
+    {
+      "scope": "runtime-capabilities",
+      "fixture": "tests/critical/test_runtime_capability_environment.py",
+      "class": "RuntimeCapabilityEnvironmentTests",
+      "expected": [
+        "test_ambient_alias_cannot_override_or_add_a_runtime_input",
+        "test_changed_or_removed_held_plan_refuses_before_process_launch",
+        "test_distinct_providers_cannot_share_a_capability_alias",
+        "test_missing_provider_cannot_be_replaced_by_an_ambient_path",
+        "test_no_automatic_runtime_aliases_during_build_or_generated_tests",
+        "test_packaged_runtime_rejects_changed_tree_or_escaped_provider",
+        "test_packaged_runtime_uses_only_relocated_package_paths",
+        "test_public_binding_reaches_real_provider_process",
+        "test_transitive_provider_is_not_a_direct_consumer_alias"
+      ],
+      "discovered": [
+        "test_ambient_alias_cannot_override_or_add_a_runtime_input",
+        "test_changed_or_removed_held_plan_refuses_before_process_launch",
+        "test_distinct_providers_cannot_share_a_capability_alias",
+        "test_missing_provider_cannot_be_replaced_by_an_ambient_path",
+        "test_no_automatic_runtime_aliases_during_build_or_generated_tests",
+        "test_packaged_runtime_rejects_changed_tree_or_escaped_provider",
+        "test_packaged_runtime_uses_only_relocated_package_paths",
+        "test_public_binding_reaches_real_provider_process",
+        "test_transitive_provider_is_not_a_direct_consumer_alias"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "359a364dfd6a1a09ff338b151bfe251d480736c4f96178f11ca346358016ff45"
+    },
+    {
+      "scope": "cuda-inventory",
+      "fixture": "tests/critical/test_source_inventory_credentials.py",
+      "class": "SourceInventoryCredentialTests",
+      "expected": [
+        "test_literal_uncertain_and_private_key_controls_remain_excluded",
+        "test_non_ascii_offsets_do_not_exempt_a_later_literal",
+        "test_nonliteral_mapping_and_empty_defaults_remain_eligible",
+        "test_ordinary_assignment_and_rename_control_derive_without_execution",
+        "test_safe_binding_does_not_hide_other_credential_literals"
+      ],
+      "discovered": [
+        "test_literal_uncertain_and_private_key_controls_remain_excluded",
+        "test_non_ascii_offsets_do_not_exempt_a_later_literal",
+        "test_nonliteral_mapping_and_empty_defaults_remain_eligible",
+        "test_ordinary_assignment_and_rename_control_derive_without_execution",
+        "test_safe_binding_does_not_hide_other_credential_literals"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "4e3b80c7899ae728c0779735e8a780a06dc416f97ad8d08dcd3f6803faaa6685"
+    },
+    {
+      "scope": "cuda-inventory",
+      "fixture": "tests/critical/test_source_inventory_modules.py",
+      "class": "SourceInventoryModuleTests",
+      "expected": [
+        "test_large_module_source_remains_large",
+        "test_module_and_jsx_extensions_derive_with_their_unchanged_paths",
+        "test_sensitive_binary_and_generated_exclusions_still_precede_source",
+        "test_test_and_minified_names_keep_their_classifications"
+      ],
+      "discovered": [
+        "test_large_module_source_remains_large",
+        "test_module_and_jsx_extensions_derive_with_their_unchanged_paths",
+        "test_sensitive_binary_and_generated_exclusions_still_precede_source",
+        "test_test_and_minified_names_keep_their_classifications"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "e60045eaf25e23a24b835c87191a945e7044578aa7061caaad525407c8e5f446"
+    },
+    {
+      "scope": "cuda-inventory",
+      "fixture": "tests/critical/test_source_inventory_targets.py",
+      "class": "SourceInventoryTargetTests",
+      "expected": [
+        "test_attribution_metadata_is_not_cuda_evidence",
+        "test_cuda_source_compiler_headers_and_apis_remain_detectable",
+        "test_genuine_cuda_evidence_after_attribution_is_retained",
+        "test_long_indented_source_finishes_within_inert_read_budget",
+        "test_metadata_filter_does_not_hide_original_prompt_injection",
+        "test_similar_identifiers_and_bytes_beyond_cuda_window_are_portable",
+        "test_vendor_attribution_does_not_imply_cuda_or_mutate_source"
+      ],
+      "discovered": [
+        "test_attribution_metadata_is_not_cuda_evidence",
+        "test_cuda_source_compiler_headers_and_apis_remain_detectable",
+        "test_genuine_cuda_evidence_after_attribution_is_retained",
+        "test_long_indented_source_finishes_within_inert_read_budget",
+        "test_metadata_filter_does_not_hide_original_prompt_injection",
+        "test_similar_identifiers_and_bytes_beyond_cuda_window_are_portable",
+        "test_vendor_attribution_does_not_imply_cuda_or_mutate_source"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "b07e948f9b8530e2d7c276756a8b9f163ffc505a4c424d5e811bff0e1e0eecf2"
+    },
+    {
+      "scope": "coding-cli-posix",
+      "fixture": "tests/critical/test_coding_cli_generation.py",
+      "class": "SourceSbomAuthorityTests",
+      "expected": [
+        "test_model_component_repeated_is_refused",
+        "test_model_root_copy_cannot_alter_the_root",
+        "test_prompt_documents_fit_a_line_truncating_reader",
+        "test_root_repeated_in_components_is_replaced",
+        "test_third_party_component_cannot_claim_the_root_ref",
+        "test_third_party_component_cannot_invent_framework_property",
+        "test_third_party_python_import_alias_is_preserved"
+      ],
+      "discovered": [
+        "test_model_component_repeated_is_refused",
+        "test_model_root_copy_cannot_alter_the_root",
+        "test_prompt_documents_fit_a_line_truncating_reader",
+        "test_root_repeated_in_components_is_replaced",
+        "test_third_party_component_cannot_claim_the_root_ref",
+        "test_third_party_component_cannot_invent_framework_property",
+        "test_third_party_python_import_alias_is_preserved"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "90d3f8c8aa0cf9fc0b7b2d3e7ce9a2476b5f82f06c31131140e95b13dff4a96e"
+    },
+    {
+      "scope": "coding-cli-posix",
+      "fixture": "tests/critical/test_coding_cli_generation.py",
+      "class": "CodingCliSelectionTests",
+      "expected": [
+        "test_lifecycle_driver_defaults_to_the_live_selection_before_path",
+        "test_lifecycle_driver_isolates_inherited_session_from_coding_cli",
+        "test_lifecycle_driver_receives_only_selected_provider_credentials",
+        "test_live_selection_never_pairs_a_cli_with_another_clis_model",
+        "test_opencode_missing_provider_key_is_typed_authentication",
+        "test_remote_opencode_selection_requires_no_provider_credential"
+      ],
+      "discovered": [
+        "test_lifecycle_driver_defaults_to_the_live_selection_before_path",
+        "test_lifecycle_driver_isolates_inherited_session_from_coding_cli",
+        "test_lifecycle_driver_receives_only_selected_provider_credentials",
+        "test_live_selection_never_pairs_a_cli_with_another_clis_model",
+        "test_opencode_missing_provider_key_is_typed_authentication",
+        "test_remote_opencode_selection_requires_no_provider_credential"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "90d3f8c8aa0cf9fc0b7b2d3e7ce9a2476b5f82f06c31131140e95b13dff4a96e"
+    },
+    {
+      "scope": "coding-cli-posix",
+      "fixture": "tests/critical/test_coding_cli_generation.py",
+      "class": "CodingCliInvocationTests",
+      "expected": [
+        "test_empty_generation_reports_redacted_refusal_from_both_streams_once",
+        "test_executable_drift_after_invocation_fails_closed",
+        "test_generated_output_byte_budget_fails_closed",
+        "test_generation_rejects_even_empty_output_outside_source",
+        "test_manifest_canonical_integer_boundaries_remain_valid",
+        "test_manifest_numeric_guidance_preserves_canonical_refusal",
+        "test_publication_parent_symlink_cannot_escape_generated_cache",
+        "test_supported_provider_credentials_cross_the_scrubbed_boundary",
+        "test_timeout_kills_coding_cli_descendants"
+      ],
+      "discovered": [
+        "test_empty_generation_reports_redacted_refusal_from_both_streams_once",
+        "test_executable_drift_after_invocation_fails_closed",
+        "test_generated_output_byte_budget_fails_closed",
+        "test_generation_rejects_even_empty_output_outside_source",
+        "test_manifest_canonical_integer_boundaries_remain_valid",
+        "test_manifest_numeric_guidance_preserves_canonical_refusal",
+        "test_publication_parent_symlink_cannot_escape_generated_cache",
+        "test_supported_provider_credentials_cross_the_scrubbed_boundary",
+        "test_timeout_kills_coding_cli_descendants"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "90d3f8c8aa0cf9fc0b7b2d3e7ce9a2476b5f82f06c31131140e95b13dff4a96e"
+    },
+    {
+      "scope": "coding-cli-posix",
+      "fixture": "tests/critical/test_codex_runtime_state.py",
+      "class": "CodexRuntimeStateTests",
+      "expected": [
+        "test_native_sqlite_limit_refuses_ambient_state_but_private_state_succeeds",
+        "test_restricted_linux_policy_is_required_before_provider_execution",
+        "test_task_generation_and_status_own_state_through_success_and_failure",
+        "test_workspace_overlap_refuses_and_other_providers_allocate_no_codex_state"
+      ],
+      "discovered": [
+        "test_native_sqlite_limit_refuses_ambient_state_but_private_state_succeeds",
+        "test_restricted_linux_policy_is_required_before_provider_execution",
+        "test_task_generation_and_status_own_state_through_success_and_failure",
+        "test_workspace_overlap_refuses_and_other_providers_allocate_no_codex_state"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "f2fa4e1a59c87ba97177b6cc9adf9f836d3e3d9a87becb9dc2f504e2fd707608"
+    },
+    {
+      "scope": "coding-cli-posix",
+      "fixture": "tests/critical/test_coding_cli_success_cleanup.py",
+      "class": "CodingCliSuccessCleanupTests",
+      "expected": [
+        "test_launcher_exit_retires_sqlite_helpers_before_private_state"
+      ],
+      "discovered": [
+        "test_launcher_exit_retires_sqlite_helpers_before_private_state"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "45e17b531919a7821660ad7fc21daa02ce06e1095faee24831aab1899a6e52c4"
+    },
+    {
+      "scope": "telemetry-controller",
+      "fixture": "tests/critical/test_worker_telemetry_authentication.py",
+      "class": "WorkerTelemetryAuthenticationTests",
+      "expected": [
+        "test_authenticated_body_cannot_select_another_request_worker_or_registration",
+        "test_bounded_reader_returns_exact_request_and_maximum_action_response",
+        "test_credential_authentication_does_not_claim_replay_or_scope_authorization",
+        "test_duplicate_metadata_and_size_failures_do_not_echo_private_values",
+        "test_expired_future_and_future_observation_values_refuse",
+        "test_explicit_observation_credentials_authenticate_both_principals",
+        "test_no_missing_weak_mutable_or_foreign_credential_is_accepted",
+        "test_raw_body_and_header_changes_require_a_new_mac",
+        "test_reader_limits_precede_retention_and_no_unbounded_read_is_requested",
+        "test_reader_rejects_missing_newlines_empty_and_nonbinary_streams",
+        "test_request_response_domains_refuse_same_principal_reflection"
+      ],
+      "discovered": [
+        "test_authenticated_body_cannot_select_another_request_worker_or_registration",
+        "test_bounded_reader_returns_exact_request_and_maximum_action_response",
+        "test_credential_authentication_does_not_claim_replay_or_scope_authorization",
+        "test_duplicate_metadata_and_size_failures_do_not_echo_private_values",
+        "test_expired_future_and_future_observation_values_refuse",
+        "test_explicit_observation_credentials_authenticate_both_principals",
+        "test_no_missing_weak_mutable_or_foreign_credential_is_accepted",
+        "test_raw_body_and_header_changes_require_a_new_mac",
+        "test_reader_limits_precede_retention_and_no_unbounded_read_is_requested",
+        "test_reader_rejects_missing_newlines_empty_and_nonbinary_streams",
+        "test_request_response_domains_refuse_same_principal_reflection"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "50a3af309b94e37d5a741572806321d3c6797ff12222fb148b757e73c28f0637"
+    },
+    {
+      "scope": "telemetry-controller",
+      "fixture": "tests/critical/test_worker_telemetry_authorization.py",
+      "class": "WorkerTelemetryAuthorizationTests",
+      "expected": [
+        "test_aggregate_requires_separate_explicit_permission",
+        "test_all_registration_catalog_worker_controller_and_scope_substitutions_refuse",
+        "test_clock_port_failure_never_exposes_private_exception_text",
+        "test_concurrent_duplicate_challenges_never_publish_multiple_permits",
+        "test_current_permission_and_nonce_produce_only_a_revalidated_scope_permit",
+        "test_current_policy_change_revokes_permits_and_cannot_silently_restore_them",
+        "test_decoded_records_and_fabricated_or_pickled_proofs_cannot_authorize",
+        "test_expired_or_regressed_clock_cannot_revive_a_prior_permit",
+        "test_missing_policy_closes_owner_even_if_identical_policy_is_restored",
+        "test_new_authority_cannot_restore_old_permissions_from_identical_policy_data",
+        "test_nonce_capacity_refuses_without_evicting_live_claims_and_reaps_expired_only",
+        "test_policy_change_during_authorization_cannot_publish_a_permit",
+        "test_policy_port_failure_is_safe_and_never_converts_into_authorization",
+        "test_unconfigured_signing_key_and_foreign_action_refuse_even_with_valid_macs"
+      ],
+      "discovered": [
+        "test_aggregate_requires_separate_explicit_permission",
+        "test_all_registration_catalog_worker_controller_and_scope_substitutions_refuse",
+        "test_clock_port_failure_never_exposes_private_exception_text",
+        "test_concurrent_duplicate_challenges_never_publish_multiple_permits",
+        "test_current_permission_and_nonce_produce_only_a_revalidated_scope_permit",
+        "test_current_policy_change_revokes_permits_and_cannot_silently_restore_them",
+        "test_decoded_records_and_fabricated_or_pickled_proofs_cannot_authorize",
+        "test_expired_or_regressed_clock_cannot_revive_a_prior_permit",
+        "test_missing_policy_closes_owner_even_if_identical_policy_is_restored",
+        "test_new_authority_cannot_restore_old_permissions_from_identical_policy_data",
+        "test_nonce_capacity_refuses_without_evicting_live_claims_and_reaps_expired_only",
+        "test_policy_change_during_authorization_cannot_publish_a_permit",
+        "test_policy_port_failure_is_safe_and_never_converts_into_authorization",
+        "test_unconfigured_signing_key_and_foreign_action_refuse_even_with_valid_macs"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "3552450fdc341f405b62dc3ae22c750fbe15ac63b6f94882efc79b2257cdaa2b"
+    },
+    {
+      "scope": "telemetry-controller",
+      "fixture": "tests/critical/test_worker_telemetry_contracts.py",
+      "class": "WorkerTelemetryContractTests",
+      "expected": [
+        "test_action_count_unique_canonical_order_and_aggregate_scope",
+        "test_all_unmeasured_statuses_are_null_and_preserve_measurement_scope",
+        "test_deadline_strict_integer_finite_30_second_window",
+        "test_indeterminate_progress_has_typed_reason_and_no_made_up_percentage",
+        "test_metric_numbers_and_closed_names_scopes_statuses",
+        "test_metric_units_and_counter_gauge_meanings_cannot_be_relabelled",
+        "test_no_pid_path_command_environment_or_untrusted_free_text_selector",
+        "test_progress_known_work_is_bounded_consistent_and_not_boolean",
+        "test_roundtrip_binds_every_request_selection_and_permission_fact"
+      ],
+      "discovered": [
+        "test_action_count_unique_canonical_order_and_aggregate_scope",
+        "test_all_unmeasured_statuses_are_null_and_preserve_measurement_scope",
+        "test_deadline_strict_integer_finite_30_second_window",
+        "test_indeterminate_progress_has_typed_reason_and_no_made_up_percentage",
+        "test_metric_numbers_and_closed_names_scopes_statuses",
+        "test_metric_units_and_counter_gauge_meanings_cannot_be_relabelled",
+        "test_no_pid_path_command_environment_or_untrusted_free_text_selector",
+        "test_progress_known_work_is_bounded_consistent_and_not_boolean",
+        "test_roundtrip_binds_every_request_selection_and_permission_fact"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "2f6d145a62c67b2ca954d3152935896ca61899d59599fd2ad2c114bc17d48b29"
+    },
+    {
+      "scope": "telemetry-controller",
+      "fixture": "tests/critical/test_worker_telemetry_polling.py",
+      "class": "WorkerTelemetryPollingTests",
+      "expected": [
+        "test_authenticated_queries_coalesce_without_another_collection_or_deadline",
+        "test_begin_requires_authentication_and_consumes_every_nonce_even_on_refusal",
+        "test_busy_and_private_clock_errors_are_safe_bounded_refusals",
+        "test_cancelled_collectors_hold_capacity_until_their_original_finally_hook",
+        "test_clock_regression_during_currentness_closes_the_polling_owner",
+        "test_completed_queries_leave_no_sample_history_or_growing_slot_inventory",
+        "test_configuration_cannot_remove_the_finite_collector_or_waiter_ceiling",
+        "test_currentness_refuses_a_deadline_crossed_during_policy_validation",
+        "test_monotonic_regression_permanently_closes_this_polling_owner",
+        "test_one_second_minimum_survives_finish_and_has_an_exact_boundary",
+        "test_policy_loss_revokes_polling_and_cleanup_remains_available",
+        "test_reconstructing_a_window_cannot_reset_this_scope_rate_or_capacity",
+        "test_request_expiry_and_monotonic_deadline_do_not_evict_running_collectors",
+        "test_scope_owner_close_cancels_observation_tickets_without_releasing_live_slots",
+        "test_shorter_coalesced_request_keeps_its_own_expiry_without_stopping_leader",
+        "test_simultaneous_valid_queries_create_only_one_collector",
+        "test_slow_admission_cannot_publish_an_already_expired_monotonic_ticket",
+        "test_slow_authority_checks_cannot_backdate_the_collection_rate_boundary",
+        "test_slow_coalesced_validation_cannot_extend_its_participant_deadline",
+        "test_slow_currentness_preserves_a_fresh_ticket",
+        "test_tickets_cannot_be_fabricated_pickled_mutated_or_used_by_a_foreign_window",
+        "test_waiters_are_bounded_and_detaching_one_does_not_cancel_the_others"
+      ],
+      "discovered": [
+        "test_authenticated_queries_coalesce_without_another_collection_or_deadline",
+        "test_begin_requires_authentication_and_consumes_every_nonce_even_on_refusal",
+        "test_busy_and_private_clock_errors_are_safe_bounded_refusals",
+        "test_cancelled_collectors_hold_capacity_until_their_original_finally_hook",
+        "test_clock_regression_during_currentness_closes_the_polling_owner",
+        "test_completed_queries_leave_no_sample_history_or_growing_slot_inventory",
+        "test_configuration_cannot_remove_the_finite_collector_or_waiter_ceiling",
+        "test_currentness_refuses_a_deadline_crossed_during_policy_validation",
+        "test_monotonic_regression_permanently_closes_this_polling_owner",
+        "test_one_second_minimum_survives_finish_and_has_an_exact_boundary",
+        "test_policy_loss_revokes_polling_and_cleanup_remains_available",
+        "test_reconstructing_a_window_cannot_reset_this_scope_rate_or_capacity",
+        "test_request_expiry_and_monotonic_deadline_do_not_evict_running_collectors",
+        "test_scope_owner_close_cancels_observation_tickets_without_releasing_live_slots",
+        "test_shorter_coalesced_request_keeps_its_own_expiry_without_stopping_leader",
+        "test_simultaneous_valid_queries_create_only_one_collector",
+        "test_slow_admission_cannot_publish_an_already_expired_monotonic_ticket",
+        "test_slow_authority_checks_cannot_backdate_the_collection_rate_boundary",
+        "test_slow_coalesced_validation_cannot_extend_its_participant_deadline",
+        "test_slow_currentness_preserves_a_fresh_ticket",
+        "test_tickets_cannot_be_fabricated_pickled_mutated_or_used_by_a_foreign_window",
+        "test_waiters_are_bounded_and_detaching_one_does_not_cancel_the_others"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "6486c8da8fc4dade5a1b64abf5e736072ae18b2317e7e348d16834feb8811669"
+    },
+    {
+      "scope": "telemetry-controller",
+      "fixture": "tests/critical/test_worker_telemetry_reservations.py",
+      "class": "WorkerTelemetryReservationTests",
+      "expected": [
+        "test_acquire_context_joins_the_original_slot_and_retires_its_view",
+        "test_actual_reserved_run_publishes_read_only_current_provenance",
+        "test_binding_cannot_overwrite_concurrent_capacity_quarantine",
+        "test_binding_cannot_overwrite_concurrent_owner_retirement",
+        "test_busy_observation_bookkeeping_refuses_without_mutating_capacity",
+        "test_exchange_retirement_preserves_capacity_and_cannot_revive_its_old_view",
+        "test_foreign_binding_refuses_observation_and_preserves_the_actual_operation",
+        "test_legacy_capacity_requires_startup_opt_in_to_publish_an_observation",
+        "test_new_request_binding_cannot_retarget_a_retained_old_view",
+        "test_observation_clock_refusal_cannot_change_or_revive_the_job_deadline",
+        "test_observation_setup_failure_does_not_change_existing_capacity_behavior",
+        "test_publication_lock_and_slow_sample_do_not_block_reads_or_job_completion",
+        "test_real_command_dispatch_binds_before_input_transfer_without_a_job_lock",
+        "test_records_or_unissued_objects_cannot_reconstruct_the_actual_owner",
+        "test_same_worker_slot_and_deadline_have_fresh_original_reservation_identities",
+        "test_unknown_ownership_resolution_does_not_reactivate_the_old_observer"
+      ],
+      "discovered": [
+        "test_acquire_context_joins_the_original_slot_and_retires_its_view",
+        "test_actual_reserved_run_publishes_read_only_current_provenance",
+        "test_binding_cannot_overwrite_concurrent_capacity_quarantine",
+        "test_binding_cannot_overwrite_concurrent_owner_retirement",
+        "test_busy_observation_bookkeeping_refuses_without_mutating_capacity",
+        "test_exchange_retirement_preserves_capacity_and_cannot_revive_its_old_view",
+        "test_foreign_binding_refuses_observation_and_preserves_the_actual_operation",
+        "test_legacy_capacity_requires_startup_opt_in_to_publish_an_observation",
+        "test_new_request_binding_cannot_retarget_a_retained_old_view",
+        "test_observation_clock_refusal_cannot_change_or_revive_the_job_deadline",
+        "test_observation_setup_failure_does_not_change_existing_capacity_behavior",
+        "test_publication_lock_and_slow_sample_do_not_block_reads_or_job_completion",
+        "test_real_command_dispatch_binds_before_input_transfer_without_a_job_lock",
+        "test_records_or_unissued_objects_cannot_reconstruct_the_actual_owner",
+        "test_same_worker_slot_and_deadline_have_fresh_original_reservation_identities",
+        "test_unknown_ownership_resolution_does_not_reactivate_the_old_observer"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "ab1437a2568da6af5c7aaf52464e6a18f9c458061f78ea055ebd41828d810df1"
+    },
+    {
+      "scope": "telemetry-controller",
+      "fixture": "tests/critical/test_worker_telemetry_schemas.py",
+      "class": "WorkerTelemetrySchemaTests",
+      "expected": [
+        "test_authenticated_headers_validate_without_conferring_scope_authority",
+        "test_index_and_compatibility_include_exact_additive_public_ids",
+        "test_metric_units_inventory_aggregate_attribution_and_terminal_shape_refuse",
+        "test_private_selector_unknown_field_and_unsupported_nonnull_metric_refuse",
+        "test_writer_records_validate_against_registered_public_schemas"
+      ],
+      "discovered": [
+        "test_authenticated_headers_validate_without_conferring_scope_authority",
+        "test_index_and_compatibility_include_exact_additive_public_ids",
+        "test_metric_units_inventory_aggregate_attribution_and_terminal_shape_refuse",
+        "test_private_selector_unknown_field_and_unsupported_nonnull_metric_refuse",
+        "test_writer_records_validate_against_registered_public_schemas"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "b03d4041e5877ccec7b8303d2b795ef5059756bb1e2d98cbba17579b12977a6d"
+    },
+    {
+      "scope": "telemetry-controller",
+      "fixture": "tests/critical/test_worker_telemetry_wire.py",
+      "class": "WorkerTelemetryWireTests",
+      "expected": [
+        "test_aggregate_scope_cannot_enumerate_an_action_or_relabel_job_counters",
+        "test_bytes_and_aggregate_bounds_precede_json_parsing",
+        "test_complete_scoped_metric_inventory_and_action_owner_references_required",
+        "test_duplicate_keys_nonfinite_utf8_and_nested_payloads_refuse",
+        "test_explicit_unsupported_denied_and_unavailable_are_not_zero_samples",
+        "test_framing_is_bounded_before_line_list_allocation",
+        "test_missing_duplicate_or_unrequested_action_samples_refuse",
+        "test_observation_epoch_sequence_and_time_are_closed_data",
+        "test_request_worker_scope_and_expiry_cannot_be_substituted",
+        "test_roundtrip_request_response_and_maximum_complete_action_batch",
+        "test_secret_shaped_extra_fields_never_enter_public_decoder_error_text",
+        "test_terminal_result_reference_is_required_but_does_not_authenticate_it"
+      ],
+      "discovered": [
+        "test_aggregate_scope_cannot_enumerate_an_action_or_relabel_job_counters",
+        "test_bytes_and_aggregate_bounds_precede_json_parsing",
+        "test_complete_scoped_metric_inventory_and_action_owner_references_required",
+        "test_duplicate_keys_nonfinite_utf8_and_nested_payloads_refuse",
+        "test_explicit_unsupported_denied_and_unavailable_are_not_zero_samples",
+        "test_framing_is_bounded_before_line_list_allocation",
+        "test_missing_duplicate_or_unrequested_action_samples_refuse",
+        "test_observation_epoch_sequence_and_time_are_closed_data",
+        "test_request_worker_scope_and_expiry_cannot_be_substituted",
+        "test_roundtrip_request_response_and_maximum_complete_action_batch",
+        "test_secret_shaped_extra_fields_never_enter_public_decoder_error_text",
+        "test_terminal_result_reference_is_required_but_does_not_authenticate_it"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "75ae5c83186bc3117a8389684317d549611f54cf35eec9d00ddb328712d4404e"
+    },
+    {
+      "scope": "telemetry-linux-processes",
+      "fixture": "tests/critical/test_worker_telemetry_processes.py",
+      "class": "WorkerTelemetryProcessTests",
+      "expected": [
+        "test_counter_file_reads_never_run_in_the_original_launch_thread",
+        "test_live_owner_does_not_transfer_to_a_new_registry_or_survive_retirement",
+        "test_native_metadata_limit_refuses_without_leaking_private_content",
+        "test_native_probe_uses_only_bounded_safe_files_under_its_original_descriptor",
+        "test_observation_registration_failure_is_safe_and_does_not_fail_the_job",
+        "test_observer_close_during_native_registration_cannot_leave_a_live_probe",
+        "test_observer_close_preserves_live_job_output_bytes_and_normal_completion",
+        "test_original_launcher_exposes_real_single_process_cpu_memory_and_io_counters",
+        "test_registry_capacity_cannot_be_unbounded_or_disable_the_limit",
+        "test_saved_pid_and_identity_records_cannot_register_an_original_process",
+        "test_slow_collector_cannot_block_original_job_cleanup_or_keep_native_fds"
+      ],
+      "discovered": [
+        "test_counter_file_reads_never_run_in_the_original_launch_thread",
+        "test_live_owner_does_not_transfer_to_a_new_registry_or_survive_retirement",
+        "test_native_metadata_limit_refuses_without_leaking_private_content",
+        "test_native_probe_uses_only_bounded_safe_files_under_its_original_descriptor",
+        "test_observation_registration_failure_is_safe_and_does_not_fail_the_job",
+        "test_observer_close_during_native_registration_cannot_leave_a_live_probe",
+        "test_observer_close_preserves_live_job_output_bytes_and_normal_completion",
+        "test_original_launcher_exposes_real_single_process_cpu_memory_and_io_counters",
+        "test_registry_capacity_cannot_be_unbounded_or_disable_the_limit",
+        "test_saved_pid_and_identity_records_cannot_register_an_original_process",
+        "test_slow_collector_cannot_block_original_job_cleanup_or_keep_native_fds"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "5b148dfccaeb0a533c9b4b8886ac4fb525b4e94cd2dc4c37cd057896abbd0869"
+    },
+    {
+      "scope": "retained-layout",
+      "fixture": "tests/critical/test_retained_layout.py",
+      "class": "RetainedLayoutTests",
+      "expected": [
+        "test_declaration_reader_refuses_direct_ancestry_replacement",
+        "test_declaration_reader_refuses_redirected_file",
+        "test_declaration_reader_refuses_symlink_ancestry_changes",
+        "test_declaration_refuses_aliases_and_ambiguous_ownership",
+        "test_declared_plain_and_root_layouts_keep_distinct_ownership",
+        "test_direct_declaration_refuses_legacy_qualification",
+        "test_initial_selection_keeps_default_and_refuses_portable_overlap",
+        "test_lift_shift_adr_names_selected_retained_source",
+        "test_preserves_legacy_coordinate",
+        "test_rejects_cross_host_aliases_and_root_without_declaration",
+        "test_rejects_redirected_ancestor_and_final_directory",
+        "test_root_layout_requires_current_framework_file_partition",
+        "test_shim_authority_uses_selected_wrapper_component",
+        "test_short_read_cannot_hide_a_noncanonical_declaration_suffix",
+        "test_structural_resolution_checks_wrapper_role_and_evidence"
+      ],
+      "discovered": [
+        "test_declaration_reader_refuses_direct_ancestry_replacement",
+        "test_declaration_reader_refuses_redirected_file",
+        "test_declaration_reader_refuses_symlink_ancestry_changes",
+        "test_declaration_refuses_aliases_and_ambiguous_ownership",
+        "test_declared_plain_and_root_layouts_keep_distinct_ownership",
+        "test_direct_declaration_refuses_legacy_qualification",
+        "test_initial_selection_keeps_default_and_refuses_portable_overlap",
+        "test_lift_shift_adr_names_selected_retained_source",
+        "test_preserves_legacy_coordinate",
+        "test_rejects_cross_host_aliases_and_root_without_declaration",
+        "test_rejects_redirected_ancestor_and_final_directory",
+        "test_root_layout_requires_current_framework_file_partition",
+        "test_shim_authority_uses_selected_wrapper_component",
+        "test_short_read_cannot_hide_a_noncanonical_declaration_suffix",
+        "test_structural_resolution_checks_wrapper_role_and_evidence"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "2ef7c27ba3c26d46178ab9c45ec77b1cebbfc441e7ac539c0f8eeae54b447890"
+    },
+    {
+      "scope": "retained-layout",
+      "fixture": "tests/critical/test_retained_update_layout.py",
+      "class": "RetainedUpdateLayoutTests",
+      "expected": [
+        "test_contained_catalogs_preserve_shim_without_relocating_source",
+        "test_duplicate_declared_shim_flavors_refuse_ambiguous_authority",
+        "test_invalid_recorded_source_refuses_update_classification",
+        "test_missing_current_dependent_does_not_protect_obsolete_shim",
+        "test_mixed_catalogs_select_current_wrapper_and_keep_source_at_root",
+        "test_project_owned_component_selectors_protect_current_catalog_inputs",
+        "test_update_preserves_selected_wrapper_shim",
+        "test_update_preserves_shim_at_historical_coordinate"
+      ],
+      "discovered": [
+        "test_contained_catalogs_preserve_shim_without_relocating_source",
+        "test_duplicate_declared_shim_flavors_refuse_ambiguous_authority",
+        "test_invalid_recorded_source_refuses_update_classification",
+        "test_missing_current_dependent_does_not_protect_obsolete_shim",
+        "test_mixed_catalogs_select_current_wrapper_and_keep_source_at_root",
+        "test_project_owned_component_selectors_protect_current_catalog_inputs",
+        "test_update_preserves_selected_wrapper_shim",
+        "test_update_preserves_shim_at_historical_coordinate"
+      ],
+      "exact_order_matches": true,
+      "fixture_sha256": "430089afa9d19d8fe80c77aac17b5ce4836681e22bc2df9c7a4958cf68843484"
+    }
+  ],
+  "reviewed_delta": [
+    "RetainedUpdateLayoutTests now lists all8 existing discovered methods, adding exactly the5 previously omitted integrated source controls in discovery order.",
+    "Diagnostic RuntimeError now identifies fixture class and expected/observed names.",
+    "Strict inventory equality,actual testsRun,successful/no-skips and installed-module identity checks remain unchanged.",
+    "No production implementation or test methods were changed by this two-hunk runner correction."
+  ],
+  "limitations": [
+    "Actual class imports and actual unittest discovery comparison only; this audit does not execute test methods or establish installed qualification.",
+    "Root owns the original8-case retained-update source cohort.",
+    "wheel-full-r5 remains a failed historical receipt for fixed40d; this runner repair does not reclassify it.",
+    "Fresh exact installed/native/full-source/CI/release requirements remain separate; existing live native run is not accepted.",
+    "No repository edits,pins,workers,publication or authority marker writes performed."
+  ],
+  "canonical_receipt_independently_inspected": "retained-update-installed-inventory-r1:8tests passed4.306s; terminal log inspected,not rerun by reviewer."
+}

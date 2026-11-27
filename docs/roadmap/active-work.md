@@ -24435,6 +24435,16 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   installed and collateral requirements, then prepare, check, publish and verify
   through the release owner. No recovered snapshot or narrow passing cohort
   establishes release acceptance.
+- **Windows lifecycle-lock observation repair (source partial):** Exact-head
+  diagnostics reproduce a lifecycle-lock read through a second handle while its
+  original owner holds the Windows byte range. Read all three held-lock sites
+  through that original descriptor, retaining bounded bytes, native identity,
+  separate named/held metadata and observer expiry. Independently close the last
+  native callback with fresh bytes, preserve foreign archived data and primary
+  cancellation, and distinguish ambient exceptions from this read's failure.
+  Eight focused source controls pass; actual Windows CI and complete installed
+  qualification remain required. The maintained installed inventory now includes
+  all 224 methods in actual discovery order, without relaxing equality or skips.
 - **Native Cargo deadline investigation (in progress):** The actual authored
   native completion control now reaches execution but retains a genuine original
   900-second deadline failure (1,039.733s including setup/closing). Live sampling
@@ -24445,6 +24455,10 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   it retains no membership/currentness/admission and retires copied contexts.
   Require original frame controls, independent review and the same real native
   control within its original deadline before claiming this repair sufficient.
+  That first bounded syntax-frame attempt still fails the original 900-second
+  deadline at the final guard after metadata (1,031.043s including setup/closing).
+  It does not establish a performance repair; retain the failure and investigate
+  further measured syntax-only work without caching currentness or native probes.
 - **Flavor-add placement reconciliation (in progress):** The corrected Elixir
   fixture reaches a real product failure: adding a shipped Flavor to a contained
   project writes root catalogs despite declared contained roots. Preflight the
