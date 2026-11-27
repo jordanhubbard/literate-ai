@@ -25,6 +25,7 @@ from .repository_refresh_reservations import _custody_wire
 from .retained_layout_control_publication import (
     _close_control_pool_admission,
     _pinned_directory,
+    _require_control_pool_reference,
     _require_live_control_pool,
 )
 from .retained_layout_journal import (
@@ -148,10 +149,11 @@ def _observe_area(root):
 
 def plan_prepared_forest_operation(preparation, pool, metadata_root, retirement_root):
     """Observe a complete operation proposal under the original finite allowance."""
-    original = _state(preparation)
     for path in (metadata_root, retirement_root):
         if type(path) not in (str, type(Path())):
             _fail("plain absolute private effect coordinate required")
+    _require_control_pool_reference(pool)
+    original = _state(preparation)
     pool_binding = _require_live_control_pool(pool)
     journal = _require_live_layout_journal(pool._journal)
     journal_binding = _LIVE_WRITERS[journal]
@@ -290,6 +292,11 @@ def execute_prepared_forest_operation(
     binding = _PLANS.get(proposal) if type(proposal) is _ForestOperationPlan else None
     if binding is None:
         _fail("actual creating forest operation proposal required")
+    if (
+        type(acknowledged_operation_identity) is not ContentIdentity
+        or allow_host_execution is not True
+    ):
+        _fail("exact complete operation acknowledgement and host authority required")
     _require(binding)
     if (
         binding.preparation is not preparation

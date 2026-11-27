@@ -2181,5 +2181,42 @@
     "preserved_failures": "Prior r20g moved reference refusal and r21 intermediate reviewer findings retained. r4 closure amended by r5 export pointer finding; r6 closes exact final fix.",
     "next": "Documentation authority and project validation, clean commit, fresh immutable candidate and original preserved R2 catalog finalization; no legacy journal edits.",
     "limits": "All83 original goals retained. No issue closed, merge, prepare, tag, publication or whole-wheel/native matrix acceptance."
+  },
+  "qualification_followup_r22": {
+    "issues": [
+      505
+    ],
+    "status": "independent source review closed; original forest operation and control publication cohorts pass with zero skips",
+    "source_repair": "Pure exact acknowledgement/allow predicate before original execute _require; pure exact coordinate type and original live-pool reference membership before planning _state. All later original ownership/currentness/equality/fieldseals/native guards unchanged.",
+    "review_reports": [
+      "verification/release-1.4-followup/review-authority-505-source-review-r2.json",
+      "verification/release-1.4-followup/review-authority-forest-prerequisite-order-design-r1.json"
+    ],
+    "reports": {
+      "forest-control-publication-r22-report.json": {
+        "sha256": "e650b8608d51f4d40c560e95175f1ad20a719115206ad1a7deaf3d21143ca5f3",
+        "summary": {
+          "executed": 21,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 21,
+          "selected": 21,
+          "skipped": 0
+        }
+      },
+      "forest-prerequisite-r22-report.json": {
+        "sha256": "b74c0e519be2d51899e92ffe6e138edf2695880232a907703f0ca8e929121c2e",
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        }
+      }
+    },
+    "unchanged_original_test_sha256": "23c3dca561c96c0764f444a6cc7b2d57a67a5a73c943602f9ba30dd3c3f56f12",
+    "limits": "These original source cohorts preserve all assertions/deadlines. Installed historical candidate remains immutable e0ed42469 and its catalog finalizer remains live under original1800. No issue closure, release preparation or publication. All83goals retained."
   }
 }

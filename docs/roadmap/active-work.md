@@ -24467,6 +24467,11 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   macOS child/platform and full release acceptance remain open.
   [#505](https://github.com/jordanhubbard/literate-ai/issues/505) owns pure forest
   prerequisite refusal before native context inspection.
+  The source fix checks exact acknowledgement/host authority and plain planning
+  coordinates/live-pool references before native witnesses, preserving every
+  later original seal and guard. Independent source review is closed; all 21
+  control-publication cases and all four unchanged original forest-operation cases
+  pass with zero skips. Cross-platform and full release acceptance remain open.
   [#506](https://github.com/jordanhubbard/literate-ai/issues/506) owns absent
   Windows `O_NONBLOCK`: both reader expressions are repaired, with 13 focused
   controls passing and independent review closed; native Windows remains open.

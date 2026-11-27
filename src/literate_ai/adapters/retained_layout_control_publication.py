@@ -158,10 +158,15 @@ def _close_control_pool_admission(pool, original):
         raise ValueError("layout.control.original-live-pool-required")
 
 
-def _require_live_control_pool(pool):
+def _require_control_pool_reference(pool):
+    """Reject foreign references without inspecting native pool state."""
     if type(pool) is not _ControlPool or pool not in _LIVE_POOLS:
         raise TypeError("layout.control.actual-live-pool-required")
-    original = _LIVE_POOLS[pool]
+    return _LIVE_POOLS[pool]
+
+
+def _require_live_control_pool(pool):
+    original = _require_control_pool_reference(pool)
     _close_control_pool_admission(pool, original)
     if pool._poisoned:
         raise ValueError("layout.control.publication-interrupted")

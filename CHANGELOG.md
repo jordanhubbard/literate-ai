@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Reject missing forest-operation acknowledgement and foreign planning inputs
+  before inspecting native witnesses, retaining full original-owner checks.
+
 - Preserve exact framework successor membership during catalog finalization and
   recovery, including explicit successor selection for interrupted recovery.
 
