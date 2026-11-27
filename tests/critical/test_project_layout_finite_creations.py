@@ -1,6 +1,6 @@
 """Owned local absence/resource tests; no creation or runtime qualification.
 
-Current distribution origin is the existing explicit resource-fixture seam.
+Distribution origin and absent Git authority are explicit resource-fixture seams.
 """
 
 from __future__ import annotations
@@ -78,6 +78,7 @@ class FiniteFrameworkCreationTests(unittest.TestCase):
         self.enterContext(
             patch.object(resources, "_read_current_origin", return_value=origin)
         )
+        self.enterContext(patch.object(resources, "_git_state", return_value=None))
         owner = resources.observe_original_framework_resources(observed)
         proof = None
         if bootstrap:
@@ -110,6 +111,17 @@ class FiniteFrameworkCreationTests(unittest.TestCase):
                 production._HELPER: "litai/" + production._HELPER,
             },
         )
+
+    def test_helper_absence_refuses_oversized_real_sibling_census(self):
+        project, resource_owner, proof = self.fixture(bootstrap=True)
+        target = project.root / "litai/scripts"
+        target.mkdir()
+        for index in range(8200):
+            (target / f"unrelated-{index}").touch()
+        with self.assertRaisesRegex(ProjectLayoutPlanError, "census bound"):
+            self.helper(resource_owner, proof)
+        self.assertFalse((target / "_bootstrap_processes.py").exists())
+        self.assertEqual(sum(1 for _ in target.iterdir()), 8200)
 
     def test_actual_absence_original_ignore_bytes_and_no_writes(self):
         project, resource_owner, _ = self.fixture()

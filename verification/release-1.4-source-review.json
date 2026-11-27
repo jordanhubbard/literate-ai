@@ -37,7 +37,7 @@
       "reviewer": "contracts",
       "path": "src/literate_ai/adapters/catalog_copy_staging.py",
       "required_outcome": "Open the selected source without blocking on substituted FIFOs and retain identity refusal.",
-      "state": "open"
+      "state": "fixed-targeted-and-independently-reviewed"
     },
     {
       "id": "component-namespace-read",
@@ -45,7 +45,7 @@
       "reviewer": "contracts",
       "path": "src/literate_ai/adapters/component_namespace.py",
       "required_outcome": "Enforce existing metadata byte ceilings before constructor witness hashing, including growth.",
-      "state": "open"
+      "state": "fixed-targeted-and-independently-reviewed"
     },
     {
       "id": "cache-retirement-close",
@@ -109,7 +109,7 @@
       "reviewer": "authority",
       "path": "src/literate_ai/adapters/project_layout_finite_creations.py",
       "required_outcome": "Bound sibling enumeration before allocating names during each finite absence observation.",
-      "state": "open"
+      "state": "fixed-targeted-and-independently-reviewed"
     },
     {
       "id": "windows-result-path",
@@ -117,7 +117,7 @@
       "reviewer": "authority",
       "path": "src/literate_ai/adapters/project_layout_continuation_result.py",
       "required_outcome": "Decode inert recorded Windows/UNC journal coordinates using pure path semantics on every host.",
-      "state": "open"
+      "state": "fixed-targeted-and-independently-reviewed"
     },
     {
       "id": "forest-contained-metadata",
@@ -153,6 +153,38 @@
       "failures": 0,
       "independent_probe_cases": 36,
       "limit": "Source and controlled probe cases; fresh noneditable maintained controls remain required."
+    },
+    "catalog-fifo-open": {
+      "run": "catalog-fifo-r1",
+      "selected": 29,
+      "passed": 29,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Targeted source controls and independent closing review; full native/installed and release acceptance remain pending."
+    },
+    "component-namespace-read": {
+      "run": "namespace-bound-r2",
+      "selected": 25,
+      "passed": 25,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Targeted source controls and independent closing review; full native/installed and release acceptance remain pending."
+    },
+    "finite-absence-budget": {
+      "run": "finite-bound-r2",
+      "selected": 19,
+      "passed": 19,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Targeted source controls and independent closing review; full native/installed and release acceptance remain pending."
+    },
+    "windows-result-path": {
+      "run": "catalog-result-r1",
+      "selected": 15,
+      "passed": 15,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Targeted source controls and independent closing review; full native/installed and release acceptance remain pending."
     }
   },
   "review_scope": "All 462 frozen changed files independently inspected: runtime 65, SDK transfer 36, retained-layout transfer 36, authority 157 and remaining contracts 168. This is source review only."

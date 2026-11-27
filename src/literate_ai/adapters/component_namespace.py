@@ -44,7 +44,7 @@ def _directory_identity(path):
         ) from error
 
 
-def _file_witness(path):
+def _file_witness(path, *, maximum_bytes=2 * 1024 * 1024):
     """Read one metadata leaf under its original physical/byte witness.
 
     Original publication may pin this read-only input with hardlinks. Reading
@@ -66,6 +66,8 @@ def _file_witness(path):
             f"original Component metadata is not direct: {path.name}; "
             f"links={before.st_nlink}"
         )
+    if before.st_size > maximum_bytes:
+        raise ComponentNamespaceError("Component metadata exceeds its byte bound")
     flags = (
         os.O_RDONLY
         | getattr(os, "O_BINARY", 0)
@@ -77,6 +79,8 @@ def _file_witness(path):
         opened = os.fstat(descriptor)
         if not _identity_matches(path, before, descriptor, opened):
             raise ComponentNamespaceError("Component metadata changed before open")
+        if opened.st_size > maximum_bytes:
+            raise ComponentNamespaceError("Component metadata exceeds its byte bound")
         if os.name == "nt":
             import msvcrt
 
@@ -122,7 +126,10 @@ def _file_witness(path):
 
 
 def _project(root):
-    from literate_ai.projects import ProjectConfigurationStore
+    from literate_ai.projects import (
+        DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
+        ProjectConfigurationStore,
+    )
 
     try:
         snapshot = ProjectConfigurationStore.discover(root)
@@ -137,7 +144,10 @@ def _project(root):
         snapshot.manifest_path,
         _directory_identity(snapshot.root),
         _directory_identity(snapshot.manifest_path.parent),
-        _file_witness(snapshot.manifest_path),
+        _file_witness(
+            snapshot.manifest_path,
+            maximum_bytes=DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
+        ),
         snapshot.content,
     )
 

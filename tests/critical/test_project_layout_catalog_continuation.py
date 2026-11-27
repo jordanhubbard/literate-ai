@@ -13,7 +13,7 @@ import json
 import tempfile
 import unittest
 from dataclasses import replace
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -24,6 +24,12 @@ from literate_ai.adapters.project_layout_catalog_continuation import (
     SCHEMA,
     decode_catalog_continuation_plan,
     select_contained_catalog_continuation,
+)
+from literate_ai.adapters.project_layout_continuation_result import (
+    SCHEMA as RESULT_SCHEMA,
+)
+from literate_ai.adapters.project_layout_continuation_result import (
+    decode_catalog_continuation_result,
 )
 from literate_ai.adapters.project_layout_planning import (
     ProjectLayoutPlanError,
@@ -391,6 +397,51 @@ class CatalogContinuationTests(unittest.TestCase):
         self.assertFalse(validator.is_valid(bad))
         with self.assertRaises(ProjectLayoutPlanError):
             decode_catalog_continuation_plan(bad)
+
+    def test_inert_result_roundtrips_recorded_posix_drive_and_unc_roots(self):
+        original = self.select(approved_references=("docs/guide.md",)).public_plan
+        for root, path_type in (
+            ("/work/project", PurePosixPath),
+            (r"C:\work\project", PureWindowsPath),
+            (r"\\server\share\project", PureWindowsPath),
+        ):
+            plan = copy.deepcopy(original)
+            plan.pop("plan_identity")
+            plan["project"] = root
+            plan["plan_identity"] = canonical_identity(plan).uri
+            journal = (
+                path_type(root)
+                / "litai/.literate"
+                / (
+                    "catalog-placement-"
+                    + canonical_identity({"layout_plan": plan["plan_identity"]}).digest
+                )
+            )
+            for operation in ("apply", "recover"):
+                result = {
+                    "schema": RESULT_SCHEMA,
+                    "operation": operation,
+                    "plan": plan,
+                    "writes": True,
+                    "full_containment": False,
+                    "qualification": False,
+                    "journal": str(journal),
+                    "retained_scaffolding": [],
+                    "applied" if operation == "apply" else "rolled_back": True,
+                }
+                with (
+                    self.subTest(root=root, operation=operation),
+                    patch.object(
+                        Path,
+                        "open",
+                        side_effect=AssertionError("inert codec performed I/O"),
+                    ),
+                ):
+                    self.assertEqual(decode_catalog_continuation_result(result), result)
+                    with self.assertRaises(ProjectLayoutPlanError):
+                        decode_catalog_continuation_result(
+                            {**result, "journal": str(journal) + "-foreign"}
+                        )
 
     def test_component_endpoints_are_exact_data_and_require_original_target_selection(
         self,

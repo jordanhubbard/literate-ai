@@ -5,6 +5,9 @@ from __future__ import annotations
 import errno
 import os
 import stat
+import subprocess
+import sys
+import textwrap
 import unittest
 from contextlib import contextmanager
 from pathlib import Path
@@ -24,6 +27,52 @@ from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudge
 class CatalogCopyStageTests(unittest.TestCase):
     setUp = fixtures.CatalogCopyPlanTests.setUp
     plan = fixtures.CatalogCopyPlanTests.plan
+
+    def test_source_fifo_swap_refuses_before_copy_in_bounded_child(self):
+        code = textwrap.dedent("""
+            import hashlib, os, tempfile
+            from contextlib import contextmanager
+            from pathlib import Path
+            from types import SimpleNamespace
+            from unittest import mock
+            from literate_ai.adapters import catalog_copy_staging as subject
+            from literate_ai.adapters.exclusive_entry import _from_stat
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory).resolve()
+                source_root, target_root = root / "source", root / "target"
+                source_root.mkdir(); target_root.mkdir()
+                source = source_root / "payload"
+                source.write_bytes(b"exact")
+                expected = _from_stat(source.stat())
+                original = subject._pinned_directory
+                @contextmanager
+                def pinned(path):
+                    with original(path) as value:
+                        if path == target_root:
+                            source.unlink(); os.mkfifo(source)
+                        yield value
+                with mock.patch.object(subject, "_pinned_directory", pinned):
+                    try:
+                        subject._CatalogCopyStages._copy_file(
+                            object(), source, target_root / "copy",
+                            SimpleNamespace(
+                                size=5, digest=hashlib.sha256(b"exact").hexdigest()
+                            ),
+                            expected, {},
+                        )
+                    except ValueError as error:
+                        assert "source file changed" in str(error), str(error)
+                    else:
+                        raise AssertionError("FIFO substitution was accepted")
+                assert source.is_fifo()
+                assert not (target_root / "copy").exists()
+                print("original FIFO substitution refused")
+        """)
+        result = subprocess.run(
+            [sys.executable, "-c", code], capture_output=True, text=True, timeout=10
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("original FIFO substitution refused", result.stdout)
 
     @contextmanager
     def pool(self, plan=None, journal_budget=None):

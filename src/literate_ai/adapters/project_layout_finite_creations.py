@@ -30,6 +30,8 @@ from literate_ai.adapters.project_layout_framework_source_proofs import (
     require_original_initialized_framework_file_proof,
 )
 from literate_ai.adapters.project_layout_planning import (
+    _MAX_ENTRIES,
+    _MAX_TOTAL_BYTES,
     ProjectLayoutPlanError,
     _capture,
 )
@@ -47,7 +49,8 @@ _RESOURCE_ORIGINAL = require_original_framework_resources
 _PROOF_ORIGINAL = require_original_initialized_framework_file_proof
 _TRANSITION = reviewed_bootstrap_transition
 _CONSTANTS = tuple(
-    (name, globals()[name]) for name in ("_IGNORE", "_HELPER", "_BOOTSTRAP")
+    (name, globals()[name])
+    for name in ("_IGNORE", "_HELPER", "_BOOTSTRAP", "_MAX_ENTRIES", "_MAX_TOTAL_BYTES")
 )
 
 
@@ -82,9 +85,18 @@ def _absence(resources, coordinate):
     expected = resources.context.directory_binding[0][:3]
     parts = coordinate.split("/")
     witness = []
+    charged_entries = charged_bytes = 0
 
     def visit(cursor, index):
-        names = os.listdir(cursor)
+        nonlocal charged_entries, charged_bytes
+        names = []
+        with os.scandir(cursor) as entries:
+            for entry in entries:
+                charged_entries += 1
+                charged_bytes += len(os.fsencode(entry.name))
+                if charged_entries > _MAX_ENTRIES or charged_bytes > _MAX_TOTAL_BYTES:
+                    _fail("creation absence observation exceeds its census bound")
+                names.append(entry.name)
         if index and any(_alias(value) == ".git" for value in names):
             _fail("creation ancestry has independent Git authority")
         name = parts[index]

@@ -24435,6 +24435,13 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   installed and collateral requirements, then prepare, check, publish and verify
   through the release owner. No recovered snapshot or narrow passing cohort
   establishes release acceptance.
+- **Product callback closing repairs (in progress):** Independent review reproduces
+  changes to Python and neutral authored product fields inside legitimate guards.
+  Retain exact original fields and checker before and after callbacks and invoke
+  the captured checker directly at factory closure. Preserve the established
+  modeled data constructors and Cargo session owners; these data scopes do not
+  grant materialization or admission authority. Require targeted mutation/closing
+  controls and independent closing review before renewing any review authority.
 - **Initial release audit:** The fresh contribution sweep reports 48 of 83
   immutable goals open. Exact-head CI exposes documentation lifecycle findings
   and stale driver review; the driver report names 461 changed TCB files, so no
@@ -29171,6 +29178,16 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Current integration review:** Independent review of contributor `2b4b88381` covers diagnostic archive separation, canonical plan/run/case/process custody, byte/record limits, partial timeout retention, stale-success clearing and original failure preservation. The normal merge with current main and the qualified bootstrap/Cargo/Windows batch preserves current-main typed library-acceptance errors as a separate preceding catch: their exact code/message and absence of retained publication remain covered by the existing regression. Production recorder/adapter/diagnostic modules remain byte-identical to the contributor. See `verification/qualification-diagnostics-integration-review.json`. Combined canonical qualification controls pass 51 methods with 18 declared skips and no failures. After that independent review, the canonical driver command renews exactly the four reviewed diagnostic/integration modules; documentation authority, strict lint/format, layout, public export and runner review remain required before the frozen combined gate. The frozen diagnostic union `43de0e963` passes its complete canonical macOS source gate: 2,732 passed, 92 declared skips and no failures (2,824 selected). Its complete noneditable wheel gate passes with archive `sha256:9094644d402298fffd8c08b26b36385bc0464705fe8e3cb7de5e93dad5b224db`; all four changed production modules rehash to source. Four OpenSpec items, 22 document-tool controls, all 181 diagrams across 1,953 Markdown files and base-relative skill admission pass. These development results do not replace the still-required maintained installed diagnostic controls and exact-head/resulting-main integration; no release qualification is claimed.
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
+
+- **Independent finite-reader repairs (source partial):** The source-review record
+  retains real counterexamples for blocked FIFO catalog reads, uncapped metadata
+  witness hashing and finite-creation sibling allocation, and inert Windows/UNC
+  result decoding with host path semantics. Reuse original no-follow readers and
+  canonical metadata/census limits before allocation, keep all native identity,
+  growth, alias and mutation refusals, and decode recorded paths without host I/O.
+  All 88 affected source controls pass with no skips; independent reviewers close
+  these four findings. No placement, move, native or release acceptance follows
+  from these repairs alone.
 
 - **Maintained bootstrap fixtures (source partial):** The fresh installed-wheel gate
   reaches all ten original maintained bootstrap controls, which fail during setup

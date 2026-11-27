@@ -363,7 +363,9 @@ class _CatalogCopyStages:
             _pinned_directory(source.parent) as (_source_parent, source_guard),
             _pinned_directory(destination.parent) as (parent, guard),
         ):
-            source_fd = os.open(source, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            source_fd = os.open(
+                source, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK
+            )
             try:
                 if _from_stat(os.fstat(source_fd)) != expected:
                     _fail("original source file changed")

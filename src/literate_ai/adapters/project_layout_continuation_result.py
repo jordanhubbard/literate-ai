@@ -7,7 +7,7 @@ filesystem custody, producer currentness or release qualification.
 from __future__ import annotations
 
 import copy
-from pathlib import Path
+from pathlib import PurePosixPath, PureWindowsPath
 
 from literate_ai.adapters.project_layout_catalog_continuation import (
     decode_catalog_continuation_plan,
@@ -57,8 +57,11 @@ def decode_catalog_continuation_result(value):
         _fail("placement result requires the original applicable plan")
     journal = value["journal"]
     suffix = canonical_identity({"layout_plan": plan["plan_identity"]}).digest
+    path_type = (
+        PureWindowsPath if PureWindowsPath(plan["project"]).drive else PurePosixPath
+    )
     expected = (
-        Path(plan["project"]) / "litai/.literate" / ("catalog-placement-" + suffix)
+        path_type(plan["project"]) / "litai/.literate" / ("catalog-placement-" + suffix)
     )
     if type(journal) is not str or journal != str(expected):
         _fail("catalog result journal differs from its reviewed project and plan")

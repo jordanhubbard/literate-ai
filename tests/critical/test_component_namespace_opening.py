@@ -57,6 +57,25 @@ class OriginalComponentOpeningTests(unittest.TestCase):
             timeout=15,
         )
 
+    def test_oversized_authoring_refuses_before_constructor_hash_reads(self):
+        authored = self.component / "component.md"
+        with authored.open("r+b") as stream:
+            stream.truncate(2 * 1024 * 1024 + 1)
+        for store, arguments in (
+            (ComponentLockStore, (self.component,)),
+            (ComponentResolutionAuditStore, (self.component, "host")),
+        ):
+            with (
+                self.subTest(store=store.__name__),
+                patch.object(component_namespace.os, "read", wraps=os.read) as read,
+            ):
+                with self.assertRaises(
+                    (ComponentLockStoreError, ComponentResolutionAuditStoreError)
+                ) as caught:
+                    store(*arguments)
+                self.assertIn("byte bound", str(caught.exception))
+                read.assert_not_called()
+
     def test_original_publication_pin_keeps_same_read_only_authoring_witness(self):
         store = ComponentLockStore(self.component)
         authored = self.component / "component.md"
