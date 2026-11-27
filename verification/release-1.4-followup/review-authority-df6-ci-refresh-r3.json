@@ -1,0 +1,120 @@
+{
+  "review": "single fresh no-cache exact df6 PR/CI snapshot and first failure",
+  "observed_at_utc": "2026-11-27T13:08:16.490492+00:00",
+  "pr": {
+    "number": 497,
+    "head": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+    "state": "OPEN",
+    "merge_state": "UNSTABLE"
+  },
+  "ci": {
+    "run": 45997696262,
+    "head": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+    "status": "queued",
+    "conclusion": null,
+    "job_counts": {
+      "success": 21,
+      "in_progress": 16,
+      "queued": 16,
+      "failure": 3
+    },
+    "failed_jobs": [
+      {
+        "job": 140501674020,
+        "name": "ubuntu-latest / Python 3.14",
+        "completed_at": "2026-11-27T12:39:42Z"
+      },
+      {
+        "job": 140501674050,
+        "name": "ubuntu-latest / Python 3.11 (partition 8 of 8)",
+        "completed_at": "2026-11-27T12:40:29Z"
+      },
+      {
+        "job": 140501674056,
+        "name": "ubuntu-latest / Python 3.11",
+        "completed_at": "2026-11-27T12:42:29Z"
+      }
+    ],
+    "active_native_jobs": [
+      {
+        "job": 140501673205,
+        "name": "freebsd-native-sdk / Installed public SDK / FreeBSD 15.1 amd64",
+        "active_steps": [
+          "Exercise canonical CLI and installed owner controls on FreeBSD"
+        ]
+      },
+      {
+        "job": 140501673317,
+        "name": "macos-latest / Python 3.14 (authored 3 of 4)",
+        "active_steps": [
+          "Run full macOS conformance partition"
+        ]
+      },
+      {
+        "job": 140501674242,
+        "name": "Windows / Python 3.12 / tests (3 of 3)",
+        "active_steps": [
+          "Run this shard's tests"
+        ]
+      },
+      {
+        "job": 140501674274,
+        "name": "Elixir 1.18.0 / OTP 27.0 / macos-15",
+        "active_steps": [
+          "Qualify real native, Make, Bazel, and Mix Elixir artifacts"
+        ]
+      },
+      {
+        "job": 140501674297,
+        "name": "Windows / Python 3.12 / tests (1 of 3)",
+        "active_steps": [
+          "Run this shard's tests"
+        ]
+      },
+      {
+        "job": 140501674325,
+        "name": "Windows / Python 3.12 / lint, OpenSpec, wheel",
+        "active_steps": [
+          "Verify the installed wheel outside the checkout"
+        ]
+      },
+      {
+        "job": 140501674332,
+        "name": "Windows / Python 3.12 / tests (2 of 3)",
+        "active_steps": [
+          "Run this shard's tests"
+        ]
+      }
+    ]
+  },
+  "first_completed_failure": {
+    "job": 140501674020,
+    "name": "ubuntu-latest Python3.14 full",
+    "step": "Run conformance gates",
+    "test": "tests.critical.test_process_tree.RunWithTreeKillTests.test_exhausted_cleanup_preserves_original_partial_streams",
+    "subtest": "helper=literate_ai.project_template.scripts._bootstrap_processes",
+    "stack_owner": "src/literate_ai/project_template/scripts/_bootstrap_processes.py:606",
+    "actual_error": "ModuleNotFoundError: literate_ai.project_template.scripts.release_worktree_custody",
+    "classification": "Concrete bundled standalone bootstrap dependency defect; not established environmental and distinct from portablePython startup fixture.",
+    "cause": "run_with_tree_kill unconditionally imports sibling release_worktree_custody; no such template sibling exists. Failure precedes process creation and original timeout-cleanup control.",
+    "original_assertions": "Exact original TimeoutExpired identity and partial raw stdout/stderr,3communicate attempts,onekill,ownership release. Preserve all unchanged.",
+    "run_summary": "1336tests/1error/41skip982.121s",
+    "source_still_present_at_inspection": true,
+    "source_sha256": "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb690",
+    "raw_log_sha256": "599c43ff1cd88414e6b7b05af11cefe376b332ca8173572e0aaca726f9499e4d",
+    "bounded_next_owner_action": "Review process-helper template synchronization/standalone dependency owner; provide correct portable custody behavior without weakening original cleanup/primary error semantics. No blind ImportError swallowing or testskip."
+  },
+  "push_batch_effect": {
+    "would_cancel_still_active_native_ci": true,
+    "source": ".github/workflows/ci.yml:10-12",
+    "group": "workflow plus PR number/ref",
+    "cancel_in_progress": true,
+    "meaning": "A synchronizing push to same PR triggers new same-group run, superseding this still-active df6 native CI. Unpublished local repairs are not yet part of df6 source evidence."
+  },
+  "limits": [
+    "One fresh run+jobs+PR query; no wait/retry/cancel/post/source mutation.",
+    "Only first terminal failed job log inspected as requested; other2failures retained as unclassified until separate owner review.",
+    "Running/queued native cells and fullwheelr14 remain pending; no fullrelease/latestrelease qualification claim.",
+    "Root-owned local fullwheelr14 handle57605 not consumed or changed."
+  ]
+}

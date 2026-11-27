@@ -1588,5 +1588,76 @@
     "preservation": "Exact original 613 files, 471 directories and three Git facts remain unchanged. Existing 35 action preimages/modes exact and original 28 movement destinations plus finite creation absent. No apply attempted.",
     "next_action": "Included issue501 under existing RELEASE-INTEGRATION-005: add reviewed typed resident-policy reference transition for contributions.roadmap_goal_manifest to its same proved ledger destination, preserving all other policy semantics and goals. Existing framework scope rejects approved-reference flags; no manual prepointing/bypass.",
     "limits": "Provisional build/install only for bf6551038; full wheel r14 still runs on frozen5f3f850e9. Actual placement, renewal/finalization, full installed/native/source/platform/generation/FreeBSD/collateral/contributions/main/publication acceptance remain open. All83 immutable goals retained."
+  },
+  "qualification_followup_r16": {
+    "baseline": "53aaac0201d4c31c7c9291250d0752d5ec3e26af",
+    "owning_issue": 501,
+    "reviews": [
+      "verification/release-1.4-followup/review-contracts-501-resident-policy-design-r1.json",
+      "verification/release-1.4-followup/review-contracts-501-resident-policy-initial-review-r1.json",
+      "verification/release-1.4-followup/review-contracts-501-policy-escaped-consumer-finding-r1.json",
+      "verification/release-1.4-followup/review-contracts-501-resident-policy-closing-r1.json",
+      "verification/release-1.4-followup/review-runtime-finite-creation-git-seam-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-runtime-501-native-closure-r3.json",
+      "verification/release-1.4-followup/review-authority-df6-ci-refresh-r3.json",
+      "verification/release-1.4-followup/review-authority-bootstrap-process-custody-diagnosis-r1.json"
+    ],
+    "repair": "Canonical resident policy reference approval is explicit, checked before foreign truthiness, and threaded through original observation plus fresh apply from acknowledged reference-edits keys. Typed projection changes only contributions.roadmap_goal_manifest against the same proved move. Plan exposes pointer/from/to and exact policy before/after/resource/projection identities. Existing writer and journal carry original reference rows and rollback.",
+    "guards": "Finite original required policy class/method/helper/default/constant closure and actual JSON decoder/encoder/scanner delegates/tables. Canonical tag/collateral patterns precompiled with same grammar, avoiding mutable regex compiler calls. UTF8 decode avoids implicit byte encoding dispatch. Unknown policy references, imported/protected policy, root shadow and original native drift remain refused.",
+    "escaped_consumer_fix": "Known canonical/root policy discovery now uses guarded semantic JSON inspection independently of approval or projector support. Escaped leaf, unsupported optional policy, escaped other consumer and malformed JSON cannot hide a moved reference. Explicit supported escaped approval succeeds. Existing source owner captures both finite policy coordinates regardless of approval.",
+    "supported_shape_limits": "Optional qualification, authenticated_receipt and readme_latest_release parser owners are not admitted; affected policies remain blocked. Documentation states this explicitly. No complete policy/migration/release acceptance claimed.",
+    "fixture_fix": "Remove exactly one stale resources._git_state=None mock from finite-creation fixture. Actual later Git initialization must agree with original ingress/resource native observers. Original failing placed-consumer control independently passes with only this mock suppressed; no original assertion or guard changed.",
+    "cohorts": {
+      "new_policy_native": {
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 13,
+          "skipped": 0
+        },
+        "report_sha256": "7ddd5d09ab4b5046be753f17d00ea6a3d12047c5371b124b7e31ecc68b38a6e7"
+      },
+      "original_framework_before_final_discovery": {
+        "summary": {
+          "executed": 122,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 122,
+          "selected": 122,
+          "skipped": 0
+        },
+        "report_sha256": "a848d4c48e17c79b11aae2f3212c3a569bd6572d255c09b8fb9dc5bdf41b7480"
+      },
+      "original_release": {
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        },
+        "report_sha256": "1ac17eb336c91263948641860aa776280f9143f3524e23483441e6f80e6858bb"
+      }
+    },
+    "driver_pin": "sha256:7700e90f6ec5b8315b048ba036ccf081e693bbc500aad170edc7a582bf06cc7c",
+    "limits": "Final frozen framework cohort and new installed historical plan/placement/renewal are pending. Whole wheel r14 remains live on prior5f3. Exact df6 CI first fails in standalone bootstrap run_with_tree_kill import of absent release custody module before original timeout assertions; separate shared-owner repair required. Preserve all83 goals, all included open contribution items, original failures/deadlines and full release acceptance. No prepare/tag/publish.",
+    "bootstrap_followup_issue": 502,
+    "validation": {
+      "project_validate": "passed",
+      "report_sha256": "7e4dfa5815ff102ecc93c98a759ed7b958bf0758cf04ea61f2417a540ba9ace2",
+      "release_receipt": "stale, not release acceptance",
+      "driver": "current",
+      "runner": "current",
+      "public_export": "passed before final semantic-discovery helper addition; final frozen check pending"
+    },
+    "preserved_development_findings": [
+      "Original framework r1 failed stale Git mock before selection; r2 failed original unknown-reference CLI error assertion; original assertion preserved and upfront scope check repaired.",
+      "New native r2 cold import failed at zero discovered tests due JSONDecodeError alias in encoder binding list; corrected to json module and fresh native r3/r4/r5 pass.",
+      "Original policy JSONDecoder/recompiler/escaped consumer holes independently reproduced, retained and fixed before source closure.",
+      "Project validation r1 correctly refused concurrent active-work documentation mutation; final stable r2 passes."
+    ]
   }
 }

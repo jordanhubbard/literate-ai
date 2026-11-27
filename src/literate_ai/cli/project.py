@@ -1203,7 +1203,14 @@ def project_layout_from_args(args) -> dict[str, Any]:
 
                 return renew_catalog_from_args(args)
         if getattr(args, "place_framework_authority", False):
-            if getattr(args, "rewrite_reference", ()) or any(
+            approved_references = tuple(getattr(args, "rewrite_reference", ()))
+            if (
+                approved_references
+                and (
+                    approved_references != ("litai/literate.release.json",)
+                    or args.layout_command not in {"plan", "apply"}
+                )
+            ) or any(
                 getattr(args, field, False)
                 for field in (
                     "place_forward_skills",
@@ -1233,7 +1240,14 @@ def project_layout_from_args(args) -> dict[str, Any]:
                         "framework_scope_conflict",
                         "framework authority placement requires --migration",
                     )
-                plan, selected = read_existing_framework_authority(project)
+                plan, selected = read_existing_framework_authority(
+                    project,
+                    **(
+                        {"approved_references": approved_references}
+                        if approved_references
+                        else {}
+                    ),
+                )
                 try:
                     return plan
                 finally:
@@ -1265,7 +1279,14 @@ def project_layout_from_args(args) -> dict[str, Any]:
                     "framework authority requires existing contained project metadata",
                 )
             with ProjectConfigurationStore.layout_lock(snapshot.root):
-                plan, selected = read_existing_framework_authority(snapshot.root)
+                plan, selected = read_existing_framework_authority(
+                    snapshot.root,
+                    **(
+                        {"approved_references": approved_references}
+                        if approved_references
+                        else {}
+                    ),
+                )
                 try:
                     return apply_framework_authority(selected, args.plan_identity)
                 finally:

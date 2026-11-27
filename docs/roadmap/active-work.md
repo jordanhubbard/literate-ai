@@ -24427,16 +24427,35 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Standalone bootstrap custody (open integration subtask):**
+  [GitHub issue #502](https://github.com/jordanhubbard/literate-ai/issues/502).
+  Exact `df6` Linux/Python 3.14 CI fails before the original process-timeout
+  assertions because the bundled shared helper imports a release-only sibling
+  that is not shipped with the standalone bootstrap. Independent diagnosis
+  requires a stdlib-only shared observer boundary installed by the original
+  release-worktree owner for its full lifetime, including cleanup. Preserve all
+  original timeout/partial-stream/ownership assertions, active release custody,
+  exact canonical-copy/digest parity and synthetic digest-loader coverage.
+  Retain the failed CI evidence; no missing-import fallback or new skip is
+  acceptance. This refines the existing bootstrap qualification scope and adds
+  no release goal or deferral.
 - **Resident release-policy reference (open integration subtask):**
   [GitHub issue #501](https://github.com/jordanhubbard/literate-ai/issues/501).
   Actual installed `bf6551038` framework plans from the historical application
   root and implementation descendant now agree exactly, advancing past the
   recorded-producer and imported-candidate defects. They remain inapplicable:
   the resident policy's roadmap-goal manifest points to the original document
-  that the plan would place under `litai/`. The existing framework scope has no
-  approved typed policy-consumer transition. Next implement and qualify that
-  reviewed reference owner, preserving every other policy field and all release
-  goals, then repeat the actual public plans and review before application.
+  that the plan would place under `litai/`. The reviewed source owner now binds
+  an explicit canonical policy approval to one typed ledger-path change, fresh
+  replanning and original native recovery. Escaped, unsupported and indeterminate
+  consumers remain blocked independently of rewrite approval. Thirteen targeted
+  controls pass, including real publication, interrupted recovery and changed-
+  policy refusal; the original framework cohort passes 122 cases and release
+  regression passes 17, with zero skips. Independent source and native review
+  are closed. Next qualify the final frozen source and new installed public
+  plans, then review the actual plan before application and normal renewal.
+  Optional external policy-parser shapes remain unsupported as documented;
+  source closure does not complete their admission or the full release goal.
   Independent review verifies the provisional wheel's 1,637 package members,
   all 35 existing action preimages, absent destinations, and unchanged 613 files,
   471 directories and three Git facts. This does not qualify the whole wheel or

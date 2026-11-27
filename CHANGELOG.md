@@ -11,6 +11,9 @@
 - Exclude imported and protected catalog files from initialized framework
   candidate selection, preserving their original ownership.
 
+- Support an approved resident release-policy ledger reference during framework
+  placement, preserving other policy settings and exact original rollback data.
+
 - Match Git filesystem boundaries during layout discovery while preserving
   same-filesystem ancestor repositories and explicit linked worktrees.
 

@@ -505,10 +505,17 @@ def _bind_original_ingress(imported_originals):
         _require(selection)
 
     def observe_existing_framework_authority(
-        observation, *, resources=None, creation_owners=()
+        observation, *, resources=None, creation_owners=(), approved_references=()
     ):
         """Use SAME observed snapshot/context and fresh original inputs throughout."""
         _check()
+        if (
+            type(approved_references) is not tuple
+            or len(approved_references) > 1
+            or any(type(path) is not str for path in approved_references)
+            or approved_references not in ((), ("litai/literate.release.json",))
+        ):
+            _fail("original canonical policy approval tuple required")
         if type(observation) is not ProjectLayoutObservation:
             _fail("original project observation required")
         if resources is None:
@@ -548,6 +555,8 @@ def _bind_original_ingress(imported_originals):
             paths = set(_metadata_paths(snapshot, context))
             # Exact finite targets; never infer absence from census exclusions.
             paths.update(("litai/.gitignore", "litai/scripts/_bootstrap_processes.py"))
+            # Consumer discovery is independent of approval to change it.
+            paths.update(("literate.release.json", "litai/literate.release.json"))
             paths.update(
                 (
                     "litai/" + logical
@@ -829,6 +838,11 @@ def _bind_original_ingress(imported_originals):
                 protected_paths=protected,
                 imported_paths=frozenset(imported),
                 source_held=held,
+                **(
+                    {"approved_references": approved_references}
+                    if approved_references
+                    else {}
+                ),
                 **({"recorded_wrapper_source": wrapper} if wrapper is not None else {}),
                 **({"creation_owners": creation_owners} if creation_owners else {}),
                 **(
@@ -942,9 +956,16 @@ def _bind_original_ingress(imported_originals):
                 _cleanup(primary, _retained_cleanup, retained)
             raise
 
-    def read_existing_framework_authority(start):
+    def read_existing_framework_authority(start, *, approved_references=()):
         """Original finite header discovery; never call the old whole-tree planner."""
         _check()
+        if (
+            type(approved_references) is not tuple
+            or len(approved_references) > 1
+            or any(type(path) is not str for path in approved_references)
+            or approved_references not in ((), ("litai/literate.release.json",))
+        ):
+            _fail("original canonical policy approval tuple required")
         root = _invoke(Path, start).absolute()
         _invoke(require_safe_directory, root)
         snapshot = _invoke(ProjectConfigurationStore.discover, root)
@@ -977,7 +998,14 @@ def _bind_original_ingress(imported_originals):
         observation = _invoke(
             ProjectLayoutObservation, snapshot, context, inventory, nodes, contents
         )
-        return observe_existing_framework_authority(observation)
+        return observe_existing_framework_authority(
+            observation,
+            **(
+                {"approved_references": approved_references}
+                if approved_references
+                else {}
+            ),
+        )
 
     original_class_check = _class_current
     originals = locals().copy()

@@ -1,0 +1,99 @@
+{
+  "schema": "literate-ai/independent-policy-reference-native-closure@1",
+  "issue": 501,
+  "status": "Native ownership/approval/transaction source partition closed; no actionable finding",
+  "reviewed_sha256": {
+    "src/literate_ai/cli/project.py": "6ed12824ba3acfe68b005c7b668b857e75a7c8199dbfb0c07c7b51cf19b7a24b",
+    "src/literate_ai/adapters/project_layout_framework_ingress.py": "cbd5d5cb2cf3fecc6eefd767a141f4cc63f4d25c7110d1e36300b3db26c9581d",
+    "src/literate_ai/adapters/project_layout_framework_selection.py": "7e39d40c4c378fb07ba20b47bb60ee89b6d7e9f80559407991ea62431d73996e",
+    "src/literate_ai/adapters/project_layout_framework_transaction.py": "1915cf12eceaf335e2b7c767b605dc29c3cea697b5a1ad4cce15e2208d5f547b",
+    "tests/critical/test_project_layout_policy_reference_transaction.py": "1c13895ae71dd8587e478ce829f010852aab7ee96c11fa9bbb7bf1d5fb0d99a9",
+    "tests/critical/test_project_layout_finite_creations.py": "1ef2d72f316441d5d74c8d9c3afc91d791f8aadfc7ed02872a568974fc7692a8",
+    "tests/critical/test_project_layout_policy_reference.py": "c7777fefb4e1a7bf0986eb1347f4ccf4d7a248cc11ee3eb793fd3d5cdac92091"
+  },
+  "scope": {
+    "approval": "CLI permits exactly canonical contained policy approval for framework plan/apply only; rejects unrelated paths/duplicate approvals/mixed placement scopes. Explicit tuple forwarded in original planning and initial apply observer.",
+    "fresh_transaction": "Apply uses original acknowledged plan reference_edits keys as the sole approval source for fresh observation inside same original namespace/reservation/Component fences. Fresh exact plan_identity must equal acknowledged identity before intent.",
+    "finite_capture": "Both legacy-root and canonical-contained policy coordinates unconditionally join bounded metadata capture. Discovery independent of approval; original current closure freshly rechecks bytes/native namespace/parents/absence along with all original resources, retained source, Gitpair, destinations and Components.",
+    "selection": "Reference row requires canonical observed regular policy, no protected/imported adoption, no legacy shadow, exact content identity/mode; pure typed projector result is added to reference_edits/rewritten_contents, only original explicitly approved source is treated as owned reference consumer. Original renderer/currentness closure remains.",
+    "publication": "Existing generic ACTION_GROUPS now carries nonempty reference_edits. _stage checks original bytes/mode/native stamp, exact rewritten hash, saves original before inode and staged replacement, preserves original directory and lease/currentness guards; exact plan+rows sealed in durable journal. Recovery decodes same strict plan and joins every original action/native slot, including policy.",
+    "fixture": "Finite creation fixture change removes exactly stale resources._git_state=None patch. All original tests/assertions/deadlines and real Git transaction setup retained; matches independently reproduced diagnosis."
+  },
+  "independent_tests": {
+    "new_actual_native_module": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m unittest tests.critical.test_project_layout_policy_reference_transaction",
+      "tests": 3,
+      "result": "PASS",
+      "seconds": 6.181,
+      "controls": [
+        "real approved publication replans with approval, updates only expected typed policy field, ledger exists at named destination, exact native rollback",
+        "interrupt after policy publication preserves original exact bytes and native rollback",
+        "changed policy refuses before durable intent and preserves foreign edit"
+      ]
+    },
+    "additional_process_only_cuts": {
+      "result": "PASS",
+      "cuts": [
+        {
+          "cut": "equal-byte-inode-replacement",
+          "refused": true,
+          "code": "project.layout.framework_observation_changed",
+          "message": "original framework/app/source/producer observation changed"
+        },
+        {
+          "cut": "root-policy-shadow",
+          "refused": true,
+          "code": "project.layout.framework_observation_changed",
+          "message": "original framework/app/source/producer observation changed"
+        }
+      ],
+      "assertions": "Equal-byte replacement held size/mode/mtime and changed inode; legacy shadow had same policy bytes. Both original owners refused before intent/journal, original ledger remained, destination absent, policy bytes preserved."
+    }
+  },
+  "evidence_sha256": {
+    "review-runtime-policy-reference-native-r1.log": "cf76ee3457339408fef52760ae8df9dcb3d64248b8a5c3b56cafabb4a8030369",
+    "review-runtime-policy-native-cuts-r1.py": "870e8e601fa8b1f6ec2f807b7a9884fbc7d2b90faa984943b0c0c09333ecd27b",
+    "review-runtime-policy-native-cuts-r1.log": "cde7f7b80ab430d5e22a7f3d952313ef88b6b2040d8b84a5cebf593ae0e98884",
+    "review-runtime-policy-approval-boundary-r1.log": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5",
+    "review-runtime-policy-semantic-consumer-r1.log": "b9efb31ee48270a269a765c515ff1d653370a077b856b9a2ca5debd195432c5e"
+  },
+  "limits": [
+    "Contracts reviewer owns pure parser/codec closure; no claim that this native review independently covers every parser delegate.",
+    "Original framework cohort122/0skip reported by parent, not independently rerun here; final frozen broader rerun remains separate.",
+    "No installed candidate historical approval/apply, full wheel gate, full containment, native generation or release acceptance by this review.",
+    "No repository/historical-project/source/pin changes. Only isolated temporary test-fixture effects and evidence files on shared storage."
+  ],
+  "followup": {
+    "previous_report_sha256": "4f68fe2b58125af789076319ea7df3b0d6d99d4c0458e30435dc655044657a12",
+    "changed_previously_closed_files": {
+      "src/literate_ai/adapters/project_layout_framework_ingress.py": {
+        "previous": "1e39082285621e1b6cd4fe1aea2dcd8bb6ef0f96734efd7dc9b735a2f60fdae4",
+        "current": "db575b771871e09333bc21c3c3c86dfc67a70d1f42ef85d43edfdc6f40fb996b"
+      }
+    },
+    "review": "Both read_existing_framework_authority and observe_existing_framework_authority now reject before approval truthiness or source work: exact built-in tuple; length<=1; exact built-in str entries; only empty/canonical-singleton tuple allowed. Short-circuit order prevents foreign __bool__/__len__/__eq__/iteration. Original ownership-code check still runs first; native accepted-path flow unchanged.",
+    "new_focused_regression": "PASS1method, fourinvalidinputs at both entrypoints: list, foreigntruthinessobject, tupleforeignobject, duplicatetuple. Foreign callback list remains empty.",
+    "native_retest": "Not repeated; all other5prior closing hashes unchanged, accepted-path control flow unchanged except input-validation gates. Prior3native tests+2adversarial cuts remain applicable.",
+    "pure_helper_docstring": "Contracts reviewer owns pure helper closure; reported docstring-only wording followup does not extend native review to parser internals."
+  },
+  "semantic_discovery_followup": {
+    "previous_report_sha256": "85a890acceacad5f79ada037aad0bbcd0c141a7b8ce4561f9c2f6d77c4647b64",
+    "changed_previously_closed_files": {
+      "src/literate_ai/adapters/project_layout_framework_ingress.py": {
+        "previous": "db575b771871e09333bc21c3c3c86dfc67a70d1f42ef85d43edfdc6f40fb996b",
+        "current": "cbd5d5cb2cf3fecc6eefd767a141f4cc63f4d25c7110d1e36300b3db26c9581d"
+      },
+      "src/literate_ai/adapters/project_layout_framework_selection.py": {
+        "previous": "ddd547a5c98a7a0a92cbd6150edf57c4e7610173418ee0a47f269e8d5c2c462b",
+        "current": "7e39d40c4c378fb07ba20b47bb60ee89b6d7e9f80559407991ea62431d73996e"
+      },
+      "tests/critical/test_project_layout_policy_reference.py": {
+        "previous": "db92991dd07accd2e3b47e7b779e1a5b6376b6488593faac870f462bc55d7b4b",
+        "current": "c7777fefb4e1a7bf0986eb1347f4ccf4d7a248cc11ee3eb793fd3d5cdac92091"
+      }
+    },
+    "review": "Both known policy coordinates now captured unconditionally, independent of approval, within original bounded metadata capture/currentness closure. Generic unowned-consumer loop uses guarded JSON-only decoded semantic scan for both canonical/root policies whenever actual moved set nonempty. Only exact False permits continuation; True/indeterminate retains blocker. Scan function binding+code joins existing original renderer checks. Explicit typed approved projection path, acknowledgement derivation, leases/native writer/journal/recovery unchanged.",
+    "regression": "Independent focused1method/5modes PASS0.369s: escaped unapproved consumer blocks; escaped supported approved consumer transforms exact typed leaf; unsupported optional parser, extra consumer, malformed JSON all block with no rewritten policy/contents mutation.",
+    "acceptance": "Closes native capture/discovery integration followup. Pure parser/codec/function-custody closure remains contracts partition; previous3native and2native adversarial cuts retain applicability without rerun."
+  }
+}

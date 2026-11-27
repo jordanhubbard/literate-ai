@@ -124,6 +124,12 @@ def decode_framework_authority_plan(value):
                     "owner",
                     "projection",
                     "projection_identity",
+                    *(
+                        ("reference_change",)
+                        if type(row) is dict
+                        and row.get("owner") == "resident-release-policy-reference"
+                        else ()
+                    ),
                     *(("destination",) if moving else ()),
                 ),
             )
@@ -194,6 +200,40 @@ def decode_framework_authority_plan(value):
                     )
                 identity(row["source_proof"])
                 identity(row["resource_identity"])
+            elif row["owner"] == "resident-release-policy-reference":
+                change = row["reference_change"]
+                fields(change, ("pointer", "from", "to"))
+                path(change["from"])
+                path(change["to"])
+                ledger = value["placements"].get(change["from"])
+                if ledger is None:
+                    ledger = value["owned_placements"].get(change["from"])
+                if (
+                    group != "reference_edits"
+                    or coordinate != "litai/literate.release.json"
+                    or row["logical"] != "literate.release.json"
+                    or row["projection"] != "release-policy-ledger-coordinate"
+                    or row["source_proof"] is not None
+                    or row["resource_identity"] != value["resource_selection_identity"]
+                    or change["pointer"] != "/contributions/roadmap_goal_manifest"
+                    or change["to"] != "litai/" + change["from"]
+                    or type(ledger) is not dict
+                    or ledger.get("destination") != change["to"]
+                    or row["from"] == row["to"]
+                ):
+                    _fail("resident policy cannot impersonate another reference owner")
+                expected = canonical_identity(
+                    {
+                        "domain": "resident-release-policy-reference-v1",
+                        "policy": coordinate,
+                        "from": row["from"],
+                        "to": row["to"],
+                        "change": change,
+                        "resources": row["resource_identity"],
+                    }
+                ).uri
+                if row["projection_identity"] != expected:
+                    _fail("resident policy projection identity changed")
             elif row["owner"] == "current-project-definition":
                 if (
                     group != "resident_edits"

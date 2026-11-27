@@ -113,6 +113,8 @@ _QUOTED_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _CARGO_NAME = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_-]*$")
 _REMOTE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 _REPOSITORY = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+_TAG_PREFIX = re.compile(r"[A-Za-z0-9._-]*")
+_COLLATERAL_RESOURCE_ID = re.compile(r"[A-Za-z0-9_-]{10,256}")
 _MAJOR_MINOR = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
 _RELEASE_LINE = re.compile(r"^release/(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.x$")
 _RELEASE_ENGINEER = re.compile(r"^- `([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))`$")
@@ -258,7 +260,7 @@ class ReleaseCollateralPolicy:
             for member in ("presentation", "narrative")
         )
         if any(
-            re.fullmatch(r"[A-Za-z0-9_-]{10,256}", resource_id) is None
+            _COLLATERAL_RESOURCE_ID.fullmatch(resource_id) is None
             for resource_id in resource_ids
         ):
             _fail(f"{path}.resources", "resource IDs must be opaque safe identifiers")
@@ -467,7 +469,7 @@ class ReleasePolicy:
         tag = _mapping(data["tag"], "release_policy.tag")
         _keys(tag, "release_policy.tag", {"prefix", "signed"})
         prefix = _string(tag["prefix"], "release_policy.tag.prefix", allow_empty=True)
-        if not re.fullmatch(r"[A-Za-z0-9._-]*", prefix):
+        if not _TAG_PREFIX.fullmatch(prefix):
             _fail("release_policy.tag.prefix", "contains unsupported characters")
         signed = tag["signed"]
         if not isinstance(signed, bool):

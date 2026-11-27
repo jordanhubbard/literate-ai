@@ -448,7 +448,14 @@ def apply_framework_authority(selection, expected):
         native._reserve(root, namespace),
         native._component_fences(root, components, namespace) as source_fences,
     ):
-        fresh_plan, selected = read_existing_framework_authority(root)
+        fresh_plan, selected = read_existing_framework_authority(
+            root,
+            **(
+                {"approved_references": tuple(plan["reference_edits"])}
+                if plan["reference_edits"]
+                else {}
+            ),
+        )
         try:
             if fresh_plan["plan_identity"] != expected:
                 _fail("framework inputs changed while acquiring producer fences")

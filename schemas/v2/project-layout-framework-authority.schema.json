@@ -511,7 +511,8 @@
                   "initialized-file",
                   "current-project-definition",
                   "initialization-coordinate-transition",
-                  "framework-base-coordinate-transition"
+                  "framework-base-coordinate-transition",
+                  "resident-release-policy-reference"
                 ]
               },
               "projection": {
@@ -522,14 +523,64 @@
                   "reviewed-bootstrap",
                   "current-project-definition",
                   "initialization-coordinates",
-                  "framework-base-coordinates"
+                  "framework-base-coordinates",
+                  "release-policy-ledger-coordinate"
                 ]
               },
               "projection_identity": {
                 "type": "string",
                 "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "reference_change": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pointer",
+                  "from",
+                  "to"
+                ],
+                "properties": {
+                  "pointer": {
+                    "const": "/contributions/roadmap_goal_manifest"
+                  },
+                  "from": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)[^\\\\\\x00-\\x1f]+$"
+                  },
+                  "to": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)[^\\\\\\x00-\\x1f]+$"
+                  }
+                }
               }
-            }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "owner": {
+                      "const": "resident-release-policy-reference"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "reference_change"
+                  ]
+                },
+                "else": {
+                  "not": {
+                    "required": [
+                      "reference_change"
+                    ]
+                  }
+                }
+              }
+            ]
           }
         },
         "delegate_edits": {

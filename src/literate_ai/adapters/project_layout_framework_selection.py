@@ -17,6 +17,7 @@ from urllib.parse import unquote, urlsplit
 
 from literate_ai import projects
 from literate_ai._filesystem import stat_identity_value
+from literate_ai.adapters import project_layout_policy_reference as policy_reference
 from literate_ai.adapters import (
     project_layout_recorded_wrapper_projection as wrapper_projector,
 )
@@ -71,6 +72,21 @@ _REVIEW_INPUTS = (
     authority_review.AUTHORITY_REVIEW_PLACEHOLDER,
 )
 _FUNCTIONS = (
+    (
+        policy_reference,
+        "release_policy_consumes_moved_references",
+        policy_reference.release_policy_consumes_moved_references,
+    ),
+    (
+        policy_reference,
+        "project_release_policy_ledger_reference",
+        policy_reference.project_release_policy_ledger_reference,
+    ),
+    (
+        policy_reference,
+        "require_original_policy_reference_projector",
+        policy_reference.require_original_policy_reference_projector,
+    ),
     (authority_review, "invalidate_authority_review", _REVIEW_INVALIDATOR),
     (projects, "contained_catalog_coordinates", _CATALOG_RESOLVER),
     (
@@ -99,6 +115,11 @@ _CLASSES = tuple(
     (cls, tuple(vars(cls).items()), cls.__bases__, cls.__mro__)
     for cls in (ProjectScaffoldPlacement, ScaffoldFile)
 )
+_POLICY_CODES = tuple(
+    (value, value.__code__)
+    for module, _name, value in _FUNCTIONS
+    if module is policy_reference
+)
 
 
 def _fail(message):
@@ -110,6 +131,8 @@ def _identity(content):
 
 
 def _renderer_current():
+    if any(value.__code__ is not code for value, code in _POLICY_CODES):
+        _fail("original policy reference producer code changed")
     if _REVIEW_INVALIDATOR.__code__ is not _REVIEW_INVALIDATOR_CODE:
         _fail("original authority review invalidation producer code changed")
     if (
@@ -215,6 +238,7 @@ def select_existing_framework_authority(
     creation_owners=(),
     component_endpoints=(),
     recorded_wrapper_source=None,
+    approved_references=(),
     _creation_coordinate_only=False,
     creation_blockers=(),
 ):
@@ -230,6 +254,15 @@ def select_existing_framework_authority(
     ):
         _fail("original inert projection flags required")
     _renderer_current()
+    if (
+        type(approved_references) is not tuple
+        or any(type(path) is not str for path in approved_references)
+        or len(set(approved_references)) != len(approved_references)
+        or set(approved_references) - {"litai/literate.release.json"}
+    ):
+        _fail(
+            "only the canonical resident release policy can approve ledger references"
+        )
     require_original_framework_resources(resources)
     if resources.snapshot is not snapshot or resources.context is not context:
         _fail("original resource/project context pairing changed")
@@ -1065,7 +1098,55 @@ def select_existing_framework_authority(
                 ).uri,
             }
             after[path] = rewritten
-    owned_paths = set(placements) | set(owned) | set(resident) | set(delegates)
+    reference_edits = {}
+    policy_path = "litai/literate.release.json"
+    if policy_path in approved_references:
+        policy_reference.require_original_policy_reference_projector()
+        row = observations.get(policy_path, {})
+        original = contents.get(policy_path)
+        if (
+            policy_path not in protected_paths | imported_paths
+            and "literate.release.json" not in observations
+            and row.get("kind") == "file"
+            and type(original) is bytes
+            and row.get("identity") == _identity(original)
+            and type(row.get("mode")) is int
+        ):
+            projection = policy_reference.project_release_policy_ledger_reference(
+                original, moved
+            )
+            if projection is not None:
+                rewritten, change = projection
+                reference_edits[policy_path] = {
+                    "from": _identity(original),
+                    "to": _identity(rewritten),
+                    "mode": row["mode"],
+                    "logical": "literate.release.json",
+                    "source_proof": None,
+                    "resource_identity": resources.identity,
+                    "owner": "resident-release-policy-reference",
+                    "projection": "release-policy-ledger-coordinate",
+                    "reference_change": change,
+                    "projection_identity": canonical_identity(
+                        {
+                            "domain": "resident-release-policy-reference-v1",
+                            "policy": policy_path,
+                            "from": _identity(original),
+                            "to": _identity(rewritten),
+                            "change": change,
+                            "resources": resources.identity,
+                        }
+                    ).uri,
+                }
+                after[policy_path] = rewritten
+        policy_reference.require_original_policy_reference_projector()
+    owned_paths = (
+        set(placements)
+        | set(owned)
+        | set(resident)
+        | set(delegates)
+        | set(reference_edits)
+    )
     for path, content in contents.items():
         if (
             path in owned_paths
@@ -1073,12 +1154,24 @@ def select_existing_framework_authority(
             or path.startswith("litai/.literate/")
         ):
             continue
-        references_moved = any(
-            subject in moved for _line, subject in _local_subjects(path, content)
-        )
-        literal_moved = not path.endswith((".md", ".mdc")) and any(
-            old.encode() in content for old in moved
-        )
+        if path in {"literate.release.json", "litai/literate.release.json"} and moved:
+            # Discovery does not grant rewrite permission. Decode even an
+            # unapproved/unsupported policy so JSON escapes cannot hide a
+            # resident consumer; unreadable semantics retain the blocker.
+            references_moved = (
+                policy_reference.release_policy_consumes_moved_references(
+                    content, moved
+                )
+                is not False
+            )
+            literal_moved = False
+        else:
+            references_moved = any(
+                subject in moved for _line, subject in _local_subjects(path, content)
+            )
+            literal_moved = not path.endswith((".md", ".mdc")) and any(
+                old.encode() in content for old in moved
+            )
         if references_moved or literal_moved:
             blockers.append(
                 {
@@ -1111,7 +1204,7 @@ def select_existing_framework_authority(
         "owned_placements": owned,
         "resident_edits": resident,
         "delegate_edits": delegates,
-        "reference_edits": {},
+        "reference_edits": reference_edits,
         "owned_creations": creation_rows,
         "required_owners": blockers,
         "renewal": ["normal destination producer currentness remains required"]
@@ -1144,7 +1237,7 @@ def select_existing_framework_authority(
         MappingProxyType(placements),
         MappingProxyType(owned),
         MappingProxyType(resident),
-        MappingProxyType({}),
+        MappingProxyType(reference_edits),
         MappingProxyType(delegates),
         MappingProxyType(creation_rows),
         MappingProxyType(dict(contents)),

@@ -1,0 +1,51 @@
+{
+  "schema": "literate-ai/independent-fixture-git-seam-diagnosis@1",
+  "subject": "Original placed-consumer failure before policy-reference approval",
+  "test": "tests.critical.test_project_layout_framework_placed_consumer.PlacedFrameworkConsumerTests.test_transformed_bootstrap_loads_exact_created_helper_and_recovers",
+  "finding": {
+    "classification": "Stale fixture Git seam, not production currentness defect",
+    "owner": "tests/critical/test_project_layout_finite_creations.py:81",
+    "cause": "Finite fixture keeps resources._git_state patched to None for helper lifetime. Transaction fixture subsequently creates a real Git repository and ingress captures real root/framework Git pair. Original resources currentness correctly refuses None versus captured pair.",
+    "production_guard": "project_layout_framework_resources._project_current:124-135 must remain unchanged",
+    "narrow_repair": "Remove only stale resources._git_state=None patch; preserve current-origin fixture seam, real Git init/add/commit, actual placement/consumer/recovery and all original assertions/deadlines. Initial no-Git fixture now uses genuine no-Git observation following filesystem-boundary discovery repair."
+  },
+  "independent_reproduction": {
+    "original": {
+      "exit": 1,
+      "tests": 1,
+      "seconds": 0.126,
+      "errors": 1,
+      "error": "framework_resource_unavailable: original current project/context/Git authority changed"
+    },
+    "without_only_stale_mock": {
+      "exit": 0,
+      "tests": 1,
+      "seconds": 3.057,
+      "errors": 0,
+      "failures": 0,
+      "skipped_patches": 1,
+      "skipped_patch": "resources._git_state",
+      "real_function_preserved": true,
+      "restored_after_process": true
+    },
+    "method": "Separate Python processes. Diagnostic intercepts unittest.TestCase.enterContext solely for patch object with attribute _git_state and exact resources target. All other patches and original test body execute unmodified. Scoped method restored in finally; no source authoring.",
+    "environment": "Existing .venv Python3.14, PYTHONPATH=src:., PYTHONDONTWRITEBYTECODE=1, external TMPDIR on verified shared mount, isolated Git global/system config; HOME unchanged."
+  },
+  "source_hashes_before_repair": {
+    "tests/critical/test_project_layout_finite_creations.py": "1ef2d72f316441d5d74c8d9c3afc91d791f8aadfc7ed02872a568974fc7692a8",
+    "tests/critical/test_project_layout_framework_transaction.py": "98be5a161c857b11a975f9053b82736497af7c3f08afa3afacdbd98dd7943f1f",
+    "tests/critical/test_project_layout_framework_placed_consumer.py": "1e9737713aef4e507acb8fb0eea03f7f75c22f9f866e5e410d8d7ef91ce49d98",
+    "src/literate_ai/adapters/project_layout_framework_resources.py": "deecde73f11fc17d2cc0e9ea0e6acf9610a48de09baab97aa5c11180c62cb476"
+  },
+  "evidence_sha256": {
+    "review-runtime-finite-creation-git-seam-diagnostic-r1.py": "a6c457b18a1e8b7c4ac41795e6ccf0341f7f9a75f4afd215cb36d45f09c3bd64",
+    "review-runtime-finite-creation-git-seam-original-r1.log": "1b59a9a3625ad90d337928e1415065dec8ebd4c69f46e0d7c871119100751abf",
+    "review-runtime-finite-creation-git-seam-without-mock-r1.log": "92ade50214a7bb504a5d61f8fc6be7ec5fafcc56bf5d6c5c62e7a4aef757726e",
+    "policy-reference-original-framework-r1.log": "6d3dc2248a6b591f3dcd0bb015a551cb63728054f1fa3339a6bde954ff180697"
+  },
+  "limits": [
+    "One exact original affected control reproduced twice; whole cohort/gate not rerun.",
+    "Fixture native project writes occur only inside temporary test fixture on shared storage; repository and historical R2 project untouched.",
+    "No production change, source edit, pin, release acceptance, new historical plan/apply or dispatch by reviewer."
+  ]
+}

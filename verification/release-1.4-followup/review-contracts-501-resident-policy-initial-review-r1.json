@@ -1,0 +1,35 @@
+{
+  "status": "initial_review_not_closed_confirmed_transitive_json_guard_gap",
+  "subject": "bf6551038c5051c19b192e6e8cc79e4fb02169ff plusdirty#501",
+  "sha256": {
+    "src/literate_ai/adapters/project_layout_policy_reference.py": "19d57a45085e7e676667b75ba65781cb4b5a3504b527113332c1dc84f0f807be",
+    "src/literate_ai/adapters/project_layout_framework_selection.py": "ddd547a5c98a7a0a92cbd6150edf57c4e7610173418ee0a47f269e8d5c2c462b",
+    "src/literate_ai/adapters/project_layout_framework_ingress.py": "1e39082285621e1b6cd4fe1aea2dcd8bb6ef0f96734efd7dc9b735a2f60fdae4",
+    "src/literate_ai/adapters/project_layout_framework_plan.py": "1cad2742b5ed0bcca4da4487abd48781effb54163b636d4c1dec0f3879d746c7",
+    "src/literate_ai/adapters/project_layout_framework_transaction.py": "1915cf12eceaf335e2b7c767b605dc29c3cea697b5a1ad4cce15e2208d5f547b",
+    "src/literate_ai/cli/project.py": "a3df554e77fcc35505042d67ae041f3d074c67df08b72f2f96f1647f18f73cec",
+    "schemas/v2/project-layout-framework-authority.schema.json": "990f9b562f4faad1cab79fbe526febf1af6340bcae42dc8eb3c0b8879a6d4707",
+    "tests/critical/test_project_layout_policy_reference.py": "1fa99646b523f2b3ea88d89b58f6c1991c83b1cce458b8476053e64e677329be"
+  },
+  "coverage": "Newprojector complete source; all6trackedproduction/schema diffs; entire6case newtestfile; existingcatalogapproval logic, originalframeworkcapture/selector/codec/transactionfreshreplan/recovery contracts andReleasePolicyrequiredparser chain traced.",
+  "confirmed_findings": [
+    {
+      "severity": "P2",
+      "file": "src/literate_ai/adapters/project_layout_policy_reference.py",
+      "function": "decode/current/bindings",
+      "finding": "Guardpinsjson.loads/dumps code/binding butnot actualjson.JSONDecoder/JSONEncoder delegates. Withobject_pairs_hook, originaljson.loads constructsjson.JSONDecoder frommutablemoduleglobal. ForeignJSONDecoder executeswhileoriginalprojector currentness checker passes.",
+      "independent_counterexample": "Ownread-onlyPythonprocess: patchjson.JSONDecoder withfunctionappendingcalled thenraisingAssertionError; require_original_policy_reference_projector passes; project_release_policy_ledger_reference(b{}, {}) executesforeigndecoder once andAssertionErrorescapes. No source/project/native effects.",
+      "recommendation": "Captureandguard actualfinite JSONdecoder/encoder delegates, orusecapturedoriginal instance/callable plusfinite class/function/code/default/data/delegate witnesses. Cover actualscanner/parse hooks andencoderdelegates used bythatroute; no unguardedstdlibcallbacks. Addnegativecallback-notexecuted control.",
+      "status": "Reportedtoroot, pendingrepair"
+    }
+  ],
+  "other_review_notes": [
+    "RequiredReleasePolicy/VersionBinding/contributions/collateral parserclass/helper/code/default/constants areexplicitlyguarded; nonNone externaloptionalshapes failclosed beforeunguardedoptionalparser.",
+    "Newcodec owner isreference_edits-only,canonicalresidentpolicy/path/knownpointer,source_proofNone,resourceidentitymatchesplan; to/fromprojection tiedtoprovedledgerdestination andcanonicalprojectionhash. Existingwriter ACTION_GROUPS handlesnewreferencebytes underoriginalnative/journal/rollbackfences.",
+    "CLIallowsapprovals onlyplan/apply whileotherplacementcombinationsremainrefused. Ingresscapturesroot/containedpolicywhenapproved; freshapplyderivesexactnonemptyapprovalscopefromacknowledgedplan.reference_edits keys. Recoveryusesdurableboundplanwithoutnewapprovalflag.",
+    "Policyresolverlogiccurrentlyfinitehardcodedcanonicalpath+rootshadowobservationratherthanreusedprojectreleasepolicyresolver; no concreteacceptancegapconfirmed inthisreview. Root/contained/shadow actualcontrols needed.",
+    "Conservativeotherconsumerblockers remain. Pureprojector serializesrestinsidemovedpathany loop; hoistingserializationonce wouldavoid repeatedfullJSONencode withidenticalsemantics.",
+    "Fresh6policycontrols pass1.266s. Original29frameworkcontrols hasonepreselection Originalcurrentproject/context/Gitauthoritychanged error; notattributedto#501, nofullgatepassclaim."
+  ],
+  "limits": "No sourceedits/projectorprefixmutation, realhistoricalapply/recovery, markers oracceptance byreviewer. Initialdesign/sourceauditonly; confirmedguardgap blocksclosing."
+}

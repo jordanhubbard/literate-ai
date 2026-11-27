@@ -346,8 +346,20 @@ Existing contained generated projects can plan original framework-owned
 instructions and catalogs, including the seven conversion-wrapper outputs, with
 `project layout plan --migration --place-framework-authority`. Review
 `required_owners`; unresolved ownership keeps `applicable` false. This scope is
-separate from imported-catalog, forward-Skill, release-policy and explicit
-reference-edit scopes. It does not adopt imported or custom authority.
+separate from imported-catalog, forward-Skill and release-policy placement.
+It does not adopt imported or custom authority.
+
+When a resident release policy references the roadmap-goal manifest selected for
+placement, approve that consumer with
+`--rewrite-reference litai/literate.release.json` on both the framework plan and
+apply commands. Review the `reference_edits` entry: it names the exact
+`/contributions/roadmap_goal_manifest` change and binds the original and resulting
+policy identities to the same proved ledger destination. Other policy fields
+retain their decoded values, and recovery restores the original policy bytes.
+Other reference consumers remain blocked. Policies with qualification,
+authenticated-receipt or latest-release README settings also remain blocked when
+this reference needs changing; their additional parser owners are not admitted
+by this transition.
 
 Apply with `project layout apply --place-framework-authority --acknowledge
 --plan-identity ID --project PATH`. Recover the exact journal with

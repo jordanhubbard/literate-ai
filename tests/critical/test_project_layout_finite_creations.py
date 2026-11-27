@@ -78,7 +78,6 @@ class FiniteFrameworkCreationTests(unittest.TestCase):
         self.enterContext(
             patch.object(resources, "_read_current_origin", return_value=origin)
         )
-        self.enterContext(patch.object(resources, "_git_state", return_value=None))
         owner = resources.observe_original_framework_resources(observed)
         proof = None
         if bootstrap:

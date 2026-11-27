@@ -1,0 +1,36 @@
+{
+  "status": "open-finding-source-review-not-closed",
+  "head": "53aaac0201d4c31c7c9291250d0752d5ec3e26af",
+  "files": {
+    "CHANGELOG.md": "222192ab194ccea244dd17f4cd9046dc32d526157b8572df9865fc2eba710af5",
+    "docs/user/project-layout.md": "3caffcc5bc0d016adae060738e6e2854ed76e1281e24a0ee9a3e1f4818c26735",
+    "src/literate_ai/adapters/project_layout_framework_ingress.py": "db575b771871e09333bc21c3c3c86dfc67a70d1f42ef85d43edfdc6f40fb996b",
+    "src/literate_ai/adapters/project_layout_framework_plan.py": "1cad2742b5ed0bcca4da4487abd48781effb54163b636d4c1dec0f3879d746c7",
+    "src/literate_ai/adapters/project_layout_framework_selection.py": "ddd547a5c98a7a0a92cbd6150edf57c4e7610173418ee0a47f269e8d5c2c462b",
+    "src/literate_ai/adapters/project_layout_framework_transaction.py": "1915cf12eceaf335e2b7c767b605dc29c3cea697b5a1ad4cce15e2208d5f547b",
+    "src/literate_ai/cli/project.py": "6ed12824ba3acfe68b005c7b668b857e75a7c8199dbfb0c07c7b51cf19b7a24b",
+    "src/literate_ai/project_releases.py": "888e29f610e8e4286108b8ea3e39c262a58e884422de6580ba044afe2d21ad8b",
+    "tests/critical/test_project_layout_finite_creations.py": "1ef2d72f316441d5d74c8d9c3afc91d791f8aadfc7ed02872a568974fc7692a8",
+    "src/literate_ai/adapters/project_layout_policy_reference.py": "53c7c34a2ac03fdf10ccb31363fbbe451eb97f72d553fc935242661099e70277",
+    "tests/critical/test_project_layout_policy_reference.py": "db92991dd07accd2e3b47e7b779e1a5b6376b6488593faac870f462bc55d7b4b",
+    "tests/critical/test_project_layout_policy_reference_transaction.py": "1c13895ae71dd8587e478ce829f010852aab7ee96c11fa9bbb7bf1d5fb0d99a9"
+  },
+  "finding": {
+    "severity": "P2",
+    "file": "src/literate_ai/adapters/project_layout_framework_selection.py",
+    "lines": [
+      1099,
+      1155
+    ],
+    "title": "Discover decoded resident policy references independently of rewrite approval",
+    "counterexample": "Valid JSON spells roadmap_goal_manifest with leading Unicode escape \\u0064ocs/roadmap/release-goals.json; no explicit approval returns applicable=true, required_owners=[], reference_edits={} while moving ledger to litai/docs/roadmap/release-goals.json. Ordinary spelling correctly blocks.",
+    "evidence": "policy-escaped-unapproved-evidence-r1.json",
+    "reproducer": "policy-escaped-unapproved-reproducer-r1.py",
+    "also_confirmed": "With non-None qualification={} (unsupported projector branch) and explicit canonical approval, the escaped ledger still yields applicable=true, required_owners=[], reference_edits={}; no apply performed."
+  },
+  "limits": [
+    "Read-only source/owned fixture diagnostic; no actual historical project/prefix mutation or apply.",
+    "Canonical 11 native,122 framework,17 release controls passed but do not cover this escaped unapproved case.",
+    "No whole wheel/native platform/full feature/release acceptance."
+  ]
+}

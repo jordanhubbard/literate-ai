@@ -1,0 +1,82 @@
+{
+  "review": "read-only canonical/bundled process custody dependency diagnosis",
+  "issue_draft": {
+    "title": "Keep bundled process-tree helper standalone while preserving release Git custody",
+    "body_path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/bootstrap-process-custody-issue-draft-r1.md",
+    "posted": false,
+    "tracker": "Existing public project tracker inspect selects GitHub gh",
+    "searches": [
+      "release_worktree_custody",
+      "run_with_tree_kill",
+      "bootstrap process timeout",
+      "standalone bootstrap",
+      "bootstrap in:title",
+      "timeout in:title",
+      "process helper"
+    ],
+    "matching_reusable_issue_found": false
+  },
+  "canonical_copy_closure": {
+    "canonical": "adapters/_processes.py",
+    "bundled_copy": "project_template/scripts/_bootstrap_processes.py",
+    "current_bytes_equal": true,
+    "shared_sha256": "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb690",
+    "pin_owner": "project_template/scripts/bootstrap_litai.py _OWNER_DIGEST, checked at actual binary nofollow bounded read before exec",
+    "producer": "project_initialization._TEMPLATE_FILES copies both bootstrap_litai.py and _bootstrap_processes.py as framework scaffold resources; project layout transitions group and validate this bootstrap pair.",
+    "packaging": "pyproject.toml package-data includes project_template scripts/*.py.",
+    "parity_owner": "tests/smoke/test_bootstrap_litai.py test_process_helper_is_exact_reviewed_core_and_tampering_refuses_launch asserts helper bytes exactly equal canonical and digest equal pin. No separate generator/sync script identified in scripts inventory.",
+    "why_missed": "Ordinary standalone bootstrap version probe uses ownership create/bind/terminate directly, so verified loader and parity do not invoke broken run_with_tree_kill.",
+    "history": [
+      "60282e15f7fd1c95d14d0e665ccd8885b9db2d5c added package release custody import and closing to canonical runner.",
+      "b240ba3471d18c4a29093b4625d5e95e631e7336 synchronized entire canonical helper, including that import, and advanced bootstrap digest."
+    ]
+  },
+  "domain_call_path": [
+    "project_releases._release_backport_worktree -> release_worktree_custody.release_git_worktree",
+    "release_git_worktree creates original _Owner, sets _CURRENT, calls original run_git add, yields worktree, original remove/namespace close, owner.closed=True then _CURRENT.reset",
+    "project_releases._git and _git_in -> canonical run_with_tree_kill -> release begin_command(args) -> original owner.start -> actual Popen/bind/communicate -> original custody.complete/not_started -> ownership.release"
+  ],
+  "recommended_minimal_boundary": {
+    "generic_shared_core": "A private stdlib-only ContextVar observer scope (or equivalent existing neutral owner boundary) in canonical shared helper, default no observer. Runner calls original captured observer before ownership/Popen and preserves entire existing completion/error/timeout body.",
+    "domain_owner": "release_git_worktree installs original begin_command for exact whole existing owner lifetime, before first Git callback through final cleanup; restore exact prior token on every exit. Original closed/process/thread/current/namespace checks remain authority.",
+    "copied_contexts": "Expired copied owner context must refuse through original owner.closed/current checks, not silently drop observer and run outside custody. Nested registration cannot suppress an already active original fence.",
+    "coverage_preservation": "Do not replace automatic active-scope coverage with only per-call _git opt-in; all original shared runner calls in original active owner scope must retain original fences.",
+    "distribution": "Synchronize reviewed canonical bytes into bundled helper; advance original loader digest; preserve exact parity/tamper refusal. Do not copy release module or broad framework dependencies into standalone scripts.",
+    "forbidden_shortcuts": [
+      "ImportError swallowing",
+      "Remove release custody fences",
+      "New skip or weakened timeout/stream assertions",
+      "Deadline/retry change",
+      "Package-name conditional bypass presented as original owner closure"
+    ]
+  },
+  "other_lazy_package_imports": {
+    "names": [
+      "windows_job_accounting",
+      "windows_job_numeric_feed"
+    ],
+    "scope": "Optional telemetry methods only; not called by ordinary bootstrap ownership or run_with_tree_kill without opt-in. Not observed failure cause. A complete standalone default-path regression must establish no framework import; telemetry opt-in remains separately reviewed framework-only composition, not reason to import framework by default."
+  },
+  "regression_seams": [
+    "Unchanged exhausted-cleanup control for both helper modules preserves exception identity/raw streams/3communicates/kill/release.",
+    "Actual digest-checked synthetic loader under Python-I with no literate_ai import, successful standalone command and existing finite timeout/tree controls.",
+    "Original real release custody controls clean retirement/private and ignored replacement/admin swaps/active descendant/primary error remain unchanged.",
+    "Original neutral scope active across nested shared runner call and cleanup, restored on failure, copied expired context refuses instead of enabling unguarded process.",
+    "Exact helper parity plus pin tamper refusal remains."
+  ],
+  "sha256": {
+    "src/literate_ai/adapters/_processes.py": "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb690",
+    "src/literate_ai/adapters/release_worktree_custody.py": "1a33499cbe915c2df37f6dbf3cd672188e2edafdb5346e5887511281cf35d396",
+    "src/literate_ai/project_template/scripts/_bootstrap_processes.py": "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb690",
+    "src/literate_ai/project_template/scripts/bootstrap_litai.py": "a69af3016c68b8b3e7940558280024189d3a8c36065d3773df765d65fa80aecf",
+    "src/literate_ai/adapters/project_initialization.py": "8ec2a41f21b8d076a8103fed681686272344e92037ac9fcc66a1ad7ad432f413",
+    "tests/critical/test_process_tree.py": "d07a87a04eb1b45a61fc7013b73904ff5e419b8dd0ca3649656f8f0c42c9a338",
+    "tests/smoke/test_bootstrap_litai.py": "478d6dbe9e30ad3350dfe3318661990d4dafe2a2b50817c1f52ad16c7b72abfe",
+    "tests/critical/test_release_worktree_custody.py": "a4f3f6ec47bab3471820198e6b0f4d665651da0d04b8de3b5c5447605a7f98b8"
+  },
+  "limits": [
+    "No source edits, bootstrap copy, issue post, push, re-pin, worker dispatch, CI rerun/cancel or new native request.",
+    "Only existing source/history/contracts and read-only tracker searches inspected; issue draft saved under task-owned temporary evidence directory.",
+    "Recommendation is design review, not implementation/native/fullrelease acceptance."
+  ]
+}
