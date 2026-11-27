@@ -24435,6 +24435,15 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   installed and collateral requirements, then prepare, check, publish and verify
   through the release owner. No recovered snapshot or narrow passing cohort
   establishes release acceptance.
+- **Maintained packaged-process fixture reconciliation (source partial):** The fresh
+  0918c2fe8 wheel clears the library-qualification failures and reaches one
+  packaged-process recorder error in the 32-control installed batch. Its explicit
+  modeled custody omits the newly required optional SDK resource field. Declare
+  that original non-SDK scope with `node_sdk_resources=None`; preserve production
+  SDK resource fencing, recorded test/execution identities, post-cleanup reopening
+  and all original assertions. All five affected source controls pass without
+  skips; independent review passes the original recorder control. A fresh
+  installed gate remains required.
 - **Maintained library fixture reconciliation (source partial):** The fresh exact
   fe8a85293 installed wheel passes the repaired bootstrap setup and reaches 13
   maintained library-qualification errors. Explicit modeled promotion/root

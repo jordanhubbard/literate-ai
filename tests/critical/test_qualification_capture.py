@@ -763,7 +763,8 @@ class QualificationCaptureTests(unittest.TestCase):
                     ports,
                     "project_package_custody",
                     return_value=SimpleNamespace(
-                        generated_test_suite=SimpleNamespace(case_ids=case_ids)
+                        generated_test_suite=SimpleNamespace(case_ids=case_ids),
+                        node_sdk_resources=None,
                     ),
                 ),
                 patch.object(
