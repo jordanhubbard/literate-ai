@@ -121,7 +121,10 @@ def plan_installed_component_command_renewal(
     )
     request = _selection(request_path, **selection_options)
     installation_path = _direct(
-        project, f"{components.INSTALLATION_ROOT}/installation.json"
+        project,
+        components._metadata_coordinate(
+            project, f"{components.INSTALLATION_ROOT}/installation.json"
+        ),
     )
     original = _file(installation_path, maximum_bytes=limits["file_bytes"])
     installation = components._installation_document(original.content)
@@ -149,18 +152,32 @@ def plan_installed_component_command_renewal(
             _fail("installation_changed", "installed input changed during capture")
         remaining -= len(observed.content)
         documents[relative] = components._bytes_identity(observed.content)
-    bundle = _direct(project, f"{components.INSTALLATION_ROOT}/bundle")
+    bundle = _direct(
+        project,
+        components._metadata_coordinate(
+            project, f"{components.INSTALLATION_ROOT}/bundle"
+        ),
+    )
     old_plan = components._verified_bundle(bundle, installation["bundle_identity"])
     for name in installation["components"]:
         for filename in ("binding.json", "component.md"):
             if (
-                documents[f"components/{name}/{filename}"]
+                documents[
+                    components._metadata_coordinate(
+                        project, f"components/{name}/{filename}"
+                    )
+                ]
                 != documents[
-                    f"{components.INSTALLATION_ROOT}/bundle/components/{name}/{filename}"
+                    components._metadata_coordinate(
+                        project,
+                        f"{components.INSTALLATION_ROOT}/bundle/components/{name}/{filename}",
+                    )
                 ]
             ):
                 _fail("binding_changed", "installed owner differs from its bundle")
-        receipt = f"{components.INSTALLATION_ROOT}/receipts/{name}.json"
+        receipt = components._metadata_coordinate(
+            project, f"{components.INSTALLATION_ROOT}/receipts/{name}.json"
+        )
         if documents[receipt] != installation["receipt_identities"].get(name):
             _fail("receipt_changed", "original Component receipt changed")
     source, layout_identity, close_layout = components._layout_source(

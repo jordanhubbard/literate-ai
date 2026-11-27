@@ -1059,7 +1059,12 @@ def _refined_command_execution_plan(
         relatives[prior_test_receipt["path"]] = prior_test_receipt["identity"]
     for name in names:
         for filename in ("component.lock.json", "component.resolution-audit.host.json"):
-            relatives[f"components/{name}/{filename}"] = None
+            relative = (
+                retained_scaffold_path(project.root, f"components/{name}/{filename}")
+                .relative_to(project.root)
+                .as_posix()
+            )
+            relatives[relative] = None
     nodes = {}
     ancestry = {}
     remaining = bounds["total_bytes"]
@@ -2059,7 +2064,13 @@ def apply_retained_harness_readmission(
                         "component.lock.json",
                         "component.resolution-audit.host.json",
                     ):
-                        relative = f"components/{item['name']}/{filename}"
+                        relative = (
+                            retained_scaffold_path(
+                                root, f"components/{item['name']}/{filename}"
+                            )
+                            .relative_to(root)
+                            .as_posix()
+                        )
                         paths[relative] = _safe_path(root, relative)
             before = {name: path.read_bytes() for name, path in paths.items()}
             if any(
@@ -2209,7 +2220,9 @@ def apply_retained_harness_readmission(
                     lock_components = [wrapper_component]
                     if refined is not None:
                         lock_components.extend(
-                            f"components/{item['name']}"
+                            retained_scaffold_path(root, f"components/{item['name']}")
+                            .relative_to(root)
+                            .as_posix()
                             for item in refined["old_selection"]["components"]
                         )
                     for component in lock_components:

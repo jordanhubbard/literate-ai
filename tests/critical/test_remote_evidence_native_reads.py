@@ -205,6 +205,21 @@ class EvidenceNativeReadTests(unittest.TestCase):
             self.skipTest("POSIX-backed Windows API model; native Windows is separate")
         from literate_ai.adapters import evidence_files
 
+        directory_pin_phase = False
+        observed_roles = []
+
+        def directory_open_phase(original):
+            def invoke(*args, **kwargs):
+                nonlocal directory_pin_phase
+                previous = directory_pin_phase
+                directory_pin_phase = True
+                try:
+                    return original(*args, **kwargs)
+                finally:
+                    directory_pin_phase = previous
+
+            return invoke
+
         class Kernel:
             def __init__(self):
                 self.live = set()
@@ -212,8 +227,11 @@ class EvidenceNativeReadTests(unittest.TestCase):
 
             def open_reparse_aware(model, path, *, share_delete=True, share_write=True):
                 self.assertFalse(share_delete)
-                self.assertFalse(share_write)
                 node = Path(path).lstat()
+                self.assertEqual(share_write, directory_pin_phase)
+                if directory_pin_phase:
+                    self.assertTrue(stat.S_ISDIR(node.st_mode))
+                observed_roles.append((stat.S_ISDIR(node.st_mode), directory_pin_phase))
                 flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
                 if stat.S_ISDIR(node.st_mode):
                     flags |= os.O_DIRECTORY
@@ -246,6 +264,16 @@ class EvidenceNativeReadTests(unittest.TestCase):
 
         (self.source / "a.bin").write_bytes(b"modeled native branch\n")
         with (
+            patch.object(
+                evidence_files._WindowsAccess,
+                "_hold",
+                directory_open_phase(evidence_files._WindowsAccess._hold),
+            ),
+            patch.object(
+                evidence_files._WindowsAccess,
+                "current",
+                directory_open_phase(evidence_files._WindowsAccess.current),
+            ),
             patch("literate_ai._cache_lock._Kernel32Windows", side_effect=factory),
             patch.object(
                 evidence_files,
@@ -264,6 +292,9 @@ class EvidenceNativeReadTests(unittest.TestCase):
         ):
             self.copy()
         self.assertTrue(kernels)
+        self.assertIn((True, True), observed_roles)
+        self.assertIn((True, False), observed_roles)
+        self.assertIn((False, False), observed_roles)
         self.assertTrue(all(not kernel.live for kernel in kernels))
         self.assertEqual(
             (self.output / "object/cache/a.bin").read_bytes(),

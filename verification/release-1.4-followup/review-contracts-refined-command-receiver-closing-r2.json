@@ -1,0 +1,60 @@
+{
+  "status": "independent_five_file_source_closing_review_accepted",
+  "baseline": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+  "files": {
+    "src/literate_ai/adapters/retained_component_commands.py": {
+      "sha256": "99f6c10134dbe737d176bba75a60ff05780aff4daec0db8e2ecfe25fe5836ce0",
+      "compile": "passed"
+    },
+    "src/literate_ai/adapters/retained_component_command_execution.py": {
+      "sha256": "264f56ebff14e4dc8e339603f1b2975d5bce24caef287a9bab0a530aab80edb1",
+      "compile": "passed"
+    },
+    "src/literate_ai/adapters/retained_harness_readmission.py": {
+      "sha256": "5b73ed34753272d9324a765d7714fa12c425663bbe548964780264e4f6d200ab",
+      "compile": "passed"
+    },
+    "tests/e2e/test_refined_command_readmission.py": {
+      "sha256": "6960954d609c1b7133c5dd796f496ce3228f91b2ab2ffd03877698cc74411787",
+      "compile": "passed",
+      "original_assertion_count": 20,
+      "unchanged_assertions": 19,
+      "intentional_assertion_change": "Only broad lock-prefix allowance narrows to exact original canonical lock path captured before callbacks."
+    },
+    "tests/e2e/test_refined_command_budget.py": {
+      "sha256": "51d6e469662c600e0eb1b71e9973b4392081bd9e83e141d14ba890d7fe135e3b",
+      "compile": "passed",
+      "original_assertion_count": 17,
+      "unchanged_assertions": 17,
+      "intentional_assertion_change": "None; all original assertion expressions identical."
+    }
+  },
+  "coverage": "All3diffs and complete Component planning/execution receivers inspected, refined readmission planning/old-inputcapture/history/publication/lock reconciliation continuations and canonical monorepo projection/helper traced.",
+  "assessment": [
+    "Initial installation/bundle/liveComponent document keys and old receipt lookups use existing components._metadata_coordinate matching _installed_inputs actual key projection.",
+    "Refined Component lock/audit old_documents capture and apply paths use retained_scaffold_path same producer projection; lock reconciliation now selects same canonical Component directories.",
+    "Fresh qualification nonce staging uses original publication.history with existing writer identity, root, current-target, source, nonce and ancestry checks retained.",
+    "Canonical helper retains root coordinates for legacy/mixed Component catalogs; only declared contained-only Component catalogs project under litai/components. Implicit .literate metadata follows framework context.",
+    "Native implementation/plan.source_root/source commands remain application-relative. Logical historical baseline and oldComponent archive keys unchanged; no blanket _safe_path reinterpretation.",
+    "All existing plan/schema identity/reopen/bytebounds/ownerchecks/acknowledgement/nativecurrentness/publicationclosure/deadlines preserved. No new authority/qualification grant."
+  ],
+  "concrete_findings": [],
+  "observed_parent_controls": {
+    "refined-component-owners-r1": "13passed4.272s",
+    "refined-command-receiver-r1": "3executed,1error9.529s; failure is fixture observer after successful plan/reopen. No passing cohort claim.",
+    "refined-command-receiver-r2": "4executed10.614s,1failure; newly reached original fixture expects root .litai-locks for coordination addition although actual lifecycle lock lives under declared framework.",
+    "refined-command-receiver-r4": "5executed13.577s,1error in budget metadata sum at app-root litai.harness.mk; not a product execution failure."
+  },
+  "original_failing_attempt": "Read-only third-case planner failed before any apply. Private installed trace/custody in prior diagnosis retained. No failed-apply retry.",
+  "limits": "Source closing only for these exact5files. All original production native/source/archive/deadline/publication gates preserved. Installed refined execution/wholewheel acceptance pending. No reviewer edits or retries.",
+  "fixture_closing": {
+    "readmission": "Context-derived inventory observer plus canonical original lifecycle_lock_path captured before callbacks. Only allowed added coordination entries narrow to exact known lock, while zero byte and prior-entry snapshot equality remain.",
+    "budget": "Typed declared receipt stays application-relative. Sum projects exactly producer implicit .literate/*, project manifest and harness wrapper through retained_scaffold_path; actual/project-relative names remain untouched. Canonical wrapper capture handles mixed/root/contained layouts. All original total-limit/fitting/padding arithmetic and assertions/mocks/snapshot/receipt-byte preservation unchanged."
+  },
+  "resolved_fixture_findings": [
+    "Original inventory observer root assumption",
+    "Original broad root-lock prefix assumption",
+    "Budget root manifest/wrapper/logical metadata observation assumptions, including full finite implicit set."
+  ],
+  "latest_runtime": "Fresh r5 parent cohort running; outcomes appended separately. Earlier r1-r4 failed receipts preserved; no invented passing cohort."
+}

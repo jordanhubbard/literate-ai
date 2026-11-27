@@ -19,6 +19,7 @@ from literate_ai.adapters.standard_lifecycle_binding import (
     observe_installed_framework_distribution,
 )
 from literate_ai.contracts import canonical_json_bytes
+from literate_ai.projects import ProjectConfigurationStore
 
 
 def require(value, message):
@@ -189,14 +190,15 @@ def main():
             str(project),
         )
         cli("project", "test-receipt", "require-current", "--project", str(project))
-        manifest = json.loads((project / "literate.project.json").read_bytes())
-        path = project / manifest["test_receipt"]
+        definition = ProjectConfigurationStore(project).read().definition
+        path = project / definition.test_receipt
         return path, path.read_bytes()
 
     def observations(project, *, compiled):
         records = {}
+        context = ProjectConfigurationStore.context(project)
         for name in ("legacy-harness-baseline.json", "legacy-wrapper-parity.json"):
-            path = project / ".literate" / name
+            path = context.framework_path(f".literate/{name}")
             report = json.loads(path.read_bytes())
             require(report["state"] == "passed", "baseline/parity failed")
             phases = {phase["phase"]: phase for phase in report["phases"]}
@@ -324,9 +326,12 @@ def main():
             commands = selected_value["components"][0]["commands"]
             commands[:] = [{**commands[0], "command": "make -f Makefile build-all"}]
             selected.write_bytes(canonical_json_bytes(selected_value) + b"\n")
-            prior_component = (
-                project / ".literate/monorepo-components/receipts/native-initial.json"
-            ).read_bytes()
+            component_receipt_path = ProjectConfigurationStore.context(
+                project
+            ).framework_path(
+                ".literate/monorepo-components/receipts/native-initial.json"
+            )
+            prior_component = component_receipt_path.read_bytes()
         require(
             not (source / "build/native").exists(),
             "help-only path unexpectedly compiled",
@@ -377,9 +382,7 @@ def main():
                 plan["schema"] == "literate-ai/retained-harness-readmission-plan@4",
                 "refined execution did not use its distinct request version",
             )
-            installed_component = (
-                project / ".literate/monorepo-components/receipts/native-initial.json"
-            ).read_bytes()
+            installed_component = component_receipt_path.read_bytes()
             component_observation = json.loads(installed_component)
             phases = {
                 phase["phase"]: phase

@@ -1,0 +1,734 @@
+{
+  "schema": "literate-ai/independent-historical-standard-rebind-review@1",
+  "status": "Plan independently reviewed before root apply; final report captures actual acknowledged transition separately after root applied. Reviewer applied/recorded nothing.",
+  "observation_order": {
+    "before_root_apply": "Recorded independent tool observations and parent message verified exact plan hash, original configured binding and policy equality, installed old/new authority,37unchangedmetadata/native/Git facts and heldfile differences. First report assembly paused to distinguish prior approved link from new marker; no completed preapply JSON snapshot existed.",
+    "root_transition": "Root then executed public --apply --authorize-rebind against exact59588926 plan after those checks and its own review; acknowledged by parent.",
+    "after_root_apply": "This report re-reads final disk as applied state, reconstructs original manifest from configured binding and verifies exact expected delta. No final disk read is represented as preapply unchanged."
+  },
+  "plan_identity": "sha256:59588926fc2be302f34737cf1a2b1ed8ef53195d42210cf4e4ddf4aefb2d6fea",
+  "plan_file": {
+    "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/standard-rebind-plan.json",
+    "sha256": "cc406c9fd6b890d35a807070c00a5ae740235a6e872f3408861f4f1578327a2a",
+    "bytes": 3815,
+    "device": 1813,
+    "inode": 11849455,
+    "mtime_ns": 1795776247084976336,
+    "mode": 384
+  },
+  "canonical_plan_identity_verified": true,
+  "installed_original_and_candidate_authority": {
+    "published_old": {
+      "distribution_identity": "sha256:6a636229b3f17edca9a7bdeb140f2b0fa6ff7b922a8d481dda9457fae26a5bc2",
+      "distribution_name": "literate-ai",
+      "distribution_version": "1.3.1",
+      "member_count": 1241,
+      "origin": {
+        "distribution_name": "literate-ai",
+        "distribution_version": "1.3.1",
+        "git_revision": "87506c804210c46835723e11d1ca1c6cae0f496c",
+        "repository_url": "https://github.com/jordanhubbard/literate-ai",
+        "schema": "urn:literate-ai:schema:v1:project-initialization-origin"
+      },
+      "payload_bytes": 15783446,
+      "policy_identity": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+    },
+    "candidate_new": {
+      "distribution_identity": "sha256:78112f456ab988f24707a72cfddad065092f3f3766cbc90f18655ae2891fe665",
+      "distribution_name": "literate-ai",
+      "distribution_version": "1.4.0",
+      "member_count": 1813,
+      "origin": {
+        "distribution_name": "literate-ai",
+        "distribution_version": "1.4.0",
+        "git_revision": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+        "repository_url": "https://github.com/jordanhubbard/literate-ai",
+        "schema": "urn:literate-ai:schema:v1:project-initialization-origin"
+      },
+      "payload_bytes": 24621808,
+      "policy_identity": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+    }
+  },
+  "configured_binding": {
+    "schema": "urn:literate-ai:schema:v2:project-lifecycle-driver",
+    "binding": "standard",
+    "framework_distribution_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "6a636229b3f17edca9a7bdeb140f2b0fa6ff7b922a8d481dda9457fae26a5bc2"
+    },
+    "policy_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+    }
+  },
+  "proposed_binding": {
+    "schema": "urn:literate-ai:schema:v2:project-lifecycle-driver",
+    "binding": "standard",
+    "framework_distribution_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "78112f456ab988f24707a72cfddad065092f3f3766cbc90f18655ae2891fe665"
+    },
+    "policy_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+    }
+  },
+  "only_changed_configuration_field": [
+    "lifecycle_driver"
+  ],
+  "original_receipt_policy_preserved": {
+    "schema": "urn:literate-ai:schema:v1:project-test-receipt-policy",
+    "suite_id": "retained-legacy-parity",
+    "suite_version": "1.0.0",
+    "runner_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "27e756a4f114c9311be32c512d18b40082ed519a940c1c204032067003897c0e"
+    },
+    "required_evidence_kinds": [
+      "build-result",
+      "lifecycle-command",
+      "lifecycle-plan",
+      "lifecycle-request",
+      "observation-result",
+      "package-result",
+      "source-cache-decision",
+      "source-cache-lifecycle",
+      "test-report",
+      "test-runner",
+      "workspace-admission"
+    ],
+    "minimum_test_count": 1
+  },
+  "preapply_manifest_exactly_reconstructed_by_replacing_only_driver": true,
+  "old_manifest_bytes_identity": "sha256:747f5d4422d995832bb5a421923004bbda8836e39579619191d0b478237c795d",
+  "actual_applied_manifest": {
+    "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/literate.project.json",
+    "sha256": "00d8478ec38ea9ef0d0d1004a2d3d5e9a488977108bd1747e6d698b7e9775b79",
+    "bytes": 3862,
+    "device": 1813,
+    "inode": 11913773,
+    "mtime_ns": 1795776580028478722,
+    "mode": 384
+  },
+  "applied_manifest_delta": [
+    {
+      "before": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/literate.project.json",
+        "sha256": "747f5d4422d995832bb5a421923004bbda8836e39579619191d0b478237c795d",
+        "bytes": 3862,
+        "device": 1813,
+        "inode": 11913305,
+        "mtime_ns": 1795775065945552652,
+        "mode": 384
+      },
+      "after": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/literate.project.json",
+        "sha256": "00d8478ec38ea9ef0d0d1004a2d3d5e9a488977108bd1747e6d698b7e9775b79",
+        "bytes": 3862,
+        "device": 1813,
+        "inode": 11913773,
+        "mtime_ns": 1795776580028478722,
+        "mode": 384
+      },
+      "changed_facts": [
+        "sha256",
+        "inode",
+        "mtime_ns"
+      ]
+    }
+  ],
+  "postmetadata_original_metadata_native_Git_facts_unchanged": [
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/conversion-authority.json",
+      "sha256": "da4a3cd5defa124812eac29dede6df5e531f34c3dc00bf37d9c516fb28c54884",
+      "bytes": 252,
+      "device": 1813,
+      "inode": 12569530,
+      "mtime_ns": 1795774193962940876,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/conversion-authority.json",
+      "sha256": "da4a3cd5defa124812eac29dede6df5e531f34c3dc00bf37d9c516fb28c54884",
+      "bytes": 252,
+      "device": 1813,
+      "inode": 11913286,
+      "mtime_ns": 1795775065823682991,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/harness-inventory.json",
+      "sha256": "a553c39235c7b2d5728edb63db876d586868bf5c546f644079a56ddbeb84fbc9",
+      "bytes": 1321,
+      "device": 1813,
+      "inode": 12569419,
+      "mtime_ns": 1795774187980664176,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/harness-inventory.json",
+      "sha256": "a553c39235c7b2d5728edb63db876d586868bf5c546f644079a56ddbeb84fbc9",
+      "bytes": 1321,
+      "device": 1813,
+      "inode": 11913287,
+      "mtime_ns": 1795775065846256488,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/imports.json",
+      "sha256": "eb50a536a73e68e68b40fb0a68f815762f2442bd67bbc97b5271edb238ff6fb1",
+      "bytes": 290303,
+      "device": 1813,
+      "inode": 12569503,
+      "mtime_ns": 1795774188877076006,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/imports.json",
+      "sha256": "eb50a536a73e68e68b40fb0a68f815762f2442bd67bbc97b5271edb238ff6fb1",
+      "bytes": 290303,
+      "device": 1813,
+      "inode": 11913288,
+      "mtime_ns": 1795775065872503151,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/initialization-baseline.json",
+      "sha256": "1f657dc048f3c54b41ad5a2d67c668b8d10d1a7acc90b7fbf4a1c94e70763e1e",
+      "bytes": 93439,
+      "device": 1813,
+      "inode": 12569516,
+      "mtime_ns": 1795774193433540611,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/initialization-baseline.json",
+      "sha256": "1f657dc048f3c54b41ad5a2d67c668b8d10d1a7acc90b7fbf4a1c94e70763e1e",
+      "bytes": 93439,
+      "device": 1813,
+      "inode": 11913289,
+      "mtime_ns": 1795775065878125060,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/initialization-origin.json",
+      "sha256": "d36985315efc4f3a97fd8eb0be8c4daef1bf452de5971b5ad8b251f25e80ecd5",
+      "bytes": 256,
+      "device": 1813,
+      "inode": 12569515,
+      "mtime_ns": 1795774188906416470,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/initialization-origin.json",
+      "sha256": "d36985315efc4f3a97fd8eb0be8c4daef1bf452de5971b5ad8b251f25e80ecd5",
+      "bytes": 256,
+      "device": 1813,
+      "inode": 11913290,
+      "mtime_ns": 1795775065901725354,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/legacy-harness-baseline.json",
+      "sha256": "f17396baba21b60c61362b341d18441a011059f36df22ef44ff007b8c82d1532",
+      "bytes": 6511,
+      "device": 1813,
+      "inode": 12569420,
+      "mtime_ns": 1795774188192561679,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/legacy-harness-baseline.json",
+      "sha256": "f17396baba21b60c61362b341d18441a011059f36df22ef44ff007b8c82d1532",
+      "bytes": 6511,
+      "device": 1813,
+      "inode": 11913291,
+      "mtime_ns": 1795775065905272615,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/legacy-lift-shift.json",
+      "sha256": "f789ea669ef970153a1afdabf537e2995d22add0c22be592ebb9748ca6df7b6f",
+      "bytes": 10471,
+      "device": 1813,
+      "inode": 12569394,
+      "mtime_ns": 1795774188812075015,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/legacy-lift-shift.json",
+      "sha256": "f789ea669ef970153a1afdabf537e2995d22add0c22be592ebb9748ca6df7b6f",
+      "bytes": 10471,
+      "device": 1813,
+      "inode": 11913292,
+      "mtime_ns": 1795775065908372797,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/legacy-wrapper-parity.json",
+      "sha256": "7bed986b152cc02744e01ed579ed6b933a7ae788bcb2a40587af0ddef64cbae6",
+      "bytes": 9321,
+      "device": 1813,
+      "inode": 12569432,
+      "mtime_ns": 1795774188406068231,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/legacy-wrapper-parity.json",
+      "sha256": "7bed986b152cc02744e01ed579ed6b933a7ae788bcb2a40587af0ddef64cbae6",
+      "bytes": 9321,
+      "device": 1813,
+      "inode": 11913293,
+      "mtime_ns": 1795775065913939939,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/repository-lineage.json",
+      "sha256": "78c80dbf89fc281e3e74375115e50b7a0dad7cfe997183f9ae8a256040a2a02a",
+      "bytes": 1407,
+      "device": 1813,
+      "inode": 12569514,
+      "mtime_ns": 1795774188903457544,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/repository-lineage.json",
+      "sha256": "78c80dbf89fc281e3e74375115e50b7a0dad7cfe997183f9ae8a256040a2a02a",
+      "bytes": 1407,
+      "device": 1813,
+      "inode": 11913294,
+      "mtime_ns": 1795775065917138746,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/repository-parent.json",
+      "sha256": "5afa81160ee603a712750b6e2dfe73b1478e6418f01fc73f7b944bd1cf466289",
+      "bytes": 345,
+      "device": 1813,
+      "inode": 12569513,
+      "mtime_ns": 1795774188877966548,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/repository-parent.json",
+      "sha256": "5afa81160ee603a712750b6e2dfe73b1478e6418f01fc73f7b944bd1cf466289",
+      "bytes": 345,
+      "device": 1813,
+      "inode": 11913295,
+      "mtime_ns": 1795775065919937213,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/update-bases.json",
+      "sha256": "f72e70c3a5435707db4a07d878e0bf36b6a5e2bdbc3485f5d0e90b3c4c7dd4a7",
+      "bytes": 1162990,
+      "device": 1813,
+      "inode": 12569528,
+      "mtime_ns": 1795774193446528553,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/update-bases.json",
+      "sha256": "f4a3eba764bdf13e45d930c32194193f55a2dd27ba87e9f4e1046091693070da",
+      "bytes": 1165745,
+      "device": 1813,
+      "inode": 11913296,
+      "mtime_ns": 1795775065923981216,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/literate.project.json",
+      "sha256": "a45773af10c73cf72c9394cc9ad28263ea44ee69798e6a2040d8d8730146f023",
+      "bytes": 3822,
+      "device": 1813,
+      "inode": 11849390,
+      "mtime_ns": 1795774188406791618,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/literate.release.json",
+      "sha256": "c95dfe77fb34c508f89be00b8eea336e7ab04419c7b706a77a0bd32397b97a37",
+      "bytes": 749,
+      "device": 1813,
+      "inode": 11849397,
+      "mtime_ns": 1795774188569638438,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/literate.release.json",
+      "sha256": "c95dfe77fb34c508f89be00b8eea336e7ab04419c7b706a77a0bd32397b97a37",
+      "bytes": 749,
+      "device": 1813,
+      "inode": 11913297,
+      "mtime_ns": 1795775065939384079,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/verification/current.json",
+      "sha256": "7c4c88289f5f1835329248b915e8818d361d744962a1b749d0ea6b3e929d2b9c",
+      "bytes": 2483,
+      "device": 1813,
+      "inode": 12569603,
+      "mtime_ns": 1795774590075985565,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/verification/current.json",
+      "sha256": "7c4c88289f5f1835329248b915e8818d361d744962a1b749d0ea6b3e929d2b9c",
+      "bytes": 2483,
+      "device": 1813,
+      "inode": 11913304,
+      "mtime_ns": 1795775065942420645,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/test_app.py",
+      "sha256": "56b4a6feb9a025ca25eda7a6adb4d0dc654ff7f35e125dcb5a834be4531f464b",
+      "bytes": 193,
+      "device": 1813,
+      "inode": 11848516,
+      "mtime_ns": 1795773862415490478,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/Makefile",
+      "sha256": "a673a5bcc1dc7878a5136c1d6414746df1ac342e9a9e5fe03ed028387d592460",
+      "bytes": 147,
+      "device": 1813,
+      "inode": 11848517,
+      "mtime_ns": 1795773862415515119,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/.gitignore",
+      "sha256": "f996b5ad9b75106c60fd509debb9032c34463b1841809e600f81106459dba27e",
+      "bytes": 21,
+      "device": 1813,
+      "inode": 11848518,
+      "mtime_ns": 1795773862415538191,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/app.py",
+      "sha256": "ba1a531f581d2e6094e978ed6f7aca7a8d92eeb62c6e7ad73ee692f7f18bc772",
+      "bytes": 32,
+      "device": 1813,
+      "inode": 11848515,
+      "mtime_ns": 1795773862415455454,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/app.zip",
+      "sha256": "910d7de3d20c971a134b83708b93fd3b29e2319bcc3c688628788b47cdcfe7df",
+      "bytes": 142,
+      "device": 1813,
+      "inode": 11848531,
+      "mtime_ns": 1795773862622092696,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/__pycache__/app.cpython-314.pyc",
+      "sha256": "83c16bd365da560eee4a4226977722a7e2e5dd4f54c3905f37ab8269c3e01653",
+      "bytes": 223,
+      "device": 1813,
+      "inode": 12012344,
+      "mtime_ns": 1795773862495801483,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/HEAD",
+      "sha256": "28d25bf82af4c0e2b72f50959b2beb859e3e60b9630a5e8c603dad4ddb2b6e80",
+      "bytes": 21,
+      "device": 1813,
+      "inode": 11881281,
+      "mtime_ns": 1795773862436596161,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/index",
+      "sha256": "a8d1defd581c27cdd8c41022454ce9f54ddaf36e83a47697d1c9b0b007a81f60",
+      "bytes": 542,
+      "device": 1813,
+      "inode": 11881291,
+      "mtime_ns": 1795774188594071690,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/refs/heads/main",
+      "sha256": "509a9f0fe4cc6e2db8e94ecfce8f198b6e034452bf8c901a6b247475bc7ba756",
+      "bytes": 41,
+      "device": 1813,
+      "inode": 11881293,
+      "mtime_ns": 1795773862446090003,
+      "mode": 420
+    }
+  ],
+  "legacy_held_content_members_compared": 311,
+  "legacy_held_differences": [
+    {
+      "path": "docs/architecture/design-traceability.md",
+      "from": "sha256:5c1dde38a8464210d5f9794d6879117097b3b38cdf29f4405bd0f34d60731b40",
+      "to": "sha256:41aade80927663fa64be07e1931d7e3595b7f2bf9e6735d7e61a8cfa56e5c700"
+    },
+    {
+      "path": "docs/user/project-layout.md",
+      "from": "sha256:251fa507d66d9d9a52bb9bc2b3ab24e59e2849ae621d76f968870b668199ace6",
+      "to": "sha256:47e85643c82fe7f65128e205e1194927fe9acb0017cb46b70832cb0ec778238e"
+    }
+  ],
+  "documentation_marker_only_change_since_postmetadata": {
+    "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/docs/architecture/design-traceability.md",
+    "file": {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/docs/architecture/design-traceability.md",
+      "sha256": "41aade80927663fa64be07e1931d7e3595b7f2bf9e6735d7e61a8cfa56e5c700",
+      "bytes": 827,
+      "device": 1813,
+      "inode": 12831761,
+      "mtime_ns": 1795775506688768324,
+      "mode": 420
+    },
+    "exact_old9c0f_to_reviewed30646_replacement": true,
+    "earlier_project_layout_link_unchanged_since_postmetadata": true,
+    "new_review_after_rebind_required": "Rebind changes project definition again; inspect current documentation review before recording any new marker."
+  },
+  "old_relocated_receipt": {
+    "file": {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/verification/current.json",
+      "sha256": "7c4c88289f5f1835329248b915e8818d361d744962a1b749d0ea6b3e929d2b9c",
+      "bytes": 2483,
+      "device": 1813,
+      "inode": 11913304,
+      "mtime_ns": 1795775065942420645,
+      "mode": 384
+    },
+    "same_original_finalized_envelope": true,
+    "observed_postreview_pre_rebind_error": "project.test_receipt_stale",
+    "authenticated": false,
+    "fresh_receipt_granted": false
+  },
+  "actual_public_apply": {
+    "command_receipt": {
+      "argv": [
+        "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/candidate-environment/bin/python",
+        "-I",
+        "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/candidate-environment/bin/litai",
+        "--json",
+        "project",
+        "lifecycle",
+        "rebind-standard",
+        "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/standard-rebind-plan.json",
+        "--project",
+        "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native",
+        "--apply",
+        "--authorize-rebind"
+      ],
+      "exit": 0,
+      "seconds": 0.7713931350153871,
+      "timeout_seconds": 1800
+    },
+    "result": {
+      "action": "applied",
+      "binding": {
+        "binding": "standard",
+        "framework_distribution_identity": {
+          "algorithm": "sha256",
+          "digest": "78112f456ab988f24707a72cfddad065092f3f3766cbc90f18655ae2891fe665",
+          "schema": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "policy_identity": {
+          "algorithm": "sha256",
+          "digest": "a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7",
+          "schema": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "schema": "urn:literate-ai:schema:v2:project-lifecycle-driver"
+      },
+      "evidence": {
+        "accepted_source_membership": "stale-until-rebuild",
+        "test_receipt": "stale-until-rebuild"
+      },
+      "identity": "sha256:4776c9fa0be5f6d06d3cad108dbdb9e851c666eed7c0bc237371a2d281edf8bd",
+      "installed_authority": {
+        "distribution": {
+          "identity": "sha256:78112f456ab988f24707a72cfddad065092f3f3766cbc90f18655ae2891fe665",
+          "member_count": 1813,
+          "name": "literate-ai",
+          "payload_bytes": 24621808,
+          "version": "1.4.0"
+        },
+        "origin": {
+          "distribution_name": "literate-ai",
+          "distribution_version": "1.4.0",
+          "git_revision": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+          "repository_url": "https://github.com/jordanhubbard/literate-ai",
+          "schema": "urn:literate-ai:schema:v1:project-initialization-origin"
+        },
+        "policy": {
+          "id": "literate-ai-standard",
+          "identity": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7",
+          "version": "1.0.0"
+        }
+      },
+      "next_action": "run litai rebuild to produce current accepted evidence",
+      "plan_identity": "sha256:59588926fc2be302f34737cf1a2b1ed8ef53195d42210cf4e4ddf4aefb2d6fea",
+      "previous_project_configuration_identity": "sha256:747f5d4422d995832bb5a421923004bbda8836e39579619191d0b478237c795d",
+      "project_configuration_identity": "sha256:00d8478ec38ea9ef0d0d1004a2d3d5e9a488977108bd1747e6d698b7e9775b79",
+      "receipt_policy": {
+        "minimum_test_count": 1,
+        "required_evidence_kinds": [
+          "build-result",
+          "lifecycle-command",
+          "lifecycle-plan",
+          "lifecycle-request",
+          "observation-result",
+          "package-result",
+          "source-cache-decision",
+          "source-cache-lifecycle",
+          "test-report",
+          "test-runner",
+          "workspace-admission"
+        ],
+        "runner_identity": {
+          "algorithm": "sha256",
+          "digest": "27e756a4f114c9311be32c512d18b40082ed519a940c1c204032067003897c0e",
+          "schema": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "schema": "urn:literate-ai:schema:v1:project-test-receipt-policy",
+        "suite_id": "retained-legacy-parity",
+        "suite_version": "1.0.0"
+      },
+      "schema": "literate-ai/standard-lifecycle-rebind-result@1"
+    }
+  },
+  "bound_inputs": [
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-rebind-installed-authorities-r1.json",
+      "sha256": "32e021bd49df7c8d47780bf2a109720c5add60a0169ec929838ce5486c38d1f2",
+      "bytes": 1357,
+      "device": 1813,
+      "inode": 11816900,
+      "mtime_ns": 1795776498295792582,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-postmetadata-documentation-review.json",
+      "sha256": "4ceaaf79fee940fc8d1b687776e87a8552397d23e4f22355f1729ff0077818ba",
+      "bytes": 564,
+      "device": 1813,
+      "inode": 11849448,
+      "mtime_ns": 1795775509440574172,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-postmetadata-documentation-review.stdout",
+      "sha256": "f0409297475ac803ec54dee9f987a58daf3c9ce554c166c8ef1e7641068dbe85",
+      "bytes": 457,
+      "device": 1813,
+      "inode": 11849446,
+      "mtime_ns": 1795775509440333448,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-postmetadata-documentation-review.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "device": 1813,
+      "inode": 11849447,
+      "mtime_ns": 1795775509440333448,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-postreview-receipt-current.json",
+      "sha256": "4af55918d7696320763c2085b4afbadd2cdb65418c3bdc470cdcafa79ac5138e",
+      "bytes": 580,
+      "device": 1813,
+      "inode": 11849451,
+      "mtime_ns": 1795775566361026693,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-postreview-receipt-current.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "device": 1813,
+      "inode": 11849449,
+      "mtime_ns": 1795775566359882485,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-postreview-receipt-current.stderr",
+      "sha256": "345545e11d53cd7dfa16bce91b6f7a1df2ec37b37df113b2304e2d442bf9603f",
+      "bytes": 224,
+      "device": 1813,
+      "inode": 11849450,
+      "mtime_ns": 1795775566360632927,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-standard-rebind-plan.json",
+      "sha256": "cd542e8281140d873c1769c0d652cc732f254985c250ca2e4e7b77c488245687",
+      "bytes": 726,
+      "device": 1813,
+      "inode": 11849458,
+      "mtime_ns": 1795776247354083639,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-standard-rebind-plan.stdout",
+      "sha256": "a95e3a5487b2ce2e9006a99f6c403308b1511fe37fab04ddc857812e80f32bd6",
+      "bytes": 3360,
+      "device": 1813,
+      "inode": 11849456,
+      "mtime_ns": 1795776247353949013,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-standard-rebind-plan.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "device": 1813,
+      "inode": 11849457,
+      "mtime_ns": 1795776247353949013,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-standard-rebind-apply.json",
+      "sha256": "fc1a06518f6406a9f23c0ebc6e3c53aca0224db8e01650e6ca0f04064aa8f813",
+      "bytes": 751,
+      "device": 1813,
+      "inode": 11849461,
+      "mtime_ns": 1795776580205417445,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-standard-rebind-apply.stdout",
+      "sha256": "5feb83ba60cd04a3fd7dabd078d4fa8bc323c039eda1a61a53a3601c577ca3fb",
+      "bytes": 2381,
+      "device": 1813,
+      "inode": 11849459,
+      "mtime_ns": 1795776580205321939,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-standard-rebind-apply.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "device": 1813,
+      "inode": 11849460,
+      "mtime_ns": 1795776580205321939,
+      "mode": 420
+    }
+  ],
+  "limits": [
+    "No reviewer apply/record/pin/source edits. Root explicit public transition is distinguished from reviewer observations.",
+    "Rebind is configuration only; original11evidence roles/minimum1/exactrunner preserved, actual retained2tests still require fresh successful candidate execution/admission.",
+    "Old receipt remains unchanged and was stale after reviewed documentation update; no post-rebind receipt currentness or native result accepted here.",
+    "Configuration change may make documentation authority stale again; no automatic review stamping or producer renewal.",
+    "No acceptedsource restoration, fresh native generation/acceptance, lifecycle completion or release gate acceptance follows from rebind success.",
+    "36selected original/staged metadata/native/Git facts unchanged; only current manifest changed among those37as expected. Legacy held comparison also includes earlier approved document link plus reviewed marker."
+  ]
+}

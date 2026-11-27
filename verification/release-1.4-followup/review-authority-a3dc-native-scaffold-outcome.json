@@ -1,0 +1,53 @@
+{
+  "status": "actual_exact_head_isolated_native_control_and_boundary_success",
+  "revision": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+  "run": 45980368875,
+  "job": 140442966540,
+  "url": "https://github.com/jordanhubbard/literate-ai/actions/runs/45980368875/job/140442966540",
+  "api_job_snapshot": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-authority-a3dc-ci-jobs.json",
+  "step_results": [
+    {
+      "name": "Verify native Windows scaffold publication in isolation",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 73,
+      "started_at": "2026-11-27T10:18:15Z",
+      "completed_at": "2026-11-27T10:18:16Z"
+    },
+    {
+      "name": "Verify native Windows boundary controls before the full shard",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 74,
+      "started_at": "2026-11-27T10:18:16Z",
+      "completed_at": "2026-11-27T10:19:15Z"
+    },
+    {
+      "name": "Run this shard's tests",
+      "status": "in_progress",
+      "conclusion": null,
+      "number": 75,
+      "started_at": "2026-11-27T10:19:15Z",
+      "completed_at": null
+    }
+  ],
+  "exact_case": "tests/critical/test_scaffold_custody_owner.py::ScaffoldCustodyTests::test_real_creators_replace_owned_file_then_retire_only_owned_outputs",
+  "original_case_source_unchanged_f1_to_a3": true,
+  "workflow_selection": "Single exact original case, single-process pytest with addopts empty, originalrandomseed12345, actual Windows test root and JUnit destination. Boundary original inventory then runs before broad shard. No assertion/deadline/retry change.",
+  "progression": [
+    {
+      "revision": "d5d4deccc",
+      "result": "Actual isolated fails FIRST publication at WinError32 os.replace; originalfailed log/JUnit retained."
+    },
+    {
+      "revision": "f1e9c06f2",
+      "result": "After2directorysharingcalls actualisolated passes both publications and exactbytes/mode, fails post-native-delete rollback guard WinError2; originalfailed log/JUnit retained."
+    },
+    {
+      "revision": "a3dc46d4e",
+      "result": "Afteroriginalownerpostdeleteabsencecorrection exactnativeisolated and followingboundary step completedSUCCESS."
+    }
+  ],
+  "artifact_limit": "Live job not yet complete; JUnit/log artifact not yet final/downloadable at snapshot, so this report attests GitHub exact step results and unchanged exact selection. Full native broad shard/receiver/wheel/FreeBSD/release acceptance still pending.",
+  "no_reviewer_mutation": "Read-only API/source evidence; no source edits, CI rerun/retry/forge posts."
+}

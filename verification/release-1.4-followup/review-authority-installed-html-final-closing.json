@@ -1,0 +1,27 @@
+{
+  "review": "independent read-only HTML installed qualification coordinate closing",
+  "base_head": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+  "file": "scripts/installed_html_smoke.py",
+  "sha256": "3665bcd9537e535ddb5150918ea79bb4b3166bda63386acb31efbd5435283c1b",
+  "reviewed_delta": {
+    "qualify_update": "Capture original ProjectContext before prepare_update_parent callback; resolve receiving authority through original context.framework_path and original manifest reads through same context.manifest_path; report actual receiving root-relative physical authority path.",
+    "qualify_lock_health": "Capture original context before store/mutations; resolve framework-owned sample component through it.",
+    "qualify_verification_health": "Capture original context before store/mutations; resolve framework-owned sample component through it.",
+    "scope": "9 added/6 removed lines; no production changes."
+  },
+  "preserved": {
+    "parent_checkout_authority": "prepare_update_parent retains checkout/UPDATE_AUTHORITY and git add original source-relative UPDATE_AUTHORITY",
+    "application_coordinates": "HTML output paths and explicitly declared relative OBJ_DIR/BUILD_DIR remain application-root relative",
+    "checks": "Every original Raise AST is unchanged, in same traversal order. Existing exact-byte/currency/identity/expected-exit assertions and bounds inspected unchanged.",
+    "rollback": "Original finally retained artifact restoration and original definition restoration unchanged.",
+    "call_path": "wheel_smoke.py:4020 invokes installed script with its resolved absolute owned golden-created project; ProjectContext.framework_path only appends validated nonescaping path to captured original framework_root."
+  },
+  "raise_ast_equal": true,
+  "findings": [],
+  "closing": "Original identified update-authority/manifest and lock/verification sample coordinate findings closed at source level for supported contained and legacy context selection. No additional concrete defect found in patched scope.",
+  "limits": [
+    "No installed-wheel/HTML/native execution; parent owns fresh fixture qualification.",
+    "No generic production review or full wheel/release acceptance inferred.",
+    "No source edits."
+  ]
+}

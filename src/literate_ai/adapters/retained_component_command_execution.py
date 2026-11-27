@@ -22,10 +22,7 @@ from literate_ai.adapters.retained_component_commands import (
     reopen_installed_component_command_renewal_plan,
 )
 from literate_ai.adapters.retained_layout_partition import _lineage
-from literate_ai.adapters.retained_readmission_publication import (
-    HISTORY,
-    ReadmissionPublication,
-)
+from literate_ai.adapters.retained_readmission_publication import ReadmissionPublication
 from literate_ai.contracts import ContentIdentity, canonical_json_bytes
 
 
@@ -76,7 +73,12 @@ def _execute_component_command_renewal(
     ):
         _fail("readmission_required", "all original Component inputs must be owned")
     original = _file(
-        _direct(project, f"{components.INSTALLATION_ROOT}/installation.json"),
+        _direct(
+            project,
+            components._metadata_coordinate(
+                project, f"{components.INSTALLATION_ROOT}/installation.json"
+            ),
+        ),
         maximum_bytes=components._MAX_DOCUMENT,
     )
     installation = components._installation_document(original.content)
@@ -86,7 +88,7 @@ def _execute_component_command_renewal(
     source = _direct(project, plan["source_root"])
     names = [item["name"] for item in plan["new_refinement"]["components"]]
     ContentIdentity.parse_uri(publication.header["plan_identity"])
-    parent = project / HISTORY
+    parent = publication.history
     require_safe_directory(parent)
     ancestry = _lineage(parent)
     # A short sibling of the transaction keeps Windows staging paths bounded.
@@ -124,7 +126,10 @@ def _execute_component_command_renewal(
             require_artifacts()
             close_original()
             old = _direct(
-                project, f"{components.INSTALLATION_ROOT}/receipts/{name}.json"
+                project,
+                components._metadata_coordinate(
+                    project, f"{components.INSTALLATION_ROOT}/receipts/{name}.json"
+                ),
             )
             receipt = receipts_root / f"{name}.json"
             try:

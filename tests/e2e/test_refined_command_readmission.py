@@ -20,6 +20,7 @@ from unittest import mock
 
 from literate_ai.adapters import monorepo_components as components
 from literate_ai.adapters import retained_harness_readmission as readmission
+from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock_path
 from literate_ai.adapters.monorepo_adoption import (
     SELECTION_SCHEMA,
     MonorepoAdoptionError,
@@ -165,7 +166,10 @@ class RefinedCommandReadmissionTests(unittest.TestCase):
         self.assertEqual(
             plan["schema"], "literate-ai/retained-harness-readmission-plan@4"
         )
-        original = json.loads((self.root / readmission.INVENTORY).read_bytes())
+        context = ProjectConfigurationStore.context(self.root)
+        original = json.loads(
+            context.framework_path(readmission.INVENTORY).read_bytes()
+        )
         self.assertEqual(plan["new_inventory"]["stages"], original["stages"])
         refined = plan["command_renewal"]["refined_components"]
         old = refined["old_selection"]["components"][0]["commands"]
@@ -229,6 +233,9 @@ class RefinedCommandReadmissionTests(unittest.TestCase):
     def test_public_unacknowledged_and_stale_requests_run_no_commands(self):
         plan = self.plan()
         before = self.snapshot()
+        lock_relative = (
+            project_lifecycle_lock_path(self.root).relative_to(self.root).as_posix()
+        )
         arguments = (
             "project",
             "retained-harness",
@@ -260,6 +267,6 @@ class RefinedCommandReadmissionTests(unittest.TestCase):
         # An acknowledged request acquires the ordinary lifecycle lock before
         # revalidating its plan. Its one-byte lock file is coordination, not evidence.
         added = set(after) - set(before)
-        self.assertTrue(all(name.startswith(".litai-locks/") for name in added))
+        self.assertLessEqual(added, {lock_relative})
         self.assertTrue(all(after[name][0] == b"\0" for name in added))
         self.assertEqual({name: after[name] for name in before}, before)

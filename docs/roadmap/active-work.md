@@ -24427,6 +24427,22 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Qualification continuation (partial, 2026-11-27):** All three original native
+  completion controls now pass in 2394.692 seconds with their original 900-second
+  inner and 3600-second worker limits. Exact a3 Windows isolated scaffold and
+  following native boundary controls pass; complete platform acceptance remains
+  open. Full source qualification stops at the unconditional contained Swift
+  case because the host has no Swift compiler. A signature-verified task-local
+  toolchain is prepared but awaits explicit installation authorization.
+  The full installed wheel gate remains failed. Focused installed catalog and
+  HTML drivers pass after canonical-coordinate repairs; refined command renewal
+  exposed a production planner/receiver coordinate defect now independently
+  reviewed, with fresh installed acceptance still required. The actual published
+  1.3.1 retained project has completed public metadata/release-policy migration,
+  Standard rebind, original native build/two tests/package, fresh receipt update,
+  currentness and validation. Independent review preserves the original receipt
+  policy, native source and Git state. Catalog/framework placement and the full
+  historical journey remain open. All 83 release goals remain in scope.
 - **Release execution on the development host (2026-11-26):** The directing user
   requests the next release from this host after custody consolidation. Current
   policy selects 1.4.0 after published 1.3.1; retain all 83 release goals and

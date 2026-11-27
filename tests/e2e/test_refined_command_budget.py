@@ -6,7 +6,6 @@ harness. It supplies no installed distribution or release qualification.
 
 from __future__ import annotations
 
-import json
 import os
 import shutil
 import unittest
@@ -17,6 +16,7 @@ from literate_ai.adapters import monorepo_components as components
 from literate_ai.adapters import retained_harness_readmission as readmission
 from literate_ai.adapters.monorepo_adoption import MonorepoAdoptionError
 from literate_ai.adapters.project_initialization import record_project_authority_review
+from literate_ai.adapters.retained_scaffold_coordinates import retained_scaffold_path
 from literate_ai.contracts.projects import ProjectScaleLimits
 from literate_ai.projects import ProjectConfigurationStore
 from tests.e2e import test_refined_command_readmission as fixtures
@@ -72,22 +72,31 @@ class RefinedCommandBudgetTests(unittest.TestCase):
             "project", "test-receipt", "require-current", "--project", str(self.root)
         )
         self.assertEqual(status, 0, envelope)
-        manifest = json.loads((self.root / "literate.project.json").read_bytes())
-        receipt_name = manifest["test_receipt"]
+        receipt_name = store.read().definition.test_receipt
         receipt = (self.root / receipt_name).read_bytes()
         self.assertGreater(len(receipt), 2)
 
         initial = self.plan()
         self.assertIn(receipt_name, initial["old_documents"])
         old_metadata_bytes = sum(
-            (self.root / name).stat().st_size
+            (
+                retained_scaffold_path(self.root, name)
+                if name.startswith(".literate/")
+                or name
+                in {"literate.project.json", readmission.HARNESS_WRAPPER_FILENAME}
+                else self.root / name
+            )
+            .stat()
+            .st_size
             for name in initial["old_documents"]
             if name != receipt_name
         )
         fitting_metadata_bytes = total_limit - len(receipt) // 2
         padding_size = fitting_metadata_bytes - old_metadata_bytes
         self.assertGreater(padding_size, 0, "fixture metadata already fills the budget")
-        wrapper = self.root / readmission.HARNESS_WRAPPER_FILENAME
+        wrapper = retained_scaffold_path(
+            self.root, readmission.HARNESS_WRAPPER_FILENAME
+        )
         wrapper_bytes = wrapper.read_bytes()
         # The canonical receipt consumer accepts the wrapper as exact arbitrary
         # bytes; Make permits comments. Do not change any canonical JSON report

@@ -326,10 +326,11 @@ def qualify_update(litai: Path, project: Path, distribution: str, parent: Path) 
     from literate_ai.contracts.html_observability import HtmlRenderRequest, HtmlView
     from literate_ai.projects import ProjectConfigurationStore
 
+    context = ProjectConfigurationStore.context(project)
     baseline, revision, updated = prepare_update_parent(
         parent, project.parent / "html-update-parent"
     )
-    authority = project / UPDATE_AUTHORITY
+    authority = context.framework_path(UPDATE_AUTHORITY)
     previous = authority.read_bytes()
     if updated != previous + UPDATE_MARKER:
         raise RuntimeError(
@@ -426,12 +427,12 @@ def qualify_update(litai: Path, project: Path, distribution: str, parent: Path) 
     ):
         raise RuntimeError("initial HTML verification did not bind the rendered inputs")
     original_html = (project / "graph.html").read_bytes()
-    manifest = (project / "literate.project.json").read_bytes()
+    manifest = context.manifest_path.read_bytes()
     plan = command("update", str(project), "--follow-ref", revision)
     require_update(plan, baseline, revision, applied=False)
     if (
         authority.read_bytes() != previous
-        or (project / "literate.project.json").read_bytes() != manifest
+        or context.manifest_path.read_bytes() != manifest
         or graph() != before_graph
         or (project / "graph.html").read_bytes() != original_html
     ):
@@ -468,7 +469,7 @@ def qualify_update(litai: Path, project: Path, distribution: str, parent: Path) 
         "source": "non-editable-wheel-cli",
         "parent_before": baseline,
         "parent_after": revision,
-        "authority_path": UPDATE_AUTHORITY,
+        "authority_path": authority.relative_to(project).as_posix(),
         "authority_identity": "sha256:" + hashlib.sha256(updated).hexdigest(),
         "graph_before": before_graph["identity"],
         "graph_after": after_graph["identity"],
@@ -678,6 +679,7 @@ def qualify_lock_health(litai: Path, project: Path, distribution: str) -> dict:
     from literate_ai.contracts.identity import canonical_identity
     from literate_ai.projects import ProjectConfigurationStore
 
+    context = ProjectConfigurationStore.context(project)
     store = ProjectConfigurationStore(project.resolve(strict=True))
     original = store.read()
     request = HtmlRenderRequest(
@@ -790,7 +792,7 @@ def qualify_lock_health(litai: Path, project: Path, distribution: str) -> dict:
             "report_identity": canonical_identity(report).uri,
         }
 
-    component = project / "samples/hello-component"
+    component = context.framework_path("samples/hello-component")
     artifacts = (
         component / "component.lock.json",
         component / "component.resolution-audit.host.json",
@@ -861,6 +863,7 @@ def qualify_verification_health(litai: Path, project: Path, distribution: str) -
     from literate_ai.projects import ProjectConfigurationStore
 
     project = project.resolve(strict=True)
+    context = ProjectConfigurationStore.context(project)
     store = ProjectConfigurationStore(project)
     original = store.read()
     request = HtmlRenderRequest(
@@ -958,7 +961,7 @@ def qualify_verification_health(litai: Path, project: Path, distribution: str) -
         if output.read_bytes() != before:
             raise RuntimeError("installed verification mutated the retained dashboard")
 
-    component = project / "samples/hello-component"
+    component = context.framework_path("samples/hello-component")
     lock = component / "component.lock.json"
     paths = (lock, component / "component.resolution-audit.host.json")
     retained = {path: path.read_bytes() if path.exists() else None for path in paths}
