@@ -1,0 +1,51 @@
+{
+  "review": "507 recorded-wrapper wire identity source review r1",
+  "created_utc": "2026-11-27T19:30:04.681347+00:00",
+  "head": "e51e6d9563a23895528213591639962d6dc6b4bd",
+  "files_sha256": {
+    "src/literate_ai/adapters/project_layout_recorded_wrapper_source.py": "9bd864c0b71af9d0838a53db6060c0e56fb05a0d5b19c66dbd41dae38b41c74f",
+    "tests/critical/test_recorded_wrapper_native_identity.py": "4b1d15d43ebea84ffdceb99b5a51268f07f957a70c0702a7411bcb3a15e9c082",
+    "src/literate_ai/_filesystem.py": "cb7dd6d3ed10f2c12f3476b727c38e4c8298d3d93fe4b997e3c7c898ba648c33"
+  },
+  "status": "source review closed; no actionable findings in wrapper portion",
+  "findings": [],
+  "coverage": [
+    "Inspected entire production diff and complete six-control test file, original factory dependency/binding/check/invoke/require/issuance/close call paths, original observations/projector construction, and scalar implementation.",
+    "Projection changes only identity preimage. First two dev/ino fields use existing exact-int supported-width conversion; native tails remain unchanged. New nested dictionaries and stamp tuples do not mutate original owner observations or root tuple.",
+    "Raw issued values, registry membership, native/currentness validation, closing values, and seven-entry original source admission remain unchanged.",
+    "Factory checks captured module aliases plus original helper/scalar code, defaults and kwdefaults before and after callback boundaries. require_original with invalid owner deliberately reaches implementation check first.",
+    "Original signed64 preimage retains same canonical JSON bytes. Wide native IDs have exact decimal representations in identity preimage; owner guards continue using raw native integers."
+  ],
+  "dependency_analysis": {
+    "scalar_ast_load_names": [
+      "ValueError",
+      "int",
+      "str",
+      "type",
+      "value"
+    ],
+    "used_application_binding": "project_layout_recorded_wrapper_source.stat_identity_value, already captured in original dependencies/bindings",
+    "additional_module_export_seal_required": false,
+    "reason": "Captured scalar function reads no application-module globals. It does not resolve its defining module stat_identity_value export, nor is_stat_identity_value. Guarding those unused exports would not protect this call path.",
+    "trust_boundary": "Existing Python builtin/module/closure-introspection trust boundary is unchanged; no claim to resist arbitrary interpreter mutation."
+  },
+  "controls_reviewed": [
+    "wide dev/ino JSON roundtrip, all seven entry tails/raw facts unchanged, changed ID changes identity",
+    "ordinary IDs preserve exact old canonical bytes",
+    "unsupported native width and non-integer root IDs refuse",
+    "helper/scalar same-object code replacement refuses before use",
+    "helper/scalar alias replacement refuses before foreign call",
+    "helper/scalar defaults and kwdefaults replacement refuses before use"
+  ],
+  "execution_limits": {
+    "reviewer_test_execution": "none; parent requested source review and owns gates",
+    "parent_reported": "original 37 wrapper controls passed; refined initial five passed. Final sixth control execution pending at time of review.",
+    "not_claimed": [
+      "native Windows acceptance",
+      "catalog implementation review",
+      "complete issue 507 closure",
+      "full installed/native release acceptance"
+    ],
+    "other_dirty_files": "CHANGELOG.md/docs/roadmap/active-work.md appeared during review and are outside this source review; no source bytes modified by reviewer."
+  }
+}

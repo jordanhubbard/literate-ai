@@ -1,0 +1,122 @@
+{
+  "status": "bounded-read-only-design-no-implementation-or-test-execution",
+  "issue": 507,
+  "head": "e51e6d9563a23895528213591639962d6dc6b4bd",
+  "source_sha256": {
+    "src/literate_ai/_filesystem.py": "cb7dd6d3ed10f2c12f3476b727c38e4c8298d3d93fe4b997e3c7c898ba648c33",
+    "src/literate_ai/contracts/identity.py": "730437c1a4ac356474b45d6b260dbf16b76a42bff3125d1674d0627fc4b2fb3b",
+    "src/literate_ai/adapters/project_layout_recorded_wrapper_source.py": "9bd864c0b71af9d0838a53db6060c0e56fb05a0d5b19c66dbd41dae38b41c74f",
+    "src/literate_ai/adapters/project_layout_catalog_continuation.py": "9ee6b4eda88cfb5e32c80a03566855a039c70a78f399b10fe33e5cb3c9b5daff",
+    "schemas/v2/project-layout-catalog-continuation.schema.json": "bc90dbfe92e3980e9a561bfec8bc8875abe742f2bfc613947ba07252d5906151",
+    "src/literate_ai/adapters/project_layout_continuation.py": "472c7e2c59e49eb2cb07f64d89db64023a94cca8e4dcc595902f4324399df653",
+    "src/literate_ai/adapters/project_layout_migration.py": "5c781abbdcbfdcce3ce2c64ad2d59438854566ae5b3951320b0ffe5ed07fe522",
+    "src/literate_ai/adapters/project_layout_catalog_successor.py": "75d04c51f32600a9d92de0690f7cfd058eccbf881ead147d51f588eae1510578",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "963c161904ff3b3b34c94e83b9c894eb1442dc8f2bf4b7b8a283ca3f64b1469f",
+    "src/literate_ai/adapters/project_layout_catalog_finalization.py": "ec758edc4ce9f19f01ee59fea5115211a8656be2baf4b4f10e7d24de183e5755",
+    "src/literate_ai/adapters/component_namespace_closing.py": "21d388c5d440f273b8137392f0cefc4cbbb8579fee9fac60f4181d70042e7fcd",
+    "tests/critical/test_native_child_stat_identity.py": "17c74f0c9fdd88b43fa6ca5a6727330a742bcc9213bf587a2e301d901c265351",
+    "tests/critical/test_project_layout_framework_plan.py": "f10f8fadf2960ff8bfd9b7076847a9fa27c22dac600c73e98f0c11d48d221577"
+  },
+  "observed_scope": "Exactdf6 Windows8production serialization failures:7cases share one wrapper preimage factory (not7independentencoders);1catalog framework_node field. Field0 is native st_dev, not inode. Prior artifacts/logs retained.",
+  "existing_convention": {
+    "scalar": "_filesystem.stat_identity_value returns original int for signed64 and canonical decimal str for wider supported native [-2^127,2^128) values. is_stat_identity_value enforces exactone representation, rejects smallintstrings/bools/noncanonicalwidth.",
+    "owner_constraints": "Catalog original physical IDs are nonnegative: keep that constraint in addition to scalar canonical-shape validation. Modes remain exact ints with appropriate regular/directory type; UID/GID,size,times,counts keep original numeric validation.",
+    "generic_JSON": "contracts.identity canonical signed64 limit remains unchanged; no floats/larger arbitrary JSONints accepted.",
+    "whole_node_reuse": "No equivalent generic whole-node encoder found. Native child physical_node/_key/directory_node have their own stat/path inputs and3/8/9field layouts; do not import unrelated custody owners to encode wrapper5field or stamp7field vectors. Reuse scalar convention through small owner-local pure projection."
+  },
+  "wrapper_first_minimal_coherent_repair": {
+    "site": "project_layout_recorded_wrapper_source.py435-447 canonicalidentity preimage",
+    "raw_fields": {
+      "source_root_node": "(dev,ino,mode,uid,gid) from actual retained root425-431",
+      "original_native_entries": "Seven converter leaf records from retained.record_observations, each stamp=(dev,ino,mode,size,mtime_ns,ctime_ns,nlink) from planning._stamp79."
+    },
+    "projection": "Small pure _source_identity_native_fields(raw_root,observations) returns NEWwiredata only. Encode first2fields of root and every leaf stamp using original scalar helper. Preserve every other field/type and original map membership/bytes. Use this only in identity preimage; owner.source_root_node, owner.entry_observations, retained nodes and live same-device/currentness checks remain raw integer facts.",
+    "custody": "Capture original modulehelper+scalar alias/modulebinding and code/default/kwdefault states in same finite factory; test replacement or in-place code/default mutation refuses BEFORE invoking foreign helper. Do not capture new baseline from a changed callback. No lease/admission/token issued by puredata helper.",
+    "compatibility": "Ordinary signed64 preimage bytes and resulting identity unchanged; wide IDs previously unhashable gain exactrepresentation. Mode never stringified; no domain rename needed solely for unsupportedwideIDs."
+  },
+  "catalog_complete_wire_design": {
+    "model": "Keep measured live IDs native ints. Persisted/public node data uses canonical int-or-decimal-string only at known native-ID fields. Strictly decode those data fields to raw native ints at equality/native-move call boundary, or encode raw measured comparand to canonical wire before comparison. Pick one clear local convention and apply all joins consistently; never mutate a hashed plan/intent in place into rawwideints. No generic recursive stringify-all-integers serializer.",
+    "public_plan": {
+      "producer": "catalog_continuation.py721-722 root_node/framework_node encode dev/ino;mode int",
+      "codec": "decode_catalog_continuation_plan873: strict bounded3vector; first2 canonical stat IDs+nonnegative;mode exact integer/appropriate directorymode. Reject before hashing malformed huge raw int, small numericstring,bool,leadingzero,+,negativezero,outofrange,stringmode.",
+      "schema": "project-layout-catalog-continuation.schema.json59/68 allow exact canonical signed64int or supported wide decimal-string first2 items, third integer mode; align authoritative decoder, no arbitrarystrings.",
+      "result": "continuation-result decoder nests originalplan unchanged and reusesplancodec; result schema referencesupdatedplan. No new execution/permission fields."
+    },
+    "comparison_joins": [
+      {
+        "owner": "project_layout_migration._guard_git792",
+        "join": "Common original root list(directory_node(root)) vs plan.root_node currentlyraw; compare exact decoded canonical IDs to raw observedtuple, preserveGitstatecheck. Must remain compatible with existing ordinary metadata/frame/catalogplans."
+      },
+      {
+        "owner": "project_layout_continuation._node61/_entries108-109/_guard91",
+        "join": "Current nodevalidator integer-only; distinguish strict wire decode from raw measured node, modeint. Frameworkdir nativecompare mustdecode/encode consistently."
+      },
+      {
+        "owner": "project_layout_continuation._directory_inventory/_observed_node198-251",
+        "join": "Native observed root/ancestor tuples feed durable original_directories; encode those known node fields for journal, retain fresh raw comparisons."
+      },
+      {
+        "owner": "project_layout_continuation._decode_intent1259-1263",
+        "join": "Original directory bindings fordot/litai must equal canonical planwire values or compare decoded counterparts exactly; nostr-int falsemismatch/noinplacemutation."
+      },
+      {
+        "owner": "project_layout_catalog_successor._observe_catalog_successor106 and metadatahandoff loops",
+        "join": "Catalog and framework root/framework plan fields must use same exact existing stat convention. Both actual epoch native row comparisons need decoded data nodes versus raw view, including frameworkoriginalbefore/afterpostimage and catalogstate handback. No renewedownership from strings."
+      }
+    ],
+    "durable_native_fields_to_cover": {
+      "catalog_intent": "entries[*].node/after_node; original_directories[*]; new_directories[*].node; journal_node/journal_directories[*]; history[*].node; coordination/source_coordination[*].node and native_node (kind posix2IDs or nt3IDs, not modevector). Nested original plan remains untouched wiredata.",
+      "catalog_renewal": "Renewal entries node/after_node, original_directories parents, journal_node/journal_directories and source/catalog parentjoins. Current _parent returns raw expectedtuple; decode canonical IDs before exclusive native moves.",
+      "source_finalization": "Catalog finalization copies source_node/source_parent_node/archive_parent_node plus payload/coordination/emptydir records into component_namespace_closing. Update strictnodecodec and exactlive/node/expectedtuple joins consistently. Existing POSIX _posix gate remains before source effects."
+    },
+    "live_effect_boundaries": [
+      "continuation._view/_matches/_entry_state, _guard_directories/_guard_journal, _coord_matches/_coordination_view, _scaffolding nativechecks; preserve original freshness/nofollow/identity checks.",
+      "continuation._move/_move_directory forwards expected nodes into original migration raw-native move functions; decode validated wireIDs before those calls instead of globally changing _file/directory_node native returns.",
+      "catalog_renewal._state/_parent/_move/_guard_journal/_stage and intentvalidation; canonical intent identities rehash serializeddata exactly.",
+      "catalog_finalization and component_namespace_closing _validate_record/live source checks/native publish/recoveryjoins; serializedsource closure IDs must not be blindly passed as stringtuples to native helpers."
+    ],
+    "authority_limits": "Keep _worktree POSIX-exclusive migration refusal, component_namespace_closing._posix and all original lease/namespace/custody/equality/currentness checks. Decoding is data validation, never a fresh actor, reentrancy, mutation or Windows qualification grant. No automatic rewrite of old historical journals."
+  },
+  "meaningful_controls_without_spoofing_native_acceptance": [
+    {
+      "scope": "Pure wrapper wiredata helper",
+      "cases": "Original signed64 root+all7stamp fields produce identical canonicalbytes; real first2 wide values str(2^63),str(2^127) preserveeverydigit and changingonebit changesidentity. All modes/otherints unchanged; raw original tuples/maps remain unchanged. This test does NOT construct OriginalRecordedWrapperSource/livelease."
+    },
+    {
+      "scope": "Helper provenance",
+      "cases": "Alias/helpercode/defaultmutation refuses before foreigncall; originalscalar moduledelegate changed likewise; no fake os.name or replaced originalobserver admitted as nativeproof."
+    },
+    {
+      "scope": "Catalog plan codecs/schema",
+      "cases": "Existing actualplan fixture copied asDATA, inject canonical wide root/frameworkIDs then recomputeidentity; strictcodec/result/schema roundtrip. Explicitmalformed IDrepresentations+modebool/string reject beforecanonicalhash; ordinary planbyteidentity unchanged. Dataonly fixture cannot authorizeapply."
+    },
+    {
+      "scope": "Journal/native joins",
+      "cases": "Exercise complete explicit serializednode-field roundtrip across catalogintent/renewal/sourceclosure with modeled immutablewire facts, decode yields exactnativeinteger tuples. One-bit/device/inode mismatch,foreignroot and changed native data refuse; no int-string alias equivalence beyond canonical convention. Validate source/destination movecalls receive original ints through transparent originaleffect controls on actualsupportedPOSIX paths."
+    },
+    {
+      "scope": "Existing original controls",
+      "tests": [
+        "test_project_layout_recorded_wrapper_source.py",
+        "test_project_layout_recorded_component.py",
+        "test_project_layout_recorded_target.py",
+        "test_project_layout_component_transition.py",
+        "test_project_layout_fresh_producer.py",
+        "test_project_layout_continuation.py",
+        "test_project_layout_catalog_renewal.py",
+        "test_project_layout_catalog_successor_controls.py",
+        "test_catalog_successor_membership.py",
+        "test_project_layout_public_component_flow.py",
+        "test_native_child_stat_identity.py",
+        "test_project_layout_framework_plan.py"
+      ],
+      "limit": "Originalnative width facade in test_native_child_stat_identity.py is explicitlysimulated and may violate wrapperoriginalcallbackseals if patchedinto observer; reuse scalarboundary test ideas only, not forgedoriginalfactory capture. Actualnative affectedWindows8cases/readback required after coherent sourcefix."
+    }
+  ],
+  "limits": [
+    "No implementation/test edits, native probes, CIjobs/reruns/posts or project/prefix mutation.",
+    "Other root live505/source test and62847historicalfinalizer nottouched.",
+    "Design enumerates necessaryfield/join closure; not a completed implementation/source/host acceptance attestation.",
+    "No widened canonicalJSON, truncated IDs, modeconversion, new authority, POSIXmutation expansion or release acceptance."
+  ]
+}

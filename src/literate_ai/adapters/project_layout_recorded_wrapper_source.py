@@ -17,6 +17,7 @@ import weakref
 from dataclasses import dataclass, fields
 from types import MappingProxyType
 
+from literate_ai._filesystem import stat_identity_value
 from literate_ai.adapters import harness_inventory as renderer
 from literate_ai.adapters import project_layout_recorded_wrapper_projection as projector
 from literate_ai.adapters.project_layout_framework_observation import (
@@ -33,6 +34,26 @@ from literate_ai.adapters.project_layout_retained_source_observation import (
     require_original_bounded_retained_source,
 )
 from literate_ai.contracts import ProjectInitializationBaselineFile, canonical_identity
+
+
+def _native_identity_fields(source_root_node, observations):
+    """Project native facts into identity data without changing the live facts."""
+    return {
+        "source_root_node": [
+            stat_identity_value(value) if index < 2 else value
+            for index, value in enumerate(source_root_node)
+        ],
+        "original_native_entries": {
+            name: {
+                **node,
+                "stamp": tuple(
+                    stat_identity_value(value) if index < 2 else value
+                    for index, value in enumerate(node["stamp"])
+                ),
+            }
+            for name, node in observations.items()
+        },
+    }
 
 
 def _bind_original_source():
@@ -68,6 +89,8 @@ def _bind_original_source():
             require_original_bounded_retained_source,
         ),
         ("canonical_identity", canonical_identity),
+        ("stat_identity_value", stat_identity_value),
+        ("_native_identity_fields", _native_identity_fields),
     )
     original = dict(dependencies)
     error = original["ProjectLayoutPlanError"]
@@ -78,6 +101,11 @@ def _bind_original_source():
     initialization = original["original_framework_initialization"]
     close_nodes = original["_close_bound_source_nodes"]
     identity = original["canonical_identity"]
+    native_fields = original["_native_identity_fields"]
+    native_codes = tuple(
+        (function, function.__code__, function.__defaults__, function.__kwdefaults__)
+        for function in (native_fields, original["stat_identity_value"])
+    )
     project = projector.project_recorded_legacy_wrapper_authority
     getpid, ref, lstat = os.getpid, weakref.ref, os.lstat
     sha256, loads = hashlib.sha256, json.loads
@@ -211,6 +239,13 @@ def _bind_original_source():
     def check():
         if any(namespace.get(name) is not value for name, value in bindings.items()):
             fail("original recorded-wrapper source implementation changed")
+        if any(
+            function.__code__ is not code
+            or function.__defaults__ is not defaults
+            or function.__kwdefaults__ is not keywords
+            for function, code, defaults, keywords in native_codes
+        ):
+            fail("original recorded-wrapper native identity producer changed")
         for module, name, value in delegates:
             if vars(module).get(name) is not value:
                 fail("original recorded-wrapper producer/read delegate changed")
@@ -440,10 +475,7 @@ def _bind_original_source():
                 "resources": resources.identity,
                 "current_raw_source": retained_source.raw,
                 "scope": retained_source.scope,
-                "source_root_node": list(source_root_node),
-                "original_native_entries": {
-                    name: dict(node) for name, node in observations.items()
-                },
+                **invoke(native_fields, source_root_node, observations),
             },
         ).uri
         values = (

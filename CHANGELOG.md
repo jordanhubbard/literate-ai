@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Preserve wide native device and inode IDs in recorded-wrapper source proof
+  identities without changing live native observations.
+
 - Reject missing forest-operation acknowledgement and foreign planning inputs
   before inspecting native witnesses, retaining full original-owner checks.
 

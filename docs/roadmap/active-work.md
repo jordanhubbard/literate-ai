@@ -24477,6 +24477,14 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   controls passing and independent review closed; native Windows remains open.
   [#507](https://github.com/jordanhubbard/literate-ai/issues/507) owns lossless
   wide native-ID serialization across proof, plan, codec and comparison joins.
+  Its recorded-wrapper proof preimage now encodes only device/inode fields using
+  the existing lossless representation; original live native facts remain integers.
+  All 37 original wrapper controls pass with zero skips. New wire-data controls
+  cover seven leaf stamps, unchanged ordinary identity bytes, wide-ID roundtrips,
+  changed-ID hashes and helper tampering. All six new controls pass with zero
+  skips; independent wrapper source review is closed with no findings.
+  Catalog plan/journal/renewal/source-closure wire joins and native Windows
+  readback remain open; the issue is not closed by the wrapper repair alone.
   [#508](https://github.com/jordanhubbard/literate-ai/issues/508) owns native
   Windows control observations; actual mismatched fields remain unproven.
   Next: integrate these repairs with original guards and deadlines, obtain native

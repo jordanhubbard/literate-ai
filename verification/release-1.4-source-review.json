@@ -2218,5 +2218,61 @@
     },
     "unchanged_original_test_sha256": "23c3dca561c96c0764f444a6cc7b2d57a67a5a73c943602f9ba30dd3c3f56f12",
     "limits": "These original source cohorts preserve all assertions/deadlines. Installed historical candidate remains immutable e0ed42469 and its catalog finalizer remains live under original1800. No issue closure, release preparation or publication. All83goals retained."
+  },
+  "qualification_followup_r23": {
+    "issue": 507,
+    "status": "wrapper wire-only projection independently reviewed; final6 and original37 controls pass0skip; catalog complete wire path open",
+    "reports": {
+      "wrapper-native-identity-r23-report.json": {
+        "sha256": "b34226cb04af53b26185ba8c86181c244d8fd7d67d5b2e8fae61b82c66a8b666",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        }
+      },
+      "wrapper-native-identity-r23b-report.json": {
+        "sha256": "16f056105b869f80d2e40fe5288186372a764add7ddb26a07e27838bfed9cf59",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        }
+      },
+      "wrapper-original-r23-report.json": {
+        "sha256": "88cdb5159963fd15c6a0e5b6efaab328ff55fd0c305dea207d12189bee6d4941",
+        "summary": {
+          "executed": 37,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 37,
+          "selected": 37,
+          "skipped": 0
+        }
+      },
+      "wrapper-native-identity-r23c-report.json": {
+        "sha256": "1296247395591781d662672ff239754301c74479eadab21b0194f828c372abe8",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        }
+      }
+    },
+    "limits": "Wide-ID controls are modeled wire data, do not issue an original source owner and do not claim native Windows acceptance. Original37 wrapper controls pass on production bytes. First5 newcontrols passed with9fieldstamp, refined5 passed with exact7fieldstamp; final6 passes including default/kwdefault cuts. No assertion/deadline relaxation. Original live native facts remain integers; ordinary preimage bytes unchanged. Original83goals preserved, no issueclosure or prepare/tag/publication.",
+    "next": "Implement completecatalog schema/codec/journal/native joins per independentdesign, then affected actualWindows readback. Wrapper scope does not close issue507.",
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-507-lossless-wire-design-r1.json",
+      "verification/release-1.4-followup/review-authority-507-wrapper-wire-source-r1.json"
+    ]
   }
 }
