@@ -304,6 +304,44 @@ class WindowsCleanupHandleTests(unittest.TestCase):
             )
             self.assertTrue(facade.calls)
 
+    def test_02_original_scaffold_publication_retires_only_original_nodes(self):
+        from tests.critical.test_scaffold_custody_owner import ScaffoldCustodyTests
+
+        original = ScaffoldCustodyTests("runTest")
+        original.setUp()
+        self.addCleanup(original.doCleanups)
+        with WindowsFacade(self).installed() as facade:
+            original.test_real_creators_replace_owned_file_then_retire_only_owned_outputs()
+            self.assertTrue(facade.calls)
+
+    def test_03_scaffold_post_delete_foreign_replacement_is_preserved(self):
+        from literate_ai.adapters import scaffold_custody as custody
+
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name).resolve()
+        foreign = root / "foreign"
+        foreign.write_bytes(b"same")
+        foreign_inode = foreign.stat().st_ino
+        with WindowsFacade(self).installed() as facade:
+            with custody.scaffold_custody(root) as owner:
+                target = root / "litai/value"
+                custody.scaffold_write_bytes(target, b"same")
+                before = target.stat()
+                self.assertNotEqual(before.st_ino, foreign_inode)
+                os.utime(foreign, ns=(before.st_atime_ns, before.st_mtime_ns))
+
+                def replace(path):
+                    self.assertEqual(path, target)
+                    foreign.rename(path)
+
+                facade.after_close = replace
+                with self.assertRaises(custody.ScaffoldCustodyError):
+                    owner.rollback()
+                self.assertEqual(target.read_bytes(), b"same")
+                self.assertEqual(target.stat().st_ino, foreign_inode)
+                self.assertEqual(len(facade.calls), 1)
+
     def leaf(self, *, directory=False):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)

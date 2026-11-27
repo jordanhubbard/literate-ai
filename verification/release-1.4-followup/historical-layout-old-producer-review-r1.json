@@ -1,0 +1,603 @@
+{
+  "schema": "literate-ai/independent-historical-layout-old-producer-review@1",
+  "status": "Genuine published old initializer/native baseline+wrapper parity/source custody independently verified; candidate migration not reviewed or accepted.",
+  "public_apply": {
+    "argv": [
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r1/environment/bin/python",
+      "-I",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r1/environment/bin/litai",
+      "--json",
+      "init",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native",
+      "--convert",
+      "--run-baseline",
+      "--default-branch",
+      "main",
+      "--no-tool-bootstrap",
+      "--from",
+      "https://github.com/jordanhubbard/literate-ai.git#87506c804210c46835723e11d1ca1c6cae0f496c"
+    ],
+    "cwd": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native",
+    "exit": 0,
+    "seconds": 279.46752679298515,
+    "outer_timeout_seconds": 1800,
+    "baseline_timeout_seconds": 1800,
+    "HOME_unchanged": true,
+    "external_OBJ_DIR": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/obj"
+  },
+  "published_old_wheel_sha256": "4b075b0b7727a11785a59359ccc3fc2de327baad46ec45350faeb66ddfc14c15",
+  "old_installed_payload_members_rechecked": 1112,
+  "old_installed_payload_mismatches": [],
+  "old_initialization_origin": {
+    "distribution_name": "literate-ai",
+    "distribution_version": "1.3.1",
+    "git_revision": "87506c804210c46835723e11d1ca1c6cae0f496c",
+    "repository_url": "https://github.com/jordanhubbard/literate-ai",
+    "schema": "urn:literate-ai:schema:v1:project-initialization-origin"
+  },
+  "old_manifest_legacy_root": true,
+  "contained_manifest_absent": true,
+  "source_scope": {
+    "excluded": [
+      {
+        "class": "test-or-analysis-cache",
+        "present_root_count": null,
+        "root_count": 1
+      },
+      {
+        "class": "vcs-ignored",
+        "present_root_count": null,
+        "root_count": 1
+      }
+    ],
+    "excluded_roots": [
+      "__pycache__",
+      "app.zip"
+    ],
+    "paths": [
+      ".gitignore",
+      "Makefile",
+      "app.py",
+      "test_app.py"
+    ],
+    "paths_identity": "sha256:72634e4acd2f7301cf02cca2a64dec0c2f5b0647d257bc67905750b869fb32cc",
+    "policy": "git-visible@1",
+    "schema": "literate-ai/retained-source-scope@1"
+  },
+  "native_payload_custody": [
+    {
+      "original_path": "test_app.py",
+      "current_path": "components/legacy-project-wrapper/implementation/test_app.py",
+      "sha256": "56b4a6feb9a025ca25eda7a6adb4d0dc654ff7f35e125dcb5a834be4531f464b",
+      "bytes": 193,
+      "device": 1813,
+      "inode": 11848516,
+      "mtime_ns": 1795773862415490478,
+      "matches_original_byte_and_native_facts": true
+    },
+    {
+      "original_path": "Makefile",
+      "current_path": "components/legacy-project-wrapper/implementation/Makefile",
+      "sha256": "a673a5bcc1dc7878a5136c1d6414746df1ac342e9a9e5fe03ed028387d592460",
+      "bytes": 147,
+      "device": 1813,
+      "inode": 11848517,
+      "mtime_ns": 1795773862415515119,
+      "matches_original_byte_and_native_facts": true
+    },
+    {
+      "original_path": ".gitignore",
+      "current_path": "components/legacy-project-wrapper/implementation/.gitignore",
+      "sha256": "f996b5ad9b75106c60fd509debb9032c34463b1841809e600f81106459dba27e",
+      "bytes": 21,
+      "device": 1813,
+      "inode": 11848518,
+      "mtime_ns": 1795773862415538191,
+      "matches_original_byte_and_native_facts": true
+    },
+    {
+      "original_path": "app.py",
+      "current_path": "components/legacy-project-wrapper/implementation/app.py",
+      "sha256": "ba1a531f581d2e6094e978ed6f7aca7a8d92eeb62c6e7ad73ee692f7f18bc772",
+      "bytes": 32,
+      "device": 1813,
+      "inode": 11848515,
+      "mtime_ns": 1795773862415455454,
+      "matches_original_byte_and_native_facts": true
+    },
+    {
+      "original_path": "app.zip",
+      "current_path": "components/legacy-project-wrapper/implementation/app.zip",
+      "sha256": "910d7de3d20c971a134b83708b93fd3b29e2319bcc3c688628788b47cdcfe7df",
+      "bytes": 142,
+      "device": 1813,
+      "inode": 11848531,
+      "mtime_ns": 1795773862622092696,
+      "matches_original_byte_and_native_facts": true
+    },
+    {
+      "original_path": "__pycache__/app.cpython-314.pyc",
+      "current_path": "components/legacy-project-wrapper/implementation/__pycache__/app.cpython-314.pyc",
+      "sha256": "83c16bd365da560eee4a4226977722a7e2e5dd4f54c3905f37ab8269c3e01653",
+      "bytes": 223,
+      "device": 1813,
+      "inode": 12012344,
+      "mtime_ns": 1795773862495801483,
+      "matches_original_byte_and_native_facts": true
+    }
+  ],
+  "native_source_scope_equality": true,
+  "execution": [
+    {
+      "stage": "direct",
+      "state": "passed",
+      "phases": [
+        {
+          "phase": "build",
+          "exit_code": 0,
+          "timed_out": false,
+          "output_within_limits": true,
+          "test_collection": {
+            "failed": null,
+            "known_failed": null,
+            "passed": null,
+            "skipped": null,
+            "state": "not-applicable",
+            "total": null
+          },
+          "source_tree": {
+            "file_count": 4,
+            "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+            "missing_count": 0,
+            "scope": "authored-source",
+            "total_bytes": 393
+          },
+          "duration_milliseconds": 65,
+          "timeout_seconds": 1800
+        },
+        {
+          "phase": "test",
+          "exit_code": 0,
+          "timed_out": false,
+          "output_within_limits": true,
+          "test_collection": {
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 2,
+            "skipped": 0,
+            "state": "nonempty",
+            "total": 2
+          },
+          "source_tree": {
+            "file_count": 4,
+            "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+            "missing_count": 0,
+            "scope": "authored-source",
+            "total_bytes": 393
+          },
+          "duration_milliseconds": 65,
+          "timeout_seconds": 1800
+        },
+        {
+          "phase": "package",
+          "exit_code": 0,
+          "timed_out": false,
+          "output_within_limits": true,
+          "test_collection": {
+            "failed": null,
+            "known_failed": null,
+            "passed": null,
+            "skipped": null,
+            "state": "not-applicable",
+            "total": null
+          },
+          "source_tree": {
+            "file_count": 4,
+            "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+            "missing_count": 0,
+            "scope": "authored-source",
+            "total_bytes": 393
+          },
+          "duration_milliseconds": 65,
+          "timeout_seconds": 1800
+        }
+      ]
+    },
+    {
+      "stage": "wrapper",
+      "state": "passed",
+      "phases": [
+        {
+          "phase": "build",
+          "exit_code": 0,
+          "timed_out": false,
+          "output_within_limits": true,
+          "test_collection": {
+            "failed": null,
+            "known_failed": null,
+            "passed": null,
+            "skipped": null,
+            "state": "not-applicable",
+            "total": null
+          },
+          "source_tree": {
+            "file_count": 4,
+            "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+            "missing_count": 0,
+            "scope": "authored-source",
+            "total_bytes": 393
+          },
+          "duration_milliseconds": 65,
+          "timeout_seconds": 1800
+        },
+        {
+          "phase": "test",
+          "exit_code": 0,
+          "timed_out": false,
+          "output_within_limits": true,
+          "test_collection": {
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 2,
+            "skipped": 0,
+            "state": "nonempty",
+            "total": 2
+          },
+          "source_tree": {
+            "file_count": 4,
+            "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+            "missing_count": 0,
+            "scope": "authored-source",
+            "total_bytes": 393
+          },
+          "duration_milliseconds": 65,
+          "timeout_seconds": 1800
+        },
+        {
+          "phase": "package",
+          "exit_code": 0,
+          "timed_out": false,
+          "output_within_limits": true,
+          "test_collection": {
+            "failed": null,
+            "known_failed": null,
+            "passed": null,
+            "skipped": null,
+            "state": "not-applicable",
+            "total": null
+          },
+          "source_tree": {
+            "file_count": 4,
+            "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+            "missing_count": 0,
+            "scope": "authored-source",
+            "total_bytes": 393
+          },
+          "duration_milliseconds": 65,
+          "timeout_seconds": 1800
+        }
+      ]
+    },
+    {
+      "stage": "lift_shift_wrapper",
+      "state": "passed",
+      "phases": [
+        {
+          "phase": "build",
+          "exit_code": 0,
+          "timed_out": false,
+          "output_within_limits": true,
+          "test_collection": {
+            "failed": null,
+            "known_failed": null,
+            "passed": null,
+            "skipped": null,
+            "state": "not-applicable",
+            "total": null
+          },
+          "source_tree": {
+            "file_count": 4,
+            "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+            "missing_count": 0,
+            "scope": "authored-source",
+            "total_bytes": 393
+          },
+          "duration_milliseconds": 66,
+          "timeout_seconds": 1800
+        },
+        {
+          "phase": "test",
+          "exit_code": 0,
+          "timed_out": false,
+          "output_within_limits": true,
+          "test_collection": {
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 2,
+            "skipped": 0,
+            "state": "nonempty",
+            "total": 2
+          },
+          "source_tree": {
+            "file_count": 4,
+            "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+            "missing_count": 0,
+            "scope": "authored-source",
+            "total_bytes": 393
+          },
+          "duration_milliseconds": 66,
+          "timeout_seconds": 1800
+        },
+        {
+          "phase": "package",
+          "exit_code": 0,
+          "timed_out": false,
+          "output_within_limits": true,
+          "test_collection": {
+            "failed": null,
+            "known_failed": null,
+            "passed": null,
+            "skipped": null,
+            "state": "not-applicable",
+            "total": null
+          },
+          "source_tree": {
+            "file_count": 4,
+            "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+            "missing_count": 0,
+            "scope": "authored-source",
+            "total_bytes": 393
+          },
+          "duration_milliseconds": 66,
+          "timeout_seconds": 1800
+        }
+      ]
+    }
+  ],
+  "phase11_parity_identity": "sha256:d2fad670e66002dec0ade88c64f1559eb549dee5654f38fe62d25c1154179ab6",
+  "lift_phase11_join_matches": true,
+  "conversion_authority": {
+    "evidence_identities": [
+      "sha256:9c0f019775ac50a376d77aefd297ad28a347782a7666eb52af4aa0c84f2772c0"
+    ],
+    "prior_state_identity": null,
+    "project_id": "native",
+    "release_authority": "original-source",
+    "schema": "literate-ai/conversion-authority@1",
+    "stage": "wrapped"
+  },
+  "original_lifecycle_driver": {
+    "schema": "urn:literate-ai:schema:v2:project-lifecycle-driver",
+    "binding": "standard",
+    "framework_distribution_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "6a636229b3f17edca9a7bdeb140f2b0fa6ff7b922a8d481dda9457fae26a5bc2"
+    },
+    "policy_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+    }
+  },
+  "original_test_receipt_policy": {
+    "schema": "urn:literate-ai:schema:v1:project-test-receipt-policy",
+    "suite_id": "retained-legacy-parity",
+    "suite_version": "1.0.0",
+    "runner_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "27e756a4f114c9311be32c512d18b40082ed519a940c1c204032067003897c0e"
+    },
+    "required_evidence_kinds": [
+      "build-result",
+      "lifecycle-command",
+      "lifecycle-plan",
+      "lifecycle-request",
+      "observation-result",
+      "package-result",
+      "source-cache-decision",
+      "source-cache-lifecycle",
+      "test-report",
+      "test-runner",
+      "workspace-admission"
+    ],
+    "minimum_test_count": 1
+  },
+  "original_test_receipt_path": "verification/current.json",
+  "git": {
+    "head": "846df7cf2dc663d5354d8274df38948969998c43",
+    "original_preplan_index_sha256": "c1bef04ff4fdb77307b492349b5d2bf42d7058864191b1621105f4d8cf1840a8",
+    "postconversion_index": {
+      "sha256": "a8d1defd581c27cdd8c41022454ce9f54ddaf36e83a47697d1c9b0b007a81f60",
+      "bytes": 542,
+      "device": 1813,
+      "inode": 11881291,
+      "mtime_ns": 1795774188594071690
+    },
+    "index_transition": "Four intentional staged git mv renames by published conversion. Postconversion index is the baseline for candidate migration; do not assert equality across initial conversion.",
+    "tracked_renames": [
+      ".gitignore",
+      "Makefile",
+      "app.py",
+      "test_app.py"
+    ]
+  },
+  "bound_producer_files": [
+    {
+      "path": "historical-layout-r2/native/literate.project.json",
+      "sha256": "a45773af10c73cf72c9394cc9ad28263ea44ee69798e6a2040d8d8730146f023",
+      "bytes": 3822,
+      "device": 1813,
+      "inode": 11849390,
+      "mtime_ns": 1795774188406791618
+    },
+    {
+      "path": "historical-layout-r2/native/litai.harness.mk",
+      "sha256": "994961c9c2de0183bfd7097fcc1af3b58e4e3bc067a1c650774f61be2b9d1096",
+      "bytes": 515,
+      "device": 1813,
+      "inode": 11849388,
+      "mtime_ns": 1795774188594690532
+    },
+    {
+      "path": "historical-layout-r2/native/literate.release.json",
+      "sha256": "c95dfe77fb34c508f89be00b8eea336e7ab04419c7b706a77a0bd32397b97a37",
+      "bytes": 749,
+      "device": 1813,
+      "inode": 11849397,
+      "mtime_ns": 1795774188569638438
+    },
+    {
+      "path": "historical-layout-r2/native/components/legacy-project-wrapper/component.md",
+      "sha256": "c0c822d25a9e2bfd64136da8445cb8cae0e411a874b70ca2c67de9ed30291f3d",
+      "bytes": 1620,
+      "device": 1813,
+      "inode": 12569422,
+      "mtime_ns": 1795774188193066487
+    },
+    {
+      "path": "historical-layout-r2/native/components/legacy-project-wrapper/component.lock.json",
+      "sha256": "0df26f94ef525ed19eeecbb73fbc87bb53bdff721189979171dd3eb74bcc8994",
+      "bytes": 3987,
+      "device": 1813,
+      "inode": 12569521,
+      "mtime_ns": 1795774190939299007
+    },
+    {
+      "path": "historical-layout-r2/native/components/legacy-project-wrapper/component.resolution-audit.host.json",
+      "sha256": "4ad629a35618b291432a7bd86c6b84725f0873e093823dd4ffdeb9d862a708f4",
+      "bytes": 3736,
+      "device": 1813,
+      "inode": 12569519,
+      "mtime_ns": 1795774190176623824
+    },
+    {
+      "path": "historical-layout-r2/native/.literate/conversion-authority.json",
+      "sha256": "da4a3cd5defa124812eac29dede6df5e531f34c3dc00bf37d9c516fb28c54884",
+      "bytes": 252,
+      "device": 1813,
+      "inode": 12569530,
+      "mtime_ns": 1795774193962940876
+    },
+    {
+      "path": "historical-layout-r2/native/.literate/harness-inventory.json",
+      "sha256": "a553c39235c7b2d5728edb63db876d586868bf5c546f644079a56ddbeb84fbc9",
+      "bytes": 1321,
+      "device": 1813,
+      "inode": 12569419,
+      "mtime_ns": 1795774187980664176
+    },
+    {
+      "path": "historical-layout-r2/native/.literate/imports.json",
+      "sha256": "eb50a536a73e68e68b40fb0a68f815762f2442bd67bbc97b5271edb238ff6fb1",
+      "bytes": 290303,
+      "device": 1813,
+      "inode": 12569503,
+      "mtime_ns": 1795774188877076006
+    },
+    {
+      "path": "historical-layout-r2/native/.literate/initialization-baseline.json",
+      "sha256": "1f657dc048f3c54b41ad5a2d67c668b8d10d1a7acc90b7fbf4a1c94e70763e1e",
+      "bytes": 93439,
+      "device": 1813,
+      "inode": 12569516,
+      "mtime_ns": 1795774193433540611
+    },
+    {
+      "path": "historical-layout-r2/native/.literate/initialization-origin.json",
+      "sha256": "d36985315efc4f3a97fd8eb0be8c4daef1bf452de5971b5ad8b251f25e80ecd5",
+      "bytes": 256,
+      "device": 1813,
+      "inode": 12569515,
+      "mtime_ns": 1795774188906416470
+    },
+    {
+      "path": "historical-layout-r2/native/.literate/legacy-harness-baseline.json",
+      "sha256": "f17396baba21b60c61362b341d18441a011059f36df22ef44ff007b8c82d1532",
+      "bytes": 6511,
+      "device": 1813,
+      "inode": 12569420,
+      "mtime_ns": 1795774188192561679
+    },
+    {
+      "path": "historical-layout-r2/native/.literate/legacy-lift-shift.json",
+      "sha256": "f789ea669ef970153a1afdabf537e2995d22add0c22be592ebb9748ca6df7b6f",
+      "bytes": 10471,
+      "device": 1813,
+      "inode": 12569394,
+      "mtime_ns": 1795774188812075015
+    },
+    {
+      "path": "historical-layout-r2/native/.literate/legacy-wrapper-parity.json",
+      "sha256": "7bed986b152cc02744e01ed579ed6b933a7ae788bcb2a40587af0ddef64cbae6",
+      "bytes": 9321,
+      "device": 1813,
+      "inode": 12569432,
+      "mtime_ns": 1795774188406068231
+    },
+    {
+      "path": "historical-layout-r2/native/.literate/repository-lineage.json",
+      "sha256": "78c80dbf89fc281e3e74375115e50b7a0dad7cfe997183f9ae8a256040a2a02a",
+      "bytes": 1407,
+      "device": 1813,
+      "inode": 12569514,
+      "mtime_ns": 1795774188903457544
+    },
+    {
+      "path": "historical-layout-r2/native/.literate/repository-parent.json",
+      "sha256": "5afa81160ee603a712750b6e2dfe73b1478e6418f01fc73f7b944bd1cf466289",
+      "bytes": 345,
+      "device": 1813,
+      "inode": 12569513,
+      "mtime_ns": 1795774188877966548
+    },
+    {
+      "path": "historical-layout-r2/native/.literate/update-bases.json",
+      "sha256": "f72e70c3a5435707db4a07d878e0bf36b6a5e2bdbc3485f5d0e90b3c4c7dd4a7",
+      "bytes": 1162990,
+      "device": 1813,
+      "inode": 12569528,
+      "mtime_ns": 1795774193446528553
+    },
+    {
+      "path": "historical-layout-r2/logs/006.json",
+      "sha256": "ecc49ba3db272ad060b9a65292f05f18c323c2d0ab5cfd452ddee631776c53e5",
+      "bytes": 1025,
+      "device": 1813,
+      "inode": 11849400,
+      "mtime_ns": 1795774194361598043
+    },
+    {
+      "path": "historical-layout-r2/logs/006.stdout",
+      "sha256": "fe719c4da07a84fa9fc89cfa0182637eed6800a6a66cc361c10bf412b44b9999",
+      "bytes": 18417,
+      "device": 1813,
+      "inode": 11849398,
+      "mtime_ns": 1795774194361296182
+    },
+    {
+      "path": "historical-layout-r2/logs/006.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "device": 1813,
+      "inode": 11849399,
+      "mtime_ns": 1795774194361296182
+    },
+    {
+      "path": "historical-layout-r2/old-initialization-result.json",
+      "sha256": "fe719c4da07a84fa9fc89cfa0182637eed6800a6a66cc361c10bf412b44b9999",
+      "bytes": 18417,
+      "device": 1813,
+      "inode": 11849401,
+      "mtime_ns": 1795774194361704397
+    }
+  ],
+  "limits": [
+    "Actual direct and generated wrapper execution qualifies retained original Python/Make behavior only, not regenerated authored Component acceptance.",
+    "Candidate migration, later update/reparent/normal producer renewal, receipt regeneration/admission and platform/release acceptance remain unexecuted or unreviewed here.",
+    "Actual original released policy has11evidence roles/minimum1; actual native tests are2. Do not substitute generic16-role/minimum assumptions or rewrite historical policy; any newStandard derived policy must appear in normal reviewed rebind.",
+    "Metadata/full-source files were observed read-only after terminal oldapply; no source, manifest, pin, journal or installed byte was edited by this reviewer.",
+    "The prior r1 original read-only tree failure and r2 external-output distinction remain retained in preliminary report."
+  ]
+}

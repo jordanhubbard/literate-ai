@@ -1084,5 +1084,61 @@
     "wheel_state": "Frozenfef Python3.15 wheel-full-r8 advanced beyond contained oracle lookup but failed binary dependency export: exactPyYAML6.0.3 lacks compatible observed3.15/aarch64 binary. Samepin resolves3.14/aarch64. Fresh complete wheel-full-r9 uses native3.14.7 on frozend5, preserving binary-only, versionpin,300second downloader, original assertions and failed3.15receipt.",
     "scope_audit": "All83 immutable1.4goals retained:35checked,46open,2partial. Independent audit maps all48unclosed goals to12groups; actual historical migration, provider-to-consumer admission/source retirement,5unit100kFreeBSD cold verification+2physicalhosts, heldprovider independentruns, finalcollateral/labs and publication remain required.",
     "limits": "Actual fixed Windows positive control and fullplatform qualification still required. Separate archive live-verifier leaf-sharing concern is unmodified/unqualified. Frozen source/native/wheel jobs remain independent; no resulting-main/release attestation."
+  },
+  "qualification_followup_r8": {
+    "base_commit": "f1e9c06f2733af0535bb3eb54455f2706baea91d",
+    "review_reports": [
+      "verification/release-1.4-followup/review-authority-f1-scaffold-rollback-diagnosis.json",
+      "verification/release-1.4-followup/review-authority-scaffold-retirement-final-closing.json",
+      "verification/release-1.4-followup/review-authority-scaffold-retirement-final-extra-controls.json",
+      "verification/release-1.4-followup/review-contracts-wheel-golden-adopted-coordinates-closing.json",
+      "verification/release-1.4-followup/historical-layout-old-producer-review-r1.json"
+    ],
+    "current_reviewed_hashes": {
+      "src/literate_ai/adapters/scaffold_custody.py": "df72244ad5fcfcfe41f1a0c5ad3c3f4fc67fb186587eeb9f87c29148439c074b",
+      "tests/critical/test_remote_cleanup_windows_handles.py": "6cfae8496c928ea431d028ca290fabf1a2e054aaa9cf92df40c05df17cd7227b",
+      "scripts/wheel_smoke.py": "ae231fb9640cef91a7273d7a8ecbd68c3583c268cd13fe2e1900326ed2157119"
+    },
+    "native_windows_progress": "Exactf1 run45978232683/job140435858935 passes actual first/second scaffold publication and original bytes/mode assertions. It then deletes the original leaf and fails post-delete callback requiring that retired leaf. Historical full isolated case remains failed.",
+    "repair": "Only scaffold owner per-leaf deletion callback permits absent original node after deletion, retaining live root/ledger checks and refusing every present non-original node. Generic pre-delete exact leaf/handle checks, disposition, post-guard and final absence checks unchanged; ledgerpop stays after successful primitive return. New actual-source API-model test reproduces prior error; equal-byte/samemtime foreign inode inserted after actual native close is preserved/refused.",
+    "source_evidence": {
+      "scaffold-retirement-model-repro-r1": {
+        "summary": {
+          "executed": 3,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 18,
+          "skipped": 0
+        },
+        "report_sha256": "e26bfff997aefd25b531f5e6283b225fe751b89b03df9442a91a3eb33eeb0837"
+      },
+      "scaffold-retirement-model-r2": {
+        "summary": {
+          "executed": 19,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 19,
+          "selected": 19,
+          "skipped": 0
+        },
+        "report_sha256": "53626eb2e61b0d501ac1ad6d62e0685848559f02031540c1fb1f0d57498918e1"
+      },
+      "scaffold-retirement-native-source-r1": {
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        },
+        "report_sha256": "673e8778edd95ed9addb4d82b045d479a5dc127e8de6f009a93162675a12374b"
+      }
+    },
+    "wheel_progress": "Frozen d5 native3.14 wheel-full-r9 passes prior binary dependency export failure, then fails supplemental golden adopted fixture legacy root-manifest lookup. Three normative default contained manifest/flavor coordinates corrected; all other original predicates/mutation/restoration/receipt guards unchanged. Fresh complete gate remains required.",
+    "historical_producer": "Authentic published1.3.1 wheel verified against providerdigest and all1112installedpayloadmembers; public pinned87506c oldconversion completes in279.468s. Direct/wrapper/liftshift build+test+package pass,2tests each. All6originalpayloads retainbytes+nativefacts at recordedimplementation. Original11role/min1policy preserved; actual2tests remain. Oldconversion legitimately stages4Gitmvrenames; exact resultingHEAD/index/metadata captured. Candidate migration/lifecycle/receipt remain unexecuted.",
+    "native900_progress": "Frozenfef first2original completion cases now have success events; thirdrunning. Preserve original900/3600 deadlines and no completecohort/realprovider claim.",
+    "limits": "All83releasegoals and fullsource/installed/platform/historicalupgrade/provider/coldFreeBSD/collateral/contribution/resultingmain/publication acceptance remain. No deadline/assertion/strictdefault weakened. Existing frozenjobs retain their exact source."
   }
 }

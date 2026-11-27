@@ -24488,6 +24488,21 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   continues separately. The independent scope audit retains all 83 goals and
   maps all 48 open/partial goals to their actual remaining acceptance work;
   historical migration and real provider-to-consumer qualification remain open.
+- **Native retirement and historical producer follow-up (source partial):**
+  Fixed-directory Windows execution now passes both original scaffold writes and
+  byte/mode assertions, then exposes a post-delete owner callback requiring the
+  retired leaf. Its owner now permits absence while preserving live root/ledger
+  checks and refusing any present foreign node; the generic native primitive and
+  original ledger retirement order remain. Nineteen Windows API-model and twelve
+  scaffold controls pass, including equal-byte foreign reinsertion preservation;
+  changed-code Windows execution is still required. Native 3.14 installed-wheel
+  qualification reaches a separate supplemental golden-adoption root-path error;
+  only its three normative contained coordinates change. Genuine published 1.3.1
+  conversion now passes original direct/wrapper/lift-shift build, two tests and
+  package, preserving all six original payload bytes/native identities. Its
+  recorded eleven-role/minimum-one policy remains unchanged. Candidate migration,
+  lifecycle and fresh receipt are still open. Two frozen-fef native completion
+  cases pass; the third and the complete-source gate continue separately.
 - **Native Cargo deadline investigation (in progress):** The actual authored
   native completion control now reaches execution but retains a genuine original
   900-second deadline failure (1,039.733s including setup/closing). Live sampling

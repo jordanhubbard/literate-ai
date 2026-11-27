@@ -2443,7 +2443,7 @@ def assert_installed_operator_golden_paths(
         )
     # Exercise an older adopted project's default shim selection through the
     # installed status CLI without changing the qualified golden-path receipt.
-    manifest_path = adopted_project / "literate.project.json"
+    manifest_path = adopted_project / "litai/literate.project.json"
     original_manifest = manifest_path.read_bytes()
     adopted_definition = json.loads(original_manifest)
     selectors = adopted_definition.get("default_flavor_selectors")
@@ -2451,8 +2451,10 @@ def assert_installed_operator_golden_paths(
     if (
         not isinstance(selectors, list)
         or "+flavor://literate-ai/build-make" not in selectors
-        or "flavors" not in adopted_definition.get("flavor_roots", [])
-        or not (adopted_project / "flavors/legacy-project-shim/flavor.md").is_file()
+        or "litai/flavors" not in adopted_definition.get("flavor_roots", [])
+        or not (
+            adopted_project / "litai/flavors/legacy-project-shim/flavor.md"
+        ).is_file()
     ):
         raise RuntimeError("installed adoption omitted the project-local shim fixture")
     adopted_definition["default_flavor_selectors"] = [

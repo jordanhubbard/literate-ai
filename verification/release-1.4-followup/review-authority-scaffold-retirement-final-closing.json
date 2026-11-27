@@ -1,0 +1,24 @@
+{
+  "status": "independent_source_closing_review_accepted",
+  "head": "f1e9c06f2733af0535bb3eb54455f2706baea91d",
+  "sha256": {
+    "src/literate_ai/adapters/scaffold_custody.py": "df72244ad5fcfcfe41f1a0c5ad3c3f4fc67fb186587eeb9f87c29148439c074b",
+    "tests/critical/test_remote_cleanup_windows_handles.py": "6cfae8496c928ea431d028ca290fabf1a2e054aaa9cf92df40c05df17cd7227b"
+  },
+  "coverage": "Complete exact2file delta independently inspected, including unchanged _remove entry presence check, generic remote _remove_entry/native Windows pre/post guards and original scaffold owner/parent/ledger closure. No reviewer source edits.",
+  "native_failure_closed_in_source": "Actual f1 isolated native positive passed both original publications, exactbytes and mode; rollback successfully disposed original selected file then its old caller guard erroneously required deleted file presence. Current scaffold-only guard closes original current root/owner and original ledger membership, accepts only actual selected-name absence, and requires exact original creator postimage for ANY present node. Generic native deletion API/guards and final absence/refusal unchanged.",
+  "predelete_safety": "_remove still starts require_node(parts). _remove_entry independently requires complete original parent facts and exact present leaf. Native original handle opens/compares nativeID/type/metadata before disposition. Absent-tolerant callback grants no missing-name ownership; preeffect missing name still refuses before native disposition.",
+  "postdelete_safety": "Normal absence now legitimate; any present equal-byte/time foreign inode differs from original native identity and refuses/preserves. Unknown/replaced parents, closed/cancelled owner and changed ledger refuse. Ledger node deletion occurs only after _remove_entry successfully returns. No broad census enrollment, recursive fallback or guard removal.",
+  "independent_validation": {
+    "cohorts": "31tests PASS1.017seconds no skips on this POSIX host: WindowsCleanupHandleTests19 including2newnativeAPI models; originalScaffoldCustodyTests12.",
+    "extra_actual_source_model_controls": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-authority-scaffold-retirement-final-extra-controls.json",
+    "extra_results": [
+      "Pre-delete selected absence refuses with0native disposals; original application preserved.",
+      "Original unique BaseException cancellation propagates unchanged with0disposals; selected original and application preserved.",
+      "Parent replacement preserves foreign target and original retained-parent output,0disposals; original application preserved.",
+      "All model native handles released."
+    ],
+    "new_foreign_control": "Equal-byte/restoredmtime preexisting foreign inode moved into just-deleted selected name is preserved/refused after exactly1originalnative disposition."
+  },
+  "limits": "Scoped source and original focused local/model controls only, not fixed native Windows isolated test or broad shard success. Historical actual f1failed gate preserved; actual changed-code native rerun required. No changes to generic Windows deletion, directory/leaf sharing, native assertions or deadlines."
+}

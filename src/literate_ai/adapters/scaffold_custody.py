@@ -243,7 +243,18 @@ class _ScaffoldState:
         facts = {"/".join(key): _facts(value) for key, value in values.items()}
 
         def guard():
-            self.require_node(parts)
+            self.current()
+            if parts not in self.nodes:
+                _fail("original created postimage ledger changed; preserved")
+            with _access(self.root) as access:
+                try:
+                    actual = _entry(access, parts)
+                except FileNotFoundError:
+                    # Native retirement also closes this guard after deletion.
+                    # Its own pre-delete check still requires the original leaf.
+                    return
+                if actual != self.nodes[parts]:
+                    _fail("original created postimage changed; preserved")
 
         _remove_entry(self.root, "/".join(parts), facts["/".join(parts)], facts, guard)
         del self.nodes[parts]
