@@ -16411,6 +16411,21 @@ Upstream: [issue #22](https://github.com/jordanhubbard/literate-ai/issues/22), r
       host PATH. Preserve default profile identities; reject undeclared,
       redirected or non-directory selections and qualify actual subprocess lookup.
   - [ ] Bind package and release custody to retained origin without conversion advancement
+    - [ ] Expose the existing exact ZIP provider through the public package CLI,
+      consuming the live complete Standard retained admission in its existing
+      callback. The selected provider must belong to a current Component lock;
+      read-only intent grants no package admission. Preserve original authority,
+      full original tests/docs, stale-input rejection and separate release consent.
+      Qualify real deterministic archives plus public dispatch and failure controls
+      before claiming this missing composition under accepted ADR 0048 / issue #22.
+      The public noneditable fixture now passes the full authored profile and exact
+      ZIP at `d768237c`, using its existing seven-kind policy. Read-only source
+      identity, complete Component specifications and stale-source refusal are
+      covered without mocking discovery or admission. Eight handler boundary
+      checks and five real archive checks also pass. See
+      [the scoped evidence](../../verification/retained-zip-public-cli-20261128.json).
+      Real adopted-project compiler/SDK producers, stronger initialized receipt
+      policy consumption and full program repeat/relocation acceptance stay open.
 - **Evidence:**
   - [ ] Public installed CLI mixed source and binary fixture passes complete build, test, docs and deterministic package lifecycle with repeat, invalidation and relocation checks
   - [ ] Adversarial stale inputs, unsafe custody, missing stages, substituted artifacts, worker identity drift and authority transfer fail closed; existing modes remain green
@@ -20295,6 +20310,50 @@ hosted CI and canonical tree worker/live SDK integration remain open.
   Earlier failed runs remain retained; no new skip or production guard change.
 
 ### [ ] RETAINED-SDK-PUBLIC-001 — Connect public retained execution to live native SDK producers
+
+- **Public retained ZIP review follow-up:** Independent source review finds the
+  package planner omitted from the actual CLI's deferred read-only dispatch and
+  typed current-lock errors escaping JSON handling. The corrected frontdoor
+  defers host side effects until canonical parsing identifies full or abbreviated
+  planning flags, refuses discovery/debug-file options in that scope, and
+  preserves typed lock-owner error codes. Eleven focused frontend checks, full
+  formatting and lint pass. Renew exact-source review, complete CI and installed
+  CLI qualification; prior package journey evidence does not cover these fixes.
+
+- **Cargo layout follow-up:** [GitHub issue #515](https://github.com/jordanhubbard/literate-ai/issues/515).
+  The unchanged native standard-harness fixture fails on Cargo 1.100.1 after
+  successful no-run compilation because `debug/deps` no longer exists. A separate
+  read-only observation confirms Cargo reports each actual intermediate artifact
+  beneath package-specific build directories. The official Cargo contract marks
+  that layout internal; infer no runtime directory from its historical spelling.
+  - [x] Reproduce the original CI failure with unchanged source/assertions and
+        retain successful compiler JSON plus the failed directory observation.
+  - [x] Derive bounded loader directories from validated compiler artifact paths,
+        retaining explicit build-script link paths and all ownership/currentness checks.
+  - [x] Qualify old/current layouts, malformed/escaping/missing output and mutation
+        refusals and the unchanged native standard harness: fresh canonical 12-case
+        runs pass on Rust/Cargo 1.100.1 (74.842 seconds) and 1.99.0 (74.637 seconds).
+        Preserve the initial jobserver-environment refusal and repaired checkpoint;
+        neither supplies fresh-suite evidence. Only task-local inherited jobserver
+        hints were reconciled; original assertions, compiler commands and budgets
+        are unchanged. See the [scoped evidence](../../verification/retained-cargo-layout-compatibility.json).
+  - [ ] Complete full canonical regression, installed and exact-commit CI qualification.
+        The first full run completes 2,708 tests with 110 existing skips and one
+        error in the native incremental-cache fixture's historical library lookup.
+        Its corrected lookup requires exactly one actual fixture library beneath
+        its dedicated target. All 28 Cargo cases pass on 1.100.1 (83.969 seconds)
+        and 1.99.0 (142.544 seconds), retaining every existing no-op/relevant-edit
+        byte and timestamp assertion. Renew the complete regression at the next
+        exact source identity. Installed wheel qualification separately stops
+        during repository refresh; its control environment's Git 2.34 explicitly
+        rejects the required `worktree list --porcelain -z` operation. Preserve
+        that failed qualification and use a capable declared environment.
+        At `daa0de2f`, the full unit suite passes 2,867 tests with 113 reported
+        skips in 1,398.314 seconds; CI then refuses its stale lifecycle-driver
+        review pin. An independent reviewer accepts the exact adapter hash before
+        the supported re-pin. The fresh non-editable exact-source wheel also
+        passes the seven-kind retained ZIP journey; this is scoped package
+        admission, with full wheel smoke, KSE eleven-kind and release gates pending.
 
 - **GitHub issue:** [#22](https://github.com/jordanhubbard/literate-ai/issues/22)
 

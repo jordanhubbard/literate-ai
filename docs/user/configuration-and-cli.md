@@ -49,6 +49,7 @@ litai run
 litai package plan
 litai package build
 litai package verify
+litai package retained-project
 litai package retained-units observe-tools
 litai package retained-units plan
 litai package retained-units inspect

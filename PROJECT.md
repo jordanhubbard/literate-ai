@@ -1,5 +1,19 @@
 # Literate AI — Project Requirements and Completeness
 
+Retained native Cargo tests derive loader custody from validated compiler artifact
+records instead of the retired `debug/deps` intermediate layout. Fresh canonical
+Cargo checks pass all 12 cases on both Rust/Cargo 1.100.1 and 1.99.0, including the
+unchanged native harness, path/alias refusals and byte/namespace mutation checks.
+Target/case accounting, output ownership, currentness and budgets stay intact.
+Full regression and installed qualification remain open under
+RETAINED-SDK-PUBLIC-001 and issue #515.
+The native incremental-cache fixture now locates exactly one actual fixture
+library without assuming Cargo's internal directory or hashed filename. All 28
+Cargo cases pass on both compiler versions, retaining every existing byte and
+timestamp assertion. Full regression still requires renewal. The installed wheel
+refresh scenario separately reaches an unsupported `git worktree list -z` on
+the control environment's Git 2.34; installed qualification remains incomplete.
+
 Under accepted ADR 0058, an explicitly selected tree declaration may be checked
 without creating source, cache, temporary payload or output files. A current
 result requires a complete actual page/metadata/index namespace observation and
@@ -321,8 +335,12 @@ not build or release admission.
 RETAINED-PROJECT-001 (issue #22) also makes ordinary `build` and `test` delegate
 explicit original-source selections to the same retained lifecycle as
 `rebuild`, preserving reviewed plan/host authorization and distinct receipts.
-Installed original-source compilation, package consumption and full native
-qualification remain separate open requirements.
+The public `package retained-project` composition now delegates to that same live
+admission and the existing exact ZIP provider, preserving selected locks, retained
+provenance, read-only intent and separate release authority. A noneditable installed CLI fixture now completes its original profile and exact
+ZIP, including stale-input rejection without another execution. The fixture build
+exports its declared original native binary; real adopted-project native compiler/SDK
+producers and stronger configured receipt policies remain open.
 RETAINED-SSH-001 keeps those long, otherwise-silent remote lifecycles alive at
 the shared SSH transport layer so successful native work can return its exact
 bounded result. The exact KSE direct lifecycle now returns a passing build,

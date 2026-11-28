@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Retained Cargo native tests follow validated compiler-reported artifact paths
+  across Cargo's intermediate layout changes, preserving runtime byte and
+  namespace custody, original target accounting and existing limits.
+  The native incremental-cache fixture likewise locates its actual library
+  while preserving byte and timestamp reuse/invalidation assertions.
+
+- Expose complete retained-project ZIP packaging through the public CLI using
+  the existing Standard admission and selected ZIP provider. Preserve original
+  authority, exact retained provenance and independent archive verification;
+  read-only intent and parsed receipts grant no package or release authority.
+  Public read-only plans avoid implicit host configuration and telemetry;
+  invalid current locks retain bounded typed CLI errors.
+  Installed native-project qualification remains open under issue #22.
+
 - Existing repositories default to a contained native adoption profile under
   `litai/`, preserving source, build tools, CI and custom instructions. Explicit
   `--profile convert` retains conversion. Native policy updates use three-way

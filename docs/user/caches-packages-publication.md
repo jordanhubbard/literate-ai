@@ -528,6 +528,34 @@ inputs, target or tool identities, duplicate or undeclared members, altered mode
 and content digest mismatches fail before release preparation. Outputs remain in
 `OBJ_DIR/packages/`; the release lifecycle owns any separately authorized upload.
 
+### Complete retained-project ZIPs
+
+`litai package retained-project` composes the existing ZIP provider with a fresh,
+complete Standard retained lifecycle. The explicit `--provider-lock` must identify
+one of the current project's Component locks whose selected packaging Flavor is
+`zip`; the command never infers or changes that selection.
+
+```console
+litai package retained-project --project . --retained-project inputs.json --retained-project-profile profile.json --provider-lock sha256:LOCK --retained-project-plan
+litai package retained-project --project . --retained-project inputs.json --retained-project-profile profile.json --provider-lock sha256:LOCK --authorize-retained-project sha256:PLAN --allow-host-execution
+```
+
+Replace the identity placeholders with the complete reviewed identities. The first
+command validates retained authority and reports provider intent without execution
+or package admission. The second runs the complete locked build/test/docs/acceptance
+profile and constructs the archive while that run's live admission is current.
+The returned `retained_package` contains the exact package plan and independently
+verified result; the archive and retained provenance remain in the reported CAS.
+A parsed receipt or package result cannot grant live admission. The complete
+accepted payload and retained evidence are archived; this is not per-unit package
+projection or an ABI-portability claim. Original source authority is preserved,
+conversion does not advance, and publication still requires separate release
+qualification and authorization. Packaging does not promote the retained receipt
+into a project receipt or discharge other configured evidence requirements. A
+noneditable installed fixture passes the public path with its existing authored
+policy; real adopted native-project qualification remains open under
+RETAINED-PROJECT-001.
+
 ## FreeBSD pkg development integration
 
 Select `--flavor=+package-pkg` for native pkg plans. The development implementation
