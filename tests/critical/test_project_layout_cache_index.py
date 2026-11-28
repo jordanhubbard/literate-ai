@@ -160,7 +160,9 @@ class ContainedCacheIndexTests(unittest.TestCase):
         original_stat = Path.stat
 
         def guard(path, *args, **kwargs):
-            if path == alias or path.is_relative_to(alias):
+            # Python 3.11 implements Path.lstat as stat(follow_symlinks=False).
+            following = kwargs.get("follow_symlinks", True)
+            if following and (path == alias or path.is_relative_to(alias)):
                 raise AssertionError("protected alias followed")
             return original_stat(path, *args, **kwargs)
 
@@ -176,7 +178,9 @@ class ContainedCacheIndexTests(unittest.TestCase):
         original_stat = Path.stat
 
         def guard(path, *args, **kwargs):
-            if path == alias or path.is_relative_to(alias):
+            # Python 3.11 implements Path.lstat as stat(follow_symlinks=False).
+            following = kwargs.get("follow_symlinks", True)
+            if following and (path == alias or path.is_relative_to(alias)):
                 raise AssertionError("destination alias followed")
             return original_stat(path, *args, **kwargs)
 
