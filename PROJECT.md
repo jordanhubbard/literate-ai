@@ -7,6 +7,12 @@ unchanged native harness, path/alias refusals and byte/namespace mutation checks
 Target/case accounting, output ownership, currentness and budgets stay intact.
 Full regression and installed qualification remain open under
 RETAINED-SDK-PUBLIC-001 and issue #515.
+The native incremental-cache fixture now locates exactly one actual fixture
+library without assuming Cargo's internal directory or hashed filename. All 28
+Cargo cases pass on both compiler versions, retaining every existing byte and
+timestamp assertion. Full regression still requires renewal. The installed wheel
+refresh scenario separately reaches an unsupported `git worktree list -z` on
+the control environment's Git 2.34; installed qualification remains incomplete.
 
 Under accepted ADR 0058, an explicitly selected tree declaration may be checked
 without creating source, cache, temporary payload or output files. A current

@@ -20329,6 +20329,16 @@ hosted CI and canonical tree worker/live SDK integration remain open.
         hints were reconciled; original assertions, compiler commands and budgets
         are unchanged. See the [scoped evidence](../../verification/retained-cargo-layout-compatibility.json).
   - [ ] Complete full canonical regression, installed and exact-commit CI qualification.
+        The first full run completes 2,708 tests with 110 existing skips and one
+        error in the native incremental-cache fixture's historical library lookup.
+        Its corrected lookup requires exactly one actual fixture library beneath
+        its dedicated target. All 28 Cargo cases pass on 1.100.1 (83.969 seconds)
+        and 1.99.0 (142.544 seconds), retaining every existing no-op/relevant-edit
+        byte and timestamp assertion. Renew the complete regression at the next
+        exact source identity. Installed wheel qualification separately stops
+        during repository refresh; its control environment's Git 2.34 explicitly
+        rejects the required `worktree list --porcelain -z` operation. Preserve
+        that failed qualification and use a capable declared environment.
 
 - **GitHub issue:** [#22](https://github.com/jordanhubbard/literate-ai/issues/22)
 

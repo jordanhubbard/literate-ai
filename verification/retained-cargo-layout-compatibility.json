@@ -42,6 +42,51 @@
     "canonical_make_format_check": "passed,1917 files already formatted",
     "project_validate": "passed, acyclic authority graph",
     "existing_project_test_receipt": "stale; not readmitted",
-    "raw_static_log_sha256": "c738ab601a88c3484e0a4222ee159e8e0fcc382f4f68a55cc86aea8c4bb82427"
+    "raw_static_log_sha256": "c738ab601a88c3484e0a4222ee159e8e0fcc382f4f68a55cc86aea8c4bb82427",
+    "latest_fixture_static_log_sha256": "c738ab601a88c3484e0a4222ee159e8e0fcc382f4f68a55cc86aea8c4bb82427"
+  },
+  "native_incremental_cache_fixture": {
+    "source_base": "b9064ba8daa6744f070b4e0dff7ed0f5500ee066",
+    "original_sha256": "c716a1c6960ffa8ea3249f842ae086262915a9c42987a1c21de8479ecc93dd14",
+    "candidate_sha256": "3872da421d746770269631be141be79b39f1c534212cfced24020b4db529a4a6",
+    "change": "Find exactly one fixture rlib beneath the fresh dedicated Cargo target; internal directory and hashed-name spellings are not assumed. All preexisting byte and timestamp assertions unchanged; unique-library assertion added.",
+    "controls": [
+      {
+        "rust_cargo": "1.100.1",
+        "fresh_canonical_tests": 28,
+        "passed": 28,
+        "skipped": 0,
+        "seconds": 83.969,
+        "raw_log_sha256": "0e2059ca3ca847def41ab12984f3af0ae1684895ffc7895ffcb831e96df0f63a"
+      },
+      {
+        "rust_cargo": "1.99.0",
+        "fresh_canonical_tests": 28,
+        "passed": 28,
+        "skipped": 0,
+        "seconds": 142.544,
+        "raw_log_sha256": "330677a4e3e649f0088b77a294de4cfe67e34f90c9635cfb857385384becae30"
+      }
+    ]
+  },
+  "full_regression_observation": {
+    "run": "https://github.com/jordanhubbard/literate-ai/actions/runs/46108046693",
+    "source": "b9064ba8daa6744f070b4e0dff7ed0f5500ee066",
+    "tests": 2708,
+    "skipped": 110,
+    "errors": 1,
+    "error_case": "StandardCargoLifecycleTests.test_native_cargo_reuses_target_and_rebuilds_edited_source",
+    "failure": "StopIteration selecting library at historical debug/deps",
+    "retained_cargo_repaired_harness_passed": true,
+    "subsequent_full_regression_qualified": false
+  },
+  "installed_wheel_control": {
+    "source": "b9064ba8daa6744f070b4e0dff7ed0f5500ee066",
+    "qualified": false,
+    "failure": "Repository refresh Git inspection",
+    "environment_control": "Git2.34.1 rejects worktree list --porcelain -z with exit129; source observer requires this operation",
+    "raw_wheel_log_sha256": "558719a056997b382f6e1fe63940d51ba01bb8a0bcfe02a636b58fa746a47770",
+    "raw_git_control_log_sha256": "270f9fd32b48529e2fa71a03a641ff99cb93845f604baf648a13962004ac3c6c",
+    "guards_or_assertions_relaxed": false
   }
 }

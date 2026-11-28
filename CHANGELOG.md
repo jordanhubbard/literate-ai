@@ -5,6 +5,8 @@
 - Retained Cargo native tests follow validated compiler-reported artifact paths
   across Cargo's intermediate layout changes, preserving runtime byte and
   namespace custody, original target accounting and existing limits.
+  The native incremental-cache fixture likewise locates its actual library
+  while preserving byte and timestamp reuse/invalidation assertions.
 
 - Expose complete retained-project ZIP packaging through the public CLI using
   the existing Standard admission and selected ZIP provider. Preserve original
