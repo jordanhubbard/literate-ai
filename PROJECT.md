@@ -1,5 +1,13 @@
 # Literate AI — Project Requirements and Completeness
 
+Retained native Cargo tests derive loader custody from validated compiler artifact
+records instead of the retired `debug/deps` intermediate layout. Fresh canonical
+Cargo checks pass all 12 cases on both Rust/Cargo 1.100.1 and 1.99.0, including the
+unchanged native harness, path/alias refusals and byte/namespace mutation checks.
+Target/case accounting, output ownership, currentness and budgets stay intact.
+Full regression and installed qualification remain open under
+RETAINED-SDK-PUBLIC-001 and issue #515.
+
 Under accepted ADR 0058, an explicitly selected tree declaration may be checked
 without creating source, cache, temporary payload or output files. A current
 result requires a complete actual page/metadata/index namespace observation and

@@ -20311,6 +20311,25 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 
 ### [ ] RETAINED-SDK-PUBLIC-001 — Connect public retained execution to live native SDK producers
 
+- **Cargo layout follow-up:** [GitHub issue #515](https://github.com/jordanhubbard/literate-ai/issues/515).
+  The unchanged native standard-harness fixture fails on Cargo 1.100.1 after
+  successful no-run compilation because `debug/deps` no longer exists. A separate
+  read-only observation confirms Cargo reports each actual intermediate artifact
+  beneath package-specific build directories. The official Cargo contract marks
+  that layout internal; infer no runtime directory from its historical spelling.
+  - [x] Reproduce the original CI failure with unchanged source/assertions and
+        retain successful compiler JSON plus the failed directory observation.
+  - [x] Derive bounded loader directories from validated compiler artifact paths,
+        retaining explicit build-script link paths and all ownership/currentness checks.
+  - [x] Qualify old/current layouts, malformed/escaping/missing output and mutation
+        refusals and the unchanged native standard harness: fresh canonical 12-case
+        runs pass on Rust/Cargo 1.100.1 (74.842 seconds) and 1.99.0 (74.637 seconds).
+        Preserve the initial jobserver-environment refusal and repaired checkpoint;
+        neither supplies fresh-suite evidence. Only task-local inherited jobserver
+        hints were reconciled; original assertions, compiler commands and budgets
+        are unchanged. See the [scoped evidence](../../verification/retained-cargo-layout-compatibility.json).
+  - [ ] Complete full canonical regression, installed and exact-commit CI qualification.
+
 - **GitHub issue:** [#22](https://github.com/jordanhubbard/literate-ai/issues/22)
 
 - **Release target:** 1.4.0
