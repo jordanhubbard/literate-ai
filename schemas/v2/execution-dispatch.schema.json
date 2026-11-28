@@ -93,9 +93,7 @@
             }
           ]
         },
-        "import_surface": {
-          "$ref": "urn:literate-ai:schema:v2:library-import-surface@1"
-        },
+        "import_surface": {"oneOf": [{"$ref": "urn:literate-ai:schema:v2:library-import-surface@1"}, {"$ref": "urn:literate-ai:schema:v2:library-import-surface@2"}, {"$ref": "urn:literate-ai:schema:v2:library-import-surface@3"}]},
         "native_layout": {
           "$ref": "urn:literate-ai:schema:v2:execution-dispatch-contracts#/$defs/cpp_library_layout"
         }

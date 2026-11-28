@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap install uninstall install-check installed-project-e2e installed-e2e installed-e2e-status dev-install tools-install skill-evaluator-install skills-check repository-layout-check public-export-check python-version python-check source-intelligence-check provider-resolution-check source-admission-check remote-evidence-check inherited-session-check target-matrix-check native-toolchain-check samples samples-packages roundtrip-host samples-platform-regression migration-baseline-refresh test-receipt-current wheel-check format format-check lint openspec-check documentation-check documentation-review documentation-review-record driver-review driver-review-record doc-toolchain-bootstrap release-contributions release-contributions-check release-collateral-regenerate release-collateral-preflight release-collateral-publish plugin-bundle validate release release-check release-check-reset clean really-clean
+.PHONY: help bootstrap install uninstall install-check installed-project-e2e installed-e2e installed-e2e-status dev-install tools-install documentation-tools-install skill-evaluator-install skills-check repository-layout-check public-export-check python-version schema-check python-check source-intelligence-check provider-resolution-check source-admission-check remote-evidence-check inherited-session-check target-matrix-check native-toolchain-check samples samples-packages roundtrip-host samples-platform-regression migration-baseline-refresh test-receipt-current wheel-check wheel-sdk-rebuild-preflight format format-check lint openspec-check documentation-check documentation-review documentation-review-record driver-review driver-review-record doc-toolchain-bootstrap release-contributions release-contributions-check release-collateral-regenerate release-collateral-preflight release-collateral-publish plugin-bundle validate release release-check release-check-reset clean really-clean
 
 PREFIX ?=
 BUILD_DIR ?= $(CURDIR)/generated
@@ -56,6 +56,14 @@ UV ?= uv
 SKILL_EVALUATOR ?= skillevaluator
 SKILL_EVALUATOR_COMMIT := 0827e0fab5ca93d525cb8ff1ec2af3d7dfcf6d5d
 SKILL_EVALUATOR_SOURCE := skillevaluator[all] @ git+https://github.com/NVIDIA/SkillEvaluator.git@$(SKILL_EVALUATOR_COMMIT)
+NODE_AUDIT_DIR := tools/npm-audit
+NODE_AUDIT_RUNTIME_DIR := $(OBJ_DIR)/tools/npm-audit
+NODE_AUDIT_SOURCES := $(wildcard $(NODE_AUDIT_DIR)/*.mjs $(NODE_AUDIT_DIR)/test/*)
+NODE_AUDIT_STAMP := $(NODE_AUDIT_RUNTIME_DIR)/.staged
+DOCUMENTATION_TOOL_DIR := tools/documentation
+DOCUMENTATION_RUNTIME_DIR := $(OBJ_DIR)/tools/documentation
+DOCUMENTATION_TOOL_SOURCES := $(wildcard $(DOCUMENTATION_TOOL_DIR)/*.json $(DOCUMENTATION_TOOL_DIR)/scripts/* $(DOCUMENTATION_TOOL_DIR)/test/*)
+DOCUMENTATION_TOOL_STAMP := $(DOCUMENTATION_RUNTIME_DIR)/.installed
 OPENSPEC_TOOL_DIR := tools/openspec
 OPENSPEC_RUNTIME_DIR := $(OBJ_DIR)/tools/openspec
 OPENSPEC_TOOL_SOURCES := $(wildcard $(OPENSPEC_TOOL_DIR)/*.json $(OPENSPEC_TOOL_DIR)/scripts/* $(OPENSPEC_TOOL_DIR)/test/*)
@@ -66,7 +74,7 @@ OPENSPEC ?= $(OPENSPEC_RUNTIME_DIR)/node_modules/.bin/openspec
 SAMPLE_PYTHON := tests/conformance/support/sample_runner.py scripts/run_samples.py tests/conformance/support/self_hosting_proof.py scripts/run_source_to_specification_fixtures.py scripts/capture_migration_baseline.py scripts/refresh_migration_characterization.py scripts/fanout_samples.py scripts/remote_sample_worker.py scripts/remote_source_guard.py scripts/install_litai.py scripts/uninstall_litai.py scripts/installed_project_smoke.py scripts/installed_roundtrip.py scripts/run_checkpointed_gates.py scripts/run_checkpointed_unittests.py scripts/check_public_export.py
 PACKAGE_SAMPLE_PATTERNS ?= --sample hello-component --sample generated-library --sample dependency-planner
 MATRIX_FLAVORS ?= --flavor=os.*
-RELEASE_GATES := repository-layout-check public-export-check python-check lint format-check openspec-check documentation-check driver-review skills-check installed-e2e wheel-check install-check installed-project-e2e samples test-receipt-current
+RELEASE_GATES := repository-layout-check public-export-check lint format-check openspec-check documentation-check python-check driver-review skills-check installed-e2e wheel-check install-check installed-project-e2e samples test-receipt-current
 RELEASE_CHECKPOINT := $(OBJ_DIR)/release-checkpoint.json
 PYTHON_TEST_CHECKPOINT := $(OBJ_DIR)/python-test-checkpoint.json
 PYTHON_TEST_REPORT ?= $(OBJ_DIR)/python-test-report.json
@@ -77,6 +85,21 @@ PYTHON_TEST_WORKERS ?= auto
 PYTHON_TEST_WORKER_TIMEOUT ?= 3600
 WHEEL_WORKER_DIRECTORY ?=
 QUALIFIED_WHEEL_MANIFEST ?=
+NATIVE_ROOT_FIXTURE_ARCHIVES ?=
+RELEASE_NATIVE_ROOT_QUALIFICATION ?=
+ifneq ($(strip $(RELEASE_NATIVE_ROOT_QUALIFICATION)),)
+ifneq ($(strip $(RELEASE_NATIVE_ROOT_QUALIFICATION)),0)
+ifneq ($(strip $(RELEASE_NATIVE_ROOT_QUALIFICATION)),1)
+$(error RELEASE_NATIVE_ROOT_QUALIFICATION must be 0, 1, or empty)
+endif
+endif
+endif
+ifeq ($(strip $(RELEASE_NATIVE_ROOT_QUALIFICATION)),1)
+ifeq ($(strip $(NATIVE_ROOT_FIXTURE_ARCHIVES)),)
+$(error selected installed native release qualification requires NATIVE_ROOT_FIXTURE_ARCHIVES)
+endif
+endif
+NATIVE_ROOT_QUALIFICATION_SELECTED = $(or $(filter 1,$(RELEASE_NATIVE_ROOT_QUALIFICATION)),$(strip $(NATIVE_ROOT_FIXTURE_ARCHIVES)))
 RELEASE_QUALIFIED_WHEEL_MANIFEST ?= $(OBJ_DIR)/release-wheels/$(shell git rev-parse --verify HEAD)/manifest.json
 RELEASE_PLAN ?=
 RELEASE_PREPARED ?= $(OBJ_DIR)/release/prepared.json
@@ -104,7 +127,7 @@ $(DEV_STAMP): $(RUNTIME_STAMP) pyproject.toml
 	$(RUN_PYTHON_COMMAND) scripts/run_pip.py install -e ".[dev]"
 	@touch "$@"
 
-bootstrap: install dev-install tools-install skill-evaluator-install validate ## First-time setup: install all runtime and contributor tools, then validate.
+bootstrap: install dev-install tools-install documentation-tools-install skill-evaluator-install validate ## First-time setup: install all runtime and contributor tools, then validate.
 
 install: python-version ## Verify native dependencies, then install litai to the host-native user prefix.
 	$(PYTHON_COMMAND) scripts/install_litai.py --source "$(CURDIR)" $(if $(strip $(PREFIX)),--prefix "$(PREFIX)",)
@@ -123,7 +146,7 @@ dev-install: ## Install pinned Python contributor tools.
 endif
 
 install-check: python-version $(RUNTIME_PREREQUISITE) ## Install to a temporary PREFIX and verify init/validate/lock/plan.
-	$(STEP) install-check -- $(RUN_PYTHON_COMMAND) scripts/installed_project_smoke.py --repository "$(CURDIR)" --isolated-tool-bootstrap $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
+	$(STEP) install-check -- $(RUN_PYTHON_COMMAND) scripts/installed_project_smoke.py --repository "$(CURDIR)" --isolated-tool-bootstrap $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",) $(if $(strip $(NATIVE_ROOT_FIXTURE_ARCHIVES)),--native-root-archives "$(NATIVE_ROOT_FIXTURE_ARCHIVES)",) $(if $(filter 1,$(RELEASE_NATIVE_ROOT_QUALIFICATION)),--require-native-root-qualification,)
 
 installed-project-e2e: python-version $(RUNTIME_PREREQUISITE) ## Prove an installed CLI can init, generate, build, test, and run hello.
 	$(STEP) installed-project-e2e -- $(RUN_PYTHON_COMMAND) scripts/installed_project_smoke.py --repository "$(CURDIR)" --live $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
@@ -134,9 +157,20 @@ installed-e2e: python-version $(RUNTIME_PREREQUISITE) ## Offline installed-CLI/c
 installed-e2e-status: python-version $(RUNTIME_PREREQUISITE) ## Report whether the installed-CLI E2E sentinel is current.
 	$(RUN_PYTHON_COMMAND) scripts/installed_e2e_gate.py --repository "$(CURDIR)" --build-root "$(OBJ_DIR)" --status
 
-tools-install: $(OPENSPEC_TOOL_STAMP) ## Install pinned contributor tools under disposable OBJ_DIR.
+tools-install: $(OPENSPEC_TOOL_STAMP) $(DOCUMENTATION_TOOL_STAMP) ## Install both pinned contributor toolchains under disposable OBJ_DIR.
 
-$(OPENSPEC_TOOL_STAMP): $(OPENSPEC_TOOL_SOURCES) scripts/stage_node_tool.py
+documentation-tools-install: $(DOCUMENTATION_TOOL_STAMP) ## Install documentation tools without the OpenSpec CLI.
+
+$(NODE_AUDIT_STAMP): $(NODE_AUDIT_SOURCES) scripts/stage_node_tool.py
+	$(PYTHON_COMMAND) scripts/stage_node_tool.py --source "$(NODE_AUDIT_DIR)" --destination "$(NODE_AUDIT_RUNTIME_DIR)" --object-root "$(OBJ_DIR)"
+	@$(PYTHON_COMMAND) -c 'from pathlib import Path; Path(r"$(NODE_AUDIT_STAMP)").touch()'
+
+$(DOCUMENTATION_TOOL_STAMP): $(DOCUMENTATION_TOOL_SOURCES) scripts/stage_node_tool.py | $(NODE_AUDIT_STAMP)
+	$(PYTHON_COMMAND) scripts/stage_node_tool.py --source "$(DOCUMENTATION_TOOL_DIR)" --destination "$(DOCUMENTATION_RUNTIME_DIR)" --object-root "$(OBJ_DIR)"
+	$(NPM) --prefix "$(DOCUMENTATION_RUNTIME_DIR)" ci
+	@$(PYTHON_COMMAND) -c 'from pathlib import Path; Path(r"$(DOCUMENTATION_TOOL_STAMP)").touch()'
+
+$(OPENSPEC_TOOL_STAMP): $(OPENSPEC_TOOL_SOURCES) scripts/stage_node_tool.py | $(NODE_AUDIT_STAMP)
 	$(PYTHON_COMMAND) scripts/stage_node_tool.py --source "$(OPENSPEC_TOOL_DIR)" --destination "$(OPENSPEC_RUNTIME_DIR)" --object-root "$(OBJ_DIR)"
 	$(NPM) --prefix "$(OPENSPEC_RUNTIME_DIR)" ci
 	@$(PYTHON_COMMAND) -c 'from pathlib import Path; Path(r"$(OPENSPEC_TOOL_STAMP)").touch()'
@@ -155,6 +189,9 @@ public-export-check: python-version ## Reject tracked NVIDIA-internal references
 
 python-version: ## Require a supported system Python from PATH.
 	$(PYTHON_COMMAND) -c 'import sys; assert sys.version_info >= (3, 11), sys.version'
+
+schema-check: python-version $(RUNTIME_PREREQUISITE) ## Verify the source schema catalogs before qualification.
+	LITAI_NO_SELF_UPDATE=1 LITERATE_AI_SCHEMA_CATALOG_ROOT="$(CURDIR)/schemas" PYTHONPATH="$(CURDIR)/src" $(STEP) schema-check -- $(RUN_PYTHON_COMMAND) -P -m literate_ai.cli version check --no-project
 
 python-check: python-version $(DEV_PREREQUISITE) ## Validate the Python framework package.
 	$(RUN_PYTHON_COMMAND) -X pycache_prefix="$(OBJ_DIR)/pycache" -m compileall -q src tests
@@ -251,8 +288,27 @@ migration-baseline-refresh: python-version $(RUNTIME_PREREQUISITE) ## Refresh th
 test-receipt-current: python-version $(RUNTIME_PREREQUISITE) ## Require the current local Git test assertion; this is not remote attestation.
 	PYTHONPATH=src $(STEP) test-receipt-current -- $(RUN_PYTHON_COMMAND) -m literate_ai.cli project test-receipt require-current --project .
 
-wheel-check: python-version $(RUNTIME_PREREQUISITE) ## Build and smoke-test the installed wheel outside this checkout.
-	$(STEP) wheel-check -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",) $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
+WHEEL_NODE_SDK_RUNTIME ?= 0
+ifneq ($(words $(WHEEL_NODE_SDK_RUNTIME)),1)
+$(error WHEEL_NODE_SDK_RUNTIME must be 0 or 1)
+endif
+ifneq ($(filter-out 0 1,$(WHEEL_NODE_SDK_RUNTIME)),)
+$(error WHEEL_NODE_SDK_RUNTIME must be 0 or 1)
+endif
+
+wheel-check: python-version $(RUNTIME_PREREQUISITE) ## Build and smoke-test the installed wheel outside this checkout; optional WHEEL_NODE_SDK_RUNTIME=1 adds authored SDK cases.
+	$(STEP) wheel-check -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py $(if $(filter 1,$(WHEEL_NODE_SDK_RUNTIME)),--node-sdk-runtime,) $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",) $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
+
+wheel-sdk-rebuild-preflight: python-version $(RUNTIME_PREREQUISITE) ## Run the authored installed SDK rebuild case; retain an unqualified candidate.
+	$(STEP) wheel-sdk-rebuild-preflight -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py --node-sdk-rebuild-preflight $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",)
+
+.PHONY: wheel-sdk-typed-host-preflight
+wheel-sdk-typed-host-preflight: python-version $(RUNTIME_PREREQUISITE) ## Run original typed SDK host cases under an isolated wheel; never qualify or publish it.
+	$(STEP) wheel-sdk-typed-host-preflight -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py --node-sdk-typed-host-preflight $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",)
+
+.PHONY: wheel-sdk-rebuild-probe-diagnostic
+wheel-sdk-rebuild-probe-diagnostic: python-version $(RUNTIME_PREREQUISITE) ## Observe actual guarded SDK probe phases; never qualify preflight acceptance.
+	$(STEP) wheel-sdk-rebuild-probe-diagnostic -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py --node-sdk-rebuild-preflight --diagnostic-node-probes
 
 format: $(DEV_PREREQUISITE) ## Format Python source and tests.
 	$(RUFF) format src tests scripts $(SAMPLE_PYTHON)
@@ -264,11 +320,12 @@ lint: $(DEV_PREREQUISITE) ## Run strict Python lint checks.
 	$(STEP) lint -- $(RUFF) check src tests scripts $(SAMPLE_PYTHON)
 
 openspec-check: python-version $(RUNTIME_PREREQUISITE) $(OPENSPEC_TOOL_STAMP) ## Strictly validate all OpenSpec changes and specifications.
+	$(STEP) openspec-dependencies -- $(NPM) --prefix "$(OPENSPEC_RUNTIME_DIR)" run dependencies:check
 	$(STEP) openspec-check -- $(OPENSPEC) validate --all --strict --no-interactive
 
-documentation-check: python-version $(RUNTIME_PREREQUISITE) $(OPENSPEC_TOOL_STAMP) ## Extract and render every Mermaid diagram in Markdown.
+documentation-check: python-version $(RUNTIME_PREREQUISITE) $(DOCUMENTATION_TOOL_STAMP) ## Extract and render every Mermaid diagram in Markdown.
 	PYTHONPATH=src $(RUN_PYTHON_COMMAND) scripts/check_roadmap_dependencies.py .
-	$(STEP) documentation-check -- $(NPM) --prefix "$(OPENSPEC_RUNTIME_DIR)" run documentation:check -- "$(CURDIR)"
+	$(STEP) documentation-check -- $(NPM) --prefix "$(DOCUMENTATION_RUNTIME_DIR)" run documentation:check -- "$(CURDIR)"
 
 documentation-review: python-version $(RUNTIME_PREREQUISITE) ## Require the reviewed documentation authority marker to be current.
 	PYTHONPATH=src $(RUN_PYTHON_COMMAND) -m literate_ai.cli project documentation-review . --require-current
@@ -306,15 +363,22 @@ runner-review: python-version $(RUNTIME_PREREQUISITE) ## Require a current sampl
 runner-review-record: python-version $(RUNTIME_PREREQUISITE) ## Re-pin the reviewed sample test-runner source closure.
 	$(RUN_PYTHON_COMMAND) scripts/review_test_runner.py --record
 
-validate: repository-layout-check python-check lint format-check openspec-check documentation-check driver-review runner-review skills-check installed-e2e ## Run every current repository gate.
+# A prerequisite barrier, rather than prerequisite order alone, also holds under
+# parallel Make and indirect callers such as bootstrap. Explicit sibling goals
+# remain independently requested work under normal Make semantics.
+.PHONY: validate-preflight
+validate-preflight: schema-check repository-layout-check lint format-check openspec-check documentation-check driver-review runner-review ## Refuse cheap validation failures before the long workload.
+
+validate: validate-preflight ## Run every current repository gate.
+	$(MAKE) python-check skills-check installed-e2e
 
 release: python-version $(RUNTIME_PREREQUISITE) ## Check the exact plan in RELEASE_PLAN; publication remains an explicit litai release publish command.
 	PYTHONPATH=src $(RUN_PYTHON_COMMAND) -m literate_ai.cli release check "$(RELEASE_PLAN)" --project . --output "$(RELEASE_PREPARED)"
 
 # Refuse stale review authority before native qualification. The ordered gate list
 # retains its later driver-review so intervening source drift still refuses.
-release-check: python-version $(RUNTIME_PREREQUISITE) driver-review runner-review documentation-review ## Preflight authority, then run resumable release gates.
-	BUILD_DIR="$(BUILD_DIR)" OBJ_DIR="$(OBJ_DIR)" QUALIFIED_WHEEL_MANIFEST="$(RELEASE_QUALIFIED_WHEEL_MANIFEST)" $(RUN_PYTHON_COMMAND) scripts/run_checkpointed_gates.py --state "$(RELEASE_CHECKPOINT)" --make "$(MAKE)" $(RELEASE_GATES)
+release-check: python-version $(RUNTIME_PREREQUISITE) schema-check driver-review runner-review documentation-review ## Preflight authority, then run resumable release gates.
+	BUILD_DIR="$(BUILD_DIR)" OBJ_DIR="$(OBJ_DIR)" QUALIFIED_WHEEL_MANIFEST="$(RELEASE_QUALIFIED_WHEEL_MANIFEST)" NATIVE_ROOT_FIXTURE_ARCHIVES="$(NATIVE_ROOT_FIXTURE_ARCHIVES)" RELEASE_NATIVE_ROOT_QUALIFICATION="$(RELEASE_NATIVE_ROOT_QUALIFICATION)" $(RUN_PYTHON_COMMAND) scripts/run_checkpointed_gates.py --state "$(RELEASE_CHECKPOINT)" --make "$(MAKE)" $(if $(NATIVE_ROOT_QUALIFICATION_SELECTED),--require-gate wheel-check,) $(RELEASE_GATES)
 
 release-check-reset: python-version $(RUNTIME_PREREQUISITE) ## Discard the diagnostic release checkpoint so the next run starts at gate one.
 	$(RUN_PYTHON_COMMAND) scripts/run_checkpointed_gates.py --state "$(RELEASE_CHECKPOINT)" --reset
@@ -322,4 +386,4 @@ release-check-reset: python-version $(RUNTIME_PREREQUISITE) ## Discard the diagn
 
 .PHONY: release-artifacts
 release-artifacts: python-version $(RUNTIME_PREREQUISITE) ## Qualify and retain exact wheel/plugin bytes for publication.
-	PYTHONPATH=src:. $(RUN_PYTHON_COMMAND) scripts/qualify_release_files.py
+	PYTHONPATH=src:. $(RUN_PYTHON_COMMAND) scripts/qualify_release_files.py $(if $(strip $(NATIVE_ROOT_FIXTURE_ARCHIVES)),--native-root-archives "$(NATIVE_ROOT_FIXTURE_ARCHIVES)",) $(if $(filter 1,$(RELEASE_NATIVE_ROOT_QUALIFICATION)),--require-native-root-qualification,)

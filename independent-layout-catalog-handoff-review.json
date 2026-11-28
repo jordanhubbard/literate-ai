@@ -1,0 +1,90 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "changes_requested",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "3ea2751b9f4c001cea4dbf43a81cb6fb6cd1e682",
+  "scope": "Internal live catalog producer joined to a fresh acknowledged nonroot source phase; not public catalog operation or complete retained-layout ownership.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_roles.py",
+      "sha256": "0f40f2e8bebe25d3e25d9500bf3ce4f202abca38b62143c8cfbc2e60762dd66c"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_entry_publication.py",
+      "sha256": "35e686b77f2352e3f1be2422033957bb5d9b37c7b5707b7b3787a6b2752c2faf"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "334d7e32040e3633fe115ce03f3edb113f89b827ebd2f8548db010ebb9b148ee"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_ownership.py",
+      "sha256": "4871e663e91548297fe7172e320e55db0b6a59837c12dc288ecf28d63264de6b"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_roles.py",
+      "sha256": "322a41285b4e14162c431042e1c5ac5a640b5d1570ed85483bbfc759bfd7b35a"
+    }
+  ],
+  "findings": [
+    {
+      "id": "CATALOG-HANDOFF-SETUP-BUDGET-001",
+      "severity": "blocking",
+      "status": "open",
+      "locations": [
+        "src/literate_ai/adapters/catalog_copy_roles.py:502",
+        "src/literate_ai/adapters/catalog_copy_roles.py:504",
+        "src/literate_ai/adapters/retained_layout_control_roles.py:238"
+      ],
+      "title": "Producer-owned initial canonical acquisition is outside the supplied shared read ledger",
+      "evidence": "prepared_catalog_copy_roles creates journal/pool and enters acquire_retained_layout_control_roles before plan_catalog_copy creates the bounded input ledger. There is no surrounding bounded_role_observation. Acquisition calls _project_roles and observe_layout_git_controls plus repeated initial-input validation through ordinary default readers. These initial manifest/conversion/migration/Git observations are not debited to the original copy ledger later subtracted by remaining().",
+      "consequence": "The newly owning producer cannot claim the supplied aggregate/file/record/metadata policy covers its complete observation span. A later bounded plan can refuse only after setup readers and public marker acquisition already occurred. Existing individual canonical defaults do not provide the original shared operation allowance.",
+      "required_change": "Create the original shared bounded observation ledger before producer-owned canonical discovery/acquisition, route those observations through canonical bounded hooks, and carry the same incurred usage into plan/staging/handoff rather than resetting the allowance. Ensure policy validation and capacity checks precede the corresponding reads/effects. Preserve default standalone reader behavior.",
+      "evidence_limit": "Source call-path/accounting finding only; no bespoke budget probe or oversized-input reproduction run."
+    },
+    {
+      "id": "CATALOG-HANDOFF-LIFETIME-002",
+      "severity": "blocking",
+      "status": "open",
+      "locations": [
+        "src/literate_ai/adapters/catalog_copy_roles.py:55",
+        "src/literate_ai/adapters/catalog_copy_roles.py:319",
+        "src/literate_ai/adapters/catalog_copy_roles.py:417"
+      ],
+      "title": "Final native observations do not close actual registry and state lifetime",
+      "evidence": "_record validates _LIVE and PID/thread/failed/spent/state before calling guard and native fstat/lstat, then returns the earlier mutable record without a trailing registry/state check. close_native similarly obtains its entry record, performs all native callbacks and final guard/fstat/lstat, then returns without a pure original-registry close. spend invokes _record before setting spent, but that lookup again has callbacks after its initial state check.",
+      "consequence": "The source does not establish the promised actor lifetime after the final callback. A context ending or actor state changing during those observations is not independently rechecked against the original live registry; native FD facts alone cannot establish a still-live actor, particularly if a descriptor number is reused. This is a source-level closing invariant gap, not a demonstrated unauthorized source move.",
+      "required_change": "Introduce a pure exact-original registry/PID/thread/state/nonce/lifetime check with no filesystem callback, invoke after _record native callbacks and after the last close_native observation, and immediately before one-use state advance. Retire readiness before actual enclosing native teardown. Maintain source-phase/control lifetime checks after participant spend.",
+      "evidence_limit": "Source-only finding; no custom context-exit/FD-reuse probe executed. Maintained current10 checks ordinary ended contexts and teardown failure but does not exercise this final-callback boundary."
+    }
+  ],
+  "positive_assessment": [
+    "Actual receiver acceptance binds creating stage/control objects and registry membership, completed finalization and published provenance; normal incomplete entry exit is waived only by matching live producer transfer.",
+    "Ready state is assigned only after original resource ExitStack closes normally and original stage/control activity and stage receiver registration end.",
+    "Sealed actual namespaces, source observations, original input observations and exact provenance survive teardown rather than being refreshed into a new foreign baseline.",
+    "Source plan optionally binds live actor identity and exact provenance observation; absent new fields are omitted from legacy plan documents. Ownership refuses missing actual actor and classifies only actual copied leaves/directories as imported, keeping unknown neighbors unclaimed.",
+    "Original control endpoints are filtered by exact old target coordinates; saved provenance/descriptive objects do not mint an actor. Consumption occurs through the complete partition before original source move.",
+    "Maintained positive actual source move, metadata publication, finalization and linked Git/new control acquisition pass; these do not resolve the source-only findings."
+  ],
+  "independent_execution": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_roles > _build/catalog-handoff-independent.log 2>&1",
+    "session": 20629,
+    "exit_code": 0,
+    "tests": 10,
+    "passed": 10,
+    "skipped": 0,
+    "seconds": 87.751,
+    "log": "_build/catalog-handoff-independent.log",
+    "log_sha256": "a86635782f86d13cf42aa79aa89ca2ef05aefb3d8d2619f6b2a34cb377592756",
+    "terminal": true,
+    "bespoke_probes": 0
+  },
+  "limits": [
+    "No bespoke probes/reproduction scripts; findings explicitly source-only.",
+    "No independent broad cohort or installed/platform claim.",
+    "No historical durable role recovery, restart reconstruction, public copy completion, complete metadata ownership, root/shared/wrapper effects, full namespace ownership, full program or release approval.",
+    "All five source/test hashes rechecked unchanged at terminal execution. No implementation/test/pin edits, installs, network or agents. Prior reports preserved.",
+    "No independent process remains live. Parent-owned jobs separate; repair may proceed only after their owner considers them terminal."
+  ],
+  "repair_readiness": "Review source sampling and maintained execution complete; exact failing-review subject preserved by manifest. Ready for concrete repaired-source rereview after parent-owned jobs stop."
+}

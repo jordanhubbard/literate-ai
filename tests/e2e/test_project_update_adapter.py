@@ -20,6 +20,7 @@ from literate_ai.contracts import (
     ProjectUpdateClassification,
     ProjectUpdatePlan,
 )
+from literate_ai.projects import load_project
 from tests.support.fixtures_test_schema_catalog import SchemaCatalog
 from tests.support.root_parent_adapter import (
     RootParentProjectInitializationAdapter as FilesystemProjectInitializationAdapter,
@@ -43,13 +44,20 @@ class FilesystemProjectUpdateAdapterTests(unittest.TestCase):
 
         def changed_template(resource: str) -> str:
             content = original_template_text(resource)
-            if resource in {"AGENTS.md", "CLAUDE.md"}:
+            if resource in {
+                "AGENTS.md",
+                "CLAUDE.md",
+                "docs/user/bootstrap.md",
+                "docs/user/test-matrix.md",
+            }:
                 return content + f"\nupstream-{resource}\n"
             return content
 
+        # Contained scaffold placement only accepts templates with a finite
+        # ownership role, so the injected addition lives under a framework root.
         template_files = {
             **project_updates._TEMPLATE_FILES,
-            "UPSTREAM.md": "AGENTS.md",
+            "docs/UPSTREAM.md": "AGENTS.md",
         }
         with tempfile.TemporaryDirectory() as directory:
             target = Path(directory) / "project"
@@ -62,8 +70,12 @@ class FilesystemProjectUpdateAdapterTests(unittest.TestCase):
                 source_intelligence_provider="none",
                 empty=True,
             )
-            skill = target / "SKILL.md"
+            project = load_project(target)
+            framework = project.framework_root.relative_to(target).as_posix()
+            skill = project.framework_root / "SKILL.md"
             skill.write_text(skill.read_text(encoding="utf-8") + "\nlocal\n")
+            matrix = project.framework_root / "docs/user/test-matrix.md"
+            matrix.write_text(matrix.read_text(encoding="utf-8") + "\nlocal\n")
             claude = target / "CLAUDE.md"
             claude.write_text(claude.read_text(encoding="utf-8") + "\nlocal\n")
             before = {
@@ -101,16 +113,27 @@ class FilesystemProjectUpdateAdapterTests(unittest.TestCase):
             }
 
         by_path = {item.path: item.classification for item in plan.files}
+        # The contained layout leaves root agent adapters to the project's own
+        # integration review; templates never take over those coordinates.
+        self.assertNotIn("AGENTS.md", by_path)
+        self.assertNotIn("CLAUDE.md", by_path)
         self.assertEqual(
-            by_path["AGENTS.md"], ProjectUpdateClassification.UPSTREAM_ONLY
+            by_path[f"{framework}/docs/user/bootstrap.md"],
+            ProjectUpdateClassification.UPSTREAM_ONLY,
         )
-        self.assertEqual(by_path["SKILL.md"], ProjectUpdateClassification.LOCAL_ONLY)
-        self.assertEqual(by_path["CLAUDE.md"], ProjectUpdateClassification.CONFLICT)
         self.assertEqual(
-            by_path["UPSTREAM.md"], ProjectUpdateClassification.UPSTREAM_ADDED
+            by_path[f"{framework}/SKILL.md"], ProjectUpdateClassification.LOCAL_ONLY
         )
         self.assertEqual(
-            by_path["literate.project.json"],
+            by_path[f"{framework}/docs/user/test-matrix.md"],
+            ProjectUpdateClassification.CONFLICT,
+        )
+        self.assertEqual(
+            by_path[f"{framework}/docs/UPSTREAM.md"],
+            ProjectUpdateClassification.UPSTREAM_ADDED,
+        )
+        self.assertEqual(
+            by_path[f"{framework}/literate.project.json"],
             ProjectUpdateClassification.PRESERVED_DYNAMIC,
         )
         self.assertEqual(before, after)

@@ -43,9 +43,14 @@ from literate_ai.adapters.retained_scope_refresh import (
     plan_retained_scope_refresh,
 )
 from literate_ai.contracts import ProjectInitializationOrigin
+from literate_ai.projects import ProjectConfigurationStore
 from tests.support.root_parent_adapter import (
     RootParentProjectInitializationAdapter as FilesystemProjectInitializationAdapter,
 )
+
+
+def _framework(target, relative):
+    return ProjectConfigurationStore.context(target).framework_path(relative)
 
 
 def _origin() -> ProjectInitializationOrigin:
@@ -155,14 +160,16 @@ class ConvertHarnessSliceTests(unittest.TestCase):
             # The conversion result names the evidence and the wrapper.
             summary = result["harness_inventory"]
             self.assertIsNotNone(summary)
-            self.assertEqual(summary["path"], ".literate/harness-inventory.json")
+            self.assertEqual(summary["path"], "litai/.literate/harness-inventory.json")
             self.assertIn("build", summary["commands"])
-            self.assertEqual(result["harness_wrapper"], HARNESS_WRAPPER_FILENAME)
-            self.assertIn(HARNESS_WRAPPER_FILENAME, result["created"])
+            self.assertEqual(
+                result["harness_wrapper"], "litai/" + HARNESS_WRAPPER_FILENAME
+            )
+            self.assertIn("litai/" + HARNESS_WRAPPER_FILENAME, result["created"])
             self.assertEqual(result["harness_parity"]["state"], "passed")
             self.assertEqual(result["harness_parity"]["phase_count"], 2)
             lift_shift = json.loads(
-                (target / ".literate" / "legacy-lift-shift.json").read_text(
+                _framework(target, ".literate/legacy-lift-shift.json").read_text(
                     encoding="utf-8"
                 )
             )
@@ -179,19 +186,20 @@ class ConvertHarnessSliceTests(unittest.TestCase):
                 "skills/specification-to-source/legacy-project-shim/SKILL.md",
                 "workflows/legacy-adoption/workflow.md",
             }
+            expected_shims = {"litai/" + relative for relative in expected_shims}
             self.assertEqual(set(result["shim_authority"]), expected_shims)
             self.assertTrue(all((target / path).is_file() for path in expected_shims))
 
             # The inventory document is on disk and every command cites evidence.
             document = json.loads(
-                (target / ".literate" / "harness-inventory.json").read_text(
+                _framework(target, ".literate/harness-inventory.json").read_text(
                     encoding="utf-8"
                 )
             )
             self.assertEqual(document["schema"], HARNESS_INVENTORY_SCHEMA)
             self.assertEqual(document["commands"]["build"]["evidence"], "Makefile")
             baseline = json.loads(
-                (target / ".literate" / "legacy-harness-baseline.json").read_text(
+                _framework(target, ".literate/legacy-harness-baseline.json").read_text(
                     encoding="utf-8"
                 )
             )
@@ -213,7 +221,7 @@ class ConvertHarnessSliceTests(unittest.TestCase):
                 )
             )
             parity = json.loads(
-                (target / ".literate" / "legacy-wrapper-parity.json").read_text(
+                _framework(target, ".literate/legacy-wrapper-parity.json").read_text(
                     encoding="utf-8"
                 )
             )
@@ -228,7 +236,9 @@ class ConvertHarnessSliceTests(unittest.TestCase):
 
             # The wrapper is framework-owned at the top level and delegates to the
             # quarantined legacy tree with the detected commands.
-            wrapper = (target / HARNESS_WRAPPER_FILENAME).read_text(encoding="utf-8")
+            wrapper = _framework(target, HARNESS_WRAPPER_FILENAME).read_text(
+                encoding="utf-8"
+            )
             implementation_dir = result["lift_shift"]["implementation_directory"]
             self.assertIn(f"LITAI_LEGACY := {implementation_dir}", wrapper)
             self.assertIn("make -f Makefile", wrapper)
@@ -244,7 +254,7 @@ class ConvertHarnessSliceTests(unittest.TestCase):
             )
             self.assertTrue((target / result["native_rewrite"]["adr"]).is_file())
             self.assertTrue((target / result["native_rewrite"]["roadmap"]).is_file())
-            active_work = (target / "docs" / "roadmap" / "active-work.md").read_text(
+            active_work = _framework(target, "docs/roadmap/active-work.md").read_text(
                 encoding="utf-8"
             )
             self.assertIn("ADOPT-002", active_work)
@@ -258,7 +268,12 @@ class ConvertHarnessSliceTests(unittest.TestCase):
                 ("test", "test.sentinel"),
             ):
                 completed = subprocess.run(
-                    ("make", "-f", HARNESS_WRAPPER_FILENAME, make_target),
+                    (
+                        "make",
+                        "-f",
+                        str(_framework(target, HARNESS_WRAPPER_FILENAME)),
+                        make_target,
+                    ),
                     cwd=target,
                     capture_output=True,
                     text=True,
@@ -417,8 +432,8 @@ class ConvertHarnessSliceTests(unittest.TestCase):
                 "current",
             )
 
-            receipt = (
-                target / ".literate" / "monorepo-components" / "receipts" / "kit.json"
+            receipt = _framework(
+                target, ".literate/monorepo-components/receipts/kit.json"
             )
             receipt.write_bytes(receipt.read_bytes() + b" ")
             with self.assertRaises(ProjectValidationError) as raised:
@@ -463,10 +478,12 @@ class ConvertHarnessSliceTests(unittest.TestCase):
                 synchronize_source_intelligence=False,
             )
             self.assertEqual(validation["authority_review"]["state"], "current")
-            onboarding = (target / "SKILL.md").read_text(encoding="utf-8")
+            onboarding = _framework(target, "SKILL.md").read_text(encoding="utf-8")
             self.assertIn("conversion report as the exact follow-up", onboarding)
             self.assertIn("framework-only conversion skill", onboarding)
-            self.assertFalse((target / "skills" / "agent" / "convert-project").exists())
+            self.assertFalse(
+                _framework(target, "skills/agent/convert-project").exists()
+            )
             derived = """---
 namespace: legacy-adoption
 version: 1.0.0
@@ -511,7 +528,7 @@ services.
             self.assertNotIn("app.py", derived)
             self.assertNotIn("print(", derived)
             authoring = parse_component_markdown(
-                target / "components" / "greeting-emitter" / "component.md",
+                _framework(target, "components/greeting-emitter/component.md"),
                 derived,
                 project_root=target,
             )
@@ -576,6 +593,7 @@ services.
             self.assertRegex(raised.exception.message, recipe_failure)
             self.assertFalse((target / "literate.project.json").exists())
             self.assertFalse((target / ".literate").exists())
+            self.assertFalse((target / "litai").exists())
             self.assertFalse((target / "_legacy").exists())
             self.assertFalse((target / HARNESS_WRAPPER_FILENAME).exists())
             restored = {
@@ -628,7 +646,9 @@ class DetectionToSelectorSliceTests(unittest.TestCase):
             )
 
             manifest = json.loads(
-                (target / "literate.project.json").read_text(encoding="utf-8")
+                ProjectConfigurationStore.manifest_path(target).read_text(
+                    encoding="utf-8"
+                )
             )
             self.assertIn(
                 "+flavor://literate-ai/build-cmake",
@@ -656,23 +676,36 @@ class RepoManConvertSliceTests(unittest.TestCase):
                 convert=True,
             )
 
-            self.assertTrue((target / "literate.project.json").is_file())
+            self.assertTrue(ProjectConfigurationStore.manifest_path(target).is_file())
             self.assertEqual(result["harness_baseline"]["state"], "skipped")
             self.assertEqual(result["harness_parity"]["state"], "skipped")
-            wrapper = (target / HARNESS_WRAPPER_FILENAME).read_text(encoding="utf-8")
+            wrapper = _framework(target, HARNESS_WRAPPER_FILENAME).read_text(
+                encoding="utf-8"
+            )
             implementation_dir = result["lift_shift"]["implementation_directory"]
             self.assertIn(f"LITAI_LEGACY := {implementation_dir}", wrapper)
             self.assertIn("build.kit:", wrapper)
             self.assertIn("build.rendering:", wrapper)
+            quoted_root = (
+                '"$(LITAI_LEGACY)'
+                if os.name == "nt"
+                else "'$(subst ','\"'\"',$(LITAI_LEGACY))'"
+            )
+            closing_quote = '"' if os.name == "nt" else ""
             self.assertIn(
-                "cd $(LITAI_LEGACY)/kit && ./repo.sh build --release", wrapper
+                f"cd {quoted_root}/kit{closing_quote} && ./repo.sh build --release",
+                wrapper,
             )
             self.assertIn(
-                "cd $(LITAI_LEGACY)/rendering && ./repo.sh build --release", wrapper
+                f"cd {quoted_root}/rendering{closing_quote}"
+                " && ./repo.sh build --release",
+                wrapper,
             )
-            self.assertIn("cd $(LITAI_LEGACY) && ./repo.sh build --release", wrapper)
+            self.assertIn(
+                f"cd {quoted_root}{closing_quote} && ./repo.sh build --release", wrapper
+            )
             inventory = json.loads(
-                (target / ".literate" / "harness-inventory.json").read_text(
+                _framework(target, ".literate/harness-inventory.json").read_text(
                     encoding="utf-8"
                 )
             )
@@ -682,7 +715,9 @@ class RepoManConvertSliceTests(unittest.TestCase):
                 ["build", "build.kit", "build.rendering"],
             )
             manifest = json.loads(
-                (target / "literate.project.json").read_text(encoding="utf-8")
+                ProjectConfigurationStore.manifest_path(target).read_text(
+                    encoding="utf-8"
+                )
             )
             self.assertIn(
                 "+flavor://literate-ai/build-repo-man",
@@ -699,7 +734,12 @@ class RepoManConvertSliceTests(unittest.TestCase):
             self.assertEqual(result["detected_languages"], ["cpp", "python"])
             self.assertEqual(result["lift_shift"]["state"], "passed")
             completed = subprocess.run(
-                ("make", "-f", HARNESS_WRAPPER_FILENAME, "build.kit"),
+                (
+                    "make",
+                    "-f",
+                    str(_framework(target, HARNESS_WRAPPER_FILENAME)),
+                    "build.kit",
+                ),
                 cwd=target,
                 capture_output=True,
                 text=True,

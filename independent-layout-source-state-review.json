@@ -1,0 +1,89 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "decision": "approved_at_internal_original_state_persistence_and_bounded_data_loading_scope",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_source_state.py": {
+      "algorithm": "sha256",
+      "digest": "3169e0860c6703d5627ccf5b387e4f718a4532867a89ba412ab172127ae2e5e4"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "d64dced3790b2e9300278809b418abe1b8fe0beaa48b62beafcae375e07288a0"
+    },
+    "src/literate_ai/adapters/retained_layout_source_namespace.py": {
+      "algorithm": "sha256",
+      "digest": "cab105b58a110524210024b1e13d1abfba9758b0f76724934ffc76a58df30f2f"
+    },
+    "src/literate_ai/adapters/retained_layout_source_roles.py": {
+      "algorithm": "sha256",
+      "digest": "64633018fa4f573f7216109ab71dee97f14265aea5eb6cca6b7b1bfb9fd37f2c"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "058052624ba1a7774f2ed71e9bea005be876991dac98a107969e67f6f964ae64"
+    },
+    "src/literate_ai/adapters/retained_layout_recovery_data.py": {
+      "algorithm": "sha256",
+      "digest": "c855c632e6f06d03a164493130acd9bb0541d4c29a899057137c854e70abe6ca"
+    },
+    "src/literate_ai/adapters/retained_layout_journal.py": {
+      "algorithm": "sha256",
+      "digest": "352bf1cab5f260d06ad4dbf6221a21c9ff0325d680bae5616092347ec212f277"
+    },
+    "tests/critical/test_retained_layout_source_state.py": {
+      "algorithm": "sha256",
+      "digest": "13947fcd94db3d21913ceee1c70d2b29319919dbf4b73877ace18a33279126d0"
+    },
+    "tests/critical/test_retained_layout_journal.py": {
+      "algorithm": "sha256",
+      "digest": "0894c7fbc2c3d4b6678351c004403fd3e4aacd96e3687ebcb0b195d7900beaae"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "957baec9451742b31fc939394730ab735b549cf9c5450fd21c1d91261b009026"
+    },
+    "tests/critical/test_retained_layout_source_provider.py": {
+      "algorithm": "sha256",
+      "digest": "543e550bec75af9fb83385c2916f922439279b6f7b569a57100b56fd83c11225"
+    },
+    "tests/critical/test_retained_layout_authored_roles.py": {
+      "algorithm": "sha256",
+      "digest": "afa222aeaaa102053fb36420474177253660e04cd5662e51912d9876d909aeee"
+    }
+  },
+  "review_mode": "source_only_no_reviewer_tests_probes_or_edits",
+  "scope": [
+    "Actual sealed original namespace/census/native/role/graph state and metadata bodies persisted before first canonical publication",
+    "Original ledger preflight and unchanged immutable journal payload/count/storage limits; packed byte witnesses",
+    "Fresh explicit bounded read policy, immutable expected-length native reads, frozen funded roster, actual header phase binding",
+    "Fresh actual canonical recovery owner consumes durable original metadata before source intent; no decoded data grants effect authority"
+  ],
+  "limitations": [
+    "Complete root/shared execution and recovery remain guarded",
+    "Public, installed, native-platform, full-source, integration and release acceptance not established by this source review"
+  ],
+  "addressed_findings": [
+    "Fresh file/byte/per-file/peak accounting before journal-wide native reads",
+    "Bind requested acknowledged phase to actual immutable journal header",
+    "Cap native currentness reads at expected length including empty payloads",
+    "Enforce immutable funded record roster against in-place mutations",
+    "Reject prepared recovery without fresh policy before legacy native rereads",
+    "Bind every persisted auxiliary role roster into acknowledged original role identity",
+    "Existing native membership-race hook forwards read ceiling and retains original assertions",
+    "Persist native facts once and reconstruct census physical table losslessly; acknowledgement binds native digest and recomputed complete census identity",
+    "Encoding funds newly allocated containers/wrappers/slots/output/peak rather than recounting previously funded ordinary scalar observations; fresh decoding accounting unchanged",
+    "Original 65536-entry refusal retained at actual earlier source-movement capacity boundary; primary cause chain and exact EBADF verified",
+    "Seven actual full-movement fixtures explicitly declare finite131072entries before original preparation; shared default, production limits and original smaller negative policies unchanged",
+    "Persist/close actual sealed original observations before role-admission binding while actual journal registration is funded; require no admitted provider/phase/controls at both ends; provider role/effect guards unchanged",
+    "Remove duplicate prewrite full validation while retaining opening preparation currentness, sealed data checks and live writer guards, mandatory full post-write native/payload close and unbound checks before admission/effects",
+    "Actual last durable private-append source mutation refuses admission binding and native canonical publication, preserves changed source and original acknowledged private state",
+    "Actual full coupled operation measured through all enclosing teardown; original updater2GiB policy retained, strict catalog/source9GiB positive declared before producers with post-teardown extra512MiB headroom",
+    "Original coupled8GiB profile retained: only bounded complete committed-unqualified success or proved committed metadata exhaustion, exact native source/control/private metadata custody and kernel FD closure",
+    "Actual unittest module discovery verifies20 methods including original8GiB profile; main guard follows both test classes",
+    "Original authored65536entry profile proves movement boundary reached then primary entry exhaustion before source/metadata/control effects; exact journal and original inode/byte custody preserved; funded metadata/receipt coverage separate",
+    "Repeated ordered chunk references accepted with physical deduplication unchanged, full expanded occurrence funding, original logical storage bound and exact fixed-width packing before assembly",
+    "Actual canonical lock padded within unchanged original fixture budgets reproduces old unique-roster failure; exact bytes survive actual durable writer closure and journal reopening",
+    "Separate actual valid reopened journal chain with repeated existing chunks and oversized logical claim refuses precise packing policy before assembly without allocating oversized body"
+  ]
+}

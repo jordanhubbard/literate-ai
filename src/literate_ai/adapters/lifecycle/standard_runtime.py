@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
 from literate_ai._filesystem import path_is_link_or_reparse
@@ -11,6 +12,8 @@ from literate_ai.contracts import (
     canonical_relative_posix_path,
 )
 
+from .python_libraries import PYTHON_LIBRARY_BOOTSTRAP, compact_python_driver
+
 STANDARD_ELIXIR_RUNTIME_DRIVER = (
     "[_artifact,export,layout,relative|arguments]=System.argv();"
     'path=if layout=="file",do: export,else: Path.join(export,relative);'
@@ -18,18 +21,20 @@ STANDARD_ELIXIR_RUNTIME_DRIVER = (
 )
 
 STANDARD_PYTHON_RUNTIME_DRIVER = (
-    "import pathlib,runpy,sys;"
+    PYTHON_LIBRARY_BOOTSTRAP + "import pathlib,runpy,sys;"
     "sys.dont_write_bytecode=True;"
     "_artifact,export,layout,relative,*arguments=sys.argv[1:];"
     "path=pathlib.Path(export) if layout=='file' else "
     "pathlib.Path(export)/pathlib.PurePosixPath(relative);"
-    "sys.path.insert(0,str(path.parent));"
+    "_litai_python_imports(export);sys.path.insert(0,str(path.parent));"
     "sys.argv=[str(path),*arguments];runpy.run_path(str(path),run_name='__main__')"
 )
 
 # This is a single locked argv token. Avoid braces, which command contracts reserve
 # for role placeholders. The driver stays in the application process for services.
-_PYTHON_SDK_BOOTSTRAP = """import hashlib,json,os,pathlib,runpy,stat,sys,types
+_PYTHON_SDK_BOOTSTRAP = (
+    PYTHON_LIBRARY_BOOTSTRAP
+    + """import hashlib,json,os,pathlib,runpy,stat,sys,types
 sys.dont_write_bytecode=True
 manifest,_artifact,export,layout,relative,*arguments=sys.argv[1:]
 manifest=pathlib.Path(manifest)
@@ -96,11 +101,13 @@ sdk_metadata=types.ModuleType('literate_ai_native_sdk')
 sdk_metadata.binding=sdk_binding_factory(tuple(sdk_bindings))
 sys.modules['literate_ai_native_sdk']=sdk_metadata
 """
+)
 
 STANDARD_PYTHON_SDK_RUNTIME_DRIVER = (
     _PYTHON_SDK_BOOTSTRAP + "path=pathlib.Path(export) if layout=='file' else "
     "child(pathlib.Path(export),relative)\n"
     """require(path.is_file() and not path.is_symlink())
+_litai_python_imports(export,roots)
 sys.path[:0]=[*roots,str(path.parent)]
 sys.argv=[str(path),*arguments]
 runpy.run_path(str(path),run_name='__main__')
@@ -115,6 +122,7 @@ source=child(pathlib.Path(export),'source').resolve(strict=True)
 require(source.is_dir())
 surface=json.loads(zlib.decompress(base64.urlsafe_b64decode(relative)))
 require(surface['language']=='python')
+_litai_python_imports(export,roots)
 sys.path[:0]=[str(source),*roots]
 observed=[]
 for capability in surface['capabilities']:
@@ -127,17 +135,28 @@ print(json.dumps(dict(schema='literate-ai/library-import-observation@1',capabili
 """
 )
 
+STANDARD_PYTHON_SDK_HARNESS_DRIVER = (
+    _PYTHON_SDK_BOOTSTRAP
+    + """require(layout=='file' and relative=='harness' and len(arguments)==3)
+_litai_python_imports(arguments[0],roots)
+sys.path[:0]=roots
+sys.argv=[export,*arguments]
+runpy.run_path(export,run_name='__main__')
+"""
+)
+
 # The wheel profile invokes this with -I -S -B. No site startup hooks, .pth
 # execution, PYTHONPATH or ambient site-packages enter the selected interpreter.
 # Artifact custody must be checked by the lifecycle before launching this driver.
 STANDARD_PYTHON_WHEEL_RUNTIME_DRIVER = (
-    "import pathlib,runpy,sys;"
+    PYTHON_LIBRARY_BOOTSTRAP + "import pathlib,runpy,sys;"
     "artifact,export,layout,relative,*arguments=sys.argv[1:];"
     "root=pathlib.Path(artifact).resolve(strict=True);"
     "packages=root/'python-runtime'/'site';"
     "packages.is_dir() or sys.exit('verified Python payload is absent');"
     "layout=='tree' or sys.exit('Python wheel runtime requires a tree export');"
     "path=pathlib.Path(export)/pathlib.PurePosixPath(relative);"
+    "_litai_python_imports(export,(packages,));"
     "sys.path[:0]=[str(path.parent),str(packages)];"
     "sys.argv=[str(path),*arguments];runpy.run_path(str(path),run_name='__main__')"
 )
@@ -145,20 +164,31 @@ STANDARD_PYTHON_WHEEL_RUNTIME_DRIVER = (
 # Independent verifier code owns its import of the library itself. Add only the
 # retained dependency closure here, under the same isolated startup as runtime.
 STANDARD_PYTHON_WHEEL_HARNESS_DRIVER = (
-    "import pathlib,runpy,sys;"
+    PYTHON_LIBRARY_BOOTSTRAP + "import pathlib,runpy,sys;"
     "artifact,harness,*arguments=sys.argv[1:];"
     "packages=pathlib.Path(artifact)/'python-runtime'/'site';"
     "packages.is_dir() or sys.exit('verified Python payload is absent');"
+    "_litai_python_imports(arguments[0],(packages,));"
     "sys.path.insert(0,str(packages));"
     "sys.argv=[harness,*arguments];runpy.run_path(harness,run_name='__main__')"
 )
 
-STANDARD_PYTHON_WHEEL_LIBRARY_IMPORT_DRIVER = """
+STANDARD_PYTHON_LIBRARY_HARNESS_DRIVER = (
+    PYTHON_LIBRARY_BOOTSTRAP + "import runpy,sys;"
+    "harness,export,*arguments=sys.argv[1:];"
+    "_litai_python_imports(export);"
+    "sys.argv=[harness,export,*arguments];runpy.run_path(harness,run_name='__main__')"
+)
+
+STANDARD_PYTHON_WHEEL_LIBRARY_IMPORT_DRIVER = (
+    PYTHON_LIBRARY_BOOTSTRAP
+    + """
 import base64,importlib,json,pathlib,sys,zlib
 artifact,export,encoded=sys.argv[1:]
 source=(pathlib.Path(export)/'source').resolve(strict=True)
 packages=pathlib.Path(artifact)/'python-runtime'/'site'
 if not packages.is_dir(): raise RuntimeError('verified Python payload is absent')
+_litai_python_imports(export,(packages,))
 sys.path[:0]=[str(source),str(packages)]
 surface=json.loads(zlib.decompress(base64.urlsafe_b64decode(encoded)))
 observed=[]
@@ -171,6 +201,7 @@ for capability in surface['capabilities']:
     observed.append(capability['capability'])
 print(json.dumps(dict(schema='literate-ai/library-import-observation@1',capabilities=observed)))
 """
+)
 
 # The child stdio is inherited rather than captured so a one-shot generated command
 # writes directly to the lifecycle driver's descriptors. Persistent-service acceptance
@@ -178,6 +209,46 @@ print(json.dumps(dict(schema='literate-ai/library-import-observation@1',capabili
 # process ownership must observe the server itself, not this intermediate process.
 # This source is one argv token in a locked command, so it must contain no ``{``/``}``
 # characters (they would be read as portable placeholders).
+STANDARD_PYTHON_SDK_SUPPORT = compact_python_driver(_PYTHON_SDK_BOOTSTRAP)
+
+
+def _compact_sdk_driver(source):
+    digest = hashlib.sha256(STANDARD_PYTHON_SDK_SUPPORT.encode("utf-8")).hexdigest()
+    prefix = (
+        "import hashlib,sys\n"
+        "_support=sys.argv.pop(1)\n"
+        f"if hashlib.sha256(_support.encode('utf-8')).hexdigest()!='{digest}':\n"
+        " raise ValueError('native SDK driver support changed')\n"
+        "exec(_support)\n"
+    )
+    if not source.startswith(_PYTHON_SDK_BOOTSTRAP):
+        raise ValueError("SDK driver lost its original bootstrap")
+    return compact_python_driver(prefix + source[len(_PYTHON_SDK_BOOTSTRAP) :])
+
+
+STANDARD_PYTHON_SDK_RUNTIME_DRIVER = _compact_sdk_driver(
+    STANDARD_PYTHON_SDK_RUNTIME_DRIVER
+)
+STANDARD_PYTHON_SDK_LIBRARY_IMPORT_DRIVER = _compact_sdk_driver(
+    STANDARD_PYTHON_SDK_LIBRARY_IMPORT_DRIVER
+)
+STANDARD_PYTHON_SDK_HARNESS_DRIVER = _compact_sdk_driver(
+    STANDARD_PYTHON_SDK_HARNESS_DRIVER
+)
+STANDARD_PYTHON_RUNTIME_DRIVER = compact_python_driver(STANDARD_PYTHON_RUNTIME_DRIVER)
+STANDARD_PYTHON_WHEEL_RUNTIME_DRIVER = compact_python_driver(
+    STANDARD_PYTHON_WHEEL_RUNTIME_DRIVER
+)
+STANDARD_PYTHON_WHEEL_HARNESS_DRIVER = compact_python_driver(
+    STANDARD_PYTHON_WHEEL_HARNESS_DRIVER
+)
+STANDARD_PYTHON_LIBRARY_HARNESS_DRIVER = compact_python_driver(
+    STANDARD_PYTHON_LIBRARY_HARNESS_DRIVER
+)
+STANDARD_PYTHON_WHEEL_LIBRARY_IMPORT_DRIVER = compact_python_driver(
+    STANDARD_PYTHON_WHEEL_LIBRARY_IMPORT_DRIVER
+)
+
 STANDARD_NODE_RUNTIME_DRIVER = (
     "const p=require('path');"
     "const cp=require('child_process');"
@@ -252,6 +323,10 @@ def direct_service_process_argv(argv: tuple[str, ...]) -> tuple[str, ...]:
             if not tool:
                 raise ValueError("Standard runtime command has no bound tool")
             entrypoint = _entrypoint(export, layout, relative)
+            # runpy keeps the actual application in this owned process while
+            # preserving isolated own-source and sealed-provider imports.
+            if driver == STANDARD_PYTHON_RUNTIME_DRIVER:
+                return (*argv[:-1], LITAI_SERVE_MODE_FLAG)
             return (*tool, str(entrypoint), LITAI_SERVE_MODE_FLAG)
 
     if len(argv) >= 6:
@@ -270,8 +345,11 @@ __all__ = [
     "STANDARD_PYTHON_RUNTIME_DRIVER",
     "STANDARD_PYTHON_SDK_RUNTIME_DRIVER",
     "STANDARD_PYTHON_SDK_LIBRARY_IMPORT_DRIVER",
+    "STANDARD_PYTHON_SDK_HARNESS_DRIVER",
+    "STANDARD_PYTHON_SDK_SUPPORT",
     "STANDARD_PYTHON_WHEEL_RUNTIME_DRIVER",
     "STANDARD_PYTHON_WHEEL_HARNESS_DRIVER",
+    "STANDARD_PYTHON_LIBRARY_HARNESS_DRIVER",
     "STANDARD_PYTHON_WHEEL_LIBRARY_IMPORT_DRIVER",
     "direct_service_process_argv",
 ]

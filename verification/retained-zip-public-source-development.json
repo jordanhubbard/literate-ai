@@ -1,0 +1,86 @@
+{
+  "schema": "literate-ai/development-qualification@1",
+  "contribution": "https://github.com/jordanhubbard/literate-ai/pull/513",
+  "upstream_requirement": "https://github.com/jordanhubbard/literate-ai/issues/22",
+  "status": "public retained ZIP source controls qualified; installed and native acceptance open",
+  "platform": {
+    "system": "Linux",
+    "machine": "aarch64"
+  },
+  "source_sha256": {
+    "src/literate_ai/cli/package.py": "c4e9f8ceb27be612b86162fb445a76455ec26efd853b486f6d522d3ed633c6ea",
+    "src/literate_ai/cli/retained_project.py": "4a8ec1d0ab9de171661fc02b137ee1c62ed53acf556e0296b8f2bb4fc02f7338",
+    "src/literate_ai/cli/retained_project_package.py": "903fdf5dec82f0ef5a327297ec9188ee61bcdb52d7c8f15fccd4ee6334f2f69f",
+    "tests/critical/test_retained_package_public.py": "f323993b3ca49a2f123c050834e79fff2d8b5883c6cd46093807f17a116a9b63",
+    "tests/critical/test_retained_project_package.py": "fbf93c6d1089b13abb7e92d57f336a7b4ee76d4e400f659d4760c69aa94a0463",
+    "tests/smoke/test_retained_package_frontend.py": "06002c3c618ac609b71512b068019e1ccffb694decd1c3cc516f9d62029fa149",
+    "tests/support/fixtures_public_retained_promotion.py": "c9f027704744fdf1ca113f936231673366c33960c84c5c2b40b37b03421285b8",
+    "scripts/installed_maintained_controls.py": "0a5f9e4d61457f28f813fdae2677f1ec8af71bb52cf560b052aee93d42b2e67f"
+  },
+  "summary": {
+    "selected": 22,
+    "passed": 21,
+    "skipped": 1,
+    "failed": 0
+  },
+  "reports": [
+    {
+      "report_sha256": "d734a2fc375d62babedc856e4ba679e1a573205585ba221763036f5b4efcb64a",
+      "summary": {
+        "executed": 5,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 5,
+        "selected": 5,
+        "skipped": 0
+      },
+      "outcomes": []
+    },
+    {
+      "report_sha256": "6986b19adcf1636ef6fee6a0c15ad0520040123a416e74265bf5bc04a3d01c5a",
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "outcomes": []
+    },
+    {
+      "report_sha256": "d3eef012130d4c982eb4544eaf1101d0808a819fb80161d6dc2253dc4792d794",
+      "summary": {
+        "executed": 15,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 15,
+        "selected": 16,
+        "skipped": 1
+      },
+      "outcomes": [
+        {
+          "annotation_identity": null,
+          "failure_identity": null,
+          "schema": "urn:literate-ai:schema:v2:known-test-failure-outcome",
+          "status": "skipped",
+          "test_key": "tests.critical.test_retained_project_package.RetainedProjectPackageTests.test_live_native_unit_construction_reopens_without_installing"
+        }
+      ]
+    }
+  ],
+  "release_evidence": false,
+  "qualified": [
+    "Public read-only planning preserves the native project snapshot",
+    "Authorized public lifecycle constructs and verifies the exact retained ZIP through live admission",
+    "Archive includes original accepted binary, docs, retained receipt and specifications with original-source authority",
+    "Source drift refuses before another command execution",
+    "Frontend authority boundaries and original package-owner controls pass locally"
+  ],
+  "limits": [
+    "The source public fixture supplies explicit framework-binding observations; it is not an installed-wheel result",
+    "The fixture build exports its original native binary; this does not qualify a genuine adopted compiler/SDK producer or stronger configured receipt policy",
+    "One original pkg control requires actual native FreeBSD and is skipped on this Linux host",
+    "Fresh noneditable installed execution, genuine native acceptance, complete issue22 and full release qualification remain open"
+  ]
+}

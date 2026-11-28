@@ -32,10 +32,11 @@ class ProjectHostFlavorTests(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name).resolve() / "project"
         initialize_root(self.root)
+        self.context = ProjectConfigurationStore.context(self.root)
         for relative, content in legacy_shim_authority(
             {"commands": {}}, {"phases": []}
         ).items():
-            path = self.root / relative
+            path = self.context.framework_path(relative)
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content, encoding="utf-8", newline="\n")
         self.project = load_project(self.root)
@@ -101,7 +102,9 @@ class ProjectHostFlavorTests(unittest.TestCase):
         selectors = ("+flavor://literate-ai/lang-python", self.shim)
         expected = project_host_flavor_names(self.project, selectors, self.packaged)
         self.assertIn("lang-python", expected)
-        sidecar = self.root / "flavors/lang-python/host-toolchain.cdx.json"
+        sidecar = self.context.framework_path(
+            "flavors/lang-python/host-toolchain.cdx.json"
+        )
         sidecar.unlink()
         self.assertEqual(
             project_host_flavor_names(self.project, selectors, self.packaged), expected
@@ -111,7 +114,9 @@ class ProjectHostFlavorTests(unittest.TestCase):
         self.assertIn("python", {item.capability for item in observations[0].packages})
 
     def test_custom_probe_refuses_before_any_host_observation_without_writes(self):
-        sidecar = self.root / "flavors/legacy-project-shim/host-toolchain.cdx.json"
+        sidecar = self.context.framework_path(
+            "flavors/legacy-project-shim/host-toolchain.cdx.json"
+        )
         sentinel = self.root.parent / "probe-executed"
         document = json.loads(
             (self.packaged / "os-freebsd/host-toolchain.cdx.json").read_text()
@@ -147,8 +152,8 @@ class ProjectHostFlavorTests(unittest.TestCase):
 
     def test_duplicate_canonical_flavor_refuses_before_host_observation(self):
         shutil.copytree(
-            self.root / "flavors/legacy-project-shim",
-            self.root / "flavors/duplicate-shim",
+            self.context.framework_path("flavors/legacy-project-shim"),
+            self.context.framework_path("flavors/duplicate-shim"),
         )
         report, observations = self.preflight((self.shim,))
         self.assertFalse(report["host_tools"]["ready"])
@@ -161,7 +166,9 @@ class ProjectHostFlavorTests(unittest.TestCase):
     def test_symbolic_toolchain_refuses_without_reading_or_executing_target(self):
         target = self.root.parent / "untrusted-probe.json"
         target.write_text('{"probe": ["python", "-c", "raise SystemExit(99)"]}')
-        sidecar = self.root / "flavors/legacy-project-shim/host-toolchain.cdx.json"
+        sidecar = self.context.framework_path(
+            "flavors/legacy-project-shim/host-toolchain.cdx.json"
+        )
         sidecar.symlink_to(target)
         before = target.read_bytes()
         report, observations = self.preflight((self.shim,))
@@ -173,7 +180,9 @@ class ProjectHostFlavorTests(unittest.TestCase):
         self.assertEqual(target.read_bytes(), before)
 
     def test_oversized_sidecar_refuses_before_decoding_or_observation(self):
-        sidecar = self.root / "flavors/legacy-project-shim/host-toolchain.cdx.json"
+        sidecar = self.context.framework_path(
+            "flavors/legacy-project-shim/host-toolchain.cdx.json"
+        )
         with sidecar.open("wb") as output:
             output.truncate(2 * 1024**2 + 1)
         report, observations = self.preflight((self.shim,))

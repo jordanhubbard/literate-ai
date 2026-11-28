@@ -1,0 +1,231 @@
+{
+  "schema": "literate-ai/original-logical-source-forest-development@1",
+  "state": "source_reviewed_internal_root_out_read_only_prerequisite_scoped177pass",
+  "base_commit": "e5087b9b9a6db9f06c180ae33285f6a964445bc8",
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "qualified": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "review": {
+    "path": "independent-layout-source-forest-review.json",
+    "sha256": "cd1a7ab89253476c27441c58a0fa7e256d8c015ef6b80422a141cb2cfaf714ff"
+  },
+  "cohort_audit": {
+    "path": "_build/source-forest-final-cohort-audit.json",
+    "sha256": "2ed9d65f8a92d7b801087891245a51e03be7c4d3fbdd44479846ea90061f9d52"
+  },
+  "distinct_scoped_methods_passed": 177,
+  "checks": [
+    {
+      "report": {
+        "path": "_build/source-forest-root-key-report.json",
+        "sha256": "3fff187777bf6d14a8b8664728594844029b3193e02296654c423668d2637763"
+      },
+      "log": {
+        "path": "_build/source-forest-root-key.log",
+        "sha256": "7cf52cf2724bbd33663a95ec7c07ee0f03e6dbfbb7b18f131d66affc625f41b3"
+      },
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-forest-state-key-report.json",
+        "sha256": "2a1f0a5462dffd5fbf405a72ef81a0089c11be47e30340eb17ea17fff84b0a09"
+      },
+      "log": {
+        "path": "_build/source-forest-state-key.log",
+        "sha256": "b987365f8d00a54db509c16ad39ab3b19df08817ed97bf07b22a3fb2ec68b508"
+      },
+      "summary": {
+        "executed": 12,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 12,
+        "selected": 12,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-forest-recovery-key-report.json",
+        "sha256": "f6bb5018833a3edad6f9701d2403b76255bee6fa7857f2655e428ad036460ab7"
+      },
+      "log": {
+        "path": "_build/source-forest-recovery-key.log",
+        "sha256": "d7c34226bdca15636f9d8e08e95f851d1f0555605d5a098a0aebc08922115e8d"
+      },
+      "summary": {
+        "executed": 111,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 111,
+        "selected": 111,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-forest-preparation-profile-report.json",
+        "sha256": "67f8220c94c24d886f1bc37e70d529fcc4ca25f19efac2b99af4400bdb6a2a23"
+      },
+      "log": {
+        "path": "_build/source-forest-preparation-profile.log",
+        "sha256": "7d37908b599ebe11ef5b122c0c0b4fc87114c441429b3c82a1a01b4093ac404a"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-forest-layout-profile-report.json",
+        "sha256": "eeee084aeb2e7f33bb7c9441df056d980f3d0ceb480449a6353cf413a581f6cc"
+      },
+      "log": {
+        "path": "_build/source-forest-layout-profile.log",
+        "sha256": "b462d158b8f2b9a73d3abf221ff0f0992aa9a7b553e4c37f19d29bad4b152c4a"
+      },
+      "summary": {
+        "executed": 15,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 15,
+        "selected": 15,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-forest-lineage-profile-report.json",
+        "sha256": "a81a605548082c730c76d5291bea3c76fe26362182410ce473c1f75c5bf2102d"
+      },
+      "log": {
+        "path": "_build/source-forest-lineage-profile.log",
+        "sha256": "727ac04d70b65a4c0cae22edad76eab7fae546bfa70dfbcf2f17a31fc4c4b962"
+      },
+      "summary": {
+        "executed": 3,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 3,
+        "selected": 3,
+        "skipped": 0
+      }
+    }
+  ],
+  "fixture_scope": "Genuine initializer/conversion output and immutable original baseline; explicitly fixture-only native root arrangement using canonical declaration/lift serializers, not production root-relocation acceptance",
+  "behavior": [
+    "Original coordinates feed actual canonical initializer/provider/authored/control partition before root claims are validated",
+    "Unknown metadata and lock-looking source neighbors remain source; actual lineage writers and root observations share a canonical endpoint",
+    "Shared physical directories remain fixed while complete logical source directories, files, modes and alias topology enter the forest",
+    "Acknowledged forest is retained in actual private journal; fresh bounded data decoding reconstructs it from complete original namespace and role graph",
+    "Unsupported logical-forest source profile refuses legacy recovery before control acquisition; original source-phase root guard remains before canonical publication"
+  ],
+  "causal_history": [
+    {
+      "cause": "Root preparation formerly rejects before original logical partition",
+      "log": {
+        "path": "_build/source-forest-before.log",
+        "sha256": "b53d4edcf1694960addb075299d352178597bdd56082d511f7948850e33791f3"
+      },
+      "qualification": false
+    },
+    {
+      "cause": "Naive metadata claim included actual lineage writer endpoint absent from original role roster",
+      "log": {
+        "path": "_build/source-forest-claims-diagnostic.log",
+        "sha256": "ba707d28db493153693e8b76a3b9958eeb9cc5d2eb7960cefec12e52a93a9adf"
+      },
+      "qualification": false
+    },
+    {
+      "cause": "Early pool liveness probe preempted expired canonical-role refusal",
+      "log": {
+        "path": "_build/source-forest-recovery-profile.log",
+        "sha256": "dd3deca82ec5a9af32d06fb65b1cd33b10e4ba41a3ca120af3084cd8512311f9"
+      },
+      "qualification": false
+    },
+    {
+      "cause": "Plain dict header lookup invoked colliding foreign-key equality before mandatory owner validation",
+      "log": {
+        "path": "_build/source-forest-key-before.log",
+        "sha256": "2fcbc3299fbe8b756f5d5b5edcc1084e7c39e10e96a0559a96cc5640c2d85736"
+      },
+      "qualification": false
+    }
+  ],
+  "static_status": "lint, format, repository layout, public export, supported driver/runner review, OpenSpec and documentation checks pass; supported documentation authority current",
+  "pending": [
+    "Broader current ordinary prepared-phase/admission/provider regressions and full-source receipt qualification",
+    "Root destination/shared-overlap planning and complete receipt-backed multi-carrier execution/metadata/recovery",
+    "Public initial placement/relocation/recovery/renewal and installed/native/integration/release acceptance",
+    "All remaining roadmap obligations; no push until full feature consolidation"
+  ],
+  "static_gates": {
+    "log": {
+      "path": "_build/source-forest-final-static-gates.log",
+      "sha256": "ef5fa517e0eb5c6ff5ccb3286ac6c38f6a4da32126633a0fca1036bd3697c190"
+    },
+    "passed": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "documentation-check"
+    ],
+    "supported_documentation_review_record": true
+  },
+  "full_project_verify": {
+    "report": {
+      "path": "_build/source-forest-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "exit": 1,
+    "ok": false,
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ],
+    "limitation": "Authority passes; full-source current test receipt remains stale. Scoped development results are not full project or release qualification."
+  }
+}

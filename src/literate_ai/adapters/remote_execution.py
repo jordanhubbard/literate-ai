@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import gzip
 import hashlib
 import json
 import math
@@ -11,9 +10,11 @@ import re
 import shutil
 import tarfile
 import tempfile
+import time
 import uuid
 import zipfile
-from dataclasses import dataclass, replace
+from contextlib import ExitStack
+from dataclasses import dataclass, field, replace
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Protocol
@@ -31,9 +32,20 @@ from literate_ai.adapters.directory_artifacts import (
     require_library_package,
     require_transported_library_package,
 )
+from literate_ai.adapters.project_runtime import (
+    ContainedProjectRuntime,
+    allocate_project_runtime,
+    close_project_runtime,
+    require_project_runtime,
+    require_runtime_candidate,
+)
 from literate_ai.adapters.user_paths import prepare_user_directory, resolve_host_paths
 from literate_ai.adapters.worker_capabilities import probe_worker_capabilities
-from literate_ai.cache_directories import CacheDirectories, bind_cache_directories
+from literate_ai.cache_directories import (
+    CacheDirectories,
+    bind_cache_directories,
+    resolve_cache_directories,
+)
 from literate_ai.contracts import (
     MAX_REMOTE_CONTROL_SUMMARY_BYTES,
     MAX_REMOTE_EVIDENCE_MANIFEST_BYTES,
@@ -53,12 +65,14 @@ from literate_ai.contracts import (
     RemoteLifecycleEvidenceManifest,
     canonical_identity,
     canonical_json_bytes,
+    coordinator_evidence_import_identity,
 )
 from literate_ai.contracts.library_products import (
     LibraryArtifactProduct,
     library_worker_manifest,
 )
 from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
+from literate_ai.projects import ProjectConfigurationStore, load_project
 from literate_ai.remote_source_guard import (
     SourceGuardError,
     extract_accepted_source_cache_archive,
@@ -68,6 +82,16 @@ from literate_ai.remote_source_guard import (
 )
 
 from .artifact_exports import ArtifactEntrypointCommand, ArtifactExportError
+from .evidence_archive import write_evidence_archive
+from .evidence_files import EvidenceFileLimit, copy_evidence_files
+from .evidence_staging import EvidenceStagingError, evidence_staging
+from .remote_cleanup import (
+    INTENT_PATH,
+    acknowledge_cleanup,
+    capture_cleanup_intent,
+    hold_cleanup_root,
+    write_cleanup_ticket,
+)
 
 _CAS_SCHEME = "litai-worker-cas"
 _EVIDENCE_URI = "staged:remote-evidence.tar.gz"
@@ -96,8 +120,28 @@ class RemoteLifecycleCustody:
     cache_directories: CacheDirectories
     runtime_root: Path
     candidate_receipt: Path
+    project_runtime: ContainedProjectRuntime | None = field(
+        default=None, repr=False, compare=False
+    )
+    _runtime_identity: ContentIdentity | None = field(
+        default=None, init=False, repr=False
+    )
 
     def __post_init__(self) -> None:
+        if self.project_runtime is not None:
+            project = load_project(self.cache_directories.project_root)
+            require_project_runtime(self.project_runtime, project)
+            require_runtime_candidate(
+                self.project_runtime, project, self.candidate_receipt
+            )
+            if (
+                self.runtime_root != self.project_runtime.path
+                or self.cache_directories.obj_dir != self.project_runtime.object_root
+            ):
+                raise ValueError(
+                    "worker paths differ from original live runtime custody"
+                )
+            object.__setattr__(self, "_runtime_identity", self.project_runtime.identity)
         root = self.attempt_root.resolve(strict=True)
         paths = (
             self.cache_directories.build_dir,
@@ -121,8 +165,53 @@ class RemoteLifecycleCustody:
                 ),
                 "runtime_root": str(self.runtime_root),
                 "candidate_receipt": str(self.candidate_receipt),
+                **(
+                    {"project_runtime_custody_identity": self._runtime_identity.uri}
+                    if self._runtime_identity is not None
+                    else {}
+                ),
             }
         )
+
+
+class _RemoteRuntimeLifetime(ExitStack):
+    """Actual caller lifetime through evidence; never transport/deserialized data."""
+
+    def __init__(self):
+        super().__init__()
+        self.cleanup_safe = True
+
+    def retire(self, owner, keep):
+        try:
+            if close_project_runtime(owner, keep=keep) is False:
+                self.cleanup_safe = False
+        except BaseException:
+            self.cleanup_safe = False
+            raise
+
+
+def _default_remote_custody(root, attempt_root, lifetime, *, keep):
+    context = ProjectConfigurationStore.context(root)
+    require_safe_directory(context.framework_root / "_build", allow_missing=True)
+    directories = resolve_cache_directories(root, environment={})
+    if context.framework_root == root:
+        return RemoteLifecycleCustody(
+            attempt_root,
+            directories,
+            attempt_root / "lifecycle-runtime",
+            attempt_root / "candidate-receipt.json",
+        )
+    owner = allocate_project_runtime(load_project(root), nested=True)
+    lifetime.callback(lifetime.retire, owner, keep)
+    return RemoteLifecycleCustody(
+        attempt_root,
+        bind_cache_directories(
+            root, build_dir=directories.build_dir, obj_dir=owner.object_root
+        ),
+        owner.path,
+        owner.candidate_receipt,
+        owner,
+    )
 
 
 class RemoteLifecycleRebuilder(Protocol):
@@ -145,11 +234,41 @@ class RemoteLifecycleRebuilder(Protocol):
     ) -> dict[str, object]: ...
 
 
-def _file_identity(path: Path) -> ContentIdentity:
+def _evidence_budget(deadline_monotonic):
+    if deadline_monotonic is not None and time.monotonic() >= deadline_monotonic:
+        raise RemoteExecutionError(
+            "execution.remote_evidence_timeout", "Evidence verification budget expired"
+        )
+
+
+def _file_identity(
+    path: Path, *, expected_size=None, deadline_monotonic=None
+) -> ContentIdentity:
+    _evidence_budget(deadline_monotonic)
     digest = hashlib.sha256()
+    count = 0
     with path.open("rb") as stream:
-        while chunk := stream.read(1024 * 1024):
+        while True:
+            _evidence_budget(deadline_monotonic)
+            limit = (
+                1024 * 1024
+                if expected_size is None
+                else min(1024 * 1024, expected_size - count + 1)
+            )
+            chunk = stream.read(limit)
+            if not chunk:
+                break
+            count += len(chunk)
+            if expected_size is not None and count > expected_size:
+                raise RemoteExecutionError(
+                    "execution.remote_evidence_file_mismatch",
+                    "Imported blob size changed",
+                )
             digest.update(chunk)
+    if expected_size is not None and count != expected_size:
+        raise RemoteExecutionError(
+            "execution.remote_evidence_file_mismatch", "Imported blob size changed"
+        )
     return ContentIdentity(HashAlgorithm.SHA256, digest.hexdigest())
 
 
@@ -365,71 +484,62 @@ def _copy_evidence_tree(
     *,
     files: list[RemoteEvidenceFile],
     totals: list[int],
+    _output_owner=None,
 ) -> None:
-    if not source.exists():
-        return
-    candidates = (source,) if source.is_file() else tuple(sorted(source.rglob("*")))
-    for item in candidates:
-        if item.is_dir():
-            continue
-        if item.is_symlink() or not item.is_file():
-            raise RemoteExecutionError(
-                "execution.remote_evidence_entry_invalid",
-                "remote lifecycle evidence contains an unsupported entry",
-            )
-        suffix = item.name if source.is_file() else item.relative_to(source).as_posix()
-        relative = f"{prefix}/{suffix}"
-        if len(files) >= _MAX_EVIDENCE_FILES:
-            raise RemoteExecutionError(
-                "execution.remote_evidence_too_large",
-                "remote lifecycle evidence contains too many files",
-            )
-        size = item.stat().st_size
-        totals[0] += size
-        if totals[0] > _MAX_EVIDENCE_BYTES:
-            raise RemoteExecutionError(
-                "execution.remote_evidence_too_large",
-                "remote lifecycle evidence exceeds the eight GiB custody limit",
-            )
-        target = destination.joinpath(*relative.split("/"))
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(item, target)
-        executable = bool(item.stat().st_mode & 0o111)
-        if executable:
-            target.chmod(target.stat().st_mode | 0o111)
+    try:
+        copied = copy_evidence_files(
+            source,
+            destination,
+            prefix,
+            maximum_files=_MAX_EVIDENCE_FILES - len(files),
+            maximum_bytes=_MAX_EVIDENCE_BYTES - totals[0],
+            _output_owner=_output_owner,
+        )
+    except EvidenceFileLimit as exc:
+        raise RemoteExecutionError(
+            "execution.remote_evidence_too_large", str(exc)
+        ) from exc
+    except (ValueError, OSError, RuntimeError) as exc:
+        raise RemoteExecutionError(
+            "execution.remote_evidence_entry_invalid", str(exc)
+        ) from exc
+    for row in copied:
         files.append(
             RemoteEvidenceFile(
-                relative,
-                _evidence_kind(relative),
-                size,
-                _file_identity(target),
-                executable,
+                row.relative,
+                _evidence_kind(row.relative),
+                row.size,
+                ContentIdentity(HashAlgorithm.SHA256, row.digest),
+                row.executable,
             )
         )
+        totals[0] += row.size
 
 
-def _write_deterministic_tar_gz(source: Path, destination: Path) -> ContentIdentity:
-    temporary = destination.with_name(destination.name + ".partial")
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    with (
-        temporary.open("wb") as raw,
-        gzip.GzipFile(fileobj=raw, mode="wb", mtime=0, filename="") as compressed,
-        tarfile.open(fileobj=compressed, mode="w") as archive,
-    ):
-        for item in sorted(source.rglob("*")):
-            if not item.is_file() or item.is_symlink():
-                continue
-            info = tarfile.TarInfo(item.relative_to(source).as_posix())
-            info.size = item.stat().st_size
-            info.mode = 0o755 if item.stat().st_mode & 0o111 else 0o644
-            info.mtime = 0
-            info.uid = info.gid = 0
-            info.uname = info.gname = ""
-            with item.open("rb") as stream:
-                archive.addfile(info, stream)
-    identity = _file_identity(temporary)
-    os.replace(temporary, destination)
-    return identity
+def _write_deterministic_tar_gz(
+    source: Path, destination: Path, *, expected=None, _source_owner=None
+) -> ContentIdentity:
+    return ContentIdentity(
+        HashAlgorithm.SHA256,
+        write_evidence_archive(
+            source,
+            destination,
+            maximum_files=_MAX_EVIDENCE_FILES + 1,
+            maximum_bytes=_MAX_EVIDENCE_BYTES + MAX_REMOTE_EVIDENCE_MANIFEST_BYTES,
+            expected=expected,
+            _source_owner=_source_owner,
+        ),
+    )
+
+
+def _staged_evidence_file(row, kind):
+    return RemoteEvidenceFile(
+        row.relative,
+        kind,
+        row.size,
+        ContentIdentity(HashAlgorithm.SHA256, row.digest),
+        row.executable,
+    )
 
 
 def _write_remote_evidence(
@@ -444,60 +554,38 @@ def _write_remote_evidence(
     artifact: Path | None,
     output: Path,
     cleanup_token: str,
-) -> tuple[RemoteLifecycleEvidenceManifest, ContentReference]:
-    temporary_root = Path(resolve_host_paths().temporary_root)
-    prepare_user_directory(temporary_root, temporary_root)
-    staging = Path(
-        tempfile.mkdtemp(
-            prefix=f".litai-e-{cleanup_token[:8]}-",
-            dir=temporary_root,
-        )
-    )
+    cleanup_roots: tuple[object, ...],
+    cleanup_ticket: Path,
+) -> tuple[RemoteLifecycleEvidenceManifest, ContentReference, dict]:
+    if custody is not None and custody.project_runtime is not None:
+        project = load_project(custody.cache_directories.project_root)
+        require_project_runtime(custody.project_runtime, project)
+        staging_parent = custody.project_runtime.candidate_receipt.parent
+    else:
+        staging_parent = Path(resolve_host_paths().temporary_root)
+        prepare_user_directory(staging_parent, staging_parent)
     files: list[RemoteEvidenceFile] = []
     totals = [0]
-    try:
+    with evidence_staging(staging_parent, prefix=".e-") as stage:
+        staging = stage.path
         portable_result = _portable_result(lifecycle_result or {})
-        result_path = staging / "manifest" / "lifecycle-result.json"
-        result_path.parent.mkdir(parents=True)
-        result_path.write_bytes(canonical_json_bytes(portable_result))
-        files.append(
-            RemoteEvidenceFile(
-                "manifest/lifecycle-result.json",
-                "manifest",
-                result_path.stat().st_size,
-                _file_identity(result_path),
-            )
+        row = stage.write(
+            "manifest/lifecycle-result.json", canonical_json_bytes(portable_result)
         )
+        files.append(_staged_evidence_file(row, "manifest"))
         if failure is not None:
-            diagnostic_path = staging / "diagnostic" / "failure.json"
-            diagnostic_path.parent.mkdir(parents=True)
-            diagnostic_path.write_bytes(canonical_json_bytes(failure.to_dict()))
-            files.append(
-                RemoteEvidenceFile(
-                    "diagnostic/failure.json",
-                    "diagnostic",
-                    diagnostic_path.stat().st_size,
-                    _file_identity(diagnostic_path),
-                )
+            row = stage.write(
+                "diagnostic/failure.json", canonical_json_bytes(failure.to_dict())
             )
+            files.append(_staged_evidence_file(row, "diagnostic"))
         for name, value in (("stdout", result.stdout), ("stderr", result.stderr)):
             if not value:
                 continue
-            log_path = staging / "log" / f"{name}.txt"
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-            log_path.write_text(
-                _redact_diagnostic(value, limit=65536),
-                encoding="utf-8",
-                newline="\n",
+            row = stage.write(
+                f"log/{name}.txt",
+                _redact_diagnostic(value, limit=65536).encode("utf-8"),
             )
-            files.append(
-                RemoteEvidenceFile(
-                    f"log/{name}.txt",
-                    "log",
-                    log_path.stat().st_size,
-                    _file_identity(log_path),
-                )
-            )
+            files.append(_staged_evidence_file(row, "log"))
         if custody is not None:
             _copy_evidence_tree(
                 custody.candidate_receipt,
@@ -505,6 +593,7 @@ def _write_remote_evidence(
                 "receipt",
                 files=files,
                 totals=totals,
+                _output_owner=stage,
             )
             _copy_evidence_tree(
                 custody.runtime_root,
@@ -512,6 +601,7 @@ def _write_remote_evidence(
                 "source/runtime",
                 files=files,
                 totals=totals,
+                _output_owner=stage,
             )
             _copy_evidence_tree(
                 custody.cache_directories.obj_dir,
@@ -519,6 +609,7 @@ def _write_remote_evidence(
                 "object/cache",
                 files=files,
                 totals=totals,
+                _output_owner=stage,
             )
             _copy_evidence_tree(
                 custody.cache_directories.build_dir,
@@ -526,6 +617,7 @@ def _write_remote_evidence(
                 "source/cache",
                 files=files,
                 totals=totals,
+                _output_owner=stage,
             )
         if artifact is not None:
             _copy_evidence_tree(
@@ -534,6 +626,7 @@ def _write_remote_evidence(
                 "artifact",
                 files=files,
                 totals=totals,
+                _output_owner=stage,
             )
         if result.library_product is not None:
             if artifact is None:
@@ -541,23 +634,36 @@ def _write_remote_evidence(
                     "execution.remote_library_invalid", "library package is missing"
                 )
             require_library_package(result.library_product, artifact)
-            package = staging / "package" / "library.zip"
-            package.parent.mkdir()
-            package.write_bytes(directory_export_bytes(artifact))
-            totals[0] += package.stat().st_size
+            row = stage.write("package/library.zip", directory_export_bytes(artifact))
+            totals[0] += row.size
             if len(files) >= _MAX_EVIDENCE_FILES or totals[0] > _MAX_EVIDENCE_BYTES:
                 raise RemoteExecutionError(
                     "execution.remote_evidence_too_large",
                     "sealed library package exceeds evidence custody limits",
                 )
-            files.append(
-                RemoteEvidenceFile(
-                    "package/library.zip",
-                    "package",
-                    package.stat().st_size,
-                    _file_identity(package),
-                )
+            files.append(_staged_evidence_file(row, "package"))
+        try:
+            cleanup_intent = capture_cleanup_intent(
+                cleanup_roots,
+                request_identity=request.identity,
+                cleanup_token=cleanup_token,
+                ticket=cleanup_ticket,
             )
+        except (ValueError, OSError, RuntimeError) as exc:
+            raise RemoteExecutionError(
+                "execution.remote_cleanup_custody_invalid",
+                "producer native cleanup capture refused; workspaces retained: "
+                + _redact_diagnostic(exc),
+            ) from exc
+        cleanup_bytes = canonical_json_bytes(cleanup_intent)
+        row = stage.write(INTENT_PATH, cleanup_bytes)
+        totals[0] += len(cleanup_bytes)
+        if len(files) >= _MAX_EVIDENCE_FILES or totals[0] > _MAX_EVIDENCE_BYTES:
+            raise RemoteExecutionError(
+                "execution.remote_evidence_too_large",
+                "native cleanup intent exceeds evidence custody limits",
+            )
+        files.append(_staged_evidence_file(row, "manifest"))
         files.sort(key=lambda item: item.path)
         manifest = RemoteLifecycleEvidenceManifest(
             request.identity,
@@ -586,15 +692,27 @@ def _write_remote_evidence(
             cleanup_token,
             library_product=result.library_product,
         )
-        (staging / "remote-evidence-manifest.json").write_bytes(
-            canonical_json_bytes(manifest.to_dict())
+        manifest_bytes = canonical_json_bytes(manifest.to_dict())
+        stage.write("remote-evidence-manifest.json", manifest_bytes)
+        expected = {
+            row.path: (row.size, row.identity.digest, row.executable) for row in files
+        }
+        expected["remote-evidence-manifest.json"] = (
+            len(manifest_bytes),
+            hashlib.sha256(manifest_bytes).hexdigest(),
+            False,
         )
-        bundle_identity = _write_deterministic_tar_gz(staging, output)
-        return manifest, ContentReference(
-            "remote-lifecycle-evidence", _EVIDENCE_URI, bundle_identity
+        stage.seal()
+        bundle_identity = _write_deterministic_tar_gz(
+            staging, output, expected=expected, _source_owner=stage
         )
-    finally:
-        shutil.rmtree(staging, ignore_errors=True)
+        return (
+            manifest,
+            ContentReference(
+                "remote-lifecycle-evidence", _EVIDENCE_URI, bundle_identity
+            ),
+            cleanup_intent,
+        )
 
 
 def _persist_library_artifact(
@@ -1030,6 +1148,7 @@ def execute_remote_request(
     accepted_source_entries: tuple[dict[str, Any], ...] | None = None,
     custody: RemoteLifecycleCustody | None = None,
     retain_lifecycle_custody: bool = False,
+    _runtime_lifetime: _RemoteRuntimeLifetime | None = None,
 ) -> ExecutionDispatchResult:
     """Execute after transport extraction, retaining only immutable worker artifacts."""
 
@@ -1069,98 +1188,111 @@ def execute_remote_request(
     coverage_gaps: dict[str, object] | None = None
     observed_toolchains: tuple[ContentIdentity, ...]
     if request.action in {LifecycleDispatchAction.BUILD, LifecycleDispatchAction.TEST}:
-        lifecycle_custody = custody or RemoteLifecycleCustody(
-            root.parent,
-            bind_cache_directories(
+        own_lifetime = _runtime_lifetime is None
+        lifetime = _RemoteRuntimeLifetime() if own_lifetime else _runtime_lifetime
+        if type(lifetime) is not _RemoteRuntimeLifetime:
+            raise TypeError("original receiver runtime lifetime required")
+        try:
+            lifecycle_custody = custody or _default_remote_custody(
                 root,
-                build_dir=root / "generated",
-                obj_dir=root / "_build",
-            ),
-            root.parent / "lifecycle-runtime",
-            root.parent / "candidate-receipt.json",
-        )
-        result = rebuild(
-            component_path=request.component_path,
-            project_root=root,
-            custody=lifecycle_custody,
-            flavor_selectors=request.flavor_selectors,
-            target_profile=request.target_profile,
-            model_selector=request.model_selector,
-            accepted_source_only=request.accepted_source_only,
-            jobs=request.jobs,
-            accepted_source_provider_id=request.accepted_source_provider_id,
-            accepted_source_provider_identity=(
-                request.accepted_source_provider_identity
-            ),
-            **(
-                {"source_cache_entry_identities": request.source_cache_entry_identities}
-                if request.source_cache_entry_identities
-                else {}
-            ),
-        )
-        try:
-            observed_toolchains = tuple(
-                ContentIdentity.parse_uri(str(item))
-                for item in result["observed_toolchain_identities"]
+                root.parent,
+                lifetime,
+                keep=retain_lifecycle_custody,
             )
-        except (KeyError, TypeError, ValueError) as exc:
-            raise RemoteExecutionError(
-                "execution.remote_toolchain_observation_missing",
-                "accepted lifecycle omitted its observed toolchain closure",
-            ) from exc
-        if not observed_toolchains:
-            raise RemoteExecutionError(
-                "execution.remote_toolchain_observation_missing",
-                "accepted lifecycle reported an empty toolchain closure",
-            )
-        try:
-            if "library_artifact" in result:
-                try:
-                    library_product = LibraryArtifactProduct.from_dict(
-                        result["library_artifact"]
-                    )
-                    if (
-                        result.get("passed") is not True
-                        or result.get("execution_command")
-                        or result.get("execution_entrypoints")
-                    ):
-                        raise ValueError(
-                            "library must be accepted without an execution command"
+            result = rebuild(
+                component_path=request.component_path,
+                project_root=root,
+                custody=lifecycle_custody,
+                flavor_selectors=request.flavor_selectors,
+                target_profile=request.target_profile,
+                model_selector=request.model_selector,
+                accepted_source_only=request.accepted_source_only,
+                jobs=request.jobs,
+                accepted_source_provider_id=request.accepted_source_provider_id,
+                accepted_source_provider_identity=(
+                    request.accepted_source_provider_identity
+                ),
+                **(
+                    {
+                        "source_cache_entry_identities": (
+                            request.source_cache_entry_identities
                         )
-                except (TypeError, ValueError) as exc:
-                    raise RemoteExecutionError(
-                        "execution.remote_library_invalid", str(exc)
-                    ) from exc
-                artifact_reference = _persist_library_artifact(
-                    Path(str(result["artifact"])),
-                    library_product,
-                    cas_root,
-                    observed_toolchains,
+                    }
+                    if request.source_cache_entry_identities
+                    else {}
+                ),
+            )
+            try:
+                observed_toolchains = tuple(
+                    ContentIdentity.parse_uri(str(item))
+                    for item in result["observed_toolchain_identities"]
                 )
-            else:
-                artifact_reference = _persist_artifact(
-                    Path(str(result["artifact"])),
-                    dict(result["execution_command"]),
-                    cas_root,
-                    observed_toolchains,
-                    tuple(
-                        dict(item) for item in result.get("execution_entrypoints", [])
-                    ),
+            except (KeyError, TypeError, ValueError) as exc:
+                raise RemoteExecutionError(
+                    "execution.remote_toolchain_observation_missing",
+                    "accepted lifecycle omitted its observed toolchain closure",
+                ) from exc
+            if not observed_toolchains:
+                raise RemoteExecutionError(
+                    "execution.remote_toolchain_observation_missing",
+                    "accepted lifecycle reported an empty toolchain closure",
                 )
-        finally:
-            runtime = result.get("runtime_root")
-            if runtime:
-                from literate_ai.adapters.coverage_gaps import (
-                    scan_runtime_coverage_gaps,
-                )
+            try:
+                if "library_artifact" in result:
+                    try:
+                        library_product = LibraryArtifactProduct.from_dict(
+                            result["library_artifact"]
+                        )
+                        if (
+                            result.get("passed") is not True
+                            or result.get("execution_command")
+                            or result.get("execution_entrypoints")
+                        ):
+                            raise ValueError(
+                                "library must be accepted without an execution command"
+                            )
+                    except (TypeError, ValueError) as exc:
+                        raise RemoteExecutionError(
+                            "execution.remote_library_invalid", str(exc)
+                        ) from exc
+                    artifact_reference = _persist_library_artifact(
+                        Path(str(result["artifact"])),
+                        library_product,
+                        cas_root,
+                        observed_toolchains,
+                    )
+                else:
+                    artifact_reference = _persist_artifact(
+                        Path(str(result["artifact"])),
+                        dict(result["execution_command"]),
+                        cas_root,
+                        observed_toolchains,
+                        tuple(
+                            dict(item)
+                            for item in result.get("execution_entrypoints", [])
+                        ),
+                    )
+            finally:
+                runtime = result.get("runtime_root")
+                if runtime:
+                    from literate_ai.adapters.coverage_gaps import (
+                        scan_runtime_coverage_gaps,
+                    )
 
-                report = scan_runtime_coverage_gaps(
-                    root, request.component_path, runtime
-                )
-                if report is not None:
-                    coverage_gaps = report.to_dict()
-                if not retain_lifecycle_custody:
-                    shutil.rmtree(str(runtime), ignore_errors=True)
+                    report = scan_runtime_coverage_gaps(
+                        root, request.component_path, runtime
+                    )
+                    if report is not None:
+                        coverage_gaps = report.to_dict()
+                    if (
+                        not retain_lifecycle_custody
+                        and lifecycle_custody.project_runtime is None
+                    ):
+                        shutil.rmtree(str(runtime), ignore_errors=True)
+        finally:
+            if own_lifetime:
+                lifetime.close()
+
     else:
         if request.artifact_reference is None:
             raise RemoteExecutionError(
@@ -1324,25 +1456,41 @@ def materialize_and_execute(
         archive, destination, materialization.source_tree_identity.uri
     )
     deferred_cleanup = evidence_output is not None
+    runtime_lifetime = _RemoteRuntimeLifetime()
+    workspace_node = destination.lstat()
     short_attempt: Path | None = None
     lifecycle_result: dict[str, object] | None = None
     lifecycle_custody: RemoteLifecycleCustody | None = None
     artifact: Path | None = None
     cleanup_token = uuid.uuid4().hex
+    cleanup_roots = []
 
     def recording_rebuild(**values: Any) -> dict[str, object]:
-        nonlocal lifecycle_result, artifact
+        nonlocal lifecycle_result, artifact, lifecycle_custody
+        lifecycle_custody = values["custody"]
         lifecycle_result = rebuild(**values)
         candidate = lifecycle_result.get("artifact")
         artifact = None if candidate is None else Path(str(candidate))
         return lifecycle_result
 
     try:
+        if deferred_cleanup:
+            cleanup_roots.append(
+                runtime_lifetime.enter_context(
+                    hold_cleanup_root(destination, workspace_node)
+                )
+            )
         project_root = destination / "literate-ai"
         if accepted_source_cache_archive is not None:
             short_attempt = Path(
                 tempfile.mkdtemp(prefix=f"litai-s-{cleanup_token[:8]}-")
             ).resolve(strict=True)
+            if deferred_cleanup:
+                cleanup_roots.append(
+                    runtime_lifetime.enter_context(
+                        hold_cleanup_root(short_attempt, short_attempt.lstat())
+                    )
+                )
             lifecycle_custody = RemoteLifecycleCustody(
                 short_attempt,
                 bind_cache_directories(
@@ -1358,16 +1506,7 @@ def materialize_and_execute(
                 accepted_source_cache_archive,
             )
         else:
-            lifecycle_custody = RemoteLifecycleCustody(
-                destination,
-                bind_cache_directories(
-                    project_root,
-                    build_dir=project_root / "generated",
-                    obj_dir=project_root / "_build",
-                ),
-                destination / "lifecycle-runtime",
-                destination / "candidate-receipt.json",
-            )
+            lifecycle_custody = None  # Allocate only after exact source verification.
         try:
             result = execute_remote_request(
                 worker,
@@ -1379,6 +1518,7 @@ def materialize_and_execute(
                 accepted_source_entries=accepted_source_entries,
                 custody=lifecycle_custody,
                 retain_lifecycle_custody=deferred_cleanup,
+                _runtime_lifetime=runtime_lifetime,
             )
             failure = None
         except Exception as exc:
@@ -1433,40 +1573,50 @@ def materialize_and_execute(
             result = replace(result, diagnostic_digest=failure.identity.uri)
         if evidence_output is None or cleanup_ticket is None:
             return result
-        manifest, reference = _write_remote_evidence(
-            worker=worker,
-            request=request,
-            materialization=materialization,
-            result=result,
-            lifecycle_result=lifecycle_result,
-            failure=failure,
-            custody=lifecycle_custody,
-            artifact=artifact,
-            output=Path(evidence_output),
-            cleanup_token=cleanup_token,
+        try:
+            manifest, reference, cleanup_intent = _write_remote_evidence(
+                worker=worker,
+                request=request,
+                materialization=materialization,
+                result=result,
+                lifecycle_result=lifecycle_result,
+                failure=failure,
+                custody=lifecycle_custody,
+                artifact=artifact,
+                output=Path(evidence_output),
+                cleanup_token=cleanup_token,
+                cleanup_roots=tuple(cleanup_roots),
+                cleanup_ticket=Path(cleanup_ticket),
+            )
+        except (EvidenceStagingError, OSError) as exc:
+            raise RemoteExecutionError(
+                "execution.remote_evidence_staging_changed",
+                "original evidence staging refused; retained state: "
+                + _redact_diagnostic(exc),
+            ) from exc
+        write_cleanup_ticket(
+            Path(cleanup_ticket), manifest, reference.identity, cleanup_intent
         )
-        ticket_value = {
-            "schema": "literate-ai/remote-evidence-cleanup-ticket@1",
-            "cleanup_token": cleanup_token,
-            "request_identity": request.identity.uri,
-            "manifest_identity": manifest.identity.uri,
-            "bundle_identity": reference.identity.uri,
-            "roots": [
-                str(item) for item in (destination, short_attempt) if item is not None
-            ],
-        }
-        ticket_path = Path(cleanup_ticket)
-        ticket_path.parent.mkdir(parents=True, exist_ok=True)
-        ticket_path.write_bytes(canonical_json_bytes(ticket_value))
         return replace(
             result,
             evidence_manifest=manifest,
             evidence_reference=reference,
         )
     finally:
-        if not deferred_cleanup:
+        runtime_lifetime.close()
+        if not deferred_cleanup and runtime_lifetime.cleanup_safe:
             if short_attempt is not None:
                 shutil.rmtree(short_attempt, ignore_errors=True)
+            require_safe_directory(destination)
+            current_node = destination.lstat()
+            if (current_node.st_dev, current_node.st_ino, current_node.st_mode) != (
+                workspace_node.st_dev,
+                workspace_node.st_ino,
+                workspace_node.st_mode,
+            ):
+                raise RemoteExecutionError(
+                    "execution.remote_workspace_changed", "foreign workspace preserved"
+                )
             shutil.rmtree(destination, ignore_errors=True)
 
 
@@ -1665,17 +1815,97 @@ def import_remote_evidence_bundle(
                 "coordinator evidence manifest CAS contains conflicting bytes",
             )
         imported_identities = tuple(sorted(set(imported), key=lambda item: item.uri))
-        store_identity = canonical_identity(
-            {
-                "schema": "literate-ai/coordinator-evidence-import@1",
-                "manifest_identity": manifest.identity.uri,
-                "bundle_identity": expected_bundle_identity.uri,
-                "file_identities": [item.uri for item in imported_identities],
-            }
+        store_identity = coordinator_evidence_import_identity(
+            manifest_identity=manifest.identity,
+            bundle_identity=expected_bundle_identity,
+            file_identities=imported_identities,
         )
         return store_identity, imported_identities
     finally:
         shutil.rmtree(temporary, ignore_errors=True)
+
+
+def verify_imported_remote_evidence_store(
+    store_root: Path,
+    *,
+    manifest_identity: ContentIdentity,
+    bundle_identity: ContentIdentity,
+    deadline_monotonic: float | None = None,
+) -> tuple[
+    RemoteLifecycleEvidenceManifest, ContentIdentity, tuple[ContentIdentity, ...]
+]:
+    """Recheck one current imported manifest and its blobs without importing again."""
+    _evidence_budget(deadline_monotonic)
+    root = Path(store_root).absolute()
+    try:
+        require_safe_directory(root)
+        marker = root / "manifests" / "sha256" / f"{manifest_identity.digest}.json"
+        require_safe_directory(marker.parent)
+        if (
+            marker.is_symlink()
+            or not marker.is_file()
+            or marker.stat().st_size > MAX_REMOTE_EVIDENCE_MANIFEST_BYTES
+        ):
+            raise ValueError
+        with marker.open("rb") as stream:
+            raw = stream.read(MAX_REMOTE_EVIDENCE_MANIFEST_BYTES + 1)
+        if (
+            len(raw) > MAX_REMOTE_EVIDENCE_MANIFEST_BYTES
+            or hashlib.sha256(raw).hexdigest() != manifest_identity.digest
+        ):
+            raise ValueError
+        manifest = RemoteLifecycleEvidenceManifest.from_dict(json.loads(raw))
+        if (
+            canonical_json_bytes(manifest.to_dict()) != raw
+            or manifest.identity != manifest_identity
+        ):
+            raise ValueError
+        if len(manifest.files) > _MAX_EVIDENCE_FILES:
+            raise ValueError
+        total = 0
+        for item in manifest.files:
+            _evidence_budget(deadline_monotonic)
+            total += item.size
+            if total > _MAX_EVIDENCE_BYTES:
+                raise ValueError
+            blob = (
+                root
+                / "blobs"
+                / "sha256"
+                / item.identity.digest[:2]
+                / item.identity.digest
+            )
+            require_safe_directory(blob.parent)
+            if (
+                blob.is_symlink()
+                or not blob.is_file()
+                or blob.stat().st_size != item.size
+                or _file_identity(
+                    blob, expected_size=item.size, deadline_monotonic=deadline_monotonic
+                )
+                != item.identity
+            ):
+                raise ValueError
+    except RemoteExecutionError:
+        raise
+    except (OSError, ValueError, UnsafeFilesystemPathError) as exc:
+        raise RemoteExecutionError(
+            "execution.remote_evidence_store_invalid",
+            "Current imported evidence manifest or blobs are unavailable or changed",
+        ) from exc
+    _evidence_budget(deadline_monotonic)
+    identities = tuple(
+        sorted({item.identity for item in manifest.files}, key=lambda item: item.uri)
+    )
+    return (
+        manifest,
+        coordinator_evidence_import_identity(
+            manifest_identity=manifest.identity,
+            bundle_identity=bundle_identity,
+            file_identities=identities,
+        ),
+        identities,
+    )
 
 
 def load_and_import_remote_evidence_bundle(
@@ -1792,123 +2022,41 @@ def acknowledge_remote_evidence_cleanup(
     acknowledgement_root: Path,
     retries: int = 3,
 ) -> ContentIdentity:
-    """Delete ticket-bound attempt roots after coordinator acknowledgement."""
-
-    ack_root = Path(acknowledgement_root).resolve()
-    ack_root.mkdir(parents=True, exist_ok=True)
-    ack_path = ack_root / f"{manifest_identity.digest}.json"
-    if ack_path.is_file():
-        try:
-            value = json.loads(ack_path.read_text(encoding="utf-8"))
-            acknowledgement = ContentIdentity.parse_uri(
-                str(value["acknowledgement_identity"])
-            )
-        except (
-            OSError,
-            UnicodeError,
-            json.JSONDecodeError,
-            KeyError,
-            ValueError,
-        ) as exc:
-            raise RemoteExecutionError(
-                "execution.remote_cleanup_acknowledgement_invalid",
-                "stored remote cleanup acknowledgement is invalid",
-            ) from exc
-        if (
-            value.get("schema")
-            != "literate-ai/remote-evidence-cleanup-acknowledgement@1"
-            or value.get("manifest_identity") != manifest_identity.uri
-            or value.get("bundle_identity") != bundle_identity.uri
-        ):
-            raise RemoteExecutionError(
-                "execution.remote_cleanup_acknowledgement_mismatch",
-                "stored cleanup acknowledgement binds different evidence custody",
-            )
-        return acknowledgement
+    """Join exact acknowledged evidence to fresh original native cleanup custody."""
     try:
-        value = json.loads(Path(ticket).read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        return acknowledge_cleanup(
+            ticket,
+            manifest_identity=manifest_identity,
+            bundle_identity=bundle_identity,
+            acknowledgement_root=acknowledgement_root,
+            retries=retries,
+        )
+    except (ValueError, OSError, KeyError, TypeError, RuntimeError) as exc:
         raise RemoteExecutionError(
-            "execution.remote_cleanup_ticket_invalid",
-            "remote cleanup ticket is unavailable or invalid",
+            "execution.remote_cleanup_custody_invalid",
+            "native remote cleanup refused; original or conflicting state retained: "
+            + _redact_diagnostic(exc),
         ) from exc
-    if (
-        not isinstance(value, dict)
-        or value.get("schema") != "literate-ai/remote-evidence-cleanup-ticket@1"
-        or value.get("manifest_identity") != manifest_identity.uri
-        or value.get("bundle_identity") != bundle_identity.uri
-        or not isinstance(value.get("request_identity"), str)
-        or not isinstance(value.get("cleanup_token"), str)
-        or not re.fullmatch(r"[0-9a-f]{32}", value["cleanup_token"])
-        or not isinstance(value.get("roots"), list)
-    ):
-        raise RemoteExecutionError(
-            "execution.remote_cleanup_ticket_mismatch",
-            "remote cleanup ticket does not bind the acknowledged custody transfer",
-        )
-    request = ContentIdentity.parse_uri(value["request_identity"])
-    roots = tuple(Path(str(item)).resolve() for item in value["roots"])
-    if not roots or len(roots) > 2 or len(set(roots)) != len(roots):
-        raise RemoteExecutionError(
-            "execution.remote_cleanup_ticket_invalid",
-            "remote cleanup ticket names an invalid root set",
-        )
-    for root in roots:
-        safe_workspace = root.name.startswith(request.digest[:24] + "-")
-        safe_attempt = root.name.startswith(f"litai-s-{value['cleanup_token'][:8]}-")
-        if root == Path(root.anchor) or not (safe_workspace or safe_attempt):
-            raise RemoteExecutionError(
-                "execution.remote_cleanup_root_unsafe",
-                "remote cleanup ticket names a root outside attempt custody",
-            )
-    failures: list[str] = []
-    for root in roots:
-        for attempt in range(retries):
-            try:
-                shutil.rmtree(root)
-                break
-            except FileNotFoundError:
-                break
-            except OSError as exc:
-                if attempt + 1 == retries:
-                    failures.append(_redact_diagnostic(exc))
-                else:
-                    __import__("time").sleep(0.05 * (attempt + 1))
-    if failures:
-        raise RemoteExecutionError(
-            "execution.remote_cleanup_failed",
-            "acknowledged remote custody cleanup failed after bounded retries: "
-            + "; ".join(failures),
-        )
-    acknowledgement = canonical_identity(
-        {
-            "schema": "literate-ai/remote-evidence-cleanup-acknowledgement@1",
-            "request_identity": request.uri,
-            "manifest_identity": manifest_identity.uri,
-            "bundle_identity": bundle_identity.uri,
-            "cleanup_token": value["cleanup_token"],
-            "status": "cleaned",
-        }
-    )
-    ack_path.write_bytes(
-        canonical_json_bytes(
-            {
-                "schema": "literate-ai/remote-evidence-cleanup-acknowledgement@1",
-                "manifest_identity": manifest_identity.uri,
-                "bundle_identity": bundle_identity.uri,
-                "acknowledgement_identity": acknowledgement.uri,
-            }
-        )
-    )
-    Path(ticket).unlink(missing_ok=True)
-    return acknowledgement
 
 
 def _restore_accepted_source_cache(build_dir: Path, archive: Path) -> None:
-    build_dir.mkdir(parents=True, exist_ok=True)
     cache_root = build_dir / "accepted-source-cache"
-    if cache_root.exists() or cache_root.is_symlink():
-        shutil.rmtree(cache_root, ignore_errors=True)
+    try:
+        ensure_safe_directory(build_dir)
+        try:
+            cache_root.lstat()
+        except FileNotFoundError:
+            pass
+        else:
+            raise RemoteExecutionError(
+                "execution.remote_accepted_source_cache_exists",
+                "accepted-source-cache destination must not already exist",
+            )
+    except (UnsafeFilesystemPathError, OSError) as exc:
+        raise RemoteExecutionError(
+            "execution.remote_accepted_source_cache_destination_invalid",
+            "accepted-source-cache destination parent is not a safe directory",
+        ) from exc
     try:
         extract_accepted_source_cache_archive(archive, cache_root)
     except SourceGuardError as exc:

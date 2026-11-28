@@ -1,0 +1,65 @@
+{
+  "schema": "independent-source-finding-addendum@1",
+  "reviewer": "single authorized independent reviewer",
+  "review_mode": "source-only; no tests or probes",
+  "decision": "changes_requested_for_nested_candidate_detection",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_protection.py",
+      "sha256": "8f53e7790f9af4deebf3fff212abf5aafeb5a8ae8da744a081f503a79f42b539"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_ownership.py",
+      "sha256": "c92305bfb8aa06a818234be7a93c84a6ace14e083c5659f9f14c0347d3db7f88"
+    }
+  ],
+  "canonical_reader_context": {
+    "path": "src/literate_ai/projects.py",
+    "sha256": "4528ffcf02221b98622cfdc2daa611ff684b01cd837d7f517e1f59d9a61ba457"
+  },
+  "preserved_reports": [
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-catalog-protection-rereview.json",
+      "sha256": "0a936bf1a826d4af6afb74eb3ba500f98d8479038fc91945ce3b7d87c2b9b386",
+      "unchanged_verified": true
+    },
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-catalog-protection-teardown-clarification.json",
+      "sha256": "2389eed72c3fb7dcd7b37b316aa778d7bfec7a41821c3050bab24f187e77efc6",
+      "unchanged_verified": true
+    }
+  ],
+  "finding": {
+    "id": "NESTED-PROJECT-CANDIDATE-CASE-003",
+    "severity": "blocking_for_candidate_protection_assurance",
+    "status": "open",
+    "evidence_kind": "source-only conditional filesystem finding; no native reproduction",
+    "locations": [
+      "catalog_copy_protection._check_targets:177",
+      "retained_layout_ownership._partition_roles:303"
+    ],
+    "title": "Exact sentinel basename test misses case-alias nested project manifests",
+    "source_reason": "Both candidate checks require Path(name).name == PROJECT_FILENAME. ProjectConfigurationStore.read constructs root/PROJECT_FILENAME and reads the actual file through native filesystem lookup. On a filesystem accepting filename case aliases, nested LITERATE.PROJECT.JSON can be consumed by the canonical lower-case loader, while the raw complete census retains uppercase spelling and fails the exact basename predicate.",
+    "concrete_paths": [
+      "Catalog preflight: an ordinary exact target such as flavors/local-toolchain contains child/LITERATE.PROJECT.JSON. Target-prefix spelling checks pass because the target itself is exact. The nested-candidate subtree is not added, so that independently loadable candidate is not protected by this candidate rule.",
+      "Ownership partition: an unregistered nested uppercase sentinel under otherwise ordinary source or unclaimed namespace does not enter the required independent-project-candidate refusal and may receive ordinary source/unclaimed classification."
+    ],
+    "required_change": [
+      "Use a consistent portable casefold/NFC sentinel-basename candidate predicate in both locations. Candidate detection remains a conservative refusal trigger, not a new ownership or registration grant.",
+      "Exclude the actual top-level project parent from nested-candidate classification, rather than excluding only literal name == PROJECT_FILENAME. Otherwise a top-level uppercase own-root spelling would incorrectly protect/refuse the whole project.",
+      "Preserve independently verified registered-child semantics. Only actual registered roots may supply the existing independent-project exemption; portable basename equivalence alone does not establish a child owner.",
+      "Do not weaken separate exact framework file-role validation or infer framework ownership for case aliases merely to change candidate detection."
+    ],
+    "execution_limit": "No tests/probes or repository code execution this turn. Filesystem case-alias applicability and repaired native behavior must be covered by subsequent maintained acceptance; this is not a claim that every filesystem accepts the spelling."
+  },
+  "approval_effect": "The prior read-only preflight approval is reopened/superseded only for the newly identified nested-candidate assurance. The same candidate-refusal assurance in retained-layout ownership also needs repair. Earlier PHYSICAL001/CLOSING002 fixes and the separate read-only teardown clarification are not invalidated by this finding.",
+  "validation": {
+    "independent_test_executions_this_turn": [],
+    "probe_executions": [],
+    "actions": "Read the two predicates and canonical loader path construction; verified their hashes and unchanged related reports. No author233-suite result admitted."
+  },
+  "limits": [
+    "No source/test/pin edits, process-control changes, installs, agents, network or external posts; only this immutable addendum written.",
+    "Actual publication, overwrite retirement, imported-role/source-partition effects, root/shared/initial/wrapper cells and full-feature/platform/installed/program/release acceptance remain open."
+  ]
+}

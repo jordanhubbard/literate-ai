@@ -425,6 +425,7 @@ def main(argv: list[str] | None = None) -> int:
     environment["PATH"] = os.pathsep.join(
         [
             str(ROOT / "tools/openspec/node_modules/.bin"),
+            str(ROOT / "tools/documentation/node_modules/.bin"),
             *_native_tool_directories(commands),
             environment.get("PATH", ""),
             *_fallback_tool_directories(commands),
@@ -484,11 +485,12 @@ def main(argv: list[str] | None = None) -> int:
             )
             if npm is None:
                 raise GateFailure("npm is unavailable on PATH")
-            _run(
-                [npm, "--prefix", "tools/openspec", "ci"],
-                environment,
-                step="environment",
-            )
+            for tool in ("openspec", "documentation"):
+                _run(
+                    [npm, "--prefix", f"tools/{tool}", "ci"],
+                    environment,
+                    step="environment",
+                )
         if set(selected) - {"preflight", "environment"} and not python.is_file():
             raise GateFailure("gate environment is missing; run the environment step")
         if "compile" in selected:
@@ -511,9 +513,12 @@ def main(argv: list[str] | None = None) -> int:
         if "openspec" in selected:
             if npm is None:
                 raise GateFailure("npm is unavailable on PATH")
-            for script in ("openspec:check", "documentation:check"):
+            for tool, script in (
+                ("openspec", "openspec:check"),
+                ("documentation", "documentation:check"),
+            ):
                 _run(
-                    [npm, "--prefix", "tools/openspec", "run", script],
+                    [npm, "--prefix", f"tools/{tool}", "run", script],
                     environment,
                     step="openspec",
                 )

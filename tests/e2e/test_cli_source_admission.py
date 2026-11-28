@@ -11,6 +11,7 @@ import json
 import sys
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -28,12 +29,14 @@ from literate_ai.adapters.standard_project import (
 from literate_ai.cli.dispatch import main
 from literate_ai.contracts import ContentIdentity, StandardProjectLifecycleDriver
 from literate_ai.generated_tests import GENERATED_TEST_SUITE_PATH
+from literate_ai.projects import LoadedProject
 from scripts import installed_source_admission_smoke as smoke
 from tests.support.fixtures_test_cli_generation import bind_tree
 from tests.support.fixtures_test_cli_locked_generation import (
     _generation_fixture,
     _write_lock,
 )
+from tests.support.fixtures_test_source_cache_hardening import _project
 from tests.support.fixtures_test_source_generation_custody_contracts import (
     _generated_custody,
 )
@@ -100,10 +103,13 @@ class SourceAdmissionCliTests(unittest.TestCase):
                 selection, _generated_custody(), {}, admission_candidates=(item,)
             )
             distribution = smoke.identity("installed-distribution")
-            project = SimpleNamespace(
-                root=root,
-                flavor_selectors_for=lambda _root, selectors: selectors,
-                definition=SimpleNamespace(
+            # Source verification borrows only an actual receiving project. This
+            # root-framework definition keeps the verifier on its copied workspace.
+            fixture_project = _project(root)
+            project = LoadedProject(
+                root,
+                replace(
+                    fixture_project.definition,
                     lifecycle_driver=StandardProjectLifecycleDriver(
                         distribution, smoke.identity("policy")
                     ),

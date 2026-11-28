@@ -1,0 +1,48 @@
+{
+  "status": "E-D-boundary-and-schema-source-reviewed-closed-runtime-guards-and-cohorts-separate",
+  "issue": 507,
+  "head": "55c31be8d4ae07b77aa5318e301ac44fc1f48842",
+  "files": {
+    "src/literate_ai/adapters/project_layout_native_identity.py": "34fcb697b4fd242eb176eec6be313d16203c90d644e7816dcc8884a53cd8c779",
+    "src/literate_ai/adapters/component_namespace_closing.py": "dd79c946b00d8217e8e0ca8f1366d18c8c8deb96d8dd33ba2a7b6500aa5d6d91",
+    "src/literate_ai/adapters/project_layout_catalog_continuation.py": "92f6b8f3e84e1fb5c7f355d358059d1fd2d8588e54f40ab197acbb5fd0293abf",
+    "src/literate_ai/adapters/project_layout_catalog_finalization.py": "489b447d476d69560164562cd2122f3e0c9b90c3b1a38b72df544d675bf9c529",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "fcf52eb7e90a4dd7f67102769cc5fc3417a387c9dd9839afe42fba8e2dbb1117",
+    "src/literate_ai/adapters/project_layout_continuation.py": "ad4555154491cbfe3eaded2fedf980cc09acce085921d6c9e92ee860c44fcba6",
+    "src/literate_ai/adapters/project_layout_migration.py": "3e9520d2c1cf9a8f687cd423bca65ed8f6d8d733420bfe778f1bfb0e4e734a16",
+    "src/literate_ai/adapters/project_layout_pair_publication.py": "ed31c183acd3f7910be38e153ee9ef97525ff289fca12417c934dec6559404c3",
+    "src/literate_ai/cli/layout_component_commands.py": "aea9b9cdad47b8830dbdcb12cff5f7f2b955cb52b8438e94f9ffd0de7bb80bd4",
+    "schemas/v2/project-layout-catalog-continuation.schema.json": "224a41f960c1e41cfaf4dc58126aa1e5832f303439cdc183ec47f4aeb52d7cab",
+    "tests/critical/test_catalog_native_identity.py": "a99531b59a413919c77c02c09f57af9d755486e01efb33730d2a11972ec47b70"
+  },
+  "coverage": "All11listed helper/owner/CLI/schema/test files read in full or complete relevant diff plus all affected canonical/hash/read/export/nativejoin call paths. Guard-closure/transitive callback security independently owned by runtime reviewer, not duplicated as fullclosure here.",
+  "boundary_audit": {
+    "public_plan": "root/framework nodes emitted via wire_node; data codec native_node validatescanonicalIDs; same publicplan left encoded. _entries validatesdecodednativevectors.",
+    "intent": "Stagehash/write freshly E(raw); decodervalidatesoriginalwirehash thenD andoriginalrawschema; journalguard reprojects currentraw to exactoriginalbytes; recoveryrenewalpath usesprojectedcatalogintentidentity.",
+    "renewal": "Parentintentpath/hash, storedcatalog_intent_identity, write, journalguard allE; readerhasheswire thenD; stage/codecparents dot explicitlydecodes publicroot.",
+    "closure": "Readerkeepsoriginalwirehash and returnsD raw afteroriginalnativevalidation; ownerexport D(JSON(E(raw))) createscopy; original/sourcefinalization writer and before/afterforeignguard hashes E eachtime.",
+    "pairpublisher": "All3recordhashes freshly publication_record_wire(record); schemaowned fixedselector leaves originalframework-renewal format unchanged and E-projects catalogrenewal. No newcallerselectedcallback orcachedsnapshot.",
+    "CLI": "Publiccatalog_intent_identity usesE originalintent; derivedresultpaths retainexactwireidentity.",
+    "nativejoins": "Migrationroot guardcompares encodedobservedIDs toplanwire; continuationframeworkguard/intentrootjoins andrenewalparents decodeplancomparands. Rawintent/renewal/closure node values stillints, nativeview/matches/moves/leases/namespaces unaltered.",
+    "leftover_raw_hashes": "Remaining canonical_identity(intent/record) inreaders refer to parsedoriginalwire BEFORE D; remaining typedlock/audit/publicplan hashes are independentdata, not missedrawnativeviews."
+  },
+  "schema_analysis": {
+    "numeric_union": [
+      [
+        9223372036854775808,
+        340282366920938463463374607431768211455
+      ]
+    ],
+    "analysis": "Independently expanded every decimalrangealternative into intervals, merged into exactcontiguous[2^63,2^128-1]. All4nativeIDpatterns identical.",
+    "true_end": "Currentpatternuses ECMAScript-compatible (?![\\s\\S]) true-end assertion; static checks reject LF/suffix/nonnumeric/leadingzero/smallnumericstr/outofrange.",
+    "historical_finding_closed": "Earlier $ trailingnewline acceptance observed and reported; currentexacthashfixes it. Runtimeownerdecoder already refused suchstrings; noauthoritybypass occurred.",
+    "mode_and_integer": "IDintegerbranch0..2^63-1; modeexactinteger0..2^63-1;3elementarray. Ownercanonical helper rejects bool/aliases and leaves rawview IDs nativeints."
+  },
+  "test_semantics": "Current9tests are explicitly data/provenance controls, not nativeWindows acceptance. Modeledpartialrecords intentionally grantnoowner. Data controls coverfields/copy/roundtrip/ordinarybytes/malformedIDs/modes/bounds/schema; guards independentlyreviewed byruntime. Earlier7test r24b fails due provenancecontrol calling owner._stage with3None arguments; currentassert helper stillshows that call atreviewtime, so do not infer current9pass fromsource. Rootownsactive newercohort.",
+  "evidence_limits": [
+    "No reviewer source edits/jobs/testruns/posts/nativeprobes. Regexdomain calculation is readonlyschemaanalysis, not a qualification run.",
+    "Earlierprototype6PASS perroot; independentlyread r24b7tests/1error TypeError, retainedfailedreceipt; currentnew9cohortnotacceptedhere.",
+    "This closes explicitE/Dfield/hash/write/read/export/nativeplanjoin andcurrentexactnumeric-schema review only. Originalcallbackguardclosure independentlyownedbyruntime; anyguardfindings and finalfocused/originalcohorts stillmustclose.",
+    "No actualWindows/installed/historical/wholewheel/browser/native-scale/full507/releaseacceptance."
+  ]
+}

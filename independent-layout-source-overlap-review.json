@@ -1,0 +1,29 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_internal_original_root_source_existing_destination_planning",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_source_roles.py": {
+      "algorithm": "sha256",
+      "digest": "136f1655593a98bc0176bea96eb0c5de72602e3f6bc6dbe6c2d49bef2e99b79a"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "6e3de5707693cd9b73c043fbb8fae40e58fdc70b5d7115db24996042d8e4a613"
+    },
+    "tests/critical/test_retained_layout_source_forest.py": {
+      "algorithm": "sha256",
+      "digest": "45d0f53012826a604058550359f1e9ed7060bc360ee82301d8ca535ab27b21f1"
+    }
+  },
+  "scope": [
+    "Actual complete namespace proves exact existing directory; real root-source roles admit source contribution before graph construction",
+    "Ordinary unrelated destinations retain absence/refusal and portable alias protection",
+    "Original occupied target native facts and complete namespace currentness remain bound",
+    "Overlapping source target is persisted and reopened as data while root/shared source admission and recovery remain guarded"
+  ],
+  "limitations": [
+    "General nonroot overlap, missing parent anchors, full executor, metadata/recovery and public/platform acceptance remain open"
+  ]
+}

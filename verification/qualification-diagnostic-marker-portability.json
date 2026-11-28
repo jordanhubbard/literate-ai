@@ -1,0 +1,37 @@
+{
+  "classification": "fixture-only portability correction",
+  "exact_byte_assertions_preserved": true,
+  "fixture_sha256": "03439b21871d9d3190163f7561f6b791660bd5bf10e8cc85a875ab471d6ea81b",
+  "interpretation": "Binary stderr writes bind authored marker bytes without changing captured production streams. Controlled CRLF text-writer simulation is not native Windows evidence.",
+  "ordinary_source_summary": {
+    "executed": 8,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 8,
+    "selected": 8,
+    "skipped": 0
+  },
+  "owner": "QUALIFICATION-DIAGNOSTICS-001",
+  "predecessor": {
+    "controlled_text_writer": "CRLF",
+    "errors": 0,
+    "failing_assertions": 4,
+    "fixture_sha256": "62a78bfeb993ed63ddf53019bd37f3496de088262e911d2d5746232d5adbb253",
+    "methods": 2
+  },
+  "production_behavior_changed": false,
+  "release_attestation": false,
+  "remaining": [
+    "final combined full source and installed renewal",
+    "exact integration",
+    "native Windows qualification"
+  ],
+  "repaired_comparison": {
+    "errors": 0,
+    "failing_assertions": 0,
+    "native_windows": false,
+    "selected": 2,
+    "skipped": 0
+  },
+  "schema": "literate-ai/verification-record@1"
+}

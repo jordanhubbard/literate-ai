@@ -12,6 +12,7 @@ import tempfile
 import time
 import unittest
 from contextlib import closing
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -66,6 +67,7 @@ def _compatible_opencode_help_result() -> SimpleNamespace:
             b"  --dir PATH  workspace\n"
             b"  --agent NAME  agent\n"
             b"  --format NAME  output format\n"
+            b"  --title NAME  session title\n"
         ),
         stderr=b"",
     )
@@ -797,10 +799,22 @@ class CodingCliInvocationTests(unittest.TestCase):
             ):
                 output = Path(directory) / "generated"
                 value = recipe(flavor("cpp"))
+                if name == "opencode":
+                    value = replace(
+                        value, models=(*value.models, ("opencode", "anthropic/example"))
+                    )
 
                 def execute(command, *, observed=observed, value=value, **kwargs):
                     if _is_opencode_compatibility_probe(command):
                         return _compatible_opencode_help_result()
+                    if tuple(command[1:]) == ("--pure", "debug", "config"):
+                        return SimpleNamespace(
+                            returncode=0,
+                            stdout=kwargs["environment"][
+                                "OPENCODE_CONFIG_CONTENT"
+                            ].encode(),
+                            stderr=b"",
+                        )
                     observed.update(kwargs["environment"])
                     source = Path(kwargs["cwd"]) / "source" / "main.cpp"
                     source.parent.mkdir(parents=True)

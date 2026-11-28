@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import inspect
+import os
 import re
 import time
 from collections.abc import Callable, Generator, Mapping
@@ -10,6 +12,7 @@ from contextvars import copy_context
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from functools import partial
+from threading import Lock
 
 from literate_ai.application.action_dag_planning import plan_lifecycle_action_dag
 from literate_ai.application.action_dag_scheduler import LifecycleActionKind
@@ -67,6 +70,7 @@ from literate_ai.application.standard_lifecycle_ports import (
     ComponentLinker,
     ComponentTester,
     ExecutionProviderEvidenceReceiver,
+    GeneratedCandidateVerifier,
     GenerationIndexer,
     IndependentProjectAcceptor,
     PackagedProjectExecutor,
@@ -81,6 +85,13 @@ from literate_ai.application.standard_lifecycle_ports import (
     StandardCandidateRepairPort,
     StandardContextEvidenceRecorder,
     StandardLifecycleCheckpointRecorder,
+)
+from literate_ai.application.standard_node_sdk_admission import (
+    NodeSDKLifecycleAdmission,
+    is_node_sdk,
+    require_node_sdk_build_intent,
+    require_node_sdk_source,
+    run_node_sdk_lifecycle,
 )
 from literate_ai.authority_graph import (
     AuthorityGraph,
@@ -165,10 +176,65 @@ from literate_ai.diagnostics import trace_exception
 from literate_ai.security import BuildAuthorization, BuildRequest
 
 
+class _GeneratedCandidateRejected(RuntimeError):
+    def __init__(self, failure: StandardNodeFailureEvidence) -> None:
+        self.failure = failure
+        super().__init__(failure.code)
+
+
 class StandardProjectLifecycleError(RuntimeError):
     def __init__(self, code: str, message: str) -> None:
         self.code = code
         super().__init__(message)
+
+
+class _GeneratedCandidateRejectionOrigin:
+    """One attempt's actual verifier return; never restored from failure data."""
+
+    def __init__(self):
+        self._owner = self
+        self._pid = os.getpid()
+        self._active = True
+        self._observed = None
+        self._lock = Lock()
+
+    def record(self, failure, output):
+        if self._owner is not self or self._pid != os.getpid():
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.candidate_rejection_origin_invalid",
+                "candidate rejection belongs to another controller",
+            )
+        with self._lock:
+            if not self._active or self._observed is not None:
+                self._active = False
+                self._observed = None
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.candidate_rejection_origin_invalid",
+                    "candidate rejection is expired or ambiguous",
+                )
+            self._observed = (failure, output)
+
+    def matches_and_close(self, failure, output):
+        if self._owner is not self or self._pid != os.getpid():
+            return False
+        with self._lock:
+            observed = self._observed
+            matched = (
+                self._active
+                and observed is not None
+                and observed[0] is failure
+                and observed[1] is output
+            )
+            self._active = False
+            self._observed = None
+            return matched
+
+    def close(self):
+        if self._owner is not self or self._pid != os.getpid():
+            return
+        with self._lock:
+            self._active = False
+            self._observed = None
 
 
 _PORTABLE_FAILURE_CODE = re.compile(r"[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?")
@@ -222,10 +288,16 @@ def _failure(
     cause: object,
     fallback: str,
 ) -> StandardNodeFailureEvidence:
+    from .native_root_failed_stage import native_root_failed_stage_subject
+
+    code = _stable_failure_code(cause, fallback)
+    subject_identity = native_root_failed_stage_subject(
+        component_revision, phase, subject_identity, cause, code
+    )
     return StandardNodeFailureEvidence(
         component_revision,
         phase,
-        _stable_failure_code(cause, fallback),
+        code,
         subject_identity,
         _portable_failure_diagnostic(cause),
     )
@@ -924,6 +996,10 @@ class StandardProjectLifecycleResult:
     root_integration: StandardRootIntegrationEvidence | None = field(
         default=None, repr=False, compare=False
     )
+    # Separate new audit data; it never changes this lifecycle@4 identity.
+    native_root_execution: object | None = field(
+        default=None, repr=False, compare=False
+    )
 
     def __post_init__(self) -> None:
         if (self.root_integration is None) != (
@@ -1324,7 +1400,9 @@ def _rebind_standard_source_generation(
     component_lock_identity = execution_plan.component_lock_identity
     cached = generation.output
     cached_candidate = cached.candidate
-    if require_exact_generation and (
+    if (
+        require_exact_generation or getattr(prepared.recipe, "node_sdk_providers", ())
+    ) and (
         cached_candidate.component_revision != plan.component_revision
         or cached_candidate.component_generation_plan_identity != plan.identity
         or cached_candidate.generation_key_identity != plan.generation_key.identity
@@ -1506,6 +1584,10 @@ class StandardProjectLifecycleService:
         checkpoint_recorder: StandardLifecycleCheckpointRecorder | None = None,
         context_evidence_recorder: StandardContextEvidenceRecorder | None = None,
         candidate_repair_port: StandardCandidateRepairPort | None = None,
+        generated_candidate_verifier: GeneratedCandidateVerifier | None = None,
+        native_root_continuation_factory: Callable | None = None,
+        node_sdk_admissions: Mapping[str, NodeSDKLifecycleAdmission] | None = None,
+        node_sdk_source_lookup: Callable | None = None,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
     ) -> None:
         self.validator = validator
@@ -1532,6 +1614,10 @@ class StandardProjectLifecycleService:
         self.checkpoint_recorder = checkpoint_recorder
         self.context_evidence_recorder = context_evidence_recorder
         self.candidate_repair_port = candidate_repair_port
+        self.generated_candidate_verifier = generated_candidate_verifier
+        self.native_root_continuation_factory = native_root_continuation_factory
+        self.node_sdk_admissions = dict(node_sdk_admissions or {})
+        self.node_sdk_source_lookup = node_sdk_source_lookup
         self.clock = clock
 
     def _record_stage(
@@ -1599,9 +1685,226 @@ class StandardProjectLifecycleService:
             Mapping[str, ComponentNodeRecoveryCandidate] | None
         ) = None,
         cancellation: ComponentNodeCancellation | None = None,
+        live_run=None,
+        project_authority_identity: ContentIdentity | None = None,
+        retained_source_identity: ContentIdentity | None = None,
+        skip_node_sdk_cache_lookup: bool = False,
     ) -> StandardProjectLifecycleResult:
+        arguments = {
+            "component_lock": component_lock,
+            "invalidation": invalidation,
+            "prepared_nodes": prepared_nodes,
+            "source_cache_memberships": source_cache_memberships,
+            "source_generation_resume_candidates": source_generation_resume_candidates,
+            "resume_candidates": resume_candidates,
+            "max_parallelism": max_parallelism,
+            "component_worker_routing": component_worker_routing,
+            "worker_catalog": worker_catalog,
+            "component_node_dispatcher": component_node_dispatcher,
+            "component_node_recovery": component_node_recovery,
+            "cancellation": cancellation,
+            "skip_node_sdk_cache_lookup": skip_node_sdk_cache_lookup,
+        }
+        if retained_source_identity is not None:
+            if type(retained_source_identity) is not ContentIdentity:
+                raise TypeError("retained source identity must be a ContentIdentity")
+            retained_source_identity.__post_init__()
+            if live_run is None:
+                raise TypeError(
+                    "retained source identity requires its original live run"
+                )
+        if live_run is None:
+            if project_authority_identity is not None:
+                raise TypeError("project authority requires its original live run")
+            return self._execute(execution_plan, **arguments)
+        from literate_ai.application.native_root_continuation import (
+            execute_native_root_continuation,
+        )
+        from literate_ai.application.native_root_run import (
+            LiveNativeRootRun,
+            activate_native_root_run,
+        )
+
+        if (
+            type(live_run) is not LiveNativeRootRun
+            or type(project_authority_identity) is not ContentIdentity
+        ):
+            raise TypeError("original live run and approved project authority required")
+        live_run.require_current()
+        if self.native_root_continuation_factory is None:
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.native_root_factory_required",
+                "the original runtime must select native root continuation eligibility",
+            )
+        root = execution_plan.root_revision.uri
+        original_root = prepared_nodes.get(root)
+        if original_root is None:
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.preparation_incomplete",
+                "original root preparation required",
+            )
+        reused = (
+            any(
+                root in mapping
+                for mapping in (
+                    source_cache_memberships or {},
+                    source_generation_resume_candidates or {},
+                    resume_candidates or {},
+                )
+            )
+            and execution_plan.root_revision not in invalidation.regenerate
+        )
+        with activate_native_root_run(live_run):
+            with self.native_root_continuation_factory(
+                original_run=live_run,
+                approved_project_authority_identity=project_authority_identity,
+                component_lock=component_lock,
+                execution_plan=execution_plan,
+                prepared_root=original_root,
+                accepted_source_only=reused or component_worker_routing is not None,
+                retained_source=retained_source_identity,
+                **(
+                    {"project_finalizer": self.project_finalizer}
+                    if self.project_finalizer is not None
+                    else {}
+                ),
+            ) as scope:
+                if scope is None:
+                    result = self._execute(execution_plan, **arguments)
+                    live_run.require_current()
+                    return result
+                if self.candidate_repair_port is None:
+                    raise StandardProjectLifecycleError(
+                        "standard_lifecycle.native_root_repair_required",
+                        "eligible original root requires its bounded repair port",
+                    )
+
+                def pipeline(candidate):
+                    # The controller's one counter spans every ONE-candidate
+                    # private pass. The root's legacy range(3) is bypassed below.
+                    nodes = dict(prepared_nodes)
+                    nodes[root] = candidate
+                    return self._execute(
+                        execution_plan, **{**arguments, "prepared_nodes": nodes}
+                    )
+
+                return execute_native_root_continuation(
+                    scope,
+                    self.candidate_repair_port,
+                    pipeline,
+                    start_replacement=self._native_root_replacement_callback(
+                        scope, execution_plan
+                    ),
+                )
+
+    def _native_root_replacement_callback(self, scope, execution_plan):
+        """Reset only the original candidate projections under its live owner."""
+        checkpoint = self.checkpoint_recorder
+        context = self.context_evidence_recorder
+        callbacks = tuple(
+            (owner, name, getattr(owner, name), arguments)
+            for owner, name, arguments in (
+                (
+                    checkpoint,
+                    "start_replacement",
+                    (execution_plan.identity, execution_plan.root_revision),
+                ),
+                (context, "start_attempt", ()),
+            )
+            if owner is not None
+        )
+
+        def require_pairing():
+            if (
+                self.checkpoint_recorder is not checkpoint
+                or self.context_evidence_recorder is not context
+            ):
+                raise ValueError("native root replacement recorder changed")
+            for owner, name, original, _arguments in callbacks:
+                current = getattr(owner, name)
+                function = getattr(original, "__func__", None)
+                if function is None:
+                    unchanged = current is original
+                else:
+                    unchanged = (
+                        getattr(current, "__self__", None)
+                        is getattr(original, "__self__", None)
+                        and getattr(current, "__func__", None) is function
+                    )
+                if not unchanged:
+                    raise ValueError("native root replacement reset delegate changed")
+
+        def require_original():
+            scope.require_current()
+            require_pairing()
+            scope.require_current()
+            # The closing guard is foreign code too: it cannot replace the
+            # original projection owner or delegate after the last check.
+            require_pairing()
+
+        require_original()
+        if not callbacks:
+            return None
+
+        def start_replacement():
+            require_original()
+            for _owner, _name, original, arguments in callbacks:
+                try:
+                    original(*arguments)
+                except BaseException as error:
+                    # A failing reset remains the primary error even if its
+                    # callback also revoked the owner or changed a recorder.
+                    try:
+                        require_original()
+                    except BaseException as guard_error:
+                        try:
+                            BaseException.add_note(
+                                error,
+                                "native root replacement closing guard refused: "
+                                + type(guard_error).__name__,
+                            )
+                        except BaseException:
+                            # Hostile note storage must not mask the original
+                            # callback error either.
+                            pass
+                    raise
+                require_original()
+
+        return start_replacement
+
+    def _execute(
+        self,
+        execution_plan: ComponentExecutionPlan,
+        *,
+        component_lock: ComponentLock,
+        invalidation: ComponentInvalidationDecision,
+        prepared_nodes: Mapping[str, PreparedComponentGenerationNode[object, object]],
+        source_cache_memberships: Mapping[
+            str, StandardSourceCacheMembership | StandardSourceAdmissionMembership
+        ]
+        | None = None,
+        source_generation_resume_candidates: Mapping[
+            str, SourceGenerationResumeCandidate
+        ]
+        | None = None,
+        resume_candidates: Mapping[str, StandardNodeAcceptedCandidate] | None = None,
+        max_parallelism: int = 1,
+        component_worker_routing: ComponentWorkerRouting | None = None,
+        worker_catalog: ExecutionWorkerCatalog | None = None,
+        component_node_dispatcher: ComponentNodeDispatcher | None = None,
+        component_node_recovery: (
+            Mapping[str, ComponentNodeRecoveryCandidate] | None
+        ) = None,
+        cancellation: ComponentNodeCancellation | None = None,
+        skip_node_sdk_cache_lookup: bool = False,
+    ) -> StandardProjectLifecycleResult:
+        from .native_root_run import current_native_root_run
+
+        original_native_run = current_native_root_run()
         if not isinstance(execution_plan, ComponentExecutionPlan):
             raise TypeError("execution_plan must be a ComponentExecutionPlan")
+        if type(skip_node_sdk_cache_lookup) is not bool:
+            raise TypeError("SDK cache lookup control must be a bool")
         if not isinstance(component_lock, ComponentLock):
             raise TypeError("component_lock must be a ComponentLock")
         lock_nodes = {item.revision.identity.uri for item in component_lock.nodes}
@@ -1688,6 +1991,16 @@ class StandardProjectLifecycleService:
                     "standard_lifecycle.preparation_identity_mismatch",
                     "prepared node does not bind its exact Component plan",
                 ) from exc
+            if component_worker_routing is not None:
+                surface = getattr(prepared.recipe, "library_import_surface", None)
+                if getattr(surface, "node_sdk_exports", ()) or getattr(
+                    prepared.recipe, "node_sdk_providers", ()
+                ):
+                    raise StandardProjectLifecycleError(
+                        "standard_lifecycle.node_sdk_generation_admission_required",
+                        "remote Node SDK generation requires live "
+                        "bound-invocation admission",
+                    )
         supplied = {} if resume_candidates is None else dict(resume_candidates)
         cached = (
             {} if source_cache_memberships is None else dict(source_cache_memberships)
@@ -1706,6 +2019,28 @@ class StandardProjectLifecycleService:
         worker_recovery = (
             {} if component_node_recovery is None else dict(component_node_recovery)
         )
+        sdk_admissions = dict(self.node_sdk_admissions)
+        if (
+            set(sdk_admissions) - expected
+            or any(not is_node_sdk(nodes[uri]) for uri in sdk_admissions)
+            or any(
+                not callable(getattr(port, "with_invocation", None))
+                or not callable(getattr(port, "require_build_intent", None))
+                for port in sdk_admissions.values()
+            )
+            or (sdk_admissions and component_worker_routing is not None)
+        ):
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.node_sdk_configuration_invalid",
+                "SDK admission must explicitly select current local SDK nodes",
+            )
+        if set(sdk_admissions) & (
+            set(supplied) | set(source_resumes) | set(worker_recovery)
+        ):
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.node_sdk_recovery_unsupported",
+                "SDK checkpoint and whole-node recovery require separate qualification",
+            )
         if set(worker_recovery) - expected:
             raise StandardProjectLifecycleError(
                 "standard_lifecycle.worker_recovery_unknown",
@@ -1827,6 +2162,17 @@ class StandardProjectLifecycleService:
                     package_providers[edge.consumer_revision.uri].add(
                         edge.provider_revision.uri
                     )
+        for uri in sdk_admissions:
+            sdk_providers = {
+                item.provider_component_revision.uri
+                for item in nodes[uri].recipe.library_dependencies
+            }
+            if not sdk_providers or not sdk_providers <= expected - {uri}:
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.node_sdk_provider_invalid",
+                    "SDK generation requires exact distinct planned providers",
+                )
+            dependencies[uri].update(sdk_providers | runtime_providers[uri])
         regenerate = {item.uri for item in invalidation.regenerate}
         generated: dict[str, SourceGenerationNodeResult] = {}
         planned: dict[str, StandardComponentBuildPlan] = {}
@@ -1834,6 +2180,7 @@ class StandardProjectLifecycleService:
         evidence_nodes: dict[str, PreparedComponentGenerationNode[object, object]] = {}
         repair_chains: dict[str, CandidateAttemptChain] = {}
         worker_products: dict[str, ComponentWorkerProduct] = {}
+        sdk_invocations = {}
         worker_assignments = (
             {}
             if component_worker_routing is None
@@ -1878,6 +2225,16 @@ class StandardProjectLifecycleService:
                 futures[terminal] = (uri, "lifecycle")
                 del step_runs[uri]
 
+        def external_build_inputs(uri):
+            reader = getattr(
+                type(self.build_intent_factory), "external_build_provider_inputs", None
+            )
+            if not callable(reader):
+                return (), ()
+            return reader(
+                self.build_intent_factory, generation_plans[uri].component_revision
+            )
+
         def artifact_inputs(
             uri: str,
         ) -> tuple[tuple[ArtifactExport, ...], tuple[ArtifactExport, ...]]:
@@ -1907,6 +2264,17 @@ class StandardProjectLifecycleService:
                     key=lambda item: item.identity.uri,
                 )
             )
+            external, _receipts = external_build_inputs(uri)
+            if external:
+                by_id = {row.identity.uri: row for row in provider_artifacts}
+                for row in external:
+                    if row.identity.uri in by_id and by_id[row.identity.uri] != row:
+                        raise StandardProjectLifecycleError(
+                            "standard_lifecycle.external_export_conflict",
+                            "external export conflicts",
+                        )
+                    by_id[row.identity.uri] = row
+                provider_artifacts = tuple(by_id[key] for key in sorted(by_id))
             return provider_artifacts, package_artifacts
 
         def accepted_build_providers(uri):
@@ -1931,9 +2299,21 @@ class StandardProjectLifecycleService:
                         "remote build intent requires exact accepted provider evidence",
                     )
                 evidence.append(receipt)
+            _external, external_receipts = external_build_inputs(uri)
+            by_id = {receipt.identity.uri: receipt for receipt in evidence}
+            for receipt in external_receipts:
+                if (
+                    receipt.identity.uri in by_id
+                    and by_id[receipt.identity.uri] != receipt
+                ):
+                    raise StandardProjectLifecycleError(
+                        "standard_lifecycle.external_receipt_conflict",
+                        "external receipt conflicts",
+                    )
+                by_id[receipt.identity.uri] = receipt
             try:
                 return select_build_provider_receipts(
-                    artifact_inputs(uri)[0], tuple(evidence)
+                    artifact_inputs(uri)[0], tuple(by_id[key] for key in sorted(by_id))
                 )
             except ValueError as exc:
                 raise StandardProjectLifecycleError(
@@ -2005,6 +2385,17 @@ class StandardProjectLifecycleService:
             }
             return scope, tuple(all_inputs[key] for key in sorted(all_inputs))
 
+        def sdk_receipts(uri):
+            return tuple(
+                results[parent].acceptance_evidence
+                for parent in sorted(
+                    {
+                        item.provider_component_revision.uri
+                        for item in nodes[uri].recipe.library_dependencies
+                    }
+                )
+            )
+
         stage_kinds = {
             StandardLifecycleStage.SOURCE_GENERATION: LifecycleActionKind.GENERATE,
             StandardLifecycleStage.SOURCE_INDEX: LifecycleActionKind.INDEX,
@@ -2052,6 +2443,8 @@ class StandardProjectLifecycleService:
         pending = set(expected)
         with ThreadPoolExecutor(max_workers=max_parallelism) as pool:
             while pending or futures or pending_steps or pending_links:
+                if original_native_run is not None:
+                    original_native_run.require_current()
                 ready = sorted(
                     (
                         uri
@@ -2059,18 +2452,21 @@ class StandardProjectLifecycleService:
                         if (
                             dependencies[uri] <= results.keys()
                             if component_worker_routing is not None
+                            or uri in sdk_admissions
                             else True
                         )
                     ),
                     key=lambda uri: generation_plans[uri].identity.uri,
                 )
                 for uri in ready:
-                    failed_parent = component_worker_routing is not None and any(
+                    failed_parent = (
+                        component_worker_routing is not None or uri in sdk_admissions
+                    ) and any(
                         results[parent].failure_code is not None
                         for parent in dependencies[uri]
                     )
                     if (
-                        component_worker_routing is not None
+                        (component_worker_routing is not None or uri in sdk_admissions)
                         and len(futures) >= max_parallelism
                         and not failed_parent
                     ):
@@ -2113,6 +2509,25 @@ class StandardProjectLifecycleService:
                         package_artifacts,
                         uri in regenerate,
                     )
+                    if uri in sdk_admissions:
+                        future = pool.submit(
+                            copy_context().run,
+                            self._run_node_sdk,
+                            sdk_admissions[uri],
+                            sdk_receipts(uri),
+                            *run_arguments,
+                            None,
+                            partial(artifact_inputs, uri),
+                            partial(execution_inputs, uri)
+                            if scoped_execution
+                            else None,
+                            partial(accepted_build_providers, uri),
+                            source_lookup=None
+                            if skip_node_sdk_cache_lookup
+                            else self.node_sdk_source_lookup,
+                        )
+                        futures[future] = (uri, "node-sdk")
+                        continue
                     if component_worker_routing is None:
                         step_runs[uri] = self._run_complete_node_steps(
                             *run_arguments,
@@ -2189,6 +2604,8 @@ class StandardProjectLifecycleService:
                     for uri, step in pending_steps.items()
                 ] + [(link_nodes[uri].identity.uri, uri, True) for uri in pending_links]
                 for _, uri, is_link in sorted(candidates):
+                    if original_native_run is not None:
+                        original_native_run.require_current()
                     if len(futures) >= max_parallelism:
                         break
                     if is_link:
@@ -2296,11 +2713,17 @@ class StandardProjectLifecycleService:
                     if pending_steps or pending_links:
                         # Capacity can be held by direct port callers outside this pool.
                         # Admission rechecks its finite deadline on each bounded retry.
-                        time.sleep(0.01)
+                        time.sleep(
+                            0.01
+                            if original_native_run is None
+                            else original_native_run.clamp_timeout(0.01)
+                        )
                     continue
                 completed, _ = wait(
                     tuple(futures),
-                    timeout=0.05 if waiting_for_capacity else None,
+                    timeout=(0.05 if waiting_for_capacity else None)
+                    if original_native_run is None
+                    else original_native_run.clamp_timeout(0.05),
                     return_when=FIRST_COMPLETED,
                 )
                 for future in sorted(completed, key=lambda item: futures[item]):
@@ -2323,9 +2746,23 @@ class StandardProjectLifecycleService:
                         advance_step(uri, future)
                         continue
                     try:
+                        outcome = future.result()
+                        if phase == "node-sdk":
+                            invocation, outcome, input_membership = outcome
+                            sdk_invocations[uri] = invocation
+                            if input_membership is not None:
+                                input_membership_identities[uri] = input_membership
                         generation, plan, result, evidence_prepared, repair_chain = (
-                            future.result()
+                            outcome
                         )
+                        if (
+                            component_worker_routing is None
+                            and generation.disposition
+                            is not SourceGenerationDisposition.REUSED
+                        ):
+                            # A cache hit can lose to a fresh bounded repair.
+                            # Only the final reused head suppresses publication.
+                            input_membership_identities.pop(uri, None)
                         failure = result.failure_evidence
                         if failure is not None and result.source_output is not None:
                             try:
@@ -2338,7 +2775,7 @@ class StandardProjectLifecycleService:
                                 self._record_stage(
                                     execution_plan,
                                     generation_plans[uri],
-                                    nodes[uri],
+                                    evidence_prepared,
                                     result.source_output,
                                     failed_stage,
                                     failure.subject_identity,
@@ -2452,129 +2889,31 @@ class StandardProjectLifecycleService:
                 "standard_lifecycle.links_incomplete",
                 "project assembly requires every Component LINK result",
             )
-        from .release_artifacts import plan_standard_assembly_dependencies
-
-        artifact_graph, link_plan = self.artifact_assembler.assemble_project_artifacts(
+        if original_native_run is not None:
+            original_native_run.require_current()
+        finalize = partial(
+            self._finalize_root_package,
             component_lock,
             execution_plan,
             project_plan,
             ordered,
         )
-        if not isinstance(artifact_graph, ArtifactBuildGraph) or not isinstance(
-            link_plan, ExactLinkPlan
-        ):
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.artifact_assembly_invalid",
-                "project artifact assembly must return a typed graph and link plan",
+        root_uri = execution_plan.root_revision.uri
+        if root_uri in sdk_admissions:
+            root_integration = self._with_accepted_node_sdk(
+                sdk_admissions[root_uri],
+                execution_plan,
+                nodes[root_uri],
+                sdk_receipts(root_uri),
+                sdk_invocations[root_uri],
+                results[root_uri].source_output.candidate,
+                lambda guard: finalize(require_current=guard),
+                action="finalization",
             )
-        if link_plan not in artifact_graph.link_plans:
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.artifact_link_mismatch",
-                "project link plan must belong to the exact artifact graph",
-            )
-        if artifact_graph.assembly_dependencies != plan_standard_assembly_dependencies(
-            execution_plan, ordered
-        ):
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.assembly_dependencies_mismatch",
-                "artifact graph must bind exact locked late dependencies "
-                "and accepted providers",
-            )
-        package_plan, package_result = self.package_creator.create_project_package(
-            component_lock,
-            execution_plan,
-            project_plan,
-            artifact_graph,
-            link_plan,
-        )
-        if not isinstance(package_plan, PackagePlan) or not isinstance(
-            package_result, PackageResult
-        ):
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.package_creation_invalid",
-                "project package creation must return a typed plan and result",
-            )
-        if (
-            package_plan.component_lock_identity != component_lock.identity
-            or package_plan.artifact_graph_identity != artifact_graph.identity
-            or package_plan.link_plan_identity != link_plan.identity
-            or package_result.package_plan_identity != package_plan.identity
-        ):
-            raise StandardProjectLifecycleError(
-                "standard_lifecycle.package_creation_mismatch",
-                "project package must bind the exact lock, graph, link, and plan",
-            )
-        if self.project_finalizer is not None:
-            root_integration = self.project_finalizer.finalize(
-                component_lock,
-                project_plan,
-                artifact_graph,
-                package_plan,
-                package_result,
-            )
-            if not isinstance(root_integration, StandardRootIntegrationEvidence):
-                raise StandardProjectLifecycleError(
-                    "standard_lifecycle.finalization_invalid",
-                    "project finalizer must return typed verified root evidence",
-                )
-            if (
-                root_integration.component_lock_identity != component_lock.identity
-                or root_integration.execution_plan_identity != execution_plan.identity
-                or root_integration.project_build_plan_identity != project_plan.identity
-                or root_integration.artifact_graph != artifact_graph
-                or root_integration.link_plan != link_plan
-                or root_integration.package_plan != package_plan
-                or root_integration.package_result != package_result
-            ):
-                raise StandardProjectLifecycleError(
-                    "standard_lifecycle.finalization_mismatch",
-                    "project finalization differs from exact root package custody",
-                )
         else:
-            root_test_identity = _require_identity(
-                self.root_integration_tester.test_root_integration(
-                    component_lock,
-                    execution_plan,
-                    project_plan,
-                    package_plan,
-                    package_result,
-                ),
-                "root generated integration test",
-            )
-            packaged_execution_identity = _require_identity(
-                self.packaged_project_executor.execute_packaged_project(
-                    component_lock,
-                    execution_plan,
-                    project_plan,
-                    package_plan,
-                    package_result,
-                ),
-                "packaged project execution",
-            )
-            independent_acceptance_identity = _require_identity(
-                self.independent_project_acceptor.accept_project_independently(
-                    component_lock,
-                    execution_plan,
-                    project_plan,
-                    package_plan,
-                    package_result,
-                    root_test_identity,
-                    packaged_execution_identity,
-                ),
-                "independent project acceptance",
-            )
-            root_integration = StandardRootIntegrationEvidence(
-                component_lock.identity,
-                execution_plan.identity,
-                project_plan.identity,
-                artifact_graph,
-                link_plan,
-                package_plan,
-                package_result,
-                root_test_identity,
-                packaged_execution_identity,
-                independent_acceptance_identity,
-            )
+            root_integration = finalize()
+        if original_native_run is not None:
+            original_native_run.require_current()
         publication_failed = False
         for uri in sorted(results):
             if uri in input_membership_identities and uri not in regenerate:
@@ -2587,11 +2926,30 @@ class StandardProjectLifecycleService:
                     "project-accepted cache miss requires its exact accepted source",
                 )
             try:
-                publication_identity = self._publish_accepted_result(
+                if original_native_run is not None:
+                    original_native_run.require_current()
+                publish = partial(
+                    self._publish_accepted_result,
                     result,
                     planned[uri],
                     regenerate=uri in regenerate,
                 )
+                if original_native_run is not None:
+                    original_native_run.require_current()
+                if uri in sdk_admissions:
+                    publication_identity = self._publish_node_sdk(
+                        sdk_admissions[uri],
+                        execution_plan,
+                        nodes[uri],
+                        sdk_receipts(uri),
+                        sdk_invocations[uri],
+                        result.source_output.candidate,
+                        publish,
+                    )
+                else:
+                    publication_identity = publish()
+                if original_native_run is not None:
+                    original_native_run.require_current()
                 self._record_stage(
                     execution_plan,
                     generation_plans[uri],
@@ -2638,7 +2996,10 @@ class StandardProjectLifecycleService:
                 )
                 publication_failed = True
             results[uri] = result
-            repair_chains[uri] = self._rebind_attempt_chain(repair_chains[uri], result)
+            if uri in repair_chains:
+                repair_chains[uri] = self._rebind_attempt_chain(
+                    repair_chains[uri], result
+                )
             if publication_failed:
                 break
         ordered = tuple(results[uri] for uri in sorted(results))
@@ -2668,7 +3029,11 @@ class StandardProjectLifecycleService:
                     repair_chains[uri] for uri in sorted(repair_chains)
                 ),
             )
+        if original_native_run is not None:
+            original_native_run.require_current()
         admission = _require_identity(self.admitter.admit(ordered), "admission")
+        if original_native_run is not None:
+            original_native_run.require_current()
         if context_cache_report is None:
             raise StandardProjectLifecycleError(
                 "standard_lifecycle.context_evidence_required",
@@ -2683,15 +3048,19 @@ class StandardProjectLifecycleService:
             context_cache_report.identity,
             root_integration.identity,
         )
+        if original_native_run is not None:
+            original_native_run.require_current()
         receipt_identity = _require_identity(
             self.receipt_issuer.issue(aggregate_receipt), "receipt"
         )
+        if original_native_run is not None:
+            original_native_run.require_current()
         if receipt_identity != aggregate_receipt.identity:
             raise StandardProjectLifecycleError(
                 "standard_lifecycle.receipt_membership_mismatch",
                 "receipt issuer returned an identity outside aggregate membership",
             )
-        return StandardProjectLifecycleResult(
+        result = StandardProjectLifecycleResult(
             execution_plan.identity,
             validation,
             project_plan.identity if project_plan is not None else None,
@@ -2709,6 +3078,251 @@ class StandardProjectLifecycleService:
             tuple(repair_chains[uri] for uri in sorted(repair_chains)),
             root_integration,
         )
+        if original_native_run is not None:
+            original_native_run.require_current()
+        return result
+
+    def _integrate_project_root(
+        self,
+        component_lock: ComponentLock,
+        execution_plan: ComponentExecutionPlan,
+        project_plan: StandardProjectBuildPlan,
+        ordered: tuple[StandardNodeLifecycleResult, ...],
+        *,
+        require_current=None,
+    ) -> StandardRootIntegrationEvidence:
+        """Assemble, package, execute and independently accept one exact root.
+
+        No accepted source is published by this phase. A replacement must call
+        every operation again with its own complete node and package custody.
+        """
+        from .release_artifacts import plan_standard_assembly_dependencies
+
+        original = (
+            component_lock.identity,
+            execution_plan.identity,
+            project_plan.identity,
+        )
+        retained = ()
+
+        def guard():
+            if require_current is not None:
+                require_current()
+            if (
+                (
+                    component_lock.identity,
+                    execution_plan.identity,
+                    project_plan.identity,
+                )
+                != original
+                or component_lock.identity != execution_plan.component_lock_identity
+                or component_lock.root_revision != execution_plan.root_revision
+                or project_plan.execution_plan_identity != execution_plan.identity
+            ):
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.finalization_authority_changed",
+                    "root finalization differs from original lock, execution "
+                    "or project plan",
+                )
+            if any(value.identity != identity for value, identity in retained):
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.finalization_authority_changed",
+                    "root graph, link or package changed after validation",
+                )
+
+        guard()
+        artifact_graph, link_plan = self.artifact_assembler.assemble_project_artifacts(
+            component_lock,
+            execution_plan,
+            project_plan,
+            ordered,
+        )
+        guard()
+        if not isinstance(artifact_graph, ArtifactBuildGraph) or not isinstance(
+            link_plan, ExactLinkPlan
+        ):
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.artifact_assembly_invalid",
+                "project artifact assembly must return a typed graph and link plan",
+            )
+        if link_plan not in artifact_graph.link_plans:
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.artifact_link_mismatch",
+                "project link plan must belong to the exact artifact graph",
+            )
+        external_reader = getattr(
+            type(self.artifact_assembler), "external_assembly_inputs", None
+        )
+        external = (
+            external_reader(self.artifact_assembler)
+            if callable(external_reader)
+            else None
+        )
+        expected_dependencies = plan_standard_assembly_dependencies(
+            execution_plan, ordered
+        )
+        if external is not None:
+            by_id = {
+                edge.identity.uri: edge
+                for edge in (*expected_dependencies, *external.assembly_dependencies)
+            }
+            expected_dependencies = tuple(by_id[key] for key in sorted(by_id))
+        if artifact_graph.assembly_dependencies != expected_dependencies:
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.assembly_dependencies_mismatch",
+                "artifact graph must bind exact locked late dependencies "
+                "and accepted providers",
+            )
+        retained = (
+            (artifact_graph, artifact_graph.identity),
+            (link_plan, link_plan.identity),
+        )
+        guard()
+        package_plan, package_result = self.package_creator.create_project_package(
+            component_lock,
+            execution_plan,
+            project_plan,
+            artifact_graph,
+            link_plan,
+        )
+        guard()
+        if not isinstance(package_plan, PackagePlan) or not isinstance(
+            package_result, PackageResult
+        ):
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.package_creation_invalid",
+                "project package creation must return a typed plan and result",
+            )
+        if (
+            package_plan.component_lock_identity != component_lock.identity
+            or package_plan.artifact_graph_identity != artifact_graph.identity
+            or package_plan.link_plan_identity != link_plan.identity
+            or package_result.package_plan_identity != package_plan.identity
+        ):
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.package_creation_mismatch",
+                "project package must bind the exact lock, graph, link, and plan",
+            )
+        retained += (
+            (package_plan, package_plan.identity),
+            (package_result, package_result.identity),
+        )
+        guard()
+        if self.project_finalizer is not None:
+            from .native_root_continuation import current_native_root_controller
+
+            if current_native_root_controller() is not None:
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.native_root_finalizer_unsupported",
+                    "an active native root controller cannot delegate finalization",
+                )
+            root_integration = self.project_finalizer.finalize(
+                component_lock,
+                project_plan,
+                artifact_graph,
+                package_plan,
+                package_result,
+            )
+            guard()
+            if not isinstance(root_integration, StandardRootIntegrationEvidence):
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.finalization_invalid",
+                    "project finalizer must return typed verified root evidence",
+                )
+            if (
+                root_integration.component_lock_identity != component_lock.identity
+                or root_integration.execution_plan_identity != execution_plan.identity
+                or root_integration.project_build_plan_identity != project_plan.identity
+                or root_integration.artifact_graph != artifact_graph
+                or root_integration.link_plan != link_plan
+                or root_integration.package_plan != package_plan
+                or root_integration.package_result != package_result
+            ):
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.finalization_mismatch",
+                    "project finalization differs from exact root package custody",
+                )
+        else:
+            root_test_identity = _require_identity(
+                self.root_integration_tester.test_root_integration(
+                    component_lock,
+                    execution_plan,
+                    project_plan,
+                    package_plan,
+                    package_result,
+                ),
+                "root generated integration test",
+            )
+            guard()
+            packaged_execution_identity = _require_identity(
+                self.packaged_project_executor.execute_packaged_project(
+                    component_lock,
+                    execution_plan,
+                    project_plan,
+                    package_plan,
+                    package_result,
+                ),
+                "packaged project execution",
+            )
+            guard()
+            from literate_ai.contracts.native_root_continuation import (
+                NativeRootPackageBinding,
+            )
+
+            from .native_root_continuation import current_native_root_controller
+
+            controller = current_native_root_controller()
+            if controller is not None:
+                controller.require_current()
+                controller.package_binding = NativeRootPackageBinding(
+                    artifact_graph.identity,
+                    link_plan.identity,
+                    package_plan.identity,
+                    package_result.identity,
+                    root_test_identity,
+                    packaged_execution_identity,
+                )
+                controller.scope.retain_package_context(
+                    project_plan,
+                    artifact_graph,
+                    link_plan,
+                    package_plan,
+                    package_result,
+                    root_test_identity,
+                    packaged_execution_identity,
+                )
+            independent_acceptance_identity = _require_identity(
+                self.independent_project_acceptor.accept_project_independently(
+                    component_lock,
+                    execution_plan,
+                    project_plan,
+                    package_plan,
+                    package_result,
+                    root_test_identity,
+                    packaged_execution_identity,
+                ),
+                "independent project acceptance",
+            )
+            guard()
+            root_integration = StandardRootIntegrationEvidence(
+                component_lock.identity,
+                execution_plan.identity,
+                project_plan.identity,
+                artifact_graph,
+                link_plan,
+                package_plan,
+                package_result,
+                root_test_identity,
+                packaged_execution_identity,
+                independent_acceptance_identity,
+            )
+        from .native_root_continuation import current_native_root_controller
+
+        controller = current_native_root_controller()
+        if controller is not None:
+            root_integration = controller.close_accepted_root(root_integration)
+        guard()
+        return root_integration
 
     def _dispatch_complete_node(
         self,
@@ -2865,20 +3479,99 @@ class StandardProjectLifecycleService:
             disposition=disposition,
         )
 
-    def _run_complete_node(self, *args, **kwargs):
-        """Drive the steps inside an explicitly selected complete-node transport."""
+    def _run_complete_node(self, *args, require_current=None, **kwargs):
+        """Drive the existing repair chain inside one complete-node operation.
+
+        A local live owner must retain each stage's own reservation. Ordinary
+        complete-node transports retain their existing admission semantics.
+        """
+        if require_current is not None and (
+            not callable(require_current)
+            or any(
+                inspect.iscoroutinefunction(target)
+                or inspect.isasyncgenfunction(target)
+                or inspect.isgeneratorfunction(target)
+                for target in (require_current, type(require_current).__call__)
+            )
+        ):
+            raise TypeError("lifecycle owner must be synchronous and return None")
+        owner_failure = None
+
+        def guard():
+            nonlocal owner_failure
+            if owner_failure is not None:
+                raise owner_failure
+            if require_current is not None:
+                try:
+                    returned = require_current()
+                    if returned is not None:
+                        if inspect.iscoroutine(returned) or inspect.isgenerator(
+                            returned
+                        ):
+                            returned.close()
+                        raise TypeError(
+                            "lifecycle owner must be synchronous and return None"
+                        )
+                except BaseException as exc:
+                    owner_failure = exc
+                    raise
+
+        def advance(operation, *values):
+            guard()
+            try:
+                return operation(*values)
+            finally:
+                guard()
+
+        guard()
         steps = self._run_complete_node_steps(*args, **kwargs)
         try:
-            step = next(steps)
+            step = advance(next, steps)
             while True:
                 try:
-                    value = self._run_step(step)
+                    value = (
+                        self._run_owned_step(step, guard)
+                        if require_current is not None
+                        else self._run_step(step)
+                    )
                 except Exception as exc:
-                    step = steps.throw(exc)
+                    # Loss of the operation owner is terminal, including when a
+                    # stage caught its error. Never feed it into model repair.
+                    guard()
+                    step = advance(steps.throw, exc)
                 else:
-                    step = steps.send(value)
+                    step = advance(steps.send, value)
         except StopIteration as completed:
-            return completed.value
+            result = completed.value
+        finally:
+            steps.close()
+        guard()
+        return result
+
+    def _run_owned_step(self, step, require_current):
+        def guard():
+            require_current()
+            if step.guard is not None:
+                step.guard()
+            require_current()
+
+        owned_step = replace(step, guard=guard)
+        require_current()
+        if step.reserve is None:
+            result = self._run_step(owned_step)
+        else:
+            while True:
+                require_current()
+                reservation = step.reserve()
+                if reservation is not None:
+                    # The common runner releases even if the closing admission
+                    # check fails before reservation.run().
+                    result = self._run_reserved_step(owned_step, reservation)
+                    break
+                require_current()
+                time.sleep(0.01)
+        require_current()
+        return result
 
     def _run_reserved_step(
         self, step: _LifecycleStep, reservation: ReservedLifecycleOperation
@@ -2929,6 +3622,32 @@ class StandardProjectLifecycleService:
     ]:
         """Run one candidate plus at most two exact, fresh replacement attempts."""
 
+        from .native_root_continuation import current_native_root_controller
+
+        controller = current_native_root_controller()
+        if (
+            controller is not None
+            and generation_plan.component_revision
+            == controller.scope.run_binding.root_revision
+        ):
+            generation, plan, result = yield from self._run_complete_node_once_steps(
+                execution_plan,
+                generation_plan,
+                prepared,
+                candidate,
+                source_cache_membership,
+                source_generation_resume,
+                provider_artifacts,
+                package_artifacts,
+                regenerate,
+                source_execution,
+                artifact_inputs,
+                execution_inputs,
+                accepted_build_providers,
+            )
+            controller.observe_node(prepared, generation, plan, result)
+            return generation, plan, result, prepared, None
+
         current = prepared
         attempts: list[CandidateAttempt] = []
         repair_request: CandidateRepairRequest | None = None
@@ -2936,21 +3655,33 @@ class StandardProjectLifecycleService:
             getattr(prepared.recipe, "identity", None), "prepared recipe identity"
         )
         for attempt_index in range(3):
-            generation, plan, result = yield from self._run_complete_node_once_steps(
-                execution_plan,
-                generation_plan,
-                current,
-                candidate if attempt_index == 0 else None,
-                source_cache_membership if attempt_index == 0 else None,
-                source_generation_resume if attempt_index == 0 else None,
-                provider_artifacts,
-                package_artifacts,
-                regenerate if attempt_index == 0 else True,
-                source_execution if attempt_index == 0 else None,
-                artifact_inputs,
-                execution_inputs,
-                accepted_build_providers,
-            )
+            origin = _GeneratedCandidateRejectionOrigin()
+            try:
+                (
+                    generation,
+                    plan,
+                    result,
+                ) = yield from self._run_complete_node_once_steps(
+                    execution_plan,
+                    generation_plan,
+                    current,
+                    candidate if attempt_index == 0 else None,
+                    source_cache_membership if attempt_index == 0 else None,
+                    source_generation_resume if attempt_index == 0 else None,
+                    provider_artifacts,
+                    package_artifacts,
+                    regenerate if attempt_index == 0 else True,
+                    source_execution if attempt_index == 0 else None,
+                    artifact_inputs,
+                    execution_inputs,
+                    accepted_build_providers,
+                    _native_rejection_sink=origin.record,
+                )
+                native_rejection = origin.matches_and_close(
+                    result.failure_evidence, result.source_output
+                )
+            finally:
+                origin.close()
             if (
                 result.failure_evidence is not None
                 and result.failure_evidence.phase is StandardNodeFailurePhase.DEPENDENCY
@@ -2965,6 +3696,13 @@ class StandardProjectLifecycleService:
                 if (
                     self.candidate_repair_port is None
                     or output.provenance.retained_source_identity is not None
+                    or (
+                        # A generic acceptance exception can have the same
+                        # public code; only this attempt's verifier return
+                        # establishes a native behavior rejection.
+                        failure.phase is StandardNodeFailurePhase.ACCEPT
+                        and not native_rejection
+                    )
                 ):
                     diagnostic = CandidateRepairDiagnostic(
                         result.component_revision,
@@ -3095,6 +3833,165 @@ class StandardProjectLifecycleService:
             )
         raise AssertionError("bounded repair loop must return")
 
+    def _run_node_sdk(self, admission, receipts, *args, source_lookup=None):
+        (
+            execution_plan,
+            generation_plan,
+            prepared,
+            candidate,
+            cached,
+            source_resume,
+            providers,
+            packages,
+            regenerate,
+            *tail,
+        ) = args
+
+        def run(invocation, guard):
+            if self.checkpoint_recorder is not None:
+                guard()
+                self.checkpoint_recorder.start_node_sdk_attempt(
+                    execution_plan, prepared, invocation
+                )
+                guard()
+            membership = cached
+            if (
+                membership is None
+                and candidate is None
+                and source_resume is None
+                and not regenerate
+                and source_lookup is not None
+            ):
+                guard()
+                membership = source_lookup(execution_plan, invocation.prepared)
+                guard()
+                if membership is not None and not isinstance(
+                    membership,
+                    (StandardSourceCacheMembership, StandardSourceAdmissionMembership),
+                ):
+                    raise TypeError("SDK cache lookup must return typed membership")
+            result = self._run_complete_node(
+                execution_plan,
+                generation_plan,
+                invocation.prepared,
+                candidate,
+                membership,
+                source_resume,
+                providers,
+                packages,
+                regenerate,
+                *tail,
+                require_current=guard,
+            )
+            return (
+                invocation,
+                result,
+                (
+                    None
+                    if (
+                        membership is None
+                        or regenerate
+                        or result[0].disposition
+                        is not SourceGenerationDisposition.REUSED
+                    )
+                    else membership.identity
+                ),
+            )
+
+        return self._with_node_sdk(
+            admission,
+            execution_plan,
+            prepared,
+            receipts,
+            run,
+        )
+
+    def _finalize_root_package(
+        self,
+        component_lock,
+        execution_plan,
+        project_plan,
+        ordered,
+        *,
+        require_current=None,
+    ):
+        return self._integrate_project_root(
+            component_lock,
+            execution_plan,
+            project_plan,
+            ordered,
+            require_current=require_current,
+        )
+
+    def _publish_node_sdk(
+        self,
+        admission,
+        execution_plan,
+        prepared,
+        receipts,
+        expected,
+        candidate,
+        publish,
+    ):
+        return self._with_accepted_node_sdk(
+            admission,
+            execution_plan,
+            prepared,
+            receipts,
+            expected,
+            candidate,
+            lambda _guard: publish(),
+            action="publication",
+        )
+
+    def _with_accepted_node_sdk(
+        self,
+        admission,
+        execution_plan,
+        prepared,
+        receipts,
+        expected,
+        candidate,
+        operation,
+        *,
+        action,
+    ):
+        def run(invocation, guard):
+            guard()
+            if candidate.recipe_identity.uri != invocation.prepared.recipe.identity:
+                raise ValueError(f"SDK {action} differs from original recipe")
+            result = operation(guard)
+            guard()
+            return result
+
+        return self._with_node_sdk(
+            admission,
+            execution_plan,
+            prepared,
+            receipts,
+            run,
+            expected=expected,
+        )
+
+    def _with_node_sdk(
+        self,
+        admission,
+        execution_plan,
+        prepared,
+        receipts,
+        operation,
+        *,
+        expected=None,
+    ):
+        return run_node_sdk_lifecycle(
+            admission,
+            execution_plan,
+            prepared,
+            receipts,
+            operation,
+            expected=expected,
+        )
+
     @staticmethod
     def _source_generation_candidate(
         execution_plan,
@@ -3104,6 +4001,17 @@ class StandardProjectLifecycleService:
         source_generation_resume,
         regenerate,
     ):
+        if is_node_sdk(prepared) and not require_node_sdk_source(
+            execution_plan, prepared
+        ):
+            # Bound invocation records are DATA. The static/remote/resume path
+            # has no continuing provider+oracle+grant owner and cannot adopt one
+            # merely by restoring metadata or a historical cache membership.
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.node_sdk_generation_admission_required",
+                "Node SDK generation requires live bound-invocation admission "
+                "before source selection, cache reuse or model reservation",
+            )
         if source_cache_membership is None and candidate is not None:
             source_cache_membership = candidate.source_cache_membership
         if regenerate:
@@ -3189,6 +4097,11 @@ class StandardProjectLifecycleService:
         execution_inputs: _ExecutionInputResolver | None = None,
         accepted_build_providers: Callable[
             [], tuple[StandardComponentAcceptanceEvidence, ...]
+        ]
+        | None = None,
+        *,
+        _native_rejection_sink: Callable[
+            [StandardNodeFailureEvidence, SourceGenerationRunOutput], None
         ]
         | None = None,
     ) -> Generator[
@@ -3409,6 +4322,14 @@ class StandardProjectLifecycleService:
                     "standard_lifecycle.package_artifacts_mismatch",
                     "build intent does not bind every exact package artifact",
                 )
+            require_node_sdk_build_intent(
+                execution_plan,
+                prepared,
+                source_candidate,
+                provider_artifacts,
+                package_artifacts,
+                intent,
+            )
         except Exception as exc:
             return (
                 generation,
@@ -3569,6 +4490,7 @@ class StandardProjectLifecycleService:
                     ),
                     execution_inputs,
                     accepted_build_providers,
+                    _native_rejection_sink=_native_rejection_sink,
                 )
             ),
         )
@@ -3719,6 +4641,11 @@ class StandardProjectLifecycleService:
         execution_inputs: _ExecutionInputResolver | None = None,
         accepted_build_providers: Callable[
             [], tuple[StandardComponentAcceptanceEvidence, ...]
+        ]
+        | None = None,
+        *,
+        _native_rejection_sink: Callable[
+            [StandardNodeFailureEvidence, SourceGenerationRunOutput], None
         ]
         | None = None,
     ) -> Generator[_LifecycleStep, object, StandardNodeLifecycleResult]:
@@ -3927,10 +4854,52 @@ class StandardProjectLifecycleService:
                 source_admission_identity=source_admission_identity,
             )
         record_stage(StandardLifecycleStage.EXECUTE, execution)
+
+        def accept_candidate():
+            raw = self.acceptor.accept(plan, test, execution)
+            verifier = self.generated_candidate_verifier
+            if (
+                verifier is not None
+                and source_generation.disposition
+                is SourceGenerationDisposition.GENERATED
+                and source_output.provenance.retained_source_identity is None
+                and source_cache_membership is None
+                and not isinstance(self.acceptor, AdmittedComponentAcceptor)
+            ):
+                if not isinstance(raw, StandardComponentAcceptanceEvidence):
+                    raise StandardProjectLifecycleError(
+                        "standard_lifecycle.candidate_verification_evidence_missing",
+                        "native candidate verification requires strict stage evidence",
+                    )
+                from .native_root_continuation import current_native_root_controller
+
+                controller = current_native_root_controller()
+                failure = (
+                    verifier.verify(plan, source_output, raw)
+                    if controller is None
+                    else verifier.verify_native_root(
+                        plan, source_output, raw, source_generation, controller
+                    )
+                )
+                if failure is not None:
+                    if (
+                        not isinstance(failure, StandardNodeFailureEvidence)
+                        or failure.component_revision != plan.component_revision
+                        or failure.phase is not StandardNodeFailurePhase.ACCEPT
+                    ):
+                        raise StandardProjectLifecycleError(
+                            "standard_lifecycle.candidate_verification_failure_invalid",
+                            "native candidate rejection must bind its exact Component",
+                        )
+                    if _native_rejection_sink is not None:
+                        _native_rejection_sink(failure, source_output)
+                    raise _GeneratedCandidateRejected(failure)
+            return raw
+
         try:
             raw_acceptance = yield _LifecycleStep(
                 StandardLifecycleStage.ACCEPT,
-                lambda: self.acceptor.accept(plan, test, execution),
+                accept_candidate,
                 require_current_authorization,
                 reserve=(
                     lambda: self.acceptor.try_reserve_accept(plan, test, execution)
@@ -3969,7 +4938,9 @@ class StandardProjectLifecycleService:
                 source_generation,
                 source_output,
                 plan.identity,
-                _failure(
+                exc.failure
+                if isinstance(exc, _GeneratedCandidateRejected)
+                else _failure(
                     plan.component_revision,
                     StandardNodeFailurePhase.ACCEPT,
                     plan.identity,

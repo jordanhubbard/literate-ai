@@ -19,6 +19,7 @@ from literate_ai.contracts import (
     RepositoryParentReference,
     RepositoryParentSelection,
 )
+from literate_ai.projects import load_project
 from tests.support.fixtures_test_repository_lineage import identity
 
 
@@ -64,11 +65,13 @@ class ParentReadmeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / "project"
             initialize_root(root)
+            framework = load_project(root).framework_root
             self.assertIn(
-                "maintain-parent-readme/SKILL.md", (root / "SKILL.md").read_text()
+                "maintain-parent-readme/SKILL.md",
+                (framework / "SKILL.md").read_text(),
             )
             self.assertTrue(
-                (root / "skills/agent/maintain-parent-readme/SKILL.md").is_file()
+                (framework / "skills/agent/maintain-parent-readme/SKILL.md").is_file()
             )
             self.assertFalse(reconcile_parent_readme(root)["changed"])
             selection, _, _, lineage = fixture()

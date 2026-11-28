@@ -64,6 +64,39 @@ merely because a Python conditional can hide it.
    continues to remove only Literate AI's launcher and private Python environment; it
    does not remove shared prerequisites or independently authenticated provider state.
 
+### Native Python source-build prerequisites
+
+A tuple can require native SDKs when the Python distribution closure has no
+compatible binary wheel. These are physical build prerequisites of selected
+logical capabilities, rather than new universal capabilities or changes to a
+Component's selected Flavors. The first use is the native Windows ARM64 build of
+the pinned `cryptography` distribution.
+
+A tuple component with realization kind `native-build-prerequisite` names its
+`for-capabilities` logical owners and `requires-capabilities` build tools. Each
+reference resolves to its existing Flavor-owned contract. The stage-zero parser
+keeps the selected base unchanged and computes a separate finite build closure.
+`build-minimum-versions` can strengthen a tool's minimum for this operation while
+preserving its original logical contract and upper bounds. Unknown owners, probe
+identifiers colliding with logical capabilities, and escaping SDK member paths
+refuse. These requirements remain subject to the existing package-manager query,
+consent, installation and re-probe boundary.
+
+The SDK declaration records its executable's relative position, required runtime
+and development files, and build environment templates. A version string cannot
+replace complete files or the existing native ARM64 image checks. SDK variables
+resolve from the actual observed executable's root, are rechecked before use,
+and refuse a conflicting operator environment, including native target-prefixed
+OpenSSL settings that would otherwise take priority. The initial supported variable
+set is the OpenSSL build configuration; additional SDK environment support needs
+its own implementation and controls. SDK directory templates require exactly one
+observed root and a contained relative suffix; foreign literal roots and parent
+traversal refuse before installation. No provider credentials are changed.
+
+Metadata controls are development evidence. Native installation, source-built
+dependency import, native compiler execution and the ordinary installed-host
+acceptance remain required before platform qualification.
+
 ### Classification
 
 - **Invariant:** one logical owner per capability; deterministic harmless duplicate

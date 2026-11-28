@@ -42,6 +42,7 @@ from literate_ai.contracts import (
     RepositoryParentSelection,
     parse_standard_command_profile,
 )
+from literate_ai.projects import ProjectConfigurationStore
 from tests.conformance.support.sample_runner import _matrix_languages
 from tests.support.fixtures_test_schema_catalog import SchemaCatalog
 from tests.support.fixtures_test_standard_command_projection import (
@@ -67,7 +68,7 @@ class ElixirCatalogTests(unittest.TestCase):
                 "literate_ai.adapters.standard_project.PortableHostDependencyObserver"
             ) as observer,
         ):
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             bindings = tuple(
                 (str(root / name), f"sha256:{index:064x}")
                 for index, name in enumerate(paths)
@@ -174,7 +175,7 @@ class ElixirCatalogTests(unittest.TestCase):
         self.assertEqual(parse_standard_command_profile(profile).target, "mix")
         SchemaCatalog().validate(profile["schema"], profile)
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             target = root / "initialized"
             initialize_project(
                 target,
@@ -183,6 +184,8 @@ class ElixirCatalogTests(unittest.TestCase):
                 empty=True,
                 flavor_selectors=("+elixir", "+linux", "+mix"),
             )
+            context = ProjectConfigurationStore.context(target)
+            self.assertEqual(context.framework_root, target / "litai")
             for relative in (
                 "flavors/build-mix",
                 "skills/specification-to-source/mix-build-system",
@@ -196,7 +199,8 @@ class ElixirCatalogTests(unittest.TestCase):
                             path.read_bytes(), (template / name).read_bytes()
                         )
                         self.assertEqual(
-                            path.read_bytes(), (target / relative / name).read_bytes()
+                            path.read_bytes(),
+                            (context.framework_path(relative) / name).read_bytes(),
                         )
             component, snapshot, _ = _locked_snapshot(
                 root / "locked",
@@ -219,7 +223,7 @@ class ElixirCatalogTests(unittest.TestCase):
 
     def test_init_and_add_install_skill_and_preserve_language_conflicts(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             for language in ("elixir", "python"):
                 target = root / language
                 initialize_project(
@@ -234,13 +238,16 @@ class ElixirCatalogTests(unittest.TestCase):
                         add_flavor_to_project(target, "elixir")
                     self.assertEqual(caught.exception.code, "flavor.add_conflict")
                     add_flavor_to_project(target, "elixir", set_default=False)
+                context = ProjectConfigurationStore.context(target)
+                self.assertEqual(context.framework_root, target / "litai")
                 self.assertTrue(
-                    (target / "flavors/lang-elixir/toolchain.json").is_file()
+                    context.framework_path(
+                        "flavors/lang-elixir/toolchain.json"
+                    ).is_file()
                 )
                 self.assertTrue(
                     (
-                        target
-                        / "skills/specification-to-source"
+                        context.framework_path("skills/specification-to-source")
                         / "elixir-portable-application/SKILL.md"
                     ).is_file()
                 )
@@ -260,7 +267,7 @@ class ElixirCatalogTests(unittest.TestCase):
                     tempfile.TemporaryDirectory() as temporary,
                 ):
                     _, snapshot, execution = _locked_snapshot(
-                        Path(temporary),
+                        Path(temporary).resolve(),
                         language="elixir",
                         platform=platform,
                         build_system=build_system,
@@ -289,7 +296,7 @@ class ElixirToolchainTests(unittest.TestCase):
     def test_native_images_are_selected_by_role_not_position(self):
         names = ("Kernel.beam", "sh", "elixir", "json.beam", "beam.smp", "JSON.beam")
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             bindings = tuple((str(root / name), "sha256:" + "0" * 64) for name in names)
             tool = ElixirToolchain(
                 (str(root / "elixir"),), "1.18.0", (1, 18, 0), "27", bindings
@@ -313,7 +320,7 @@ class ElixirToolchainTests(unittest.TestCase):
         from literate_ai.adapters.builders.elixir import _shebang_interpreters
 
         with tempfile.TemporaryDirectory() as temporary:
-            launcher = Path(temporary) / "elixir"
+            launcher = Path(temporary).resolve() / "elixir"
             for content, expected in (
                 (b"#!/bin/sh\nexec erl\n", (Path("/bin/sh"),)),
                 (b"#!/bin/sh\r\nexec erl\r\n", (Path("/bin/sh"),)),
@@ -356,7 +363,7 @@ class ElixirToolchainTests(unittest.TestCase):
         from literate_ai.adapters.builders import elixir as module
 
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             bat = root / "elixir/bin/elixir.bat"
             bat.parent.mkdir(parents=True)
             bat.write_bytes(b"@echo off")
@@ -403,7 +410,7 @@ class ElixirToolchainTests(unittest.TestCase):
 
     def test_version_constraints_and_core_bytes_are_bound(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             vm = root / "erts-15.2/bin/beam.smp"
             vm.parent.mkdir(parents=True)
             vm.write_bytes(b"vm")
@@ -466,7 +473,7 @@ class ElixirBuildTests(unittest.TestCase):
         self,
     ):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             source = root / "candidate"
             (source / "source/tests").mkdir(parents=True)
             for relative in (
@@ -537,7 +544,7 @@ class ElixirBuildTests(unittest.TestCase):
 
     def test_service_process_owns_the_packaged_elixir_entrypoint(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             entry = root / "source/main.exs"
             entry.parent.mkdir()
             entry.write_text("nil\n")
@@ -563,7 +570,7 @@ class ElixirBuildTests(unittest.TestCase):
     def test_native_runtime_runs_after_generation_workspace_is_removed(self):
         tool = discover_elixir_toolchain()
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             source = root / "candidate"
             entry = source / "source/main.exs"
             entry.parent.mkdir(parents=True)

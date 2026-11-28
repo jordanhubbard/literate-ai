@@ -1,0 +1,93 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Internal refined Component command preparation and complete planning-only read-back; public execution is still absent",
+  "base_commit": "f9857e8875365902f831984d446cbcf4db80be41",
+  "source_files": {
+    "src/literate_ai/adapters/monorepo_adoption.py": "d026224dad6bed7185880d111621db85776023f1e169384fbec300d91d7df7e5",
+    "src/literate_ai/adapters/monorepo_components.py": "5eb7c63a6dc0bbd60439945768272e0933eb377ada7eb5820512be51325f6ed3",
+    "src/literate_ai/adapters/retained_component_commands.py": "7e3b8e72e0712b8c3f718898d37280e075d929bcd7ecb7260e5ee444bfa60068",
+    "tests/e2e/test_retained_component_commands.py": "eb824311f08f46bf4c04ef440b087cf3697f169b006ca52171fecca9136f1d4c"
+  },
+  "original_public_failure": {
+    "error": "retained_harness.command_owner_invalid",
+    "exit_code": 2,
+    "project_bytes_unchanged": true,
+    "scope": "Current public source CLI against a private copy of the actual installed native-initial refinement",
+    "receipt_sha256": "8c5bd4dd7a6ab63ddeaac6afc07cb81fe9f0b3065deaa4315fc05a35e950f3c1"
+  },
+  "development_test_failures_retained": [
+    {
+      "log_sha256": "b05851e902641510960a91a73879a405a1678c820c3aa1744a969aa13af63de1",
+      "cause": "New test searched for a code in an exception message; corrected to inspect the exact code attribute."
+    },
+    {
+      "log_sha256": "7d2d9b2435caa0a690df859fe536034eb1451c4e505eae89b17f1f1dcb447eb3",
+      "cause": "Malformed-owner fixture omitted the existing mandatory canonical terminal newline; canonical parser correctly refused before the intended owner-type assertion. Fixture corrected; parser unchanged."
+    }
+  ],
+  "current_report_union": {
+    "distinct_passed": 61,
+    "failed": 0,
+    "skipped": 0,
+    "reports": [
+      {
+        "cohort": "closed",
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "sha256": "5c71d8d521c21e82d43ba2b78e8a5f8f097d93605781f5f9686c68e361ae5cf3"
+      },
+      {
+        "cohort": "existing",
+        "summary": {
+          "executed": 11,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 11,
+          "skipped": 0
+        },
+        "sha256": "5b0563bdbbf28b0f5552fc73569452448a19a2f9de260a3884366d3420a524fe"
+      },
+      {
+        "cohort": "commands",
+        "summary": {
+          "executed": 41,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 41,
+          "selected": 41,
+          "skipped": 0
+        },
+        "sha256": "d8eaf483d2b0b04bad2758794bdcae27288285f8f43342c6da8aa0726c5eb366"
+      }
+    ]
+  },
+  "behavior": {
+    "validator": "One shared complete adoption validator; existing file-backed selection still closes its bounded original reader after planning",
+    "preservation": "Partial command overrides retain every other admitted phase, owner and shared assignment; replacement retains existing phase order",
+    "refusals": "Unknown/moved/duplicate/nonretained owners, duplicate/empty/foreign phases, ownership transfer and foreign evidence refuse",
+    "currentness": "Original metadata and receipt identities, request native facts and complete source facts close before returning a plan; late edits survive refusal",
+    "readback": "Canonical bounded complete regeneration and exact review identity; self-rehashed nested grants refuse",
+    "receipt_boundary": "Class fixture genuinely executes both original stdlib unit-test harnesses through the existing retained owner; planning itself earns no new test or compilation evidence",
+    "metadata_bounds": "Existing default pinned per-file/total limits and an early default file-count bound; no global limit enlarged. Application-specific policy composition remains an outer readmission integration obligation.",
+    "plan_schema": "literate-ai/retained-component-command-planning@1",
+    "apply_supported": false,
+    "execution_performed": false,
+    "compilation_coverage": "unknown"
+  },
+  "remaining": [
+    "Implement actual refined execution through existing staging, receipt and readmission publication owners",
+    "Add distinct executable outer plan/read-back without reinterpreting saved planning or v1/v2/v3 records",
+    "Compose current project authority, component locks, per-project limits and worker/deadline bindings",
+    "Preserve old receipts and foreign nodes through late failure and interruption; actual public native and installed journeys",
+    "Modern contained contexts, independent review and complete integrated release qualification"
+  ],
+  "release_evidence": false,
+  "qualified": false
+}

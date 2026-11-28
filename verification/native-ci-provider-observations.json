@@ -1,0 +1,49 @@
+{
+  "schema": "literate-ai/provider-observation@1",
+  "state": "observed-historical-provider-metadata-not-hosted-native-adoption-qualification",
+  "reviewer": "sdlc_review",
+  "review_identity": "sha256:92ec2c34c1a0551c36b4cf2fadc723376491d33bdb7d346a8f2b3650d87502a3",
+  "supersedes": [
+    "The partial-retry limitations in native-ci-development.json and native-ci-review.json; their original source-review evidence is retained."
+  ],
+  "runs": [
+    {
+      "run_id": 42474316001,
+      "attempt": 2,
+      "head": "204db3782506d28e1c4ed38426c5def2d5ac699b"
+    },
+    {
+      "run_id": 42472364032,
+      "attempt": 2,
+      "head": "e4351964cdcbdf96a36786da27523f345c3a20b3"
+    }
+  ],
+  "observations": {
+    "direct_provider_reads": 12,
+    "successful_executions_carried_as_current_attempt_rows": 16,
+    "job_identity": "New IDs/current attempt, with the earlier execution intervals and steps retained.",
+    "current_collector": {
+      "run_id": 42474316001,
+      "validated_history_rows": 26,
+      "seconds": 4.987,
+      "fresh_success_job_id": 128732942923,
+      "carried_success_job_id": 128732944107
+    }
+  },
+  "conclusion": "The unchanged collector accepts successful provider-confirmed current-attempt copies. Older-only and unconfirmed required jobs remain incomplete; no relaxation of run/attempt checks is needed.",
+  "artifact_observation": {
+    "artifact_id": 14298408131,
+    "run_id": 44011402262,
+    "head": "af4ab36e03b0784d7758b5599f16fb79ff28fbb2",
+    "bytes": 210056,
+    "provider_and_downloaded_sha256": "f42ddf6f1154ea16774be30056b95bf314270c55bc5e0f31260573f174545fd2",
+    "attempt_field_present": false,
+    "scope": "Diagnostic timing archive only. Digest matches prove archive integrity, not platform coverage or tested-binary identity."
+  },
+  "limits": [
+    "Historical pull_requests associations are now empty; this is not the complete public verifier against an adopted hosted PR.",
+    "No workflow was dispatched or rerun by this observation.",
+    "No source, acceptance, release or publication authority is added."
+  ],
+  "release_qualification": false
+}

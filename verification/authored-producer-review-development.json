@@ -1,0 +1,58 @@
+{
+  "schema": "literate-ai/development-qualification@1",
+  "requirement": "AUTHORED-GRAPH-QUALIFICATION-001 / accepted ADR 0072",
+  "status": "passive independently reviewed producer intent and original sixth-file pin only; live model-free receiving incomplete",
+  "platform": {
+    "system": "Linux",
+    "machine": "aarch64"
+  },
+  "source_sha256": {
+    "src/literate_ai/contracts/authored_retained_cargo_review.py": "64df433f80bcd11b8a492c106aa19140fe65a83906b652444b479d3af9942053",
+    "src/literate_ai/adapters/authored_retained_cargo_review.py": "8e941d0487aa165588d8a51d79418da1e17a1ed12468c536e63537c42996e993",
+    "tests/critical/test_authored_retained_producer_review.py": "6690f6f33e171c49016fdea8bc4c76956b091be096453792ef7c7393056cabb5"
+  },
+  "command": "make python-check PYTHON_TEST_WORKERS=1 PYTHON_TEST_START_DIRECTORY=tests/critical PYTHON_TEST_PATTERN=test_authored_retained*review.py",
+  "summary": {
+    "executed": 14,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 14,
+    "selected": 14,
+    "skipped": 0
+  },
+  "report_sha256": "c261a41827eae359a1fc430879604fbc46bab688a7a99557216ec6428dc36627",
+  "release_evidence": false,
+  "qualified": [
+    "Exact importer/full binding/logical store/published reference/historical plan identity and origin joins",
+    "Original five-document preimage retained when optional independent review is absent",
+    "Sixth document shares original context, disjoint paths, finite file and aggregate budgets, canonical duplicate-field parsing and independent BlobRef size/digest checks",
+    "Changed bytes and symlink redirection refuse; safe equal-byte regular replacement retains original DATA identity",
+    "Original six reviewed-file controls unchanged and passing"
+  ],
+  "preserved_initial_failure": {
+    "report_sha256": "a813f7ade2b56a28076128c5f3ff6eb10f16c39a6fd020a08f31de7bdef953d2",
+    "summary": {
+      "executed": 7,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 6,
+      "selected": 8,
+      "skipped": 0
+    },
+    "cause": "New test incorrectly assumed original-inode custody; original PinnedInputClosure documents exact DATA through fresh safe regular-file reopen",
+    "correction": "Only the new test changed to preserve exact DATA identity for safe equal-byte replacement and reject symlink redirection; production pin owner and every original assertion unchanged"
+  },
+  "required_next": [
+    "Factory must perform original reviewed-file read from independent operator paths and BlobRefs, then retain original returned owner/review pointers and captured identity behind private issuance",
+    "Verify every actual current SDK/tool/oracle/review/driver/provider/plan/reference and all-run join without coding model selection or execution",
+    "Thread the same reviewed identity through receiving, receipt and closing refresh; reject replaced passive objects as issuance",
+    "Extend only exact read-only replay/receiving seams; original generation/execution/writable publication owners, native projection formats and deadlines remain",
+    "Qualify complete ordinary public check/materialize/admit, genuine installed/native/provider and source retirement requirements"
+  ],
+  "limits": [
+    "No CLI route exposed or live owner/type seam widened by this passive stage",
+    "Typed decoded DATA, including dataclasses.replace copies, grants no reader issuance, current provider, importer or execution authority",
+    "Planning inputs in these tests use explicit review/framework/model fixture ports",
+    "No genuine provider, native SDK, installed candidate, complete source or release acceptance"
+  ]
+}

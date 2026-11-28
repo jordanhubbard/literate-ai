@@ -1,0 +1,79 @@
+{
+  "schema": "literate-ai/independent-cache-runtime-owner-repair-design@1",
+  "status": "Concrete minimal owner recommendation; no source implementation or tracker post",
+  "code_evidence": {
+    "cache_manifest": "generated_source.py:411-425 stores mode,suite,stages,routes,environmentkeys,intelligencestatus/reason; no command or command_identity",
+    "cache_hit": "generated_source.py:543 reconstructs command using currentroot/currentrecipemodel; command_identity freshly canonicalizes returnedtuple at562",
+    "fresh_generation": "coding_cli.py:3579 owns _coding_cli_runtime_state through realchild; command metadata returned after its private state retires",
+    "runtime_owner": "coding_cli.py:4655 onlytempdir/state/log mkdir forCodex, outsideworkspace, contextmanager cleanup; nonCodex yieldsNone; no child/modelrequest",
+    "consumers": "source_generation._record binds request/plan/stages/routes/suite/SBOM/model/tool/tree; commandidentity notcachekey. sample_runner validates nonemptyselectedexecutable and exacthashofreturnedcommand; it doesnotrequirehitcommand equaloldspentargv."
+  },
+  "decision": {
+    "recommended": "Legitimate fresh _coding_cli_runtime_state scope solely around reconstruction of prospective current invocation metadata; pass actual ownedstate into delegate._command. Retain current_environment_keys derivation and selection.require_unchanged plus all normalvalidation.",
+    "not_recommended": "Recorded old command reuse: no originalargv stored today; would requirecacheformat/schema/validation/compatibility changes, retainstaleoldworkspace/privatepaths, and changesexisting prospective metadata meaning. Do not fabricate historicalexecution evidence.",
+    "truthfulness": "Document that cache hit reconstructs current invocation metadata and launches no child. Fresh metadata command includes an owned, subsequently retired runtime path; returned freshgeneration likewise already contains retired runtime paths afterchildcompletion. Do not present metadata construction as process execution.",
+    "scope": "No model orrequest generation,CLI probe,_run_bounded,version query,new key/schema/pin/policy/receipt semantics or validation weakening. Preserve outputroot guards and sourcecache nonauthority."
+  },
+  "meaningful_regressions": [
+    "Real accepted Codex firstchild then secondfreshworkspace cachehit succeeds with child executions exactly1 and unchanged original plannedcachekey/recipe/request/tree/provenance assertions",
+    "Wrap original _command to assert realruntime/state/log exist outside freshoutput while called and no runtimefiles contaminate generatedtree; capturedruntime absent afterreturn",
+    "Exception while constructing metadata retires original private state and doesnotinvokechild",
+    "NonCodex _command behavior remains compatible; exact originalchangedrecipe/missingartifact/sourceSBOM/tests/currentselection guards retained",
+    "Portable actualchildfixture exercises shared cacheowner without depending exclusively on Darwin skip"
+  ],
+  "macos_fixture_sites": {
+    "failed_jobs": [
+      140501673310,
+      140501673351,
+      140501673378
+    ],
+    "distinct_source_owners": 2,
+    "documentation": "tests/critical/test_documentation_update.py:38 project(root): normalize only ownedroot via root.resolve(strict=True) beforefixturewrites/load_project. All3callers95/119/160 use ownedTemporaryDirectory and retain same semantic assertions. TwoCIversions fail same119firstcase.",
+    "release_first_failure": "tests/critical/test_release_atomic_writer.py:284 fixture.initialize(Path(directory)): supply Path(directory).resolve(strict=True), preserving alloriginalbranch/HEAD/writeassertions.",
+    "same_owner_adjacent_raw_callers": [
+      "test_release_atomic_writer.py:189",
+      "test_release_atomic_writer.py:228",
+      "test_release_atomic_writer.py:264"
+    ],
+    "existing_correct_examples": [
+      "test_release_atomic_writer.py:142",
+      "test_release_atomic_writer.py:160"
+    ],
+    "guard_constraint": "No production alias/symlink/no-follow relaxation, no ambientTMPDIR/HOME workaround or originalassertion/deadline changes. This is3failedjobs,not3distinctsourceowners."
+  },
+  "tracker": {
+    "queries_evidence": [
+      "review-runtime-cache-runtime-tracker-search-r1.json",
+      "review-runtime-cache-runtime-tracker-search-r2.json"
+    ],
+    "no_specific_existing_issue_found": true,
+    "related_distinct_issues": [
+      {
+        "number": 412,
+        "reason": "remoteplugin catalog/fileceiling; not cachehit private runtime construction"
+      },
+      {
+        "number": 422,
+        "reason": "runtime capability variables; separate owner/path"
+      }
+    ],
+    "unposted_issue_draft": {
+      "title": "Restore Codex generated-source cache hits under the original private runtime owner",
+      "body": "A valid accepted Codex generated-source cache hit fails before returning its materialized candidate because cache replay reconstructs command metadata without the private runtime owner required by Codex.\n\nObserved in macOS Python3.11 and3.14 CI jobs140501673294/140501673348 on run45997696262 (PRheaddf6a725e1, actualtestedmerged8b28048). The shared cache owner is platform-neutral: generated_source._load calls delegate._command(root,model); _codex_runtime_arguments(None) raises coding_cli.runtime_state_missing. The first actual authored child and accepted publication succeed; replay must keep executions==1 and original planned candidate/provenance identities.\n\nThe v1 cache manifest does not store original spent command/command_identity. Replay has always reconstructed current output-root/model invocation metadata. Restore the original ownership requirement while constructing that metadata: use the existing bounded _coding_cli_runtime_state owner, pass its actual runtime_state to _command, and retire it on success/failure. This metadata-only scope must not probe or launch a CLI, call generate, request a model, change recipe/model/tool/cache/request pins, or skip suite/SBOM/source-intelligence/current-selection validation. Do not weaken the runtime_state guard or reuse invented/stale original-command bytes.\n\nAcceptance: preserve the original authored cache replay test and all candidate/tree/request/tool identities and child-count assertion; prove the private state exists only during metadata construction, stays outside generated outputs, and is removed on normal/exceptional exit. Cover a real acceptedcache hit, selectednonCodex path compatibility, changedrecipe refusal, and all original cache guards. Use a portable executable fixture so shared owner coverage is not restricted to Darwin.\n\nSeparate macOS lexical TemporaryDirectory alias fixtures and native deadline failures are not part of this source defect. No full release/native-model acceptance claimed."
+    }
+  },
+  "source_sha256": {
+    "src/literate_ai/adapters/cache/generated_source.py": "860630fb0eb238e42f0c2fcd638131915805b75add34845a5f0af9b6aca2a57e",
+    "src/literate_ai/adapters/models/coding_cli.py": "45d8ee5ee2c63da57e3f49041fcd3a1fe26a6e73003f7093a7fae4bf7e219d3e",
+    "src/literate_ai/adapters/source_generation.py": "54577ba2402f60831fcd26817017ca6c5e93ebcf87dbcd16d0fb93227e6a947a",
+    "tests/conformance/support/sample_runner.py": "1147f1d0c10a8ec0b2549de1ee2bf6f5353b97cacc2fe9ec41acf05881da960c",
+    "tests/smoke/test_authored_coding_cli.py": "f7301ec7ee77c1031fbeb0dd7aee61f05dfc3035e4b4412663386ce2d5b7e3e3",
+    "tests/critical/test_documentation_update.py": "b070d0e610278eb383b8fdcaf6a443b5dc7ee2849bd7c35fceefa26babda62f2",
+    "tests/critical/test_release_atomic_writer.py": "7478d230b59cfc2f8ef876fe2747a312f958df0f525d88491f649134806c1935"
+  },
+  "limits": [
+    "Read-only source/tracker design; no code edits,reproductionreruns,posts or new historical mutations.",
+    "Tracker search is bounded8queries; no direct matching issue found, not an assertion everyissuewas exhaustivelyreviewed.",
+    "Historical catalogfinalization and fullreleasequalification remain root-owned separate workflows."
+  ]
+}

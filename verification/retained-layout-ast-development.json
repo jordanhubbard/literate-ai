@@ -1,0 +1,234 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Versioned initializer helper AST fingerprints on four native CPython syntax parsers; managed3.14 local source integration,not full cross-runtime or installed framework qualification",
+  "base_revision": "2b43367991942671646fc62ecf0463793da21132",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_ast.py": {
+      "algorithm": "sha256",
+      "digest": "137820464e0babaaa7923bdeb9d55d8dccb443e35a5b9ca7fa80ca223a5653b7"
+    },
+    "src/literate_ai/adapters/retained_layout_provider.py": {
+      "algorithm": "sha256",
+      "digest": "3375f6bae883c62c601f9211c67b00dcb8fb60f655a9eb00b03f5594698023df"
+    },
+    "tests/critical/test_retained_layout_ast.py": {
+      "algorithm": "sha256",
+      "digest": "66db21f2dbe2355a16b708345fb74ef17bfb44635f6d8dce96aa2dc2a3b49044"
+    },
+    "tests/support/fixtures_initializer_ast.py": {
+      "algorithm": "sha256",
+      "digest": "c047c33758afcad74a9d93e23ffa41d3ada83ef2ac7ccd66dc1edf70635bb6c5"
+    },
+    "tests/support/probe_initializer_ast.py": {
+      "algorithm": "sha256",
+      "digest": "416ad1e8e798f79d2833f2d96cdda6bf9e323f460a10be9cca396acee84ee414"
+    },
+    "tests/fixtures/retained_layout/initializer-helper-profile.json": {
+      "algorithm": "sha256",
+      "digest": "1a31d8c484523fd61db2a60570d2026de3be92971a668cc334bd6da8973f8689"
+    }
+  },
+  "behaviors": [
+    "Encode node kinds/nonempty fields,statement order and typed literals in deterministic versioned JSON;omit source positions and absent/empty optional defaults. Preserve literal None distinctly from absent optional fields.",
+    "Represent bytes,float,complex and ellipsis with explicit stable tags;reject unsupported constant payloads instead of repr fallback. Parse data only;never compile/execute historical code.",
+    "Replace only the persisted helper fingerprints. Retain same5reviewed old/current transitions and native-parser whole-module comparison;all Git/input/namespace/budget/currentness/effect guards stay in force.",
+    "Assert former14dump fingerprints exactly match actual original/current helper nodes before regeneration;independent review binds frozen old text to actual37991Git source and prior2bprofile,with no new producer syntax admitted."
+  ],
+  "native_probes": [
+    {
+      "python": "3.11.14",
+      "implementation": "cpython",
+      "current_exit_code": 0,
+      "current_exact_pairs": 5,
+      "current_log_identity": {
+        "algorithm": "sha256",
+        "digest": "a48e33fae6804fbf2e0097eb876ab7d2881195f48e2b54832e74bf4f91b1b803"
+      },
+      "legacy_exact_pairs_accepted": false,
+      "legacy_log_identity": {
+        "algorithm": "sha256",
+        "digest": "aba027bd7288eeafb8d68223afe3fefe590790c35cd924b3f0df9d9fb99875a9"
+      }
+    },
+    {
+      "python": "3.12.16",
+      "implementation": "cpython",
+      "current_exit_code": 0,
+      "current_exact_pairs": 5,
+      "current_log_identity": {
+        "algorithm": "sha256",
+        "digest": "3a8d75ce8fab1888456ddb94f0aea2118e484221016b66d0128a9ffa2b54d0a8"
+      },
+      "legacy_exact_pairs_accepted": false,
+      "legacy_log_identity": {
+        "algorithm": "sha256",
+        "digest": "9e3f455c3fe28a11ba4506967f1a51129c5ce2f2da0c168eb100cbfef30f461d"
+      }
+    },
+    {
+      "python": "3.13.18",
+      "implementation": "cpython",
+      "current_exit_code": 0,
+      "current_exact_pairs": 5,
+      "current_log_identity": {
+        "algorithm": "sha256",
+        "digest": "967e575fe554d8e088f7534c33cd1476127bbe09ebe8498d5d9202dada8432df"
+      },
+      "legacy_exact_pairs_accepted": true,
+      "legacy_log_identity": {
+        "algorithm": "sha256",
+        "digest": "be42e67ef668b6679ccef339c4b26991713bfc7e246c8ff0d5b187623fb26da4"
+      }
+    },
+    {
+      "python": "3.14.7",
+      "implementation": "cpython",
+      "current_exit_code": 0,
+      "current_exact_pairs": 5,
+      "current_log_identity": {
+        "algorithm": "sha256",
+        "digest": "8ce98c2fa8061089eb91efea3c27d2be134588f63d1a5f514bda20dedbf417ab"
+      },
+      "legacy_exact_pairs_accepted": true,
+      "legacy_log_identity": {
+        "algorithm": "sha256",
+        "digest": "566547e4c3db1500569fa26746ba92dd0688f699fbbda7aa2e2b8d1bd161bcf5"
+      }
+    }
+  ],
+  "reviewed_pairs": {
+    "_atomic_replace": [
+      "fa7d3a8ff78202115c3a73941760a3993b28e4729925650a6162ba02621f4176",
+      "bf35a9eda50c6f1fc60cbde970de8443306e37a22546a6c6806eea6e64f406d1"
+    ],
+    "_record_authority_review": [
+      "1f8e150ea3154ee6bef60393d0eff05b38332c653885fd71fe18364de7ab5b31",
+      "e4af97fdba51837d8f6e88ebafa25e14f0ce3aecc86b08482fed7dc9407b7f16"
+    ],
+    "prepare_native_rewrite_program": [
+      "14e1b47fad68c75c4c2f6d4477271fb042ac4355e24dc329ff63eddd11d14470",
+      "0daa476af5335b0f5ba5cb1c8ab131fa47f99cc9807e01b819acaeb2276bb9f0"
+    ],
+    "record_authority_review": [
+      "c6965bf989fdfdbabe170e7868f5cf1214d81b43f89737fcc170e2a71c4e8045",
+      "544676dc1435c88a364e63ef1d16505f5e38a841a70807716ab43a883cfc2f71"
+    ],
+    "record_project_authority_review": [
+      "411504527dc140ff33e63c0c8c888464aadf950ff6c515083d348426121072dd",
+      "de80b293e659fd69a798644948a7b13a352017398a92422729d10bde23d98ec5"
+    ]
+  },
+  "native_probe_scope": "Existing installed native interpreters,standard-library syntax/data probes only;not an isolated package installation or complete framework test matrix.",
+  "legacy_probe_source_identity": {
+    "algorithm": "sha256",
+    "digest": "f4c3cf2d32e0b4f604b6fcb2ee911ef7032984b8fbc5890cd61834e78bd5280a"
+  },
+  "legacy_baseline_source_sha256": "0419077679e42b19cb32d19fe619fe8fe23e8088d7bf66a3b00ebba7bc58ced6",
+  "focused_suite": {
+    "selected": 6,
+    "passed": 6,
+    "skipped": 0,
+    "seconds": 0.051,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "b348dfc8f6ceb8d0e2ce0a06558617bf01aecd9f239c6bb037bac420c31e215b"
+    }
+  },
+  "make_python_check": {
+    "scope": "Scopedsingle6method codec cohort in owningMakeenv;includes compileall and host path policy;no full-source claim",
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "0e13e1d54d200f699ed221688570b38e374bfc06401f4fb5236da0429786bc27"
+    },
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "d63b378c6a05e73d70b412e52072f5e6a537143d4f10ed93a47d56c78dd1caca"
+    }
+  },
+  "affected_suite": {
+    "selected": 88,
+    "passed": 88,
+    "skipped": 0,
+    "seconds": 180.715,
+    "exit_code": 0,
+    "modules": [
+      "tests.critical.test_retained_layout_ast",
+      "tests.critical.test_retained_layout_provider",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_reservations"
+    ],
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "20204b6da7a38750ab83a0eb29325c16bbbeb19b386853e04b85d5f7133bc064"
+    }
+  },
+  "independent_review": {
+    "decision": "approved_at_limited_scope",
+    "name": "independent-layout-ast-review.json",
+    "identity": {
+      "algorithm": "sha256",
+      "digest": "d2641812780f5e0b9a3a952d8bd4c3373b4b38153d72ef4b6c6319341649cf63"
+    },
+    "executed": [
+      {
+        "scope": "Codec",
+        "passed": 6,
+        "skipped": 0,
+        "seconds": 0.049
+      },
+      {
+        "scope": "Provider",
+        "passed": 18,
+        "skipped": 0,
+        "seconds": 139.362
+      },
+      {
+        "scope": "Actual original resource initialization/source move and forged endpoint refusal",
+        "passed": 2,
+        "skipped": 0,
+        "seconds": 35.143
+      }
+    ],
+    "native_probes": "Four exact current pair vectors pass;legacy11/12 failures and unchanged transition/provenance independently confirmed."
+  },
+  "checks": {
+    "driver_review": "pass",
+    "runner_review": "pass",
+    "lint": "pass",
+    "format": "pass",
+    "repository_layout": "pass",
+    "public_export": "pass",
+    "project_validation": "pass",
+    "static_log_identity": {
+      "algorithm": "sha256",
+      "digest": "0d9cc1fbbda8cf794234c81c21eac63639c98112100107368499ce23dd0bb825"
+    },
+    "project_validate_log_identity": {
+      "algorithm": "sha256",
+      "digest": "c834441f2ce5cfb92e7f16acf5f8a9992aaa87970aa42b3918da1d933b400cb8"
+    },
+    "verify": {
+      "exit_code": 1,
+      "result_ok": false,
+      "counts": {
+        "fail": 1,
+        "pass": 1,
+        "skipped": 3
+      },
+      "failure": "project.test_receipt_stale",
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+      },
+      "qualification": "No full-source/integration/main/release green claim."
+    }
+  },
+  "limits": [
+    "Only same5reviewed producer helper transitions;unsupported producer syntax/unsafe/missing inputs still refuse.",
+    "Native stdlib probes prove syntax identity only. Managed source tests use current3.14env;full package/runtime/installed/nativeWindows acceptance remains open.",
+    "Additional metadata/import/authored/monorepo owners,completeL1,root/shared/initial/wrapper/public relocation/recovery and full-program acceptance remain open.",
+    "Full-source receipt,consolidation,exact-main CI and release gates remain unproven;whole all pending roadmap items goal stays active."
+  ]
+}

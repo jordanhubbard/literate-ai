@@ -1,0 +1,782 @@
+"""Real accepted provider custody around SDK operation fixtures.
+
+The consumer plan is inert contract DATA. No generated SDK, selected public
+Flavor, actual model output or end-to-end lifecycle qualification is claimed.
+"""
+
+import gc
+import inspect
+import os
+import unittest
+from concurrent.futures import Future
+from contextlib import contextmanager
+from dataclasses import fields, replace
+from datetime import timedelta
+from unittest import mock
+
+from literate_ai.adapters.generation_preparation import (
+    LockedComponentNodePreparationAdapter,
+)
+from literate_ai.adapters.models import GenerationRecipe
+from literate_ai.adapters.models.coding_cli import RecipeLibraryDependency
+from literate_ai.adapters.node_sdk_admission import (
+    LocalNodeSDKGenerationAdmission,
+    NodeSDKAdmissionError,
+)
+from literate_ai.application.component_generation_context import (
+    PromptSegmentInput,
+    prepare_component_generation_context,
+)
+from literate_ai.application.component_generation_preparation import (
+    ComponentGenerationWorkspaceDescriptor,
+    PreparedComponentGenerationNode,
+)
+from literate_ai.application.standard_node_sdk_admission import require_node_sdk_source
+from literate_ai.application.standard_project_lifecycle import (
+    StandardProjectLifecycleService,
+    _LifecycleStep,
+)
+from literate_ai.contracts import (
+    GeneratedSourceCandidate,
+    LibraryCapabilityImport,
+    LibraryImportSurface,
+    StandardLifecycleStage,
+    canonical_identity,
+)
+from literate_ai.contracts.capabilities import DependencyKind
+from literate_ai.contracts.executable_components import (
+    ComponentActionPhase,
+    ComponentActionPlan,
+    ComponentExecutionPlan,
+    ComponentTopologicalLayer,
+    ContextAuthorityKind,
+    ExecutableComponentEdge,
+)
+from literate_ai.contracts.executable_components.standard_command_profiles import (
+    StandardNodeSDKCommandProfile,
+)
+from literate_ai.contracts.identity import ContentIdentity
+from literate_ai.contracts.node_sdk import NodeSDKExportDeclaration
+from literate_ai.projects import PinnedInputClosureError
+from literate_ai.security.policy import (
+    AuthorizationError,
+    BuildAuthorization,
+    SecurityProfile,
+)
+from tests.smoke import test_node_provider_lifecycle as provider_fixture
+
+
+@unittest.skipUnless(
+    provider_fixture.os.name == "posix"
+    and provider_fixture.os.environ.get("LITERATE_TYPESCRIPT_SDK")
+    and provider_fixture.shutil.which("node"),
+    "requires selected compiler and POSIX provider custody",
+)
+class NodeSDKAdmissionTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        provider_fixture.NodeProviderLifecycleTests.setUpClass.__func__(cls)
+
+    def setUp(self):
+        self.fixture = f = provider_fixture.NodeProviderLifecycleTests()
+        f.node, f.compiler, f.environment = self.node, self.compiler, self.environment
+        self.addCleanup(self._release_fixture)
+        self.addCleanup(f.doCleanups)
+        f.setUp()
+        provider = f.accepted.build.exports[0]
+        producer_plan = next(
+            item
+            for item in f.execution.generation_plans
+            if item.component_revision == f.revision.identity
+        )
+        projection = LockedComponentNodePreparationAdapter().project(
+            f.snapshot, producer_plan
+        )
+        provider_surface = f.ports.contracts[
+            provider.component_revision.uri
+        ].library_import_surface
+        capability = provider_surface.capabilities[0]
+        self.consumer_revision = canonical_identity(
+            "inert SDK consumer fixture, no generation qualification"
+        )
+        graph = canonical_identity("inert SDK operation graph fixture")
+        interface = capability.interface_identity
+        generation_edge = ExecutableComponentEdge(
+            self.consumer_revision,
+            provider.component_revision,
+            "provider",
+            capability.capability,
+            DependencyKind.GENERATION,
+            interface,
+        )
+        build_edge = replace(
+            generation_edge, kind=DependencyKind.BUILD, public_interface_identity=None
+        )
+        consumer_plan = replace(
+            producer_plan,
+            component_graph_identity=graph,
+            component_revision=self.consumer_revision,
+            generation_key=replace(
+                producer_plan.generation_key,
+                exported_public_interface_identities=(),
+                direct_public_interface_identities=(interface,),
+            ),
+            direct_generation_edges=(generation_edge,),
+        )
+        producer_plan = replace(producer_plan, component_graph_identity=graph)
+        revisions = tuple(
+            sorted(
+                (provider.component_revision, self.consumer_revision),
+                key=lambda item: item.uri,
+            )
+        )
+        actions = []
+        for action in f.execution.action_plans:
+            edges = (
+                (generation_edge,)
+                if action.phase is ComponentActionPhase.GENERATE
+                else (build_edge,)
+                if action.phase is ComponentActionPhase.BUILD
+                else ()
+            )
+            layers = (
+                (
+                    ComponentTopologicalLayer(0, (provider.component_revision,)),
+                    ComponentTopologicalLayer(1, (self.consumer_revision,)),
+                )
+                if edges
+                else (ComponentTopologicalLayer(0, revisions),)
+            )
+            actions.append(
+                ComponentActionPlan(graph, action.phase, revisions, edges, layers)
+            )
+        self.execution = ComponentExecutionPlan(
+            graph,
+            self.consumer_revision,
+            f.execution.planner_identity,
+            tuple(
+                sorted(
+                    (producer_plan, consumer_plan),
+                    key=lambda item: item.component_revision.uri,
+                )
+            ),
+            tuple(actions),
+        )
+        sdk_surface = LibraryImportSurface(
+            "typescript",
+            "fixture-sdk",
+            (
+                LibraryCapabilityImport(
+                    capability.capability, interface, "fixture-sdk", capability.symbols
+                ),
+            ),
+            node_sdk_exports=(NodeSDKExportDeclaration("fixture-sdk", "index"),),
+        )
+        recipe = GenerationRecipe(
+            "fixture-sdk",
+            "fixture-sdk",
+            projection.recipe.documents,
+            graph,
+            skills=projection.recipe.skills,
+            library_import_surface=sdk_surface,
+            library_dependencies=(
+                RecipeLibraryDependency(
+                    provider.component_revision,
+                    capability.capability,
+                    interface,
+                    provider_surface,
+                ),
+            ),
+        )
+        segments = [
+            replace(segment, source_component_revision=self.consumer_revision)
+            for segment in projection.authority_segments
+            if segment.authority_kind is not ContextAuthorityKind.LOCAL_PUBLIC_INTERFACE
+        ]
+        reference = f.revision.public_interfaces[0]
+        segments.append(
+            PromptSegmentInput(
+                ContextAuthorityKind.DIRECT_PUBLIC_INTERFACE,
+                provider.component_revision,
+                "exact public provider interface",
+                interface,
+                f.snapshot.component_content(f.revision.authoring_identity, reference),
+            )
+        )
+        request = prepare_component_generation_context(
+            consumer_plan,
+            framework_envelope=recipe.prompt(
+                include_locked_authority_documents=False
+            ).encode(),
+            authority_segments=tuple(segments),
+            budget=self._budget(),
+        )
+        workspace = ComponentGenerationWorkspaceDescriptor(
+            self.consumer_revision,
+            consumer_plan.identity,
+            consumer_plan.generation_key.identity,
+            canonical_identity("fresh SDK fixture allocation"),
+            "inert-operation-workspace",
+        )
+        self.prepared = PreparedComponentGenerationNode(
+            consumer_plan, object(), recipe, request, workspace
+        )
+        self.consumer = replace(
+            f.ports.contracts[provider.component_revision.uri],
+            component_revision=self.consumer_revision,
+            language_compiler_identity=self.compiler.identity,
+            language_runtime_identity=ContentIdentity.parse_uri(self.node.identity),
+            artifact_export=replace(
+                f.ports.contracts[provider.component_revision.uri].artifact_export,
+                export_id="sdk",
+            ),
+            library_import_surface=sdk_surface,
+        )
+        f.ports.contracts[self.consumer_revision.uri] = self.consumer
+        self.grants = []
+        self.policy_alive = True
+
+    def _budget(self):
+        from tests.support.fixtures_test_component_generation_context import _budget
+
+        return _budget()
+
+    def authorize(self, request):
+        now = self.fixture.ports.clock()
+        grant = BuildAuthorization(
+            "explicit-operation-fixture-grant",
+            canonical_identity(request.to_dict()).uri,
+            canonical_identity(request.to_dict()).uri,
+            request.effective_revision_digest,
+            "fixture-operator",
+            "authorize exact fixture verifier only",
+            SecurityProfile.CONSTRAINED,
+            request.requested_privileges,
+            now,
+            now + timedelta(minutes=5),
+        )
+        self.grants.append(grant)
+        return grant
+
+    def _release_fixture(self):
+        # The checkpoint runner retains test objects for its original pin. Let
+        # the loader's weak-reference owner retire this completed fixture even
+        # while that test object remains retained; never clear its registry.
+        self.fixture = None
+        gc.collect()
+
+    def owner(self):
+        if not self.policy_alive:
+            raise ValueError("SDK policy ended")
+
+    def admission(self, **changes):
+        f = self.fixture
+        args = dict(
+            ports=f.ports,
+            consumer=self.consumer,
+            profile=StandardNodeSDKCommandProfile(
+                "node-sdk", "npm", "typescript", "src", ("LICENSE",)
+            ),
+            compiler=self.compiler,
+            revisions={f.revision.identity.uri: f.revision},
+            oracles={f.revision.identity.uri: f.oracle},
+            authorize_verifier=self.authorize,
+            require_current=self.owner,
+            environment=self.environment,
+        )
+        args.update(changes)
+        return LocalNodeSDKGenerationAdmission(**args)
+
+    def invoke(self, admission, consume, **changes):
+        return admission.with_invocation(
+            self.execution,
+            self.prepared,
+            (self.fixture.accepted,),
+            consume=consume,
+            **changes,
+        )
+
+    def test_live_cohort_enters_through_original_provider_owner(self):
+        armed = False
+        callers = []
+
+        def owner():
+            self.owner()
+            if armed:
+                frame = inspect.currentframe()
+                try:
+                    caller = frame.f_back.f_back
+                    callers.append(
+                        (caller.f_globals["__name__"], caller.f_code.co_name)
+                    )
+                finally:
+                    del caller, frame
+
+        def consume(_invocation, guard):
+            nonlocal armed
+            armed = True
+            try:
+                guard()
+            finally:
+                armed = False
+
+        self.invoke(self.admission(require_current=owner), consume)
+        self.assertTrue(callers)
+        self.assertEqual(
+            callers[0],
+            ("literate_ai.adapters.lifecycle.standard_local", "require_owner"),
+        )
+        self.assertEqual(self.fixture.ports._library_provider_scope_count, 0)
+        self.assertEqual(self.fixture.ports._library_provider_scope_bytes, 0)
+
+    def test_first_provider_owner_failure_retires_both_live_guards(self):
+        class OwnerEnded(Exception):
+            pass
+
+        primary = OwnerEnded("original first-provider owner failure")
+        armed = False
+        escaped, providers = [], []
+        ports = self.fixture.ports
+        original = ports.with_node_sdk_provider_generation_data
+
+        def owner():
+            self.owner()
+            if armed:
+                raise primary
+
+        def join(*args, consume, **kwargs):
+            def verified(data, live):
+                providers.append(live)
+                return consume(data, live)
+
+            return original(*args, consume=verified, **kwargs)
+
+        def consume(_invocation, guard):
+            nonlocal armed
+            escaped.append(guard)
+            armed = True
+            guard()
+
+        try:
+            with (
+                mock.patch.object(
+                    ports, "with_node_sdk_provider_generation_data", join
+                ),
+                self.assertRaises(OwnerEnded) as caught,
+            ):
+                self.invoke(self.admission(require_current=owner), consume)
+        finally:
+            armed = False
+        self.assertIs(caught.exception, primary)
+        self.assertEqual(len(escaped), 1)
+        self.assertEqual(len(providers), 1)
+        with self.assertRaisesRegex(NodeSDKAdmissionError, "scope ended"):
+            escaped[0]()
+        with self.assertRaisesRegex(Exception, "provider verifier scope ended"):
+            providers[0]()
+        self.assertEqual(ports._library_provider_scope_count, 0)
+        self.assertEqual(ports._library_provider_scope_bytes, 0)
+        self.assertEqual(ports._library_provider_scopes, {})
+
+    def test_real_provider_operation_and_fresh_exact_renewal_keep_original_binding(
+        self,
+    ):
+        admission = self.admission()
+        escaped = []
+
+        def consume(invocation, guard):
+            guard()
+            escaped.append(guard)
+            self.assertEqual(
+                dict(invocation.prepared.recipe.resolved_inputs)[
+                    "node_sdk_command_contract"
+                ],
+                self.consumer.identity.uri,
+            )
+            return invocation
+
+        original = self.invoke(admission, consume)
+        with self.assertRaisesRegex(NodeSDKAdmissionError, "scope ended"):
+            escaped[0]()
+        refreshed = self.invoke(admission, consume, expected=original)
+        self.assertEqual(original.identity, refreshed.identity)
+        self.assertEqual(len(self.grants), 2)
+        self.assertEqual(self.fixture.ports._library_provider_scope_count, 0)
+        self.assertEqual(self.fixture.ports._library_provider_scopes, {})
+
+    def test_no_grant_or_changed_policy_cannot_start_verification(self):
+        admission = self.admission(authorize_verifier=lambda _: None)
+        with mock.patch.object(
+            self.fixture.ports,
+            "with_node_sdk_provider_generation_data",
+            wraps=self.fixture.ports.with_node_sdk_provider_generation_data,
+        ) as verify:
+            with self.assertRaises(TypeError):
+                self.invoke(admission, lambda *_: self.fail("operation ran"))
+            verify.assert_not_called()
+        admission = self.admission()
+        admission.require_current = lambda: None
+        with self.assertRaises(NodeSDKAdmissionError):
+            self.invoke(admission, lambda *_: self.fail("operation ran"))
+
+    def test_mismatched_historical_invocation_is_not_retagged_or_consumed(self):
+        admission = self.admission()
+        original = self.invoke(admission, lambda invocation, _guard: invocation)
+        foreign = replace(original, base_recipe=canonical_identity("other base recipe"))
+        with self.assertRaisesRegex(NodeSDKAdmissionError, "original invocation"):
+            self.invoke(
+                admission,
+                lambda *_: self.fail("foreign invocation consumed"),
+                expected=foreign,
+            )
+        self.assertEqual(original.base_recipe.uri, self.prepared.recipe.identity)
+
+    @staticmethod
+    def _cause_messages(error):
+        messages, seen = [], set()
+        while error is not None and id(error) not in seen:
+            seen.add(id(error))
+            messages.append(str(error))
+            error = error.__cause__ or error.__context__
+        return messages
+
+    def test_owner_loss_after_binding_prevents_operation_entry(self):
+        from literate_ai.adapters import node_sdk_admission as module
+
+        bind = module.bind_node_sdk_generation_invocation
+        reached, consume_called = [], []
+
+        def revoked_binding(*args, **kwargs):
+            result = bind(*args, **kwargs)
+            reached.append(True)
+            self.policy_alive = False
+            return result
+
+        def consume(*_):
+            consume_called.append(True)
+            self.fail("revoked owner entered")
+
+        with (
+            mock.patch.object(
+                module, "bind_node_sdk_generation_invocation", revoked_binding
+            ),
+            self.assertRaises(Exception) as caught,
+        ):
+            self.invoke(self.admission(), consume)
+        self.assertEqual(reached, [True])
+        self.assertEqual(consume_called, [])
+        self.assertTrue(
+            any(
+                "SDK policy ended" in item
+                for item in self._cause_messages(caught.exception)
+            )
+        )
+        self.assertEqual(self.fixture.ports._library_provider_scope_count, 0)
+
+    def _assert_body_return_revocation(self, cut):
+        completed, escaped = [], []
+
+        def consume(_invocation, guard):
+            escaped.append(guard)
+            if cut == "owner":
+                self.policy_alive = False
+            elif cut == "grant":
+                object.__setattr__(self.grants[-1], "revoked", True)
+            else:
+                export = self.fixture.accepted.build.exports[0]
+                root = self.fixture.ports.artifact_path(export)
+                path = next(item for item in root.rglob("*") if item.is_file())
+                path.write_bytes(path.read_bytes() + b" altered at body return")
+            completed.append(True)
+            return "DATA must be withheld"
+
+        with self.assertRaises(Exception) as caught:
+            self.invoke(self.admission(), consume)
+        self.assertEqual(completed, [True])
+        messages = self._cause_messages(caught.exception)
+        if cut == "owner":
+            self.assertTrue(
+                any("SDK policy ended" in item for item in messages), messages
+            )
+        elif cut == "grant":
+            self.assertTrue(
+                any("authorization_revoked" in item for item in messages), messages
+            )
+        else:
+            self.assertTrue(
+                any("materializ" in item and "changed" in item for item in messages),
+                messages,
+            )
+        with self.assertRaisesRegex(NodeSDKAdmissionError, "scope ended"):
+            escaped[0]()
+        self.assertEqual(self.fixture.ports._library_provider_scope_count, 0)
+        self.assertEqual(self.fixture.ports._library_provider_scopes, {})
+
+    def test_owner_loss_at_body_return_withholds_operation_result(self):
+        self._assert_body_return_revocation("owner")
+
+    def test_grant_loss_at_body_return_withholds_operation_result(self):
+        self._assert_body_return_revocation("grant")
+
+    def test_provider_write_at_body_return_withholds_operation_result(self):
+        self._assert_body_return_revocation("files")
+
+    def test_post_scope_grant_loss_withholds_operation_result(self):
+        completed = False
+
+        def owner():
+            self.owner()
+            if (
+                completed
+                and self.grants
+                and not self.fixture.ports._library_provider_scopes
+            ):
+                object.__setattr__(self.grants[-1], "revoked", True)
+
+        admission = self.admission(require_current=owner)
+
+        def consume(_invocation, guard):
+            nonlocal completed
+            guard()
+            completed = True
+            return "must not escape after scope cleanup"
+
+        with self.assertRaises(AuthorizationError):
+            self.invoke(admission, consume)
+        self.assertTrue(completed)
+
+    def test_owner_loss_during_post_scope_oracle_read_withholds_result(self):
+        from literate_ai.adapters import node_sdk_admission as module
+
+        original = module.capture_loaded_node_library_verifier_inputs
+        observed = []
+
+        @contextmanager
+        def capture(oracle):
+            with original(oracle) as scope:
+
+                def read():
+                    scope()
+                    if not self.fixture.ports._library_provider_scopes:
+                        observed.append(True)
+                        self.policy_alive = False
+
+                yield scope._replace(require_unchanged=read)
+
+        with mock.patch.object(
+            module, "capture_loaded_node_library_verifier_inputs", capture
+        ):
+            with self.assertRaisesRegex(ValueError, "policy ended"):
+                self.invoke(self.admission(), lambda *_: "must not escape")
+        self.assertEqual(observed, [True])
+
+    def test_oracle_write_in_final_owner_callback_withholds_result(self):
+        completed = False
+        changed = []
+        # Locate the actual loader-owned document; fixture names are private.
+        from literate_ai.adapters.node_library_acceptance import _LOADED
+
+        witness = _LOADED[id(self.fixture.oracle)]
+        oracle_path = next(iter(witness.authority._entries.values())).path
+
+        def owner():
+            self.owner()
+            if completed and not self.fixture.ports._library_provider_scopes:
+                # The second post-scope callback follows the final byte reads.
+                changed.append(True)
+                if len(changed) == 2:
+                    before = oracle_path.stat()
+                    content = oracle_path.read_bytes()
+                    oracle_path.write_bytes(content)
+                    os.utime(oracle_path, ns=(before.st_atime_ns, before.st_mtime_ns))
+
+        def consume(*_):
+            nonlocal completed
+            completed = True
+            return "must not escape"
+
+        with self.assertRaisesRegex(PinnedInputClosureError, "changed before close"):
+            self.invoke(self.admission(require_current=owner), consume)
+        self.assertEqual(len(changed), 2)
+
+    def _assert_final_clock_drift(self, cut):
+        from literate_ai.adapters.node_library_acceptance import _LOADED
+
+        admission = self.admission()
+        ports = self.fixture.ports
+        original_clock = ports.clock
+        completed = []
+        changed = []
+        paths = []
+        if cut == "oracle":
+            witness = _LOADED[id(self.fixture.oracle)]
+            paths.append(next(iter(witness.authority._entries.values())).path)
+
+        def consume(_invocation, guard):
+            guard()
+            if cut == "files":
+                scope = next(iter(ports._library_provider_scopes.values()))[0]
+                paths.append(scope.root / scope.files[0].path)
+            completed.append(True)
+            return "must not escape the final clock cut"
+
+        def clock():
+            frame = inspect.currentframe()
+            caller = frame.f_back
+            final_cut = (
+                caller.f_code.co_name == "final_inputs"
+                and caller.f_locals.get("live_membership") is False
+            )
+            del frame, caller
+            if final_cut and completed and not changed:
+                self.assertFalse(ports._library_provider_scopes)
+                if cut == "configuration":
+                    key = self.fixture.revision.identity.uri
+                    admission.oracles[key] = replace(admission.oracles[key])
+                else:
+                    path = paths[0]
+                    before = path.stat()
+                    content = path.read_bytes()
+                    path.write_bytes(content)
+                    os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                changed.append(cut)
+                print("SDK final clock mutation executed: " + cut, flush=True)
+            return original_clock()
+
+        error = {
+            "oracle": PinnedInputClosureError,
+            "files": ValueError,
+            "configuration": NodeSDKAdmissionError,
+        }[cut]
+        with mock.patch.object(ports, "clock", clock), self.assertRaises(error):
+            self.invoke(admission, consume)
+        self.assertEqual(completed, [True])
+        self.assertEqual(changed, [cut])
+
+    def test_final_clock_oracle_write_withholds_result(self):
+        self._assert_final_clock_drift("oracle")
+
+    def test_final_clock_provider_write_withholds_result(self):
+        self._assert_final_clock_drift("files")
+
+    def test_final_clock_configuration_replacement_withholds_result(self):
+        self._assert_final_clock_drift("configuration")
+
+    def test_asynchronous_operation_is_rejected_before_verification(self):
+        async def consume(*_args):
+            self.fail("async operation ran")
+
+        with self.assertRaises(TypeError):
+            self.invoke(self.admission(), consume)
+        self.assertEqual(self.grants, [])
+
+    def test_real_provider_joins_source_build_and_fresh_publication_scopes(self):
+        # Application seam over genuine provider custody. The consumer candidate
+        # remains inert typed DATA, not generated or built SDK output.
+        service = object.__new__(StandardProjectLifecycleService)
+        service.checkpoint_recorder = None
+        admission = self.admission()
+        candidate = None
+
+        def steps(execution, plan, prepared, *_):
+            nonlocal candidate
+            self.assertTrue(require_node_sdk_source(execution, prepared))
+            candidate = GeneratedSourceCandidate(
+                **{
+                    field.name: canonical_identity("inert consumer " + field.name)
+                    for field in fields(GeneratedSourceCandidate)
+                }
+            )
+            candidate = replace(
+                candidate,
+                component_revision=plan.component_revision,
+                component_generation_plan_identity=plan.identity,
+                recipe_identity=ContentIdentity.parse_uri(prepared.recipe.identity),
+            )
+            providers = (self.fixture.accepted.build.exports[0],)
+            intent = self.fixture.ports.build_intent_inputs(
+                execution,
+                plan,
+                candidate,
+                providers,
+                (),
+            ).create()
+            admission.require_build_intent(
+                current[0],
+                execution,
+                prepared,
+                candidate,
+                providers,
+                (),
+                intent,
+            )
+            with self.assertRaisesRegex(
+                NodeSDKAdmissionError, "current command inputs"
+            ):
+                admission.require_build_intent(
+                    current[0],
+                    execution,
+                    prepared,
+                    candidate,
+                    providers,
+                    (),
+                    replace(
+                        intent,
+                        build_request=replace(
+                            intent.build_request,
+                            toolchain_digest=canonical_identity("foreign tool").uri,
+                        ),
+                    ),
+                )
+            yield _LifecycleStep(
+                StandardLifecycleStage.SOURCE_GENERATION, lambda: "inert"
+            )
+            return "consumed"
+
+        # Capture the original callback record while retaining the real owner's
+        # full verification; no grant/provider/check output is mocked.
+        original = admission.with_invocation
+        current = []
+
+        def with_invocation(*args, consume, **kwargs):
+            def joined(invocation, guard):
+                current[:] = [invocation]
+                return consume(invocation, guard)
+
+            return original(*args, consume=joined, **kwargs)
+
+        admission.with_invocation = with_invocation
+        service._run_complete_node_steps = steps
+        invocation, result, membership = service._run_node_sdk(
+            admission,
+            (self.fixture.accepted,),
+            self.execution,
+            self.prepared.plan,
+            self.prepared,
+            None,
+            None,
+            None,
+            (),
+            (),
+            True,
+        )
+        self.assertIsNone(membership)
+        self.assertEqual(result, "consumed")
+        self.assertFalse(require_node_sdk_source(self.execution, invocation.prepared))
+        published = []
+        publication = service._publish_node_sdk(
+            admission,
+            self.execution,
+            self.prepared,
+            (self.fixture.accepted,),
+            invocation,
+            candidate,
+            lambda: published.append(True) or "publication data",
+        )
+        self.assertEqual(publication, "publication data")
+        self.assertEqual(published, [True])
+        self.assertEqual(len(self.grants), 2)
+
+    def test_hidden_future_cannot_escape_live_ownership(self):
+        with self.assertRaisesRegex(TypeError, "finish synchronously"):
+            self.invoke(self.admission(), lambda *_: Future())

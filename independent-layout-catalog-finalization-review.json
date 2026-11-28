@@ -1,0 +1,75 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "changes_requested",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "c38c3c28325d9130c25107f3c9799641bf2fdaf1",
+  "scope": "Internal catalog control finalization following actual entry and canonical provenance publication; imported-role handoff and complete catalog application remain unfinished.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_control_finalization.py",
+      "sha256": "60e8c7063905d48c60e3b63843246b4c4cf1f15a04954cb1c4e95823954eea39"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_entry_publication.py",
+      "sha256": "2ffeca74700073922c9f861e15996084e64ddc0e63fe4efd74d597754b0a5bb7"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_control_roles.py",
+      "sha256": "c803b8d37438ea7776047af2894ce5ed80e800d572d0047f43b55b54564a4232"
+    },
+    {
+      "path": "tests/critical/test_catalog_control_finalization.py",
+      "sha256": "c05e7b3dacbba84ca560151832ded6d491380e5a3bc0391e173763334db56aa3"
+    }
+  ],
+  "findings": [
+    {
+      "id": "CATALOG-FINALIZATION-GIT-BUDGET-001",
+      "status": "open",
+      "severity": "blocking_acceptance",
+      "title": "Both required native Git finalization positives exhaust the original shared Git observation allowance",
+      "locations": [
+        "tests/critical/test_catalog_control_finalization.py:220",
+        "tests/critical/test_catalog_control_finalization.py:250",
+        "tests/critical/test_catalog_control_finalization.py:253",
+        "src/literate_ai/adapters/bounded_role_observation.py:162"
+      ],
+      "evidence": "Independent exact frozen module ran 10 methods: eight passed and both test_real_git_native_controls_retire_before_pending_barrier and test_linked_git_external_controls_retire_before_pending_barrier failed. Each expected imported-role-handoff-pending completion but received ValueError: layout.role-inputs: Git output has no remaining shared allowance. Author separately reports the same two failures.",
+      "required_change": "Resolve or explicitly bound the necessary actual Git observation work under the declared original shared allowance, preserving canonical validation, real marker exclusion and finite shared accounting. Establish maintained ordinary and linked Git positives before admitting this candidate. Do not bypass the finite ceiling or simply label the failing scope qualified.",
+      "qualification": "The available unittest failure output is wrapped by assertRaisesRegex, so it does not locate the exact underlying Git-read call or establish the precise partial-effect frontier. No corruption, ownership bypass or weakened-limit finding is inferred. A truthful explicitly supported resource profile or sound bounded-read improvement requires separate concrete review."
+    }
+  ],
+  "source_assessment": [
+    "Factory acquisition identity is split from normal-phase admission: normal helper retains finalizing refusal; catalog helper compares the actual original acquisition and sealed original marker objects, targets, descriptors, created flags, expected nodes, bytes and locations.",
+    "Control journal actual live admission and original census lineage remain bound. Expected control namespace views advance only from actual journal known records and verified reservation results, rather than recapturing a new baseline.",
+    "Finalizer requires actual published provenance, exact acknowledgement, original writer/BUSY/PID/thread lifetime, and single use.",
+    "Only originally created advisories normalize; existing advisory bytes/inodes remain. Native controls use existing real reservation retirement and retain their descriptors.",
+    "Durable catalog-commit-observed append precedes pending retirement; pending sorts last. Normal completion still refuses imported-role handoff.",
+    "No separate concrete source ownership or ordering blocker established in this audit; failed native Git acceptance prevents approval."
+  ],
+  "independent_execution": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_control_finalization > _build/catalog-finalization-independent.log 2>&1",
+    "session": 98259,
+    "exit_code": 1,
+    "tests": 10,
+    "passed": 8,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 49.422,
+    "log": "_build/catalog-finalization-independent.log",
+    "log_sha256": "6f35414bebf16c895387db4abd76f9a79e00fa80015ff534c4186e22cbcbd130",
+    "bespoke_probes": 0,
+    "terminal": true,
+    "passing_coverage": "Actual no-Git finalization with same-FD advisory exclusion and later reentry; existing advisory preservation; required provenance/acknowledgement; single use; foreign journal refusal; interrupted pending retirement preserving barrier and commit event; journal capacity refusal before first item; finalizing-flag spoof refusal."
+  },
+  "limits": [
+    "Only maintained unittest module and source inspection; no bespoke probes/reproduction scripts or additional broad runs.",
+    "No approval for ordinary/linked Git finalization at this revision.",
+    "No general claim about outcome annotation after commit, recovery, imported roles or actual control release beyond the tested cases.",
+    "No public API, installed-wheel, cross-platform, full namespace ownership, root/shared/wrapper, complete catalog operation, full program or release acceptance.",
+    "Exact source hashes rechecked unchanged at terminal execution. No implementation/test/pin edits, installs, agents or network actions.",
+    "All prior reports remain immutable. No independent process remains live; parent-owned jobs are separate."
+  ],
+  "repair_readiness": "Reviewer inspection and maintained execution complete. Source may be repaired after parent-owned jobs are terminal; this report preserves the failing exact subject."
+}

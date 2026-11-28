@@ -1,0 +1,805 @@
+{
+  "schema": "literate-ai/independent-historical-layout-fresh-receipt-review@1",
+  "status": "Actual migrated retained native run, public freshreceipt update and require-current independently verified. Complete historical layout journey remains open.",
+  "candidate_revision": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+  "candidate_wheel_sha256": "9dfc85ef0a5eae2cb8669daa4c8840b62ce765c50385aba55da5b3e6512cef97",
+  "installed_payload_members_recompared": 1637,
+  "installed_payload_mismatches": [],
+  "identities": {
+    "finalized_candidate": "sha256:22cd5d29852c2318867766cb4f02164b459635233c935ed9dad2a7a471cf50fc",
+    "receipt": "sha256:34b9729111704c6cd7eacdbce4397af63c92c1f6d9ddeb408fa2e076eb5be600",
+    "run_observation": "sha256:06a3042afc37b8cf1f4ef1159124fe07d64c69697b6edc3e6b4a075009de08fe",
+    "current_project_revision": "sha256:29e45f7ae75061941565a2b7bfb79105f87cd10750cf640f71e72d93874b068e",
+    "runner": "sha256:27e756a4f114c9311be32c512d18b40082ed519a940c1c204032067003897c0e",
+    "suite": "sha256:068c6c28b5cfef6e9dba1d110eca8f00e9aa17f8f034fcae42fc5a094fc3cf60",
+    "subject": "sha256:bdba7c3657e700e68256d40d8af98d0af8e7e31d7f65edd877d46bd4f360454b",
+    "component_lock_identities": [
+      "sha256:9230e436933513ab6ac075ddef29fb59d2e3914a52eaa9aa2dfa8832aa145cd8"
+    ]
+  },
+  "independently_reconstructed_producer_identities": [
+    "finalizedcandidate",
+    "nestedreceipt",
+    "runobservation",
+    "inventoryboundrunner",
+    "directbuildresult",
+    "directpackageresult",
+    "testreport",
+    "suite",
+    "subject",
+    "currentcomponentlock"
+  ],
+  "receipt_policy_unchanged": {
+    "schema": "urn:literate-ai:schema:v1:project-test-receipt-policy",
+    "suite_id": "retained-legacy-parity",
+    "suite_version": "1.0.0",
+    "runner_identity": {
+      "schema": "urn:literate-ai:schema:v1:content-identity",
+      "algorithm": "sha256",
+      "digest": "27e756a4f114c9311be32c512d18b40082ed519a940c1c204032067003897c0e"
+    },
+    "required_evidence_kinds": [
+      "build-result",
+      "lifecycle-command",
+      "lifecycle-plan",
+      "lifecycle-request",
+      "observation-result",
+      "package-result",
+      "source-cache-decision",
+      "source-cache-lifecycle",
+      "test-report",
+      "test-runner",
+      "workspace-admission"
+    ],
+    "minimum_test_count": 1
+  },
+  "actual_tests": 2,
+  "phase_observations": [
+    {
+      "command": "make -f Makefile",
+      "diagnostic_limit_chars": 8192,
+      "duration_milliseconds": 65,
+      "evidence": "Makefile",
+      "excluded": [
+        {
+          "class": "test-or-analysis-cache",
+          "present_root_count": 1,
+          "root_count": 1
+        },
+        {
+          "class": "vcs-ignored",
+          "present_root_count": 0,
+          "root_count": 1
+        },
+        {
+          "class": "vcs-metadata",
+          "present_root_count": 1,
+          "root_count": 1
+        }
+      ],
+      "exit_code": 0,
+      "output_within_limits": true,
+      "phase": "build",
+      "source_tree": {
+        "file_count": 4,
+        "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+        "missing_count": 0,
+        "scope": "authored-source",
+        "total_bytes": 393
+      },
+      "stderr_identity": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_limit_bytes": 262144,
+      "stderr_size": 0,
+      "stdout_identity": "sha256:01259c0666b63537929f82903b6c665050caff38986f3700789a194d9efd811b",
+      "stdout_limit_bytes": 1048576,
+      "stdout_size": 29,
+      "test_collection": {
+        "failed": null,
+        "known_failed": null,
+        "passed": null,
+        "skipped": null,
+        "state": "not-applicable",
+        "total": null
+      },
+      "timed_out": false,
+      "timeout_seconds": 1800,
+      "tree": {
+        "excluded": [
+          {
+            "class": "test-or-analysis-cache",
+            "present_root_count": 1,
+            "root_count": 1
+          },
+          {
+            "class": "vcs-ignored",
+            "present_root_count": 0,
+            "root_count": 1
+          },
+          {
+            "class": "vcs-metadata",
+            "present_root_count": 1,
+            "root_count": 1
+          }
+        ],
+        "file_count": 4,
+        "identity": "sha256:7eed9fadb48adb31f10781036bc43a8a579446c3ec15becda82cabfad1d16e54",
+        "missing_count": 0,
+        "scope": "post-command-artifacts-plus-excluded-root-accounting",
+        "total_bytes": 393
+      }
+    },
+    {
+      "command": "make -f Makefile test",
+      "diagnostic_limit_chars": 8192,
+      "duration_milliseconds": 65,
+      "evidence": "Makefile",
+      "excluded": [
+        {
+          "class": "test-or-analysis-cache",
+          "present_root_count": 1,
+          "root_count": 1
+        },
+        {
+          "class": "vcs-ignored",
+          "present_root_count": 0,
+          "root_count": 1
+        },
+        {
+          "class": "vcs-metadata",
+          "present_root_count": 1,
+          "root_count": 1
+        }
+      ],
+      "exit_code": 0,
+      "output_within_limits": true,
+      "phase": "test",
+      "source_tree": {
+        "file_count": 4,
+        "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+        "missing_count": 0,
+        "scope": "authored-source",
+        "total_bytes": 393
+      },
+      "stderr_identity": "sha256:5e0a8e85ed52a5c9692f02de7a949eab041aacef45eff88c4d10ccadefa7f75f",
+      "stderr_limit_bytes": 262144,
+      "stderr_size": 208,
+      "stdout_identity": "sha256:6bb68bad9a4403234e44e0479e71b66ac94ad8af8d3f32cb500e26cb9ea495ba",
+      "stdout_limit_bytes": 1048576,
+      "stdout_size": 32,
+      "test_collection": {
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "skipped": 0,
+        "state": "nonempty",
+        "total": 2
+      },
+      "timed_out": false,
+      "timeout_seconds": 1800,
+      "tree": {
+        "excluded": [
+          {
+            "class": "test-or-analysis-cache",
+            "present_root_count": 1,
+            "root_count": 1
+          },
+          {
+            "class": "vcs-ignored",
+            "present_root_count": 0,
+            "root_count": 1
+          },
+          {
+            "class": "vcs-metadata",
+            "present_root_count": 1,
+            "root_count": 1
+          }
+        ],
+        "file_count": 4,
+        "identity": "sha256:7eed9fadb48adb31f10781036bc43a8a579446c3ec15becda82cabfad1d16e54",
+        "missing_count": 0,
+        "scope": "post-command-artifacts-plus-excluded-root-accounting",
+        "total_bytes": 393
+      }
+    },
+    {
+      "command": "make -f Makefile package",
+      "diagnostic_limit_chars": 8192,
+      "duration_milliseconds": 65,
+      "evidence": "Makefile",
+      "excluded": [
+        {
+          "class": "test-or-analysis-cache",
+          "present_root_count": 1,
+          "root_count": 1
+        },
+        {
+          "class": "vcs-ignored",
+          "present_root_count": 1,
+          "root_count": 1
+        },
+        {
+          "class": "vcs-metadata",
+          "present_root_count": 1,
+          "root_count": 1
+        }
+      ],
+      "exit_code": 0,
+      "output_within_limits": true,
+      "phase": "package",
+      "source_tree": {
+        "file_count": 4,
+        "identity": "sha256:a34007648f8c4ccc65affebf22103729f1259d5dceb5d00f0a163b9771f1b450",
+        "missing_count": 0,
+        "scope": "authored-source",
+        "total_bytes": 393
+      },
+      "stderr_identity": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_limit_bytes": 262144,
+      "stderr_size": 0,
+      "stdout_identity": "sha256:b0375513cfd2592e0a57bcc7a88198dc3f072f2bc3822cc798adb9f89a20c01a",
+      "stdout_limit_bytes": 1048576,
+      "stdout_size": 37,
+      "test_collection": {
+        "failed": null,
+        "known_failed": null,
+        "passed": null,
+        "skipped": null,
+        "state": "not-applicable",
+        "total": null
+      },
+      "timed_out": false,
+      "timeout_seconds": 1800,
+      "tree": {
+        "excluded": [
+          {
+            "class": "test-or-analysis-cache",
+            "present_root_count": 1,
+            "root_count": 1
+          },
+          {
+            "class": "vcs-ignored",
+            "present_root_count": 1,
+            "root_count": 1
+          },
+          {
+            "class": "vcs-metadata",
+            "present_root_count": 1,
+            "root_count": 1
+          }
+        ],
+        "file_count": 4,
+        "identity": "sha256:4be5d9879cfb46b4590c1c80c12d20bf66230e44caa6c2ac704250a8f33e9c55",
+        "missing_count": 0,
+        "scope": "post-command-artifacts-plus-excluded-root-accounting",
+        "total_bytes": 393
+      }
+    }
+  ],
+  "native_component_generation": false,
+  "native_component_acceptance": false,
+  "authenticated": false,
+  "stored_receipt_equals_exact_fresh_finalized_candidate": true,
+  "require_current_state": "current",
+  "preserved_prior_metadata_native_Git_facts": [
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/conversion-authority.json",
+      "sha256": "da4a3cd5defa124812eac29dede6df5e531f34c3dc00bf37d9c516fb28c54884",
+      "bytes": 252,
+      "device": 1813,
+      "inode": 12569530,
+      "mtime_ns": 1795774193962940876,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/conversion-authority.json",
+      "sha256": "da4a3cd5defa124812eac29dede6df5e531f34c3dc00bf37d9c516fb28c54884",
+      "bytes": 252,
+      "device": 1813,
+      "inode": 11913286,
+      "mtime_ns": 1795775065823682991,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/harness-inventory.json",
+      "sha256": "a553c39235c7b2d5728edb63db876d586868bf5c546f644079a56ddbeb84fbc9",
+      "bytes": 1321,
+      "device": 1813,
+      "inode": 12569419,
+      "mtime_ns": 1795774187980664176,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/harness-inventory.json",
+      "sha256": "a553c39235c7b2d5728edb63db876d586868bf5c546f644079a56ddbeb84fbc9",
+      "bytes": 1321,
+      "device": 1813,
+      "inode": 11913287,
+      "mtime_ns": 1795775065846256488,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/imports.json",
+      "sha256": "eb50a536a73e68e68b40fb0a68f815762f2442bd67bbc97b5271edb238ff6fb1",
+      "bytes": 290303,
+      "device": 1813,
+      "inode": 12569503,
+      "mtime_ns": 1795774188877076006,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/imports.json",
+      "sha256": "eb50a536a73e68e68b40fb0a68f815762f2442bd67bbc97b5271edb238ff6fb1",
+      "bytes": 290303,
+      "device": 1813,
+      "inode": 11913288,
+      "mtime_ns": 1795775065872503151,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/initialization-baseline.json",
+      "sha256": "1f657dc048f3c54b41ad5a2d67c668b8d10d1a7acc90b7fbf4a1c94e70763e1e",
+      "bytes": 93439,
+      "device": 1813,
+      "inode": 12569516,
+      "mtime_ns": 1795774193433540611,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/initialization-baseline.json",
+      "sha256": "1f657dc048f3c54b41ad5a2d67c668b8d10d1a7acc90b7fbf4a1c94e70763e1e",
+      "bytes": 93439,
+      "device": 1813,
+      "inode": 11913289,
+      "mtime_ns": 1795775065878125060,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/initialization-origin.json",
+      "sha256": "d36985315efc4f3a97fd8eb0be8c4daef1bf452de5971b5ad8b251f25e80ecd5",
+      "bytes": 256,
+      "device": 1813,
+      "inode": 12569515,
+      "mtime_ns": 1795774188906416470,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/initialization-origin.json",
+      "sha256": "d36985315efc4f3a97fd8eb0be8c4daef1bf452de5971b5ad8b251f25e80ecd5",
+      "bytes": 256,
+      "device": 1813,
+      "inode": 11913290,
+      "mtime_ns": 1795775065901725354,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/legacy-harness-baseline.json",
+      "sha256": "f17396baba21b60c61362b341d18441a011059f36df22ef44ff007b8c82d1532",
+      "bytes": 6511,
+      "device": 1813,
+      "inode": 12569420,
+      "mtime_ns": 1795774188192561679,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/legacy-harness-baseline.json",
+      "sha256": "f17396baba21b60c61362b341d18441a011059f36df22ef44ff007b8c82d1532",
+      "bytes": 6511,
+      "device": 1813,
+      "inode": 11913291,
+      "mtime_ns": 1795775065905272615,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/legacy-lift-shift.json",
+      "sha256": "f789ea669ef970153a1afdabf537e2995d22add0c22be592ebb9748ca6df7b6f",
+      "bytes": 10471,
+      "device": 1813,
+      "inode": 12569394,
+      "mtime_ns": 1795774188812075015,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/legacy-lift-shift.json",
+      "sha256": "f789ea669ef970153a1afdabf537e2995d22add0c22be592ebb9748ca6df7b6f",
+      "bytes": 10471,
+      "device": 1813,
+      "inode": 11913292,
+      "mtime_ns": 1795775065908372797,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/legacy-wrapper-parity.json",
+      "sha256": "7bed986b152cc02744e01ed579ed6b933a7ae788bcb2a40587af0ddef64cbae6",
+      "bytes": 9321,
+      "device": 1813,
+      "inode": 12569432,
+      "mtime_ns": 1795774188406068231,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/legacy-wrapper-parity.json",
+      "sha256": "7bed986b152cc02744e01ed579ed6b933a7ae788bcb2a40587af0ddef64cbae6",
+      "bytes": 9321,
+      "device": 1813,
+      "inode": 11913293,
+      "mtime_ns": 1795775065913939939,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/repository-lineage.json",
+      "sha256": "78c80dbf89fc281e3e74375115e50b7a0dad7cfe997183f9ae8a256040a2a02a",
+      "bytes": 1407,
+      "device": 1813,
+      "inode": 12569514,
+      "mtime_ns": 1795774188903457544,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/repository-lineage.json",
+      "sha256": "78c80dbf89fc281e3e74375115e50b7a0dad7cfe997183f9ae8a256040a2a02a",
+      "bytes": 1407,
+      "device": 1813,
+      "inode": 11913294,
+      "mtime_ns": 1795775065917138746,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/repository-parent.json",
+      "sha256": "5afa81160ee603a712750b6e2dfe73b1478e6418f01fc73f7b944bd1cf466289",
+      "bytes": 345,
+      "device": 1813,
+      "inode": 12569513,
+      "mtime_ns": 1795774188877966548,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/repository-parent.json",
+      "sha256": "5afa81160ee603a712750b6e2dfe73b1478e6418f01fc73f7b944bd1cf466289",
+      "bytes": 345,
+      "device": 1813,
+      "inode": 11913295,
+      "mtime_ns": 1795775065919937213,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/.literate/update-bases.json",
+      "sha256": "f72e70c3a5435707db4a07d878e0bf36b6a5e2bdbc3485f5d0e90b3c4c7dd4a7",
+      "bytes": 1162990,
+      "device": 1813,
+      "inode": 12569528,
+      "mtime_ns": 1795774193446528553,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/.literate/update-bases.json",
+      "sha256": "f4a3eba764bdf13e45d930c32194193f55a2dd27ba87e9f4e1046091693070da",
+      "bytes": 1165745,
+      "device": 1813,
+      "inode": 11913296,
+      "mtime_ns": 1795775065923981216,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/literate.project.json",
+      "sha256": "a45773af10c73cf72c9394cc9ad28263ea44ee69798e6a2040d8d8730146f023",
+      "bytes": 3822,
+      "device": 1813,
+      "inode": 11849390,
+      "mtime_ns": 1795774188406791618,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/literate.release.json",
+      "sha256": "c95dfe77fb34c508f89be00b8eea336e7ab04419c7b706a77a0bd32397b97a37",
+      "bytes": 749,
+      "device": 1813,
+      "inode": 11849397,
+      "mtime_ns": 1795774188569638438,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/literate.release.json",
+      "sha256": "c95dfe77fb34c508f89be00b8eea336e7ab04419c7b706a77a0bd32397b97a37",
+      "bytes": 749,
+      "device": 1813,
+      "inode": 11913297,
+      "mtime_ns": 1795775065939384079,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/literate-layout-migration/original/verification/current.json",
+      "sha256": "7c4c88289f5f1835329248b915e8818d361d744962a1b749d0ea6b3e929d2b9c",
+      "bytes": 2483,
+      "device": 1813,
+      "inode": 12569603,
+      "mtime_ns": 1795774590075985565,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/test_app.py",
+      "sha256": "56b4a6feb9a025ca25eda7a6adb4d0dc654ff7f35e125dcb5a834be4531f464b",
+      "bytes": 193,
+      "device": 1813,
+      "inode": 11848516,
+      "mtime_ns": 1795773862415490478,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/Makefile",
+      "sha256": "a673a5bcc1dc7878a5136c1d6414746df1ac342e9a9e5fe03ed028387d592460",
+      "bytes": 147,
+      "device": 1813,
+      "inode": 11848517,
+      "mtime_ns": 1795773862415515119,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/.gitignore",
+      "sha256": "f996b5ad9b75106c60fd509debb9032c34463b1841809e600f81106459dba27e",
+      "bytes": 21,
+      "device": 1813,
+      "inode": 11848518,
+      "mtime_ns": 1795773862415538191,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/app.py",
+      "sha256": "ba1a531f581d2e6094e978ed6f7aca7a8d92eeb62c6e7ad73ee692f7f18bc772",
+      "bytes": 32,
+      "device": 1813,
+      "inode": 11848515,
+      "mtime_ns": 1795773862415455454,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/app.zip",
+      "sha256": "910d7de3d20c971a134b83708b93fd3b29e2319bcc3c688628788b47cdcfe7df",
+      "bytes": 142,
+      "device": 1813,
+      "inode": 11848531,
+      "mtime_ns": 1795773862622092696,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation/__pycache__/app.cpython-314.pyc",
+      "sha256": "83c16bd365da560eee4a4226977722a7e2e5dd4f54c3905f37ab8269c3e01653",
+      "bytes": 223,
+      "device": 1813,
+      "inode": 12012344,
+      "mtime_ns": 1795773862495801483,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/HEAD",
+      "sha256": "28d25bf82af4c0e2b72f50959b2beb859e3e60b9630a5e8c603dad4ddb2b6e80",
+      "bytes": 21,
+      "device": 1813,
+      "inode": 11881281,
+      "mtime_ns": 1795773862436596161,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/index",
+      "sha256": "a8d1defd581c27cdd8c41022454ce9f54ddaf36e83a47697d1c9b0b007a81f60",
+      "bytes": 542,
+      "device": 1813,
+      "inode": 11881291,
+      "mtime_ns": 1795774188594071690,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/.git/refs/heads/main",
+      "sha256": "509a9f0fe4cc6e2db8e94ecfce8f198b6e034452bf8c901a6b247475bc7ba756",
+      "bytes": 41,
+      "device": 1813,
+      "inode": 11881293,
+      "mtime_ns": 1795773862446090003,
+      "mode": 420
+    }
+  ],
+  "sole_change_in_that_previous36file_set": [
+    {
+      "before": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/verification/current.json",
+        "sha256": "7c4c88289f5f1835329248b915e8818d361d744962a1b749d0ea6b3e929d2b9c",
+        "bytes": 2483,
+        "device": 1813,
+        "inode": 11913304,
+        "mtime_ns": 1795775065942420645,
+        "mode": 384
+      },
+      "after": {
+        "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/verification/current.json",
+        "sha256": "845bcdee398b2d17bfb4881990ac5afad54a7e3218410144d71a46d94fd77b69",
+        "bytes": 2483,
+        "device": 1813,
+        "inode": 11913305,
+        "mtime_ns": 1795777018494972679,
+        "mode": 384
+      },
+      "changed_facts": [
+        "sha256",
+        "inode",
+        "mtime_ns"
+      ]
+    }
+  ],
+  "current_rebound_manifest_unchanged": {
+    "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/literate.project.json",
+    "sha256": "00d8478ec38ea9ef0d0d1004a2d3d5e9a488977108bd1747e6d698b7e9775b79",
+    "bytes": 3862,
+    "device": 1813,
+    "inode": 11913773,
+    "mtime_ns": 1795776580028478722,
+    "mode": 384
+  },
+  "documentation_review": {
+    "record": {
+      "authority_identity": "sha256:d5f2d2d49dfcc155d6977e6eeb6b45d99e606f28ac4a186ebe2f1e3d23963218",
+      "document": "docs/architecture/design-traceability.md",
+      "expected_marker": "<!-- literate-ai:authority-reviewed sha256:d5f2d2d49dfcc155d6977e6eeb6b45d99e606f28ac4a186ebe2f1e3d23963218 -->",
+      "recorded": true,
+      "schema": "literate-ai/authority-review@1",
+      "state": "current"
+    },
+    "marker_file": {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/docs/architecture/design-traceability.md",
+      "sha256": "c6bb16bfb4a9a176fab8cf5229d2a4099695865c927bb0713e9fdc42c901759c",
+      "bytes": 827,
+      "device": 1813,
+      "inode": 12831643,
+      "mtime_ns": 1795776703849605251,
+      "mode": 420
+    },
+    "only_exact_postrebind_marker_change": true,
+    "replacing_only_manifest_definition_in_prior_authority_inventory_yields_recorded_d5f2_authority": true
+  },
+  "old_candidate_and_evidence_preserved": true,
+  "fresh_files": [
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/candidate-migrated-current.json",
+      "sha256": "845bcdee398b2d17bfb4881990ac5afad54a7e3218410144d71a46d94fd77b69",
+      "bytes": 2483,
+      "device": 1813,
+      "inode": 11849469,
+      "mtime_ns": 1795776776591603975,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/candidate-migrated-evidence",
+      "sha256": "d575e304c1bea005a21384ce08d6daf0960876e0277a08dda148f41e2c469ac1",
+      "bytes": 5847,
+      "device": 1813,
+      "inode": 11849468,
+      "mtime_ns": 1795776776583415535,
+      "mode": 384
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/verification/current.json",
+      "sha256": "845bcdee398b2d17bfb4881990ac5afad54a7e3218410144d71a46d94fd77b69",
+      "bytes": 2483,
+      "device": 1813,
+      "inode": 11913305,
+      "mtime_ns": 1795777018494972679,
+      "mode": 384
+    }
+  ],
+  "bound_logs": [
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-migrated-retained-run.json",
+      "sha256": "766bda7c9536e8b4a3882a816d22cfad7efde909c51cc6bd86f2dc3a64b7b9cc",
+      "bytes": 900,
+      "device": 1813,
+      "inode": 11849472,
+      "mtime_ns": 1795776776894518531,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-migrated-retained-run.stdout",
+      "sha256": "3a600b6e1727c6d0f99e2542f52ac52d528098d0e4061af0d39e16c2bdb847dc",
+      "bytes": 1224,
+      "device": 1813,
+      "inode": 11849470,
+      "mtime_ns": 1795776776894327359,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-migrated-retained-run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "device": 1813,
+      "inode": 11849471,
+      "mtime_ns": 1795776776894327359,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-migrated-receipt-update.json",
+      "sha256": "382c901eaf4d41d873b66b17591b33bcae988e941dd20b0ad88f252b86acb546",
+      "bytes": 710,
+      "device": 1813,
+      "inode": 11849475,
+      "mtime_ns": 1795777018610910877,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-migrated-receipt-update.stdout",
+      "sha256": "1032973231f15b391d97a138752d6af68ba5abc29d38e94849272ee458381c47",
+      "bytes": 338,
+      "device": 1813,
+      "inode": 11849473,
+      "mtime_ns": 1795777018610738506,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-migrated-receipt-update.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "device": 1813,
+      "inode": 11849474,
+      "mtime_ns": 1795777018610738506,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-migrated-require-current.json",
+      "sha256": "bfb4a17afbb580f7d36e4ad27272d7bfe87654f2d159ade1e05c29257c16014f",
+      "bytes": 581,
+      "device": 1813,
+      "inode": 11849478,
+      "mtime_ns": 1795777448807887992,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-migrated-require-current.stdout",
+      "sha256": "e813981beb4ee42f0612aaa4bf2d0ce59ab94e7a2cc0532516f2aaf9c6102bb6",
+      "bytes": 1067,
+      "device": 1813,
+      "inode": 11849476,
+      "mtime_ns": 1795777448807731653,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-migrated-require-current.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "device": 1813,
+      "inode": 11849477,
+      "mtime_ns": 1795777448807731653,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-postrebind-documentation-review.json",
+      "sha256": "b89faded12e8b3d05cf0e98ddd553aa44b7ed8afb9c23d99511a3196673ba4b2",
+      "bytes": 564,
+      "device": 1813,
+      "inode": 11849467,
+      "mtime_ns": 1795776706311231090,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-postrebind-documentation-review.stdout",
+      "sha256": "e0ad167e45a79bb36566be617199000ca5fe87d66f0465caef83a7c6dd4506cf",
+      "bytes": 457,
+      "device": 1813,
+      "inode": 11849465,
+      "mtime_ns": 1795776706311140063,
+      "mode": 420
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-postrebind-documentation-review.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "device": 1813,
+      "inode": 11849466,
+      "mtime_ns": 1795776706311140063,
+      "mode": 420
+    }
+  ],
+  "limits": [
+    "Actual retained original Python/Make build,2unittestcases,package in disposable source copy; not regenerated authored Component/native acceptance.",
+    "Original6nativepayloads and GitHEAD/index/refs remain byte/native-identical; all other priorselected metadata preserved except explicitly fresh storedreceipt and separately reviewed documentation marker.",
+    "Receipt remains supported-api-tcb and authenticated:false; no external signature/operator authentication claimed.",
+    "Catalog and framework authority placements, normal placed Component producer renewal/finalization, historical recovery/refusal matrix, ordinary update/reparent and root/descendant full journey/platform acceptance remain open.",
+    "No release gate or full PROJECT-LAYOUT/ADOPT completion claim; exact a3artifact subject retained.",
+    "Reviewer performed read-only inspection/hash reconstruction only; no project mutation, receipt production/update or execution dispatch."
+  ]
+}

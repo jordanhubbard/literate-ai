@@ -1,0 +1,40 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Authorize declared prerequisite installation in the ephemeral native Windows ARM64 qualification installer step; native renewal pending",
+  "prior_native_run": "https://github.com/jordanhubbard/literate-ai/actions/runs/45040175335",
+  "prior_candidate_revision": "294cbc6de2101ad273b3c5ce7f8cd99be6dd3154",
+  "native_preflight_passed": true,
+  "installed_runtime_qualification_passed": false,
+  "prior_failure": "The supported installer refused before changing host tools because declared native and managed prerequisite installation was not explicitly authorized. Its diagnostic lists composed requirements, not a measured missing subset.",
+  "change": "Set LITAI_INSTALL_DEPENDENCIES=yes on only the supported installer step of the ephemeral native runner.",
+  "portable_harness_controls": {
+    "report_sha256": "8e025e1656baacb458ce16e913817913cd9f3ac05ac9e25e07f47af17289e754",
+    "summary": {
+      "executed": 5,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 5,
+      "selected": 5,
+      "skipped": 0
+    }
+  },
+  "runtime_and_harness_source_unchanged_from_prior_candidate": true,
+  "source_sha256": {
+    ".github/workflows/native-windows-arm64.yml": "b6803dcccca8ecd8252c63c4fbe20751853cfd98c8eaa9a2ef44ba8c413247f6",
+    "tests/support/windows_arm64_qualification.py": "c453ddbbbbd464c60d441af79c85fcc1ecbe2974db4b8eb252bcf648f3e487d2",
+    "tests/critical/test_windows_arm64_qualification_harness.py": "41a50889a2bc36b437fe1b9fa703e703e8d1b639d65bed851ae68b42c2d2c8fc",
+    "src/literate_ai/bootstrap/windows_msvc.py": "76c6dbbed43f718198566120da875d46b826c996c99c3d4454e82dd1d7f6bf21"
+  },
+  "prior_candidate_complete_linux_source_suite": {
+    "selected": 4138,
+    "passed": 4014,
+    "skipped": 124,
+    "failed": 0,
+    "report_sha256": "153d5bd72af99aa8f82671cb9aefc12a1b9997e22b9d43e7f2631856bdd1cf09"
+  },
+  "changed_head_complete_source_suite_passed": false,
+  "native_windows_execution_passed": false,
+  "full_goal_qualified": false,
+  "independent_authority_review": false,
+  "release_qualified": false
+}

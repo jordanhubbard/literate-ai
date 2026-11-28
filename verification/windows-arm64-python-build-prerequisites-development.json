@@ -1,0 +1,106 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Native Python source-build prerequisite closure and Windows ARM64 OpenSSL SDK metadata; portable protocol counterexamples and vendor data inspection only",
+  "base_revision": "f3bd986b114f83c68587fa0dacc5ac56c3425492",
+  "source_sha256": {
+    "src/literate_ai/bootstrap/host_install_requirements.py": "1922e9832b88a0ad4d2f02c56aed63eabdc5be3e309ba5e8724e991c8e9ad29e",
+    "src/literate_ai/adapters/host_install.py": "1cba8b65d0dc2526ba354f587140dbceda97fa616e04678a321f6063e10d1381",
+    "flavors/os-windows/host-install/windows/arm64/none.cdx.json": "fb087abffb050465785d96993ad2a1501e725fedb58ef0e662791de049eaad5b",
+    "src/literate_ai/project_template/flavors/os-windows/host-install/windows/arm64/none.cdx.json": "fb087abffb050465785d96993ad2a1501e725fedb58ef0e662791de049eaad5b",
+    "tests/critical/test_native_build_prerequisites.py": "64ac2ff852c81dd8cb94b3de5449a92ddb721b09d05ec9f4873c5d4840f74d49",
+    "tests/critical/test_host_install.py": "5bf795b6e753e357ed724dbdb40d9a59e162df941af88140fb8983128e3e32bf"
+  },
+  "checks": {
+    "sdk-guards": {
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "report_sha256": "8d5f32101e79407500f6106cb31203d91cc4e7127fdf9864a3f1a40fd7de15fd"
+    },
+    "existing-host": {
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      },
+      "report_sha256": "68d6a7bf00114c59cd7dcf5d70d63b3c6dd0bc3f24242f76502bee0871196ac3"
+    },
+    "freebsd": {
+      "summary": {
+        "executed": 21,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 21,
+        "selected": 21,
+        "skipped": 0
+      },
+      "report_sha256": "e72019931d20b39f6b77c180e46e1fc29f6f4565508b615a1bbbbb4d7486cf70"
+    }
+  },
+  "green_portable_cases": 36,
+  "baseline_regressions": [
+    "Original parser refused the new physical prerequisite kind before the implementation.",
+    "Target-prefixed OpenSSL environment redirected the build before the conflict correction; native fixture detects the missing refusal.",
+    "Existing compiler-only fixture omitted the newly declared SDK; preserve all original assertions and add explicit SDK counterexample files/command port.",
+    "Directory environment templates accepted foreign absolute roots, parent traversal and repeated root substitution. Preserve the failing canonical protocol cohort and require exactly one observed root with a contained relative suffix."
+  ],
+  "vendor_inspection": {
+    "schema": "literate-ai/private-vendor-inspection@1",
+    "source_receipt": "openssl-4.0.3-receipt.json",
+    "inno_version": "6.7.0",
+    "header_crc32_and_chunk_crc32_verified": true,
+    "lzma_end_of_stream_verified": true,
+    "header_bytes": 656981,
+    "header_sha256": "a16700382e140360463bef5bf3479682925f403f03eff58e6bfed3171395eb4c",
+    "observed_installer_destinations": [
+      "{app}\\bin\\openssl.exe",
+      "{app}\\bin\\libcrypto-4-arm64.dll",
+      "{app}\\bin\\libssl-4-arm64.dll",
+      "{app}\\include\\openssl\\ssl.h",
+      "{app}\\include\\openssl\\opensslv.h",
+      "{app}\\lib\\VC\\arm64\\MD\\libcrypto_static.lib",
+      "{app}\\lib\\VC\\arm64\\MD\\libssl_static.lib"
+    ],
+    "installer_executed": false,
+    "installed_native_sdk_qualified": false,
+    "decoder_reference": "https://raw.githubusercontent.com/dscharrer/innoextract/master/src/stream/block.cpp",
+    "decoder_note": "Private metadata inspection recognizes the current 64-bit stored size. No third-party code copied into the framework."
+  },
+  "vendor_asset": {
+    "url": "https://slproweb.com/download/Win64ARMOpenSSL-4_0_3.msi",
+    "bytes": 229953536,
+    "sha256": "5a75c43c1d9a4fbffea914f8af810cf64c8e55d675a2d741f478d34b742b3122",
+    "manifest_sha256": "81f8356e8717bab6ebb59d45e363172455cf43863153fd55d32df8204651562a",
+    "sdk_member_name_strings": [],
+    "metadata_only_no_execution": true
+  },
+  "logical_universal_base_changed": false,
+  "dependency_pin_changed": false,
+  "independent_review": false,
+  "native_windows_execution_passed": false,
+  "installed_framework_native_qualification_passed": false,
+  "complete_combined_source_passed": false,
+  "release_qualified": false,
+  "references": [
+    "https://cryptography.io/en/50.0.1/installation/",
+    "https://github.com/microsoft/winget-pkgs/blob/master/manifests/s/ShiningLight/OpenSSL/Dev/4.0.3/ShiningLight.OpenSSL.Dev.installer.yaml",
+    "https://github.com/slproweb/opensslhashes",
+    "https://raw.githubusercontent.com/sfackler/rust-openssl/openssl-sys-v0.9.117/openssl-sys/build/main.rs"
+  ],
+  "directory_template_controls": {
+    "red_seconds": 0.057,
+    "green_seconds": 0.041,
+    "foreign_absolute_root_refuses": true,
+    "parent_traversal_refuses": true,
+    "repeated_root_template_refuses": true
+  },
+  "private_inspector_sha256": "9d152378ffbed1dad21a00195af917561c45d7ff8f7fa6cd5e237ad38fe7b92d"
+}

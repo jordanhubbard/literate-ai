@@ -1,0 +1,95 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "decision": "approved_at_internal_preacknowledgement_original_role_scope",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_source_roles.py": {
+      "algorithm": "sha256",
+      "digest": "fc87ae382803a305244a6a7d405f033b2f6cc31ac8b6dfc17446609aecd844e0"
+    },
+    "tests/critical/test_retained_layout_source_roles.py": {
+      "algorithm": "sha256",
+      "digest": "977bc03690f90fd584d770d096c83a705703d3e357a05b906ebba448a1611b4c"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "2f6e6fa511b7b0fd2bdfc5e7f55c2db3d7912585fedcc3b3fa7097a3a6592c8f"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "9997014794faeeb2fbf87184de7df6463d8beece410f82fa6d2e6f7a112d9361"
+    },
+    "src/literate_ai/adapters/retained_layout_source_authored.py": {
+      "algorithm": "sha256",
+      "digest": "ad320417439e95a7c9220c3c76a5cb39aac819e93c24e706d34ac70c8682cab3"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "c5b0cb39c12a68845467ec8e7b6fca746d9e21cf2eb271b8b947df2e012c5d56"
+    },
+    "src/literate_ai/adapters/retained_layout_source_provider.py": {
+      "algorithm": "sha256",
+      "digest": "a74eecbdc5eae9854d23c9842655c2c379df587ea024493e4a6f9d7402543d97"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "830b161172dd5855bd1d79cbb6b2694281332be1ecfd31a9d115f21b71638bac"
+    },
+    "tests/critical/test_retained_layout_effect_graph.py": {
+      "algorithm": "sha256",
+      "digest": "a36e508a6b6cc1992d43dfa4fbd4296e3b7cc0ee032ace369e82330e9791c2ab"
+    },
+    "tests/critical/test_retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "d6a54fd9cf3932485bbd08e2c3f97f732a604cb311d2d145c7cb77fdd9cb303a"
+    },
+    "tests/critical/test_retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "255e19add62da18e0666d4040826dd5b2a4d123a54b9de0d6c4c642c214ff441"
+    },
+    "tests/critical/test_retained_layout_source_provider.py": {
+      "algorithm": "sha256",
+      "digest": "562e831a1bd3c2a75bacfd0283c40e54fdc36f52bf8f9a793acfb89521289042"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "dcc57ac23af841b27c24e04a462e99e79cef9d26cd401458151648758a0a2405"
+    },
+    "tests/critical/test_retained_layout_source_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "d180f8d41b4f208799df0a441021e55af251e392b5529d3d8e08d303eac7510d"
+    },
+    "tests/critical/test_retained_layout_authored_roles.py": {
+      "algorithm": "sha256",
+      "digest": "7a8d6265562f1d53efa3d08cddaa9d89b057972ba45eaaa735f88c3e6a23482b"
+    }
+  },
+  "method": "Independent source inspection only; no reviewer tests, native probes or edits. Author dynamic checks are separate evidence.",
+  "findings": [
+    {
+      "finding": "The original role identity did not authenticate original plan destination, exact Git observation and prospective tuple, or every subsequently bound plan field.",
+      "resolution": "Retain original destination/Git/prospective correspondences before construction, require their exact initial binding, and seal actual bound plan field references once. Replaced or removed bindings permanently refuse.",
+      "state": "closed_source_review_and_causal_author_controls"
+    }
+  ],
+  "representation_addendum": {
+    "decision": "approved_source_only",
+    "scope": "Retain actual original byte/native witnesses with their funded reader; use path/signature/SHA256 commitments for additional role descriptions instead of repeated hexadecimal payload bodies. Ledger guards remain unchanged. Real Git configuration observations use their actual canonical observation type."
+  },
+  "fixture_addenda": [
+    "Provider reservation control proves nonzero original-ledger debit and exactly4096remaining records before finalization.",
+    "Preparation retains original origin cache objects and file roster; repeat origin observations spend entries without a fresh file baseline.",
+    "Finite combined producer and realGit positive policies are declared before original participants. Smaller policies retain explicit actual refusal/no-effect controls; no active allowance is enlarged.",
+    "The new combined refusal exits actual framework/catalog producers together after all live currentness assertions, without falsely claiming a consuming source transaction.",
+    "Ended writer access correctly refuses. Post-context no-journal-change assertions compare persisted journal filenames/native inodes/bytes without reopening or extending writer authority.",
+    "The original69632-entry combined policy is checked during actual preparation, with unchanged source/metadata/membership and no source effect or canonical pending acquisition. Both observed canonical capacity refusals remain explicit: aggregate ledger exhaustion and decoder remaining-allowance exhaustion. A separately funded same-ledger reservation targets metadata preflight.",
+    "After actual descriptor teardown revokes the original provider, the original-role registry detects the missing participant before the older shared-provider diagnostic. The test preserves callback, committed outcome, source and pending-barrier checks.",
+    "Six SourceAdmissionTests cases declare131072entries before preparation to reach actual metadata assertions. Their shared65536-entry fixture policy remains unchanged and has a new precise metadata-preflight refusal before staging, with original metadata/journal/private state preserved.",
+    "Provider registry/admission replacement controls distinguish the precise initial refusal from persistent original-role revocation after restoration. Missing/copied/foreign replacements use independent real fixture lifetimes so an earlier tombstone cannot mask another case. Last-native callback and source-custody assertions are retained, and actual control descriptors must close after rejection."
+  ],
+  "limits": [
+    "Source-only review is not independent dynamic or release qualification.",
+    "The plan still lacks bounded persisted complete namespace/partition/native data required for restart recovery.",
+    "Root logical source forest, root/shared multi-entry effects and parking custody, initial placement/custom wrappers, public plan/apply/recovery, installed/native/platform/integration/release and all roadmap acceptance remain unfinished."
+  ]
+}

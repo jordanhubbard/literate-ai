@@ -1,0 +1,191 @@
+{
+  "schema": "literate-ai/forest-reader-join-development@1",
+  "state": "source_reviewed_dormant_original_owner_join_scoped_development_checks",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-reader-review.json",
+    "sha256": "b1524915de99e881f88ad28dfc34e6d57d1ddb44b1d5ce2b10300eae0c4dd6c5"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-reader-events-native-report.json",
+        "sha256": "a48d69d569b48994a5ac2375d38bcb332a110d9e1d52b66c073ca6a3dd046c8e"
+      },
+      "log": {
+        "path": "_build/forest-reader-events-native-maintained.log",
+        "sha256": "550ff5a6eadc9d1178c914e615ffb1d4deaf146b03f8ad695ade9bd1a1e9b239"
+      },
+      "summary": {
+        "executed": 37,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 37,
+        "selected": 37,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "037bbf8a1db15a5f92473a751402389a5a28abdaf48c55c3abe8af9d53316997",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "scope": "Actual unmanaged native/transfer, factory funding and refusal controls. No canonical forest enrollment."
+    },
+    {
+      "report": {
+        "path": "_build/forest-reader-final-admission-report.json",
+        "sha256": "a9541965738726aa59e7511e52a34ed0cbef76ab5d5c9f0eaf42fe005ed192bb"
+      },
+      "log": {
+        "path": "_build/forest-reader-final-admission-maintained.log",
+        "sha256": "f45e2584cfa5148eb24a4c8355304fa2d8a503cc7dd8259797a84cd4e21c880c"
+      },
+      "summary": {
+        "executed": 41,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 41,
+        "selected": 41,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "1215183feb61693af205d9ad99b05adc96f061d551a24a758e302be8d6b2ef92",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "scope": "Existing canonical single-rename source admission/metadata regression; forest guard stays closed."
+    },
+    {
+      "report": {
+        "path": "_build/forest-reader-finalization-report.json",
+        "sha256": "2f19d4b1983e8a15fcaf8b0ca6a589a62d9b748ff1fcdfbec764f20a8c63a365"
+      },
+      "log": {
+        "path": "_build/forest-reader-finalization-maintained.log",
+        "sha256": "82726ec7762ea341af89f6945a8002f35724d2d52c233b0518562fb87bd024bc"
+      },
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "1641613d5fe8a2406e018c7cde5e443c15c2cf6cd29b133a1c88bda7b1d58b8e",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "scope": "Existing canonical single-rename finalization regression; no forest finalization claim."
+    }
+  ],
+  "distinct_scoped_methods_passed": 92,
+  "fixture_correction": {
+    "path": "tests/critical/test_retained_layout_source_admission.py",
+    "scope": "Only complete positive framework/catalog/metadata test declares196608 entries before its first producer; production limits and the separate69632-entry refusal are unchanged.",
+    "initial_failed_maintained": {
+      "path": "_build/forest-reader-admission-report.json",
+      "sha256": "b1af60f8ad2c737238b8cbe1541c57552b7591ba80d784291b8f29a52a36d529"
+    },
+    "causal_dispatch_skipped_control": {
+      "path": "_build/forest-reader-accounting-control.log",
+      "sha256": "637ab27c09f74608ead04d08418ab6c18a0411cffc7a1f31d2c7fe43e448ce9c"
+    },
+    "control_harness_exit": 0,
+    "control_test_passed": false,
+    "before_metadata": {
+      "records": 125526,
+      "entry_limit": 131072,
+      "charged": 6714330176,
+      "metadata": 8589934592
+    },
+    "failure": {
+      "records": 131057,
+      "entry_limit": 131072,
+      "charged": 6778978176,
+      "metadata": 8589934592
+    },
+    "corrected_direct_case": {
+      "path": "_build/forest-reader-accounting-positive.log",
+      "sha256": "9d9e0f7aa834b8e9b5c8d5bef1f5b1b496a72e9894f99a2e78d7a475cc52695c"
+    }
+  },
+  "diagnostics": [
+    {
+      "path": "_build/forest-reader-event-schedule-diagnostic.log",
+      "sha256": "f78d53a30b48acb42881889fc7552679ec8fc108c26db6dc576c2a2feadcbec7"
+    },
+    {
+      "path": "_build/forest-reader-reservations-diagnostic.log",
+      "sha256": "f7ca94882f69f4d27ace370c111b276cd86e12d47bd0d239f2e88edfd6a4186f"
+    }
+  ],
+  "pending": [
+    "Actual canonical original-owner enrollment and complete metadata/finalization/fresh recovery integration before guard removal.",
+    "Preserve forest parking/container custody through terminal descriptor retirement; replace single-source absence assumptions only under real forest authority.",
+    "Retain original decoded-journal/lineage allowance headroom and exact original policy throughout actual integrated execution.",
+    "Full public placement/renewal, installed/native/platform/full regression and release acceptance."
+  ],
+  "static": {
+    "exit": 0,
+    "log": {
+      "path": "_build/forest-reader-final-static.log",
+      "sha256": "2294fbe351ef37b7cbeaa6bf9373236c024c89a6bf77c6d7fe024cae157faa0d"
+    },
+    "checks": [
+      "reviewed-driver-record",
+      "documentation-authority-record",
+      "lint",
+      "format",
+      "repository-layout",
+      "public-export",
+      "driver-review",
+      "runner-review",
+      "openspec",
+      "roadmap-dependencies",
+      "documentation"
+    ]
+  },
+  "verify": {
+    "exit": 1,
+    "report": {
+      "path": "_build/forest-reader-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ],
+    "note": "Authority passes; project.test_receipt_stale remains. Scoped checks do not qualify canonical forest execution or full project."
+  }
+}

@@ -225,7 +225,7 @@ class AdoptedPromotionJourneyTests(unittest.TestCase):
                 return
             accepted = success(*accept_arguments)
             child = Path(accepted["promoted_project"]["project_target"])
-            defaults = json.loads((child / "literate.project.json").read_text())[
+            defaults = json.loads((child / "litai/literate.project.json").read_text())[
                 "default_flavor_selectors"
             ]
             self.assertIn(expected_build, defaults)

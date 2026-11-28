@@ -22,6 +22,28 @@ until an authorized declared installation provides the required version.
 - **THEN** build and acceptance execute in that FreeBSD environment
 - **AND** the virtualization host's OS does not substitute for guest identity
 
+### Requirement: Native AMD64 and ARM64 installation plans
+
+Native host installation SHALL select the exact FreeBSD architecture plan.
+AMD64 observations SHALL select the x86_64 host-install key; arm64 and aarch64
+observations SHALL select the arm64 key through the existing shared detector.
+This host-install key SHALL NOT relabel the native aarch64 worker or package ABI.
+Both plans SHALL require the complete selected native pkg capability closure,
+registered package provenance, supported versions and successful behavioral probes.
+An available command alone or a successful package-manager exit SHALL NOT prove
+readiness. Unsupported architectures, accelerators and coding-agent providers
+SHALL refuse before ambient commands, installation or archive downloads.
+A foreign-architecture plan SHALL NOT substitute for the exact selected plan.
+
+#### Scenario: Native FreeBSD ARM64 host prerequisites
+
+- **WHEN** an actual FreeBSD ARM64 worker requests its selected host toolchain
+- **THEN** bootstrap selects the canonical freebsd/arm64 native pkg plan
+- **AND** Python SQLite must be registered and execute its in-memory query
+- **AND** GNU Make must resolve to gmake with native package and version evidence
+- **AND** explicit unavailable providers remain unsupported without a foreign fallback
+- **AND** the AMD64 plan retains its existing package and probe requirements
+
 ### Requirement: Exclusive directory publication
 
 Native directory publication SHALL use FreeBSD's `renameat2` with

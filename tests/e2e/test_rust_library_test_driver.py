@@ -13,6 +13,7 @@ import unittest
 from pathlib import Path
 
 from literate_ai.adapters.standard_project import _STANDARD_LIBRARY_TEST_DRIVER
+from literate_ai.projects import load_project
 
 
 class RustLibraryTestDriverTests(unittest.TestCase):
@@ -126,70 +127,11 @@ class RustVerifierDependencyExecutionTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        from literate_ai.adapters.builders.cargo import discover_cargo_toolchain
-        from literate_ai.adapters.builders.rust import discover_rust_toolchain
-        from literate_ai.adapters.lifecycle.standard_local import (
-            LocalComponentToolBinding,
+        from tests.support.fixtures_rust_library_harness import (
+            prepare_native_verifier_class,
         )
-        from tests.support.fixtures_rust_harness_vendor import CRATES
-        from tests.support.fixtures_rust_library_harness import prepare_seed
 
-        if not shutil.which("cargo") or not shutil.which("rustc"):
-            raise unittest.SkipTest("native Cargo and rustc are unavailable")
-        candidates = tuple((Path.home() / ".cargo/registry/cache").glob("*"))
-        archives = next(
-            (
-                root
-                for root in candidates
-                if all((root / (name + ".crate")).is_file() for name in CRATES)
-            ),
-            None,
-        )
-        if archives is None:
-            raise unittest.SkipTest(
-                "exact real upstream Rust fixture archives unavailable"
-            )
-        cls.temporary = tempfile.TemporaryDirectory(prefix="native Rust verifier seed ")
-        cls.addClassCleanup(cls.temporary.cleanup)
-        cls.seed = Path(cls.temporary.name).resolve()
-        cls.environment = {
-            name: value
-            for name, value in os.environ.items()
-            if not name.startswith(("CARGO_", "RUST"))
-        }
-        # This named direct-native profile is selected and measured BEFORE its
-        # oracle is authored. It does not silently replace a pinned shim route.
-        # Ordinary rustup execution under isolated HOME remains unqualified.
-        observed_rust = discover_rust_toolchain(cls.environment)
-        native_rust = Path(observed_rust.compiler_executable)
-        native_cargo = native_rust.with_name(
-            "cargo.exe" if os.name == "nt" else "cargo"
-        )
-        if not native_cargo.is_file():
-            raise unittest.SkipTest(
-                "direct native Cargo/Rust fixture profile unavailable"
-            )
-        cls.cargo = LocalComponentToolBinding.from_observed_toolchain(
-            discover_cargo_toolchain(
-                cls.environment, pinned_command=(str(native_cargo),)
-            )
-        )
-        cls.rustc = LocalComponentToolBinding.from_observed_toolchain(
-            discover_rust_toolchain(
-                {
-                    **cls.environment,
-                    "RUSTC": (
-                        subprocess.list2cmdline([str(native_rust)])
-                        if os.name == "nt"
-                        else shlex.quote(str(native_rust))
-                    ),
-                }
-            )
-        )
-        prepare_seed(cls.seed, archives, cls.cargo, cls.environment)
-        # Later native checks and public rebuilds share the prepared fixture home;
-        # retain the operator HOME and exact native tool bindings unchanged.
-        cls.environment["CARGO_HOME"] = str(cls.seed / "cargo-home")
+        prepare_native_verifier_class(cls)
 
     def test_real_extra_crates_and_selected_features_reopen_and_refuse_drift(self):
         import re
@@ -829,9 +771,10 @@ class RustVerifierDependencyExecutionTests(unittest.TestCase):
         self.assertTrue(result["ok"], result)
         self.assertTrue(result["result"]["passed"], result)
         self.assertTrue(result["result"]["receipt_committed"], result)
-        self.assertTrue((project / "verification/current.json").is_file())
+        current = load_project(project).framework_root / "verification/current.json"
+        self.assertTrue(current.is_file())
         self.assertEqual(fixture.oracle_path.read_bytes(), oracle_bytes)
-        receipt_bytes = (project / "verification/current.json").read_bytes()
+        receipt_bytes = current.read_bytes()
         for scenario, document, code, message in public_boundary_refusals(
             fixture, boundary
         ):
@@ -854,9 +797,7 @@ class RustVerifierDependencyExecutionTests(unittest.TestCase):
                 self.assertEqual(refused["error"]["code"], code, refused)
                 if message is not None:
                     self.assertIn(message, refused["error"]["message"])
-                self.assertEqual(
-                    (project / "verification/current.json").read_bytes(), receipt_bytes
-                )
+                self.assertEqual(current.read_bytes(), receipt_bytes)
         # The actual public oracle remains the source of authority. Restore its
         # bytes only after all failed invocations have retired; this grants no
         # owner or execution from the successful historical receipt.
@@ -881,9 +822,7 @@ class RustVerifierDependencyExecutionTests(unittest.TestCase):
             refused["error"]["message"],
         )
         self.assertFalse(missing.exists(), "missing inputs must not be fetched")
-        self.assertEqual(
-            (project / "verification/current.json").read_bytes(), receipt_bytes
-        )
+        self.assertEqual(current.read_bytes(), receipt_bytes)
         self.assertFalse(
             marker.exists(), "public rebuild selected the hostile Cargo wrapper"
         )

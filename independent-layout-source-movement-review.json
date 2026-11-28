@@ -1,0 +1,71 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_source_moved_metadata_pending_scope",
+  "review_mode": "source-only; no independent tests or probes",
+  "base_commit": "27bcb4b25eae2cb3e7998c67e3051d28a6f87a8c",
+  "reviewer": "guard_review",
+  "record_origin": "Transcribed from independent reviewer messages; author recomputed and compared exact subject digests.",
+  "scope": "Actual one-use partition consumption and nonroot source movement under original preparation ledger; metadata/finalization/terminal success unfinished.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_roles.py",
+      "sha256": "62113766fffcfc7117607cc2ed88673707eba9810fce5610c3f7a9f2f686d059"
+    },
+    {
+      "path": "src/literate_ai/adapters/framework_update_roles.py",
+      "sha256": "de234e75042e80b352f13e5d0b088c9af0f9b53c0a9a5eae7cd720c5ca63cc32"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_ownership.py",
+      "sha256": "0715af77bbfd2b6f596a5d20992c7f5affda8857e5f2fc6067063975cd0bebda"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_admission.py",
+      "sha256": "f6604ceb0f2e35495cd68906f3899a53fa9d665f5f7663f3026f55a24a999886"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "9d0b2f4191704fa201d2753809afe94ae38fe0c349fe06a11830ad4c2283055c"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_movement.py",
+      "sha256": "9d8399a06176c487b61ceacd507ab7723e456c26acd7c3280040213dc05d73ac"
+    },
+    {
+      "path": "tests/critical/test_retained_layout_source_admission.py",
+      "sha256": "c48c7e935b4fc432d5e4e69f761f38521257ac99b75f97d64b81cee166ed608c"
+    }
+  ],
+  "review_chain": [
+    {
+      "decision": "changes_requested",
+      "findings": [
+        "Previously observed destination absence rejected only after rename.",
+        "Old-source absence enumeration followed final external predecessor native closure."
+      ],
+      "resolution": "Fund source counterparts before effects, advance only genuine absences from verified movement; old-source absence scan precedes complete namespace and final external facts."
+    },
+    {
+      "decision": "changes_requested",
+      "findings": [
+        "Mapped lineage reserve performed a fresh debit after rename.",
+        "Moved closing branch omitted pure original phase check after final native callbacks."
+      ],
+      "resolution": "Mapped lineages reserve before intent/spend/effect; moved global close ends with exact phase/preparation/control/movement lifetime binding."
+    },
+    {
+      "decision": "approved_at_source_moved_metadata_pending_scope",
+      "assessment": "No remaining blocker identified within the movement increment. Source census reused by exact original ledger identity, immutable registered state transitions, receipt-bound graph and cache advancement; outer activation closes before final complete resulting-span closure."
+    }
+  ],
+  "findings": [],
+  "independent_dynamic_qualification": false,
+  "open_scope": [
+    "Verified metadata publication and control finalization transitions",
+    "Terminal preparation disposition after actual descriptor teardown",
+    "Canonical authored-role and external-provider shared observations",
+    "Normal complete nonroot transaction",
+    "Root/shared/initial/wrapper/public recovery",
+    "Installed/native/cross-platform/integration/release and all other roadmap acceptance"
+  ]
+}

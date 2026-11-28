@@ -1,6 +1,8 @@
 """Retained release review cannot select an unrelated or changed policy."""
 
 import json
+import os
+import shutil
 import tempfile
 import unittest
 from dataclasses import replace
@@ -44,6 +46,54 @@ class RetainedProjectReleasePolicyTests(unittest.TestCase):
         return release.read_retained_project_release_policy(
             self.root, self.manifest, self.expected
         )
+
+    def contained(self):
+        from literate_ai.projects import ProjectConfigurationStore
+        from tests.support.fixtures_refined_conversion_custody import (
+            RefinedConversionCustodyFixture,
+        )
+
+        fixture = RefinedConversionCustodyFixture()
+        self.addCleanup(fixture.doCleanups)
+        fixture.setUp()
+        fixture.initialize()
+        self.root = fixture.target
+        context = ProjectConfigurationStore.context(self.root)
+        self.path = context.framework_path("literate.release.json")
+        self.capture(self.path.relative_to(self.root).as_posix())
+
+    @unittest.skipUnless(
+        os.name == "posix" and shutil.which("make"), "actual conversion"
+    )
+    def test_contained_review_uses_exact_declared_policy_and_existing_owner(self):
+        self.contained()
+        expected = ReleasePolicy.from_dict(json.loads(self.path.read_bytes()))
+        self.assertEqual(self.read(), replace(expected, default_branch="main"))
+
+    @unittest.skipUnless(
+        os.name == "posix" and shutil.which("make"), "actual conversion"
+    )
+    def test_root_policy_cannot_shadow_contained_release_authority(self):
+        self.contained()
+        original = self.path.read_bytes()
+        other = self.root / "literate.release.json"
+        other.write_bytes(original)
+        with self.assertRaisesRegex(
+            ValueError, "application-root release policy shadows"
+        ):
+            self.read()
+        self.assertEqual(self.path.read_bytes(), original)
+        self.assertEqual(other.read_bytes(), original)
+
+    @unittest.skipUnless(
+        os.name == "posix" and shutil.which("make"), "actual conversion"
+    )
+    def test_contained_review_refuses_equal_bytes_at_another_coordinate(self):
+        self.contained()
+        (self.root / "alternative.json").write_bytes(self.path.read_bytes())
+        self.capture("alternative.json")
+        with self.assertRaisesRegex(ValueError, "configured-policy-input-required"):
+            self.read()
 
     def test_current_reviewed_policy_uses_existing_release_owner(self):
         expected = ReleasePolicy.from_dict(json.loads(self.path.read_bytes()))

@@ -10,6 +10,7 @@ from literate_ai.adapters.project_initialization import (
     initialize_project,
 )
 from literate_ai.contracts import RepositoryParentSelection
+from literate_ai.projects import ProjectConfigurationStore
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -19,10 +20,11 @@ class CourseDemoRegressions(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / "starter"
             initialize_project(root, parent_selection=RepositoryParentSelection.root())
-            spec = (root / "samples/hello-component/component.md").read_text()
+            framework = ProjectConfigurationStore.context(root).framework_root
+            spec = (framework / "samples/hello-component/component.md").read_text()
             self.assertIn("exactly `greeting` and", spec)
             oracle = json.loads(
-                (root / "verification/acceptance/hello-component.json").read_text()
+                (framework / "verification/acceptance/hello-component.json").read_text()
             )
             self.assertGreaterEqual(len(oracle["cases"]), 2)
             for case in oracle["cases"]:

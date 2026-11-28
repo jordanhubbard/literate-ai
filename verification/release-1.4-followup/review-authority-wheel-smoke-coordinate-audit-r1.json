@@ -1,0 +1,128 @@
+{
+  "review": "finite entire wheel_smoke receiving-coordinate audit",
+  "audited_subject": "86662cc0a5d0aaeed89728c55b4a6f55accddfaf:scripts/wheel_smoke.py",
+  "audited_sha256": "ae231fb9640cef91a7273d7a8ecbd68c3583c268cd13fe2e1900326ed2157119",
+  "audit_method": "All AST path division chains and all authority/catalog path literals, including embedded driver strings, inventoried across whole module; receiving aliases and producer/caller contracts inspected. Source parent, package resources, native application, explicit orchestration and artifact scopes distinguished. No scripted global prefix replacement.",
+  "confirmed_fix_sites": [
+    {
+      "owner": "_main initialized-project block",
+      "lines": [
+        4156,
+        4160,
+        4170,
+        4209
+      ],
+      "paths": [
+        "SKILL.md",
+        ".literate/initialization-origin.json",
+        "literate.project.json",
+        "starter_assets except application CHANGELOG.md"
+      ],
+      "producer": "ProjectScaffoldPlacement framework ownership and initializer framework_path; default-contained receives under litai."
+    },
+    {
+      "owner": "_main scoped-shape block",
+      "lines": [
+        4235,
+        4236,
+        4242
+      ],
+      "paths": [
+        "flavors/lang-python/flavor.md",
+        "flavors/os-macos/flavor.md",
+        "literate.project.json"
+      ],
+      "producer": "Same default-contained initializer even with --empty and explicit Flavor selections."
+    },
+    {
+      "owner": "assert_installed_agent_bootstrap",
+      "lines": [
+        2731,
+        2732,
+        2733,
+        2752
+      ],
+      "paths": [
+        "scripts/bootstrap_litai.py",
+        "docs/user/bootstrap.md",
+        "SKILL.md",
+        "literate.project.json"
+      ],
+      "producer": "Framework scaffold; preserve actual bootstrap invocation/45s deadline, exact binding forge/restore, original ready/missing/incompatible assertions and AGENTS bytes preservation. Root AGENTS/CLAUDE are intentional delegates. Current contained producer root delegates point to litai/SKILL.md without direct bootstrap link; actual SKILL links relative docs/user/bootstrap.md before litai doctor. Check this actual two-hop authority contract explicitly."
+    },
+    {
+      "owner": "assert_standard_project_version_check",
+      "lines": [
+        2842
+      ],
+      "paths": [
+        "literate.project.json"
+      ],
+      "producer": "Capture original receiving manifest path for forge and finally restoration; unchanged mismatch assertion."
+    },
+    {
+      "owner": "add_selected_flavor_packaging_provider",
+      "lines": [
+        2989,
+        3023
+      ],
+      "paths": [
+        "components/wheel-package-publisher",
+        "flavors/lang-python/flavor.md"
+      ],
+      "producer": "Create provider in receiving configured component root and mutate selected receiving Flavor. Preserve original logical YAML URIs (skills/workflow/routing), as catalog bytes are intentionally not rebased."
+    },
+    {
+      "owner": "_main component lock/read/plan operations",
+      "lines": [
+        4380,
+        4393,
+        4398,
+        4428,
+        4511
+      ],
+      "paths": [
+        "samples/hello-component",
+        "components/wheel-package-publisher",
+        "samples/hello-component/component.lock.json"
+      ],
+      "producer": "Component lock CLI selects actual Path and resolves strictly; actual framework-owned component directories under litai. Plan selected path should name same original receiving component."
+    }
+  ],
+  "preserve_sites": [
+    {
+      "owner": "assert_installed_repository_refresh",
+      "lines": [
+        1891,
+        2003,
+        2059
+      ],
+      "reason": "Different explicit orchestration producer intentionally authors root literate.project.json via orchestration_scaffold132 and initialization finite root namespace. Preserve child app source/.gitmodules/README and Git paths."
+    },
+    {
+      "owner": "assert_lifecycle_does_not_require_project_codegraph",
+      "lines": [
+        2531,
+        2541
+      ],
+      "reason": "run component argument is logical through configured_component_coordinate; preserve samples/hello-component selector. Default source intelligence none: root index absence helper introduces no receiving authority read needing blanket remap."
+    },
+    {
+      "owner": "assert_installed_native_adoption and operator golden paths",
+      "reason": "Already explicit correct litai metadata for default adoption; native app.py/Makefile/tests/AGENTS and selected removal result paths remain application-relative."
+    },
+    {
+      "owner": "starter_assets CHANGELOG.md",
+      "reason": "Exact placement role application-seed retains root CHANGELOG. Remaining listed starter assets are framework-owned."
+    },
+    {
+      "owner": "source checkout, wheel resources, runtime environments and qualification artifacts",
+      "reason": "Authored repository paths, archive logical keys, installation site-packages, explicit build/cache/temp prefixes, graph/HTML artifact relative paths and release-file destinations do not gain litai prefix."
+    }
+  ],
+  "further_limits": [
+    "Root has begun source changes; this audit reports frozen86662 sites, not final dirty source closure.",
+    "Downstream imported installed_* scripts and tests/support journeys are separate executable sources; this finite module audit does not attest their entire contents.",
+    "No test execution, whole wheel rerun, source mutation, assertion/skip/deadline change or qualification acceptance by reviewer."
+  ]
+}

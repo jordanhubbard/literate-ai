@@ -1,7 +1,8 @@
 {
-  "schema": "urn:literate-ai:schema:v2:standard-cargo-command-profile",
+  "schema": "urn:literate-ai:schema:v3:standard-cargo-command-profile",
   "target": "cargo",
   "toolchain": "cargo",
   "manifest": "source/Cargo.toml",
-  "binary": "litai_artifact"
+  "binary": "litai_artifact",
+  "package_layout": "shared-siblings"
 }

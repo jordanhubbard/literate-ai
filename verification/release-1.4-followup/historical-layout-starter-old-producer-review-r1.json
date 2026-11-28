@@ -1,0 +1,135 @@
+{
+  "status": "independent_old_public_starter_producer_acceptance_only",
+  "historical_version": "1.3.1",
+  "historical_wheel_sha256": "4b075b0b7727a11785a59359ccc3fc2de327baad46ec45350faeb66ddfc14c15",
+  "noneditable_archive_origin_verified": true,
+  "installed_distribution_origin": {
+    "git_revision": "87506c804210c46835723e11d1ca1c6cae0f496c",
+    "repository_url": "https://github.com/jordanhubbard/literate-ai",
+    "schema": "literate-ai/distribution-origin@1"
+  },
+  "actual_initializer_record": {
+    "id": "011",
+    "argv": [
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r1/environment/bin/python",
+      "-I",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r1/environment/bin/litai",
+      "--json",
+      "init",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-starter-r1/starter",
+      "--type",
+      "application",
+      "--default-branch",
+      "main",
+      "--source-intelligence-provider",
+      "none",
+      "--no-tool-bootstrap",
+      "--from",
+      "file:///home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-starter-r1/parent.git#87506c804210c46835723e11d1ca1c6cae0f496c",
+      "--repository-fetch-total-seconds",
+      "300",
+      "--repository-fetch-no-progress-seconds",
+      "60",
+      "--repository-fetch-connect-seconds",
+      "10"
+    ],
+    "exit": 0,
+    "record_sha256": "476b13e6f4ec166cd9997b36d221c4a91fb5a0435687429f89d828e0fed4b00e"
+  },
+  "all14command_records_exit0_and_outputs_authenticated": true,
+  "old_root_authority": {
+    "manifest_sha256": "5986aa61356d7126dcc4913e3b2277b625086c4e940a4f9567e700b19251b96b",
+    "framework_directory": null,
+    "component_roots": [
+      "components",
+      "samples"
+    ],
+    "flavor_roots": [
+      "flavors"
+    ],
+    "default_selectors": [
+      "+flavor://literate-ai/lang-python",
+      "+flavor://literate-ai/build-make",
+      "+flavor://literate-ai/package-pip",
+      "+flavor://literate-ai/os-linux"
+    ],
+    "test_receipt": "verification/current.json",
+    "receipt_exists": false,
+    "standard_driver": {
+      "schema": "urn:literate-ai:schema:v2:project-lifecycle-driver",
+      "binding": "standard",
+      "framework_distribution_identity": {
+        "schema": "urn:literate-ai:schema:v1:content-identity",
+        "algorithm": "sha256",
+        "digest": "6a636229b3f17edca9a7bdeb140f2b0fa6ff7b922a8d481dda9457fae26a5bc2"
+      },
+      "policy_identity": {
+        "schema": "urn:literate-ai:schema:v1:content-identity",
+        "algorithm": "sha256",
+        "digest": "a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+      }
+    },
+    "minimum_test_count": 1
+  },
+  "local_parent": {
+    "url": "file:///home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-starter-r1/parent.git",
+    "resolved_revision": "87506c804210c46835723e11d1ca1c6cae0f496c",
+    "bare_head_matches": true,
+    "remotes": [],
+    "ancestor_count": 0
+  },
+  "preservation": {
+    "before_equals_after_equals_live": true,
+    "facts": {
+      "readme": {
+        "sha256": "8c0373e3e3b3a72c76cc933a62d890b74354b4d610eee604ae77b5e3192f2513",
+        "device": 1813,
+        "inode": 12602684,
+        "size": 87,
+        "mtime_ns": 1795778249298595988,
+        "mode": 33188
+      },
+      "git_head": {
+        "sha256": "28d25bf82af4c0e2b72f50959b2beb859e3e60b9630a5e8c603dad4ddb2b6e80",
+        "device": 1813,
+        "inode": 12995901,
+        "size": 21,
+        "mtime_ns": 1795778249297208702,
+        "mode": 33188
+      },
+      "git_index": {
+        "sha256": "3c32d18c1b4a3e080b749edf4fa65f2643ef8632027cd12c5edfb932197a3e44",
+        "device": 1813,
+        "inode": 12995904,
+        "size": 137,
+        "mtime_ns": 1795778249303064284,
+        "mode": 33188
+      },
+      "git_main": {
+        "sha256": "1ab9536a214c20e19ce26d2dfb7a9d914c58292bb9ebb299ce3d894f77901df4",
+        "device": 1813,
+        "inode": 1592636,
+        "size": 41,
+        "mtime_ns": 1795778249303623877,
+        "mode": 33188
+      },
+      "head": "8f8c441504a8cfb0408508dcc147cbe94d008dab"
+    },
+    "scope": "Original87byte README plus native dev/inode/mode/mtime/content, rawGitHEAD/mainref/index nativefacts and resolvedoriginalcommit; newly authored scaffold is additional state.",
+    "no_generation_claim": true
+  },
+  "validation_and_lock": {
+    "old_validate_ok": true,
+    "old_lock_current": true,
+    "old_audit_current": true,
+    "component_lock_identity": "sha256:4a6cb6f94a1e05b3cbdc18212971a25a6890b08632fb2750a106a2edbec9da04",
+    "audit_identity": "sha256:87fefdab5c0a4e6c9aade60bfcc5b35c8da136433b3ded68c068b91b48042dae"
+  },
+  "limits": [
+    "Actual published oldpublic init/validate/currentlock completed, not source-development adapter substitution.",
+    "No generation/rebuild/build/test/run/package command was executed; no fresh passingreceipt/nativeapplication/completefeature claim.",
+    "Metadata/catalog/framework migration, README/entrypoint convergence, Standardrebind and genuine ordinary lifecycle/currentreceipt remain separate pending acceptance.",
+    "Private fileparent browser mapping needs explicit verified attribution; immutable originalREADME preservation baseline stands before any separately authorized managedblock delta.",
+    "Reviewer performed read-only verification only; no init/migration/source edits or reruns."
+  ]
+}

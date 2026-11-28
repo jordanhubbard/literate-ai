@@ -6,6 +6,7 @@ right to exclude a path, execute inputs, materialize packages or admit a receipt
 
 from __future__ import annotations
 
+import ctypes
 import os
 import stat
 import unicodedata
@@ -13,11 +14,14 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from literate_ai._cache_lock import _windows_identity_matches
+from literate_ai._filesystem import require_safe_directory, stat_is_link_or_reparse
 from literate_ai.adapters.retained_project_inputs import (
     _directory_access,
     _inventory,
     _link_bytes,
     _root,
+    _same_open_file,
     _stamp,
     _stream,
 )
@@ -30,6 +34,71 @@ from literate_ai.contracts.native_sdk_trees import (
 )
 from literate_ai.contracts.paths import canonical_relative_posix_paths
 from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
+
+
+class _WindowsFileBasicInfo(ctypes.Structure):
+    _fields_ = [
+        ("CreationTime", ctypes.c_int64),
+        ("LastAccessTime", ctypes.c_int64),
+        ("LastWriteTime", ctypes.c_int64),
+        ("ChangeTime", ctypes.c_int64),
+        ("FileAttributes", ctypes.c_uint32),
+    ]
+
+
+def _windows_change_time(descriptor, *, kernel32=None, get_osfhandle=None):
+    if kernel32 is None:
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    if get_osfhandle is None:
+        import msvcrt
+
+        get_osfhandle = msvcrt.get_osfhandle
+    query = kernel32.GetFileInformationByHandleEx
+    query.argtypes = (ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32)
+    query.restype = ctypes.c_int
+    info = _WindowsFileBasicInfo()
+    if not query(get_osfhandle(descriptor), 0, ctypes.byref(info), ctypes.sizeof(info)):
+        error = ctypes.get_last_error() if hasattr(ctypes, "get_last_error") else 0
+        raise ValueError(f"retained.cargo.v2-input-change-time-unavailable:{error}")
+    if info.FileAttributes & (0x400 | 0x10) or info.ChangeTime <= 0:
+        raise ValueError("retained.cargo.v2-input-change-time-unsafe")
+    return info.ChangeTime
+
+
+def _windows_file_change_witness(path, before):
+    if stat_is_link_or_reparse(before) or not stat.S_ISREG(before.st_mode):
+        raise ValueError("retained.cargo.v2-input-change-time-unsafe")
+    require_safe_directory(path.parent)
+    flags = os.O_RDONLY
+    for name in ("O_BINARY", "O_CLOEXEC", "O_NOFOLLOW", "O_NONBLOCK"):
+        flags |= getattr(os, name, 0)
+    descriptor = os.open(path, flags)
+    try:
+        opened = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(opened.st_mode)
+            or not _same_open_file(before, opened)
+            or not _windows_identity_matches(path, descriptor)
+            or _stamp(path.lstat()) != _stamp(before)
+        ):
+            raise ValueError("retained.cargo.v2-input-change-time-binding-changed")
+        change_time = _windows_change_time(descriptor)
+        if (
+            _stamp(os.fstat(descriptor)) != _stamp(opened)
+            or _windows_change_time(descriptor) != change_time
+            or _stamp(path.lstat()) != _stamp(before)
+        ):
+            raise ValueError("retained.cargo.v2-input-change-time-binding-changed")
+    finally:
+        os.close(descriptor)
+    require_safe_directory(path.parent)
+    return change_time
+
+
+def _file_change_witness(path, before):
+    if os.name != "nt":
+        return None
+    return _windows_file_change_witness(path, before)
 
 
 def _node(value):
@@ -91,7 +160,10 @@ class RetainedCargoInputTreeV2:
             exclusions=self.exclusions,
             maximum_metadata_bytes=self.maximum_metadata_bytes,
         )
-        if self._physical != current._physical or self.identity != current.identity:
+        # Compare every freshly observed field directly. Re-encoding both
+        # complete immutable records adds no custody check; current capture has
+        # still streamed/hash-checked every payload and closed its namespace.
+        if self._physical != current._physical or self != current:
             raise ValueError("retained.cargo.v2-input-custody-changed")
 
 
@@ -102,6 +174,23 @@ def capture_retained_cargo_tree_v2(
     exclusions: tuple[str, ...] = (),
     maximum_metadata_bytes: int = 1024 * 1024 * 1024,
 ) -> RetainedCargoInputTreeV2:
+    """Capture a complete ordinary root; exclusions retain their original policy."""
+    return _capture_retained_tree(
+        root,
+        budget=budget,
+        exclusions=exclusions,
+        maximum_metadata_bytes=maximum_metadata_bytes,
+    )
+
+
+def _capture_retained_tree(
+    root: Path,
+    *,
+    budget: RetainedCargoInputBudget,
+    exclusions: tuple[str, ...] = (),
+    maximum_metadata_bytes: int,
+    _source_roots: tuple[str, ...] | None = None,
+):
     """Hash physical regular payloads once, with bounded no-follow buffers.
 
     Internal links reuse canonical SDK topology rules. Complete hard-link groups
@@ -110,8 +199,44 @@ def capture_retained_cargo_tree_v2(
     The surrounding owner must bind this tree to its exact reviewed input scope
     and charge per-owner plus aggregate policy limits before executing anything.
     """
-    if type(budget) is not RetainedCargoInputBudget:
-        raise ValueError("retained.cargo.v2-input-budget-required")
+    return _capture_retained_cargo_tree(
+        root,
+        budget=budget,
+        exclusions=exclusions,
+        maximum_metadata_bytes=maximum_metadata_bytes,
+        _native_output=False,
+        _source_roots=_source_roots,
+    )
+
+
+def _capture_retained_cargo_tree(
+    root: Path,
+    *,
+    budget: RetainedCargoInputBudget,
+    exclusions: tuple[str, ...] = (),
+    maximum_metadata_bytes: int = 1024 * 1024 * 1024,
+    _native_output: bool = False,
+    _source_roots: tuple[str, ...] | None = None,
+) -> RetainedCargoInputTreeV2:
+    """Hash physical regular payloads once, with bounded no-follow buffers.
+
+    Internal links reuse canonical SDK topology rules. Complete hard-link groups
+    are required; their payload is charged once and other names remain aliases.
+    Only metadata, digests and link text are retained. No cache is copied or filled.
+    The surrounding owner must bind this tree to its exact reviewed input scope
+    and charge per-owner plus aggregate policy limits before executing anything.
+    """
+    if _native_output:
+        from literate_ai.adapters.retained_cargo_native_output_tree import (
+            _NativeOutputTreeBudget,
+            _OriginalNativeOutputTree,
+        )
+
+        if type(budget) is not _NativeOutputTreeBudget:
+            raise ValueError("retained.output-census.native-budget-required")
+    else:
+        if type(budget) is not RetainedCargoInputBudget:
+            raise ValueError("retained.cargo.v2-input-budget-required")
     if (
         type(maximum_metadata_bytes) is not int
         or not 16 * 1024 * 1024 <= maximum_metadata_bytes <= 16 * 1024**3
@@ -124,18 +249,43 @@ def capture_retained_cargo_tree_v2(
     ):
         raise ValueError("retained.cargo.v2-input-exclusions-invalid")
     canonical_relative_posix_paths(exclusions, label="owned Cargo exclusions")
+    if _source_roots is not None:
+        from .catalog_source_forest import _selection
+
+        if exclusions:
+            raise ValueError("catalog.source-forest: exclusions are not selections")
+        partial, selection_cost = _selection(
+            _source_roots, budget, maximum_metadata_bytes
+        )
+    else:
+        partial, selection_cost = (), 0
     root = _root(Path(root))
     excluded = frozenset(exclusions)
-    with _directory_access(root) as access:
+    selected = frozenset(_source_roots or ())
+    peak_metadata_bytes = 16 * 1024 * 1024
+    with _directory_access(
+        root, lexical_cache_bytes=maximum_metadata_bytes - peak_metadata_bytes
+    ) as access:
+
+        def reserve_metadata(value):
+            nonlocal peak_metadata_bytes
+            peak_metadata_bytes = max(peak_metadata_bytes, value)
+            if access is not None:
+                # Parsing is optional acceleration, never additional custody.
+                # Evict before retaining charged graph entries; a full graph
+                # keeps its original allowance and simply uses uncached parsing.
+                access.set_lexical_budget(maximum_metadata_bytes - peak_metadata_bytes)
 
         def metadata(name):
+            if _source_roots is not None and access is None:
+                require_safe_directory((root / name).parent)
             return (
                 access.metadata(root / name)
                 if access is not None
                 else (root / name).lstat()
             )
 
-        def inventory():
+        def inventory(*, initial_nodes=None):
             descriptor = None
             if access is not None:
                 descriptor = os.open(
@@ -144,27 +294,48 @@ def capture_retained_cargo_tree_v2(
                     dir_fd=access.directory(())[0],
                 )
             roots = []
-            root_bytes = 0
+            root_bytes = selection_cost
             try:
-                with os.scandir(
-                    descriptor if descriptor is not None else root
-                ) as entries:
-                    for entry in entries:
-                        if len(roots) >= budget.maximum_entries + len(exclusions):
-                            raise ValueError("retained.cargo.v2-input-entry-limit")
-                        root_bytes += 128 + 32 * len(entry.name.encode("utf-8"))
-                        if root_bytes + 16 * 1024 * 1024 > maximum_metadata_bytes:
-                            raise ValueError("retained.cargo.v2-input-metadata-limit")
-                        roots.append(entry.name)
+                if _source_roots is None:
+                    with os.scandir(
+                        descriptor if descriptor is not None else root
+                    ) as entries:
+                        for entry in entries:
+                            if len(roots) >= budget.maximum_entries + len(exclusions):
+                                raise ValueError("retained.cargo.v2-input-entry-limit")
+                            root_bytes += 128 + 32 * len(entry.name.encode("utf-8"))
+                            if root_bytes + 16 * 1024 * 1024 > maximum_metadata_bytes:
+                                raise ValueError(
+                                    "retained.cargo.v2-input-metadata-limit"
+                                )
+                            reserve_metadata(root_bytes + 16 * 1024 * 1024)
+                            roots.append(entry.name)
+                else:
+                    roots = _source_roots
+                    for name in roots:
+                        node = metadata(name)
+                        if not stat.S_ISDIR(node.st_mode) or stat_is_link_or_reparse(
+                            node
+                        ):
+                            raise ValueError(
+                                "catalog.source-forest: selected root is redirected"
+                            )
             finally:
                 if descriptor is not None:
                     os.close(descriptor)
             included = 0
             metadata_bytes = 16 * 1024 * 1024 + root_bytes
             charged_links = {}
+            change_times = {}
 
             def observe(name, node):
                 nonlocal included, metadata_bytes
+                if name in selected and (
+                    not stat.S_ISDIR(node.st_mode) or stat_is_link_or_reparse(node)
+                ):
+                    raise ValueError(
+                        "catalog.source-forest: selected root type changed"
+                    )
                 if name not in excluded:
                     included += 1
                     if included > budget.maximum_entries:
@@ -179,9 +350,23 @@ def capture_retained_cargo_tree_v2(
                         metadata_bytes += 64 * node.st_size
                     if metadata_bytes > maximum_metadata_bytes:
                         raise ValueError("retained.cargo.v2-input-metadata-limit")
+                    reserve_metadata(metadata_bytes)
                     if stat.S_ISLNK(node.st_mode):
                         charged_links[name] = _node(node)
+                    elif stat.S_ISREG(node.st_mode):
+                        change_time = _file_change_witness(root / name, node)
+                        if change_time is not None:
+                            change_times[name] = change_time
+                    if initial_nodes is not None:
+                        initial_nodes[name] = node
 
+            for name in partial:
+                node = metadata(name)
+                if not stat.S_ISDIR(node.st_mode) or stat_is_link_or_reparse(node):
+                    raise ValueError(
+                        "catalog.source-forest: direct source ancestry required"
+                    )
+                observe(name, node)
             observed = _inventory(
                 root,
                 tuple(sorted(roots)),
@@ -191,11 +376,20 @@ def capture_retained_cargo_tree_v2(
                 observe=observe,
                 excluded_roots=excluded,
             )
-            return (*observed, charged_links)
+            if _source_roots is not None:
+                observed = observed[0], tuple(sorted((*observed[1], *partial)))
+            return (*observed, charged_links, tuple(sorted(change_times.items())))
 
         root_node = _node(root.lstat())
-        names, directories, charged_links = inventory()
-        before = {name: metadata(name) for name in (*directories, *names)}
+        before = {}
+        names, directories, charged_links, change_times = inventory(
+            initial_nodes=before
+        )
+        # These are the same no-follow observations that admitted each initial
+        # census entry. Keep them across streaming rather than replacing them
+        # with a redundant later pass that could hide an intervening write.
+        if set(before) != set((*directories, *names)):
+            raise ValueError("retained.cargo.v2-input-membership-changed")
         # Reuse portable case/normalization policy without imposing the standalone
         # SDK tree's smaller member ceiling on a reviewed Cargo custody budget.
         keys = set()
@@ -254,9 +448,26 @@ def capture_retained_cargo_tree_v2(
             remaining=max(1048576, budget.maximum_entries * 128)
         )
         for alias in aliases:
-            NativeSdkTree._resolve(
+            target = NativeSdkTree._resolve(
                 alias.path, directory_set, file_set, alias_map, resolution
             )
+            if _source_roots is not None:
+                candidate = target
+                while candidate not in selected and "/" in candidate:
+                    candidate = candidate.rsplit("/", 1)[0]
+                if candidate not in selected:
+                    raise ValueError(
+                        "catalog.source-forest: alias leaves selected subtrees"
+                    )
+        if _native_output:
+            if budget._ledger is not None:
+                # Charge the complete original census BEFORE reading payload.
+                budget._ledger.charge(
+                    files=len(owners),
+                    entries=len(directories) + len(names),
+                    payload_bytes=total,
+                    metadata_bytes=peak_metadata_bytes,
+                )
         files = []
         for name in sorted(owners):
             size, mode, digest = _stream(
@@ -266,14 +477,39 @@ def capture_retained_cargo_tree_v2(
                 raise ValueError("retained.cargo.v2-input-size-changed")
             files.append((name, BlobRef(digest, size), bool(mode & 0o111)))
         if (
-            inventory() != (names, directories, charged_links)
+            inventory() != (names, directories, charged_links, change_times)
             or _node(root.lstat()) != root_node
         ):
             raise ValueError("retained.cargo.v2-input-membership-changed")
         physical = tuple((name, _node(before[name])) for name in sorted(before))
         if any(_node(metadata(name)) != node for name, node in physical):
             raise ValueError("retained.cargo.v2-input-physical-custody-changed")
-        return RetainedCargoInputTreeV2(
+        if any(
+            _file_change_witness(root / name, metadata(name)) != expected
+            for name, expected in change_times
+        ):
+            raise ValueError("retained.cargo.v2-input-physical-custody-changed")
+        if _native_output:
+            return _OriginalNativeOutputTree(
+                root,
+                budget,
+                exclusions,
+                directories,
+                tuple(files),
+                tuple(sorted(aliases, key=lambda x: x.path)),
+                budget._metadata_limit,
+                (root_node, physical, change_times),
+                peak_metadata_bytes,
+            )
+        # Preserve the original ordinary source-census physical shape when no
+        # platform change-time witness exists. Native Windows observations keep
+        # every captured handle witness; output census representation is unchanged.
+        physical_facts = (
+            (root_node, physical, change_times)
+            if change_times
+            else (root_node, physical)
+        )
+        fields = (
             root,
             budget,
             exclusions,
@@ -281,5 +517,10 @@ def capture_retained_cargo_tree_v2(
             tuple(files),
             tuple(sorted(aliases, key=lambda x: x.path)),
             maximum_metadata_bytes,
-            (root_node, physical),
+            physical_facts,
         )
+        if _source_roots is None:
+            return RetainedCargoInputTreeV2(*fields)
+        from .catalog_source_forest import CatalogSourceForestTree
+
+        return CatalogSourceForestTree(*fields, _source_roots)

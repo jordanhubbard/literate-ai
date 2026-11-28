@@ -1,0 +1,103 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_scope",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "7e087729e3863b9e703253880056a3cd18f2cfdc",
+  "scope": "Canonical Git source held through internal catalog/source handoff, including acquiring-process-only clone cleanup after inherited context unwind.",
+  "lineage": [
+    {
+      "path": "independent-layout-catalog-source-review.json",
+      "sha256": "8a1f66a6089b55097d0ac1a9a0b5d4d8fc83c18e1d1c44363ea399815469d169",
+      "preserved": true
+    },
+    {
+      "path": "independent-layout-catalog-source-fork-supplemental-review.json",
+      "sha256": "cdd483476f085a9ec55c8e8263d9012b5fad6b24620b1d701081ed600cd0fd67",
+      "preserved": true
+    }
+  ],
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "bbe1c831559a3883a1e231cb91350363a12d5597bf054d9942369b73be47ceaa"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "05832c6fea2c194866bf279afd63dae6ddc83c9021a4b7b8b1b9d147c981d21d"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_roles.py",
+      "sha256": "f72870decc7ed0508ef6d677ea517f883a239d975f7181de74755ed8b6164aaa"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_provenance_publication.py",
+      "sha256": "b0cf092f2dba0d2a86afc72f3c2a45fb81f65c1549289e3507452b7cbf48ece9"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_import.py",
+      "sha256": "840ca1462a0778403161509927bbf7416f6568d349b37d38e722ddd89b94a1ba"
+    },
+    {
+      "path": "tests/critical/test_catalog_source_lease.py",
+      "sha256": "57609f6855586783e9ceda5d6cbb2f7277a206550873b84436fdaa3928eccd1a"
+    }
+  ],
+  "findings": [],
+  "resolved": [
+    {
+      "id": "CATALOG-SOURCE-FORK-CLEANUP-001",
+      "assessment": "Actual _clone_git_source captures clone_owner_pid before temporary acquisition and gates exception cleanup by that PID. Actual _open_source captures source_owner_pid before acquisition and gates final clone-parent deletion there. Child unwinding no longer deletes the acquiring parent's canonical checkout; same-process normal/error cleanup remains on the original path and exceptions continue to propagate.",
+      "evidence": "Independent maintained real fork case executes inherited complete context unwind, verifies child result0, parent successfully completes actual copy and canonical Git provenance afterward, and parent normal exit removes the clone. Both surrounding modules also pass.",
+      "qualification": "Original dependency cleanup behavior was inherited into the new long-lived guarantee; repair is at the actual destructive owner. This closes the specific fork-unwind finding, not general filesystem deletion/GC or every acquisition interrupt scenario."
+    }
+  ],
+  "source_assessment": [
+    "Four source-lease integration production subjects are unchanged from initial exact review; shared ledger, canonical ref, original input/census witnesses and pure source lifetime closure assessment remains applicable.",
+    "PID checks guard only destructive clone cleanup. They do not authorize child reads/effects or skip normal parent cleanup.",
+    "Inherited source/copy registries revoke in child-local memory, source pins close only child descriptor copies, and actual staged reservation retention closes descriptor copies without name deletion.",
+    "Existing journal writer mutex cleanup separately checks acquiring PID before explicit unlock, avoiding release of the parent's shared open-file-description lock; this helper was source-inspected, not a new mutex-contender test.",
+    "Ordinary local-source _open_source branch is unchanged. Parent Git acquisition error path still runs the same cleanup under an always-matching acquiring PID; canonical process deadline/output and Git ref behavior remain unchanged."
+  ],
+  "independent_execution": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease tests.smoke.test_catalog_import > _build/catalog-source-repaired-independent.log 2>&1",
+    "session": 98734,
+    "exit_code": 0,
+    "tests": 23,
+    "passed": 23,
+    "skipped": 0,
+    "seconds": 82.962,
+    "log": "_build/catalog-source-repaired-independent.log",
+    "log_sha256": "17051115ece0cdab1c5614c9ba264b56b3c6c8f1bf4845e4bb2514f3bb8116c1",
+    "terminal": true,
+    "bespoke_probes": 0,
+    "additional_input": {
+      "path": "tests/smoke/test_catalog_import.py",
+      "sha256": "19d1763b0755892cfe9b332d35c316453398ff527109b6748325822cc03384aa"
+    },
+    "coverage": [
+      "All12 source-lease methods, including actual inherited context unwind and successful subsequent parent publication, source/copy revocation, lifetime callbacks, budget refusal, genuine resolved/symbolic refs and actual framework/source move composition.",
+      "All11 canonical smoke methods: DAG cycle, immutable revision/shallow/sparse behavior, selected submodule revision and metadata filtering, unavailable unrelated submodule, missing pin preserving destination, traversal/invalid locator rejection and SHA256 repository case on this host."
+    ]
+  },
+  "causal_evidence_read": [
+    {
+      "path": "_build/catalog-source-fork-before.log",
+      "sha256": "cb668223d097e5bd879197af58357de19bdd14e743ae73310f4083e6666b394b",
+      "attribution": "Author maintained predecessor execution; read independently, not rerun.1 failure2.995s, child result23 means parent's checkout missing. Parent attributes original cleanup dependency to previously reviewed e288f28730b74873239da220ebe4e39ffe0024f6334202e94b88d156f314ed04."
+    },
+    {
+      "path": "_build/catalog-source-fork-after.log",
+      "sha256": "161df728ceb1330e81f35ba9415d2a932de7019157c01277ecd940e8ffab7ec2",
+      "attribution": "Author maintained repaired execution; read independently, not counted as own run.1 passed8.018s. Own23-method run independently includes same maintained case."
+    }
+  ],
+  "limits": [
+    "No bespoke probes/reproduction scripts, predecessor re-execution or extra broad independent suite.",
+    "Prior author347-method pass and prior11-method/Make passes precede this PID repair and do not qualify current cleanup. Current author broad/Make outcomes are not inferred.",
+    "No new guarantee that pre-existing acquisition cleans up every interrupt or arbitrary hostile pathname replacement; general clone cleanup ownership remains outside this narrow fix.",
+    "Canonical cloning storage and subprocess policy remain separate from copy payload budget. Tests use local file-protocol repositories, not remote services.",
+    "Local POSIX execution only; no installed-wheel or independent Windows/Linux/other platform qualification, public/root/shared/recovery/full-feature/program/release acceptance.",
+    "All six hashes and additional smoke input rechecked unchanged after terminal execution. No implementation/test/pin edits, installs, network or new agents. Previous reports immutable.",
+    "No independent process remains live. Source inspection/execution complete; safe to unfreeze from reviewer side after parent-owned relevant jobs are terminal."
+  ]
+}

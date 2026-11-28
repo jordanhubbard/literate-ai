@@ -21,7 +21,9 @@ from literate_ai.adapters.project_tracker import (
 )
 from literate_ai.application.roadmap_dependencies import (
     RoadmapDependencyError,
-    validate_roadmap_dependencies,
+    RoadmapSection,
+    roadmap_sections,
+    validate_roadmap_sections,
 )
 from literate_ai.contracts.identity import canonical_identity
 
@@ -35,13 +37,6 @@ _RELEASE_BRANCH = re.compile(r"release/[0-9]+\.[0-9]+\.x")
 _VERSION = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?")
 _REMOTE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
 _GOAL_ID = re.compile(r"[A-Z][A-Z0-9-]*-[0-9]+")
-_ROADMAP_HEADING = re.compile(
-    r"^### \[(?P<state>[ x])\] (?P<id>[A-Z][A-Z0-9-]*-[0-9]+)\b",
-    re.MULTILINE,
-)
-_RELEASE_TARGET = re.compile(
-    r"^- \*\*Release target:\*\*\s*(?P<target>.+?)\s*$", re.MULTILINE
-)
 _MARKER = re.compile(
     rf"<!--\s*{re.escape(RELEASE_DISPOSITION_MARKER)}\s*\n"
     r"(?P<payload>\{[^\n]+\})\s*\n-->",
@@ -60,12 +55,33 @@ class ReleaseContributionsError(RuntimeError):
 def _roadmap_release_goals(
     root: Path, *, release: str, manifest_path: str
 ) -> dict[str, object]:
+    report, _ = read_release_goal_authority(
+        root, release=release, manifest_path=manifest_path
+    )
+    return report
+
+
+def _manifest_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate roadmap goal manifest key: {key}")
+        result[key] = value
+    return result
+
+
+def read_release_goal_authority(
+    root: Path, *, release: str, manifest_path: str
+) -> tuple[dict[str, object], dict[str, RoadmapSection]]:
     """Validate the durable release-goal ledger against its roadmap authority."""
 
     manifest_file = root / manifest_path
     try:
-        manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        manifest = json.loads(
+            manifest_file.read_text(encoding="utf-8"),
+            object_pairs_hook=_manifest_object,
+        )
+    except (OSError, ValueError) as exc:
         raise ReleaseContributionsError(
             "release.roadmap_goal_manifest_invalid",
             f"cannot read roadmap goal manifest: {manifest_path}",
@@ -103,19 +119,10 @@ def _roadmap_release_goals(
             f"cannot read roadmap authority: {roadmap_path}",
         ) from exc
     try:
-        validate_roadmap_dependencies(roadmap, manifest)
+        sections = roadmap_sections(roadmap)
+        validate_roadmap_sections(sections, manifest)
     except RoadmapDependencyError as exc:
         raise ReleaseContributionsError(exc.code, exc.message) from exc
-    sections: dict[str, tuple[bool, str | None]] = {}
-    headings = list(_ROADMAP_HEADING.finditer(roadmap))
-    for index, heading in enumerate(headings):
-        end = headings[index + 1].start() if index + 1 < len(headings) else len(roadmap)
-        body = roadmap[heading.end() : end]
-        target_match = _RELEASE_TARGET.search(body)
-        sections[heading.group("id")] = (
-            heading.group("state") == "x",
-            None if target_match is None else target_match.group("target").strip(),
-        )
     entries = releases.get(release)
     if not isinstance(entries, list) or not entries:
         raise ReleaseContributionsError(
@@ -140,7 +147,7 @@ def _roadmap_release_goals(
         if section is None:
             invalid.append({"id": goal, "reason": "goal-missing-from-roadmap"})
             continue
-        complete, target = section
+        complete, target = section.complete, section.release_target
         if disposition == "include":
             if set(entry) != {"id"}:
                 invalid.append({"id": goal, "reason": "included-goal-has-extra-fields"})
@@ -178,10 +185,10 @@ def _roadmap_release_goals(
         ):
             invalid.append({"id": goal, "reason": "unapproved-or-incomplete-deferral"})
         normalized.append({"id": goal, "disposition": "defer", "to": destination})
-    for goal, (_complete, target) in sections.items():
-        if target == release and goal not in seen:
+    for goal, section in sections.items():
+        if section.release_target == release and goal not in seen:
             invalid.append({"id": goal, "reason": "roadmap-goal-missing-from-manifest"})
-    return {
+    report = {
         "manifest": manifest_path,
         "roadmap": roadmap_path,
         "goals": normalized,
@@ -189,6 +196,7 @@ def _roadmap_release_goals(
         "invalid": invalid,
         "ready": not open_goals and not invalid,
     }
+    return report, sections
 
 
 def _run(

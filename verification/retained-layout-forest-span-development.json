@@ -1,0 +1,148 @@
+{
+  "schema": "literate-ai/runtime-forest-span-development@1",
+  "state": "source_reviewed_internal_data_verifier_runtime13pass_unchanged_forest27pass",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-span-review.json",
+    "sha256": "5fc3efeb0da463dd97b7fc086fa50b315212741295299a3285c506684d0dc7e2"
+  },
+  "distinct_scoped_methods_passed": 40,
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-span-runtime-final-report.json",
+        "sha256": "fea61c86a65170f00c881037c2fedf12a6cddb73e625822befb443fc899b9fdf"
+      },
+      "log": {
+        "path": "_build/forest-span-runtime-final.log",
+        "sha256": "8323f67b353b17b89cf2f55bfa9f12781c7f401e77aad68600c70dda4476d683"
+      },
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "44b7a89eddc2adcb423ec5a6de2ba8ed320124bf52125720879b5d6b2b93972a",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "scope_note": "Exact final kernel and regression cases"
+    },
+    {
+      "report": {
+        "path": "_build/forest-span-forest-report.json",
+        "sha256": "e6bea003e9ee3b7cbfbf4b89b6288ec2b229ba5653d15fbbcd6e578bfb3b7eb9"
+      },
+      "log": {
+        "path": "_build/forest-span-forest.log",
+        "sha256": "4ca938d8fd5440846ead0d4ca5ddefdd8d7171bd0b9c286a4dee54038f2e81bc"
+      },
+      "summary": {
+        "executed": 27,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 27,
+        "selected": 27,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "6c6cd8853fa2724c5697c7db53b16c2308ac13db6a1b9eb3efeb66fcafbd996b",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "scope_note": "Unchanged forest planning code; passed before later edits confined to the new runtime verifier and its test module"
+    }
+  ],
+  "causal_diagnostics": [
+    {
+      "path": "_build/forest-span-first.log",
+      "sha256": "7b536a3465a6bbad34d042c1b548f34e211f926f0bbe7909eff44da74efb0ff9"
+    },
+    {
+      "path": "_build/forest-span-native-final.log",
+      "sha256": "c543b9875d7c464e1a39955340222270474451b7d8f497fd0aad08443f62cc32"
+    },
+    {
+      "path": "_build/forest-span-budget-before.log",
+      "sha256": "385c671cfe273bdd27392487fdac6492c1180426c20dc4f167d302fbba86ae9d"
+    },
+    {
+      "path": "_build/forest-span-budget-after.log",
+      "sha256": "36f983465c7b0fd424da097c7a1cd3e6dd39d21a60e384afde75e6a86c4013f1"
+    }
+  ],
+  "fixture_limits": [
+    "Scratch parking uses the actual exclusive primitive and actual native post-move data in an unmanaged temporary tree; it supplies no fabricated canonical phase or live movement receipt capability",
+    "Genuine initialized project separately proves actual original namespace participant funding and expired-owner refusal",
+    "Temporarily dangling aliases are accepted only as exact raw link text observations; SDK logical tree capture still refuses that physical intermediate state",
+    "Copied data grants no effects; runtime is not yet integrated and must retain cumulative original-ledger accounting"
+  ],
+  "pending": [
+    "Complete live receipt-backed all-carriers-parked movement controller with authenticated successor span accounting",
+    "Retained empty containers, verified created-directory parents/permissions and coherent metadata",
+    "Explicit bounded fresh recovery plus public/installed/native/integration/release and all other roadmap obligations",
+    "Broader current full-source and receipt qualification"
+  ],
+  "static_gates": {
+    "log": {
+      "path": "_build/forest-span-final-static.log",
+      "sha256": "c501ab683dd920d35440eabb47b29d9346e1335618f052b6c74f7eb02bfb14ab"
+    },
+    "passed": [
+      "driver-review-record",
+      "documentation-review-record",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "documentation-check"
+    ]
+  },
+  "full_project_verify": {
+    "report": {
+      "path": "_build/forest-span-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "exit": 1,
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ],
+    "qualification": false
+  }
+}

@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -21,12 +22,14 @@ from literate_ai.adapters.locked_generation_authority import (
     FilesystemLockedGenerationAuthorityReader,
 )
 from literate_ai.adapters.standard_project import (
+    _STANDARD_COMMONJS_IMPORT_DRIVER,
     _STANDARD_LIBRARY_IMPORT_DRIVER,
     _STANDARD_LIBRARY_TEST_DRIVER,
     _encoded_library_import_surface,
     project_locked_standard_toolchain_closure,
 )
 from literate_ai.application.component_execution_planning import (
+    authored_assets_from_lock,
     plan_component_execution,
 )
 from literate_ai.application.component_lock_resolution import ComponentLockResolver
@@ -37,6 +40,7 @@ from literate_ai.contracts import (
     StandardPythonWheelCommandProfile,
     canonical_identity,
 )
+from literate_ai.contracts.node_sdk import CommonJSModuleDeclaration
 from tests.support.fixtures_test_component_lock_planning import _fixture
 
 
@@ -75,10 +79,13 @@ def _locked_snapshot(
     accelerator: str | None = None,
     package_npm: bool = False,
     package_python: bool = False,
+    package_node_sdk: bool = False,
     generation_ready: bool = False,
     no_entrypoint: bool = False,
     cpp_library_kind: str | None = None,
     duplicate_entrypoint: bool = False,
+    before_lock=None,
+    additional_flavor_selectors: tuple[str, ...] = (),
 ):
     component, flavors = _fixture(root)
     if generation_ready:
@@ -172,6 +179,7 @@ def _locked_snapshot(
             "cpp": "cpp17-portable-json-application",
             "javascript": "javascript-portable-json-application",
             "rust": "rust-portable-json-application",
+            "typescript-library": "typescript-node-sdk",
         }
         shutil.copytree(
             repository / "skills/specification-to-source" / skill_by_language[language],
@@ -260,7 +268,7 @@ def _locked_snapshot(
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copytree(source, destination)
         selectors.append("+flavor://literate-ai/accel-nvidia-cuda")
-    if package_npm or package_python:
+    if package_npm or package_python or package_node_sdk:
         document = component / "component.md"
         text = document.read_text(encoding="utf-8")
         text = text.replace(
@@ -274,7 +282,13 @@ def _locked_snapshot(
         document.write_text(text, encoding="utf-8", newline="\n")
         import shutil
 
-        package_name = "package-npm" if package_npm else "package-pip"
+        package_name = (
+            "package-node-sdk"
+            if package_node_sdk
+            else "package-npm"
+            if package_npm
+            else "package-pip"
+        )
         shutil.copytree(repository / "flavors" / package_name, flavors / package_name)
         if package_python:
             flavor_path = flavors / package_name / "flavor.md"
@@ -304,14 +318,21 @@ def _locked_snapshot(
                 encoding="utf-8",
             )
         for skill in (
-            "skills/agent/package-artifacts",
-            "skills/specification-to-source/javascript-ecosystem",
+            ()
+            if package_node_sdk
+            else (
+                "skills/agent/package-artifacts",
+                "skills/specification-to-source/javascript-ecosystem",
+            )
         ):
             source = repository / skill
             destination = root / skill
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copytree(source, destination)
         selectors.append("+flavor://literate-ai/" + package_name)
+    if before_lock is not None:
+        before_lock(component, flavors)
+    selectors.extend(additional_flavor_selectors)
     target = "standard-command-test"
     planner = FilesystemComponentLockPlanner()
     plan = planner.plan(
@@ -334,6 +355,7 @@ def _locked_snapshot(
     )
     execution = plan_component_execution(
         lock,
+        assets=authored_assets_from_lock(lock),
         model_identities={
             node.revision.identity.uri: canonical_identity(
                 {"model": node.revision.identity.uri}
@@ -380,6 +402,8 @@ class StandardCommandProjectionTests(unittest.TestCase):
                 str(export.parent),
             ]
         )
+        if not test and language == "javascript":
+            arguments.append(_STANDARD_COMMONJS_IMPORT_DRIVER)
         return subprocess.run(arguments, capture_output=True, text=True)
 
     def test_cpp_static_and_shared_commands_bind_native_platform_layouts(self):
@@ -724,6 +748,125 @@ class StandardCommandProjectionTests(unittest.TestCase):
             self.assertNotEqual(wrong.returncode, 0)
             self.assertIn("exports map differs", wrong.stderr)
 
+    def test_rust_import_ignores_unrelated_caller_cargo_configuration(self) -> None:
+        cargo = shutil.which("cargo")
+        rustc = shutil.which("rustc")
+        if cargo is None or rustc is None:
+            self.skipTest("native Cargo/rustc is unavailable")
+        surface = LibraryImportSurface(
+            "rust",
+            "fixture_library",
+            (
+                LibraryCapabilityImport(
+                    "fixture.logic",
+                    canonical_identity({"interface": "rust-consumer-cwd"}),
+                    "fixture_library::logic",
+                    ("value",),
+                ),
+            ),
+        )
+        with (
+            tempfile.TemporaryDirectory(prefix="litai-caller-") as caller_raw,
+            tempfile.TemporaryDirectory(prefix="litai-consumer-") as consumer_raw,
+        ):
+            caller = Path(caller_raw)
+            consumer = Path(consumer_raw)
+            work = caller / "work"
+            work.mkdir()
+            marker = caller / "wrapper-used"
+            wrapper = caller / (
+                "caller-tripwire.exe" if os.name == "nt" else "caller-tripwire"
+            )
+            wrapper_source = caller / "tripwire.rs"
+            wrapper_source.write_text(
+                'fn main() { let path = std::env::var_os("LITAI_TEST_CARGO_TRIPWIRE")'
+                '.expect("fixture marker"); std::fs::write(path, b"called")'
+                '.expect("fixture write"); std::process::exit(86); }\n',
+                encoding="utf-8",
+            )
+            subprocess.run(
+                [
+                    rustc,
+                    "--crate-name",
+                    "caller_tripwire",
+                    str(wrapper_source),
+                    "-o",
+                    str(wrapper),
+                ],
+                capture_output=True,
+                check=True,
+                timeout=60,
+            )
+            config = caller / ".cargo/config.toml"
+            config.parent.mkdir()
+            config_text = "[build]\nrustc-wrapper = " + json.dumps(str(wrapper)) + "\n"
+            config.write_text(config_text, encoding="utf-8")
+            export = consumer / "artifact/library"
+            package = export / "source"
+            (package / "src").mkdir(parents=True)
+            manifest = package / "Cargo.toml"
+            manifest.write_text(
+                '[package]\nname="fixture-library"\nversion="0.0.0"\nedition="2021"\n',
+                encoding="utf-8",
+            )
+            library = package / "src/lib.rs"
+            library.write_text(
+                "pub mod logic { pub fn value() -> u8 { 7 } }\n", encoding="utf-8"
+            )
+            admitted_source = {path: path.read_bytes() for path in (manifest, library)}
+            cargo_home = consumer / "cargo-home"
+            cargo_home.mkdir()
+            environment = dict(os.environ)
+            environment.update(
+                CARGO_HOME=str(cargo_home),
+                TMPDIR=str(consumer),
+                TMP=str(consumer),
+                TEMP=str(consumer),
+                LITAI_TEST_CARGO_TRIPWIRE=str(marker),
+            )
+            # The fixture chooses its hostile wrapper through Cargo configuration.
+            # Do not let an operator's wrapper environment mask that tripwire.
+            environment.pop("RUSTC_WRAPPER", None)
+            environment.pop("RUSTC_WORKSPACE_WRAPPER", None)
+            hostile = subprocess.run(
+                [cargo, "check", "--offline", "--manifest-path", str(manifest)],
+                cwd=work,
+                env=environment,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            self.assertNotEqual(hostile.returncode, 0)
+            self.assertEqual(marker.read_bytes(), b"called")
+            marker.unlink()
+            imported = subprocess.run(
+                [
+                    sys.executable,
+                    "-c",
+                    _STANDARD_LIBRARY_IMPORT_DRIVER,
+                    "rust",
+                    json.dumps([cargo]),
+                    _encoded_library_import_surface(surface),
+                    str(export),
+                    "source/Cargo.toml",
+                    str(export.parent),
+                ],
+                cwd=work,
+                env=environment,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            self.assertEqual(imported.returncode, 0, imported.stderr)
+            self.assertEqual(
+                json.loads(imported.stdout)["capabilities"], ["fixture.logic"]
+            )
+            self.assertFalse(marker.exists(), "unrelated caller wrapper was invoked")
+            self.assertEqual(config.read_text(encoding="utf-8"), config_text)
+            self.assertEqual(
+                {path: path.read_bytes() for path in admitted_source}, admitted_source
+            )
+
     def test_rust_library_verifier_compiles_exact_path_consumer(self) -> None:
         cargo = shutil.which("cargo")
         if cargo is None:
@@ -824,6 +967,171 @@ class StandardCommandProjectionTests(unittest.TestCase):
                 test=False,
             )
             self.assertNotEqual(rejected.returncode, 0)
+
+    def test_javascript_import_support_replacement_is_rejected(self) -> None:
+        surface = LibraryImportSurface(
+            "javascript",
+            "fixture_library",
+            (
+                LibraryCapabilityImport(
+                    "fixture.logic",
+                    canonical_identity("support-integrity"),
+                    "fixture_library/logic",
+                    ("logic",),
+                ),
+            ),
+        )
+        with tempfile.TemporaryDirectory() as raw:
+            export = Path(raw) / "library"
+            (export / "source").mkdir(parents=True)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-c",
+                    _STANDARD_LIBRARY_IMPORT_DRIVER,
+                    "javascript",
+                    json.dumps(["must-not-be-launched"]),
+                    _encoded_library_import_surface(surface),
+                    str(export),
+                    "-",
+                    str(export.parent),
+                    "raise RuntimeError('injected support evaluated')",
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("library import driver support changed", result.stderr)
+            self.assertNotIn("injected support evaluated", result.stderr)
+
+    def test_declared_javascript_runtime_root_alias_and_refusals(self) -> None:
+        node = shutil.which("node")
+        if node is None:
+            self.skipTest("Node.js is unavailable")
+        package_name = "fixture_library"
+        modules = (package_name, package_name + "/logic")
+        runtime = "source/fixture_library/runtime/logic.cjs"
+        declaration = "source/fixture_library/types/logic.d.ts"
+        surface = LibraryImportSurface(
+            "javascript",
+            package_name,
+            tuple(
+                LibraryCapabilityImport(
+                    capability,
+                    canonical_identity({"declared-interface": capability}),
+                    module,
+                    ("logic",),
+                )
+                for capability, module in zip(
+                    ("fixture.alias", "fixture.logic"), modules, strict=True
+                )
+            ),
+            declarations=tuple(
+                CommonJSModuleDeclaration(module, runtime, declaration)
+                for module in modules
+            ),
+        )
+        with tempfile.TemporaryDirectory() as raw:
+            export = Path(raw) / "artifact/library"
+            package = export / "source" / package_name
+            module = export / runtime
+            module.parent.mkdir(parents=True)
+            content = "module.exports={logic:7};\n"
+            module.write_text(content)
+            types = export / declaration
+            types.parent.mkdir()
+            types.write_text("export declare const logic:number;\n")
+            (package / "logic.js").write_text(
+                "throw Error('conventional decoy evaluated');\n"
+            )
+            manifest = {
+                "name": package_name,
+                "type": "commonjs",
+                "exports": {
+                    ".": "./runtime/logic.cjs",
+                    "./logic": "./runtime/logic.cjs",
+                },
+            }
+
+            def run(selected=surface):
+                (package / "package.json").write_text(json.dumps(manifest))
+                return self._run_library_driver(
+                    _STANDARD_LIBRARY_IMPORT_DRIVER,
+                    "javascript",
+                    node,
+                    export,
+                    selected,
+                    test=False,
+                )
+
+            accepted = run()
+            self.assertEqual(accepted.returncode, 0, accepted.stderr)
+            self.assertEqual(
+                json.loads(accepted.stdout)["capabilities"],
+                ["fixture.alias", "fixture.logic"],
+            )
+            manifest["exports"]["./logic"] = "./logic.js"
+            rejected = run()
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("exports map differs", rejected.stderr)
+            self.assertNotIn("conventional decoy evaluated", rejected.stderr)
+            manifest["exports"]["./logic"] = "./runtime/logic.cjs"
+            manifest["exports"]["./extra"] = "./runtime/logic.cjs"
+            self.assertNotEqual(run().returncode, 0)
+            del manifest["exports"]["./extra"]
+            module.unlink()
+            self.assertNotEqual(run().returncode, 0)
+            module.write_text("module.exports={other:7};\n")
+            self.assertNotEqual(run().returncode, 0)
+            module.write_text(content)
+            types.unlink()
+            self.assertNotEqual(run().returncode, 0)
+            types.write_text("export declare const logic:number;\n")
+            boundary = module.parent / "package.json"
+            boundary.write_text('{"type":"module"}')
+            js_runtime = runtime.removesuffix(".cjs") + ".js"
+            (export / js_runtime).write_text("export const logic=7;\n")
+            js_surface = replace(
+                surface,
+                declarations=tuple(
+                    replace(row, runtime=js_runtime) for row in surface.declarations
+                ),
+            )
+            manifest["exports"] = {
+                ".": "./runtime/logic.js",
+                "./logic": "./runtime/logic.js",
+            }
+            esm = run(js_surface)
+            self.assertNotEqual(esm.returncode, 0)
+            self.assertIn("conflicting package boundary", esm.stderr)
+            boundary.write_bytes(b" " * 65537)
+            oversized = run(js_surface)
+            self.assertNotEqual(oversized.returncode, 0)
+            self.assertIn("metadata", oversized.stderr)
+            boundary.unlink()
+            (export / js_runtime).unlink()
+            manifest["exports"] = {
+                ".": "./runtime/logic.cjs",
+                "./logic": "./runtime/logic.cjs",
+            }
+            if os.name == "posix":
+                module.unlink()
+                outside = Path(raw) / "outside.cjs"
+                outside.write_text("throw Error('outside module evaluated');")
+                module.symlink_to(outside)
+                escaped = run()
+                self.assertNotEqual(escaped.returncode, 0)
+                self.assertIn("link", escaped.stderr)
+                self.assertNotIn("outside module evaluated", escaped.stderr)
+                module.unlink()
+                module.write_text("throw Error('outside package evaluated');")
+                outside_package = Path(raw) / "outside-package"
+                package.rename(outside_package)
+                package.symlink_to(outside_package, target_is_directory=True)
+                escaped_package = run()
+                self.assertNotEqual(escaped_package.returncode, 0)
+                self.assertIn("link", escaped_package.stderr)
+                self.assertNotIn("outside package evaluated", escaped_package.stderr)
 
 
 if __name__ == "__main__":

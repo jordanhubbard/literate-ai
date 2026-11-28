@@ -1,0 +1,60 @@
+{
+  "reviewer": "review_authority",
+  "attested_utc": "2026-11-27T06:58:26.186476+00:00",
+  "worktree": "/home/jkh/Src/literate-ai/.worktrees/release-maintained-followup-20261126",
+  "head": "ac2e88417a58fe0c2a1f4d318e3f7fb14811b1a1",
+  "scope": "Read-only closing review of three exact test-only changes; no source edits or pins.",
+  "files": [
+    {
+      "file": "tests/critical/test_remote_cleanup_windows_handles.py",
+      "sha256": "c03beb8411245bb17fdb2f231fc70088f0c2b13cf3b1f18cef9718ff01ef0ccb",
+      "git_blob_identity": "013b0b122918e61fabac713ccb8101b59a39c6fa",
+      "independently_closing_reviewed": true
+    },
+    {
+      "file": "tests/e2e/test_native_child_parent_reader.py",
+      "sha256": "5e8767ecfe74c7ab24b70e8b4596bdcd60c6681dbcfe51d7d6b119b46f6dc1ad",
+      "git_blob_identity": "b9564e940b2cdd6ce7316c7bada542d61d661130",
+      "independently_closing_reviewed": true
+    },
+    {
+      "file": "tests/e2e/test_native_project_removal.py",
+      "sha256": "a9e2e4665da1231ea47e9055ae955ea4864703b39a224313abf5eaa2d9bcbf89",
+      "git_blob_identity": "75be7b628b09d81ba8dab03a7df0c7ffc9086345",
+      "independently_closing_reviewed": true
+    }
+  ],
+  "findings": [],
+  "conclusions": {
+    "privacy": "Accepted. Original private payload descriptors remain open via cleanup-managed ExitStack, preventing freed-inode reuse. Existing os.read denial now uses exact original (dev,ino); no original payload reads or production cleanup weakening. Pin cleanup is registered after fixture cleanup and therefore runs first under unittest LIFO cleanup. POSIX-backed Windows model sharing assertions unchanged.",
+    "parent_reader": "Accepted canonical metadata setup coordinate through original ProjectConfigurationStore context. Source mutation coordinate unchanged; qualification/drift assertions unchanged.",
+    "windows_removal": "Accepted diagnostics-only addition of status/stdout/stderr to failed injection assertion. Does not claim to fix or explain Windows native boundary failure. All injection sequencing, expected refusal, native boundary/index/manifest lock assertions retained."
+  },
+  "independent_controls": [
+    {
+      "test": "tests.critical.test_remote_cleanup_windows_handles.WindowsCleanupHandleTests.test_cleanup_metadata_does_not_read_private_file_payload",
+      "result": "passed",
+      "duration_seconds": 0.122,
+      "skipped": 0
+    }
+  ],
+  "production_untouched": [
+    {
+      "file": "src/literate_ai/adapters/remote_cleanup.py",
+      "matches_HEAD": true,
+      "sha256": "72a303635dc42219f51a62028548472612527e56f4a309174b1d8de58e1c284f"
+    },
+    {
+      "file": "src/literate_ai/adapters/windows_cleanup.py",
+      "matches_HEAD": true,
+      "sha256": "4a86cce4dddc3fe98aa92581ea340292c7e0ae30b7e72e3fbac4cdc8591a8bed"
+    }
+  ],
+  "limits": [
+    "No native Windows execution or complete Windows cleanup qualification asserted.",
+    "Only the focused privacy test was independently rerun here; root reports 17-case canonical privacy cohort separately.",
+    "Parent-reader and removal e2e terminal validation belongs to the separately prepared editable worktree environment. Prior local attempt refused ambiguous initialization origin before reaching a test body; no origin mock was added.",
+    "Windows removal root cause remains unresolved until its new diagnostics or native reproduction expose the hidden original error.",
+    "No full native installed release acceptance or CI completion asserted."
+  ]
+}

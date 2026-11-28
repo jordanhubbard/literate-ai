@@ -1,0 +1,33 @@
+{
+  "review": "independent exact dirty Git filesystem boundary repair closing",
+  "production_file": "src/literate_ai/adapters/project_layout_planning.py",
+  "production_sha256": "4433b8f978f1c868b2c7c0e8fad17e4d2b148fa84d61fb51df325b896cb51391",
+  "test_file": "tests/critical/test_layout_git_filesystem_boundary.py",
+  "test_sha256": "09717bef95c89d520ee4347850f69faa5a5a076fcd94bce2fe9a715ce18d9fdd",
+  "findings": [],
+  "source_inspection": {
+    "exact_delta": "Original root device capture plus ancestor directory device comparison and stop before marker lookup, with explanatory comments.",
+    "ast_equivalence": "Removing only new original_device assignment and new leading loop if/break restores entire original module AST exactly. All original marker code, Git commands/environment/bounds/return checks unchanged.",
+    "authority": "No cross-filesystem implicit ancestor marker; same-filesystem enclosing repository remains selected. Explicit local .git-file worktree continues to use actual Git administrative target without added target-device refusal.",
+    "refusals": "Missing same-filesystem marker continues; unsafe/reparse marker and unreadable marker refusal remain."
+  },
+  "independent_controls": {
+    "execution": "Existing frozen r6 interpreter with explicit PYTHONPATH=current repo src and shared-volume TMPDIR; inspected actual imported module path to establish current dirty implementation.",
+    "new_test_cohort": {
+      "tests": 4,
+      "passed": 4,
+      "skipped": 0,
+      "seconds": 0.045
+    },
+    "mounted_volume_real_readback": "Current _git_state(shared mounted tmp) returns None, matching original sanitized Git filesystem boundary absence.",
+    "existing_same_fs_nested_repository": "Current original helper still returns HEAD/index.",
+    "existing_local_git_file_worktree": "Current original helper still returns HEAD/index.",
+    "same_fs_index_regression": "Expected nested index comes from actual scoped git ls-files --stage -z, not parent repository index; correct original command semantics.",
+    "negative_controls": "Different-device .git access and process dispatch poisoned and never reached; same-filesystem unreadable/redirected markers retain actual refusal."
+  },
+  "limits": [
+    "Read-only source review and original targeted controls only; no reviewer source edits, worker dispatch, full gate retry or re-pin.",
+    "Actual controls exercised Linux mounted filesystem and existing Git clone/worktree. Windows symlink control explicitly native POSIX; no native Windows acceptance inferred.",
+    "Full recorded producer cohort and whole installed/native release acceptance remain parent-owned separate evidence."
+  ]
+}

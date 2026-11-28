@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:literate-ai:schema:v1:source-static-intake-contracts",
+  "$ref": "urn:literate-ai:schema:v1:source-static-intake-plan",
+  "$defs": {
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "content_identity",
+        "byte_count",
+        "language",
+        "original_classification",
+        "reason"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*\\\\).+$"
+        },
+        "content_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "byte_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2097152
+        },
+        "language": {
+          "enum": [
+            "javascript",
+            "typescript"
+          ]
+        },
+        "original_classification": {
+          "enum": [
+            "source",
+            "sensitive"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        }
+      }
+    },
+    "plan": {
+      "$id": "urn:literate-ai:schema:v1:source-static-intake-plan",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "literate-ai/source-static-intake-plan@1"
+        },
+        "purpose": {
+          "const": "local-static-intake"
+        },
+        "source_snapshot_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "origin_attestation_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "$ref": "urn:literate-ai:schema:v1:source-static-intake-contracts#/$defs/file"
+          }
+        },
+        "identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "schema",
+        "purpose",
+        "source_snapshot_id",
+        "origin_attestation_id",
+        "files",
+        "identity"
+      ]
+    },
+    "review": {
+      "$id": "urn:literate-ai:schema:v1:source-static-intake-review",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "literate-ai/source-static-intake-review@1"
+        },
+        "purpose": {
+          "const": "local-static-intake"
+        },
+        "source_snapshot_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "origin_attestation_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "$ref": "urn:literate-ai:schema:v1:source-static-intake-contracts#/$defs/file"
+          }
+        },
+        "algorithm": {
+          "const": "hmac-sha256"
+        },
+        "plan_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "actor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "authority": {
+          "enum": [
+            "human",
+            "authorized-policy"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "key_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "signature": {
+          "type": "string",
+          "pattern": "^hmac-sha256:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "schema",
+        "purpose",
+        "source_snapshot_id",
+        "origin_attestation_id",
+        "files",
+        "algorithm",
+        "plan_identity",
+        "actor",
+        "authority",
+        "reason",
+        "key_id",
+        "signature"
+      ]
+    },
+    "validation": {
+      "$id": "urn:literate-ai:schema:v1:source-static-intake-validation",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "literate-ai/source-static-intake-validation@1"
+        },
+        "purpose": {
+          "const": "local-static-intake"
+        },
+        "source_snapshot_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "promotion_reference_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "review_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "qualification_result_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "trust_key_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "schema",
+        "purpose",
+        "source_snapshot_id",
+        "promotion_reference_id",
+        "review_identity",
+        "qualification_result_id",
+        "trust_key_id"
+      ]
+    }
+  }
+}

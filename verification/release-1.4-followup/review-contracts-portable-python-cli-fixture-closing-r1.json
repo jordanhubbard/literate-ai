@@ -1,0 +1,61 @@
+{
+  "status": "independent_three_fixture_source_closing_accepted_portable_controls_passed",
+  "baseline": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+  "files": {
+    "tests/support/fixtures_test_coding_cli_generation.py": {
+      "sha256": "5f41044f9c56f86cd7108206f9dbcef544034d03277c214a6f037cbaa3816ef1",
+      "all_original_guard_expressions_identical": true,
+      "compile": "passed"
+    },
+    "tests/critical/test_codex_runtime_state.py": {
+      "sha256": "03b9114b7f863001db269a216477d2076fd8ea6d986aa5d1fdf01b8ad444df59",
+      "all_original_guard_expressions_identical": true,
+      "compile": "passed"
+    },
+    "tests/critical/test_opencode_cli.py": {
+      "sha256": "31124e64912d93954bd0d7ecd0b34bbe2aecee41e497db7c65a85133c491ba7a",
+      "all_original_guard_expressions_identical": true,
+      "compile": "passed"
+    }
+  },
+  "findings": [],
+  "actual_failure": "Frozen df6 fullwheelr13 original27case scope failed nativeSQLite expected-success branch: portablecopiedCPython3.14 invokedaslogicalcodex withfakePATH=/tools cannotfindstdlib, sys.executable empty and/install fallback. ExistingnativeCLI pinfix remainscorrect.",
+  "reproduction": "review-contracts-wheel-r13-python-alias-startup-controls.json +venv-controls.json retainfailedplainalias/copycfg diagnostics. ExactpinnedcopiedPython withprivatealias+adjacent._pth succeeds importsencodings,sqlite3,resource; isolatedstartup only,no gate/applyretry.",
+  "helper_contract": "POSIXonly own root/python-cli-tools; alias targets exact canonicaloriginalsys.executable; adjacent logicalname._pth contains only strictresolvedactualsysconfig stdlib andDESTSHARED. No importsite,globalPYTHONHOME,sourceprefix/installmutation or fallbackguess. Prepend ownedtools toexistingfixturePATH. Windowsreturnswithoutchange and no newskip.",
+  "image_and_policy_preservation": "Production selection/_pin/_require/boundedrunner unchangedbytes. Childcommandlogicalcodex/opencode, selectedactualPythonimage,pin/assertions, exactOSlimit,realSQLitewrites,privateconfig/filtering/redaction/sourcecredentials/guard/nativecallback semantics retained. All original3file assertion/raise expressions identical. Calls addedonly actualnativeSQLite transport and actualOpenCodePython subprocess transport.",
+  "sysconfig_platform_assessment": {
+    "actualportable3.14": "BothstdlibandDESTSHARED actualdirs independentlyverified usingoriginalpreserved3.14interpreter; ._pth effect tested oncopiedvenvimage.",
+    "macPOSIX": "CPythonPOSIXMakefiledefines DESTSHARED asBINLIBDEST/lib-dynload, including frameworkbuilds; helperuses runtime-derivedpaths, notLinuxlayout. ActualMacframework startup stillrequires nativecohort; no Linuxproofclaim.",
+    "absent_paths": "No silentfallback/skip; None/unresolvablepaths failfixture setup ratherthanmanufacturestdliblocation.",
+    "Windows": "ExistingnativePythonlaunchroute preserved,noPOSIXsymlink/setup ornewconditionalskip. ActualWindowsunchangedroute notnewlyqualified here.",
+    "primary_sources": [
+      "https://docs.python.org/3.14/library/sys_path_init.html#_pth-files",
+      "https://raw.githubusercontent.com/python/cpython/3.14/Makefile.pre.in"
+    ]
+  },
+  "observed_parent_receipts": {
+    "installed_maintained_original27": {
+      "status": "passed",
+      "scope": "coding-cli-posix",
+      "selected": 27,
+      "passed": 27,
+      "skipped": 0,
+      "elapsed_seconds": 4.636,
+      "installed_module_origins_verified": true,
+      "framework_module_count": 311,
+      "stdout_sha256": "2a7861a7cc8d9d9cb0bbd328f10568ffca01c8eb5b5ec510789a3982d3fccf97",
+      "stderr_sha256": "309068dcc0f550403963ba4f3233019e4fc572c90cffbb928289c713141272a0",
+      "test_input_identity": "sha256:94391500aed79d0b88292eab94298d5ca88a1fa58e7d59dcc55e8a79063fd74e"
+    },
+    "portable_opencode_original6": {
+      "log": "portable-opencode-fixture-r1.log",
+      "result": "6passed0skip5.672s,originalMake-managed3.14sourcecohort",
+      "log_sha256": "c3b2d4191ed4059a8c6f0064546ea60f5d7df573f41641c1faad28c6685bcb60"
+    }
+  },
+  "limits": [
+    "No reviewer source/prefix/projectedits orfullwheelretry. OwnedBdiagnostictools/sidecars only.",
+    "Originalfullwheelr13 remainsFAILED; these targeted controls do notconstitute fullwheelr14,allplatform,realproviderreadiness/generation orreleaseacceptance.",
+    "NativeCpin/argv0proof and existing#498sourceclosure retained, notweakened orsubstituted."
+  ]
+}

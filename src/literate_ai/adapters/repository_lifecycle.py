@@ -19,6 +19,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from literate_ai._filesystem import UnsafeFilesystemPathError, ensure_safe_directory
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.contracts.repository_lifecycle import OPERATIONS, RepositoryLifecycle
 from literate_ai.contracts.repository_orchestration import RepositoryOrchestration
@@ -134,7 +135,9 @@ def plan_repository_lifecycle(
         _fail(
             "lifecycle declaration must account for every indexed Gitlink exactly once"
         )
-    manifest = json.loads((ProjectConfigurationStore.manifest_path(root)).read_bytes())
+    manifest_path = ProjectConfigurationStore.manifest_path(root)
+    manifest_bytes = manifest_path.read_bytes()
+    manifest = json.loads(manifest_bytes)
     authority = RepositoryOrchestration.from_dict(manifest["repository_orchestration"])
     observed = {child.path: child for child in inventory.children}
     if (
@@ -179,7 +182,9 @@ def plan_repository_lifecycle(
         "host_target": _target(),
         "declaration_identity": "sha256:" + hashlib.sha256(raw).hexdigest(),
         "root_inputs": {
-            path: _digest(_inside(root, root / path)) for path in contract.inputs
+            **{path: _digest(_inside(root, root / path)) for path in contract.inputs},
+            manifest_path.relative_to(root).as_posix(): "sha256:"
+            + hashlib.sha256(manifest_bytes).hexdigest(),
         },
         "repository_authority_identity": authority.identity,
         "executor_identity": _executor_identity(),
@@ -286,12 +291,17 @@ def run_repository_lifecycle(
         prior = json.loads(resume.read_bytes())
         if prior.get("plan_identity") != expected_plan_identity:
             _fail("resume receipt does not match the exact current plan")
-    output = root / "_build" / "lifecycle"
-    for directory in (output.parent, output):
-        if directory.is_symlink():
-            _fail("lifecycle output directories cannot be symlinks")
-        directory.mkdir(exist_ok=True)
-        _inside(root, directory)
+    # Framework execution evidence belongs to the selected authority, while
+    # recipes, cwd, products and LITAI_ROOT retain application coordinates.
+    output = ProjectConfigurationStore.context(root).framework_root / "_build/lifecycle"
+    try:
+        ensure_safe_directory(output)
+    except (OSError, UnsafeFilesystemPathError) as exc:
+        raise OrchestrationInventoryError(
+            "lifecycle_invalid",
+            "lifecycle output directories must be direct and available",
+        ) from exc
+    _inside(root, output)
     anchor = output.lstat()
     target = WriteReservationTarget(
         output / "execution.lock",

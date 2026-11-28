@@ -1,0 +1,109 @@
+{
+  "status": "read-only-deep-triage-concrete-repair-recommendations-no-edits",
+  "run": 45997696262,
+  "head": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+  "current_source_hashes": {
+    "src/literate_ai/adapters/evidence_staging.py": "97bef103d76a046043a88fce9353fe016e36a9bd172b9788043fb39e662ef9af",
+    "src/literate_ai/adapters/evidence_files.py": "4cf4ae0ce51d5bd0130682a7516a50e27f2f3f1d5fa3b912a0bca1180affb699",
+    "src/literate_ai/_filesystem.py": "cb7dd6d3ed10f2c12f3476b727c38e4c8298d3d93fe4b997e3c7c898ba648c33",
+    "src/literate_ai/adapters/project_layout_catalog_continuation.py": "9ee6b4eda88cfb5e32c80a03566855a039c70a78f399b10fe33e5cb3c9b5daff",
+    "src/literate_ai/adapters/project_layout_recorded_wrapper_source.py": "91b8dab2bc7ca7a27617648a493980a1be1b459c4051be706507a96823462b0d",
+    "src/literate_ai/adapters/project_layout_planning.py": "4433b8f978f1c868b2c7c0e8fad17e4d2b148fa84d61fb51df325b896cb51391",
+    "src/literate_ai/adapters/project_layout_continuation.py": "55dc2d5822d80a629aad47ddc5771a5495f94860611b1d17d9303674216fc7d0",
+    "schemas/v2/project-layout-catalog-continuation.schema.json": "bc90dbfe92e3980e9a561bfec8bc8875abe742f2bfc613947ba07252d5906151",
+    "tests/critical/test_native_root_source_history_replay.py": "296ca5ed15d159e1c7a7d8599a2ddeb69b67b323b8dbbac9d1adcf6521ccd6d2",
+    "tests/critical/test_native_root_qualified_receiving_public.py": "6192b2bff6fde7ff4cd894b4a56bfb6206d379525d12375ba92584c65d46589d",
+    "tests/critical/test_native_root_qualified_receiving_recursive.py": "929cefd9da39446078fe02739c4803f8c713ee4ac34155456a9cf3a77ecbdd30",
+    "tests/critical/test_native_root_qualified_receiving_pin_custody.py": "85d2290ee9077839a24e9ceea4fd18bcae5c9da9867014bcea3cae3f06a73733",
+    "tests/smoke/test_node_sdk_verifier_authority.py": "04e9bcfc4382b9c21e9ba75e81994743e2876c73b2748bdbe601acce40671827",
+    "tests/smoke/test_sdk_probe_timing.py": "13ff6e7e71031cfeea0b1308c05488a092d215dfcec44a5e22165f4702f77445",
+    "tests/critical/test_release_worktree_custody.py": "a4f3f6ec47bab3471820198e6b0f4d665651da0d04b8de3b5c5447605a7f98b8",
+    "tests/e2e/test_project_releases.py": "ba7f92476a78197777ecf177303d702eaf91dfcac61334652cec5dc998c72ded"
+  },
+  "groups": {
+    "nonblock43": {
+      "verified_count": 43,
+      "all_terminal_sites": "evidence_staging.py222",
+      "production_owner": "EvidenceStage.created",
+      "cause": "Finally strict read after original writer close unconditionally evaluates os.O_NONBLOCK on Windows. All43 precise terminal sites agree. Windows original native Access.open already creates binary/no-reparse/deny-write/deny-delete read handle.",
+      "minimal_repair": "At both created() POSIX flag expressions207/222 use os.O_RDONLY | getattr(os,\"O_NONBLOCK\",0), preserving the existing bit on supporting platforms; no changes to native handle paths, postimage checks, stage.broken, finally/error precedence or retirement.",
+      "meaningful_control": "Restoring temporary absence of os.O_NONBLOCK around actual owned stage write/seal/retire; original-body-error identity and foreign-private-stage retention controls remain. Spy forwarded original open flags with attribute present to prove POSIX bit retained. No os.name fake, native guard stub, timeout or skip change.",
+      "issue_draft": "issue-draft-evidence-staging-nonblock-portability-r1.md"
+    },
+    "wide_native_id8": {
+      "verified_count": 8,
+      "production_not_fixture": true,
+      "observed_cases": [
+        {
+          "count": 7,
+          "site": "project_layout_recorded_wrapper_source.py435",
+          "canonical_field": "original_native_entries[components/legacy-project-wrapper/component.md].stamp[0]",
+          "native_field": "st_dev from project_layout_planning._stamp; tuple order dev,ino,mode,size,mtime_ns,ctime_ns,nlink",
+          "latent_same_owner": "source_root_node at443 contains raw dev,ino,mode,uid,gid; must encode identity preimage losslessly too."
+        },
+        {
+          "count": 1,
+          "site": "project_layout_catalog_continuation.py757",
+          "canonical_field": "framework_node[0] from literal raw context tuple722",
+          "native_field": "context.directory_binding[1][0] = st_dev; root_node721 is same unencoded boundary."
+        }
+      ],
+      "minimal_repair": "Use original stat_identity_value for native ID fields at these canonical JSON identity/public-wire boundaries. Leave raw live observation integers/tuples unchanged for native guards. Keep canonical signed64 integer JSON bound intact, using existing canonical decimal-string representation for wide IDs; never truncate/rehash IDs or broaden generic serializer.",
+      "integration_required": [
+        "Wrapper original_native_entries stamp wire copy plus source_root_node preimage; admit original helper/code in finite source dependency guard.",
+        "Catalog root/framework wire tuples, strict decoder at873 (is_stat_identity_value for IDs and integer directory mode), matching JSONschema.",
+        "Review catalog consumers: continuation._guard_framework91 raw directory_node comparison, _node61 integer-only, _observed_node200 raw context/record tuples. Normalize both encoded-comparison sides or keep wire/raw boundary explicit; do not silently grant existing POSIX-only migration authority to Windows."
+      ],
+      "controls": "Boundary controls should show signed64 legacy output unchanged, wide dev/ino full decimal digits retained/injective, alternate aliases rejected by existing helper and JSON limits unchanged; actual native affected Windows cases required after source closure."
+    },
+    "modeled_exec27": {
+      "verified_count": 27,
+      "shared_seam": "tests/critical/test_native_root_source_history_replay.py NativeRootSourceHistoryReplayTests.setUp207 inherited by source/qualification/external suites",
+      "cause": "/nonexistent/modeled-codex is drive-unspecified rooted path, not Windows absolute; original CodingCliSelection rejects before test body.",
+      "minimal_repair": "Use str(self.root / \"nonexistent-modeled-codex\") from original resolved owned temporary fixture, no executable creation, no real provider invocation; keep name/executable identity/pin/isolation assertions unchanged."
+    },
+    "receiver_native_abs26": {
+      "verified_count": 26,
+      "shared_seams": [
+        "public_fixture.configuration in test_native_root_qualified_receiving_public.py supplies importer/provider/archive used by pin-custody and recursive suites",
+        "Public/recursive literal overrides, open() roots, dictionary keys and expected nested paths must use same modeled coordinate helper."
+      ],
+      "minimal_repair": "TEST-only helper anchors original modeled POSIX path parts at native Path.cwd().anchor without resolving or normalizing. Keep case variants, ancestor/child topology, literal .. negative cases, relative/provider negative case, no IO intent. Use consistently in original config/overrides/expected assertions. Production local_absolute_path and overlap guards unchanged."
+    },
+    "newline8": {
+      "verified_count": 8,
+      "child_binary_emissions": [
+        {
+          "count": 1,
+          "site": "test_node_sdk_verifier_authority.py375",
+          "fix": "Replace print with import sys; sys.stdout.buffer.write(b\"denied and drained\\n\"); original child assertions/parent raw-LF and exit0 checks retained."
+        },
+        {
+          "count": 5,
+          "site": "test_sdk_probe_timing.py25,92 (one direct +4prefix subtests)",
+          "fix": "Replace owned controlled/inert child -c print scripts with import sys;sys.stdout.buffer.write(exact LF bytes); retain returned-object/native Popen identity/probe/guard/timing/raw-output assertions."
+        }
+      ],
+      "authored_file_binary_emissions": [
+        {
+          "count": 2,
+          "owner": "ReleaseBackportTests.initialize tests/e2e/test_project_releases.py1401 shared by test_release_worktree_custody.py77",
+          "fix": "Write exact b\"base\\n\" fixture bytes (or explicit LF newline) rather than native-newline write_text; preserve raw read_bytes LFassert and all native Git/private-worktree custody assertions."
+        }
+      ],
+      "no_production_stream_normalization": true,
+      "corrected_draft": "issue-draft-windows-newline-r2.md; supersedes r1 wording that incorrectly grouped base file as child stdout."
+    },
+    "native_clocks_pending": {
+      "status": "candidate-only",
+      "original_facts": "remote_cleanup._control compares original native descriptor ID + full named/fd stat signatures; source_observation similarly compares _stamp(fstat) to _stamp(lstat). Both include ctime. Actual refusal sites proven; exact differing field not emitted by logs.",
+      "next_boundary": "Actual owned Windows named/fd native ID + all individual field observations before/after required to establish API clock mismatch versus race. Preserve guards; if API clocks differ, separate within-API clocks while retaining common identity/fields and original closing currentness. No workaround or acceptance inferred."
+    }
+  },
+  "limits": [
+    "No source edits, reruns, native probes, posts, retry/cancel or project/prefix mutation.",
+    "Recommendations are not implemented/qualified closures; original exactdf6 failures remain.",
+    "Remaining other370-case inventory families retain their causal-open bounds.",
+    "No full Windows, whole wheel, browser/native-scale or release acceptance."
+  ]
+}

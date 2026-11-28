@@ -1,0 +1,66 @@
+{
+  "created_utc": "2026-11-27T18:54:11.387042+00:00",
+  "issue": 509,
+  "status": "review open: one remaining actually used URL parser delegate code cut",
+  "files": {
+    "src/literate_ai/adapters/project_layout_framework_observation.py": "f2c98a805a74f3104ef6506018c922a0c5af2ac0c608db0d5b91372dec322831",
+    "src/literate_ai/adapters/project_layout_framework_ingress.py": "d14d75be1f3f32db4690d86efa4e8e6fb7b679d46501701fbed35fc441c993e4",
+    "src/literate_ai/adapters/project_layout_framework_selection.py": "7f0757642eab38bb8c909f8fa43f1182c16b1436a8ef496386e339013cd7c35a",
+    "tests/critical/test_framework_reference_targets.py": "1bfa0eca1f0609b9df04b0f431e7e7ab109e14a4db1e779d11f9d4a210f58389",
+    "tests/critical/test_catalog_successor_membership.py": "942bdd5de48cb715b4b8b15625fc593c2cdfd85b638e46311a7a485210591366"
+  },
+  "closed_prior_findings": [
+    "New nested _reference_coordinates/_reference_facts now included in original reference_codes, including default/kwdefault identity/items; both fact calls use original _invoke.",
+    "Actual Markdown helper/pattern/class namespace and methods now finitely sealed; same-object parser and nested helper code-cut controls independently inspected.",
+    "Native reparse predicate used globals/mask/S_ISLNK and portable path grammar/class alias dependencies now captured; mask/grammar before-root refusal controls inspected."
+  ],
+  "remaining_finding": {
+    "severity": "P1",
+    "path": "src/literate_ai/adapters/project_layout_framework_ingress.py",
+    "lines": "217-264,1167-1193",
+    "finding": "Original top-level URL parser function code is sealed, but its actually used Python helper dependencies remain mutable and unsealed.",
+    "exact_qualified_path": "Python3.14.7 urllib/parse.py urlsplit:495-496 unconditionally calls global _coerce_args and _urlsplit; _coerce_args returns _noop, which urlsplit then calls. Replacing same _urlsplit function __code__ does not change any captured reference_dependencies identity or reference_codes entry, so foreign code executes before guard refusal.",
+    "further_supported_path": "Percent-bearing Markdown references use unquote -> _generate_unquoted_parts -> _unquote_impl on Python3.14; supported older runtimes use their corresponding original helper path. Only actual used finite parser functions/constants need binding.",
+    "repair": "Add finite original URL-parser dependency namespace pointers and function code/default/kwdefault seals for actual supported local-reference paths, with version-aware absent sentinels. Include changed same-function _urlsplit (or _coerce_args) control before native root use and percent-encoded path helper control. Do not broaden observation or ownership.",
+    "runtime_reproduction": "No execution: exact actual stdlib source/call-path read only, per parent no-runs instruction."
+  },
+  "canonical_reports_read": [
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/reference-catalog_successor_membership-r21b-report.json",
+      "sha256": "c39818cb253afd395df188abfbcc67b9276637ff9cc06b4df04f95fa214f1973",
+      "summary": {
+        "executed": 12,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 12,
+        "selected": 12,
+        "skipped": 0
+      },
+      "outcome_count": 12
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/reference-framework_reference_targets-r21b-report.json",
+      "sha256": "7eef1bac9cc1cbd85b6a84d026af3f07379ba7fb1cb00a669600470548866819",
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "outcome_count": 8
+    }
+  ],
+  "canonical_total": {
+    "passed": 20,
+    "failed": 0,
+    "skipped": 0
+  },
+  "test_review": "All eight new tests fully read: payload reader seam forbidden; unsupported/private before-root no-I/O; missing target; hardlink/alias; count bound; four code cuts; mask/grammar poisoning; real catalog import nonownership and same-byte replacement/native preservation. Existing full12 moved-handback now passes per canonical report.",
+  "limits": [
+    "No reviewer tests/jobs/source edits/posts.",
+    "Canonical20 passing does not cover remaining URL helper cut.",
+    "Original177 must rerun after new source; native Windows and authentic installed historical journey remain pending."
+  ]
+}

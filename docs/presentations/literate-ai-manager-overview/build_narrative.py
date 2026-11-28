@@ -142,19 +142,15 @@ def build() -> Path:
     core = doc.core_properties
     core.title = "Literate-AI: the application foundry"
     core.author = "Literate AI maintainers"
-    core.subject = "1.3.0 edition narrative member of component://literate-ai/literate-ai-overview"
+    core.subject = "1.4.0 candidate edition narrative member of component://literate-ai/literate-ai-overview"
 
     heading(doc, 1, "Literate-AI: the application foundry")
     body(
         doc,
-        "This is the 1.3.0 edition of the narrative member of "
-        "component://literate-ai/literate-ai-overview. It is the comprehensive technical "
-        "account that accompanies the 26-slide presentation built from deck-specification.md. "
-        "Both members share the factual ledger in source-notes.md and must not diverge on a "
-        "shared claim. This edition is the major/minor regeneration required before the "
-        "1.3.0 cut. Tag v1.2.0 is already published; this document describes implemented "
-        "candidate authority, does not claim that v1.3.0 is already published, and does "
-        "not grant release authority.",
+        "This 1.4.0 candidate edition accompanies the 26-slide overview. It explains how "
+        "an importing team prepares a locked SDK, checks a provider archive, provisions "
+        "a retained Cargo library, and tests the consumer. Qualification of an independent "
+        "provider and consumer pair remains open.",
     )
 
     heading(doc, 2, "What problem this solves")
@@ -557,8 +553,7 @@ def build() -> Path:
         "branch-lifecycle markers survive into the next cycle. Major and minor cuts also "
         "regenerate, independently verify, preflight, publish, and export back the terminal "
         "document pair using one explicit active gcloud account. Authority: "
-        "docs/decisions/0034-continuous-evidence-bound-release-closure.md. This edition does "
-        "not claim that tag v1.3.0 is already published.",
+        "docs/decisions/0034-continuous-evidence-bound-release-closure.md.",
     )
     heading(doc, 2, "Gates that remember where they stopped")
     heading(doc, 3, "Fail-fast, checkpointed, content-fingerprinted resume")
@@ -700,7 +695,7 @@ def build() -> Path:
         "cache authority, real local Debian packages, native CLI and gRPC acceptance, and "
         "repository-owned worktree placement. The 1.2 release added bounded candidate "
         "repair, cross-host action workers, native Mix builds, and forge coordination. The "
-        "1.3 candidate adds reviewed original-source binding, target-bound Python projection, "
+        "1.3 release added reviewed original-source binding, target-bound Python projection, "
         "FreeBSD worker and target foundations, native SDK tree custody, and retained hardening. The "
         "next horizon remains investment framing rather than a "
         "measured delivery guarantee.",
@@ -708,13 +703,12 @@ def build() -> Path:
     heading(doc, 3, "Operator adoption is now an explicit front door")
     body(
         doc,
-        "Installed 1.3 projects retain the project-independent "
+        "Installed projects retain the project-independent "
         "doctor, status over existing authority, lock, receipt, tracker, and host services, "
         "acknowledged create/adopt plans, and explicit wrapped, retained, drafted, and qualified "
         "stages. Original source remains release authority until current regenerative "
         "qualification. A release-candidate-wheel gate proves create through a validated hello "
-        "project and adopt through a current retained receipt. These are implemented candidate "
-        "claims inherited from 1.0, not a claim that v1.3.0 is already published.",
+        "project and adopt through a current retained receipt. These checks cover the adoption workflow.",
     )
     heading(doc, 3, "Exact scheduling, cache, package, and native acceptance slices")
     body(
@@ -734,38 +728,32 @@ def build() -> Path:
         "composition. Production command and SSH dispatch, measured real LAN warm-cache "
         "hits, remote native-package custody, complete synthetic native-CLI lifecycle proof, "
         "and audited legacy-worktree retirement remain open. Production action-DAG dispatch "
-        "with multi-worker shared-LAN-cache qualification remains deferred to 1.4.",
+        "with multi-worker shared-LAN-cache qualification requires a separate qualification run.",
     )
-    heading(doc, 3, "What 1.3 adds: retained source and native custody")
+    heading(doc, 3, "How an importer admits a retained Cargo library")
     body(
         doc,
-        "Reviewed first Standard binding and original-source admission preserve an existing "
-        "receipt policy, historical evidence, and source authority while refusing stale plans, "
-        "policy weakening, and custom executable-driver replacement. These framework paths do "
-        "not by themselves grant retained execution or downstream release admission.",
-    )
-    body(
-        doc,
-        "Target-bound Python source projection keeps original source and requirements intact "
-        "while binding reviewed backend exclusions to exact marker, lock, and source identities. "
-        "FreeBSD worker and target identities, host observations, and native package foundations "
-        "also landed, but complete platform and downstream lifecycle admission remain open.",
+        "When a provider depends on a locked native SDK, its maintainer runs litai project "
+        "qualify prepare-sdk for the selected component and target. The command fetches and "
+        "builds the locked inputs. The maintainer records the completion digest and size "
+        "and supplies them with the cache and current revocation file when planning qualification. "
+        "The provider applies the acknowledged plan and supplies the resulting qualification "
+        "reference and archive to the importer.",
     )
     body(
         doc,
-        "Versioned SDK tree, alias, hard-link, package-plan, and topology contracts preserve "
-        "exact producer and consumer custody through capture, relocation, inspection, and "
-        "packaging. Retained execution also binds native Windows system context, executable "
-        "intent, captured runtime paths, scoped secondary identities, and current installed "
-        "bytes. Decoding or relocating a tree grants no producer, package, or release admission.",
+        "The importer runs retained-cargo check against the reviewed binding, gate plan, "
+        "and provider archive. The result identifies missing packages without writing them. "
+        "Materialize provisions those packages beneath the declared disposable roots. "
+        "If an existing package differs from the reviewed bytes, the operator must resolve "
+        "the discrepancy before proceeding.",
     )
     body(
         doc,
-        "The release sweep defers incomplete work rather than promoting partial native evidence. "
-        "Windows diagnostics, observation cost, ACL preflight, and fixture repairs move to "
-        "1.3.1. Complete FreeBSD admission, Windows ARM64 realization, remote native packaging, "
-        "production action-DAG and LAN-cache qualification, and broader retained-project "
-        "contracts move to 1.4.",
+        "Admission checks that the reviewed source roots have been retired, runs the ordered "
+        "consumer gates and independently reviewed per-target tests, and returns a receipt "
+        "on success. The independent provider archive and matching consumer run remain "
+        "outstanding for this edition. The operator procedure is in docs/user/retained-cargo.md.",
     )
     heading(doc, 3, "Production containment backends")
     body(
@@ -805,14 +793,14 @@ def build() -> Path:
         "through an explicit retained receipt. Use the next investment cycle for production "
         "containment and operational hardening while preserving the architecture needed for "
         "many. The requested decision is production-hardening investment plus selection of "
-        "that first downstream 1.3 production adoption.",
+        "that first downstream production adoption.",
     )
     heading(doc, 2, "Building for the portfolio")
     body(
         doc,
         "Build for the portfolio from the first application: current gates, no shortcuts, "
         "and a regeneratable knowledge system rather than another copied implementation. "
-        "The presentation and this narrative are the 1.3.0 edition of that "
+        "The presentation and this narrative are the 1.4.0 candidate edition of that "
         "argument. They do not grant release authority.",
     )
 

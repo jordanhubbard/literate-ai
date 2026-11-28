@@ -1,0 +1,41 @@
+{
+  "review": "independent exact dirty wheel receiving-coordinate and JS import fixture closing",
+  "base_head": "86662cc0a5d0aaeed89728c55b4a6f55accddfaf",
+  "sha256": {
+    "scripts/wheel_smoke.py": "a951ce6146ac158028d66f0c5e2e8d9fcd44c4201217fde1db378fce5da5eb0e",
+    "tests/critical/test_library_import_command.py": "3fc46cbf21940d043598a8477806bbc075fdf6f7e1cb6dfcdc2aede306391f3b"
+  },
+  "findings": [],
+  "wheel_scope": {
+    "closed": "Reviewed every diff hunk against finite whole-module coordinate audit and producer contracts; main initialized/scoped authority, bootstrap/version forge-and-restore paths, sample locks/plan and packaging provider now use captured original receiving context.",
+    "agent_bridge": "Contained branch requires exact owned root delegate region targeting captured receiving SKILL; original SKILL bootstrap-before-doctor check retained. Legacy branch preserves direct bootstrap-before-SKILL ordering. Actual producer ProjectScaffoldPlacement.plan_delegate matches literals.",
+    "preserved": [
+      "Root orchestration fixture manifests and Git/app paths unchanged.",
+      "Source parent repository/resource/archive logical keys unchanged.",
+      "Native application and HTML/export/cache/temp output paths unchanged.",
+      "Application CHANGELOG remains root; remaining starter assets framework-owned.",
+      "Root AGENTS/CLAUDE remain delegates, captured original AGENTS byte preservation unchanged.",
+      "Provider authored YAML logical skills/workflow/routing references unchanged.",
+      "Logical run Component selector/codegraph helper unchanged.",
+      "Original return/exit/binding/currency/lock-edge/profile/authority assertions and rollback checks inspected unchanged except intended coordinate expressions and bridge contract adaptation."
+    ]
+  },
+  "js_fixture_scope": {
+    "change": "Only import original _STANDARD_COMMONJS_IMPORT_DRIVER and pass it as required argv7 to original embedded driver. Same actual Node execution and original support digest verification.",
+    "production_match": "standard_project.execute_argv appends this identical support argument for JavaScript.",
+    "verification": "Independent4 existing unittest cases passed0.887s; large original case retains all export order/missing/wrong-path and symbol checks."
+  },
+  "static_comparison": {
+    "all_original_raise_ast_equal": true,
+    "all_original_assert_ast_equal": true,
+    "all_original_unittest_assert_call_ast_equal": true,
+    "all_timeout_and_limit_keyword_ast_equal": true,
+    "wheel_raises": 151,
+    "wheel_asserts": 1
+  },
+  "limits": [
+    "No source edits by reviewer. Root authors changes.",
+    "No full wheel run; parent plans focused actual helper run on fresh owned fixture and original frozen866 whole gates continue separately.",
+    "Source closure plus independent4 JS controls does not establish native installed Windows/Linux/macOS full wheel or release acceptance."
+  ]
+}

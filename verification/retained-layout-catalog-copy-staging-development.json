@@ -1,0 +1,162 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Actual bounded journal-backed private catalog materialization; prerequisite only, no project publication, overwrite retirement, source exclusion or imported-role handoff",
+  "base_commit": "8906e4a2a26a5c132b2ccf870c72afc11fa22f65",
+  "subjects": {
+    "src/literate_ai/adapters/catalog_copy_staging.py": {
+      "algorithm": "sha256",
+      "digest": "3716434d11a9489fd3d1e2ec847df01fd284c6b6a9e2d12eba5971c40bcda3f2"
+    },
+    "src/literate_ai/adapters/catalog_copy_plan.py": {
+      "algorithm": "sha256",
+      "digest": "dcb0b0cba76fbf2d60dd896aea6653be1dd14bc840326ff77c058aac7d9de8ff"
+    },
+    "src/literate_ai/adapters/catalog_import.py": {
+      "algorithm": "sha256",
+      "digest": "e288f28730b74873239da220ebe4e39ffe0024f6334202e94b88d156f314ed04"
+    },
+    "src/literate_ai/adapters/retained_layout_journal.py": {
+      "algorithm": "sha256",
+      "digest": "e3e910aa62d51449d4451d680f31177f26b661f1f86fe9dade6a8912097354b1"
+    },
+    "tests/critical/test_catalog_copy_staging.py": {
+      "algorithm": "sha256",
+      "digest": "f82ac00803047e7700bc859ae1c52c94577ecec35cd1cc7755bb5f8e2157d882"
+    }
+  },
+  "behavior": [
+    "Refresh the actual exact catalog plan, carry its original finite usage into the same ledger, and reserve expanded inputs/outputs, journal storage/files/records, metadata, copy and reread buffers without increasing policy.",
+    "Require an owned empty mode0700 private directory outside the lexical and physical project/source namespace on the project filesystem. Retain all partial and completed private outputs, with no unlink or automatic collection.",
+    "Materialize through actual canonical _copy_item dispatch with an exact context-bound observer. Bound directory-alias expansion before effects, resolve closed internal aliases/hardlinks, preserve canonical .git filtering and component-wise file record order.",
+    "Stream exact source digests into exclusive native files. Verify original source facts, created inode/bytes/mode/mtime/native receipts across fsync, and the complete created namespace before returning an opaque stage token.",
+    "Record the original plan and durable stage intent/completion in the real journal; bind actual journal and factory scopes to original plan, root descriptor, guard, budget, ledger and PID. Saved data, constructed exact classes and descriptive objects grant no admission.",
+    "Intersect effective journal record/payload reads with the original per-file ceiling before private creation. A larger separate journal setting does not loosen input policy.",
+    "Close every payload/membership traversal before final original plan/producer/stage/journal/root facts. Revoke real journal and stage admissions before resource teardown; recheck the original registration after native guard callbacks return.",
+    "Interruptions preserve type and retained outputs, poison the stage owner and prevent further use; ended/inherited contexts and foreign edits refuse."
+  ],
+  "author_affected_suite": {
+    "modules": [
+      "tests.critical.test_catalog_copy_staging",
+      "tests.critical.test_catalog_copy_plan",
+      "tests.critical.test_retained_layout_journal",
+      "tests.critical.test_retained_layout_control_publication",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_finalization",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.smoke.test_catalog_import",
+      "tests.e2e.test_repository_catalogs",
+      "tests.e2e.test_retained_catalog_discovery"
+    ],
+    "selected": 167,
+    "passed": 167,
+    "skipped": 0,
+    "seconds": 104.718,
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "0be3acd3eb993675e6ce056f9d2fb33698c7ff1f86aacfa660b309cee75d991b"
+    }
+  },
+  "make_python_check": {
+    "scope": "Managed Make runner, compileall/host-path checks and all28 maintained stage methods; no full-source acceptance claim",
+    "selected": 28,
+    "passed": 28,
+    "skipped": 0,
+    "seconds": 1.762,
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "5358eeb615f5a41ec00a00759aa0721dae71438ee5af1457378a98ef82a27591"
+    },
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "4853fafb326cfc03a8a34e677332fa022f2a4ff618063a209ddb13fd0baf515d"
+    }
+  },
+  "static_checks": {
+    "commands": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check"
+    ],
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "f2f71a65ae9718866dafd733b514af3f37610e57fc04e6762fbdeb580730e2ef"
+    }
+  },
+  "independent_review": {
+    "decision": "source_approved_at_exact_limited_scope",
+    "review_mode": "source and existing evidence only",
+    "current_report": {
+      "path": "independent-layout-catalog-copy-staging-final-review.json",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "9de9670f44f615aa15fa266403bb9386290fdb9bf377148afc4a60c761b42e86"
+      }
+    },
+    "chain": [
+      {
+        "path": "independent-layout-catalog-copy-staging-review.json",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "fa003a8fcecbcfab94ac9f893c833beb7846acee40d3a18d8050e291a91ce621"
+        },
+        "decision": "changes_requested"
+      },
+      {
+        "path": "independent-layout-catalog-copy-staging-admission-review.json",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "7165062df2be8d17db9d11f35d4f86d2d5cc929e4865f48e22c9b4d5be489c11"
+        },
+        "decision": "changes_requested"
+      },
+      {
+        "path": "independent-layout-catalog-copy-staging-final-review.json",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "9de9670f44f615aa15fa266403bb9386290fdb9bf377148afc4a60c761b42e86"
+        },
+        "decision": "source_approved_at_exact_limited_scope"
+      }
+    ],
+    "resolved": [
+      {
+        "id": "CATALOG-JOURNAL-ADMISSION-LIFETIME-003",
+        "status": "source_change_closes_reported_condition",
+        "reason": "The actual original registry record is checked before and after guard. The trailing pure comparison rejects removed/replaced registration, changed original descriptor/guard/budget, different PID or poison, without another native traversal. The previously reported actual context-ending callback removes registration and cannot pass that new trailing comparison.",
+        "validation_limit": "No fresh native-control replay this turn; assessed exact source and existing author evidence."
+      },
+      {
+        "id": "CATALOG-STAGING-ADMISSION-001",
+        "status": "previous_repairs_preserved",
+        "reason": "Unchanged stage constructor/factory retain actual journal admission, exact fresh plan/root FD/guard/journal/shared ledger/PID binding, original header/native root checks, lexical/physical scope and teardown revocation."
+      },
+      {
+        "id": "CATALOG-STAGING-FILE-BUDGET-002",
+        "status": "previous_repair_preserved",
+        "reason": "Unchanged factory checks effective journal record/payload read allowance against original per-file policy before private creation."
+      }
+    ],
+    "fresh_independent_executions_of_final_subjects": false,
+    "fresh_native_replay_of_final_lifetime_condition": false,
+    "attribution": "Final closing review inspected exact source and existing author evidence only. Earlier independent57/80-test results retain their respective older subject manifests; they are not reattributed to the final journal/test bytes."
+  },
+  "causal_history": [
+    "Initial review constructed the exact observer with descriptive no-op journal callbacks and created a private copy without durable records. A separate actual-journal constructor case copied within the source tree. Actual factory/journal/native-scope/header/ledger admission now refuses both before copying.",
+    "Initial review used an actual64KiB plan and1MiB journal policy; a later journal read reached65537 bytes before refusal. Policy intersection now rejects that setting before private journal creation; the maintained test forbids any journal read.",
+    "Re-review ended the actual journal context during its final admission guard callback; the helper returned after registration ended. The final source adds pure original registration/field checks after guard callbacks, including ordinary journal currentness. Two pure in-memory lifecycle units cover this rule without real descriptors; the final closing review did not replay the native control.",
+    "A tool safety flag interrupted the earlier reviewer final message after its immutable report had already been saved. Continuation was restricted to benign source/log/hash inspection, with no further probe or test executions. The report and earlier failures remain unchanged."
+  ],
+  "limitations": [
+    "Private staging only. Actual protected project publication, overwrite retirement and one-use live imported-role handoff into source ownership remain required.",
+    "Canonical-copy comparison covers bytes, modes, modification times, internal alias/hardlink dereference, empty directories, .git filtering and file ordering. Extended attributes and full copy/platform behavior are not qualified.",
+    "Selected source inputs are individually closed trees. Cross-item topology, overlapping application sequences and complete framework alias-group ownership remain open.",
+    "No automatic GC, saved-token replay, project movement/recovery permission, authenticated history or successful lifecycle/receipt admission follows from a stage.",
+    "Local authored managed POSIX/macOS evidence only. No isolated installed/wheel, Linux/Windows/cross-platform, full-source, integration, release or full-roadmap acceptance is claimed.",
+    "No continuous hostile same-user filesystem snapshot is claimed. The configured full-source test receipt is not renewed by these scoped checks.",
+    "Root/shared/initial/wrapper movement, authored metadata, durable historical update ownership and full public recovery remain open."
+  ]
+}

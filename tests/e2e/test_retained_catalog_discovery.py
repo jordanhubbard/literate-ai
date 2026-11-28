@@ -16,6 +16,7 @@ from literate_ai.adapters.component_lock_planning import (
     component_catalog_manifest_paths,
 )
 from literate_ai.project_authority_graph import project_authority_graph
+from literate_ai.projects import load_project
 from tests.support.fixtures_test_project_cli import invoke
 
 
@@ -35,7 +36,8 @@ class RetainedCatalogDiscoveryTests(unittest.TestCase):
             "bazel",
         )
         self.assertEqual(status, 0, envelope)
-        self.component = self.root / "samples" / "hello-component"
+        self.framework = load_project(self.root).framework_root
+        self.component = self.framework / "samples" / "hello-component"
 
     def test_real_validation_and_graph_do_not_enter_retained_dependency_tree(self):
         status, before = invoke("project", "validate", str(self.root))
@@ -67,7 +69,9 @@ class RetainedCatalogDiscoveryTests(unittest.TestCase):
 
     def test_real_legacy_only_authoring_still_requires_migration(self):
         # An implementation-named *catalog group* is not a retained boundary.
-        path = self.root / "components" / "implementation" / "team" / "component.json"
+        path = (
+            self.framework / "components" / "implementation" / "team" / "component.json"
+        )
         path.parent.mkdir(parents=True)
         path.write_text("{}", encoding="utf-8")
         status, envelope = invoke("project", "validate", str(self.root))

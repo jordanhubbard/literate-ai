@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
+from literate_ai._cache_lock import CacheLockError
 from literate_ai.adapters._processes import (
     create_process_tree_ownership,
     terminate_process_tree,
@@ -365,9 +366,11 @@ class SshExecutionDispatcher:
         handler: SshExecutionRequestHandler,
         *,
         environment: Mapping[str, str] | None = None,
+        terminal_release=None,
     ) -> None:
         self.handler = handler
         self.environment = dict(os.environ if environment is None else environment)
+        self.terminal_release = terminal_release
 
     def dispatch(
         self,
@@ -382,28 +385,53 @@ class SshExecutionDispatcher:
                 "SSH dispatcher requires an SSH worker",
             )
         working_directory = _dispatch_context(worker, request, cwd)
+        if self.terminal_release is not None and (
+            worker.provisioning_identity is None
+            or request.action is not LifecycleDispatchAction.RUN
+        ):
+            raise ExecutionDispatchAdapterError(
+                "execution.terminal_release_unsupported",
+                "Terminal release requires an explicitly selected managed remote RUN.",
+            )
         if worker.provisioning_identity is not None:
             from .user_paths import resolve_user_paths
             from .worker_lease_dispatch import admitted_lease_dispatch
 
             paths = resolve_user_paths(environment=self.environment)
-            with admitted_lease_dispatch(
-                Path(paths.worker_provisioner),
-                Path(paths.worker_provisioning),
-                worker,
-                request,
-                self.environment,
-            ) as deadline:
-                return _validated_result(
+            try:
+                with admitted_lease_dispatch(
+                    Path(paths.worker_provisioner),
+                    Path(paths.worker_provisioning),
                     worker,
                     request,
-                    self.handler.execute(
+                    self.environment,
+                    **(
+                        {}
+                        if self.terminal_release is None
+                        else {"terminal_release": self.terminal_release}
+                    ),
+                ) as deadline:
+                    result = _validated_result(
                         worker,
                         request,
-                        cwd=working_directory,
-                        deadline_monotonic=deadline,
-                    ),
-                )
+                        self.handler.execute(
+                            worker,
+                            request,
+                            cwd=working_directory,
+                            deadline_monotonic=deadline,
+                        ),
+                    )
+                    if self.terminal_release is not None:
+                        self.terminal_release.capture(
+                            worker, request, result, cwd=working_directory
+                        )
+                    return result
+            except CacheLockError as exc:
+                raise ExecutionDispatchAdapterError(
+                    "worker.provisioner_lock_unavailable",
+                    "Managed worker lock is unavailable; inspect the recorded "
+                    "attempt before retrying.",
+                ) from exc
         return _validated_result(
             worker,
             request,

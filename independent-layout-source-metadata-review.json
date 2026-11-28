@@ -1,0 +1,98 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_metadata_published_finalization_pending_scope",
+  "review_mode": "source-only; no independent tests or probes",
+  "base_commit": "ac5155b5a7968c0a1c35ab47a63516965c63c185",
+  "reviewer": "guard_review",
+  "record_origin": "Transcribed from independent reviewer messages; exact subject digests recomputed and compared by author.",
+  "scope": "Actual staged/quarantined/published metadata under original source preparation ledger; original producer witnesses remain immutable and close against exact retained backups and prospective public nodes.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_roles.py",
+      "sha256": "8a233686edbad3c46050e63a1e228632f8ca1ff88e468ab3e118ebde4250e4ff"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "966c9d6cc8e2e34fb9ab1be707b84e204cc95922774e327227fd1e45b066261c"
+    },
+    {
+      "path": "src/literate_ai/adapters/framework_update_roles.py",
+      "sha256": "92720c324bfc4e4f109b6f09fe9145e30adb11aad768c743253e708da713e4f7"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_provider.py",
+      "sha256": "ed188907831ee5996dedc96b990cf9992097c0d4eff470db1400f97b33456562"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_movement.py",
+      "sha256": "c4dfc8ddc5e9d118b3f00eb1b7e57353a4d84069dfc7050f4cb67bf9faa14286"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "d9e7a17a6e11b166974da4276379f1e3e4cce9cb8e7e4285e24356038ae03221"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_metadata.py",
+      "sha256": "f5a4390ebc40fc90774e5eb4e88e0a6cef89f27b5da3cfee6da84ff566497426"
+    },
+    {
+      "path": "tests/critical/test_retained_layout_provider.py",
+      "sha256": "2117a4087ab6b9a2733daddef4b70077ddf7913f0aa0ad80104ca2bab170255f"
+    },
+    {
+      "path": "tests/critical/test_retained_layout_source_admission.py",
+      "sha256": "dd96536de63589d17b3d07a31ccd026f7029abdbede45c0cea22d3dfb72ca4a6"
+    }
+  ],
+  "review_chain": [
+    {
+      "decision": "changes_requested",
+      "findings": [
+        "Stage name/bytes did not bind the original permission template.",
+        "Private root stamps were closed before known-file checks."
+      ],
+      "resolution": "Bind the exact original template before writes, then verify staged mode/gid/regular type/uid/singlelink and held creation FD; close known files before original guard and held/named/held root stamps."
+    },
+    {
+      "decision": "approved_at_metadata_published_finalization_pending_scope",
+      "assessment": "Receipt-backed graph/cache and producer overlays, private membership observation before stat-only closure, original reader activation teardown before final global span. First catalog producer declares positive policy; no runtime widening or refund."
+    },
+    {
+      "decision": "approved_at_metadata_published_finalization_pending_scope",
+      "assessment": "Projection preflight arithmetic matches original ledger charges and refuses before applying precharge. Final observed-event headroom check is after last absence scan and before native rename; fixed four-native-record event fits its original document/decoded-node limits, with no intervening debit. Cosmetic diagnostic split preserves exact text."
+    },
+    {
+      "decision": "changes_requested",
+      "finding": "Metadata private area must refuse containment with original consumed catalog private roots and framework retirement state before first stage write.",
+      "assessment": "Author source concern confirmed by reviewer. Bind original record/seal/root/held FD and private namespace root receipts, plus original framework retirement FD/guard/lineage/facts; do not sample replacement baselines or reacquire ready rights."
+    },
+    {
+      "decision": "changes_requested",
+      "finding": "External alternate object stores may lie outside Git/common admin roots.",
+      "resolution": "Original bounded object reader retains exact distinct object-store root receipts once, with original record charge; native close validates them and metadata separation uses the original explicit roots, excluding traversal prefixes."
+    },
+    {
+      "decision": "changes_requested",
+      "finding": "Selected source census does not cover whole canonical acquisition or its collected sibling domain.",
+      "resolution": "Whole local source root uses original census ancestry; canonical pinned source lifetime authenticates acquisition roots. Original factory additionally funds and pins the private cleanup parent, whose FD/guard/native receipt now travels in the same original lifetime tuple. Metadata closes the actual source lease after ancestry observations."
+    },
+    {
+      "decision": "approved_at_metadata_published_finalization_pending_scope",
+      "assessment": "All additional private/source/object-store/acquisition cleanup findings closed in source. Exact final nine subjects independently inspected; no dynamic tests or probes executed by reviewer. Finalization and terminal success remain open."
+    },
+    {
+      "decision": "approved_at_metadata_published_finalization_pending_scope",
+      "assessment": "Final exact nine-subject source review closes predecessor private/source roots, external recursive object-store roots, whole canonical checkout and actual cleanup-parent domain. Original acquisition factory funds/pins cleanup parent with original FD/guard/native receipt; existing pinned lifetime carries it through native source-lease closure. No tests/probes executed by reviewer."
+    }
+  ],
+  "findings": [],
+  "independent_dynamic_qualification": false,
+  "open_scope": [
+    "Control normalization/retirement under original meter and explicit verified input release",
+    "Terminal preparation observation after actual descriptor teardown",
+    "Normal complete nonroot transaction",
+    "Canonical authored-role and external-provider completion",
+    "Root/shared/initial/wrapper/public recovery",
+    "Installed/native/cross-platform/integration/release and all other pending roadmap acceptance"
+  ]
+}

@@ -26,6 +26,7 @@ from literate_ai.adapters.standard_project import (
 )
 from literate_ai.contracts import ArtifactExport, BlobRef, canonical_identity
 from literate_ai.contracts.executable_components.commands import LibraryConsumerBinding
+from literate_ai.contracts.node_sdk import CommonJSModuleDeclaration
 from tests.support.fixtures_test_standard_command_projection import (
     _locked_snapshot,
     _observation,
@@ -185,6 +186,90 @@ class JavaScriptLibraryImportTests(unittest.TestCase):
                 moved / "node_modules" / self.surface.package / "package.json"
             ).read_text(),
         )
+
+    def test_declared_runtime_is_shared_with_native_application_imports(self):
+        module = self.capability.module
+        runtime = "source/" + self.surface.package + "/actual.cjs"
+        declaration = "source/" + self.surface.package + "/actual.d.ts"
+        surface = replace(
+            self.surface,
+            declarations=(CommonJSModuleDeclaration(module, runtime, declaration),),
+        )
+        contract = replace(self.contract, library_import_surface=surface)
+        symbol = self.capability.symbols[0]
+        artifact, binding = self.provider(
+            contract,
+            "throw Error('wrong conventional file');",
+            extra=(
+                DirectoryExportFile(
+                    runtime, ("exports." + symbol + "=()=>17;").encode(), self.file_mode
+                ),
+                DirectoryExportFile(
+                    declaration,
+                    ("export declare function " + symbol + "():number;").encode(),
+                    self.file_mode,
+                ),
+            ),
+        )
+        self.contracts[contract.component_revision.uri] = contract
+        imports = self.prepare((artifact,), (binding,))
+        root = self.artifact_root()
+        materialize_javascript_library_imports(imports, root)
+        for esm in [False, True]:
+            code = (
+                "import {" + symbol + "} from " + json.dumps(module) + ";"
+                if esm
+                else "const {" + symbol + "}=require(" + json.dumps(module) + ");"
+            )
+            result = self.node(root, code + "console.log(" + symbol + "());", esm)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout.strip(), "17")
+
+    def test_missing_declared_file_rejected_before_materialization(self):
+        surface = replace(
+            self.surface,
+            declarations=(
+                CommonJSModuleDeclaration(
+                    self.capability.module,
+                    "source/" + self.capability.module + ".js",
+                    "source/" + self.surface.package + "/absent.d.ts",
+                ),
+            ),
+        )
+        contract = replace(self.contract, library_import_surface=surface)
+        artifact, binding = self.provider(contract, "module.exports={};")
+        self.contracts[contract.component_revision.uri] = contract
+        with self.assertRaisesRegex(ValueError, "declaration is absent"):
+            self.prepare((artifact,), (binding,))
+
+    def test_conflicting_commonjs_boundary_is_rejected_by_shared_validation(self):
+        declaration = "source/" + self.surface.package + "/index.d.ts"
+        surface = replace(
+            self.surface,
+            declarations=(
+                CommonJSModuleDeclaration(
+                    self.capability.module,
+                    "source/" + self.capability.module + ".js",
+                    declaration,
+                ),
+            ),
+        )
+        contract = replace(self.contract, library_import_surface=surface)
+        artifact, binding = self.provider(
+            contract,
+            "module.exports={};",
+            extra=(
+                DirectoryExportFile(
+                    declaration, b"export declare const value:number;", self.file_mode
+                ),
+                DirectoryExportFile(
+                    "package.json", b'{"type":"module"}', self.file_mode
+                ),
+            ),
+        )
+        self.contracts[contract.component_revision.uri] = contract
+        with self.assertRaisesRegex(ValueError, "conflicting package boundary"):
+            self.prepare((artifact,), (binding,))
 
     def test_nested_provider_namespace_uses_portable_directory_keys(self):
         imports = self.prepare()

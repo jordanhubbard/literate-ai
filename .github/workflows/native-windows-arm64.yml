@@ -1,0 +1,230 @@
+name: Native Windows ARM64 host qualification
+
+on:
+  push:
+    branches:
+      - main
+      - work/1.4-reviewed-queue
+      - feat/1.4-native-winarm-qualification
+  workflow_dispatch:
+    inputs:
+      candidate_revision:
+        description: Exact clean framework commit to install and observe
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  installed-host:
+    name: Installed host controls / Windows 11 ARM64
+    runs-on: windows-11-arm
+    timeout-minutes: 90
+    env:
+      CANDIDATE_REVISION: ${{ inputs.candidate_revision || github.sha }}
+      LITAI_NO_SELF_UPDATE: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          architecture: arm64
+      - name: Require native execution and reserve exact candidate source
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:CANDIDATE_REVISION -cnotmatch '^[0-9a-f]{40}$') {
+            throw 'An exact lower-case candidate commit is required'
+          }
+          $harness = Join-Path $env:GITHUB_WORKSPACE 'tests/support/windows_arm64_qualification.py'
+          $nativePython = Join-Path $env:pythonLocation 'python.exe'
+          $native = & $nativePython -I -B -c 'import json,runpy,sys; print(json.dumps(runpy.run_path(sys.argv[1])["require_native_windows_arm64"]()))' $harness
+          if ($LASTEXITCODE -ne 0) { throw 'Native ARM64 Python/kernel observation failed' }
+          $drive = [IO.Path]::GetPathRoot($env:RUNNER_TEMP)
+          if ([IO.DriveInfo]::new($drive).AvailableFreeSpace -lt 10GB) {
+            throw 'Native host qualification requires 10 GiB free'
+          }
+          $root = Join-Path $drive 'lq'
+          if (Test-Path -LiteralPath $root) { throw 'Preserve occupied qualification root' }
+          New-Item -ItemType Directory -Path $root | Out-Null
+          "QUALIFICATION_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $native | Set-Content -LiteralPath (Join-Path $root 'native-process.json') -Encoding utf8
+          $worktrees = Join-Path $env:USERPROFILE '.worktrees/literate-ai'
+          New-Item -ItemType Directory -Force -Path $worktrees | Out-Null
+          $source = Join-Path $worktrees 'arm-candidate'
+          git cat-file -e "$($env:CANDIDATE_REVISION)^{commit}"
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate commit is unavailable' }
+          git worktree add --detach $source $env:CANDIDATE_REVISION
+          if ($LASTEXITCODE -ne 0) { throw 'Exact candidate checkout failed' }
+          "QUALIFICATION_SOURCE=$source" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $tree = git -C $source rev-parse 'HEAD^{tree}'
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate tree is unavailable' }
+          @{
+            candidate_revision = $env:CANDIDATE_REVISION
+            candidate_tree = $tree
+            harness_revision = $env:GITHUB_SHA
+            harness_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $harness).Hash.ToLowerInvariant()
+            runner_architecture = $env:RUNNER_ARCH
+            scope = 'Installed native host controls; no SDK, provider or release acceptance'
+          } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $root 'source-binding.json') -Encoding utf8
+      - name: Bootstrap the native Windows package manager when absent
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
+          $env:PATH = "$env:PATH;$applications"
+          if (-not (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
+            $bootstrap = Join-Path $env:QUALIFICATION_ROOT 'wg'
+            if (Test-Path -LiteralPath $bootstrap) { throw 'Preserve occupied package-manager bootstrap root' }
+            New-Item -ItemType Directory -Path $bootstrap | Out-Null
+            $release = 'https://github.com/microsoft/winget-cli/releases/download/v1.29.380'
+            $assets = @(
+              @{ Name = 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'; SHA256 = '65dea9c01ce08ee7b763366b27c0e651f97db857c11ca9b9c301826c10092f2e' },
+              @{ Name = 'DesktopAppInstaller_Dependencies.zip'; SHA256 = 'ba875afe9d190f61218985ac0292a99d1db710bf93e13c68944ca9d89f0d82d1' },
+              @{ Name = 'e53e159d00e04f729cc2180cffd1c02e_License1.xml'; SHA256 = 'bcb15118ec47df24e3e6013a7006147c3a15b3a8104ed660fe87c8b4ed01f485' }
+            )
+            foreach ($asset in $assets) {
+              $download = Join-Path $bootstrap $asset.Name
+              Invoke-WebRequest -UseBasicParsing -Uri "$release/$($asset.Name)" -OutFile $download
+              $observed = (Get-FileHash -Algorithm SHA256 -LiteralPath $download).Hash.ToLowerInvariant()
+              if ($observed -cne $asset.SHA256) { throw "Package-manager asset checksum mismatch: $($asset.Name)" }
+            }
+            $assets | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:QUALIFICATION_ROOT 'package-manager-assets.json') -Encoding utf8
+            $dependencyRoot = Join-Path $bootstrap 'deps'
+            Expand-Archive -LiteralPath (Join-Path $bootstrap 'DesktopAppInstaller_Dependencies.zip') -DestinationPath $dependencyRoot
+            $dependencies = @(Get-ChildItem -LiteralPath (Join-Path $dependencyRoot 'arm64') -Filter '*.appx' -File | ForEach-Object { $_.FullName })
+            if ($dependencies.Count -ne 3) { throw 'Reviewed native ARM64 dependency set is missing' }
+            try {
+              Add-AppxProvisionedPackage -Online `
+                -PackagePath (Join-Path $bootstrap 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle') `
+                -LicensePath (Join-Path $bootstrap 'e53e159d00e04f729cc2180cffd1c02e_License1.xml') `
+                -DependencyPackagePath $dependencies -ErrorAction Stop | Out-Null
+              Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe -ErrorAction Stop
+            } catch {
+              $_ | Format-List * -Force | Out-String | Set-Content -LiteralPath (Join-Path $env:QUALIFICATION_ROOT 'package-manager-error.txt') -Encoding utf8
+              throw
+            }
+          }
+          $command = Get-Command winget.exe -ErrorAction Stop
+          $version = & $command.Source --version
+          if ($LASTEXITCODE -ne 0) { throw 'Native WinGet bootstrap failed' }
+          @{
+            executable = $command.Source
+            version = "$version"
+            scope = 'Ephemeral runner OS package manager; installed host controls remain required'
+          } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:QUALIFICATION_ROOT 'package-manager.json') -Encoding utf8
+      - name: Provision declared Python before starting the installer controller
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
+          $env:PATH = "$env:PATH;$applications"
+          $contractPath = Join-Path $env:QUALIFICATION_SOURCE 'flavors/os-windows/host-install/windows/arm64/none.cdx.json'
+          $contract = Get-Content -Raw -LiteralPath $contractPath | ConvertFrom-Json
+          $pythonPackages = @($contract.components | Where-Object {
+            $capabilities = $_.properties | Where-Object name -eq 'literate-ai:host-install:base-capabilities'
+            $capabilities -and (($capabilities.value | ConvertFrom-Json) -contains 'python')
+          })
+          if ($pythonPackages.Count -ne 1) { throw 'Require one declared native Python package' }
+          $package = ($pythonPackages[0].properties | Where-Object name -eq 'literate-ai:host-install:manager-package').value
+          $query = ($contract.metadata.properties | Where-Object name -eq 'literate-ai:host-install:query-arguments').value | ConvertFrom-Json
+          $query = @($query | ForEach-Object { $_.Replace('{package}', $package) })
+          & winget.exe @query `
+            1> (Join-Path $env:QUALIFICATION_ROOT 'python-package-query.stdout') `
+            2> (Join-Path $env:QUALIFICATION_ROOT 'python-package-query.stderr')
+          if ($LASTEXITCODE -ne 0) {
+            $install = ($contract.metadata.properties | Where-Object name -eq 'literate-ai:host-install:install-arguments').value | ConvertFrom-Json
+            $install = @($install | ForEach-Object { $_.Replace('{package}', $package) })
+            & winget.exe @install `
+              1> (Join-Path $env:QUALIFICATION_ROOT 'python-package-install.stdout') `
+              2> (Join-Path $env:QUALIFICATION_ROOT 'python-package-install.stderr')
+            if ($LASTEXITCODE -ne 0) { throw 'Declared native Python provisioning failed' }
+          }
+          $setupPython = Join-Path $env:pythonLocation 'python.exe'
+          if ($package -cnotmatch '^Python\.Python\.(\d+\.\d+)$') {
+            throw 'Require a declared CPython major/minor package'
+          }
+          $pythonVersion = $Matches[1]
+          $nativePython = $null
+          $registration = $null
+          foreach ($hive in @('HKCU:', 'HKLM:')) {
+            foreach ($tag in @("$pythonVersion-arm64", $pythonVersion)) {
+              $registryPath = "$hive\Software\Python\PythonCore\$tag\InstallPath"
+              $key = Get-Item -LiteralPath $registryPath -ErrorAction SilentlyContinue
+              if (-not $key) { continue }
+              try {
+                $candidate = [string]$key.GetValue('ExecutablePath')
+                if (-not $candidate) { $candidate = Join-Path ([string]$key.GetValue('')) 'python.exe' }
+                if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+                  $nativePython = $candidate
+                  $registration = $registryPath
+                }
+              } finally { $key.Close() }
+              if ($nativePython) { break }
+            }
+            if ($nativePython) { break }
+          }
+          if (-not $nativePython) { throw 'Declared Python has no usable registry executable' }
+          @{
+            package = $package
+            registration = $registration
+            executable = $nativePython
+            setup_python = $setupPython
+            setup_python_still_exists = (Test-Path -LiteralPath $setupPython -PathType Leaf)
+          } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:QUALIFICATION_ROOT 'python-selection.json') -Encoding utf8
+          $harness = Join-Path $env:GITHUB_WORKSPACE 'tests/support/windows_arm64_qualification.py'
+          & $nativePython -I -B -c 'import codecs,ensurepip,json,runpy,ssl,sys,venv; codecs.lookup("idna"); print(json.dumps({"executable":sys.executable,"prefix":sys.prefix,"native":runpy.run_path(sys.argv[1])["require_native_windows_arm64"]()}))' $harness `
+            1> (Join-Path $env:QUALIFICATION_ROOT 'python-controller.json') `
+            2> (Join-Path $env:QUALIFICATION_ROOT 'python-controller.stderr')
+          if ($LASTEXITCODE -ne 0) { throw 'Selected native Python must remain usable after provisioning' }
+          "QUALIFICATION_PYTHON=$nativePython" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Install the exact noneditable framework using its supported installer
+        shell: pwsh
+        env:
+          LITAI_INSTALL_DEPENDENCIES: "yes"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
+          $env:PATH = "$env:PATH;$applications"
+          $nativePython = $env:QUALIFICATION_PYTHON
+          $installer = Join-Path $env:QUALIFICATION_SOURCE 'scripts/install_litai.py'
+          $prefix = Join-Path $env:QUALIFICATION_ROOT 'p'
+          & $nativePython $installer --source $env:QUALIFICATION_SOURCE --prefix $prefix `
+            1> (Join-Path $env:QUALIFICATION_ROOT 'install.stdout') `
+            2> (Join-Path $env:QUALIFICATION_ROOT 'install.stderr')
+          if ($LASTEXITCODE -ne 0) { throw 'Exact candidate installation failed' }
+      - name: Observe installed runtime, native compiler and public refusals
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $runtime = Join-Path $env:QUALIFICATION_ROOT 'p/share/literate-ai/venv'
+          $python = Join-Path $runtime 'Scripts/python.exe'
+          $harness = Join-Path $env:GITHUB_WORKSPACE 'tests/support/windows_arm64_qualification.py'
+          & $python -I -B $harness --prefix $runtime `
+            --output (Join-Path $env:QUALIFICATION_ROOT 'proof') `
+            --candidate-revision $env:CANDIDATE_REVISION --allow-host-execution `
+            1> (Join-Path $env:QUALIFICATION_ROOT 'harness.stdout') `
+            2> (Join-Path $env:QUALIFICATION_ROOT 'harness.stderr')
+          if ($LASTEXITCODE -ne 0) { throw 'Native installed host controls failed' }
+          $state = git -C $env:QUALIFICATION_SOURCE status --porcelain=v1 --untracked-files=all
+          if ($LASTEXITCODE -ne 0 -or $state) { throw 'Candidate source changed during qualification' }
+          $head = git -C $env:QUALIFICATION_SOURCE rev-parse HEAD
+          if ($LASTEXITCODE -ne 0 -or $head -cne $env:CANDIDATE_REVISION) {
+            throw 'Candidate source revision changed'
+          }
+      - name: Retain native observations and original failure diagnostics
+        if: always() && env.QUALIFICATION_ROOT != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: windows-arm64-host-${{ github.run_id }}
+          if-no-files-found: error
+          path: |
+            ${{ env.QUALIFICATION_ROOT }}/*.json
+            ${{ env.QUALIFICATION_ROOT }}/*.stdout
+            ${{ env.QUALIFICATION_ROOT }}/*.stderr
+            ${{ env.QUALIFICATION_ROOT }}/proof/**

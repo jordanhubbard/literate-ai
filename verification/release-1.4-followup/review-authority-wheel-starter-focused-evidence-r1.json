@@ -1,0 +1,74 @@
+{
+  "review": "independent focused installed starter evidence",
+  "script_sha256": "a951ce6146ac158028d66f0c5e2e8d9fcd44c4201217fde1db378fce5da5eb0e",
+  "script_matches_source_closing": true,
+  "initialization": {
+    "recorded_exit": 0,
+    "seconds": 46.768942324997624,
+    "timeout_seconds": 1800,
+    "parent_head": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+    "fresh_project": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/installed-starter-coordinates-r1/project",
+    "actual_public_init": "Recorded -I installed-prefix Python executing exact prefix litai init against a3 parent Git ref, without --layout override."
+  },
+  "identity": {
+    "framework_distribution": "sha256:78112f456ab988f24707a72cfddad065092f3f3766cbc90f18655ae2891fe665",
+    "actual_manifest_distribution": "sha256:78112f456ab988f24707a72cfddad065092f3f3766cbc90f18655ae2891fe665",
+    "binding": "standard",
+    "prefix_provenance": "Existing candidate-environment metadata records archive .whl source, editable=false, RECORD present. Exact lifecycle Standard checks run via installed CLI. This read-only review did not independently recalculate every installed RECORD payload."
+  },
+  "completed_original_helper_checks": {
+    "version": {
+      "binding": "standard",
+      "exact": true,
+      "forged_error": "standard_binding.distribution_mismatch"
+    },
+    "bootstrap": {
+      "ready": true,
+      "missing": true,
+      "incompatible": true,
+      "route": true
+    },
+    "execution": "Harness imports actual current maintained wheel module and directly invokes assert_standard_project_version_check and assert_installed_agent_bootstrap without mocks, copied implementations or altered assertions. Manifest bytes explicitly compared before/after both helpers.",
+    "producer_route": "Actual fresh root AGENTS delegate region targets litai/SKILL.md; current helper verifies exact owned region. SKILL requires bootstrap-before-doctor.",
+    "bounds": "Initializer bounded1800s by original run_bounded_process. Actual bootstrap per-probe45s unchanged. Existing wheel run() helper has no new per-call deadline; this review does not claim one."
+  },
+  "provider_block": {
+    "status": "passed",
+    "result": {
+      "passed": true,
+      "source_sha256": "a951ce6146ac158028d66f0c5e2e8d9fcd44c4201217fde1db378fce5da5eb0e",
+      "original_main_statement_range": [
+        4411,
+        4556
+      ],
+      "original_guard_asts_unchanged": true,
+      "exact_selected_flavor_packaging_edge_and_lock_checks": true,
+      "original_plan_succeeds": true,
+      "distribution": "sha256:78112f456ab988f24707a72cfddad065092f3f3766cbc90f18655ae2891fe665",
+      "scope": "Exact maintained main provider/lock/validation/plan statement block on fresh installed a3 project; no whole-wheel/new866/browser qualification."
+    },
+    "harness_sha256": "41d6c2dbaf209ed805d40416cfc910e3887acde3c0e34579673052e2ce204185",
+    "independently_selected_statement_range": [
+      4411,
+      4556
+    ],
+    "selected_ast_sha256": "a110167fd525243bc2f77d99037a55c22cc24623b3c6ad2b661f1939d302c770",
+    "source_review": "Harness selects actual current _main list slice starting original provider call and ending before html_observability assignment; passes original context/project/prefix bindings and execs exact nodes. Includes original lock/validation/provider edge and final plan guards. No AST statement mutation or assertion substitution found.",
+    "result_sha256": "37bf34dff8b78776c899dbd1fe7889173fb91ff0a18a2070c80f89c7edd07d83",
+    "source_hash_matches_current_closing": true,
+    "selected_statement_range_matches_independent_derivation": true,
+    "outcome": "Terminal original block completed through final plan guard; source hash and original selected statement range independently match retained result."
+  },
+  "evidence_sha256": {
+    "result.json": "a478fec7f873d394990aee41e241fefea9774b932a35786e9d1a6aa7ec187361",
+    "logs/init.json": "d0e9239227a86874efcf90ef2278cabed86b7232e57e9c6e000fee64598b5d26",
+    "logs/init.stdout": "2a93549f34fee4f32250dbbffe1ba821ac30e262a71b76b29c361009301a70a0",
+    "logs/init.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "harness_sha256": "4a6ca421e40aa763d6339d2b1320b2285c9ca51814a4f65d838e8e69ff4f5e0e",
+  "limits": [
+    "Current maintained helper source executed against immutable historical a3 noneditable wheel on fresh task-owned project; this does not qualify a wheel rebuilt from current source.",
+    "Original failed gate fixtures remain separate. No reviewer source edits, test reruns, deadline changes or worker actions.",
+    "No browser, full wheel, current866 full-source or full release acceptance inferred."
+  ]
+}

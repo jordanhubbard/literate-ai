@@ -1,0 +1,92 @@
+{
+  "framework_source": "96c404e18c0235fb4903587f45b6324e01b6715a",
+  "installed_wheel_sha256": "1082a4b24a116eeb01d6cd5f301595f951957671bcf3051abb3e33c50a62fbd2",
+  "fixture": "Private synthetic existing Python repository with a CSV parser, tests, and an unchanged GitHub Actions workflow. The hosted draft followed adoption with the public CLI. Private run identities and job transcripts remain in the operator evidence.",
+  "native_tests": "Python 3.11 on hosted Linux and Windows. Native unittest discovery caught a UTF-8 BOM parsing error. A separately committed test introduced the repeatable transient Windows failure.",
+  "branch_protection": {
+    "strict": true,
+    "includes_administrators": true,
+    "required_names": [
+      "Native Linux",
+      "Native Windows"
+    ],
+    "required_integration": "GitHub Actions"
+  },
+  "phases": [
+    {
+      "case": "defect",
+      "attempt": 1,
+      "native_job_results": {
+        "Native Linux": "failure",
+        "Native Windows": "failure"
+      },
+      "observer": "failed",
+      "observer_seconds": 6.173,
+      "forge_merge_state": "BLOCKED"
+    },
+    {
+      "case": "repair",
+      "attempt": 1,
+      "native_job_results": {
+        "Native Linux": "success",
+        "Native Windows": "success"
+      },
+      "observer": "verified",
+      "observer_seconds": 5.222,
+      "forge_merge_state": "CLEAN"
+    },
+    {
+      "case": "transient",
+      "attempt": 1,
+      "native_job_results": {
+        "Native Linux": "success",
+        "Native Windows": "failure"
+      },
+      "observer": "failed",
+      "observer_seconds": 5.41,
+      "forge_merge_state": "BLOCKED"
+    },
+    {
+      "case": "retry",
+      "attempt": 2,
+      "native_job_results": {
+        "Native Windows": "success",
+        "Native Linux": "success"
+      },
+      "observer": "verified",
+      "observer_seconds": 6.682,
+      "forge_merge_state": "CLEAN"
+    }
+  ],
+  "jobs": {
+    "required_rows_observed": 8,
+    "distinct_native_executions": 7,
+    "summed_distinct_native_job_seconds": 90.0,
+    "union_native_job_seconds": 72.0,
+    "observer_seconds_for_four_current_observations": 23.487,
+    "native_executions_added_by_observation": 0,
+    "same_revision_and_run_for_retry": true,
+    "linux_new_job_row_with_same_runner_and_step_times": true,
+    "windows_new_runner_and_execution": true,
+    "scope": "Four PR observations. The two successful base-branch setup jobs are excluded from all PR-only execution counts and intervals."
+  },
+  "stale_local_revision": {
+    "older_and_current_revisions_both_green": true,
+    "cli_error": "project.native_ci.stale",
+    "elapsed_seconds": 1.533,
+    "native_executions_added": 0
+  },
+  "receipt_sha256": "8c73ddf894294255828b571a35b35d1a4f04fa3e610f710a4f4bf6acd38d263b",
+  "stale_receipt_sha256": "32cec254711679755c01089cc1c29cca09bbe5225dab5e67322bab57fb48623f",
+  "boundary": "Actual forge, installed observer and native execution. The PR remained a draft. No merge, artifact qualification, deployment, release or changed-version upgrade was performed.",
+  "tested_source_readback": {
+    "source": "Pinned checkout action logs from the seven distinct native PR executions, independently joined to GitHub Git objects.",
+    "actual_merge_commits": 3,
+    "native_executions_examined": 7,
+    "matched_base_and_head_parents": 7,
+    "merge_tree_equal_to_pr_head_tree": 7,
+    "observer_reported_tested_tree": null,
+    "private_receipt_sha256": "937e49dfdb58b5c54f9fbc32370e0fc9820cace967a2f9062b3bb3f65fd4758b",
+    "limits": "The equality of merge-tree and head-tree contents was observed for these revisions. Other jobs may select a different checkout."
+  }
+}

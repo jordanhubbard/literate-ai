@@ -1,0 +1,224 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "3ea2751b9f4c001cea4dbf43a81cb6fb6cd1e682",
+  "scope": "Genuine live catalog-copy producer, successful original resource teardown and one-use fresh source-plan ownership handoff, including an actual framework-update predecessor; internal normal nonroot POSIX scope only",
+  "subjects": {
+    "src/literate_ai/adapters/catalog_copy_roles.py": {
+      "algorithm": "sha256",
+      "digest": "559f3ca123338cc1843abf10fcd73331ee8120d6f14d91fcb074a944d5ba4b82"
+    },
+    "src/literate_ai/adapters/catalog_entry_publication.py": {
+      "algorithm": "sha256",
+      "digest": "3a61a6ec6ac1034ea5bf303f331f96b700de82a9c2882663957ed05641581d02"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "334d7e32040e3633fe115ce03f3edb113f89b827ebd2f8548db010ebb9b148ee"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "64f30b2d5515e0430404aa4359a385fa9d190ba2148434fda741da6548920ce3"
+    },
+    "src/literate_ai/adapters/catalog_copy_plan.py": {
+      "algorithm": "sha256",
+      "digest": "f8bd4f2389012b26e5e88b5d1a93598812ef1455ef8410e3f4e20c57c21b5e6c"
+    },
+    "src/literate_ai/adapters/catalog_copy_staging.py": {
+      "algorithm": "sha256",
+      "digest": "eaa3203bbc5dd1263be1f2f990717c27919eafb392cf272ea5fd014388f69b8c"
+    },
+    "src/literate_ai/adapters/retained_layout_control_roles.py": {
+      "algorithm": "sha256",
+      "digest": "4dfadfacbb2fafa2ac44558f5dfffba2db7081360382a2ed9edc066690637456"
+    },
+    "src/literate_ai/adapters/retained_layout_reservations.py": {
+      "algorithm": "sha256",
+      "digest": "8dae8cfb497fe9aac1fd275ae8d40cad168ef7b638b71ded6f98027c842ebc73"
+    },
+    "src/literate_ai/adapters/catalog_control_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "c655a9c2e81be2cfb3a316461d764a8a7ce15d067eb4ed5e5e44920134f500a9"
+    },
+    "src/literate_ai/adapters/framework_update_roles.py": {
+      "algorithm": "sha256",
+      "digest": "bad404bcf7e5116276fc1e38cb4e61f20a4d4a95cc02a8aa261638793498e603"
+    },
+    "src/literate_ai/adapters/catalog_copy_protection.py": {
+      "algorithm": "sha256",
+      "digest": "1343fd6b1b0e56e220ccae49d61d07dd0cd36cd6a8a929993d19ce6679b99b07"
+    },
+    "tests/critical/test_catalog_copy_roles.py": {
+      "algorithm": "sha256",
+      "digest": "047050b973e09011e2e820a00ede935bd776a78384ffc36738e573aef205bbc2"
+    }
+  },
+  "behavior": [
+    "Actual creating producer registry, nonce, phase, process/thread and original pinned native root govern admission; callback-free lifetime checks trail native callbacks and immediately precede spend.",
+    "Apply only the exact acknowledged plan; transfer actual published observations and exact canonical provenance before receiver revocation; ready only after successful original resource teardown. Failures retain data and issue no roles.",
+    "Canonical setup discovery/acquisition, planning, staging, publication and handoff share the original ledger from before setup I/O. Actual registered control acquisition binds the exact shared plan; no saved flag admits plan reuse.",
+    "Only original verified owned marker/provenance effects advance expected observations; immutable antecedent history remains. Control admission revokes before original descriptor teardown.",
+    "Observed-roster census bounds lower future recapture metadata ceilings before unused capacity is released. Known private rosters are compared against complete captured membership; original global policy limits unchanged.",
+    "Fresh source plan binds the genuine live actor and exact provenance; complete partition labels only actual copied leaves and directories, including empty directories. Unknown neighboring files remain unclaimed; provider/input/private overlap with moving source refuses.",
+    "Actual framework predecessor usage debited before copy I/O under one sequential peak reserve. Same predecessor accepts only its genuine catalog successor metadata observation, retaining original document/identity and provenance; unrelated cached-input changes refuse.",
+    "Ownership subtracts all spent work, validates actual included predecessor without double debit, and spends producer once immediately before the actual source move. Saved, expired, changed, wrong-project and already-spent actors refuse."
+  ],
+  "author_focused": {
+    "passed": 14,
+    "seconds": 134.557,
+    "skipped": 0,
+    "log": "_build/catalog-handoff-focused-final.log",
+    "log_sha256": "6c7fb08384e0e0c2feb3f2ad8128b2e1a28d5cace52ef249d6e7d3972751ce58"
+  },
+  "final_affected_suite": {
+    "passed": 322,
+    "seconds": 516.151,
+    "skipped": 0,
+    "log": "_build/catalog-handoff-affected-final.log",
+    "log_sha256": "be1067c7394087d154f3036bb4094af78d8859c98ba77ec7a683dbec218815b5",
+    "modules": [
+      "tests.critical.test_catalog_control_finalization",
+      "tests.critical.test_catalog_provenance_publication",
+      "tests.critical.test_catalog_entry_publication",
+      "tests.critical.test_catalog_copy_staging",
+      "tests.critical.test_catalog_copy_protection",
+      "tests.critical.test_catalog_copy_plan",
+      "tests.critical.test_bounded_role_observation",
+      "tests.critical.test_retained_layout_control_roles",
+      "tests.critical.test_retained_layout_journal",
+      "tests.critical.test_retained_layout_finalization",
+      "tests.critical.test_retained_layout_reservations",
+      "tests.e2e.test_repository_orchestration",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_framework_update_roles",
+      "tests.critical.test_retained_layout_program_consumers",
+      "tests.critical.test_retained_layout_structural_consumers"
+    ]
+  },
+  "maintained_make": {
+    "passed": 14,
+    "seconds": 138.871,
+    "skipped": 0,
+    "log": "_build/catalog-handoff-make.log",
+    "log_sha256": "e6a1c06012d55f6530e660df27af2732ab658efdc290dd8fc07ab122ba40010c",
+    "pattern": "test_catalog_copy_roles.py",
+    "report_sha256": "c62e91a36bf628908f5b3afd21fe9431f4c4fcb52306602e00fef2d07cd7fcaf"
+  },
+  "review_chain": [
+    {
+      "path": "independent-layout-catalog-handoff-review.json",
+      "sha256": "d2e273a4b3418c532ae3dae4c46b323034e24a23d40c275ababa45e76ed539e4",
+      "decision": "changes_requested",
+      "execution": {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_roles > _build/catalog-handoff-independent.log 2>&1",
+        "session": 20629,
+        "exit_code": 0,
+        "tests": 10,
+        "passed": 10,
+        "skipped": 0,
+        "seconds": 87.751,
+        "log": "_build/catalog-handoff-independent.log",
+        "log_sha256": "a86635782f86d13cf42aa79aa89ca2ef05aefb3d8d2619f6b2a34cb377592756",
+        "terminal": true,
+        "bespoke_probes": 0
+      }
+    },
+    {
+      "path": "independent-layout-catalog-handoff-rereview.json",
+      "sha256": "d78a270d54ea8e3ce31187309387e251aabd978ebadc1e6c376f40959be8bb7e",
+      "decision": "approved_at_limited_scope",
+      "execution": {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_roles > _build/catalog-handoff-independent-repaired.log 2>&1",
+        "session": 87590,
+        "exit_code": 0,
+        "tests": 14,
+        "passed": 14,
+        "skipped": 0,
+        "seconds": 140.511,
+        "log": "_build/catalog-handoff-independent-repaired.log",
+        "log_sha256": "29eec5140fb891b0eb1dc180febcf72612e275224a1777b067909cb4eea213dc",
+        "terminal": true,
+        "bespoke_probes": 0,
+        "coverage": "Actual apply/normal teardown, fresh source plan/imported leaves+emptydir/unknown neighbor, source move+metadata+finalization; actual update+copy composition; changed provenance/copied subtree; missing real actor and saved/fabricated objects; original policy refusal; real linked Git and new source controls; hardlink safety refusal; setup file ceiling; callback lifetime closures; teardown error without readiness."
+      }
+    }
+  ],
+  "historical_failures": [
+    {
+      "log": "_build/catalog-handoff-focused-v2.log",
+      "sha256": "8393604494924a3d6f5ea2b957bc52da7017cb3e0fa97139da7f816ceb216a0a",
+      "tests": 10,
+      "seconds": 87.803,
+      "result": "FAILED (errors=1)",
+      "reason": "Original hardlink fixture expected a later refusal; existing complete input gate refused earlier. Fixture corrected without weakening product guard."
+    },
+    {
+      "log": "_build/catalog-handoff-focused-repaired.log",
+      "sha256": "291007a3b7ef385fa69490b075abc366ee8e61aceae687950b3858429a395c67",
+      "tests": 14,
+      "seconds": 118.408,
+      "result": "FAILED (errors=1)",
+      "reason": "Actual framework-update/copy composition found stale predecessor provenance; added genuine same-producer metadata successor transition."
+    },
+    {
+      "log": "_build/catalog-handoff-composition-focused.log",
+      "sha256": "250b4cb486a22c1ab74a35b24c62b1a23f09b3ec5f32c79f5b7888cd5bec44e2",
+      "tests": 1,
+      "seconds": 25.131,
+      "result": "FAILED (errors=1)",
+      "reason": "After exact metadata transition, composition exhausted remaining complete ownership allowance."
+    },
+    {
+      "log": "_build/catalog-handoff-composition-shared.log",
+      "sha256": "f2d9c127527773662842b977b4f11a340f29fe5a04286cf6d1a9c86340e637d7",
+      "tests": 1,
+      "seconds": 18.144,
+      "result": "FAILED (errors=1)",
+      "reason": "Inherited actual predecessor work before copy I/O; aggregate view reservation still exhausted original allowance."
+    },
+    {
+      "log": "_build/catalog-handoff-composition-bounded-views.log",
+      "sha256": "cd097d661c201620b4b341c39f635c08decac4e9f48268fa772a2166bdaa46e1",
+      "tests": 1,
+      "seconds": 25.206,
+      "result": "FAILED (errors=1)",
+      "reason": "Private known-roster reservation reduced; complete ownership initializer still lacked enough remaining allowance."
+    }
+  ],
+  "single_composition_after_final_repair": {
+    "passed": 1,
+    "seconds": 28.686,
+    "skipped": 0,
+    "log": "_build/catalog-handoff-composition-tightened.log",
+    "log_sha256": "ed4d63bef044998b21621edeb5dd52d92ae17e4b72de0dd77bf66e2855cb5730"
+  },
+  "open_requirements": [
+    "Authentic Git checkout SOURCE lease/ref admission; successful linked Git tests here concern destination administration.",
+    "Cross-item topology and broader framework/catalog overwrite composition; current actual predecessor positive uses distinct copied paths and conservative unrelated-input refusal.",
+    "Authored metadata roles, root/shared/initial/wrapper placement and complete public application/recovery.",
+    "Installed/native cross-platform/full-program integration and release acceptance; complete all pending roadmap items remains active."
+  ],
+  "qualification": {
+    "feature_complete": false,
+    "live_internal_imported_roles_granted": true,
+    "public_catalog_complete": false,
+    "release_evidence": false
+  },
+  "static_validation": {
+    "status": "passed",
+    "gates": [
+      "driver-review",
+      "runner-review",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check"
+    ],
+    "log_sha256": "edeca6544b802376e09059bec496ffa3d9c29ef5730b6be53a92b5b4e3668cac",
+    "project_validate": {
+      "ok": true,
+      "log_sha256": "baa5a135e27dca0a7285af331f4f14fe666ca23e78ddcfc6b1458521baed73b0"
+    },
+    "authority_renewal": "Supported make driver-review-record then documentation-review-record after exact reviewed subjects were staged. No hand-edited authority pins."
+  }
+}

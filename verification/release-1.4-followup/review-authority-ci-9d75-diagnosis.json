@@ -1,0 +1,71 @@
+{
+  "subject": "exact9d native Windows partition, ci-9d75-140381256222.log",
+  "source_head_inspected": "40d28c36a24c9d0ae2ffb094862d8b07a23b7b74",
+  "first_and_only_reported_failure": {
+    "test": "tests/e2e/test_native_project_removal.py::NativeProjectRemovalTests::test_profile_git_boundary_added_during_patch_keeps_manifest_lock",
+    "log_lines": [
+      1277,
+      1293,
+      1461,
+      1462
+    ],
+    "status": 2,
+    "code": "project.manifest_unavailable",
+    "message": "project manifest is unavailable",
+    "summary": "1 failed, 61 passed, 2 skipped, 36 subtests passed in84.60s; actual native Windows runner."
+  },
+  "root_cause": {
+    "kind": "production owner-handle violation, not stale fixture coordinate",
+    "owner": "exclusive_cache_lock lifecycle byte-range owner, msvcrt byte0 lock on Windows",
+    "path": "<application>/litai/.litai-locks/<sha256(str(application-root))>/lifecycle.lock",
+    "call_path": [
+      "apply_native_project_removal850 expected lock observation",
+      "exclusive_cache_lock856 acquires original lifecycle.lock byte0",
+      "_worktree867(root, relative lifecycle.lock)",
+      "_worktree_content239 calls ProjectConfigurationStore._read_manifest(path)",
+      "projects.py os.open creates second descriptor, os.read overlaps already held byte0",
+      "projects.py734 translates read OSError into misleading project.manifest_unavailable"
+    ],
+    "why_injected_false": "Failure occurs before manifest-write-lock acquisition and _remove_group Git diff callback; injected callback body was never reached. Fixture expected nested repository/lock assertions must remain unchanged."
+  },
+  "same_held_read_sites": [
+    {
+      "file": "src/literate_ai/adapters/native_project_removal.py",
+      "line": 867,
+      "phase": "apply after lifecycle lock acquired"
+    },
+    {
+      "file": "src/literate_ai/adapters/native_project_removal.py",
+      "line": 360,
+      "phase": "idle runtime before directory move, inside lifecycle lock"
+    },
+    {
+      "file": "src/literate_ai/adapters/native_project_removal.py",
+      "line": 377,
+      "phase": "archived idle lock inside archived owner lock"
+    }
+  ],
+  "bounded_repair": "Use existing exclusive_cache_lock on_locked(descriptor) port to read through the exact owning descriptor at all three held-lock sites. Add a narrow private locked-file observation helper that preserves original node schema and digest, bounded256KiB/regular-file/single-link rules, path/descriptor native identity (Windows fallback included), path/ancestor and before/after metadata comparisons. Restore/handle owner file offset explicitly. Keep current exact expected-state comparisons, fresh unlocked observations, existing-only acquisition semantics, Git boundary checks and locks. No unlocking to read, synthetic placeholder trust, skipped byte fence, broad recursive cleanup, fixture coordinate rewrite or deadlines change.",
+  "independent_control": {
+    "model": "POSIX actual cache-lock owner plus explicit Windows secondary-handle read denial; not native Windows execution",
+    "code": "project.manifest_unavailable",
+    "message": "project manifest is unavailable",
+    "cause_type": "PermissionError",
+    "cause_errno": 13,
+    "observed_secondary_reads": [
+      {
+        "owner_fd": 4,
+        "reader_fd": 5
+      }
+    ],
+    "held_descriptor_read_succeeded": true,
+    "lock_bytes_preserved_after_release": true
+  },
+  "verification_limits": "Native Windows failing log is actual evidence. Independent control uses actual Linux lock plus explicit modeled second-handle denial and reproduces exact outer error; not native Windows rerun or complete apply coverage. Default python attempt failed import of cyclonedx before control; dependency-qualified interpreter completed model. No source edits, worker changes, test assertion/deadline changes or native success claim.",
+  "sha256": {
+    "src/literate_ai/adapters/native_project_removal.py": "f47f24d03a45a247f057ba933cf1f4f487840fc5f54ca6d010cf4d1dd7d431d2",
+    "src/literate_ai/_cache_lock.py": "f08d314d70db68e87305a63825a78bcab44f1b9a8e49252e1cb967c8b12a7316",
+    "src/literate_ai/projects.py": "2f26e1dec1879b62b007f1675e65d436243759803c115735ac8fc6679b598e40",
+    "tests/e2e/test_native_project_removal.py": "a9e2e4665da1231ea47e9055ae955ea4864703b39a224313abf5eaa2d9bcbf89"
+  }
+}

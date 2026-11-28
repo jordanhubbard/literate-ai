@@ -1,0 +1,191 @@
+{
+  "schema": "independent-source-review@1",
+  "created_utc": "2026-11-14T02:12:12.941394+00:00",
+  "reviewer": "single authorized independent reviewer",
+  "decision": "approved_at_exact_limited_scope",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "2c2435bff209947161b389353fde6b00dd18c589",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/framework_update_roles.py",
+      "sha256": "91dd80ba67bd03860da4f6b6ef1b7af51790a3bad00b8f7c6fc5540d9c4a2c0c",
+      "bytes": 46238,
+      "unchanged_from_retirement_review": false
+    },
+    {
+      "path": "src/literate_ai/adapters/project_update_apply.py",
+      "sha256": "9bc3e0ead2466a2b0e3d5cbbb407ce7907de9f89ec909e54cad955592c8e2efd",
+      "bytes": 17428,
+      "unchanged_from_retirement_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/project_update_compatibility.py",
+      "sha256": "02f7907cacc4f4dd02a3f22d26879905a38f2f75f568a435e467daf6136586e6",
+      "bytes": 6992,
+      "unchanged_from_retirement_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/project_updates.py",
+      "sha256": "a5494ed0e6a8a65e5c515723d3612e1607a8f751a115d9289f897d4969f33073",
+      "bytes": 25763,
+      "unchanged_from_retirement_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout.py",
+      "sha256": "3eb6c36fc8903f61e852e412bbcd3c550def507e6c07755eae4cbc06a5d8f3bf",
+      "bytes": 20164,
+      "unchanged_from_retirement_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_ownership.py",
+      "sha256": "c92305bfb8aa06a818234be7a93c84a6ace14e083c5659f9f14c0347d3db7f88",
+      "bytes": 24403,
+      "unchanged_from_retirement_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "b607ba06154e94eabd36fd3f416414369eb0219e1b248ef7e9d2c6ee639150e1",
+      "bytes": 53274,
+      "unchanged_from_retirement_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/roadmap_dependencies.py",
+      "sha256": "130a7deeddc15bcbf7503be32982593e6ccca68bb50a8076c16bba8a62b9d534",
+      "bytes": 3179,
+      "unchanged_from_retirement_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/update_merge.py",
+      "sha256": "9d6fb29d1bcf903a536535bed8d1ee2b62a94829264ee5e41272d4419ca01ebd",
+      "bytes": 19565,
+      "unchanged_from_retirement_review": true
+    },
+    {
+      "path": "src/literate_ai/application/agent_skill_catalog.py",
+      "sha256": "20c9428f925e4efdbd47e4b43049ed53ac82032f52c900c40a7c1a3f28f007a2",
+      "bytes": 23837,
+      "unchanged_from_retirement_review": true
+    },
+    {
+      "path": "tests/critical/test_framework_update_roles.py",
+      "sha256": "e69f5a4610fdae17c31a91995b3203343a3cffdd7e0f191cbca34d1343e62e2c",
+      "bytes": 29750,
+      "unchanged_from_retirement_review": false
+    }
+  ],
+  "preserved_subjects": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-reviewed-subjects",
+  "prior_reports": [
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-update-handoff-review.json",
+      "sha256": "2d6fa6c4a99dd9703e277e10c6fed198f561704b9da1af55dc20513752a69930",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-update-handoff-rereview.json",
+      "sha256": "e80f44654ceb60f834378c36ec0a6a6ad3a3008a25f9bfd822eca02768589e3a",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-update-retirement-review.json",
+      "sha256": "1a59134e5adf587a46ca62e2c74f7765e64adf4981d65df475e5e30fde60f316",
+      "unchanged": true
+    }
+  ],
+  "scope": "Internal POSIX regular-framework-endpoint, physical source-backed file-Git-provider, genuine live updater handoff with bounded private native retirement and optional acknowledged normal nonroot source partition.",
+  "findings": [],
+  "resolved": [
+    {
+      "id": "UPDATE-HANDOFF-LIFETIME-001",
+      "status": "closed",
+      "evidence": "Final eligibility checks retained; current28 cohort includes actual context ending during final native close and refusal."
+    },
+    {
+      "id": "UPDATE-HANDOFF-REMOVAL-002",
+      "status": "closed",
+      "evidence": "Current28 cohort includes actual original-parent replacement and preservation of original+foreign files; strict retirement uses durable private intent/native-exclusive inode-preserving move, with no unlink/automatic collection."
+    },
+    {
+      "id": "UPDATE-HANDOFF-RETIREMENT-LIFETIME-003",
+      "status": "closed",
+      "evidence": "Inner finally revokes owner before original pinned descriptor teardown on all exits. Unchanged independent actual close/EBADF/reopen-same-FD probe passes5.527s and currentness refuses."
+    }
+  ],
+  "review_assessment": [
+    "All11 current production/test subjects verified; nine byte-identical to third review. Only participant nesting and two maintained methods/helper changed. Exact unchanged comparisons included in manifest.",
+    "Inner finally covers writer lock/construction/preparation/application, initial reader currentness, yield and final currentness. Owner revocation precedes original resource teardown; outer fallback remains.",
+    "Nonce-bound participant requires actual successful selected/validated advances and fresh source plan with exact post-checkpoint; saved rows/documents do not mint roles. Same actual participant is required and consumed once by optional complete partition.",
+    "Previously reviewed bounded planning/apply/catalog/skill/roadmap/layout routes, central shared ledger, actual physical resource selector, source/provider disjointness and full publication native/namespace closures remain unchanged.",
+    "Actual removals retain original nodes and fsynced private owner/intents; mutation callbacks refuse after write scope; unsupported alias-group mutations refuse before writes.",
+    "Writer/preyield failure supplements confirm revoked eligibility before actual original FD close; no borrowed or reopened descriptor revives the owner."
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_framework_update_roles",
+      "result": "28 passed,0 failures,0 errors,0 skips,122.437s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-independent-focused.log"
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.e2e.test_project_update_apply tests.e2e.test_project_update_merge tests.critical.test_update_base_observation",
+      "result": "18 passed,0 failures,0 errors,0 skips,4.130s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-independent-regression.log"
+    },
+    {
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-descriptor-teardown-probe.py",
+      "result": "Exact unchanged corrected original probe:1 passed,5.527s. Original FD EBADF verified; replacement FD same number; currentness rejected; inactive afterward.",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-independent-original-teardown.log"
+    },
+    {
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-preyield-probe.py",
+      "result": "1 passed with2 subcases,5.141s. Provider/writer preparation failure and initial reader currentness failure both revoke writing/active before real FD close; EBADF verified.",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-preyield-probe.log"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-independent-focused.log",
+      "sha256": "e058bc713b53c42f8e0e1e972f90db711509a7f129c7ebea68559af111bbf498",
+      "bytes": 5731
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-independent-regression.log",
+      "sha256": "cd364de07ddb5218a90d12b35ed0267ce75389e791a22c76b924562f7035a57a",
+      "bytes": 3334
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-descriptor-teardown-probe.py",
+      "sha256": "2505d03e64b0d80c70226a4fbf9d1612f554125fd4cb23ddf872634a56da587f",
+      "bytes": 2079
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-independent-original-teardown.log",
+      "sha256": "4405fe96d24e4cfb32ccc525d231725f9ef559c64907779f50e73a287d05bdbf",
+      "bytes": 395
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-preyield-probe.py",
+      "sha256": "8ed23f9089af630a6781c4abe67a66e26dbb106ddc61b8a3858ee63a9bb89539",
+      "bytes": 2665
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-preyield-probe.log",
+      "sha256": "0e7b5d4289dd36ef8f1b4c5dee672093b4f93d957be55047bef9981adfc1e9ea",
+      "bytes": 423
+    }
+  ],
+  "terminal_process_state": "All independent tests/probes terminal exit0. Author affected142/Make28/static gates not independently admitted or relabeled by this review.",
+  "acceptance_limits": [
+    "Approval binds exact manifest and this internal partial dependency, not full feature/program/roadmap/release acceptance.",
+    "Local POSIX/macOS managed editable-source evidence only; no isolated installed/wheel, Linux/Windows/native cross-platform or full project acceptance.",
+    "Physical source-backed provider/file-based Git refs only. Packaged provider borrowing ambient Git and unsupported reftable storage refuse. No authenticated historical-origin attestation.",
+    "Maintained HEAD-after-payload test projects native change; reviewer did not modify real provider HEAD/ref.",
+    "Framework alias-group mutations remain unsupported pending complete group ownership. Saved update labels/rows grant no receiver namespace/exclusion rights.",
+    "Private retirement evidence is retained; no automatic GC, restart reconstruction/full fresh recovery API, durable historical overlay lease or complete v2 updater provenance history.",
+    "Root/shared/initial/wrapper movement, complete current metadata/source ownership and recovery, public CLI/API, and whole-feature acceptance remain open.",
+    "No continuous hostile same-user atomic snapshot claim; evidence is scoped to bounded observed spans and actual owner/resource lifetime.",
+    "No source/test/pin edits, installs, subagents, network, pushes or external posts; only private probes/evidence and requested immutable root reports."
+  ]
+}

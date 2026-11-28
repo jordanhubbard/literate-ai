@@ -64,6 +64,9 @@ _SAFE_JOURNAL_VISIBILITY = {
     ContextAuthorityKind.LOCAL_PUBLIC_INTERFACE: ContextVisibility.LOCAL_AUTHORITY,
     ContextAuthorityKind.LOCAL_ASSET_METADATA: ContextVisibility.LOCAL_AUTHORITY,
     ContextAuthorityKind.LOCAL_NATIVE_SDK_METADATA: ContextVisibility.LOCAL_AUTHORITY,
+    ContextAuthorityKind.LOCAL_NODE_SDK_PROVIDER_METADATA: (
+        ContextVisibility.LOCAL_AUTHORITY
+    ),
     ContextAuthorityKind.DIRECT_PUBLIC_INTERFACE: (
         ContextVisibility.DIRECT_PUBLIC_INTERFACE
     ),

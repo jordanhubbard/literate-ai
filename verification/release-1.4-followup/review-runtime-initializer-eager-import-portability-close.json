@@ -1,0 +1,47 @@
+{
+  "status": "closed-no-findings",
+  "head": "b08783b92e5e9383610eb85f1ee382d7ffa5f393",
+  "files": {
+    "src/literate_ai/adapters/retained_layout_ast.py": "4d0a468fb03dd8c4857da64822764f8230675e2e7537e5c0643e985c8d527b73",
+    "src/literate_ai/adapters/retained_layout_provider.py": "ebcf66c4f61db19008414b20b77621fda57615c6f8ba57f0e390df388946f835",
+    "tests/critical/test_retained_layout_ast.py": "b94fa2726c6b0ec4e56498fe326c6177a33cd3d77570ff41c36ce7aa8b8b69b7"
+  },
+  "source_review": "Only ast.Import/ImportFrom is_lazy exactFalse or exactint0 omitted, preserving prior absent eager semantics under AST v1. LazyTrue/1, float0.0, other unknown values and fields on nonImport nodes retained. Existing typed Constant encoding and other normalizations unchanged.",
+  "archived_syntax_comparison": {
+    "files": [
+      "initializer-syntax-311.json",
+      "initializer-syntax-315.json"
+    ],
+    "difference_count": 4,
+    "differences": "Only4 ImportFrom fields is_lazy=0 in315 absent in311, independently recursively compared."
+  },
+  "independent_tests": [
+    {
+      "version": "3.12.3",
+      "tests": 7,
+      "result": "PASS",
+      "seconds": 0.064
+    },
+    {
+      "version": "3.14.7",
+      "tests": 7,
+      "result": "PASS",
+      "seconds": 0.057
+    },
+    {
+      "version": "3.15.2",
+      "tests": 7,
+      "result": "PASS",
+      "seconds": 0.063
+    }
+  ],
+  "cross_version_fingerprint": "87b63ac61fc356813920beb86efbc5d313268b25d1f14be4338fad032ab9afea",
+  "vectors": 5,
+  "additional_adversarial_check": "Nonimport Assign node with extra is_lazy=0 remains distinct from nofield syntax.",
+  "findings": [],
+  "limits": [
+    "No3.11 executable available at tested local standard paths; archived3.11 syntax compared instead. Available3.12/3.14/3.15 actually executed tests.",
+    "Canonical broader provider cohort root-owned; finite syntax compatibility not native release acceptance.",
+    "Original900 authored native completion remains failed as root reported; this syntax repair does not claim performance acceptance or retry/replace that result."
+  ]
+}

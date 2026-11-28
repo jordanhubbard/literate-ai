@@ -1,0 +1,177 @@
+{
+  "schema": "literate-ai/forest-controls-development@1",
+  "state": "source_reviewed_initial_finalization_control_projection",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "canonical_forest_recovery_proven": false,
+  "current_initial_finalization_control_observation_proven": true,
+  "general_recovery_retry_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-controls-review.json",
+    "sha256": "c2549d2e21f1aacf1c23c7ff99fa1072e0d4f0389ec87f79899fe56b1f205b2f"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-controls-final-owner-report.json",
+        "sha256": "51c197410c58cad90f1952e8286edc167ad38494fe8f5b285fc378288a4a3181"
+      },
+      "log": {
+        "path": "_build/forest-controls-final-owner-maintained.log",
+        "sha256": "5d7dcb2f3ba303c6525b5fa2495dd815bfdd9793c847a58575e98c744f81d63c"
+      },
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "4813139f3b48d4c9a3fdeb955a3b6c837c0926c067ca46006356b998e4d7101f",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-controls-final-metadata-report.json",
+        "sha256": "5648800168d379aabf36f73ab15ec5abf8528964b9b6c36d94b84bbaf188c11c"
+      },
+      "log": {
+        "path": "_build/forest-controls-final-metadata-maintained.log",
+        "sha256": "ed9182b84b5c59f23633a42f934b5bbb0207ea0b7250f80676bfe022d9407a1e"
+      },
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "31ffe467131bd48dcb5ece4b2de91573e89eaff06ad0536a13d07ab86b108992",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-controls-final-current-report.json",
+        "sha256": "178a5c16659e23a73ab737d6a8132d2a69fd29c79b4aac08fda47c99301f46b4"
+      },
+      "log": {
+        "path": "_build/forest-controls-final-current-maintained.log",
+        "sha256": "147aa6b82049a9475cee7e113d5dd926a535c44dc4e84f7efdddeb5410aa5c7e"
+      },
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "dd8fde26dd2c1048144608ca76c25e0d1948be5fccf30b34da0db5c21722071e",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 18,
+  "diagnostics": [
+    {
+      "path": "_build/forest-controls-first-diagnostic.log",
+      "sha256": "b96f9b6211d6c2192a4a9a3db43624c9a825d13709858254eb60657b7268386c"
+    },
+    {
+      "path": "_build/forest-controls-second-diagnostic.log",
+      "sha256": "52523eba6d65318539cf27d50568b4532ac2625418d32f0dad5b2ce08c31e7af"
+    },
+    {
+      "path": "_build/forest-controls-third-diagnostic.log",
+      "sha256": "3034c8edc553a9507aecfc5e0e48bf01503f89c8a679c233f7a9e5ee67a3d833"
+    },
+    {
+      "path": "_build/forest-controls-funding-diagnostic.log",
+      "sha256": "8542e4017a9c4c1866a9b59cfec4448e613d13a39234072ac8492e2d7790af2b"
+    }
+  ],
+  "pre_fix_maintained_regression": {
+    "report": {
+      "path": "_build/forest-controls-current-report.json",
+      "sha256": "5c12e917d3f0b0d7867254836d4bf65c37e6a90e27573f788a67d4fbbbb95fae"
+    },
+    "log": {
+      "path": "_build/forest-controls-current-maintained.log",
+      "sha256": "2bc769b02e4e4d0df0eb517af738d6d293693ac51fee0946b1e50e4a8c2e43d1"
+    },
+    "cause": "Duplicated original-view accounting exhausted existing native-only allowance. No policy enlargement; exact unchanged inventory reuses existing funded view."
+  },
+  "causal_notes": [
+    "Actual real partial finalization initially reached existing span checker and failed runtime native namespace changed; retained original node plus genuine supplemental public node were both actually held.",
+    "Four-case direct diagnostic passed126.393s. Maintained first control4 and metadata8 cohorts passed before the accounting correction; their reports remain separate and are not counted against final source.",
+    "Final four real controls tests cover normalized original inode, retired private original and new incoming public inode, returned changed parent roster, unrelated source preservation/refusal, genuine wrong-bound retirement root refusal, and foreign retirement entry refusal at actual raw acquisition.",
+    "Native-only diagnostic reproducer passed35.529s after accounting correction. Final18 maintained methods include existing actual9 pending-native subcases and actual metadata publication before/after, smaller allowance refusal and genuine ordinary acquired-partition wire. No original/fresh ledger resets or production policy enlargement."
+  ],
+  "remaining": [
+    "General fresh retry generations and actual acknowledged journaled source/metadata/control recovery effects and disposition",
+    "Genuine canonical integrated forest execution before admission guard removal",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ],
+  "static_checks": {
+    "state": "pass_all_requested_checks_after_corrected_invocation",
+    "completed": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "roadmap-dependency-graph",
+      "documentation-check"
+    ],
+    "initial_invocation": {
+      "log": {
+        "path": "_build/forest-controls-final-static.log",
+        "sha256": "18db922064fa625aa90ff6d53a0a9a5712f217b4c29431aac9589eb8a94a3894"
+      },
+      "exit": 2,
+      "detail": "All preceding checks passed; unsupported extra roadmap-dependencies-check Make target stopped the command before documentation. Corrected supported documentation-check includes the roadmap graph."
+    },
+    "corrected_documentation": {
+      "log": {
+        "path": "_build/forest-controls-documentation-static.log",
+        "sha256": "37ea45c77170cdb9db428e31b7419a2e824418a33d66e2f681031b7ed2d156a9"
+      },
+      "exit": 0
+    },
+    "readonly_checks": {
+      "log": {
+        "path": "_build/forest-controls-readonly-static.log",
+        "sha256": "9b57ec9c3b6266e7cf06a2c97832a60fd53efac4957a6acbf1ebca1c0e29c284"
+      },
+      "exit": 0
+    },
+    "git_diff_check_exit": 0
+  },
+  "project_verify": {
+    "report": {
+      "path": "_build/forest-controls-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "exit": 1,
+    "authority": "pass",
+    "receipt": "project.test_receipt_stale",
+    "skipped": 3,
+    "whole_project_qualification": false
+  }
+}

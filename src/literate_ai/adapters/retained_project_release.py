@@ -11,9 +11,9 @@ from literate_ai.adapters.retained_project_metadata import (
 from literate_ai.contracts import ContentIdentity
 from literate_ai.contracts.retained_project import RetainedProjectManifest
 from literate_ai.project_releases import (
-    RELEASE_POLICY_FILE,
     ProjectReleaseError,
     ReleasePolicy,
+    _release_policy_path,
     load_release_policy,
 )
 
@@ -21,10 +21,16 @@ from literate_ai.project_releases import (
 def read_retained_project_release_policy(
     root: Path, manifest: RetainedProjectManifest, expected_identity: ContentIdentity
 ) -> ReleasePolicy:
+    try:
+        configured_path = (
+            _release_policy_path(root).relative_to(root.resolve(strict=True)).as_posix()
+        )
+    except ProjectReleaseError as exc:
+        raise ValueError("retained.release.invalid-policy: " + str(exc)) from exc
     members = [member for member in manifest.members if member.role == "release-policy"]
     if (
         len(members) != 1
-        or members[0].path != RELEASE_POLICY_FILE
+        or members[0].path != configured_path
         or ContentIdentity.parse_uri("sha256:" + members[0].sha256) != expected_identity
     ):
         raise ValueError("retained.release.configured-policy-input-required")

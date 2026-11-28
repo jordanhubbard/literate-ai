@@ -65,6 +65,8 @@ class SchemaCatalog:
     def _validate(self, schema, value, path: str, base: str) -> None:
         if "$id" in schema:
             base = schema["$id"]
+        for candidate in schema.get("allOf", ()):
+            self._validate(candidate, value, path, base)
         if "$ref" in schema:
             target, target_base = self.resolve(schema["$ref"], base)
             self._validate(target, value, path, target_base)

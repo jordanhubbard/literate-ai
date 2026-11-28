@@ -1,0 +1,43 @@
+{
+  "status": "independent_native_next_failure_diagnosed",
+  "subject": {
+    "revision": "f1e9c06f2",
+    "run": 45978232683,
+    "job": 140435858935,
+    "log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-f1-windows-scaffold-isolated.log",
+    "artifact": 15188471127,
+    "junit": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-f1-windows-isolated-junit.zip"
+  },
+  "case": "ScaffoldCustodyTests.test_real_creators_replace_owned_file_then_retire_only_owned_outputs",
+  "comparison": "d5d4 failed first .s->value replace with WinError32. f1 first scaffold_write_bytes succeeds, second publish_atomic_file_if_scoped succeeds, content=bsecond and preserved-mode assertions succeed. New failure occurs only at owner.rollback after native original leaf disposition/close. This confirms actual native publication progress, not full test pass.",
+  "first_stack": [
+    "test_scaffold_custody_owner34 owner.rollback",
+    "scaffold_custody258 _remove ->248 _remove_entry",
+    "remote_cleanup447 remove_windows_entry",
+    "windows_cleanup204 post-disposition guard()",
+    "scaffold_custody246 guard self.require_node(parts)",
+    "scaffold69 _entry(access,parts) ->WindowsMetadataAccess66 path.lstat",
+    "FileNotFoundError WinError2 <temp>/litai/nested/value"
+  ],
+  "root_cause": "Caller guard requires present original leaf but shared native deletion contract intentionally calls guard after successful native disposal/close, when exact leaf is legitimately absent. Parent/root identity/control closing still required; selected leaf presence is a pre-effect fact, not valid mandatory post-effect fact.",
+  "minimal_repair": "Change scaffold-specific deletion callback to close original current root/parent owner and accept absence of only the selected known node; any present node must exactly match original creator postimage and foreign replacement must refuse/preserve. Mirror evidence_staging._dispose guard existing absence-tolerant behavior, without weakening generic native primitive or dropping final guard. Keep original _remove_entry explicit present-node comparison, native DELETE handle exact ID/type/size/time checks, original parent ancestry and final generic absence/refusal check unchanged. No deletion ledger pop before successful _remove_entry return.",
+  "failure_preservation": "When actual deletion fails or a foreign replacement appears, retain original scaffold facts and foreign data; callback is not authority to claim prior missing names as newly owned. Any full source/root/mutex expiration still refuses.",
+  "independent_model": {
+    "success": false,
+    "error_type": "FileNotFoundError",
+    "error_name": "[Errno 2] No such file or directory",
+    "native_disposals": 1,
+    "selected_leaf_absent": true,
+    "original_source_preserved": true,
+    "native_handles_released": true
+  },
+  "model_scope": "Unchanged original positive test body joined to existing WindowsFacade, actual scaffold owner and native deletion adapter; POSIX-backed Windows API model, not additional native Windows run.",
+  "native_terminal": "1failed0.95seconds; JUnit testcase0.021seconds. Broad/boundary cells did not run.",
+  "sha256_at_diagnosis": {
+    "src/literate_ai/adapters/scaffold_custody.py": "e810105cf42e06a363eb7b429146e0e99bfdc55ff1a058ba9bbca84f3daa4c56",
+    "src/literate_ai/adapters/windows_cleanup.py": "4a86cce4dddc3fe98aa92581ea340292c7e0ae30b7e72e3fbac4cdc8591a8bed",
+    "src/literate_ai/adapters/remote_cleanup.py": "72a303635dc42219f51a62028548472612527e56f4a309174b1d8de58e1c284f",
+    "src/literate_ai/adapters/evidence_staging.py": "97bef103d76a046043a88fce9353fe016e36a9bd172b9788043fb39e662ef9af"
+  },
+  "limits": "Read-only source/log/artifact/model investigation; no reviewer edits or guard relaxation. Native f1 progress measured; next repair and full native success pending."
+}

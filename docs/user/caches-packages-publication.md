@@ -25,11 +25,13 @@ Two conventional environment variables make ordinary development incremental:
 
 | Variable | Default | Contents |
 | --- | --- | --- |
-| `BUILD_DIR` | `<project>/generated` | Git-friendly immutable accepted source, its derivation manifest, and the complete coding-agent prompt |
-| `OBJ_DIR` | `<project>/_build` | Host/CPU/toolchain-specific objects, executables, build-result records, Bazel caches, and other disposable build state |
+| `BUILD_DIR` | `<framework_root>/generated` | Git-friendly immutable accepted source, its derivation manifest, and the complete coding-agent prompt |
+| `OBJ_DIR` | `<framework_root>/_build` | Host/CPU/toolchain-specific objects, executables, build-result records, Bazel caches, and other disposable build state |
 
-Relative overrides are resolved against the project root. Standard runtimes publish a
-`BUILD_DIR` entry only after generated tests, root packaging, packaged execution, and
+The framework root is normally `<project>/litai` in newly initialized derived
+projects; legacy root-layout projects, including this repository, use the project
+root. Relative overrides are resolved against the project root. Standard runtimes
+publish a `BUILD_DIR` entry only after generated tests, root packaging, packaged execution, and
 independent project acceptance complete. Component acceptance may stage exact membership
 evidence, but it does not make the source reusable by another run. The key covers the
 exact Component lock, recipe/specifications, selected Flavors and skills, execution plan,
@@ -132,7 +134,7 @@ where applicable). The returned result names that fresh grant while
 artifact bytes. Cached evidence is therefore reusable; historical authority is not.
 
 Cache roots contain a portable project-owner marker. Literate AI refuses to adopt a
-non-empty unmarked directory except for the exact conventional `<project>/_build`
+non-empty unmarked directory except for the exact conventional `<framework_root>/_build`
 boundary, whose name explicitly designates all contents as disposable. Before adopting
 or removing that boundary it rejects links, reparse points, and special files. Cleanup
 requires the marker's exact project owner and cache kind everywhere else and refuses a
@@ -144,7 +146,7 @@ litai really-clean   # remove OBJ_DIR and BUILD_DIR
 # The Makefile exposes the same make clean / make really-clean targets.
 ```
 
-Cache lifecycle locks live in the project-local `.litai-cache-locks` namespace, outside
+Cache lifecycle locks live in `<framework_root>/.litai-cache-locks`, outside
 the roots that cleanup removes. Initialization, publication, and cleanup take the root
 lifecycle lock before any entry lock, and subtree creation rejects symbolic links and
 Windows reparse points component by component before writing. Concurrent writers use
@@ -157,8 +159,10 @@ not sufficient.
 Both roots are ignored in this repository and in newly initialized projects by
 default. To publish generated source in a Git/monorepo cache, explicitly change the
 ignore policy or force-add only the source marker and immutable source entries, for
-example `git add -f generated/.litai-cache-root.json generated/sources`. Never
-force-add the whole `generated` tree. The sibling `_build/` boundary must never be
+example `git add -f litai/generated/.litai-cache-root.json litai/generated/sources`
+for a contained project. Use `generated/` instead of `litai/generated/` for a
+legacy root-layout project. Never force-add the whole generated cache tree.
+The sibling `_build/` boundary must never be
 versioned or indexed. `really-clean` removes the complete
 marked `BUILD_DIR`, including tracked or uncommitted generated-source entries; tracked
 copies are recoverable from Git, but uncommitted entries are not. Prefer an explicit
@@ -551,10 +555,8 @@ accepted payload and retained evidence are archived; this is not per-unit packag
 projection or an ABI-portability claim. Original source authority is preserved,
 conversion does not advance, and publication still requires separate release
 qualification and authorization. Packaging does not promote the retained receipt
-into a project receipt or discharge other configured evidence requirements. A
-noneditable installed fixture passes the public path with its existing authored
-policy; real adopted native-project qualification remains open under
-RETAINED-PROJECT-001.
+into a project receipt or discharge other configured evidence requirements. Integration qualification of the noneditable installed public path and real
+adopted native-project qualification remain open under RETAINED-PROJECT-001.
 
 ## FreeBSD pkg development integration
 

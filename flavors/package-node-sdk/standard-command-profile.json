@@ -1,0 +1,16 @@
+{
+  "schema": "urn:literate-ai:schema:v2:standard-node-sdk-command-profile@1",
+  "target": "node-sdk",
+  "toolchain": "npm",
+  "compiler": "typescript",
+  "source_root": "src",
+  "legal_files": [
+    "LICENSE"
+  ],
+  "formats": [
+    "commonjs",
+    "module"
+  ],
+  "declaration_policy": "independent-node16-nodenext",
+  "pack_policy": "offline-ignore-scripts"
+}

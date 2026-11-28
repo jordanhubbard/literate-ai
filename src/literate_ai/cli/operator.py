@@ -151,15 +151,29 @@ def retained_scope_from_args(args: Namespace) -> dict[str, Any]:
 def retained_harness_from_args(args: Namespace) -> dict[str, Any]:
     from literate_ai.adapters.retained_harness_readmission import (
         apply_retained_harness_readmission,
+        plan_retained_command_renewal_execution,
         plan_retained_harness_readmission,
     )
 
     try:
+        if getattr(args, "retained_harness_command", None) == "recover":
+            from literate_ai.adapters.retained_readmission_publication import (
+                recover_retained_readmission_publication,
+            )
+
+            return recover_retained_readmission_publication(
+                Path(args.project),
+                apply=args.apply,
+                acknowledge=args.acknowledge,
+                expected_plan_identity=args.expected_plan_identity,
+            )
         from .project import _select_retained_execution_worker
 
         worker, catalog_identity = _select_retained_execution_worker(
             args, Path(args.project).resolve()
         )
+        selection = getattr(args, "command_selection", None)
+        selection = Path(selection) if selection is not None else None
         if args.apply:
             if not args.expected_plan_identity:
                 raise CliFailure(
@@ -173,6 +187,16 @@ def retained_harness_from_args(args: Namespace) -> dict[str, Any]:
                 timeout_seconds=args.timeout_seconds,
                 execution_worker=worker,
                 worker_catalog_identity=catalog_identity,
+                retained_stage_ids=tuple(args.retain_stage),
+                command_selection=selection,
+            )
+        if selection is not None:
+            return plan_retained_command_renewal_execution(
+                Path(args.project),
+                command_selection=selection,
+                execution_worker=worker,
+                worker_catalog_identity=catalog_identity,
+                timeout_seconds=args.timeout_seconds,
                 retained_stage_ids=tuple(args.retain_stage),
             )
         return plan_retained_harness_readmission(
@@ -308,12 +332,16 @@ def _adopt_plan(args: Namespace) -> dict[str, Any]:
         )
     path = configured.resolve(strict=True)
     root_plan = getattr(args, "root_plan", None)
+    implementation_directory = getattr(args, "implementation_directory", None)
+    wrapper_component = getattr(args, "wrapper_component", None)
     conversion = plan_convert(
         path,
         default_branch=args.default_branch,
         **(
             {"root_plan": Path(root_plan).expanduser()} if root_plan is not None else {}
         ),
+        implementation_directory=implementation_directory,
+        wrapper_component=wrapper_component,
     )
     detected = detect_repo_flavors(path)
     selectors = apply_init_flavor_defaults(tuple(args.flavors or detected))
@@ -339,6 +367,18 @@ def _adopt_plan(args: Namespace) -> dict[str, Any]:
         apply_supported = (
             apply_supported and refinement_supported and bool(args.run_baseline)
         )
+    if "retained_placement" in conversion:
+        placement = conversion["retained_placement"]
+        if isinstance(placement, dict):
+            blockers.extend(
+                {
+                    "code": "retained-layout.source-collision",
+                    "path": relative,
+                }
+                for relative in placement.get("source_collisions", [])
+            )
+        blockers.append("retained-layout.initial-placement-not-yet-supported")
+        apply_supported = False
     return {
         "path": str(path),
         "writes": False,
@@ -441,6 +481,10 @@ def onboard_from_args(args: Namespace) -> dict[str, Any]:
         )
         if (
             any(getattr(args, key, None) for key in conversion_options)
+            or any(
+                getattr(args, key, None) is not None
+                for key in ("implementation_directory", "wrapper_component")
+            )
             or getattr(args, "source_intelligence_provider", "none") != "none"
         ):
             raise OperatorAdoptionError(
@@ -576,6 +620,23 @@ def human_operator_status_text(result: dict[str, Any]) -> str:
 
 
 def human_onboard_text(result: dict[str, Any]) -> str:
+    if result.get("schema") == "literate-ai/native-project-removal@1":
+        if result.get("state") == "removed":
+            runtime = result["runtime_cleanup"]
+            lines = [
+                f"Staged {len(result['staged_deletions'])} native profile deletions.",
+                f"Runtime state: {runtime['state']}",
+            ]
+            if runtime.get("path"):
+                lines.append(f"Retained {runtime['path']}: {runtime['reason']}")
+            if runtime.get("retirement_slot"):
+                lines.append(f"Retirement slot: {runtime['retirement_slot']}")
+            return "\n".join(lines) + "\n"
+        return (
+            f"Native removal plan {result['plan_identity']}\n"
+            f"Selected {len(result['selected'])} paths. "
+            "Use --json to review custody and recovery arguments.\n"
+        )
     plan = result.get("plan") if result.get("applied") else result
     if not isinstance(plan, dict):
         plan = {}

@@ -18,7 +18,9 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import tempfile
+from collections.abc import Callable
 from datetime import UTC, datetime
 from importlib.resources import files
 from pathlib import Path
@@ -48,7 +50,14 @@ from literate_ai.adapters.harness_workspace import (
     materialize_harness_workspace_links,
     require_harness_workspace_link_evidence,
 )
+from literate_ai.adapters.retained_layout import (
+    RetainedLayoutError,
+    resolve_legacy_implementation,
+)
+from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.diagnostics import redact_secrets, trace_subprocess
+
+from .scaffold_custody import scaffold_mkdir, scaffold_rmdir, scaffold_write_text
 
 HARNESS_INVENTORY_SCHEMA = "urn:literate-ai:schema:v1:harness-inventory"
 HARNESS_BASELINE_SCHEMA = "literate-ai/legacy-harness-baseline@2"
@@ -81,7 +90,9 @@ _STORAGE_FAILURE_PATTERN = re.compile(
 _MAKEFILES = ("Makefile", "GNUMakefile", "GNUmakefile", "makefile")
 _REPO_DRIVERS = ("repo.sh", "repo.bat")
 _REPO_BUILD_WRAPPERS = {"nt": "build.bat", "posix": "build.sh"}
-_SKIP_DIR_NAMES = frozenset({".git", "_build", "_legacy", "node_modules"})
+_SKIP_DIR_NAMES = frozenset(
+    {".git", ".venv", ".litai-venv", "_build", "_legacy", "node_modules"}
+)
 CONVERT_BASELINE_EXCLUDED_NAMES = EXCLUDED_DIRECTORY_NAMES
 _ENV_BOUND_FRAGMENTS = (
     ".venv/",
@@ -1149,6 +1160,13 @@ def _sanitized_git_environment() -> dict[str, str]:
 
 
 def _ensure_disposable_git_identity(observed_root: Path) -> None:
+    from .retained_execution_workspace import native_git_production
+
+    with native_git_production(observed_root):
+        _materialize_disposable_git_identity(observed_root)
+
+
+def _materialize_disposable_git_identity(observed_root: Path) -> None:
     """Give one disposable harness phase root its own deterministic Git identity.
 
     Nested linbuild-style tooling resolves a build revision with ``git
@@ -1242,6 +1260,7 @@ def _run_harness_command(
     observation_root: Path | None = None,
     source_scope: object | None = None,
     command_arguments: tuple[str, ...] | None = None,
+    _original_python_gates=None,
 ) -> dict[str, object]:
     diagnostic_limit_chars = validate_harness_diagnostic_limit(diagnostic_limit_chars)
     if command_arguments is not None and (
@@ -1295,10 +1314,24 @@ def _run_harness_command(
         if phase.split(".", 1)[0] == "test"
         else {}
     )
+    if _original_python_gates is not None:
+        from .retained_python_original_gates import _bound_observer_method
+
+        _bound_observer_method(_original_python_gates, "before_stage")(
+            phase, entry, working_directory, environment, command_arguments
+        )
+    from .retained_execution_workspace import (
+        native_command_complete,
+        native_command_not_started,
+        native_command_start,
+        native_diagnostics_directory,
+    )
+
+    diagnostics_directory = native_diagnostics_directory(observed_root)
     started = datetime.now(UTC)
     with (
-        tempfile.TemporaryFile() as stdout_file,
-        tempfile.TemporaryFile() as stderr_file,
+        tempfile.TemporaryFile(dir=diagnostics_directory) as stdout_file,
+        tempfile.TemporaryFile(dir=diagnostics_directory) as stderr_file,
     ):
         invocation = command if command_arguments is None else command_arguments
         trace_subprocess(
@@ -1307,6 +1340,7 @@ def _run_harness_command(
             environment=environment,
         )
         ownership = create_process_tree_ownership()
+        native_command_start(observed_root)
         try:
             process = subprocess.Popen(
                 invocation,
@@ -1319,6 +1353,7 @@ def _run_harness_command(
                 **ownership.popen_options,
             )
         except OSError as exc:
+            native_command_not_started()
             ownership.release()
             if exc.errno in {errno.ENOSPC, getattr(errno, "EDQUOT", errno.ENOSPC)}:
                 raise HarnessBaselineError(
@@ -1348,7 +1383,21 @@ def _run_harness_command(
             )
             process.wait(timeout=10)
         finally:
-            ownership.release()
+            original_error = sys.exception()
+            try:
+                native_command_complete(process)
+            except BaseException as error:
+                if original_error is None and not timed_out and process.returncode == 0:
+                    raise
+                if original_error is not None:
+                    original_error.add_note(
+                        "Native command closure refused: " + str(error)
+                    )
+                # A known failed/timed-out command still builds its original
+                # bounded gate diagnostic below. Native custody remains broken,
+                # so disposal refuses without replacing that rejecting error.
+            finally:
+                ownership.release()
         stdout_file.flush()
         stderr_file.flush()
         stdout_size = _stream_size(stdout_file)
@@ -1428,6 +1477,10 @@ def _run_harness_command(
         stderr=stderr[:MAX_HARNESS_DIAGNOSTIC_BYTES],
         started_at=started,
     )
+    if _original_python_gates is not None:
+        _bound_observer_method(_original_python_gates, "after_stage")(
+            result, stdout, stderr, environment
+        )
     return result
 
 
@@ -1438,6 +1491,7 @@ def execute_harness_baseline(
     timeout_seconds: int = HARNESS_COMMAND_TIMEOUT_SECONDS,
     diagnostic_limit_chars: int = HARNESS_DIAGNOSTIC_CHARS,
     run_baseline: bool = False,
+    _original_python_gates=None,
 ) -> dict[str, object]:
     """Execute local-cheap legacy quality gates and return digest-only evidence."""
 
@@ -1515,6 +1569,11 @@ def execute_harness_baseline(
                 timeout_seconds=timeout_seconds,
                 diagnostic_limit_chars=diagnostic_limit_chars,
                 source_scope=source_scope,
+                **(
+                    {"_original_python_gates": _original_python_gates}
+                    if _original_python_gates is not None
+                    else {}
+                ),
             )
         except HarnessBaselineError as exc:
             report["state"] = "failed"
@@ -1567,6 +1626,7 @@ def execute_retained_harness(
     legacy_root: Path,
     timeout_seconds: int = HARNESS_COMMAND_TIMEOUT_SECONDS,
     diagnostic_limit_chars: int = HARNESS_DIAGNOSTIC_CHARS,
+    _original_python_gates=None,
 ) -> dict[str, object]:
     """Execute every admitted retained quality gate for receipt evidence.
 
@@ -1616,6 +1676,11 @@ def execute_retained_harness(
         timeout_seconds=timeout_seconds,
         diagnostic_limit_chars=diagnostic_limit_chars,
         run_baseline=True,
+        **(
+            {"_original_python_gates": _original_python_gates}
+            if _original_python_gates is not None
+            else {}
+        ),
     )
     report["schema"] = RETAINED_HARNESS_RUN_SCHEMA
     if report.get("state") != "passed":
@@ -1691,6 +1756,7 @@ def execute_harness_wrapper_parity(
     timeout_seconds: int = HARNESS_COMMAND_TIMEOUT_SECONDS,
     diagnostic_limit_chars: int = HARNESS_DIAGNOSTIC_CHARS,
     workspace_links: tuple[HarnessWorkspaceLink, ...] = (),
+    initial_source_guard: Callable[[Path], None] | None = None,
 ) -> dict[str, object]:
     """Run the generated wrapper and compare each stage with direct baseline output."""
 
@@ -1727,7 +1793,9 @@ def execute_harness_wrapper_parity(
                 workspace_links
             )
         return skipped
-    wrapper = project_root / HARNESS_WRAPPER_FILENAME
+    from .retained_scaffold_coordinates import retained_scaffold_path
+
+    wrapper = retained_scaffold_path(project_root, HARNESS_WRAPPER_FILENAME)
     if not wrapper.is_file() or wrapper.is_symlink():
         raise HarnessBaselineError(
             "project.convert_wrapper_unavailable",
@@ -1774,7 +1842,7 @@ def execute_harness_wrapper_parity(
 
     with tempfile.TemporaryDirectory(
         prefix=".literate-ai-convert-wrapper-",
-        dir=project_root,
+        dir=wrapper.parent,
     ) as parity_directory:
         workspace_root = Path(parity_directory)
         parity_root = workspace_root / "legacy"
@@ -1782,6 +1850,8 @@ def execute_harness_wrapper_parity(
         if source_scope is None:
             source_scope = capture_retained_source_scope(legacy_root)
         copy_retained_source_tree(legacy_root, parity_root, source_scope)
+        if initial_source_guard is not None:
+            initial_source_guard(parity_root)
         with materialize_harness_workspace_links(workspace_root, workspace_links):
             for baseline_phase in baseline_phases:
                 if not isinstance(baseline_phase, dict):
@@ -1803,7 +1873,7 @@ def execute_harness_wrapper_parity(
                     "-f",
                     wrapper.as_posix(),
                     phase,
-                    f"LITAI_LEGACY={parity_root.as_posix()}",
+                    f"LITAI_LEGACY={_make_path_value(parity_root.as_posix())}",
                 )
                 wrapper_entry = {
                     "command": (
@@ -1866,8 +1936,17 @@ def execute_harness_wrapper_parity(
 def legacy_shim_authority(
     inventory: dict[str, object],
     baseline: dict[str, object],
+    *,
+    wrapper_component: str = "components/legacy-project-wrapper",
+    _workflow_template: bytes | None = None,
 ) -> dict[str, str]:
     """Render the minimal first-class authority wrapping one proven legacy pipeline."""
+
+    wrapper_path = canonical_relative_posix_path(
+        wrapper_component, label="retained wrapper Component"
+    )
+    if len(wrapper_path.parts) != 2 or wrapper_path.parts[0] != "components":
+        raise ValueError("wrapper must be one Component under components/")
 
     commands = inventory.get("commands")
     if not isinstance(commands, dict):
@@ -2012,11 +2091,24 @@ their resulting tree identities with the direct baseline before adoption proceed
 - **WHEN** all available wrapper stages complete
 - **THEN** every stage has exact successful parity evidence
 """
+    if _workflow_template is None:
+        workflow_template = (
+            files("literate_ai.project_template")
+            .joinpath("workflows", "production", "staging", "dev", "workflow.md")
+            .read_text(encoding="utf-8")
+        )
+    else:
+        if (
+            type(_workflow_template) is not bytes
+            or not _workflow_template
+            or len(_workflow_template) > 1024**2
+        ):
+            raise ValueError("original workflow resource must be bounded exact bytes")
+        workflow_template = _workflow_template.decode("utf-8")
     workflow = (
-        files("literate_ai.project_template")
-        .joinpath("workflows", "production", "staging", "dev", "workflow.md")
-        .read_text(encoding="utf-8")
-        .replace('workflow_id: "dev"', 'workflow_id: "legacy-adoption"')
+        workflow_template.replace(
+            'workflow_id: "dev"', 'workflow_id: "legacy-adoption"'
+        )
         .replace("# Dev\n", "# Legacy adoption wrapper\n")
         .replace(
             "The default named workflow selected when a Component does not point at a "
@@ -2042,7 +2134,7 @@ their resulting tree identities with the direct baseline before adoption proceed
         + "\n"
     )
     return {
-        "components/legacy-project-wrapper/component.md": component,
+        f"{wrapper_component}/component.md": component,
         "skills/specification-to-source/legacy-project-shim/SKILL.md": skill,
         "flavors/legacy-project-shim/flavor.md": flavor,
         "flavors/legacy-project-shim/openspec/spec.md": flavor_spec,
@@ -2064,10 +2156,11 @@ def render_harness_wrapper(
         commands = {}
     stages = _inventory_stages(inventory)
     stages_by_id = {stage["id"]: stage for stage in stages}
+    directory_value = _make_path_value(legacy_directory).replace("#", "\\#")
     lines = [
         "# Generated by litai init --convert from .literate/harness-inventory.json",
         "# evidence. Framework-owned: litai update reconciles this file.",
-        f"LITAI_LEGACY := {legacy_directory}",
+        f"LITAI_LEGACY := {directory_value}",
         "",
     ]
     workspace_links = inventory.get("workspace_links")
@@ -2106,6 +2199,11 @@ def render_harness_wrapper(
     return "\n".join(lines)
 
 
+def _make_path_value(value: str) -> str:
+    """Carry a literal filesystem dollar through Make's variable expansion."""
+    return value.replace("$", "$$")
+
+
 def _wrapper_recipe(
     entry: dict[str, object], *, legacy_root: Path | None = None
 ) -> str:
@@ -2116,9 +2214,16 @@ def _wrapper_recipe(
             "\t$(error harness cwd escapes the legacy tree; "
             "record a project-relative cwd in .literate/harness-inventory.json)"
         )
-    if relative == ".":
-        return f"\tcd $(LITAI_LEGACY) && {command}"
-    return f"\tcd $(LITAI_LEGACY)/{relative} && {command}"
+    if os.name == "nt":
+        suffix = "" if relative == "." else "/" + relative
+        directory = f'"$(LITAI_LEGACY){suffix}"'
+    else:
+        # Quote AFTER Make expands the caller's path, including embedded shell
+        # quotes. Never treat spaces or shell syntax in a directory as a command.
+        directory = "'$(subst ','\"'\"',$(LITAI_LEGACY))'"
+        if relative != ".":
+            directory += "/" + _make_path_value(shlex.quote(relative))
+    return f"\tcd {directory} && {command}"
 
 
 def _move_tree_entry(
@@ -2196,6 +2301,51 @@ def render_lift_shift_adr(
     baseline_identity: str,
     parity_identity: str,
 ) -> str:
+    if implementation_directory == ".":
+        placement = (
+            "Keep the original retained source at the repository root under an "
+            "explicit source/framework ownership partition. The wrapper Component "
+            "keeps its specifications separate from that source, and "
+            "`litai.harness.mk` invokes the original pipeline at the root. "
+            "Framework-owned files are excluded only through the reviewed "
+            "partition; the remaining root namespace is retained source."
+        )
+        admission = (
+            "Root placement is admitted only when the wrapper workflow has the "
+            "same successful exit and source-authority tree identity as the "
+            "Phase 1 direct baseline. No root rename or quarantine move is "
+            "claimed. The retained implementation is not generated source, "
+            "not a cache, and not a specification; it remains release authority "
+            "until a separate Phase 2 ADR qualifies native Components, Flavors, "
+            "skills, and assets."
+        )
+    else:
+        placement = (
+            "Move the complete original tree, preserving its internal taxonomy, "
+            "from quarantine to\n"
+            f"`{implementation_directory}`. The wrapper Component owns this "
+            "retained implementation\n"
+            "and `litai.harness.mk` invokes it at its new location. Each move "
+            "uses `git mv` when the\n"
+            "entry is tracked and plain filesystem move otherwise."
+        )
+        admission = (
+            "The move is admitted only when the post-move wrapper workflow has "
+            "the same successful\n"
+            "exit and source-authority tree identity as the Phase 1 direct "
+            "baseline. Only then is\n"
+            "the empty quarantine directory removed. The retained implementation "
+            "is not generated\n"
+            "source, not a cache, and not a specification; it remains release "
+            "authority until a\n"
+            "separate Phase 2 ADR qualifies native Components, Flavors, skills, "
+            "and assets."
+        )
+    retained_source = (
+        "the retained source partition at the repository root"
+        if implementation_directory == "."
+        else f"`{implementation_directory}/`"
+    )
     return f"""# ADR 0001: Retain Legacy Source Authority During Lift-and-Shift
 
 - Status: Accepted for adoption
@@ -2212,20 +2362,13 @@ source-to-specification transfer has occurred.
 
 ## Decision
 
-Move the complete original tree, preserving its internal taxonomy, from quarantine to
-`{implementation_directory}`. The wrapper Component owns this retained implementation
-and `litai.harness.mk` invokes it at its new location. Each move uses `git mv` when the
-entry is tracked and plain filesystem move otherwise.
+{placement}
 
-The move is admitted only when the post-move wrapper workflow has the same successful
-exit and source-authority tree identity as the Phase 1 direct baseline. Only then is
-the empty quarantine directory removed. The retained implementation is not generated
-source, not a cache, and not a specification; it remains release authority until a
-separate Phase 2 ADR qualifies native Components, Flavors, skills, and assets.
+{admission}
 
 ## Consequences
 
-- `components/legacy-project-wrapper/implementation/` is intentionally load-bearing
+- {retained_source} is intentionally load-bearing
   retained source and may not be cleaned as a build product.
 - Build products still belong outside authority and remain fungible.
 - Future migration items replace one retained surface at a time, prove parity, then
@@ -2324,12 +2467,20 @@ def prepare_native_rewrite_program(
 ) -> dict[str, object]:
     """Create Phase 2 decision and roadmap authority without rewriting source."""
 
-    implementation = lift_shift.get("implementation_directory")
-    if (
-        not isinstance(implementation, str)
-        or not (project_root / implementation).is_dir()
-    ):
+    from .retained_layout import RETAINED_LAYOUT_PATH
+
+    if os.path.lexists(project_root / RETAINED_LAYOUT_PATH):
+        from .retained_native_rewrite import prepare_declared_native_rewrite
+
+        return prepare_declared_native_rewrite(lift_shift, project_root=project_root)
+    if lift_shift.get("state") != "passed":
         raise ValueError("native rewrite requires a completed lift-and-shift")
+    try:
+        implementation, _ = resolve_legacy_implementation(project_root, lift_shift)
+    except RetainedLayoutError as exc:
+        raise ValueError(
+            "native rewrite requires a direct, recorded retained implementation"
+        ) from exc
     lift_shift_identity = (
         "sha256:"
         + hashlib.sha256(
@@ -2338,9 +2489,25 @@ def prepare_native_rewrite_program(
             )
         ).hexdigest()
     )
-    adr_relative = "docs/decisions/0002-native-literate-ai-rewrite.md"
-    roadmap_relative = "docs/roadmap/native-rewrite-program.md"
-    active = project_root / "docs" / "roadmap" / "active-work.md"
+    from literate_ai.projects import ProjectConfigurationStore
+
+    context = ProjectConfigurationStore.context(project_root)
+    adr_relative = (
+        context.framework_path("docs/decisions/0002-native-literate-ai-rewrite.md")
+        .relative_to(project_root)
+        .as_posix()
+    )
+    roadmap_relative = (
+        context.framework_path("docs/roadmap/native-rewrite-program.md")
+        .relative_to(project_root)
+        .as_posix()
+    )
+    queue_relative = (
+        context.framework_path("docs/roadmap/active-work.md")
+        .relative_to(project_root)
+        .as_posix()
+    )
+    active = project_root / queue_relative
     active_text = active.read_text(encoding="utf-8")
     item = f"""
 
@@ -2365,9 +2532,10 @@ def prepare_native_rewrite_program(
     from .roadmap_dependencies import require_project_roadmap_acyclic
 
     require_project_roadmap_acyclic(
-        project_root, {"docs/roadmap/active-work.md": proposed.encode("utf-8")}
+        project_root, {queue_relative: proposed.encode("utf-8")}
     )
-    (project_root / adr_relative).write_text(
+    scaffold_write_text(
+        project_root / adr_relative,
         render_native_rewrite_adr(
             implementation_directory=implementation,
             lift_shift_identity=lift_shift_identity,
@@ -2375,14 +2543,15 @@ def prepare_native_rewrite_program(
         encoding="utf-8",
         newline="\n",
     )
-    (project_root / roadmap_relative).write_text(
+    scaffold_write_text(
+        project_root / roadmap_relative,
         render_native_rewrite_roadmap(implementation_directory=implementation),
         encoding="utf-8",
         newline="\n",
     )
     if proposed != active_text:
-        active.write_text(proposed, encoding="utf-8", newline="\n")
-    docs_readme = project_root / "docs" / "README.md"
+        scaffold_write_text(active, proposed, encoding="utf-8", newline="\n")
+    docs_readme = context.framework_path("docs/README.md")
     links = (
         "- [Native rewrite decision](decisions/0002-native-literate-ai-rewrite.md)\n"
         "- [Native rewrite program](roadmap/native-rewrite-program.md)"
@@ -2392,7 +2561,8 @@ def prepare_native_rewrite_program(
     else:
         readme = "# Project guide\n"
     if "decisions/0002-native-literate-ai-rewrite.md" not in readme:
-        docs_readme.write_text(
+        scaffold_write_text(
+            docs_readme,
             readme.rstrip("\n") + "\n" + links + "\n",
             encoding="utf-8",
             newline="\n",
@@ -2432,7 +2602,7 @@ def lift_shift_legacy_project(
     )
     if implementation.exists() or not legacy_root.is_dir():
         raise ValueError("lift-and-shift source or destination is unavailable")
-    implementation.mkdir(parents=True)
+    scaffold_mkdir(implementation, parents=True)
     move_records: list[dict[str, str]] = []
     try:
         for item in sorted(moved, key=lambda value: str(value.get("from", ""))):
@@ -2454,10 +2624,13 @@ def lift_shift_legacy_project(
                     "vcs": mode,
                 }
             )
-        wrapper = project_root / HARNESS_WRAPPER_FILENAME
+        from .retained_scaffold_coordinates import retained_scaffold_path
+
+        wrapper = retained_scaffold_path(project_root, HARNESS_WRAPPER_FILENAME)
         original_wrapper = wrapper.read_text(encoding="utf-8")
         implementation_relative = implementation.relative_to(project_root).as_posix()
-        wrapper.write_text(
+        scaffold_write_text(
+            wrapper,
             original_wrapper.replace(
                 f"LITAI_LEGACY := {directory}",
                 f"LITAI_LEGACY := {implementation_relative}",
@@ -2480,7 +2653,9 @@ def lift_shift_legacy_project(
     except Exception as original:
         try:
             if "original_wrapper" in locals():
-                wrapper.write_text(original_wrapper, encoding="utf-8", newline="\n")
+                scaffold_write_text(
+                    wrapper, original_wrapper, encoding="utf-8", newline="\n"
+                )
             for record in reversed(move_records):
                 source = project_root / record["to"]
                 destination = project_root / record["from"]
@@ -2490,7 +2665,7 @@ def lift_shift_legacy_project(
                     destination,
                     prefer_git=record["vcs"] == "git",
                 )
-            implementation.rmdir()
+            scaffold_rmdir(implementation)
         except Exception as recovery:
             raise HarnessBaselineError(
                 "project.convert_lift_shift_recovery_failed",
@@ -2514,10 +2689,18 @@ def lift_shift_legacy_project(
             )
         ).hexdigest()
     )
-    adr_relative = "docs/decisions/0001-legacy-project-lift-and-shift.md"
+    from literate_ai.projects import ProjectConfigurationStore
+
+    context = ProjectConfigurationStore.context(project_root)
+    adr_relative = (
+        context.framework_path("docs/decisions/0001-legacy-project-lift-and-shift.md")
+        .relative_to(project_root)
+        .as_posix()
+    )
     adr = project_root / adr_relative
-    adr.parent.mkdir(parents=True, exist_ok=True)
-    adr.write_text(
+    scaffold_mkdir(adr.parent, parents=True, exist_ok=True)
+    scaffold_write_text(
+        adr,
         render_lift_shift_adr(
             implementation_directory=implementation.relative_to(
                 project_root

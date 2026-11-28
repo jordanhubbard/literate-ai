@@ -1,0 +1,74 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Reconcile recovered tracker intake with four existing forge defer dispositions and matching1.5.0 milestones; no new disposition or implementation scope",
+  "base_commit": "7d32e5dd06b24a2fdee82a0f6e1580a52d1f09fd",
+  "checked_at": "2026-11-22T23:48:46.787353+00:00",
+  "items": [
+    {
+      "kind": "issue",
+      "number": 321,
+      "url": "https://github.com/jordanhubbard/literate-ai/issues/321",
+      "milestone": "1.5.0",
+      "existing_disposition": {
+        "branches": [],
+        "decision": "defer",
+        "milestone": "1.5.0",
+        "release": "1.4.0",
+        "schema": "literate-ai/release-disposition@1"
+      },
+      "api_response_sha256": "146f389c856b1dcdbc18e82eb00e00f223b93e59fa46202f79cc444879bddb6c"
+    },
+    {
+      "kind": "issue",
+      "number": 323,
+      "url": "https://github.com/jordanhubbard/literate-ai/issues/323",
+      "milestone": "1.5.0",
+      "existing_disposition": {
+        "branches": [],
+        "decision": "defer",
+        "milestone": "1.5.0",
+        "release": "1.4.0",
+        "schema": "literate-ai/release-disposition@1"
+      },
+      "api_response_sha256": "662e477148caca692e58ab33b3f2c31ca913c00b154e43a037c68d7c2a3cf349"
+    },
+    {
+      "kind": "pr",
+      "number": 326,
+      "url": "https://github.com/jordanhubbard/literate-ai/pull/326",
+      "milestone": "1.5.0",
+      "existing_disposition": {
+        "branches": [],
+        "decision": "defer",
+        "milestone": "1.5.0",
+        "release": "1.4.0",
+        "schema": "literate-ai/release-disposition@1"
+      },
+      "api_response_sha256": "61fc3ef3e8c7f4f840056f5f12d7beb085320c0aaf012cad33d7fb1a13957854"
+    },
+    {
+      "kind": "pr",
+      "number": 334,
+      "url": "https://github.com/jordanhubbard/literate-ai/pull/334",
+      "milestone": "1.5.0",
+      "existing_disposition": {
+        "branches": [],
+        "decision": "defer",
+        "milestone": "1.5.0",
+        "release": "1.4.0",
+        "schema": "literate-ai/release-disposition@1"
+      },
+      "api_response_sha256": "a86ca70f6c1a219a34190ecf44c219fde9f83721379c7e80e6bb0118a10237c2"
+    }
+  ],
+  "new_deferrals_created": false,
+  "remote_writes": false,
+  "source_or_goal_manifest_changed": false,
+  "independent_source_review_or_release_qualification": false,
+  "documentation_gates": {
+    "documentation-review-record": 0,
+    "documentation-review": 0,
+    "documentation-check": 0
+  },
+  "documentation_log_sha256": "552512eda2b76ca4ba056b418a759df0fad4bc9efd6d6923f10f926c1b86f5a1"
+}

@@ -1,0 +1,156 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Local POSIX declared nonroot native rewrite reconciliation and installed monorepo structural discovery/refresh; not full L2 or relocation/program acceptance",
+  "base_revision": "c68adaefbf0d14a3dfd5e1f738ef8fac3f059d27",
+  "subjects": {
+    "src/literate_ai/adapters/component_lock_application.py": {
+      "algorithm": "sha256",
+      "digest": "e8322bc4cf9fecb78bb2aa7a5fb37b5754a0774f2d3dc7b2cd771f04906d24f2"
+    },
+    "src/literate_ai/adapters/harness_inventory.py": {
+      "algorithm": "sha256",
+      "digest": "1f6c2484071a1030b4a5cee98e473b0c16cbbe00d03997f6a37acbf991ae6bab"
+    },
+    "src/literate_ai/adapters/monorepo_components.py": {
+      "algorithm": "sha256",
+      "digest": "83f1c694bf141e16c2603056ae8c297e666f3666164e7b9c22ee9f91a4abb8c3"
+    },
+    "src/literate_ai/adapters/retained_native_rewrite.py": {
+      "algorithm": "sha256",
+      "digest": "3ddb0fa2f32f884758a5a56cae5eb17e3aa6063c93e054c0cbb29e53f75d406a"
+    },
+    "tests/critical/test_retained_layout_program_consumers.py": {
+      "algorithm": "sha256",
+      "digest": "b836779a5e0919ca045a4611b9a0d71a998de9317ae0ab657057ce4251166ec4"
+    }
+  },
+  "behaviors": [
+    "Preserve legacy initialization before wrapper-lock creation; declared native planning requires current actual project/conversion, genuine readmission and current selected wrapper lock.",
+    "Reconcile recognized existing ADR/program/work-item location and evidence references while preserving custom progress; ambiguous custom location fields refuse before writes.",
+    "Retain the actual verified selected lock/catalog context and its complete pinned input leaves/ancestry through final actual lock/layout reads; no new selection, execution or source ownership grant.",
+    "Undeclared monorepos preserve installation schema@1 and reuse current Component receipts. Declared installations use schema@2 with current retained_layout_identity and source coordinate; historical layout bindings refuse.",
+    "Acknowledged refresh resolves actual structural source before overall readmission, reruns every selected retained Component after a layout change and publishes a fresh installation binding without project receipts.",
+    "Retain complete original consumed installed manifest/bundle/receipt/projection file facts and parent ancestry through final layout/source checks. Carry these same original facts across actual execution into replacement.",
+    "Initial publication closes known original written outputs after validation within ordinary rollback; replacement checks after private output fsync and before publication. Preserve foreign edits and pending state."
+  ],
+  "causal_history": [
+    {
+      "source": "Exact base_revision harness and monorepo bodies",
+      "selected": 2,
+      "errors": 2,
+      "seconds": 7.621,
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "6b237efc5b96935f984c8c205f4fcf052c4216c3e3e7aaa7e82ec9d2461e986c"
+      },
+      "meaning": "Actual renewed native planning fails the passed-only lift guard; actual moved monorepo refresh opens a missing historical source coordinate."
+    },
+    {
+      "source": "Initial immutable review subjects",
+      "selected": 149,
+      "passed": 149,
+      "seconds": 284.958,
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "4a472756323c0c81d7151223975055a4de6ad60a0b0ac89d8419ec4b8f3482f4"
+      },
+      "qualification": "Superseded by final selected-workflow and installed-input consistency findings,including initial install."
+    },
+    {
+      "source": "First repair immutable review subjects",
+      "selected": 161,
+      "passed": 161,
+      "seconds": 300.546,
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "83ee142dbb47a7dcbe2b172aaeecf7b85cd7ff79f893c075e21208f93fcf68e9"
+      },
+      "qualification": "Original findings repaired;superseded by original installed-parent ancestry handoff finding."
+    },
+    {
+      "independent_results": "Initial12 pass35.091s;two counterexamples8.718s;initial-install counterexample4.068s. Rereview16 pass48.089s+8current-locks pass3.403s;one parent-handoff counterexample4.563s.",
+      "repairs": "Close selected pinned leaves and complete installed inputs after final reads;retain original published outputs inside rollback;transfer original parent ancestry separately from evolving per-file facts into replacement."
+    }
+  ],
+  "affected_suite": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_retained_layout_structural_consumers tests.e2e.test_retained_scope_refresh tests.e2e.test_retained_harness_receipts tests.e2e.test_retained_harness_readmission tests.critical.test_retained_layout_renewal tests.critical.test_retained_layout_admission tests.smoke.test_native_project_updates tests.e2e.test_monorepo_components tests.smoke.test_monorepo_adoption tests.e2e.test_project_identity_migration tests.critical.test_project_configuration tests.e2e.test_project_initialization_adapter tests.critical.test_retained_layout_program_consumers tests.critical.test_roadmap_dependencies tests.critical.test_monorepo_input_reads tests.critical.test_current_component_locks",
+    "modules": [
+      "tests.critical.test_retained_layout_structural_consumers",
+      "tests.e2e.test_retained_scope_refresh",
+      "tests.e2e.test_retained_harness_receipts",
+      "tests.e2e.test_retained_harness_readmission",
+      "tests.critical.test_retained_layout_renewal",
+      "tests.critical.test_retained_layout_admission",
+      "tests.smoke.test_native_project_updates",
+      "tests.e2e.test_monorepo_components",
+      "tests.smoke.test_monorepo_adoption",
+      "tests.e2e.test_project_identity_migration",
+      "tests.critical.test_project_configuration",
+      "tests.e2e.test_project_initialization_adapter",
+      "tests.critical.test_retained_layout_program_consumers",
+      "tests.critical.test_roadmap_dependencies",
+      "tests.critical.test_monorepo_input_reads",
+      "tests.critical.test_current_component_locks"
+    ],
+    "selected": 163,
+    "passed": 163,
+    "skipped": 0,
+    "seconds": 303.977,
+    "terminal_exit": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "79ca0d94a4e512df047f2909902bb1ac5b4ba24165440b134cee5cfa49645414"
+    }
+  },
+  "independent_review": {
+    "reports": [
+      {
+        "name": "independent-layout-program-consumers-review.json",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "1c88ef7961238c9fb164754ed91bcbcdff3f91f3cb115632d3c09d7348f9bd03"
+        },
+        "decision": "changes_requested"
+      },
+      {
+        "name": "independent-layout-program-consumers-rereview.json",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "33b08ae27ac619abc2494e34e9cb5f16099104d5c6599a8d66c3e4227094df83"
+        },
+        "decision": "changes_requested"
+      },
+      {
+        "name": "independent-layout-program-consumers-ancestry-review.json",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "8bfb96144f18d4818d7cb2b03de80c55ead09c039244d863a1b45d544a8635d8"
+        },
+        "decision": "approved_at_limited_scope"
+      }
+    ],
+    "final_decision": "approved_at_limited_scope",
+    "executed": [
+      {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest tests.critical.test_retained_layout_program_consumers -q",
+        "result": "18 passed0skipped50.765s;exactb836 tests and manifest production. Includes actual preexisting hardlinked-child parent handoff refusal with both directories retained and bytes unchanged;legacy v1/no-layout refresh positive reuses current component without execution;all earlier currentness regressions and real moved renewal/native/monorepo positives."
+      }
+    ]
+  },
+  "checks": {
+    "driver_review": "pass",
+    "runner_review": "pass",
+    "lint": "pass",
+    "format": "pass",
+    "repository_layout": "pass",
+    "public_export": "pass",
+    "project_validation": "pass after supported documentation review renewal",
+    "all_gates": "Authority pass;configured full-source receipt stale;three skips. No full-source/integration/main/release green claim."
+  },
+  "limitations": [
+    "Observed-span cooperative consistency checks are not a continuous multi-file snapshot or namespace lease.",
+    "Program planning and Component retained evidence grant no source movement/exclusion/receiver ownership,overall project receipt or newly qualified native product authority.",
+    "Actual complete role-owned source/metadata partitions,root/shared/mixed/nested/initial/wrapper placement and complete public recovery remain open.",
+    "Installed/native platform cells,configured full-source receipt,consolidation/current integration/exact resulting-main/release and full roadmap acceptance remain open."
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "3825ce1c5dc3edd51673d615e2db0537be7ef31e",
+  "scope": "Canonical retained-layout source metadata discovery within an already active bounded read scope; internal read-path prerequisite only.",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_control_roles.py": {
+      "algorithm": "sha256",
+      "digest": "7b0ceaebc48366fce701473866b9574a96925ac7e4dc1b3b4d5aba09afc3b64b"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "f553940a44938e386d7853ac4c67db393902d64a1ef429a86561d3e9bfa80dd9"
+    },
+    "tests/critical/test_bounded_role_observation.py": {
+      "algorithm": "sha256",
+      "digest": "23b37faa46cbe4ce7460003c95ff459c61fde18598c888f69cc68edf76a08934"
+    }
+  },
+  "behavior": [
+    "Project-role discovery observes its manifest with the canonical 1 MiB ceiling on the first read. Source discovery preserves the 256 KiB conversion and 16 MiB layout declaration ceilings.",
+    "Structural declaration and selected wrapper Component reads borrow the actual active canonical observation, including original observations and shared JSON record accounting.",
+    "An absent or ended read owner refuses. Identical JSON and relative labels at different project roots consume separate decoded-record allowances.",
+    "Root source declaration refuses before structural resolver metadata enumeration. No path list or observation grants effect or source ownership authority."
+  ],
+  "author_qualification": [
+    {
+      "runner": "make python-check",
+      "selection": "tests/critical/test_bounded_role_observation.py",
+      "exit_code": 0,
+      "passed": 32,
+      "skipped": 0,
+      "seconds": 5.068,
+      "report": {
+        "path": "_build/authored-metadata-reader-final-make-report.json",
+        "sha256": "670084ea6c2003d2f89cf633a4f45f017c4b290bcec2157d3521b71a2f2d5324"
+      },
+      "log": {
+        "path": "_build/authored-metadata-reader-final-make.log",
+        "sha256": "bebffee8e7f3edef9455836a53bb54ff3d50bb7dbe75ad8196697870d45e169b"
+      },
+      "also_checks": [
+        "compileall src/tests",
+        "maintained sample/script py_compile",
+        "host-path policy"
+      ]
+    },
+    {
+      "runner": "managed Python unittest",
+      "modules": [
+        "tests.critical.test_retained_layout_transaction",
+        "tests.critical.test_retained_layout_control_roles",
+        "tests.critical.test_retained_layout_ownership",
+        "tests.critical.test_catalog_copy_plan",
+        "tests.critical.test_catalog_copy_roles",
+        "tests.critical.test_framework_update_roles"
+      ],
+      "exit_code": 0,
+      "passed": 139,
+      "skipped": 0,
+      "seconds": 296.852,
+      "log": {
+        "path": "_build/authored-metadata-reader-final-neighborhood.log",
+        "sha256": "f142235098f04d53015df144938632c9359a2cb653d58c1652f2e543a4684679"
+      }
+    }
+  ],
+  "interpretation": "Two separate successful author cohorts, 32 and 139 unique test IDs. Neither is a full package, installed, independent dynamic, cross-platform, integrated or release gate.",
+  "independent_review": {
+    "path": "independent-layout-source-metadata-read-review.json",
+    "sha256": "c534757d2438b9b3cc24e8cd2fd21803a39aae773f2805d6f45cab95b213a841",
+    "mode": "source-only",
+    "decision": "approved_at_limited_scope",
+    "findings_closed": 2,
+    "independent_dynamic_qualification": false
+  },
+  "acceptance": {
+    "read_path_prerequisite": true,
+    "persistent_source_preparation": false,
+    "predecessor_continuity": false,
+    "authored_partition_admission": false,
+    "root_layout": false,
+    "complete_feature": false,
+    "full_roadmap": false
+  },
+  "next_action": "Create a registered source-preparation operation before the first discovery read and retain its original ledger through actual phase and partition admission; charge actual predecessor usage once, then admit canonical authored witnesses.",
+  "static_gates": {
+    "exit_code": 0,
+    "commands": [
+      "make lint",
+      "make format-check",
+      "make repository-layout-check",
+      "make public-export-check",
+      "make openspec-check",
+      "make skills-check"
+    ],
+    "log": {
+      "path": "_build/authored-metadata-reader-final-static.log",
+      "sha256": "19047bbc40ac925369c41097bc7d27dfdf865409556949e51f5b4569f23d80be"
+    }
+  },
+  "authority_workflow": {
+    "driver_review": "Supported make driver-review-record renewed exactly the two independently reviewed production subjects.",
+    "documentation_review": "Initial renewal refused the not-yet-created evidence link. After publishing evidence, supported make documentation-review-record exited 0 and reported current authority.",
+    "qualification_boundary": "Authority marker renewal is not a current test receipt or feature acceptance."
+  }
+}

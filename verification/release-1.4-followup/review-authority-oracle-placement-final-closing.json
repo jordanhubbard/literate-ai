@@ -1,0 +1,23 @@
+{
+  "status": "independent_source_closing_review_accepted",
+  "head": "b08783b92e5e9383610eb85f1ee382d7ffa5f393",
+  "sha256": {
+    "src/literate_ai/adapters/component_acceptance.py": "1c6d88ac400415d9259adf2b2a42936f6a8f1812c29778cdacbe8d29a519bc4b",
+    "tests/critical/test_acceptance_oracle_placement.py": "0847c10004fcc9d4bc168eb6ab1028f96a96dfe95e468465aa494c1caf0af427"
+  },
+  "coverage": "Entire production default oracle lookup delta and all4newtests inspected read-only. All production callers and explicit constructor override/context-selection implications previously traced; current production hash unchanged from that review.",
+  "production_unchanged_since_initial_review": true,
+  "finding_closed": "Original two new producer tests imported helper hardcoding empty=True and lacked actual starter oracle. Current local helper invokes original FilesystemProjectInitializationAdapter.initialize with empty=False and project_type=application; actual contained and explicit legacy producer files now exist and original equality/existence assertions pass.",
+  "assessment": "Default lookup selects canonical framework path through ProjectConfigurationStore.context; original safe-name validation and per-entrypoint suffix remain. No foreign application-root oracle fallback under ambiguous metadata. Explicit path= constructor override untouched. Bare unconfigured roots remain read-only legacy utilities. Direct relative spellings preserve relative output; parent-traversal spellings inherit existing context unsafe refusal, with no concrete production caller regression found among already-loaded project.root calls.",
+  "independent_validation": {
+    "command": "dependency-qualified Python -m unittest -v tests.critical.test_acceptance_oracle_placement tests.smoke.test_lint_render_acceptance",
+    "result": "All6tests PASS5.736seconds; no skips.",
+    "extra_controls": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-authority-oracle-placement-extra-controls.json",
+    "extra_results": "Relative application/framework entries correct; mixed default refused; actual explicit oracle path still bypasses default selection; original unsafe name rejected before context; ../project refuses via canonical context."
+  },
+  "canonical_parent_evidence_checked": {
+    "oracle-placement-r3.log": "4passed7.471seconds",
+    "oracle-lint-render-r1.log": "2passed0.733seconds"
+  },
+  "limits": "Scoped source and focused controls only; no actual wheel-r7 rerun or native Windows/FreeBSD/release acceptance claim. No reviewer edits; unrelated dirty files outside2file scope unreviewed here."
+}

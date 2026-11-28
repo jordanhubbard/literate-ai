@@ -1,0 +1,18 @@
+{
+  "executable_name": "rustup",
+  "bytes": 20172120,
+  "digest": "sha256:9f608c142e0e38a78957d0661ba1dfaf0b6fb37184cfaa4b9a0aa57af6184282",
+  "calls_per_sample": 12,
+  "uncached_seconds": [
+    0.16579901799559593,
+    0.17562303697923198,
+    0.16892496499349363
+  ],
+  "fresh_byte_reuse_seconds": [
+    0.06921685498673469,
+    0.09084983100183308,
+    0.0725240670144558
+  ],
+  "median_speedup": 2.3292263099340915,
+  "limits": "Local microbenchmark after population. Every measured call freshly opens,reads throughEOF and closes. Not whole native900-second,installed or release acceptance."
+}

@@ -19,7 +19,7 @@ from literate_ai.contracts import (
     canonical_identity,
     rebuild_project_authority_identity,
 )
-from literate_ai.projects import load_project
+from literate_ai.projects import ProjectConfigurationStore, load_project
 from tests.support.fixtures_test_project_cli import (
     refresh_authority_review,
 )
@@ -60,7 +60,7 @@ def fixture_policy(version: str = "1.0.0") -> ProjectTestReceiptPolicy:
 
 
 def configure_receipt_policy(project_root: Path) -> ProjectTestReceiptPolicy:
-    manifest_path = project_root / "literate.project.json"
+    manifest_path = ProjectConfigurationStore.manifest_path(project_root)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     policy = fixture_policy(str(manifest["version"]))
     manifest["test_receipt_policy"] = policy.to_dict()

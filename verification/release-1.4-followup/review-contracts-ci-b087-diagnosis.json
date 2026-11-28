@@ -1,0 +1,169 @@
+{
+  "reviewer": "review_contracts",
+  "subject": "b08783b92e5e9383610eb85f1ee382d7ffa5f393",
+  "run_id": 45968742404,
+  "observed_exact_run_counts": {
+    "success": 20,
+    "failure": 16,
+    "cancelled": 19,
+    "in_progress": 1
+  },
+  "forge_scope": "Read-only gh APIs. PR advanced to fef411fafba81dfcf890dd159d69e388589acf4e during review; final counts explicitly use original b087 run jobs API, not new-head PR checks.",
+  "failures": [
+    {
+      "job_id": "140404207236",
+      "name": "ubuntu-latest / Python 3.11",
+      "classification": "Git optional include ancestor",
+      "first_concrete_cause": "_configuration_inputs calls _lineage on absent /github/runner_temp included credentials parent.",
+      "repair_assessment": "retained_layout_git_controls.py first-absent-prefix DATA repair covers source cause; native CI rerun required.",
+      "sanitized_log": "ci-b087-140404207236.log",
+      "log_sha256": "da48cad08fd01fc89af4df4262d0c9941de9d707551b88afcd6d7fb90ca13db9"
+    },
+    {
+      "job_id": "140404207358",
+      "name": "ubuntu-latest / Python 3.14",
+      "classification": "Git optional include ancestor",
+      "first_concrete_cause": "_configuration_inputs calls _lineage on absent /github/runner_temp included credentials parent.",
+      "repair_assessment": "retained_layout_git_controls.py first-absent-prefix DATA repair covers source cause; native CI rerun required.",
+      "sanitized_log": "ci-b087-140404207358.log",
+      "log_sha256": "76d11f1b2595ee23772e4cd148b22d117031ac5fb73212ed6268117334388a15"
+    },
+    {
+      "job_id": "140404207238",
+      "name": "ubuntu-latest / Python 3.11 (partition 3 of 8)",
+      "classification": "Finite initializer fingerprints",
+      "first_concrete_cause": "Initializer helper fingerprint differs: record_project_authority_review.",
+      "repair_assessment": "retained_layout_provider.py exact additional reviewed pairs and retained_layout_ast.py explicit eager-default normalization cover intended cause; no broad fingerprint bypass.",
+      "sanitized_log": "ci-b087-140404207238.log",
+      "log_sha256": "ab697e8e0c221a104df008a65087d5d92283284d640db5f7c1e752ce58911ec1"
+    },
+    {
+      "job_id": "140404207359",
+      "name": "ubuntu-latest / Python 3.14 (partition 3 of 8)",
+      "classification": "Finite initializer fingerprints",
+      "first_concrete_cause": "Initializer helper fingerprint differs: record_project_authority_review.",
+      "repair_assessment": "retained_layout_provider.py exact additional reviewed pairs and retained_layout_ast.py explicit eager-default normalization cover intended cause; no broad fingerprint bypass.",
+      "sanitized_log": "ci-b087-140404207359.log",
+      "log_sha256": "a46dd6f7e599da32b7ffadb54133b197b2108a2b52655745a09b16df59223923"
+    },
+    {
+      "job_id": "140404207356",
+      "name": "ubuntu-latest / Python 3.11 (partition 2 of 8)",
+      "classification": "Wire library imports",
+      "first_concrete_cause": "Native child replacement setUp spec.accept returns cli.invalid_review.",
+      "repair_assessment": "_wire.py encodes library_imports via public to_dict in graph/result/review serializers; source cause matches existing reviewed wire repair. Actual original e2e rerun remains relevant.",
+      "sanitized_log": "ci-b087-140404207356.log",
+      "log_sha256": "bef3d861aaefd403c26623b82b394b7c059de05409dec692f79b519f1485abe3"
+    },
+    {
+      "job_id": "140404207255",
+      "name": "ubuntu-latest / Python 3.14 (partition 2 of 8)",
+      "classification": "Wire library imports",
+      "first_concrete_cause": "Native child replacement setUp spec.accept returns cli.invalid_review.",
+      "repair_assessment": "_wire.py encodes library_imports via public to_dict in graph/result/review serializers; source cause matches existing reviewed wire repair. Actual original e2e rerun remains relevant.",
+      "sanitized_log": "ci-b087-140404207255.log",
+      "log_sha256": "4a1c7faf5617d6fa5521e177fa53bdc77cef3d46401e497eb71afec2198f72a8"
+    },
+    {
+      "job_id": "140404206466",
+      "name": "freebsd-native-sdk / Installed public SDK / FreeBSD 15.1 amd64",
+      "classification": "SDK release-policy coordinate",
+      "first_concrete_cause": "FreeBSD artifact15184697834 canonical-sdk.stderr shows missing root literate.release.json in discover_retained_project_inputs at qualification line424.",
+      "repair_assessment": "qualify_public_sdk.py derives actual context.framework_path release-policy path in role map and digest; exact first cause covered. Preserve actual FreeBSD installed SDK rerun requirement.",
+      "sanitized_log": "ci-b087-140404206466.log",
+      "log_sha256": "d8ca17e1a333c471a2e9d6f486e22eb658ff4e6d207ee98f344e30c1267b2537"
+    },
+    {
+      "job_id": "140404207476",
+      "name": "Windows / Python 3.12 / lint, OpenSpec, wheel",
+      "classification": "Wheel hello starter coordinate",
+      "first_concrete_cause": "RuntimeError: installed onboard create did not reach a validated hello.",
+      "repair_assessment": "wheel_smoke.py fixes expected default-contained litai/samples/hello-component coordinate; source assertion path repair only, no installed pass established.",
+      "sanitized_log": "ci-b087-140404207476.log",
+      "log_sha256": "a66e25233430a22543a327e3c1202f15922960e0cd218b7345d36b2770224b93"
+    },
+    {
+      "job_id": "140404206582",
+      "name": "macos-latest / Python 3.14 (smoke)",
+      "classification": "Locked generation mac fixture",
+      "first_concrete_cause": "/var ancestor refused in project discovery before late-drift callback.",
+      "repair_assessment": "Three owned-temp canonicalizations already independently source-closed; Linux3tests receipt observed, no macOS pass.",
+      "sanitized_log": "ci-b087-140404206582.log",
+      "log_sha256": "8b24b1b63f484150718b7b01cd9bb2f12a5f40f05ceb78b10eeba1956f95c9ec"
+    },
+    {
+      "job_id": "140404206572",
+      "name": "macos-latest / Python 3.11 (authored 4 of 4)",
+      "classification": "Original native execution budget",
+      "first_concrete_cause": "AuthoredNativeCompletionTests.test_inspector_graph_change_refuses_even_when_original_files_stay_current expires in initial self.executed context. Mac and3.14 deadline,3.11 budget-exhausted.",
+      "repair_assessment": "Executable-byte DATA already in b087 proved insufficient for these actual jobs. New manifest declaration DATA is proposed source cost repair; actual unchanged900s native result pending. Preserve deadlines, probes and original assertion.",
+      "sanitized_log": "ci-b087-140404206572.log",
+      "log_sha256": "47dd56aff34db97289defe35da24119d1508a25adf82f6b9f48769891fa16f17"
+    },
+    {
+      "job_id": "140404207306",
+      "name": "ubuntu-latest / Python 3.11 (partition 8 of 8)",
+      "classification": "Original native execution budget",
+      "first_concrete_cause": "AuthoredNativeCompletionTests.test_inspector_graph_change_refuses_even_when_original_files_stay_current expires in initial self.executed context. Mac and3.14 deadline,3.11 budget-exhausted.",
+      "repair_assessment": "Executable-byte DATA already in b087 proved insufficient for these actual jobs. New manifest declaration DATA is proposed source cost repair; actual unchanged900s native result pending. Preserve deadlines, probes and original assertion.",
+      "sanitized_log": "ci-b087-140404207306.log",
+      "log_sha256": "8208693c5e753f600786331a2c8d05a64bfd4178b357c36d8c4dc1e114594f4e"
+    },
+    {
+      "job_id": "140404207443",
+      "name": "ubuntu-latest / Python 3.14 (partition 8 of 8)",
+      "classification": "Original native execution budget",
+      "first_concrete_cause": "AuthoredNativeCompletionTests.test_inspector_graph_change_refuses_even_when_original_files_stay_current expires in initial self.executed context. Mac and3.14 deadline,3.11 budget-exhausted.",
+      "repair_assessment": "Executable-byte DATA already in b087 proved insufficient for these actual jobs. New manifest declaration DATA is proposed source cost repair; actual unchanged900s native result pending. Preserve deadlines, probes and original assertion.",
+      "sanitized_log": "ci-b087-140404207443.log",
+      "log_sha256": "19bb92603829e2b19d4c304cd9a9a0ebeffe25b4434939440d1c7254639662b3"
+    },
+    {
+      "job_id": "140404207406",
+      "name": "ubuntu-latest / Python 3.11 (partition 7 of 8)",
+      "classification": "UNADDRESSED original fixture view issuance",
+      "first_concrete_cause": "Scratch contained-admission test manually constructs view but never enters _original_wrapper_view; underlying contained_core original lifetime remains live.",
+      "repair_assessment": "Wrap explicitly modeled view and entire scratch reservation/assertions in wrapper_views._original_wrapper_view(context). No production guard relaxation. Independent in-process seam invokes real original reserve under that issuance:1test passed4.219s.",
+      "sanitized_log": "ci-b087-140404207406.log",
+      "log_sha256": "9c60cfb73e47d3e062841d55ae6df7bc6170c8a5bd72720eb3afed015ca19520"
+    },
+    {
+      "job_id": "140404207439",
+      "name": "ubuntu-latest / Python 3.14 (partition 7 of 8)",
+      "classification": "UNADDRESSED original fixture view issuance",
+      "first_concrete_cause": "Scratch contained-admission test manually constructs view but never enters _original_wrapper_view; underlying contained_core original lifetime remains live.",
+      "repair_assessment": "Wrap explicitly modeled view and entire scratch reservation/assertions in wrapper_views._original_wrapper_view(context). No production guard relaxation. Independent in-process seam invokes real original reserve under that issuance:1test passed4.219s.",
+      "sanitized_log": "ci-b087-140404207439.log",
+      "log_sha256": "5a70aef536677bbf7aff3785ef74b8b18472ce54565284a72bc72163f1f894e0"
+    },
+    {
+      "job_id": "140404206542",
+      "name": "macos-latest / Python 3.11 (3 of 4)",
+      "classification": "UNADDRESSED release mac fixture alias",
+      "first_concrete_cause": "ReleaseAtomicWriterTests actual local bare advancement enters _release_build_root->ProjectConfigurationStore.context(root), which refuses /var alias.",
+      "repair_assessment": "Resolve owned TemporaryDirectory input to fixture.initialize at release atomic writer test158; same analogous Git fixture142 should canonicalize. Keep production ancestry guard and all actual Git advancement/cleanup assertions.",
+      "sanitized_log": "ci-b087-140404206542.log",
+      "log_sha256": "bd087f827a4ab777603545d6f6181376a6e946a31aba40eab161a4bb7e20b25a"
+    },
+    {
+      "job_id": "140404207622",
+      "name": "Windows / Python 3.12 / tests (3 of 3)",
+      "classification": "UNADDRESSED Windows publication failures",
+      "first_concrete_cause": "First setup ERROR BoundedRoleReadTests -> actual initializer -> scaffold_custody.py185 os.replace WinError32; first FAILURE WorkerLeaseTests -> remote_cleanup._publish -> evidence_archive.py60 os.link WinError32.195 failure entries plus setup errors. Separate native_project_removal child plan under parent lifecycle lock cannot read manifest.",
+      "repair_assessment": "Authority reviewer owns independent handle-sharing/native publication diagnosis. These broad failures are outside listed dirty coordinate/AST/wire/DATA repairs; do not classify entire cohort fixed. Log1507-1621,8642-8711,27064onward.",
+      "sanitized_log": "ci-b087-140404207622.log",
+      "log_sha256": "b257bf02f6a7527b8aeff791f2ff27981c221771c5abba596d4bc0d6388e4e5e"
+    }
+  ],
+  "acceptance_oracle_repair": "Dirty component_acceptance.oracle_path canonical framework placement inspected for scope. No first failure in these16job logs independently attributed to it; do not infer its necessity or execution success from this report.",
+  "limits": [
+    "First concrete failures and relevant call paths inspected; Windows many additional failures not individually traced, delegated by parent to authority reviewer.",
+    "Cancelled/in-progress cells have no passing acceptance. Actual native/platform/installed gates remain pending.",
+    "No source edits, commits, pins, worker dispatch, external comments or release claims."
+  ],
+  "independent_control": {
+    "case": "original contained-admission scratch test",
+    "seam": "In-process reserve wrapper enters original _original_wrapper_view only; invokes real reserve and original test assertions.",
+    "result": "1passed4.219s; no source edits."
+  }
+}

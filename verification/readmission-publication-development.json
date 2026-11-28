@@ -1,0 +1,162 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Exact-node publication and explicit rollback recovery for existing legacy retained harness readmission, supporting ADR 0070 execution preparation",
+  "base_commit": "097da5525db454c15c133635991f4f4230397afb",
+  "source_files": {
+    "CHANGELOG.md": "306c40064801c82c09f077eca7b7088bfae91c310b944120ff292350373eda5f",
+    "docs/architecture/design-traceability.md": "0145277933556469da9a48c666a6093c7b6d737faec28270aef7d7673ea01a6c",
+    "docs/roadmap/active-work.md": "39194688dae843d7daf5443f811df8af98bc7db113e9558349190f1595f87d08",
+    "docs/user/configuration-and-cli.md": "f1919611832791877e7f4848dcf5d8dd89c5357a2f9775dc7267bf644cc8a325",
+    "src/literate_ai/_atomic_publication.py": "b3f63d2c9a9bf40d53d0d284baef2fa7d791ba3d00ae6794377810a78c13e47d",
+    "src/literate_ai/adapters/component_locks.py": "2f50570b5cd4ce8a98a62524b24d3ede6600241ed353b7d3057305f7ab0a8c6e",
+    "src/literate_ai/adapters/component_resolution_audits.py": "c21747d57dc2aa01fb7d04ff2346372321ec9b4a5c6506de8b937849ebfffff5",
+    "src/literate_ai/adapters/conversion_authority.py": "4c0c879a5b4806ba671a2223056cba05c250dc0ce2a5587104e19fe1bb88e38b",
+    "src/literate_ai/adapters/project_initialization.py": "19f0f54c8919e652f5e3fe0fc196f0d20cc332991d9bec81dba87c6d619fb682",
+    "src/literate_ai/adapters/retained_harness_readmission.py": "c6725de1bb5f94e16fd3a64a61f087a6de8312c3ccd8e64d682686d6ddf34feb",
+    "src/literate_ai/adapters/retained_readmission_publication.py": "33f4192247d4663f17f63fcfe8d542a4a59721bf26ae746743478cc5f6416aea",
+    "src/literate_ai/cli/dispatch.py": "11252f5d904cd19445c477fb99c345d2a7e694ddf2485b4f172aeb128ab1926f",
+    "src/literate_ai/cli/operator.py": "2a308f41be74a240bd675a3b605daa331c8c747cfade4accea5a268dba18980e",
+    "src/literate_ai/projects.py": "acb917a3c19520ad89f172ecbc9821905d9b2bd7358bb782a2050162a3de2aa3",
+    "tests/critical/test_atomic_publication_scope.py": "9c8a8f40c53f7372cea25196b205595391563897bb68836bc11df19c36ec9fe0",
+    "tests/critical/test_retained_readmission_publication_owner.py": "c7c2f06d16f9d5e6379037dd48de4cea2041483151993967e9b8aa7959c7f74a",
+    "tests/e2e/test_retained_readmission_publication.py": "a6d0377300fbcefd3388ab4c2c85c0c35f2bde6a56ee4cdd10d4bf0d6bbc9642"
+  },
+  "current_report_union": {
+    "distinct_passed": 126,
+    "failed": 0,
+    "skipped": 0,
+    "reports": [
+      {
+        "scope": "publication-readmission-final",
+        "summary": {
+          "executed": 32,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 32,
+          "selected": 32,
+          "skipped": 0
+        },
+        "sha256": "2197e063bd1e4e1d4020a57d2b141b783591526cdc4f70e9926685df1aa8fa8e"
+      },
+      {
+        "scope": "publication-component-stores",
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        },
+        "sha256": "df0fecbbb39777dc3c98940f5fb6adcc4dfe8205a1837dcba0812017b42ec424"
+      },
+      {
+        "scope": "publication-project-readers",
+        "summary": {
+          "executed": 36,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 36,
+          "selected": 36,
+          "skipped": 0
+        },
+        "sha256": "a7da3226afd747b7a382b6aeb36acc597efbf7ab2f1de7849a54aca090a628c3"
+      },
+      {
+        "scope": "publication-initialization",
+        "summary": {
+          "executed": 10,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 10,
+          "selected": 10,
+          "skipped": 0
+        },
+        "sha256": "0f970ee8189a1bd468ae232b3e0db257f0c1449fc9a2f8188e825f0623621b91"
+      },
+      {
+        "scope": "publication-command-compatibility",
+        "summary": {
+          "executed": 25,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 25,
+          "selected": 25,
+          "skipped": 0
+        },
+        "sha256": "06ad880ad5316d714e57bb9202f3ce8f0ac8a6c9d5bc9c7520f261de287d2caf"
+      },
+      {
+        "scope": "publication-harness-inventory",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        },
+        "sha256": "a2716bb6e5e743d5b7153c4c3c7a05108ef7bb560ec8fd2fb09923be983bcf96"
+      },
+      {
+        "scope": "publication-scope-final",
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "sha256": "0f5fb25cc96b2c4eb16c08e2a9a2095ae215284432734a342f5035381b66c690"
+      }
+    ]
+  },
+  "original_failure": {
+    "scope": "Original pre-fix foreign lock replacement regression; fail-fast selected three and executed one",
+    "observed_failed": 1,
+    "selected": 3,
+    "retained_log_sha256": "0dc709d2b60304715cafbfbf4bdfcf7635d8c5d9f6fb88e54a50e3070e5e35c5",
+    "other_original_regressions": "Same-byte inventory replacement and foreign evidence entry were authored before correction; all three pass currently."
+  },
+  "native_boundaries": {
+    "platform": "local macOS source development",
+    "actual_native_files": true,
+    "exact_original_inodes_restored": true,
+    "foreign_same_byte_inodes_preserved": true,
+    "real_subprocess_exit_before_and_after_replace": true,
+    "public_cli_with_invalid_manifest": true,
+    "scope_pid_mismatch": "protocol mock; not native fork qualification"
+  },
+  "behavior": {
+    "history_owner": ".literate/retained-harness-readmission",
+    "ordinary_readmission_plan_schema_unchanged": true,
+    "selected_command_plan_apply_supported": false,
+    "recovery": "current bounded canonical journal read; explicit matching acknowledgement; same legacy lifecycle lock; rollback only",
+    "pending_project_reads": "refuse except within original finite scoped writer for currentness checks",
+    "foreign_nodes": "preserve and leave pending recovery; never byte-match ownership or recursively delete evidence",
+    "budgets": "fixed protocol caps bounded further by declared project input ceilings; no deadline or quota relief"
+  },
+  "static_gates": {
+    "state": "passed",
+    "count": 9,
+    "formatted_python_files": 2398,
+    "markdown_files": 1977,
+    "mermaid_diagrams": 181,
+    "log_sha256": "8ce1ce6318022e3ef369afec7f280d65df0313d6de581542d50ab8e271e08297",
+    "staged_layout_export_recheck_sha256": "0512efc45c3045c0b49f96224bed7f2d5123e6ca4eee79aa305bfd2564adc651"
+  },
+  "verification": {
+    "authority": "pass",
+    "receipt": "stale; no pin renewal",
+    "exit_code": 1
+  },
+  "open_work": [
+    "Selected-command execution form, complete read-back and public selected apply",
+    "Native compiling retained-case inventory and actual renewed command acceptance",
+    "Independent implementation review and full exact-candidate source gates",
+    "Installed/native Windows, FreeBSD and release qualification"
+  ],
+  "release_evidence": false,
+  "qualified": false
+}

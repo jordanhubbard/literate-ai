@@ -1,0 +1,17 @@
+{
+  "status": "independent_test_source_closing_review_accepted",
+  "head": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+  "sha256": {
+    "tests/critical/test_remote_evidence_native_reads.py": "3311f1f9c6c1443b04c636e322a4e06aa8398acbfd5fd1db05b07b5d22c4f3cf"
+  },
+  "production_sha256_unchanged_from_directory_source_review": true,
+  "coverage": "Entire exacttest-only delta inspected independently; original source directory/leaf sharing contract and both actualLinuxa3 failures traced. No reviewer edits.",
+  "assessment": "Fixture locally wraps ORIGINAL _WindowsAccess._hold/current only to mark directory pin/probe phase, preserving original arguments/results/exceptions with try/finally nesting restoration. Every original native open still denies delete sharing. Write sharing must equal actual directory-pin role, which also requires directory type. Transient leaf metadata remains denywrite even fordirectoryleaf; regular payload remains denywrite. Final assertions require all3roles observed. Original copybytes/native identity/nativehandletransfer/allhandle-release assertions unchanged.",
+  "initial_attempt_retained": {
+    "report": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/review-authority-evidence-directory-model-r1-review.json",
+    "failure": "Initial type-only condition stillfailed proper directoryleafmetadataFalse; current role-based assertion fixes fixture without changing production."
+  },
+  "independent_verification": "All10 test_remote_evidence_native_reads tests PASS0.018seconds; no skips. Includes alias-before-payload, budget-before-read, hardlink counting, streaming replacement, changed output and original descriptor release controls.",
+  "native_status_boundary": "Actuala3isolatedWindows positive andboundary success previously retained B/review-authority-a3dc-native-scaffold-outcome.json. This fixture closing adds no new actualWindows/fullshard/release success claim.",
+  "limits": "Onefixture source/targeted controls only. No production changes, assertion/deadline removal, retries, nativeworker dispatch or reviewer forgeposts. Otherdirtyfiles outside scope unreviewed here."
+}

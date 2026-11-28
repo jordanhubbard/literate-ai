@@ -11,7 +11,11 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 
 from literate_ai._cache_lock import CacheLockError, exclusive_cache_lock
-from literate_ai._filesystem import ensure_safe_directory, stat_is_link_or_reparse
+from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
+    ensure_safe_directory,
+    stat_is_link_or_reparse,
+)
 from literate_ai.adapters.authority import (
     AuthorityProjectionStoreError,
     FileAuthorityProjectionStore,
@@ -24,6 +28,7 @@ from literate_ai.adapters.conversion_authority import (
     _native_project_roots,
     require_native_project_path,
 )
+from literate_ai.adapters.evidence_staging import EvidenceStagingError
 from literate_ai.adapters.native_project_updates import (
     _capture,
     _digest,
@@ -31,6 +36,11 @@ from literate_ai.adapters.native_project_updates import (
     _RegisteredChild,
     _replace_metadata,
 )
+from literate_ai.adapters.project_runtime import (
+    ProjectRuntimeError,
+    project_inspection_staging,
+)
+from literate_ai.cache_directories import CacheDirectoryError
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.authority import (
     ComponentAuthorityProjection,
@@ -49,6 +59,7 @@ from literate_ai.source_to_specification.promotion_materialization import (
 )
 
 REPLACEMENT_PLAN_SCHEMA = "literate-ai/native-child-replacement-plan@1"
+CONTAINED_REPLACEMENT_PLAN_SCHEMA = "literate-ai/native-child-replacement-plan@2"
 _MAXIMUM_FILES = 4096
 _MAXIMUM_FILE_BYTES = 64 * 1024 * 1024
 _MAXIMUM_TREE_BYTES = 256 * 1024 * 1024
@@ -204,16 +215,115 @@ def _historical_manifest(
     return None
 
 
+def _contained_audit_attempt(captured, tree, projections, candidate):
+    """Return only a disposed verification rejection; custody failures propagate."""
+    captured.require_current()
+    manifest = captured.child_context.manifest_path.relative_to(
+        captured.child
+    ).as_posix()
+    primary = None
+    coordinate = None
+    try:
+        with project_inspection_staging(captured.parent, prefix=".na-") as stage:
+            # Diagnostic only: names can move or be replaced. This does not
+            # establish current existence or restore native cleanup authority.
+            coordinate = stage.path.relative_to(captured.parent.root).as_posix()
+            captured.require_current()
+            stage.prepare("old", directory=True)
+            for relative, entry in tree.items():
+                target = "old/" + relative
+                if entry["kind"] == "directory":
+                    stage.prepare(target, directory=True)
+                else:
+                    content = _read(
+                        captured.child / relative, maximum_bytes=_MAXIMUM_FILE_BYTES
+                    )
+                    if _digest(content) != entry["identity"]:
+                        _refuse(
+                            "changed",
+                            "child changed while copying historical audit view",
+                        )
+                    # The audit consumes bytes, not executable permissions. Keep
+                    # every copied file private/inert; live modes remain untouched.
+                    stage.write(target, candidate if relative == manifest else content)
+            captured.require_current()
+            try:
+                for projection in projections:
+                    verify_source_promotion_evidence(stage.path / "old", projection)
+            except SourcePromotionError as error:
+                primary = error
+            captured.require_current()
+        captured.require_current()
+    except Exception as error:
+        notice = "Audit scratch conflict; preserve remaining state"
+        if coordinate is not None:
+            notice += f" (original coordinate: {coordinate})"
+        notice += ". "
+        if primary is not None:
+            # The CLI intentionally emits a bounded .message, not causes/notes.
+            # Prefix the location so a long original failure cannot hide it.
+            primary.message = notice + primary.message
+            primary.args = (primary.message,)
+            primary.add_note(
+                "Original audit scratch disposal refused; retained: " + str(error)
+            )
+            raise primary from error
+        if isinstance(
+            error,
+            (
+                EvidenceStagingError,
+                ProjectRuntimeError,
+                CacheLockError,
+                CacheDirectoryError,
+                UnsafeFilesystemPathError,
+            ),
+        ):
+            raise NativeChildReplacementError(
+                "audit_custody",
+                notice + "Original native scratch custody changed.",
+            ) from error
+        raise
+    return primary
+
+
+def _contained_promotion_custody(captured, tree, projections, records):
+    candidate = captured.manifest
+    seen = set()
+    transitions = []
+    while True:
+        # Every historical candidate gets a fresh original creator. A saved
+        # manifest/history record never authorizes rewriting or adopting a file.
+        rejection = _contained_audit_attempt(captured, tree, projections, candidate)
+        if rejection is None:
+            return transitions
+        if _digest(candidate) in seen:
+            raise rejection
+        seen.add(_digest(candidate))
+        previous = _historical_manifest(captured, candidate, records)
+        if previous is None:
+            raise rejection
+        candidate, identity = previous
+        transitions.append(identity)
+
+
 def _promotion_custody(captured: _RegisteredChild, tree: dict) -> dict[str, object]:
+    captured.require_current()
     projections = _unqualified(captured.child)
     records: list[tuple[str, dict]] = []
-    history_root = captured.parent.root / ".literate/native-updates"
+    history_root = captured.framework_path(".literate/native-updates")
     require_native_project_path(captured.parent, history_root)
     for path in sorted(history_root.glob("*.json"))[:65]:
         if len(records) >= 64:
             _refuse("history_limit", "too many retained rebind records")
         raw = _read(path, maximum_bytes=8 * 1024 * 1024)
         records.append((_digest(raw), json.loads(raw)))
+    if captured.parent_context.framework_root != captured.parent.root:
+        transitions = _contained_promotion_custody(captured, tree, projections, records)
+        captured.require_current()
+        return {
+            "projections": [p.identity.uri for p in projections],
+            "historical_rebind_records": transitions,
+        }
     transitions: list[str] = []
     # Audit verification occurs in an inert retained copy. Never rewrite the live
     # manifest or grant current qualification from a historical promotion audit.
@@ -237,6 +347,7 @@ def _promotion_custody(captured: _RegisteredChild, tree: dict) -> dict[str, obje
                 candidate, identity = previous
                 transitions.append(identity)
                 (ProjectConfigurationStore.manifest_path(view)).write_bytes(candidate)
+    captured.require_current()
     return {
         "projections": [p.identity.uri for p in projections],
         "historical_rebind_records": transitions,
@@ -262,17 +373,21 @@ def _plan_native_child_replacement(
         _refuse(
             "parent_stage", "replacement requires retained or drafted parent authority"
         )
-    state_bytes = _read(captured.parent.root / CONVERSION_AUTHORITY_FILE)
+    state_bytes = _read(captured.framework_path(CONVERSION_AUTHORITY_FILE))
     tree = _tree(captured.child)
     custody = _promotion_custody(captured, tree)
     if (
         _capture(parent, child).context != captured.context
         or _tree(captured.child) != tree
-        or _read(captured.parent.root / CONVERSION_AUTHORITY_FILE) != state_bytes
+        or _read(captured.framework_path(CONVERSION_AUTHORITY_FILE)) != state_bytes
     ):
         _refuse("changed", "registered authority changed while replacement was planned")
     plan: dict[str, object] = {
-        "schema": REPLACEMENT_PLAN_SCHEMA,
+        "schema": (
+            REPLACEMENT_PLAN_SCHEMA
+            if captured.parent_context.framework_root == captured.parent.root
+            else CONTAINED_REPLACEMENT_PLAN_SCHEMA
+        ),
         "registration": captured.context,
         "conversion_authority_identity": _digest(state_bytes),
         "prior_tree": tree,
@@ -292,24 +407,29 @@ def _apply_native_child_replacement(
     create: Callable[[Path], dict[str, object]],
     source_guard: Callable[[], None],
 ) -> dict[str, object]:
-    if plan.get("schema") != REPLACEMENT_PLAN_SCHEMA or canonical_identity(
+    if plan.get("schema") not in {
+        REPLACEMENT_PLAN_SCHEMA,
+        CONTAINED_REPLACEMENT_PLAN_SCHEMA,
+    } or canonical_identity(
         {k: v for k, v in plan.items() if k != "identity"}
     ).uri != plan.get("identity"):
         _refuse("plan_invalid", "replacement plan schema or identity is invalid")
     captured = _capture(parent, child)
-    registry_path = captured.parent.root / NATIVE_PROJECTS_FILE
+    registry_path = captured.framework_path(NATIVE_PROJECTS_FILE)
     with (
         exclusive_cache_lock(registry_path.with_suffix(".lock")),
         exclusive_cache_lock(
-            captured.parent.root / ".literate/conversion-authority.lock"
+            captured.framework_path(".literate/conversion-authority.lock")
         ),
     ):
+        captured.require_current()
         current = plan_native_child_replacement(parent, child, request)
         if current != plan:
             _refuse("changed", "reviewed replacement inputs are no longer current")
         source_guard()
+        captured.require_current()
         captured = _capture(parent, child)
-        base = captured.parent.root / ".literate/native-updates"
+        base = captured.framework_path(".literate/native-updates")
         require_native_project_path(captured.parent, base)
         ensure_safe_directory(base)
         recovery = Path(tempfile.mkdtemp(prefix="r-", dir=base))
@@ -332,8 +452,10 @@ def _apply_native_child_replacement(
                 )
             _unqualified(new)
             installed_tree = _tree(new)
+            installed_context = ProjectConfigurationStore.context(new)
             # Recheck signed source and all old authority after materialization.
             source_guard()
+            captured.require_current()
             if plan_native_child_replacement(parent, child, request) != plan:
                 _refuse(
                     "changed",
@@ -352,6 +474,11 @@ def _apply_native_child_replacement(
             require_native_project_path(captured.parent, old)
             os.rename(child, old)
             moved = True
+            if (
+                ProjectConfigurationStore.context(old).directory_binding
+                != captured.child_context.directory_binding
+            ):
+                _refuse("changed", "original child directory changed during retirement")
             if _tree(old) != plan["prior_tree"]:
                 _refuse("changed", "old promotion changed at the custody boundary")
             _unqualified(old)
@@ -359,6 +486,15 @@ def _apply_native_child_replacement(
             require_native_project_path(captured.parent, child)
             os.rename(new, child)
             installed = True
+            captured.require_parent_current()
+            if (
+                ProjectConfigurationStore.context(child).directory_binding
+                != installed_context.directory_binding
+            ):
+                _refuse(
+                    "changed",
+                    "created replacement directory changed during publication",
+                )
             registry = json.loads(before_registry)
             for entry in registry["projects"]:
                 if entry["path"] == captured.context["child_path"]:
@@ -368,14 +504,13 @@ def _apply_native_child_replacement(
                         )
                     ).uri
             updated_registry = canonical_json_bytes(registry) + b"\n"
-            if (
-                _read(ProjectConfigurationStore.manifest_path(captured.parent.root))
-                != captured.parent_manifest
-            ):
+            if _read(captured.parent_context.manifest_path) != captured.parent_manifest:
                 _refuse("changed", "parent manifest changed during replacement")
+            captured.require_parent_current()
             _replace_metadata(
                 captured.parent, registry_path, before_registry, updated_registry
             )
+            captured.require_parent_current()
             source_guard()
             _native_project_roots(captured.parent)
             if _tree(child) != installed_tree or _tree(old) != plan["prior_tree"]:
@@ -391,9 +526,18 @@ def _apply_native_child_replacement(
             )
         except BaseException:
             try:
+                captured.require_parent_current()
                 for path in (child, recovery, registry_path):
                     require_native_project_path(captured.parent, path)
                 if installed:
+                    if (
+                        ProjectConfigurationStore.context(child).directory_binding
+                        != installed_context.directory_binding
+                    ):
+                        _refuse(
+                            "rollback_conflict",
+                            "replacement directory changed; recovery retained",
+                        )
                     if _tree(child) != installed_tree:
                         _refuse(
                             "rollback_conflict",
@@ -401,6 +545,14 @@ def _apply_native_child_replacement(
                         )
                     os.rename(child, recovery / "failed")
                 if moved:
+                    if (
+                        ProjectConfigurationStore.context(old).directory_binding
+                        != captured.child_context.directory_binding
+                    ):
+                        _refuse(
+                            "rollback_conflict",
+                            "original child directory changed; recovery retained",
+                        )
                     if child.exists() or child.is_symlink():
                         _refuse(
                             "rollback_conflict",

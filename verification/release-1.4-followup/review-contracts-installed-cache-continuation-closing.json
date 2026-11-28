@@ -1,0 +1,45 @@
+{
+  "schema": "independent-installed-cache-continuation-source-closing@1",
+  "reviewer": "review_contracts",
+  "observed_at_utc": "2026-11-27T08:41:32.592615+00:00",
+  "repository": "/home/jkh/Src/literate-ai",
+  "head": "7128d6e4cd4584b5bc3c3a7f9e765574b2fb4333",
+  "frozen_failure_subject": "7128d6e4cd4584b5bc3c3a7f9e765574b2fb4333",
+  "verdict": "Source repair reviewed closed; no remaining actionable finding in the exact harness placement delta.",
+  "files": [
+    {
+      "path": "scripts/installed_cache_continuation_smoke.py",
+      "sha256": "ef4b854381ecf00c93c1e8820af4cf9d1759bdc57ade900c26763e257802ce49"
+    },
+    {
+      "path": "tests/support/fixtures_retained_native.py",
+      "sha256": "a090a7e7f3f7c0e8d01e8328b2ea731c23f33ee0c4bca4e8360c614ed6f9fcd6"
+    }
+  ],
+  "shared_helper_exactly_unchanged_from_failure_subject": true,
+  "reviewed_changes": [
+    "Scenario captures actual initialized ProjectConfigurationStore/context and computes actual app-relative Component coordinate via framework_path.",
+    "That same Component coordinate passes through existing author_fixture component_path keyword,all public lifecycle calls,and public Component contract inspection.",
+    "Committed receipt uses original current declared test_receipt joined to app root.",
+    "Default external BUILD_DIR cache and deliberately declared PROJECT_RELATIVE generated/committed-source-cache remain unchanged."
+  ],
+  "independent_source_checks": [
+    "All original explicit raise/refusal AST expressions are identical to frozen7128.",
+    "main() AST including installed module/distribution identity checks,two scenarios andfinal installed distribution close is identical.",
+    "Shared retained native authoring helper bytes are identical to frozen7128; no generated-source/SBOM/suite fixture weakening."
+  ],
+  "preserved_assertions": [
+    "Two actual retained revisions,distinct publication identities,checked-hash bytecode matches.",
+    "Cache historical bytes unchanged after every admission andall exact continuations.",
+    "Ambiguous/missing exact-entry refusals preserve committed receipt.",
+    "Both selected historical entries execute throughpublic run.",
+    "No coding-provider fallback,production identity/acceptance injection,source import orisolated CLI weakening."
+  ],
+  "limits": [
+    "Source-only closure,not an installed replay orpassing wheel result.",
+    "Fresh noneditable wheel must actually execute both original scenarios against the repairedscript; root owns that qualification after pending digestframe review/commit.",
+    "wheel-full-r6 remains a failed historical exact7128 receipt.",
+    "No native/platform/full-source/CI/release acceptance claimed.",
+    "No source edits,pins,worker dispatch,publication ormarker writes by reviewer."
+  ]
+}

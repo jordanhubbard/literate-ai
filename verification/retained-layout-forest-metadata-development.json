@@ -1,0 +1,207 @@
+{
+  "schema": "literate-ai/forest-metadata-development@1",
+  "state": "source_reviewed_actual_metadata_receipt_projection",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "canonical_forest_recovery_proven": false,
+  "current_metadata_endpoint_observation_proven": true,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-metadata-review.json",
+    "sha256": "a691dd0cfa66761ec022520392062c4df81feb947c5f4f94103243cb4acf4fdf"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-metadata-owner-report.json",
+        "sha256": "c4b7d15a8e03581b333427dd0c6065d5da0fb9e32ce7fd7e58a56e6341c9858d"
+      },
+      "log": {
+        "path": "_build/forest-metadata-owner-maintained.log",
+        "sha256": "9c23d012afcdeef7180a5998f16d8c87b9dba59c6fce19517e7440370851985b"
+      },
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "c09614de1930d8aa7ee1781840de908626d28d5074a19dcf25f70e62e8f615e6",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-metadata-current-report.json",
+        "sha256": "0b4009cd61d4c7a60a3ade9c15bf466933231d3d3ea5a54142027b8a2d31c64e"
+      },
+      "log": {
+        "path": "_build/forest-metadata-current-maintained.log",
+        "sha256": "131d3d0f9da85d4002806128bd95d189216da66f2df32e96bc338f33a66b679c"
+      },
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "60af67110e61054df30814dda73aca65ad17084274d136945acac56c80914ee7",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-metadata-effects-report.json",
+        "sha256": "322e3b4f4b579746209b3c9db19df196bfe9dce4a7af38c2ddd8e99bc0095264"
+      },
+      "log": {
+        "path": "_build/forest-metadata-effects-maintained.log",
+        "sha256": "bcd77df9336a953d37d298d854ed4193cb03440037e2ae6a5a279ca4561513b4"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "6ee3c2c64d77cdb96a0d924919b9cd2a3160c0f0cbc283ffbb8f75eb698f0441",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-metadata-native-report.json",
+        "sha256": "9631f062521343e818be55314ee65d39fa813a401598ff7f2a18e438bc585eb2"
+      },
+      "log": {
+        "path": "_build/forest-metadata-native-maintained.log",
+        "sha256": "b611163ababfe5038190734ddc8227aa2f9eb5157b4e863d9e3d7f7c0157ec25"
+      },
+      "summary": {
+        "executed": 37,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 37,
+        "selected": 37,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "3a44c4ea228b31b2921a3c396d6a0111e4bd2e7cd3ae074ced3206f23a4ada94",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-metadata-source_forest-report.json",
+        "sha256": "9f55f86740a71e19a52b16b64a5b0419e06b786bf0c0299ca022f57002536ebf"
+      },
+      "log": {
+        "path": "_build/forest-metadata-source_forest-maintained.log",
+        "sha256": "d22cd5f09ba9a9614a2acce564df4b38de7d58572ccfceada5b78338edb8b245"
+      },
+      "summary": {
+        "executed": 27,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 27,
+        "selected": 27,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "b76af312ce88f028351f2e803176559bd8501971b8f525a515bb949dcc2cc41c",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 88,
+  "last_publication_subcases": 2,
+  "diagnostics": [
+    {
+      "path": "_build/forest-metadata-first-diagnostic.log",
+      "sha256": "824974555eeb6ffd14ffde52a1a13702e783ef06302e7d66b2d656fab6194695"
+    },
+    {
+      "path": "_build/forest-metadata-second-diagnostic.log",
+      "sha256": "7c2aa53f018c569149edbb3ed7a5d5007a117cd150f71d250e98b19a84cb9cc3"
+    },
+    {
+      "path": "_build/forest-metadata-budget-measurement.log",
+      "sha256": "28da7d31c6052227edb7f66e4369a923489c9ba53e10d1d262645b09d17d7224"
+    },
+    {
+      "path": "_build/forest-metadata-third-diagnostic.log",
+      "sha256": "777c10991aaf6a1a0a1384a645dcb4353bdaeac651358ccd2709baa856e7b9f6"
+    },
+    {
+      "path": "_build/forest-metadata-fourth-diagnostic.log",
+      "sha256": "c2f5e1c0379a777a49829ff6c5f4a230b4304a54eb35fd6a12d7d75d6afd826d"
+    }
+  ],
+  "causal_notes": [
+    "The original canonical forest admission genuinely refuses. Separately acknowledged actual native execution and real _MetadataArea staging/exclusive entry moves execute under real normal canonical locks. No SourcePhase or owned partition is fabricated or reenrolled.",
+    "Full current projection proves old original inodes/bytes retained privately and exact original-prospective bytes at public targets; source programme data remain unchanged. Pending last publication is actually observed before and after movement; unrecorded stage bytes do not grant inode ownership. Replaced private root preserves original/replacement roots and refuses.",
+    "The actual normal nonforest _OwnedPartition.document provides the wire fixture; it is distinct from original-source-roles and is never claimed as canonical forest execution.",
+    "Fixture setup initially collided with an inherited metadata directory. Unique declared meta-prefix/ret-prefix roots fix setup; no cleanup or ownership guard relaxed.",
+    "The complete metadata operation exceeded the earlier explicit fresh8GiB metadata ceiling:before-current-fund charged8141546752;after8602985728 exceeds8589934592,while records408367<524288 and inputbytes15064949<268435456. Full positive declares fresh10GiB before creation; original source preparation remains8GiB. Smaller fresh7.875GiB refusal asserts actual API entry and no current-source open. No old ledger resets/refunds or production limit enlargement.",
+    "Final eight-case diagnostic passed268.486s; metadata/current/native/future-effect/source-forest maintained cohorts use separate exact reports."
+  ],
+  "remaining": [
+    "Current canonical control normalization, retirement and supplemental incoming public-node projection under actual fresh descriptor owners",
+    "Actual acknowledged journaled source/metadata/control recovery effects and fresh retries/dispositions",
+    "Genuine canonical integrated forest execution before admission guard removal",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ],
+  "static": {
+    "session": 68746,
+    "terminal": true,
+    "exit_code": 0,
+    "log": {
+      "path": "_build/forest-metadata-final-static.log",
+      "sha256": "236251708d0a877e7b8909e233ef447abf4ee93ce749dea817c5a8fb48e27dcd"
+    },
+    "checks": [
+      "supported driver/documentation review records",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "roadmap dependencies",
+      "documentation-check"
+    ]
+  },
+  "verify": {
+    "session": 68382,
+    "terminal": true,
+    "exit_code": 1,
+    "report": {
+      "path": "_build/forest-metadata-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "authority": "pass",
+    "receipt": "project.test_receipt_stale",
+    "normal_skips": 3
+  },
+  "diff_check": {
+    "exit_code": 0
+  }
+}

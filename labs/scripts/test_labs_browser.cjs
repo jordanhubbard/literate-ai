@@ -102,13 +102,24 @@ const evidence = process.env.LAB_EVIDENCE_DIR || path.resolve(root, '../_build/l
       await context.close();
     }
     // Shared-shell compatibility and offline loading for every lesson.
-    for (const name of fs.readdirSync(root).filter(n => /^\d\d-/.test(n)).sort()) {
-      const context = await browser.newContext({offline: true});
+    for (const width of [1440, 390]) for (const name of fs.readdirSync(root).filter(n => /^\d\d-/.test(n)).sort()) {
+      const context = await browser.newContext({viewport: {width, height: 1000}, offline: true});
       const page = await context.newPage(), errors = [];
       page.on('pageerror', e => errors.push(String(e)));
       await page.goto(pathToFileURL(path.join(root, name, 'index.html')).href);
       assert.ok(await page.locator('[data-source-path]').count() >= 14);
-      assert.match(await page.locator('[data-inventory]').textContent(), /1 resolved Component/);
+      const project = JSON.parse(fs.readFileSync(path.join(root, name, 'project/literate.project.json'), 'utf8'));
+      const lock = JSON.parse(fs.readFileSync(path.join(root, name, 'project', project.repository_policy.default_component, 'component.lock.json'), 'utf8'));
+      assert.match(await page.locator('[data-inventory]').textContent(), new RegExp(`${lock.nodes.length} resolved Component`));
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      if (name === '05-component-cathedral') {
+        assert.equal(lock.nodes.length, 2);
+        assert.equal(lock.edges.length, 1);
+        await page.getByRole('button', {name: 'choir-score', exact: true}).click();
+        assert.match(await page.locator('[data-authority]').textContent(), /Component unprompted\/choir-score/);
+        await page.screenshot({path: path.join(evidence, `cathedral-${width}.png`), fullPage: true});
+        fs.writeFileSync(path.join(evidence, `cathedral-${width}.aria.txt`), await page.locator('body').ariaSnapshot());
+      }
       assert.deepEqual(errors, []);
       await context.close();
     }

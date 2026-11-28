@@ -1,0 +1,277 @@
+{
+  "schema": "literate-ai/root-destination-development@1",
+  "state": "source_reviewed_internal_root_destination_planning_scoped231pass",
+  "base_commit": "e5087b9b9a6db9f06c180ae33285f6a964445bc8",
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "review": {
+    "path": "independent-layout-root-destination-review.json",
+    "sha256": "dd329f1e0ef24c4320ea14d2cc251ea606dee14b7634808b430789bc862ff8f0"
+  },
+  "prior_root_out_review": {
+    "path": "independent-layout-source-forest-review.json",
+    "sha256": "cd1a7ab89253476c27441c58a0fa7e256d8c015ef6b80422a141cb2cfaf714ff"
+  },
+  "distinct_scoped_methods_passed": 231,
+  "checks": [
+    {
+      "report": {
+        "path": "_build/source-destination-forest-report.json",
+        "sha256": "f42a380c80e36c217040685b239b7ce4d76e2a44fde245f28ca76f47329cb3fb"
+      },
+      "log": {
+        "path": "_build/source-destination-forest.log",
+        "sha256": "b1bdbd6f6209623e49c4efe9d777d8b3bdcf8ae37f7b8e1f47918816076136e3"
+      },
+      "summary": {
+        "executed": 12,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 12,
+        "selected": 12,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "dc51c5fc025aa3bd21e22404eefdfb1171ff3a5ce4d277ea7b5480eff9ef23ac",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-destination-state-report.json",
+        "sha256": "25b9d0e7db1342030bb8367d5d4b1d7fdc63c33f51e54784b769a7ba1c89b8f4"
+      },
+      "log": {
+        "path": "_build/source-destination-state.log",
+        "sha256": "ef4c37013dd35eb1586381b92a9d83bcef3f1170a1b52ad2c3ad8d4dceeed885"
+      },
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "8ce9b5a21e7a872034b23db18834ff57effa982baf4936b7697e2a328084b11d",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-destination-preparation-report.json",
+        "sha256": "12c71ed3aa2ab88fb9ef38ad722a8ef717bd924362e1b5d8a03971e12bc8992d"
+      },
+      "log": {
+        "path": "_build/source-destination-preparation.log",
+        "sha256": "a8ca0a48c917aaff564f676f9eeb815f7e577e51743fb137ebc429af7482f3c7"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "f5a1890009feef527f0f6bc9441ec2d29bb3c528153d9560771a022f67215132",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-destination-transaction-report.json",
+        "sha256": "e7693e0435f8dc2ca757a143b647fa32364ca491ddce97143a09a420a91da905"
+      },
+      "log": {
+        "path": "_build/source-destination-transaction.log",
+        "sha256": "d5b91fa8f15903c67316f5cd1f244f9d63257c4a47c5b7528be20bf3bf5be2ed"
+      },
+      "summary": {
+        "executed": 26,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 26,
+        "selected": 26,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "673c5e197cea905fd6702bc3cfb11a5502fd9acc9cbe9e7f4f0a55c67b7704b8",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-destination-recovery-report.json",
+        "sha256": "3e29577430dbbda852067fb003c202e0efeaa3111a461b8b0e8102513ffd4374"
+      },
+      "log": {
+        "path": "_build/source-destination-recovery.log",
+        "sha256": "ee5fb9f239726c1c930ec8a9437e863359b900ad9396fd17db47c81ae755fb49"
+      },
+      "summary": {
+        "executed": 111,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 111,
+        "selected": 111,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "0690efacc8b1f06402a4ed25c2a6b2346692096b29edbf83a417f5c62ce32ea2",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-destination-admission-report.json",
+        "sha256": "099a2846a857b09ddba3dd14cbe30e6fa9dbd3c3ffb9004d77e003cf86793cc0"
+      },
+      "log": {
+        "path": "_build/source-destination-admission.log",
+        "sha256": "14ed7b5de31d645a93446a026948069b3812e10ed08d21802a8db6677ab8c036"
+      },
+      "summary": {
+        "executed": 41,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 41,
+        "selected": 41,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "17434aeb6ff20887d169ec1296e70cf8d598622a01ecadb080804c3af1c49e93",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "static_readonly": {
+    "log": {
+      "path": "_build/source-destination-static-readonly.log",
+      "sha256": "3c31fb789b790af6367bc82255fbf00052838ad1dffad0ddbefe5272c3a65689"
+    },
+    "passed": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check"
+    ]
+  },
+  "causal_diagnostics": [
+    {
+      "log": {
+        "path": "_build/source-destination-before.log",
+        "sha256": "e9b9e9327bbe2ef780ba49c519260b8a0f58e786b7506f45f141b71661cbea81"
+      },
+      "qualification": false
+    },
+    {
+      "log": {
+        "path": "_build/source-destination-first.log",
+        "sha256": "00a36f3246f767b75ad337ba938d488d005a53c5cecfd197ea887b01c3638253"
+      },
+      "qualification": false
+    },
+    {
+      "log": {
+        "path": "_build/source-destination-closure.log",
+        "sha256": "e12b6ae9292fd20b6b6d2ee8814cbb39dc649518d206378eba6a454c402d7729"
+      },
+      "qualification": false
+    },
+    {
+      "log": {
+        "path": "_build/source-destination-closure-fixed.log",
+        "sha256": "a89f233d7c8778c2e7002e868d6c49b83109b3f52211e311d2d0679b1602166d"
+      },
+      "qualification": false
+    },
+    {
+      "log": {
+        "path": "_build/source-destination-persistence.log",
+        "sha256": "22294a876fe1d4e1ebb48153951cf2f33f27e9469ab7f9512ed74ea6dc33740a"
+      },
+      "qualification": false
+    }
+  ],
+  "fixture_limits": [
+    "Real initializer/conversion, original registered preparation/roles/namespace, real Git and private journal; no fabricated effect phase",
+    "Root-destination planning and persistence only; four cases prove canonical metadata, collision refusal, changed destination membership and private reopen without publication",
+    "Earlier diagnostic assumed a root Makefile existed; corrected to the genuine initialized litai.harness.mk collision without changing production ownership rules",
+    "Root-out fixture remains an explicitly arranged source tree, not a production relocation acceptance journey"
+  ],
+  "pending": [
+    "Shared-overlap planning, exact original occupancy admission and bounded absent-prefix/anchor observations",
+    "Complete receipt-backed multi-carrier execution, coherent metadata and bounded fresh recovery",
+    "Public initial placement/relocation/recovery/renewal, installed/native/integration/release acceptance",
+    "Broader full-source receipt qualification and every other open roadmap obligation; no push before feature consolidation"
+  ],
+  "static_gates": {
+    "log": {
+      "path": "_build/source-destination-final-static.log",
+      "sha256": "d0b0378f904022eeb4290d95d3dfb0be55f046a47ddf6929208bb21fc6bd4fa2"
+    },
+    "passed": [
+      "documentation-review-record",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "documentation-check"
+    ],
+    "supported_driver_authority_record": {
+      "path": "_build/source-destination-authority-record.log",
+      "sha256": "29e2e89d795cb68df1559f493bb809230b445b945e5e280b7e6c009f6c062ce3"
+    }
+  },
+  "full_project_verify": {
+    "report": {
+      "path": "_build/source-destination-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "exit": 1,
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ],
+    "qualification": false
+  }
+}

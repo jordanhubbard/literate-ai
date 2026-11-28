@@ -74,9 +74,8 @@ a = p.parse_args()
 root = a.project.resolve(strict=True)
 output = a.output.resolve()
 output.mkdir(mode=0o700)
-policy_before = json.loads((root / "literate.project.json").read_text())[
-    "test_receipt_policy"
-]
+context = load_project(root).context
+policy_before = json.loads(context.manifest_path.read_text())["test_receipt_policy"]
 assert len(policy_before["required_evidence_kinds"]) == 16
 
 
@@ -110,13 +109,13 @@ def cli(name, argv, expected=0, timeout=900):
     return response["result"] if expected == 0 else response
 
 
-component = root / "components/vendor-consumer"
+component = context.framework_path("components/vendor-consumer")
 component.mkdir()
 contract = (
     b"The source SDK exposes vendor_math_scale(double,double) as a C ABI and "
     b"vendor_math.scale(value,factor) as a Python binding. Both return the product.\n"
 )
-write("components/vendor-consumer/integration.md", contract)
+write(component / "integration.md", contract)
 interface = ContentIdentity.parse_uri("sha256:" + hashlib.sha256(contract).hexdigest())
 dependency = RepositorySourceDependency(
     "vendor-sdk",
@@ -168,7 +167,7 @@ document = {
     "source_dependencies": [dep],
 }
 write(
-    "components/vendor-consumer/component.md",
+    component / "component.md",
     render_authoring_markdown(
         document,
         "# Original native SDK consumer\n\nRetain and compile src/main.c with the "
@@ -212,10 +211,10 @@ recipe = NativeSdkBuildRecipe(
     ),
 )
 write(
-    "flavors/lang-python/native-sdk-qualification.json",
+    context.framework_path("flavors/lang-python/native-sdk-qualification.json"),
     canonical_json_bytes(recipe.to_dict()),
 )
-flavor = root / "flavors/lang-python/flavor.md"
+flavor = context.framework_path("flavors/lang-python/flavor.md")
 fd, body = parse_authoring_markdown(flavor.read_bytes(), source=str(flavor))
 fd["contributions"].append(
     {
@@ -407,6 +406,7 @@ write(
     "verification/retained-project-acceptance.json",
     canonical_json_bytes(accept.to_dict()),
 )
+release_policy = context.framework_path("literate.release.json")
 roles = {
     "src": "source",
     "tools": "toolchain",
@@ -418,7 +418,7 @@ roles = {
     "tests": "test-definition",
     "manual-input.md": "docs-definition",
     "retained-tests.json": "test-policy",
-    "literate.release.json": "release-policy",
+    release_policy.relative_to(root).as_posix(): "release-policy",
 }
 limits = RetainedProjectLimits(2000, 512 * 1024 * 1024, 2 * 1024 * 1024 * 1024)
 write("profile.json", "{}\n")
@@ -444,8 +444,7 @@ profile = RetainedProjectProfile(
         + hashlib.sha256((root / "retained-tests.json").read_bytes()).hexdigest()
     ),
     ContentIdentity.parse_uri(
-        "sha256:"
-        + hashlib.sha256((root / "literate.release.json").read_bytes()).hexdigest()
+        "sha256:" + hashlib.sha256(release_policy.read_bytes()).hexdigest()
     ),
     tools,
     (
@@ -500,7 +499,7 @@ write("profile.json", canonical_json_bytes(profile.to_dict()))
 manifest = discover_retained_project_inputs(root, roles, limits)
 write("manifest.json", canonical_json_bytes(manifest.to_dict()))
 assert (
-    json.loads((root / "literate.project.json").read_text())["test_receipt_policy"]
+    json.loads(context.manifest_path.read_text())["test_receipt_policy"]
     == policy_before
 )
 cli(
@@ -586,10 +585,11 @@ result = cli(
 assert result["admitted"] is True
 assert result["retained_receipt"]["release_authorized"] is False
 assert (
-    json.loads((root / "literate.project.json").read_text())["test_receipt_policy"]
+    json.loads(context.manifest_path.read_text())["test_receipt_policy"]
     == policy_before
 )
 assert not (root / "verification/current.json").exists()
+assert not context.framework_path("verification/current.json").exists()
 # Prove that this execution genuinely needed the reviewed loader projection.
 # The control uses the sealed accepted app without ambient loader/import keys.
 app = Path(result["workspace"]) / "outputs" / "app"

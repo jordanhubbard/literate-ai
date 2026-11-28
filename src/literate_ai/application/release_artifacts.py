@@ -438,8 +438,14 @@ def assemble_standard_project_artifacts(
     results: tuple[StandardNodeLifecycleResult, ...],
     *,
     primary_export_id: str,
+    external_manifests: tuple = (),
+    external_assembly_dependencies: tuple = (),
 ):
-    """Assemble pre-package link authority from exact accepted Component plans."""
+    """Assemble exact generated plans plus independently admitted original providers.
+
+    External records are supplied by the live receiving adapter. Their presence
+    creates neither consumer lifecycle rows nor producer execution permission.
+    """
     if not isinstance(component_lock, ComponentLock):
         raise TypeError("component_lock must be a ComponentLock")
     if not isinstance(project_build_plan, StandardProjectBuildPlan):
@@ -471,6 +477,32 @@ def assemble_standard_project_artifacts(
     manifests = tuple(
         realize_manifest(plan.manifest, by_revision[uri].exports)
         for uri, plan in sorted(planned.items())
+    )
+    # Generated membership remains exact above. Original qualified provider
+    # manifests extend only the immutable artifact graph, never locked nodes.
+    generated = {manifest.component_revision for manifest in manifests}
+    if (
+        not isinstance(external_manifests, tuple)
+        or not isinstance(external_assembly_dependencies, tuple)
+        or any(
+            manifest.component_revision in generated for manifest in external_manifests
+        )
+    ):
+        raise ReleaseArtifactAssemblyError(
+            "external artifacts overlap generated membership"
+        )
+    manifests = tuple(
+        sorted(
+            (*manifests, *external_manifests),
+            key=lambda manifest: manifest.component_revision.uri,
+        )
+    )
+    all_dependencies = {
+        edge.identity.uri: edge
+        for edge in (*assembly_dependencies, *external_assembly_dependencies)
+    }
+    assembly_dependencies = tuple(
+        all_dependencies[key] for key in sorted(all_dependencies)
     )
     # A graph whose Components use different measured drivers (for example a
     # Mix library consumed by a Make application) binds the exact driver set;

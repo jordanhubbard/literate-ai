@@ -6,6 +6,7 @@ from literate_ai.contracts import canonical_identity, canonical_json_bytes
 
 CONTEXT_SCHEMA = "literate-ai/retained-sdk-command-context@1"
 EXECUTION_SCHEMA = "literate-ai/native-sdk-command-execution@5"
+ACCEPTANCE_EXECUTION_SCHEMA = "literate-ai/native-sdk-command-execution@6"
 _MAX_CONTEXT_BYTES = 1024**2
 _BASE_ENVIRONMENT = {
     "LANG": "C",

@@ -1,0 +1,131 @@
+{
+  "schema": "literate-ai/provider-material-intent-development@1",
+  "goal": "AUTHORED-GRAPH-QUALIFICATION-001",
+  "issue": 393,
+  "candidate_base": "27f598c0ea60063cd3041bd810204ef38c61a04d",
+  "genuine_predecessor": {
+    "source": "27f598c0ea60063cd3041bd810204ef38c61a04d",
+    "result": "failed qualification.authored.publication_failed / qualification.capture.build-process-invalid",
+    "duration_seconds": 1866.976,
+    "original_oracles_unchanged": true,
+    "observation": "Later native consumer artifact manifests contain two and three identical bindings per provider;only intent metadata is published,no accepted reference."
+  },
+  "causal_control": {
+    "report": "_build/provider-intent-original/python-test-report.json",
+    "report_sha256": "0bdc260ed6da31c91bd3411b2960b785e1b4fb89ae14619fda4a82dfa36f3aa4",
+    "summary": {
+      "executed": 1,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 0,
+      "selected": 1,
+      "skipped": 0
+    },
+    "result": "Actual second native consumer source/build intent records two identical bindings instead of its one current binding against unchanged producer code."
+  },
+  "subjects": {
+    "src/literate_ai/adapters/lifecycle/standard_local.py": "149a2be769ce5f379699311b9bcfafdbf289a846f1b41fe39b4f66b5ad19e27d",
+    "src/literate_ai/adapters/lifecycle/standard_cargo.py": "51ad3738bc9d5b3ef9775c1d40203f0300e562e42c9986e8ff06734d1b83f72e",
+    "src/literate_ai/adapters/lifecycle/standard_bazel.py": "461d7e0a4d1cb6a564bf285ffeb4cf9d6901ffca4fcf5085881442200c41a136",
+    "src/literate_ai/adapters/lifecycle/standard_mix.py": "3aa4b5a83b23ea745b628d1b28348a455613f1727fc646b1f025516bb47a993b",
+    "tests/smoke/test_provider_material_intents.py": "930c12b9070406957b118c2f27eb6a6a89190e7a0e77ba8302ab35092d86d882"
+  },
+  "fix": "Project provider materials from the exact registered consumer plan/intent and provider identities, rather than every historical intent for a Component revision. Keep provider-free and non-library compatibility. Do not relax archive duplicate/current-interface checks.",
+  "checks": [
+    {
+      "pattern": "test_provider_material_intents.py",
+      "report": "_build/intent-replay-intent/python-test-report.json",
+      "report_sha256": "1a807dd3dd7a99fd591cc8de56ad1a66a9711b9ac394021f02911b315b564bf4",
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      }
+    },
+    {
+      "pattern": "test_qualification_cargo_native.py",
+      "report": "_build/cargo-replay-intent/python-test-report.json",
+      "report_sha256": "4d7f78bd0c290be95782485327508170f8557c85de22d513188d1d72cf22333e",
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      }
+    },
+    {
+      "pattern": "test_native_cargo*.py",
+      "report": "_build/native-controls-intent/python-test-report.json",
+      "report_sha256": "29f86f684718f51918377e1df0d67451df4d146690db771c4f38d4d4894eae02",
+      "summary": {
+        "executed": 42,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 42,
+        "selected": 42,
+        "skipped": 0
+      }
+    },
+    {
+      "pattern": "test_standard_*_lifecycle.py",
+      "report": "_build/language-builders-intent/python-test-report.json",
+      "report_sha256": "eaa41a244622f8ac52cf30ca3395a4efb19f0676d7df671f157b34c4fa2e6ea0",
+      "summary": {
+        "executed": 29,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 29,
+        "selected": 29,
+        "skipped": 0
+      }
+    },
+    {
+      "pattern": "test_javascript_library_imports.py",
+      "report": "_build/javascript-imports-intent/python-test-report.json",
+      "report_sha256": "a4a0d7a705fe6669ced5543c07c3b7cc8092fad82f9914110f65ff10165c5880",
+      "summary": {
+        "executed": 20,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 20,
+        "selected": 20,
+        "skipped": 0
+      }
+    },
+    {
+      "pattern": "test_elixir_standard_mix.py",
+      "report": "_build/mix-intent/python-test-report.json",
+      "report_sha256": "6e511a15fd04a658f70d36cb337b766306245eb92536d739c958a16804002b06",
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      }
+    }
+  ],
+  "passed_method_executions": 109,
+  "scope": "Source development controls on native macOS;new causal replay uses real Cargo/Rust/source bytes and explicitly fixture generation/recipe authority. Other cohorts retain their original fixture/native scopes. No genuine model,installed,supported-platform or release acceptance claimed from these controls.",
+  "pending": [
+    "independent nonauthor source review and supported driver renewal",
+    "fresh noneditable installation and genuine shared nominal Event diamond through two all-node runs,closed publication/replay and real retained consumer",
+    "complete exact-source framework and final combined platform/release gates"
+  ],
+  "release_goal_complete": false,
+  "gates": {
+    "static": "lint and format-check pass;2187Pythonfilesformatted;gitdiffwhitespaceclean",
+    "documentation": "181diagramsfrom1967Markdownfiles;23renderercontrolspass;roadmapdependenciesacyclic",
+    "layout": "repositorylayoutandpublicexportpass",
+    "runner": "current421dfa16df016a87818b667ffcbe180187827f53b7bb429c497e700d728b6af1",
+    "driver": "stale;heldpendingindependentnonauthorreview;noauthorrepin",
+    "computed_driver": "sha256:495157caddaeedb39008b3fe56a23e1f522e8db4a9050c0d810553e8e3c87d6f",
+    "trusted_changed_files": 9
+  }
+}

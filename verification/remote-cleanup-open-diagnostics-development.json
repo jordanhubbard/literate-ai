@@ -1,0 +1,37 @@
+{
+  "schema": "literate-ai/development-qualification@1",
+  "issue": "https://github.com/jordanhubbard/literate-ai/issues/508",
+  "status": "bounded source diagnostic qualification; native Windows acceptance open",
+  "platform": {
+    "system": "Linux",
+    "machine": "aarch64"
+  },
+  "source_sha256": {
+    "src/literate_ai/adapters/remote_cleanup.py": "fa9bb2fcbe8ca79fb0c694b5b113dbc995dd55636f277e12390fcd15e0f8ade5",
+    "tests/critical/test_remote_cleanup_open_diagnostics.py": "80757c82320a8e8789ac88fd91389431b6eb2236b364f8a15d924468c7f642c4"
+  },
+  "command": "make python-check PYTHON_TEST_WORKERS=1 PYTHON_TEST_START_DIRECTORY=tests/critical PYTHON_TEST_PATTERN=test_remote_cleanup*.py",
+  "summary": {
+    "executed": 42,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 42,
+    "selected": 42,
+    "skipped": 0
+  },
+  "report_sha256": "f8612c56e8d9cc3e261dad71bdb6f6185ef15852c5d9319b4c3ec0b80ef05dae",
+  "release_evidence": false,
+  "qualified": [
+    "Original success and refusal counts, primary exception identity, closed descriptor and preserved native file",
+    "Native-ID and named/fd-signature mismatch notes from already observed values",
+    "Unsupported formatting and metaclass equality callbacks remain uncalled",
+    "Supported wide native integers retained exactly; out-of-bound values omit optional note",
+    "Original native cleanup and modeled Windows-handle cohorts pass without skips"
+  ],
+  "limits": [
+    "Windows-handle cases on this host are modeled controls, not native Windows observations",
+    "No additional native queries is independently inspected source behavior; it is not an instrumented native-query count assertion",
+    "The actual native Windows mismatch cause remains unproven",
+    "No full repository, installed candidate, platform matrix or release acceptance"
+  ]
+}

@@ -1,0 +1,603 @@
+{
+  "schema": "literate-ai/forest-operation-development@1",
+  "state": "source_reviewed_scoped_canonical_operation_recovery_and_causal_quota_maintained_pass",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_basic_execution_proven": true,
+  "general_canonical_forest_recovery_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-operation-review.json",
+    "sha256": "31456204bd66c53c87299d52897d4a95b2a53c8b592272ceba6c33a507089029"
+  },
+  "prior_checkpoint": {
+    "path": "verification/retained-layout-forest-interruption-development.json",
+    "sha256": "74d9d9221be4a6a9e7629b1f2f38b1c3b524dfe7a4a19380cc1e34bcb64989f3"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-operation-stable-report.json",
+        "sha256": "c97f31459540f988f99715c60ad7f30ea74d6bbebc05b72b3c0306ad51e9369b"
+      },
+      "log": {
+        "path": "_build/forest-operation-stable-maintained.log",
+        "sha256": "9b696b232cbc575cad3f1442601e9d48d6ff54ceeb3915bde508b386de9c124c"
+      },
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "86043e729de4b7c1d0bce97f3c1702eee694b86f7febd9d5b9db2f1b32abacaa",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation.ForestOperationTests.test_actual_canonical_root_out_operation_closes_all_original_owners",
+        "tests.critical.test_retained_layout_forest_operation.ForestOperationTests.test_copied_or_unacknowledged_operation_refuses_before_borrowed_fds",
+        "tests.critical.test_retained_layout_forest_operation.ForestOperationTests.test_effect_root_replaced_after_actual_acquisition_cannot_rebaseline",
+        "tests.critical.test_retained_layout_forest_operation.ForestOperationTests.test_small_original_journal_refuses_before_native_source_effects"
+      ],
+      "scope": "earlier_operation_source_lineage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-operation-journal-report.json",
+        "sha256": "9c488eb93f04edb8e11bbd58b1ba37d86d1c82835abad02098cb9a45e17f228d"
+      },
+      "log": {
+        "path": "_build/forest-operation-journal-maintained.log",
+        "sha256": "40403ac1e6705b539a127cf75d7be7545bf4b37926e244f0cae6006611af6a61"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "397744ec4034c5850c1f45ab7f01f6fa0ccd0dc809603f4eb88b8ea1296e51d2",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation_journal.ForestOperationJournalTests.test_actual_wrong_journal_refuses_before_original_state_persistence"
+      ],
+      "scope": "earlier_operation_source_lineage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-operation-reader-report.json",
+        "sha256": "62183c10e121b0afada7bcfb76ed459d51a895352dee1ed069f32d8973f95862"
+      },
+      "log": {
+        "path": "_build/forest-operation-reader-maintained.log",
+        "sha256": "bb2c27db15b3b11c5d4180640987122b59fdec569c9f2195f051d176122c4484"
+      },
+      "summary": {
+        "executed": 37,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 37,
+        "selected": 37,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "223e6eace57b75c31353cdcb65ca8489b8a2eea8fa3240f7562d9849a58316cf",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_altered_schedule_refuses_before_private_effects",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_complete_namespace_requires_actual_finished_live_owner",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_completed_native_data_cannot_enroll_a_source_reader",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_controlled_destination_advances_only_original_directory_stamps",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_controlled_destination_cannot_occupy_original_absent_prefix",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_direct_native_events_cannot_consume_joined_reservation",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_final_namespace_recanonicalizes_hardlink_representative",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_final_namespace_records_new_and_retained_directory_custody",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_final_private_span_callback_cannot_end_owner_unchecked",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_host_authority_and_exact_acknowledgement_precede_private_effects",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_joined_observed_event_capacity_is_reserved_before_native_effects",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_joined_storage_reservation_refuses_before_private_effects",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_last_journal_guard_cannot_end_owner_unchecked",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_late_foreign_entry_after_intent_refuses_without_source_move",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_missing_descendant_parents_are_published_from_actual_stages",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_namespace_derivation_cannot_hide_late_public_payload_change",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_native_mkdir_under_restrictive_umask_preserves_attributes",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_nonroot_ancestor_merge_retains_empty_original_containers",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_original_ledger_exhaustion_precedes_native_factory_allocation",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_post_native_failure_retains_actual_source_and_durable_intent",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_program_bytes_cannot_be_resealed_by_mutating_instance_raw",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_directory_presence_keeps_canonical_shape",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_fixed_absence_collision_refuses_before_any_native_effect",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_missing_parent_ancestry_uses_created_native_receipts",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_retained_container_lineage_follows_its_original_inode",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_root_transfer_keeps_canonical_inputs_and_moves_source_absence",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_transfer_is_simultaneous_for_existing_source_destination",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_transfer_snapshot_has_bounded_canonical_seal",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_resetting_one_use_flag_cannot_repeat_native_schedule",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_root_carriers_all_park_before_any_public_target",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_root_to_existing_source_target_preserves_its_original_inode",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_source_native_factory_debits_same_ledger_and_binds_following_event",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_substituted_descriptor_refuses_and_closes_only_original_handle",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_unissued_receipt_cannot_bless_replaced_span",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_unplanned_journal_event_revokes_native_schedule_before_source_move",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_unregistered_effect_methods_cannot_move_fixed_or_repeat_stages",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_whole_journal_event_budget_refuses_before_source_or_parking"
+      ],
+      "scope": "earlier_reader_source_lineage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-operation-generic-guard-report.json",
+        "sha256": "ed74f934db138b0a48b7b903c6153034f395feb5c447a3c60579fd8cbb4bef88"
+      },
+      "log": {
+        "path": "_build/forest-operation-generic-guard-maintained.log",
+        "sha256": "9b11fb565f1bec2e3c77861b858a71dd8be11f2e6d3a56610e8311d6711c25dd"
+      },
+      "summary": {
+        "executed": 27,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 27,
+        "selected": 27,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "77aa0f3a9286a869b22a1d2c1289a8dd46f110343d8ac19f6a4b2b6f1bed1372",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_actual_absent_canonical_store_inside_source_keeps_shared_ancestors",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_actual_canonical_lock_stays_fixed_while_namesakes_remain_source",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_actual_root_destination_metadata_binds_only_canonical_ownership",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_ancestor_with_unclaimed_occupant_refuses_without_borrowing_ownership",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_copied_destination_description_cannot_replace_creating_facts",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_descendant_with_missing_parents_retains_original_destination_state",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_fixed_root_destination_membership_change_revokes_preparation",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_late_selected_canonical_store_insertion_revokes_without_cleanup",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_missing_destination_prefix_insertion_revokes_original_plan",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_missing_destination_state_reopens_without_public_effects",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_portable_alias_of_missing_destination_prefix_refuses",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_root_destination_persists_original_forest_without_publication",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_root_destination_refuses_actual_framework_collision_without_effects",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_source_only_ancestor_destination_keeps_original_container_custody",
+        "tests.critical.test_retained_layout_source_forest.OriginalMixedDestinationTests.test_source_projection_cannot_create_selected_canonical_storage",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_actual_forest_journal_refuses_legacy_recovery_before_acquisition",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_actual_root_preparation_binds_complete_logical_source_forest",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_changed_existing_source_destination_payload_revokes_preparation",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_declaration_cannot_promote_unknown_metadata_to_framework",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_existing_canonical_directory_without_source_ownership_refuses",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_existing_source_destination_binds_its_overlapping_projection",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_new_original_root_source_revokes_preparation_without_cleanup",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_portable_alias_of_existing_source_destination_refuses",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_profile_inspection_never_invokes_foreign_cached_key_equality",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_root_forest_is_durable_while_public_phase_admission_stays_guarded",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_structurally_copied_forest_cannot_replace_original_before_native_reads",
+        "tests.critical.test_retained_layout_source_forest.OriginalSourceForestTests.test_valid_journal_chain_cannot_substitute_the_root_forest"
+      ],
+      "scope": "earlier_guard_compatibility_source_lineage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-operation-nonroot-finalization-report.json",
+        "sha256": "fcc1d61a46758680d85001111473b192a6a252199d21c71e64e7a700209d51d0"
+      },
+      "log": {
+        "path": "_build/forest-operation-nonroot-finalization-maintained.log",
+        "sha256": "df98b0faab831cde89685faaf90d0a2131da6cac7d620240c52902f8ba51b662"
+      },
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "b8094ba6a882dba37e70316f092c36d299aacfc1408923b50d077f878d77b4cc",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_source_finalization.CombinedSourceFinalizationTests.test_real_framework_and_canonical_catalog_complete_original_operation",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_complete_original_operation_survives_git_release_and_descriptor_teardown",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_failed_descriptor_release_preserves_committed_error_outcome",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_final_terminal_native_callback_cannot_revoke_original_preparation",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_last_control_release_foreign_pool_entry_refuses_terminal_result",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_last_control_release_journal_change_refuses_terminal_result",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_last_descriptor_teardown_source_change_cannot_report_success",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_metadata_area_cannot_be_reused_for_control_retirement",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_original_git_entry_policy_refuses_finalization_before_control_effects",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_original_smaller_policy_refuses_before_source_effects",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_private_terminal_scan_refuses_first_unknown_before_retaining_more",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_rebound_resource_stack_refuses_before_control_effects",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_resource_exit_callbacks_cannot_escape_the_creating_scope",
+        "tests.critical.test_retained_layout_source_finalization.SourceFinalizationTests.test_teardown_cannot_rebind_original_retirement_guard"
+      ],
+      "scope": "earlier_nonroot_compatibility_source_lineage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-operation-actual-bootstrap-report.json",
+        "sha256": "4767b43a66106be45748f83743c17399f1e9e2ffce3a7d5ddade1a5cdd8f8029"
+      },
+      "log": {
+        "path": "_build/forest-operation-actual-bootstrap-maintained.log",
+        "sha256": "a561c252d41ee13999c4ee5f84e4057097f1379c91cc2f34adaface9f9292824"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "bb7f7a813939e314f8cf33b0dbf102f14d7872b5e545dbc0ed972133021b2407",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation_bootstrap.CanonicalForestBootstrapTests.test_real_replacement_git_descriptors_reenter_without_early_git_observation"
+      ],
+      "scope": "earlier_bootstrap_source_lineage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-operation-actual-root-in-report.json",
+        "sha256": "1c5f3f45e7b56edf44a2665cd500b6d25a08b56d5e27a252534b712589f61ce3"
+      },
+      "log": {
+        "path": "_build/forest-operation-actual-root-in-maintained.log",
+        "sha256": "eb8c1e52a9b91113c35e13d85db6f9f6139b18c34cb544334421230e0045a6ee"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "13e21255e7a862d489bca4a1bd8a58785a00ec3c1f7330616a70e2ea9d1a15a2",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation_into_root.CanonicalForestIntoRootTests.test_actual_plain_to_root_preserves_source_and_repository_native_custody"
+      ],
+      "scope": "earlier_root_in_source_lineage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-operation-bootstrap-generations-report.json",
+        "sha256": "e7ab3a29982673a698397cfb8a6b34f68175b697910b5e0584ca3d2291c8086a"
+      },
+      "log": {
+        "path": "_build/forest-operation-bootstrap-generations-maintained.log",
+        "sha256": "f41b06b03caf9ce2456d67c6c5a84fe4d2695c082c6dac0d7e2faaf52ac10964"
+      },
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "cfe025a2eeaf5b428b892af7b3dafd5b4981c22ed2040aac9a933f57c02662db",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_generations.ForestGenerationTests.test_actual_existing_public_generation_reenters_without_recreating_controls",
+        "tests.critical.test_retained_layout_forest_generations.ForestGenerationTests.test_late_callbacks_cannot_change_requests_or_catalog"
+      ],
+      "scope": "earlier_generation_compatibility_source_lineage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-derived-workspace-disposition-report.json",
+        "sha256": "172a2f951fb6345ad1cbff95aa624dfc5e4d2a5a56594b6d38d69a5dc9ca4950"
+      },
+      "log": {
+        "path": "_build/forest-derived-workspace-disposition-maintained.log",
+        "sha256": "1ef89cbc8b63a063b221b72e3b96c34d7705ef7923731b4c89cced9251cbb547"
+      },
+      "summary": {
+        "executed": 3,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 3,
+        "selected": 3,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "dd65ff526a1e4140132516f55603fa9437bd1f75a65c691aa6a596040618b277",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_disposition.ForestDispositionTests.test_actual_verified_data_handoff_retires_pending_and_preserves_forest",
+        "tests.critical.test_retained_layout_forest_disposition.ForestDispositionTests.test_last_native_callback_cannot_replace_successor_budget",
+        "tests.critical.test_retained_layout_forest_disposition.ForestDispositionTests.test_observed_case_alias_refuses_before_disposition_intent"
+      ],
+      "scope": "final_production_disposition"
+    },
+    {
+      "report": {
+        "path": "_build/forest-operation-committed-report.json",
+        "sha256": "07485275b8ae38507ba372c7df3b4d32d2f679e9c65f60a47417096a372a94c5"
+      },
+      "log": {
+        "path": "_build/forest-operation-committed-maintained.log",
+        "sha256": "886b0196b8caede42db8c829bbf5e6bc23fe47d963ab4b8b0f887cd1f03c4c0b"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "dd295a033502ed9013b31b96fb8a46538062c59530fb8fed77820c183e50cada",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation_committed.CanonicalCommittedTests.test_actual_committed_recovery_releases_controls_in_separate_fresh_epoch"
+      ],
+      "scope": "final_production_committed"
+    },
+    {
+      "report": {
+        "path": "_build/forest-operation-inverse-workspace-report.json",
+        "sha256": "a1152bb456c55711f2e8c71df92862ef74c2d8c4f609aae02e6bb5b63d9408aa"
+      },
+      "log": {
+        "path": "_build/forest-operation-inverse-workspace-maintained.log",
+        "sha256": "d95bda14c6a1fd44c05528b89d24c1439c1b9377a48228d3b89b91ca761be5f8"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "17ce3ec16dbdca3a0a3024c7b2ec45d15ab346e0b989d390ca87c1d2272ad254",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation_recovery.CanonicalForestInverseTests.test_actual_canonical_interruption_restores_original_partition_and_git"
+      ],
+      "scope": "final_production_inverse"
+    },
+    {
+      "report": {
+        "path": "_build/forest-operation-capacity-causal-report.json",
+        "sha256": "09381a168444215569a944a51e5fdf14539d9da8ae97c221666a72b70fe84548"
+      },
+      "log": {
+        "path": "_build/forest-operation-capacity-causal-maintained.log",
+        "sha256": "59363da5aa52ebaa801df03f7c2927a951069108965fac84f6af655d496e0c99"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "e95fd51a835a6c7985d3d1f0238eecf9c63370e8da84e174ddd96b234bcf6b7f",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation_capacity.CanonicalDispositionCapacityTests.test_declared_smaller_workspace_refuses_before_disposition_intent"
+      ],
+      "scope": "final_production_causal_quota"
+    }
+  ],
+  "final_production_affected_methods": 6,
+  "distinct_maintained_methods_across_recorded_source_lineage": 93,
+  "scope": [
+    "Actual specialized complete-operation proposal binds original preparation, plan, pool/journal and empty private effect areas before acknowledgement. Existing canonical SourcePhase, complete partition, movement, metadata, finalization and original teardown execute without manufactured ownership or an admission boolean.",
+    "Root-out and plain-to-root preserve source inode/bytes/mode and repository/Git custody. Generic source_phase root/shared admission remains guarded.",
+    "Unchanged fixed RefreshFileObservation objects retain original reference identity after fully checked native receipt transfer.",
+    "Interrupted actual canonical source execution retains the genuine nonnull acquired-partition payload; all original owners end before fresh actual canonical inverse recovery and a separately reopened control disposition.",
+    "Existing supplemental Git native controls bootstrap only bounded descriptive requests from exact original targets/anchors and sealed typed receipts under held mutexes. Normal raw acquisition precedes actual canonical Git derivation. Unknown anchors and ordinary Git refusals remain guarded.",
+    "Full genuine committed canonical operation reopens for actual canonical zero-action data recovery, then reopens all actual G0/G1 descriptors and canonical roles again for complete control disposition.",
+    "Disposition preflight funds sizing, retained records and simultaneous wire buffers separately from already-funded immutable observations and verifier maps. Cumulative reads, native checks, finite coupons, nonreentrancy and the 16GiB maximum remain unchanged.",
+    "A separately declared 15GiB observer reaches actual _prepay, which itself raises the allowance error before any disposition append or control/private mutation. No policy is changed after observer creation."
+  ],
+  "not_proven": [
+    "This proves the recorded basic internal canonical execution/recovery topologies only. Full public root/shared reentry and admission remain guarded.",
+    "Larger/multiple-generation and overlapping topologies, remaining native/metadata/mode/control interruption boundaries, initial/wrapper/renewal placement and full public recovery remain open.",
+    "Installed/native/platform/full-program acceptance, integration/release and all other pending roadmap obligations remain open. No full-feature, release, or roadmap completion claim; no commit/push."
+  ],
+  "diagnostics": [
+    {
+      "log": {
+        "path": "_build/forest-operation-first-diagnostic.log",
+        "sha256": "52f7762481f893d2627c1e20b25b7ca72b9fabac9096be0442584dffd9a57864"
+      },
+      "exit": 1,
+      "classification": "genuine original journal allowance refusal"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-journal-profile-diagnostic.log",
+        "sha256": "57017245f2bbdda5cb71f3a49af7910e69fb3e985e871c09e06dbcb41716802d"
+      },
+      "exit": 1,
+      "classification": "genuine original metadata allowance refusal"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-budget-demand-diagnostic.log",
+        "sha256": "6ec196784558779fdcadafea819bf0c210544cddf9d79683cdc9d7f72b5eb810"
+      },
+      "exit": 1,
+      "classification": "measured native demand under actual original ledger"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-measured-profile-diagnostic.log",
+        "sha256": "84979a979e3b80dbdeca89630e9d1bad8098acd606e8447f86e3c1aae9c40785"
+      },
+      "exit": 1,
+      "classification": "genuine original snapshot reference refusal before source observed"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-selector-reference-diagnostic.log",
+        "sha256": "984c94fab6135cbeb1ca2454001e5bfdac38ee856b5986368e5e868178b8e6ff"
+      },
+      "exit": 0,
+      "classification": "actual original canonical full root-out"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-reopen-diagnostic.log",
+        "sha256": "99d05ed5362177aa13e978fd851c6e79a17d3493acdbdc53bc63e5057ca38784"
+      },
+      "exit": 0,
+      "classification": "actual nonnull acquired partition decoded fresh"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-fresh-recovery-diagnostic.log",
+        "sha256": "e89eada008c84238f7538f4d634c3426fb3d066d1f7acd6e5c29e2247da2611b"
+      },
+      "exit": 1,
+      "classification": "invalid harness reused observer after data recovery tail"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-interrupted-recovery-diagnostic.log",
+        "sha256": "5bd9de8189999c16e1b14a1cf42c5f4aa06fa3c710febf8b74a424bb00af0fc0"
+      },
+      "exit": 1,
+      "classification": "invalid harness ordinary Git read before raw controls"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-interrupted-recovery-reopen.log",
+        "sha256": "f7e4552af0e8a4bfc627823839ad9efe71522a784bf9727a70e00804a209e4bb"
+      },
+      "exit": 0,
+      "classification": "actual interrupted inverse plus separate disposition"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-into-root-diagnostic.log",
+        "sha256": "87b5c52f4411f0039c4e14c6e567a2b6f49d26614dc8e6d68e422b61bd88c93c"
+      },
+      "exit": 0,
+      "classification": "actual complete plain-to-root"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-fresh-recovery-reopen.log",
+        "sha256": "25ce298d32a4686a3b47d04588e790fe11c2b69b20e299ac582a889ba58a3384"
+      },
+      "exit": 1,
+      "classification": "genuine journal profile too small for subsequent recovery"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-committed-complete-profile.log",
+        "sha256": "8ef575978742a7f46f364479009b671a444bb97579698733c8ea63506c71d497"
+      },
+      "exit": 1,
+      "classification": "genuine supplemental Git marker discovery cycle"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-bootstrap-committed.log",
+        "sha256": "4f3302a3a7d9f6478d6ce955ccadc20b57d58402ecca70fa5d95f517affa61b7"
+      },
+      "exit": 1,
+      "classification": "Git bootstrap succeeded then old prepay metadata quota refusal"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-prepay-measurement.log",
+        "sha256": "3962443fd3629ca37ff8a419d5c2e0900ca6eff23165958f20cb6d222005ad67"
+      },
+      "exit": 1,
+      "classification": "old reservation measured above16GiB before effects"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-derived-workspace-diagnostic.log",
+        "sha256": "e7befea1ab23dc9acc9384f3aef2e361d8b51efb6e0d9e8114b6a7ae15de371a"
+      },
+      "exit": 1,
+      "classification": "invalid harness missing repository root in PYTHONPATH; no native effects"
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-derived-workspace-reopen.log",
+        "sha256": "ff7fd88a4e0ac0a3001e169fb7350c45958a59be6085aae962719cd4af24cd90"
+      },
+      "exit": 0,
+      "classification": "full committed recovery plus separate canonical control disposition"
+    }
+  ],
+  "superseded_capacity_test": {
+    "report": {
+      "path": "_build/forest-operation-capacity-report.json",
+      "sha256": "9b7b1de4c0e491279d9fb3dda5383d46af482a8cf9bebad90884260e0e8cfbc9"
+    },
+    "limitation": "Passed but entry-only trace insufficient to prove actual prepay caused refusal. Not counted as final quota evidence."
+  },
+  "initial_maintained_harness_failures": [
+    {
+      "log": {
+        "path": "_build/forest-operation-maintained-maintained.log",
+        "sha256": "76516785bf4ea5cb9e7ae0aa2a43b2d6611f116c11286c772d89b03ff17c2a10"
+      },
+      "reason": "Actual ancestry guard refused earlier than harness expected; corrected causal-chain assertion."
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-final-maintained.log",
+        "sha256": "20784acc99e783d3e519a764aa802abdf11def56720e4aaf3b09d8a4e3294f34"
+      },
+      "reason": "Harness precreated journal factory-owned root; corrected."
+    },
+    {
+      "log": {
+        "path": "_build/forest-operation-revised-maintained.log",
+        "sha256": "60c8ab437c2ac1957b1d73b41d087909718c5808ac3d60bc80ac513b9eea0825"
+      },
+      "reason": "Wrong-header refusal revokes preparation; harness split into independent actual lifetimes."
+    }
+  ]
+}

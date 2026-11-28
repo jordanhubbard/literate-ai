@@ -17,6 +17,7 @@ from typing import Any
 from literate_ai._filesystem import UnsafeFilesystemPathError, require_safe_directory
 from literate_ai.contracts.identity import canonical_json_bytes
 from literate_ai.contracts.repository_lock import RepositoryLock
+from literate_ai.projects import ProjectConfigurationStore, ProjectError
 
 from .repository_lock_planning import (
     PreparedRepositoryLock,
@@ -60,17 +61,21 @@ class RepositoryLockStore:
 
     def __init__(self, root: Path) -> None:
         self.root = Path(root).absolute()
-        self.directory = self.root / ".literate"
-        self.path = self.root / REPOSITORY_LOCK_PATH
-        self.writer_path = self.directory / _WRITER_NAME
         try:
+            self._context = ProjectConfigurationStore.context(self.root)
+            self.root = self._context.root
+            self.directory = self._context.framework_path(".literate")
+            self.path = self._context.framework_path(REPOSITORY_LOCK_PATH)
+            self.relative_path = self.path.relative_to(self.root).as_posix()
+            self.writer_path = self.directory / _WRITER_NAME
             require_safe_directory(self.directory)
             self.root_key = _key(self.root.lstat())
             self.directory_key = _key(self.directory.lstat())
             self._guard()
-        except (OSError, UnsafeFilesystemPathError) as exc:
+        except (OSError, UnsafeFilesystemPathError, ProjectError) as exc:
             raise OrchestrationInventoryError(
-                "lock_path_unsafe", "repository lock requires direct root metadata"
+                "lock_path_unsafe",
+                "repository lock requires direct project framework metadata",
             ) from exc
 
     def _no_alias(self, path: Path) -> None:
@@ -82,6 +87,8 @@ class RepositoryLockStore:
 
     def _guard(self) -> None:
         try:
+            if ProjectConfigurationStore.context(self.root) != self._context:
+                _fail("lock_path_changed", "repository lock project context changed")
             require_safe_directory(self.directory)
             if (
                 _key(self.root.lstat()) != self.root_key
@@ -91,7 +98,7 @@ class RepositoryLockStore:
             self._no_alias(self.directory)
             self._no_alias(self.path)
             self._no_alias(self.writer_path)
-        except (OSError, UnsafeFilesystemPathError) as exc:
+        except (OSError, UnsafeFilesystemPathError, ProjectError) as exc:
             raise OrchestrationInventoryError(
                 "lock_path_unsafe",
                 "repository lock directory is unavailable or indirect",
@@ -146,8 +153,12 @@ class RepositoryLockStore:
             raise TypeError("repository lock check requires a typed candidate")
         current = self.read()
         return {
-            "schema": "literate-ai/repository-lock-check@1",
-            "path": REPOSITORY_LOCK_PATH,
+            "schema": (
+                "literate-ai/repository-lock-check@1"
+                if self._context.framework_root == self.root
+                else "literate-ai/repository-lock-check@2"
+            ),
+            "path": self.relative_path,
             "state": "missing"
             if current is None
             else "current"

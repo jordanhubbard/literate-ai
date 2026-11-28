@@ -1,0 +1,39 @@
+{
+  "status": "isolated_download_failure_reproduced_and_classified",
+  "subject": "fef411fafba81dfcf890dd159d69e388589acf4e (frozen qualification-r5 wheel-full-r8)",
+  "wheel_sha256": "d1cf1341f16ca93f10f3d6f15d9af24aeecf8348ca8310261368643b6203680d",
+  "original_failure_log": "wheel-full-r8.log:276-330",
+  "host_python": "3.15.2",
+  "host_machine": "aarch64",
+  "isolated_reproduction": {
+    "entrypoint": "Actual export_worker_wheelhouse via requested E7 interpreter editable frozen qualification-r5",
+    "result": "worker.wheelhouse_download_failed",
+    "cause": "subprocess.CalledProcessError returncode1",
+    "elapsed_seconds": 1.9483767130004708,
+    "stderr_sanitized": [
+      "ERROR: Could not find a version that satisfies the requirement PyYAML==6.0.3 (from literate-ai) (from versions: 6.0.4)",
+      "ERROR: No matching distribution found for PyYAML==6.0.3"
+    ],
+    "private_stderr": "review-wheelhouse-r8-isolated/cause.stderr.private.log",
+    "private_stderr_mode": "0600",
+    "private_stderr_sha256": "b3e885668a403fe4370bbbd25dea200021e87ef49153f44fd592e760b1f85db1"
+  },
+  "comparison": {
+    "entrypoint": "Actual original _download_wheels bounded runner, same environment/interpreter/index, only PyYAML==6.0.3 binary-only no-deps targeted Python3.14",
+    "outcome": {
+      "result": "downloaded",
+      "wheels": [
+        "pyyaml-6.0.3-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl"
+      ]
+    }
+  },
+  "classification": "Pinned PyYAML6.0.3 has no compatible binary candidate for this native CPython3.15/aarch64 resolution from the configured index. Same pinned version succeeds for CPython3.14/aarch64. Not a timeout or general package-index outage. No ambient PIP_/PYTHON configuration existed to be stripped in reproduction; private-index environment loss is unsupported.",
+  "contract_preservation": [
+    "Actual original --only-binary=:all: retained.",
+    "Original300second downloader timeout and environment sanitizer retained.",
+    "No worker dispatch/bootstrap install/full wheel-gate retry, source edits, dependency/version/fixture/deadline/pin changes.",
+    "Export identity argument diagnostic label was SHA256 of preserved wheel; failure is prior to publication, not an accepted framework identity/closure receipt."
+  ],
+  "recommendation": "Choose the already supported pinned-dependency binary target (e.g. native Python3.14 for this gate/worker), or undertake an explicit reviewed dependency update providing CPython3.15 wheels if Python3.15 binary-worker support is required. Preserve binary-only refusal; do not treat direct source installation success as binary closure availability.",
+  "limits": "Index contents temporal and this report covers observed configured index/host only; not proof of universal absence from every index. Original wheel-full-r8 remains failed. Whole source/native/installed/release acceptance not claimed."
+}

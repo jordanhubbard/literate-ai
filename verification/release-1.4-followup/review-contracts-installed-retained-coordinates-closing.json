@@ -1,0 +1,46 @@
+{
+  "status": "independent_script_source_closing_accepted_command_installed_run_blocked_by_product_planner",
+  "baseline": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+  "files": {
+    "scripts/installed_retained_command_smoke.py": {
+      "sha256": "45a01ab06a679821a63d6c492b1c10d14b6b5263097e70aa9aeb53c810977ab8",
+      "original_guard_expressions_unchanged": 34,
+      "compile": "passed"
+    },
+    "scripts/installed_retained_catalog_smoke.py": {
+      "sha256": "f61b9b8564a32a04ca4ffc0bfb962647928651f8c96057c2b6d3caf99c16597e",
+      "original_guard_expressions_unchanged": 32,
+      "compile": "passed"
+    }
+  },
+  "coverage": "Entire original scripts and exact current dirty diffs independently reviewed, canonical producer/history call paths traced in prior diagnosis.",
+  "placement": "Current manifest test_receipt read via typed store and used as declared app-relative path. Live baseline/parity and refinedComponent receipts use original context framework placement; refined receipt path captured before renewal and used for both live reads. Catalog shim/evidence-created coordinates/ADR projected through current context; Component catalogs use actual declared roots.",
+  "preservation": [
+    "ArchivedComponent suffix remains logical .literate/monorepo-components/receipts/native-initial.json per readmission history producer; declared receipt archive remains actual declared coordinate.",
+    "Native source and dependency-byte assertions remain app-root components/legacy-project-wrapper/implementation.",
+    "All3command cases, compilation/help-only/twooriginaltests/requestreopening/ackrefusal/stalereceipt/historypreservation and distribution/origin checks unchanged.",
+    "Catalog nativephase/testcounts/parity/sourcepreservation/readonlysnapshots/exactshimmatch/nativePythonrequirements and provider settings unchanged.",
+    "All require/raise/assert expressions unchanged; subprocess300/1800second limits, bytebounds and no-regeneration/nativeexecution ownership unchanged."
+  ],
+  "actual_receipts": "Catalog driver emits qualified=true and empty stderr. Command driver failed during third refined case read-only plan, before any third-case apply, due product retained_component_commands missing canonical metadata projection; no overall command-driver acceptance.",
+  "limits": "No source edits, candidate-prefix mutation, fullwheel retry or native/platform/release acceptance by reviewer. Actual source receipt is narrower than wholewheel acceptance.",
+  "actual_catalog_observed": {
+    "stdout_sha256": "3df9b4d57c7dc1b354e82cc6dff7e3d2732365708291ddcc4732b78b85587646",
+    "stderr_bytes": 0,
+    "summary": {
+      "qualified": true,
+      "distribution": "sha256:78112f456ab988f24707a72cfddad065092f3f3766cbc90f18655ae2891fe665",
+      "public_adopt_applied": true,
+      "actual_unittest_baseline_and_parity": true,
+      "catalog_manifests": 10,
+      "validated_component_count": 10
+    },
+    "physical_shim_manifest": "litai/flavors/legacy-project-shim/flavor.md",
+    "dependencies_preserved": 3
+  },
+  "actual_command_failure": {
+    "stderr_sha256": "a08e531322d87b44e249df3b53d51267f7778b1125eafe7ba61f1fbfb834daa3",
+    "diagnosis_report": "review-contracts-refined-command-receiver-diagnosis.json",
+    "phase": "third-case plan = cli(*readmit)"
+  }
+}

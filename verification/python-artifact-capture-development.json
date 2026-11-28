@@ -1,0 +1,54 @@
+{
+  "schema": "literate-ai/python-artifact-capture-development@1",
+  "parent": "ae2c84c97b69fe4aeb657fadb2c4fe5fca2bb730",
+  "scope": "Bounded raw artifact capture during acknowledged original Python library build, not provider or retained consumer admission.",
+  "fixture_ports": "Source admission and dependency observation are explicit fixture ports; actual offline wheel install, interpreter probes, build, native readers, current tree and cache reuse are real. No model generation or provider success substituted.",
+  "source_sha256": {
+    "src/literate_ai/adapters/lifecycle/standard_python_capture.py": "d911e71d0f16aa62f67b0b00f59c968c69d991d3c38cd64157a27c7f8cf0d4fb",
+    "src/literate_ai/adapters/lifecycle/standard_local.py": "436866c0a296165e340fef8b350f8b5af80493d0af5cdddf65e50aa8f7911cfd",
+    "tests/critical/test_standard_python_artifact_capture.py": "9f3c1c946dfc791df9e9a2d8a332966b0d7abf112ce5cbdccc60e3bd87749fe1"
+  },
+  "focused": {
+    "capture": {
+      "summary": {
+        "executed": 7,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 7,
+        "selected": 7,
+        "skipped": 0
+      },
+      "seconds": 39.345,
+      "report_sha256": "fd5020edd47ac53294599013b6a4f315256b5fd9c1cdee1f7e1ac5bd17717a78"
+    },
+    "existing_lifecycle": {
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "seconds": 86.633,
+      "report_sha256": "2c267742b480afefd68c82b66636d9aeb0228230b7c33c695cc9da0091998288"
+    }
+  },
+  "preserved_failures": [
+    {
+      "seconds": 3.706,
+      "selected": 1,
+      "failed": 1,
+      "reason": "actual tamper callback not reached; fixture lexical macOS /var ancestor refuses native custody"
+    },
+    {
+      "seconds": 3.185,
+      "selected": 1,
+      "failed": 1,
+      "reason": "same refusal explicitly diagnosed; fixture changed to canonical root used by actual lifecycle; no native guard change"
+    }
+  ],
+  "source_gate_passed": false,
+  "public_bridge_qualified": false,
+  "release_qualified": false
+}

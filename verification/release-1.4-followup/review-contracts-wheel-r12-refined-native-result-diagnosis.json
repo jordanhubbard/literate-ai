@@ -1,0 +1,67 @@
+{
+  "status": "confirmed_post_apply_driver_exact_stdout_assumption_failure",
+  "frozen_subject": "86662cc0a5d0aaeed89728c55b4a6f55accddfaf",
+  "installed_origin": {
+    "git_revision": "86662cc0a5d0aaeed89728c55b4a6f55accddfaf",
+    "repository_url": "https://github.com/jordanhubbard/literate-ai",
+    "schema": "literate-ai/distribution-origin@1"
+  },
+  "runtime_preserved": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/literate-wheel-smoke-woyrtzt3",
+  "driver_failure": "installed_retained_command_smoke.py391 after actual third refined readmission apply: exact native build stdout_identity mismatch.",
+  "actual_vs_expected": {
+    "command": "make -f Makefile build-all",
+    "exit_code": 0,
+    "timed_out": false,
+    "timeout_seconds": 1800,
+    "actual_stdout_identity": "sha256:620f3b4e73ff09d8b26f999d4fc4e18377c9e6661349048ba59f9db1719d5d28",
+    "actual_stdout_size": 295,
+    "expected_stdout_identity": "sha256:cd1b2a197d3a254ce2e6ea50f808c591cfff5cc336eff7c5d39597529068e23d",
+    "expected_stdout_size": 44,
+    "expected_stdout_text": "mkdir -p build\ncc -o build/native main.c\n42\n",
+    "actual_test_collection": {
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2,
+      "skipped": 0,
+      "state": "nonempty",
+      "total": 2
+    },
+    "test_exit_code": 0
+  },
+  "concrete_ambient_evidence": {
+    "same_run_baseline_stdout_excerpt": "make[1]: Entering directory '/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-readmit-direct-abtfpiwh/legacy'\nhelp-only\nmake[1]: Leaving directory '/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-readmit-direct-abtfpiwh/legacy'",
+    "predicted_refined_stdout_size_with_same_make1_banners": 295,
+    "matches_actual_size": true,
+    "source_causal_path": "Driver copies ambient os.environ exceptPYTHON*/VIRTUAL_ENV, retaining outermake controls. Wholewheel is invoked under make; actual baseline shows make[1] banners. Product execute_retained_harness inherits nonGit environment and records actualstdoutstream unmodified; Component execution uses disposable T/litai-component-retained-8chars/source.",
+    "raw_refined_stdout_limit": "Component sanitizedphase intentionally retains identity/size, no rawstdout/excerpt. Rawrefinedstream is not recoverable here; exact bannerbytes/hash not independently reconstructed. Causal association is supported by actualbaseline banners, exact295size match and original source callpath, not a rerun."
+  },
+  "publication_custody": {
+    "public_apply_result": true,
+    "executed_components": [
+      "native-initial"
+    ],
+    "qualification_granted": false,
+    "committed_record_exists": true,
+    "committed_record_sha256": "f6a94dcb1c46e5351617b821f25f79f017f2a6444f08ba121b22620a3115efec",
+    "active_record_exists": false,
+    "phase": "Completedthirdreadmission publication, later installeddriver observerassert failed; no pendingapply recovery or replay needed."
+  },
+  "minimal_fix_proposal": "Normalize only this owned installedfixture subprocess environment by excluding ambient GNUmake control variables MAKELEVEL,MAKEFLAGS,MFLAGS,GNUMAKEFLAGS (review MAKEOVERRIDES if relevant). Keep original Makefile/selectioncommands/nativecompilation/strict exactstdout digest/testcounts/receipts/policy/deadlines untouched. Do not globallynormalize production retainedharness stdout or edit savedreceipt/evidence.",
+  "regression_seam": "Execute unchanged strict originaldriver on a new independent workspace under deliberate inherited MAKELEVEL=1/MAKEFLAGS=w etc after fixtureenvironment repair; never retry apply in preserved committedoriginal. Fresh wholewheel on clean exactcandidate remainsseparate.",
+  "prior_failures_preserved": [
+    "wheel-full-r10 failed before observer rootmetadata projection",
+    "focused installed-retained-command-coordinates-r1 failed in thirdread-only planner beforeapply",
+    "wheel-full-r12 reachescompletedrefinednativeapply then fails this exactstdout assertion"
+  ],
+  "evidence_hashes": {
+    "litai-release-20261126/wheel-full-r12.log": "d368470fa2d25804d16019c191dc53046626843085ac2779a173a793669bda05",
+    "literate-wheel-smoke-woyrtzt3/retained-command-renewal/logs/command-037.stdout": "035cfbab661176cbdc80364b5e6451b20bfe959c176d2f9a7bd61175ba8f31b8",
+    "literate-wheel-smoke-woyrtzt3/retained-command-renewal/refined-component-renewal/litai/.literate/monorepo-components/receipts/native-initial.json": "2c223469c9f248ee68c48395c69cb05b1385be4356fe19026e4900c10ae7cda7",
+    "literate-wheel-smoke-woyrtzt3/retained-command-renewal/refined-component-renewal/litai/.literate/legacy-harness-baseline.json": "65483ffc2488058f1fb8a3a075c72552a5bfb075bd1bd585f7cdf1c0cd40243f"
+  },
+  "limits": [
+    "No observed product nativeexit/testcount failure; original buildexit0 and2tests passed. Exact wholeinstalled commandscenario is stillFAILED at strictobserver.",
+    "No applyretry, project/prefixmutation, receiptedit, deadlinechange or newnativeexecution byreviewer.",
+    "This diagnosis doesnotgrant generatedprovider, wholefeature, otherplatform or releaseacceptance."
+  ]
+}

@@ -93,6 +93,9 @@ litai render html
 litai render dashboard
 litai render tree
 litai project validate
+litai project qualify prepare-sdk
+litai project qualify plan
+litai project qualify apply
 litai project lifecycle rebind-standard
 litai project documentation-update
 litai project documentation-review
@@ -104,6 +107,7 @@ litai project worktree location
 litai project worktree discover
 litai project parent checkout
 litai project ci-plan
+litai project ci verify
 litai project guidance
 litai project mac-contract
 litai project adopt-original
@@ -112,8 +116,19 @@ litai project convert-stage advance
 litai project source-intelligence sync
 litai project source-intelligence check
 litai project identity migrate
+litai project native-child plan-add
+litai project native-child plan-revise
+litai project native-child apply
+litai project native-child status
+litai project native-child recover
+litai project layout plan
+litai project layout apply
+litai project layout recover
+litai project layout finalize
+litai project layout renew
 litai project retained-scope refresh
 litai project retained-harness readmit
+litai project retained-harness recover
 litai project retained-cargo check
 litai project retained-cargo materialize
 litai project retained-cargo admit
@@ -135,6 +150,18 @@ litai learn
 litai design refine
 litai design explain
 litai design accept
+litai shadow plan
+litai shadow create
+litai shadow status
+litai shadow sync plan
+litai shadow sync apply
+litai shadow pr-plan
+litai shadow pr-capture
+litai shadow pr-status
+litai shadow pr-operations
+litai shadow pr-source-plan
+litai shadow pr-source-stage
+litai shadow pr-source-status
 
 # Operator
 litai config paths
@@ -160,6 +187,11 @@ litai worker remove
 litai worker test
 litai worker probe
 litai worker health
+litai worker telemetry
+litai worker telemetry-initialize
+litai worker telemetry-native-initialize
+litai worker telemetry-native-plan
+litai worker telemetry-native-provision
 litai worker provision
 litai worker provisioner command-help
 litai worker provisioner configure
@@ -207,6 +239,8 @@ litai spec refresh
 litai spec conformance
 litai spec coverage
 litai spec diff
+litai spec intake plan
+litai spec intake approve
 ```
 
 `litai run COMPONENT --entrypoint NAME` selects one surface of a previously built
@@ -230,6 +264,79 @@ migrated before releasing. The policy declares every mirrored version field and
 separates read-only planning, local
 preparation, exact gate evidence, and explicitly authorized publication. See
 [Project release protocol](../architecture/project-releases.md).
+
+## Shadow repository custody
+
+`shadow` tracks selected upstream refs and PR source in a separate Git repository.
+Its current custody and planning results remain unqualified. Mapped execution,
+repair/export workflows and upstream-outcome acceptance remain in progress.
+Read-only inspection may contact GitHub to observe refs or PR metadata; local
+custody changes require a current plan identity and `--acknowledge`.
+
+Choose an upstream repository and a new shadow directory outside it. Review the
+plan, then copy its exact `plan_identity` into the creation command. Replace
+`UPSTREAM`, `SHADOW` and `PLAN_ID` below with those paths and the returned identity;
+keep the branch-selection arguments identical between planning and creation.
+
+```sh
+litai --json shadow plan --upstream UPSTREAM --shadow SHADOW --branch main
+litai shadow create --upstream UPSTREAM --shadow SHADOW --branch main --expect-plan PLAN_ID --acknowledge
+litai shadow status --shadow SHADOW
+```
+
+Use `litai --json shadow sync plan --shadow SHADOW` to review upstream advances or
+explicit branch additions, then
+`litai shadow sync apply --shadow SHADOW --expect-plan PLAN_ID --acknowledge` with
+the same selection arguments. `--resume` continues a matching pending sync. Complete publication
+steps retain their old metadata and index for recovery; partial preparations or
+records require inspection. Foreign files, staged changes, redirected Git write
+parents and shared mutable metadata refuse without automatic deletion.
+
+PR commands plan, capture and verify selected source and operation inputs. Source
+staging materializes bounded raw Git bytes. Repository content filters and
+fsmonitor helpers remain disabled during custody. Network inspection uses the
+operator's authentication policy and the validated forge identity. Run
+`litai help shadow COMMAND` for each command's required identities and flags.
+
+## Containment planning
+
+Run `litai --json project layout plan --project PATH` to inspect a legacy
+initialized project's prospective containment under `litai/`. The command uses
+existing project discovery, so a supported descendant selects its containing
+project; an independent nested project retains its own authority. It creates no
+plan cache, lock, receipt, host configuration or provider request. MCP discovery
+and debug-file output are refused. There is no apply option.
+
+The `literate-ai/project-layout-plan@1` result contains `mode`, `scope`,
+`project_id`, `profile`, `framework_directory`, `target`, `manifest`, `git_state`,
+`framework_git_state`,
+`producer_identities`, `members`, `topology`, `producer_coordinates`,
+`reference_edits`, `blockers`, `apply_supported`, `writes`, `qualification`,
+`planning_complete` and `plan_identity`. Git HEAD and staged-index observations
+are hashed for the application root and, when distinct, the framework directory.
+This includes a framework directory with its own nested Git repository. Both
+observations are checked again before returning. The identity binds captured content,
+modes, directory topology, producer records and decisions without inserting the
+operator's absolute project path. A future writer must recapture its inputs.
+
+File members distinguish retained application content, known whole-file authority,
+producer evidence, coordination candidates, shared root integrations and unresolved
+ownership. Independent initialization, imported-catalog and catalog/template-base
+signals remain separate. A prospective target is a planning observation, not
+relocation permission. Shared instructions and unknown files require owner
+decisions; path-bound locks, receipts and reviewed authority need their producing
+owners. The retained implementation keeps its application coordinate. Historical
+receipts are preserved rather than rewritten into new positive evidence.
+
+Exit 1 reports a well-formed plan with unresolved ownership, references or migration
+dependencies. Exit 2 refuses unavailable or malformed required provenance,
+inconsistent observations, unsafe topology, occupied targets or exceeded limits.
+Legacy observation currently permits at most 8,192 entries, 16 MiB per file and
+64 MiB total file content, and excludes Git administration from tree traversal.
+Already-contained native profiles report exit 0 for the narrower scope of proposing
+no legacy relocation: their framework directory is observed, while unrelated
+application outputs remain outside that scope. Every result has
+`apply_supported: false`, `writes: false` and `qualification: false`.
 
 ## Repository policy configuration
 
@@ -522,6 +629,7 @@ root-integration acceptance still remain.
 | `status [--project PATH]` | Compose project authority, adopted conversion stage, Component locks, the current receipt, tracker state, host preflight, and the next operator verb in one versioned snapshot. |
 | `onboard create PATH [--from URL[#REVISION]] [--refine REQUEST] [--apply --acknowledge] [--expect-plan SHA256]` | Plan creation without writes, then revalidate and call the existing init mutator only after explicit acknowledgement. |
 | `onboard adopt PATH [--profile native\|convert] [--default-branch BRANCH] [--apply --acknowledge] [--expect-plan SHA256]` | Default native adoption creates a contained `litai/` profile, preserving native source/build/CI and establishing no build qualification. Explicit `--profile convert` selects detected Flavors, quarantine and retained runners at `wrapped`; conversion-only options include `--from`, `--root-plan` and `--run-baseline`. |
+| `project ci verify [PATH] --pr NUMBER` | Read the accepted base policy's configured native GitHub Actions jobs for an open same-repository PR. Refuse missing, skipped, failed, ambiguous or stale results; start no jobs and grant no merge or release authority. See [native adoption](getting-started.md). |
 | `init [PATH] [--from URL[#REVISION]] [--repository-fetch-total-seconds N] [--repository-fetch-no-progress-seconds N] [--repository-fetch-connect-seconds N]` | Create a canonical project, optionally inheriting a complete repository ancestor DAG under an explicit bounded fetch policy. |
 | `graph [--format text\|json\|mermaid\|dot\|svg] [--output PATH] [--kind KIND] [--provenance PROJECT] [--ownership local\|inherited] [--inheritance inheritable\|private] [--edge-kind KIND]` | Solve effective repository/catalog authority, reject cycles, filter a closed view, and export the provenance DAG. Repeat kind, provenance, and edge-kind filters for unions. |
 | `update [PATH] [--apply] [--adopt-added] [--take-upstream PATH] [--keep-local PATH] [--repository-fetch-*-seconds N]` | Plan or safely apply inherited-catalog and framework-scaffold changes while preserving local authority and reporting the selected bounded fetch policy. Repeat resolution flags only for explicitly reviewed inherited-catalog paths. |
@@ -539,25 +647,37 @@ root-integration acceptance still remain.
 | `video build MANIFEST --output DIR --font FILE [--narration recorded\|say\|espeak]` | Render a new MP4, embedded subtitles, SRT, VTT, and integrity receipt; see [instructional videos](instructional-videos.md). |
 | `video verify RECEIPT [--manifest MANIFEST]` | Verify media integrity, caption timing, and optionally current source identity. |
 | `skills evaluate CORPUS [--project PATH] [--fire-threshold N] [--fragile-threshold N]` | Run a synthetic prompt corpus against the real skill catalog and classify each outcome as correct/misroute/over_greedy/fragile_pass -- a behavioral check that a skill's own description would distinguish it, distinct from validate's structural checks. |
-| `catalog graph [--project PATH]` | Inspect the repository provenance DAG rooted at Literate AI. |
-| `catalog copy SOURCE ITEM [ITEM ...] [--project PATH]` | Copy selected Flavor, Skill, or Component catalog items from another Literate AI project. Exact Git commit pins fetch shallow ancestry and selected catalog directories, requesting blob filtering from the server; initialize only relevant submodules at the selected snapshot. Servers without filtering may transfer extra bytes. Provenance retains the resolved commit. |
+| `catalog graph [--project PATH]` | Inspect the repository provenance DAG rooted at Literate AI. For a declared contained layout, discovery from an application subdirectory resolves the catalog provenance under `litai/.literate`. |
+| `catalog copy SOURCE ITEM [ITEM ...] [--project PATH]` | Copy selected Flavor, Skill, or Component catalog items from another Literate AI project. Exact Git commit pins fetch shallow ancestry and selected catalog directories, requesting blob filtering from the server; initialize only relevant submodules at the selected snapshot. Servers without filtering may transfer extra bytes. Provenance retains the resolved commit. A declared contained source uses `litai/.literate` for its provenance and the existing catalog paths relative to the application. Copy validates contained ancestry and checks any selected import against its recorded file identities using portable paths. The destination uses the legacy root layout. |
 | `clean [--project PATH]` | Remove only the marked host-specific `OBJ_DIR`. |
 | `really-clean [--project PATH]` | Ensure marked `OBJ_DIR` and generated-source `BUILD_DIR` are absent. This also removes deliberately tracked or uncommitted entries beneath `BUILD_DIR`. |
 | `component migrate COMPONENT\|PROJECT [--check\|--diff]` | Non-destructively project legacy `component.json` into readable `component.md`; project mode is one preflighted transaction, preserves every legacy file, and never overwrites authored prose. |
 | `lock [COMPONENT\|PROJECT] --target NAME [--flavor=+NAME ...] [--check\|--diff]` | Resolve or verify Component locks and catalog audits; an explicitly bound orchestration root also checks its repository lock, without invoking a model. |
 | `lock COMPONENT --large-review start\|status\|acknowledge\|apply\|cleanup [--transaction-id ID] [--page-identity ID]` | Review a genuine lock transition larger than 512 semantic differences in bounded identity-chained pages, then perform one final revalidated atomic replacement. |
 | `project validate [PATH]` | Non-mutating validation of the discovered project, catalogs, pins, skills, and generation inputs. |
+| `project qualify prepare-sdk COMPONENT --sdk-cache CACHE --sdk-revocations FILE --allow-sdk-builds [--project PATH] [--target NAME] [--flavor SELECTOR]` | Build the selected locked native SDKs on the provider host. Review the returned `sdk_completion` digest and `sdk_completion_size` before using the cached SDKs for qualification or retained Cargo operations. |
+| `project qualify plan COMPONENT [--project PATH] [--target NAME] [--flavor SELECTOR] [--profile FILE] [--output-root PATH] [--model MODEL]` | Plan qualification of a genuinely authored root and its complete locked graph. Bind current project reviews, model selection, Standard framework policy and sealed independent oracles without allocating output, generating source or publishing qualification (ADR 0072). |
+| `project qualify apply COMPONENT --acknowledge-plan sha256:… --allow-host-execution [planning options] [--scratch-parent PATH] [--max-parallelism N] [--max-bytes N] [--recover-attempt KEY]` | Reopen and acknowledge the exact current authored plan before executing two or more clean all-node runs. Capture and replay bounded evidence, retire transaction-owned temporary runs, and atomically publish an authored reference. Private attempts and archives remain below the planned output root and are ignored by Git. Recovery verifies staged bytes under fresh current authority; it never deletes a directory from a saved path and refuses until earlier run resources are retired. A committed provider reference grants no importer permission. Genuine native/installed/receiving qualification remains in progress under #393. |
 | `project tracker inspect [PATH]` | Read Git remotes and name `gh` or `glab` plus issue/review/CI/land argv. Unknown hosts skip tracker work fail closed. |
 | `project lifecycle rebind-standard [PLAN] [--project PATH] [--registered-parent PATH] [--output FILE] [--apply --authorize-rebind]` | Plan an exact installed-wheel Standard first binding or update without mutation, or compare-and-swap an explicitly reviewed plan while preserving project-owned receipt authority and coordinating a registered parent. |
+| `project native-child plan-add CHILD --selection FILE [--project PATH] [--output FILE]` | Inspect existing parent qualification and complete current child evidence, then plan an addition without building or registering the candidate. A saved plan must be outside the bound trees. |
+| `project native-child plan-revise ACTIVE_CHILD CHILD --selection FILE [--project PATH] [--output FILE]` | Plan switching active membership to a distinct qualified physical revision with the same logical Component identity and changed specification. Preserve the original child tree. |
+| `project native-child apply PLAN --acknowledge PLAN_IDENTITY [--project PATH]` | Reopen the complete reviewed inputs and publish the registry and qualified conversion membership together. Missing or stale acknowledgement refuses. Policies requiring further execution refuse publication; no build, test receipt or consumer acceptance is manufactured. |
+| `project native-child status [PUBLICATION] [--plan-identity PLAN_IDENTITY] [--attempt HANDLE] [--project PATH]` | Inspect a retained operation and its current metadata without mutation. Discovery is bounded and requires unambiguous owned records. |
+| `project native-child recover PUBLICATION --acknowledge PLAN_IDENTITY --action finish\|rollback [--attempt HANDLE] [--project PATH]` | Resume an owned metadata transaction under fresh parent and child checks, or restore the original files. Foreign or mixed state remains unavailable to canonical readers until recovery succeeds. |
+| `project layout plan [--project PATH] [--migration] [--place-forward-skills \| --place-imported-catalogs] [--place-release-policy] [--rewrite-reference PATH]` | Inventory legacy and contained project placement. Use `--migration` in a retained legacy Git project to inspect the supported manifest and producer-record moves, held paths, and unresolved references. Review each proposed reference edit by repository-relative Markdown path. |
+| `project layout apply --project PATH --plan-identity SHA256 --acknowledge [--place-forward-skills \| --place-imported-catalogs] [--place-release-policy] [--rewrite-reference PATH]` | Apply the exact reviewed migration plan. Repeat the same reference approvals. The operation retains rollback data in the project's Git administration directory. |
+| `project layout recover --project APPLICATION_ROOT --plan-identity SHA256 --acknowledge` | Roll back a placement using exact original bytes, modes, and file identities. Recovery requires the application Git root and refuses changed or foreign files. |
 | `project adopt-original [--project PATH] [--apply --acknowledge --expected-plan-identity SHA256]` | Review a validated canonical project's clean Git commit/tree and explicitly select original source authority with metadata-only writes. Preserve source layout; refuse stale plans, dirty or unsafe roots, existing evidence/authority and legacy conversion transitions. This grants no execution or release admission. |
 | `project convert-stage show [--project PATH]` | Read the canonical evidence-bound conversion authority state for an adopted project. |
 | `project convert-stage advance --to retained\|drafted\|qualified [--project PATH]` | Advance exactly one adjacent stage after independently verifying the current receipt or Component-promotion evidence. No command silently promotes a tree. |
 | `project retained-scope refresh [--project PATH] [--apply --acknowledge --expected-plan-identity SHA256]` | Review exact added/removed retained-source paths and input identities, then revalidate and rebind scope and receipt policy without changing source or historical conversion evidence. |
 | `project identity migrate --from-project-id OLD [--project PATH] [--apply --acknowledge --expected-plan-identity SHA256]` | Reconcile an explicitly authored new project ID with original-source conversion authority, preserving hash-linked rename history and requiring fresh qualification. |
-| `project retained-harness readmit [--project PATH] [--retain-stage STAGE_ID ...] [--apply --acknowledge --expected-plan-identity SHA256] [--worker-id ID] [--worker-config PATH] [--timeout-seconds N]` | Re-inspect a retained implementation while original source still owns release authority, including at the `retained` conversion stage. A repeated `--retain-stage` carries the exact named stage from the current admitted inventory when inspection cannot rediscover it; the stage IDs and complete records are part of the reviewed plan and must be repeated unchanged on apply. The command binds the selected worker, timeout, and supported pinned runtime-tool requirements into that plan, then qualifies the corrected direct commands and generated wrapper locally or on one exact POSIX SSH worker before atomically replacing inventory, baseline, parity, wrapper/shim authority, Component lock, and receipt policy. Prior lift-and-shift and conversion evidence and the current conversion stage remain immutable. Specification-authoritative projects fail closed. |
-| `project retained-cargo check --binding PATH --plan PATH --gates PATH ...` | Verify reviewed Cargo bindings, current provider authority, an explicit local or HTTPS archive, and any present packages. Report missing packages without provisioning them. See [retained Cargo provisioning](retained-cargo.md) for required review and delivery inputs. |
-| `project retained-cargo materialize --binding PATH --plan PATH --gates PATH ...` | Verify the same authority and exclusively publish or reuse exact retained packages under the reviewed disposable paths. This command does not execute consumer gates or admit a receipt. |
-| `project retained-cargo admit --binding PATH --plan PATH --gates PATH --test-inventory PATH --retirement PATH --reviewer-review ID --reviewed-at TIMESTAMP --acknowledge-source-retirement --allow-host-execution ...` | Reverify and materialize the reviewed package set, run the exact consumer gates and tests, require an already-absent retired source tree, and return a canonical admission receipt without deleting source. |
+| `project retained-harness readmit [--project PATH] [--command-selection PATH] [--retain-stage STAGE_ID ...] [--apply --acknowledge --expected-plan-identity SHA256] [--worker-id ID] [--worker-config PATH] [--timeout-seconds N]` | Re-inspect a retained implementation while original source still owns release authority, including at the `retained` conversion stage. A repeated `--retain-stage` carries the exact named stage from the current admitted inventory when inspection cannot rediscover it; the stage IDs and complete records are part of the reviewed plan and must be repeated unchanged on apply. The command binds the selected worker, timeout, and supported pinned runtime-tool requirements into that plan, then qualifies the corrected direct commands and generated wrapper locally or on one exact POSIX SSH worker before atomically replacing inventory, baseline, parity, generated wrapper facts, Component lock, and receipt policy. Existing authored shim files are preserved; only one recognized generated baseline-summary paragraph may change, with its before/after facts exposed in the plan. Missing or ambiguous summary ownership refuses before execution. Referenced authored inputs remain pinned, and late owner edits or deletions are preserved for explicit recovery. An explicit `--command-selection` reuses the initial-adoption selection format for the actual single retained wrapper, binds a new v3 request, preserves every unselected admitted phase, and requires the same selection on apply. Saved v1 requests and planning-only v2 records keep their meanings. Neither detected nor explicit command spelling proves compilation; fresh commands run only after exact-plan acknowledgement. Prior lift-and-shift and conversion evidence and the current conversion stage remain immutable. Specification-authoritative projects fail closed. |
+| `project retained-harness recover [--project PATH] [--apply --acknowledge --expected-plan-identity SHA256]` | Inspect an interrupted retained-harness metadata publication without parsing a potentially invalid project manifest. Read-only recovery reports the exact current plan. Acknowledged apply holds the existing project lifecycle lock and restores only retained original native files; it preserves foreign replacements and failed evidence. Pending publication blocks ordinary project reads. Recovery never completes saved command execution or grants qualification; rerun fresh readmission after rollback. |
+| `project retained-cargo check --binding PATH --plan PATH ...` | Verify reviewed Cargo bindings, current provider authority, an explicit local or HTTPS archive, and any present packages. Report missing packages without provisioning them. Authored bindings require the independent producer review path, digest and size for model-free receiving. See [retained Cargo provisioning](retained-cargo.md) for required review and delivery inputs. |
+| `project retained-cargo materialize --binding PATH --plan PATH ...` | Verify the same authority and exclusively publish or reuse exact retained packages under the reviewed disposable paths. This command does not execute consumer gates or admit a receipt. |
+| `project retained-cargo admit --binding PATH --plan PATH --retirement PATH --acknowledge-source-retirement --allow-host-execution ...` | Reverify and materialize the reviewed package set, run the exact consumer gates and tests, require an already-absent retired source tree, and return a canonical admission receipt without deleting source. |
 | `project peer-work survey --when start\|end [PATH]` | Survey green open PRs/MRs and issues at cycle start, or leftover worktrees and unmerged branches at cycle end. Does not delete Git state. |
 | `project peer-work mark --state merged\|dead --branch NAME --actor LOGIN [--reason TEXT] [--push]` | Record an exact-head lifecycle marker; `merged` proves ancestry in the default branch and `dead` requires a reason. |
 | `make runner-review` / `make runner-review-record` | Report the exact sample test-runner source-closure drift, then explicitly record its reviewed identity. |
@@ -573,7 +693,7 @@ root-integration acceptance still remain.
 | `project agent-entrypoints [PATH]` | Audit owned coding-agent delegates against the declared onboarding skill without writes; exit 1 reports missing, stale or unsafe entries requiring reviewed authored repair. |
 | `project parent-readme [PATH] [--apply] [--browser-url REPOSITORY=URL]` | Plan or reconcile root README links to validated direct parents using the installed framework runtime; preserve authored content and require explicit browser identity for local-only parents. |
 | `spec scxml-review CHART [--trace SIDECAR ...]` | Read-only bounded structural validation and supported-subset trace replay for one exact SCXML 1.0 chart and its explicit JSON sidecars. |
-| `project test-receipt promote-retained CANDIDATE --retained-project MANIFEST --retained-project-profile PROFILE --custody-root DIR --retained-receipt IDENTITY --promotion-evidence IDENTITY [--plan IDENTITY] [--target ID] [--worker ID] [--dry-run] [--project PATH]` | Re-verify one admitted original-source retained-project run (custody, current plan, inputs, policies, SBOM, test and acceptance observations) against the project's exact `test_receipt_policy` and write a finalized candidate for `project test-receipt update`. Promotion runs no build, test, acceptance, SDK, model or worker actions; only trusted bounded read-only metadata helpers may run. Current promotion is local-only: remote/imported evidence refuses until authenticated ingress exists. Reads remain bounded by the promotion read policy. Refuses stale plans, changed inputs or policy, tampered custody, skipped tests, a policy runner that is not the runner derived from the run (the message names it), the retained-harness suite, unsupplyable evidence kinds, and too few tests. |
+| `project test-receipt promote-retained CANDIDATE --retained-project MANIFEST --retained-project-profile PROFILE --custody-root DIR --retained-receipt IDENTITY --promotion-evidence IDENTITY [--plan IDENTITY] [--target ID] [--worker ID] [--dry-run] [--project PATH]` | Reopen one completed original-source retained-project run through the canonical readers and verify its live-captured promotion evidence, exact commands, observations, runner, current inputs, policies and SBOM. Execute nothing; write only an exclusively created finalized candidate after currentness checks. `--dry-run` creates no candidate, locks, caches or temporary files. Refuse missing facts, stale or changed authority, skipped tests, runner/suite mismatches, insufficient evidence/counts and required operational-cache evidence that the run cannot supply. Keep `project test-receipt update` as the separate admission step. |
 | `project test-receipt run-retained CANDIDATE [--project PATH] [--evidence PATH] [--worker-id ID] [--worker-config PATH] [--timeout-seconds N] [--known-failure-report PATH] [--harness-workspace-link DESTINATION=SOURCE ...]` | Execute a qualified converted project's exact admitted harness in a disposable authored-source copy and emit one outer-finalized candidate plus external run evidence. `local` remains controller-local; every other ID must select an exact configured POSIX SSH worker. Explicit Linux, macOS and FreeBSD SSH workers preserve their native OS identity; the receiver checks that OS and any configured CPU architecture before executing commands. Admitted `uv` stages and Ninja declarations in their evidence scripts require a native optional tool provider. The current provider requires Linux with an explicit `x86_64` or `amd64` CPU architecture and supplies pinned, digest-verified binaries without changing the worker installation. Unsupported OS/architecture combinations refuse before transfer, and receivers independently reject foreign tool archives. Source-only harnesses require no optional provider. External sibling projections remain local-only in this first remote slice. |
 | `project test-receipt update CANDIDATE [--project PATH]` | Atomically replace the configured receipt with an exact passing candidate. |
 | `project test-receipt check CANDIDATE [--project PATH]` | Require the configured receipt to equal an exact tested candidate. |
@@ -611,7 +731,7 @@ root-integration acceptance still remain.
 | `release contributions disposition --kind issue\|review --number N --version VERSION --decision include\|defer --milestone NAME --reason TEXT [--branch NAME ...] --authorize-external-write` | Set one tracker milestone and append the matching machine-readable release disposition; this is the explicitly authorized mutating half of the continuous sweep. |
 | `release plan (--bump patch\|minor\|major \| --version VERSION)` | Read the project policy and emit a content-identified release plan without mutation. When the policy names `default_branch`, a plan from that trunk records `release_line.create: true` only if `release/<major>.<minor>.x` for the planned version is absent. |
 | `release prepare PLAN` | Update only the plan's declared version and changelog authority; never commit, tag, push, or publish. When `release_line.create` is true, create that branch from the plan revision, check it out, then write. |
-| `release check PLAN [--output FILE] [--target local\|github\|tiered]` | Require one exact clean prepared commit, constrain its diff, and run the declared gate into a compact prepared-release record. When the release policy declares `qualification`, every platform x action cell is covered by this host first, then `workers.json` workers, then CI only when needed or mandatory; the host and worker gates run concurrently. |
+| `release check PLAN [--output FILE] [--target local\|github\|tiered]` | Require one exact clean prepared commit, constrain its diff, and run the declared gate into a compact prepared-release record. An explicit `--target local` uses the configured private SSH fleet. Omitting the target runs on the invoking machine when both `qualification` and `ci_targets` are absent. A tiered gate covers cells on this host first, then configured workers, then CI as needed or required. |
 | `release qualify [--output FILE]` | Cover the release policy's platform x action matrix at exact clean `HEAD`, preferring this host, then workers, then CI, and write a revision-bound qualification record. |
 | `release publish PREPARED --authorize-external-write` | Revalidate the prepared commit, create and push its tag without force, then invoke the optional provider adapter. GitHub publication and verification require prerelease status to match the prepared version; unpublished drafts remain invalid. |
 | `release verify-published PREPARED` | Read-only: require the remote annotated tag, release-line branch, and optional GitHub release to match the prepared identity. Never retags. |
@@ -624,6 +744,27 @@ root-integration acceptance still remain.
 | `attest SOURCE --signer ID --machine ID --key FILE` | Sign the exact local source inventory. |
 | `skills [--skills-root DIR]` | List an explicit inverse-skill catalog, or packaged reviewed skills by default. |
 | `format CORPUS --id-prefix ID [--check\|--write]` | Preview canonical layered-spec formatting by default, check without mutation, or explicitly write canonical Markdown frontmatter and line endings. Supporting JSON remains byte-exact. |
+
+Before the authorized retained-project run, request `--retained-project-plan`
+to inspect the validated runner identity and schema when a test policy is present.
+For promotion, explicitly add `--retain-promotion-evidence` to the authorized live
+run and retain its returned `promotion_evidence` identity. Historical runs without
+those genuine captured facts cannot acquire them through promotion. No grant,
+reservation or live admission is reconstructed from saved records.
+
+Promotion capture and historical reads accept optional tighter
+`--promotion-maximum-metadata-bytes`, `--promotion-maximum-memory-bytes`,
+`--promotion-maximum-document-bytes`, `--promotion-maximum-payload-bytes`,
+`--promotion-max-closure-steps` and `--promotion-timeout-seconds` limits. The
+canonical ceilings remain 128 MiB metadata, 2 GiB accounted memory, 64 MiB per
+document, 8 GiB aggregate streamed payload, one million closure steps and 300
+seconds. Source/output manifests and auxiliary custody keep their existing,
+possibly tighter limits. These options grant no execution or new scope.
+
+Retained-project planning and promotion use strict read-only authority observation.
+A required source-intelligence provider without a supported pure-read path refuses
+before provider execution; an advisory provider remains unavailable and an off
+provider remains off. Ordinary provider synchronization keeps its existing behavior.
 
 
 For source-built SDK inputs, the explicit
@@ -845,6 +986,13 @@ files whose bytes differ, after backing up the previous copy. It
 then inspects again. Secret contents never appear in reports; only hash prefixes do.
 Align never deletes worker data; low disk points to `litai worker health` and
 `litai worker cleanup`.
+
+Local alignment files must be regular files of at most 64 MiB. Each capture has
+its own ten-second read deadline, including opening the source. A stalled source
+is reported as `source-timeout`; it never establishes alignment. Synchronization
+captures the source before preparing or backing up the worker destination and
+copies only that private capture. File contents are omitted from diagnostics.
+
 
 `BUILD_DIR` defaults to `generated/` beneath the project. `OBJ_DIR` defaults to
 `_build/` beneath the project. Export either to place its cache elsewhere; relative values remain
@@ -1547,6 +1695,19 @@ Results identify the canonical policy plus per-field `framework-default`,
 `project-policy`, or `cli` provenance; this operational evidence does not change the
 exact repository-lineage identity.
 
+The lineage provider reuses a locally available full commit object from
+`OBJ_DIR/repository-lineage` for an exact pinned revision. Mutable branches and
+tags still refresh, and a missing commit uses the bounded fetch policy above.
+Project and catalog identity checks still run; missing authority or catalog
+content refuses. A different object directory selects a different cache.
+Local object reads disable replacement and implicit transport. Reuse requires
+a direct object store without redirected backing files, borrowed objects,
+partial-clone configuration or delegated configuration. Its no-follow object
+metadata inventory is bounded to 131,072 entries; packed object contents are not
+expanded for that count. Unsafe or unsupported inputs report
+`repository_lineage.cache_unsafe`. Selecting a fresh object directory permits
+ordinary bounded reconstruction without changing project authority.
+
 `litai update [PATH]` is an initialized-project migration planner. Planning is always
 read-only; writing requires an explicit flag. It reads the canonical initialization
 origin and baseline, re-resolves the complete recorded repository lineage, composes its
@@ -2157,6 +2318,22 @@ litai project convert-stage advance --to retained --project .
 litai status --project .
 ```
 
+The retained receipt producer reads its inventory, baseline, parity, and
+lift-and-shift records from the selected framework directory's `.literate/`
+directory. In a partially placed legacy project that declares `litai/`, it
+still resolves the existing wrapper, retained implementation, and configured
+receipt path from the application root. An old root copy cannot supply a missing
+record. A declared retained layout still requires its own transition and
+requalification before legacy receipt production can proceed.
+
+A framework-directory change updates project authority. Renew the reviewed
+documentation and use the retained receipt producer to earn current evidence
+from the unchanged native commands. The prior receipt stays stale until the
+normal publication step. Component lock renewal, catalog provenance and update
+bases, scope refresh and readmission, shared host references, cache coordinates,
+and a recoverable migration transaction have separate owners. There is no
+public writer for canonical relocation.
+
 Failures preserve the harness's 8,192-character combined diagnostic budget through
 the CLI, plus a bounded headline allowance. Reported ENOSPC, disk-full and quota
 errors are prioritized ahead of ordinary output; both stream tails remain visible.
@@ -2380,6 +2557,60 @@ original-unconverted and specification-qualified authority. After migration,
 refresh retained membership below and run/adopt a fresh retained receipt under
 the new project identity. The rename itself never proves qualification.
 
+### Place retained legacy project metadata
+
+Run the read-only migration plan from the application root or a subdirectory.
+The supported migration places the canonical manifest and recognized retained
+producer records under `litai/`. Native commands still resolve from the
+application root. Review the plan's `held` and `remaining` entries for catalog
+and documentation references, evidence renewal, and paths that need an
+ownership decision. The result reports whether placement is complete.
+
+An ordinary inline Markdown link to a moved file requires explicit approval
+before the migration may rewrite it. Use the same repository-relative
+`--rewrite-reference` values to plan and apply. Shared root integrations and
+native implementation remain under their existing owners.
+
+```sh
+litai project layout plan --migration --project PATH
+litai project layout plan --migration --project PATH --rewrite-reference docs/user/project-layout.md
+litai project layout apply --project PATH --plan-identity sha256:REVIEWED_DIGEST --acknowledge --rewrite-reference docs/user/project-layout.md
+```
+
+Use `--place-forward-skills` with the migration plan and apply to also place
+specification-to-source Skill files owned by the recorded upstream imports.
+Review the exact destinations in `forward_skill_placements`. The migration keeps
+imported contents and source identities while updating their physical catalog
+and update coordinates. Existing typed Skill references select their recorded
+contained files. A competing old-root copy or mixed import owner blocks
+selection. Local-only Skills and host-managed files remain where they are.
+
+Use `--place-imported-catalogs` to include imported Agent Skills,
+source-to-specification Skills, Flavors, Components, samples, workflows, and
+routing files in the same transaction. Review
+`catalog_placements` for the exact destinations and `catalog_placement_blockers`
+for files with known literal commands or host references. Use
+`--rewrite-reference` to approve exact catalog-path edits in root onboarding
+and project documentation. Select the same paths for plan and apply. Imported
+authoring retains its original logical references and bytes.
+
+Use `--place-release-policy` to move an explicitly selected converted project's
+`literate.release.json` into `litai/`. The policy keeps its bytes and identity.
+Release planning binds the effective manifest and sample Component coordinates
+and requires a new plan after placement. Host changelog and release engineer
+files retain their application paths. Native bootstrap projects keep release
+execution with native tooling.
+
+After an interruption, use `project layout recover` from the application Git
+root with the same reviewed digest. If recovery reports a conflict, inspect the
+named changed file and retained Git journal before retrying. The placement writer
+requires an exclusive same-filesystem rename on a supported POSIX host.
+
+Refresh retained scope and earn a new native test receipt after placement.
+Verification reports the current authority and receipt gates. During partial
+placement, update reports root template additions and dependent Markdown changes
+that need a contained destination under `layout-pending`.
+
 ### Refreshing retained source membership
 
 When upstream adds or removes files in the retained implementation, inspect:
@@ -2548,7 +2779,17 @@ The invocation flags follow the official [Codex CLI reference](https://developer
 [Claude Code CLI reference](https://docs.anthropic.com/en/docs/claude-code/cli-usage),
 [Cursor Agent parameters](https://docs.cursor.com/en/cli/reference/parameters), and
 [OpenCode v1 CLI reference](https://opencode.ai/docs/cli/) and
-[v2 CLI reference](https://opencode.ai/v2/docs/cli/commands/). OpenCode runs in a
+[v2 CLI reference](https://opencode.ai/v2/docs/cli/commands/).
+
+Codex tasks, source generation and authentication diagnostics use private SQLite
+and log directories outside generated outputs. Each directory remains owned through
+bounded child completion and is removed afterward. Optional remote-plugin catalog
+loading is disabled per invocation; automated generation uses its bound recipe
+authority. HOME, authentication, selected models, sandboxing and finite resource
+limits are preserved. These overrides use the official
+[configuration settings](https://learn.chatgpt.com/docs/config-file/config-reference).
+
+OpenCode runs in a
 detached temporary workspace with the detected major's isolated invocation.
 V1 uses pure-plugin mode and its legacy permission map; v2 uses a private server,
 native ordered permissions, and policies denying external plugins, skills, and MCP.
@@ -2757,16 +2998,21 @@ worker; `recover` then explicitly registers it. An observed pending, absent or
 expired worker loses only its still-matching registration. An unfinished lookup,
 expired observation or release intent cannot authorize recovery. Observation is
 read-only at the provider but updates the local journal and may remove an invalid
-registration. `status` remains a local read without a provider call.
+registration. Once a ready reply is observed past its expiry, the journal retains
+`expired` for that allocation generation. A later lookup or clock rollback cannot
+make it eligible for registration again. `status` remains a local read without a
+provider call.
 
 `release` requires acknowledgement and removes the exact owned registration before
 asking the provider to release it. The request is durably saved first. A timeout,
 crash or pending provider reply leaves `releasing`; repeat the command to use the
 same idempotency key. A completed release retains a tombstone and never allocates
 again under that worker ID. Lookup after a failed release preserves that release
-intent. `--expired-only` requires an observed expiry in the past before the first
-release attempt. A changed registration, unrelated static worker or changed
-provider configuration is never deleted by this operation.
+intent. `--expired-only` requires a recorded past expiry before the first release
+attempt. A later absent or pending reply preserves that eligibility. Bare absence
+without an observed expiry still requires ordinary acknowledged release and an
+exact terminal acknowledgement from the provider. A changed registration, unrelated
+static worker or changed provider configuration is never deleted by this operation.
 
 Managed SSH dispatch observes the lease before each attempt and requires enough
 remaining lifetime for the full job deadline plus the actual remote runner's
@@ -2792,6 +3038,50 @@ A different or completed attempt refuses cancellation. An accepted cancellation
 survives a lost release reply; later retries keep the same release request.
 Results arriving after cancellation cannot satisfy dispatch. This command cancels
 the allocation; it does not claim to recover artifacts lost with that worker.
+
+For the last RUN on a managed remote worker, request release as part of that
+operation:
+
+```sh
+litai run samples/hello-component --worker new-linux --release-managed-worker
+```
+
+This explicit flag authorizes disposal of that allocation and its caches. It
+preserves this RUN's verified execution evidence; the input executable and prior
+worker cache may be lost, and later runs may require rebuilding. It does not copy
+the executable again or turn its worker-bound export into a local artifact.
+Without the flag, the worker remains reusable. Static, local and command-only
+workers refuse this opt-in before application execution; BUILD and TEST retain
+their existing behavior.
+
+The original attempt, application outcome, custody references and release intent
+are saved together before release. Active health polling stops, and the existing
+failed-application diagnostics finish, before the provider is asked to stop the
+worker. A failed application stays failed. Once that completion is durable, a
+missing reply, pending cleanup or later publication failure retains the original
+outcome and release request; inspect
+`worker provisioner status WORKER` and retry the existing acknowledged release
+command, including when allocation is disabled. Do not rerun the application to
+recover cleanup. Both automatic release and this recovery command recheck the
+current RUN evidence before calling the provider. Missing or changed evidence
+keeps release pending; restore the original verified evidence before retrying.
+If that evidence is irretrievably lost, this terminal-profile release remains
+blocked; the command has no force-disposal bypass. Ordinary nonterminal release
+behavior is unchanged.
+If the initial completion cannot be saved, the earlier active or uncertain attempt
+still blocks retry, but a saved outcome and release intent are not guaranteed.
+Inspect status and use the existing exact-attempt cancellation flow when needed.
+
+This opt-in shares one worker-timeout budget across lease observation, dispatch,
+custody and provider release, including the existing process cleanup reserves.
+The application receives only the remaining budget after reserving the configured
+provider timeout and cleanup waits. A timeout shorter than those reserves refuses
+launch even if the provider usually responds quickly.
+Health cycles consume that budget; an already-started aggregate inspection may
+finish after it, leaving cleanup pending without a new provider invocation. This
+is not a hard whole-CLI wall-time guarantee or a provision-to-release deadline.
+It does not add a successful-run final health gate, automatic background recovery
+or evidence that a particular provider has been qualified.
 
 The lease request schema is `urn:literate-ai:schema:v1:worker-lease-request`:
 `operation` (`observe` or `release`), fresh observation `nonce`,
@@ -2912,6 +3202,86 @@ DNS, connection refusal, timeout, unknown/changed host keys and authentication f
 remain distinct. One failure never suppresses peer results. A nonzero exit status means
 at least one worker failed or was unsupported. Tests do not alter host-key policy,
 install credentials, mutate workspaces, or publish hardware observations.
+
+### Worker telemetry (development)
+
+The development receiver uses version 2 telemetry request/response and signed
+frames. The existing version 1 contract, codec and authentication remain separate
+and unchanged. Select a compatible receiver through the configured worker route;
+an unavailable or unsupported observer never becomes fabricated zero activity.
+
+`worker telemetry` observes a finite authenticated batch over the selected
+worker's existing route. Private operator configuration supplies trust;
+`--operation` selects exact dispatch-request identities. A Node's action identity
+is separate metadata and can repeat across operations. Explicit
+`worker telemetry-initialize` creates an absent observation namespace; queries
+never initialize, repair or adopt observation state. Native and installed
+qualification and complete operator configuration tooling remain pending.
+
+The FreeBSD native resource path describes the original guardian process and its
+complete kernel-reaper descendants during **one actual native attempt**. Its
+`action-subtree` scope excludes shared receiver-parent work, CAS orchestration and
+the observer itself. These counters are not whole-PACKAGE or whole-job totals;
+unmatched attempts must not be summed into an inferred total. The counter epoch
+identifies the particular native attempt separately from the operation's owner.
+
+CPU time includes live-process and already-reaped-child time. CPU utilization
+uses an actual monotonic interval in basis points of one core and can exceed
+10,000. Memory is summed current process RSS, which can count shared pages more
+than once; it is neither peak RSS nor unique physical memory. Cached/coalesced
+samples retain their measurement timestamps. Missing measurements are unavailable,
+never fabricated zeros. Installed provider provisioning, byte attribution for
+I/O, host aggregates, other platforms and installed transport acceptance remain
+open.
+
+### Explicit FreeBSD observer preparation (development)
+
+On the actual FreeBSD worker, `worker telemetry-native-initialize` exclusively
+creates the absent private build and provider namespaces. Existing or partial
+roots refuse; this command does not adopt, overwrite or delete their contents.
+Run it through the worker's existing trusted route. It does not initialize a
+project, install a compiler, configure a receiver or grant execution permission.
+
+`worker telemetry-native-plan [--compiler /absolute/native/cc]` observes the
+current canonical reader source and selected native compiler, its actual resource
+header directory and the finite build/probe policy. It creates no build output.
+The optional compiler path selects one executable through canonical CXX discovery;
+it supplies no general flags or telemetry-query command/PID override. Copy the
+returned exact `plan_identity` to
+`worker telemetry-native-provision --acknowledge-plan sha256:...`, repeating the
+same `--compiler` selection when supplied. A changed selection refuses the old
+acknowledgment. Explicit preparation owns and bounds its compiler children;
+existing C++ discovery defaults and identities elsewhere remain unchanged.
+
+Provisioning pins current source and consumed header bytes through the bounded
+build/probe lifetime, and retains matching preprocessing observations and the
+exact preprocessed compilation input. Compiler-discovered file aliases are bound
+to their actual regular endpoints; directory aliases and noncanonical traversal
+targets refuse. The read-only plan binds the finite alias policy and limits;
+the actual build records the observed link, parent and endpoint closure. It then
+runs a fixed framework workload under a genuine native guardian, checks live child CPU
+and RSS and actual reaping, and publishes a new artifact/receipt directory
+exclusively. It keeps failed stages as evidence. Its receipt describes the
+current host compiler and retained translation unit; it does not claim a hermetic
+linker/SDK or whole-job accounting. Provider preparation cannot run from a query
+or select an existing job's PID.
+
+The returned `native_resource_provider` document is an explicit private provider
+version 2 selection for receiver configuration version 3. That receiver reopens
+and hashes its complete build/probe/guardian/provision evidence and the exact
+current source/artifact before using it. A saved receipt never restores an
+original build, native runner or action owner. Configuration version 1 retains
+its original behavior; the separate development version 2 artifact binding does
+not become a verified provision receipt implicitly. Receiver registration/scope,
+private key custody and the actual protected-parent reservation remain required.
+
+The [original prototype notes](../history/roadmap/recovered-telemetry-prototype.md)
+record a 16-case native FreeBSD development run for that historical snapshot.
+Those observations do not qualify the current versioned port. Its Linux source
+suite passes with the four actual native provider/pipe/resource cases skipped.
+Current native platform and non-editable installed operator/transport journeys,
+complete configuration tooling and the other metric/feature requirements above
+remain open.
 
 ### Standard lifecycle parallelism
 

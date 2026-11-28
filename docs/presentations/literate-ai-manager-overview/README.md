@@ -1,11 +1,10 @@
 # Manager and engineering overview
 
-This is the reproducible authoring package for the published 1.3.0 manager and
-engineering document pair: a `presentation` member (Google Slides deck) and a
-`narrative` member (Google Doc), per
-`component://literate-ai/literate-ai-overview`'s declared realization. It is a
-historical edition; the 1.4 document pair requires regeneration and review from
-the final 1.4 candidate.
+The checked-in presentation and narrative record the published 1.3.0 edition of
+`component://literate-ai/literate-ai-overview`. The authoring sources now generate
+a 1.4.0 candidate preview covering locked SDK preparation and retained Cargo
+admission. The final edition requires regeneration and review against the final
+1.4 candidate.
 
 **1.3.0 edition.** This package carries the verified local 1.3.0 edition:
 reviewed original-source first binding, target-bound Python source projection,

@@ -8,7 +8,7 @@ import json
 import os
 import platform
 import tempfile
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
 
 from literate_ai._filesystem import UnsafeFilesystemPathError, require_safe_directory
@@ -18,6 +18,7 @@ from literate_ai.adapters.component_lock_application import (
     current_project_component_lock_identities,
 )
 from literate_ai.adapters.harness_inventory import (
+    HARNESS_BASELINE_SCHEMA,
     HARNESS_INVENTORY_SCHEMA,
     HARNESS_PARITY_SCHEMA,
     HarnessBaselineError,
@@ -39,10 +40,18 @@ from literate_ai.adapters.project_validation import (
     ProjectValidationError,
     validated_project_authority_identity,
 )
+from literate_ai.adapters.repository_refresh import _signature
 from literate_ai.adapters.retained_harness_remote import (
     RetainedHarnessRemoteError,
     RetainedHarnessSshExecutor,
 )
+from literate_ai.adapters.retained_layout import (
+    RETAINED_LAYOUT_PATH,
+    RetainedLayoutError,
+    read_retained_layout_declaration,
+    resolve_structural_layout,
+)
+from literate_ai.adapters.retained_layout_partition import _lineage
 from literate_ai.contracts import (
     ContentIdentity,
     ExecutionWorker,
@@ -72,7 +81,6 @@ _BASELINE_PATH = ".literate/legacy-harness-baseline.json"
 _PARITY_PATH = ".literate/legacy-wrapper-parity.json"
 _LIFT_SHIFT_PATH = ".literate/legacy-lift-shift.json"
 _WRAPPER_PATH = "litai.harness.mk"
-_WRAPPER_COMPONENT_PATH = "components/legacy-project-wrapper"
 _MAX_EVIDENCE_DOCUMENT_BYTES = 16 * 1024 * 1024
 _BASE_EVIDENCE_KINDS = frozenset(
     {
@@ -257,7 +265,7 @@ def run_retained_harness_receipt(
             project.root, synchronize_source_intelligence=False
         )
         component_locks = current_project_component_lock_identities(project)
-        wrapper_lock_identity = _current_wrapper_lock_identity(project)
+        wrapper_lock_identity = _current_wrapper_lock_identity(project, documents)
         if wrapper_lock_identity not in component_locks:
             _error(
                 "retained_receipt.wrapper_lock_changed",
@@ -621,6 +629,14 @@ def _stage_plan(inventory: dict[str, object]) -> list[dict[str, str]]:
 def _load_retained_documents(
     project: LoadedProject,
 ) -> dict[str, dict[str, Any]]:
+    context = project.context
+    try:
+        require_safe_directory(context.framework_path(".literate"))
+    except (OSError, UnsafeFilesystemPathError):
+        _error(
+            "retained_receipt.evidence_invalid",
+            "retained evidence directory must be direct and available",
+        )
     result: dict[str, dict[str, Any]] = {}
     for name, relative in (
         ("inventory", _INVENTORY_PATH),
@@ -628,7 +644,7 @@ def _load_retained_documents(
         ("parity", _PARITY_PATH),
         ("lift_shift", _LIFT_SHIFT_PATH),
     ):
-        value, canonical = _read_canonical_json(project.root / relative, name)
+        value, canonical = _read_canonical_json(context.framework_path(relative), name)
         result[name] = {
             "value": value,
             "identity": canonical_identity(value).uri,
@@ -644,7 +660,9 @@ def _load_retained_documents(
             "retained harness inventory has an unsupported schema",
         )
     _inventory_phase_kinds(inventory)
-    wrapper = project.root / _WRAPPER_PATH
+    from .retained_scaffold_coordinates import retained_scaffold_path
+
+    wrapper = retained_scaffold_path(project.root, _WRAPPER_PATH)
     try:
         if wrapper.is_symlink() or not wrapper.is_file():
             raise OSError
@@ -664,6 +682,27 @@ def _load_retained_documents(
         ).uri,
         "bytes": content,
     }
+    try:
+        declaration = read_retained_layout_declaration(project.root)
+    except RetainedLayoutError:
+        _error(
+            "retained_receipt.layout_invalid",
+            "retained layout is unavailable or invalid",
+        )
+    if declaration is not None:
+        value, canonical = _read_canonical_json(
+            context.framework_path(RETAINED_LAYOUT_PATH), "layout"
+        )
+        if value != declaration.to_dict():
+            _error(
+                "retained_receipt.layout_changed",
+                "retained layout changed during capture",
+            )
+        result["layout"] = {
+            "value": value,
+            "identity": declaration.identity,
+            "bytes": canonical,
+        }
     return result
 
 
@@ -685,6 +724,9 @@ def _require_qualified_parity(documents: dict[str, dict[str, Any]]) -> None:
             "retained_receipt.parity_unqualified",
             "retained wrapper parity has not passed",
         )
+    if "layout" in documents:
+        _require_layout_readmission(documents)
+        return
     if not isinstance(lift_shift, dict) or lift_shift.get("state") != "passed":
         _error(
             "retained_receipt.lift_shift_unqualified",
@@ -692,46 +734,178 @@ def _require_qualified_parity(documents: dict[str, dict[str, Any]]) -> None:
         )
 
 
+def _require_layout_readmission(documents: dict[str, dict[str, Any]]) -> None:
+    """Match genuine renewal outputs to this declaration, never a saved grant."""
+    baseline = documents["baseline"]["value"]
+    parity = documents["parity"]["value"]
+    lift = documents["lift_shift"]["value"]
+    layout = documents["layout"]
+    binding = baseline.get("layout_readmission")
+    if (
+        not isinstance(lift, dict)
+        or lift.get("state") not in {"passed", "requalification-required"}
+        or not isinstance(binding, dict)
+        or parity.get("layout_readmission") != binding
+    ):
+        _error(
+            "retained_receipt.layout_unqualified",
+            "current layout requires matching fresh baseline and parity",
+        )
+    if baseline.get("schema") != HARNESS_BASELINE_SCHEMA:
+        _error(
+            "retained_receipt.layout_unqualified",
+            "layout renewal baseline schema is invalid",
+        )
+    expected_phases = [
+        stage["id"] for stage in _stage_plan(documents["inventory"]["value"])
+    ]
+    for report in (baseline, parity):
+        phases = report.get("phases")
+        if (
+            not isinstance(phases, list)
+            or not phases
+            or type(report.get("phase_count")) is not int
+            or report.get("phase_count") != len(phases)
+            or any(not isinstance(phase, dict) for phase in phases)
+            or [phase.get("phase") for phase in phases] != expected_phases
+            or any(
+                type(phase.get("exit_code")) is not int
+                or phase["exit_code"] != 0
+                or phase.get("timed_out") is not False
+                or (report is parity and phase.get("parity") is not True)
+                for phase in phases
+            )
+        ):
+            _error(
+                "retained_receipt.layout_unqualified",
+                "layout renewal lacks complete passing phase evidence",
+            )
+    source = baseline.get("legacy_source_tree_before")
+    if (
+        not isinstance(source, dict)
+        or baseline.get("legacy_source_tree_after") != source
+        or not isinstance(source.get("identity"), str)
+    ):
+        _error(
+            "retained_receipt.layout_unqualified",
+            "layout renewal lacks executed source observations",
+        )
+    try:
+        ContentIdentity.parse_uri(source["identity"])
+    except ValueError:
+        _error(
+            "retained_receipt.layout_unqualified",
+            "layout renewal source identity is invalid",
+        )
+    direct_phases = baseline["phases"]
+    if any(phase.get("source_tree") != source for phase in direct_phases):
+        _error(
+            "retained_receipt.layout_unqualified",
+            "direct phases lack the executed baseline source observations",
+        )
+    for direct, wrapped in zip(direct_phases, parity["phases"], strict=True):
+        observed = wrapped.get("source_tree")
+        if (
+            wrapped.get("baseline_source_tree") != direct["source_tree"]
+            or not isinstance(observed, dict)
+            or not isinstance(observed.get("identity"), str)
+        ):
+            _error(
+                "retained_receipt.layout_unqualified",
+                "parity source observations disagree with the direct baseline",
+            )
+        try:
+            ContentIdentity.parse_uri(observed["identity"])
+        except ValueError:
+            _error(
+                "retained_receipt.layout_unqualified",
+                "parity source identity is invalid",
+            )
+    expected = {
+        "schema": "literate-ai/retained-layout-readmission@1",
+        "layout_identity": layout["identity"],
+        "implementation_directory": layout["value"]["implementation_directory"],
+        "wrapper_component": layout["value"]["wrapper_component"],
+        "lift_shift_identity": documents["lift_shift"]["identity"],
+        "inventory_identity": documents["inventory"]["identity"],
+        "source_tree_identity": source["identity"],
+        "wrapper_identity": "sha256:"
+        + hashlib.sha256(documents["wrapper"]["bytes"]).hexdigest(),
+    }
+    if binding != expected:
+        _error(
+            "retained_receipt.layout_unqualified",
+            "layout renewal binding differs from current inputs",
+        )
+
+
+def _qualified_layout(project: LoadedProject, documents: dict[str, dict[str, Any]]):
+    """Resolve current selected roles after requiring their actual fresh renewal."""
+    _require_qualified_parity(documents)
+    root = project.root
+    context = project.context
+    ancestry = _lineage(context.framework_path(".literate"))
+    nodes = []
+    for relative in (RETAINED_LAYOUT_PATH, _LIFT_SHIFT_PATH):
+        path = context.framework_path(relative)
+        try:
+            node = _signature(path)
+        except FileNotFoundError:
+            node = None
+        nodes.append((path, node))
+    try:
+        declaration = read_retained_layout_declaration(root)
+        captured = documents.get("layout")
+        if (declaration is None) != (captured is None) or (
+            declaration is not None and declaration.identity != captured["identity"]
+        ):
+            raise RetainedLayoutError(
+                "current declaration differs from captured evidence"
+            )
+        lift, _ = _read_canonical_json(
+            context.framework_path(_LIFT_SHIFT_PATH), "lift_shift"
+        )
+        if canonical_identity(lift).uri != documents["lift_shift"]["identity"]:
+            raise RetainedLayoutError(
+                "current layout lineage differs from captured evidence"
+            )
+        layout = resolve_structural_layout(root, lift)
+        if layout.implementation_directory == ".":
+            raise RetainedLayoutError(
+                "root admission requires the complete partition owner"
+            )
+    except RetainedLayoutError:
+        _error(
+            "retained_receipt.lift_shift_invalid",
+            "retained implementation path is unsafe, unavailable or changed",
+        )
+    if os.path.lexists(root / "litai/layout.pending"):
+        _error(
+            "retained_receipt.layout_pending",
+            "pending relocation requires explicit recovery",
+        )
+    for path, expected_node in nodes:
+        try:
+            current_node = _signature(path)
+        except FileNotFoundError:
+            current_node = None
+        if current_node != expected_node:
+            _error(
+                "retained_receipt.layout_changed",
+                "retained layout native inputs changed during resolution",
+            )
+    if _lineage(context.framework_path(".literate")) != ancestry:
+        _error(
+            "retained_receipt.layout_changed",
+            "retained layout ancestry changed during resolution",
+        )
+    return layout
+
+
 def _implementation_root(
     project: LoadedProject, documents: dict[str, dict[str, Any]]
 ) -> Path:
-    lift_shift = documents["lift_shift"]["value"]
-    assert isinstance(lift_shift, dict)
-    raw = lift_shift.get("implementation_directory")
-    if not isinstance(raw, str):
-        _error(
-            "retained_receipt.lift_shift_invalid",
-            "lift-and-shift evidence omits the retained implementation",
-        )
-    relative = PurePosixPath(raw)
-    if (
-        relative.is_absolute()
-        or relative.as_posix() != raw
-        or any(part in {"", ".", ".."} for part in relative.parts)
-    ):
-        _error(
-            "retained_receipt.lift_shift_invalid",
-            "retained implementation path is unsafe",
-        )
-    candidate = project.root.joinpath(*relative.parts)
-    try:
-        require_safe_directory(candidate)
-        resolved = candidate.resolve(strict=True)
-        resolved.relative_to(project.root)
-        if resolved != candidate:
-            raise ValueError("redirected implementation")
-        require_safe_directory(candidate)
-    except (OSError, ValueError, UnsafeFilesystemPathError):
-        _error(
-            "retained_receipt.lift_shift_invalid",
-            "retained implementation path is redirected or escapes the project",
-        )
-    if candidate.is_symlink() or not resolved.is_dir():
-        _error(
-            "retained_receipt.lift_shift_invalid",
-            "retained implementation must be one project directory",
-        )
-    return resolved
+    return _qualified_layout(project, documents).implementation_root
 
 
 def _platform_observation() -> dict[str, str]:
@@ -851,15 +1025,13 @@ def _require_project_unchanged(
         )
 
 
-def _current_wrapper_lock_identity(project: LoadedProject) -> ContentIdentity:
+def _current_wrapper_lock_identity(
+    project: LoadedProject, documents: dict[str, dict[str, Any]] | None = None
+) -> ContentIdentity:
     """Require the converted project's own wrapper lock, not an ambient catalog lock."""
 
-    component = project.root.joinpath(*Path(_WRAPPER_COMPONENT_PATH).parts)
-    if component.is_symlink() or not component.is_dir():
-        _error(
-            "retained_receipt.wrapper_component_missing",
-            "retained execution requires the canonical legacy wrapper Component",
-        )
+    selected = documents or _load_retained_documents(project)
+    component = _qualified_layout(project, selected).wrapper_root
     try:
         return current_component_lock_identity(component)
     except ProjectComponentLockSetError as exc:
@@ -876,23 +1048,31 @@ def _retained_project_authority_observation(
     *,
     documents: dict[str, dict[str, Any]] | None = None,
     implementation: Path | None = None,
+    input_closure=None,
 ) -> tuple[ContentIdentity, dict[str, Any]]:
     selected_documents = documents or _load_retained_documents(project)
     _require_qualified_parity(selected_documents)
-    selected_implementation = implementation or _implementation_root(
-        project, selected_documents
-    )
+    layout = _qualified_layout(project, selected_documents)
+    selected_implementation = implementation or layout.implementation_root
+    if selected_implementation != layout.implementation_root:
+        _error(
+            "retained_receipt.layout_changed",
+            "execution source differs from current selected layout",
+        )
     inventory = selected_documents["inventory"]["value"]
     assert isinstance(inventory, dict)
     try:
         source_tree = observe_retained_tree(
-            selected_implementation, inventory.get("source_scope")
+            selected_implementation,
+            inventory.get("source_scope"),
+            **({"input_closure": input_closure} if input_closure is not None else {}),
         )["source_tree"]
     except (OSError, ValueError) as exc:
         _error(
             "retained_receipt.source_authority_invalid",
             f"retained authored-source authority is invalid: {exc}",
         )
+    _qualified_layout(project, selected_documents)
     admission = _workspace_admission_identity(selected_documents)
     return (
         canonical_identity(
@@ -910,16 +1090,17 @@ def _retained_project_authority_observation(
 def _workspace_admission_identity(
     documents: dict[str, dict[str, Any]],
 ) -> ContentIdentity:
-    return canonical_identity(
-        {
-            "schema": "literate-ai/retained-harness-admission@1",
-            "inventory": documents["inventory"]["identity"],
-            "baseline": documents["baseline"]["identity"],
-            "parity": documents["parity"]["identity"],
-            "lift_shift": documents["lift_shift"]["identity"],
-            "wrapper": documents["wrapper"]["identity"],
-        }
-    )
+    value = {
+        "schema": "literate-ai/retained-harness-admission@1",
+        "inventory": documents["inventory"]["identity"],
+        "baseline": documents["baseline"]["identity"],
+        "parity": documents["parity"]["identity"],
+        "lift_shift": documents["lift_shift"]["identity"],
+        "wrapper": documents["wrapper"]["identity"],
+    }
+    if "layout" in documents:
+        value["layout"] = documents["layout"]["identity"]
+    return canonical_identity(value)
 
 
 def _external_new_path(project: LoadedProject, path: Path, label: str) -> Path:

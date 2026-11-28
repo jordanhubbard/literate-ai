@@ -572,8 +572,16 @@ def discover_cpp_toolchain(
     timeout_seconds: float = DEFAULT_CPP_VERSION_TIMEOUT_SECONDS,
     stdout_limit_bytes: int = DEFAULT_COMPILER_STDOUT_LIMIT_BYTES,
     stderr_limit_bytes: int = DEFAULT_COMPILER_STDERR_LIMIT_BYTES,
+    version_probe_terminate_descendants: bool = False,
 ) -> CppToolchain:
-    """Resolve ``CXX`` or the first portable host compiler found on ``PATH``."""
+    """Resolve ``CXX`` or the first portable host compiler found on ``PATH``.
+
+    Explicit callers may request descendant containment for the compiler version
+    probe. This does not change the legacy platform-environment setup policy,
+    default invocation, selected command, or resulting toolchain identity.
+    """
+    if type(version_probe_terminate_descendants) is not bool:
+        raise TypeError("version probe containment must be an explicit boolean")
 
     configured = dict(os.environ if environment is None else environment)
     raw = configured.get("CXX", "").strip()
@@ -654,6 +662,11 @@ def discover_cpp_toolchain(
                 stdout_limit_bytes=stdout_limit_bytes,
                 stderr_limit_bytes=stderr_limit_bytes,
                 error_prefix="builder.cpp_version",
+                **(
+                    {"terminate_descendants": True}
+                    if version_probe_terminate_descendants
+                    else {}
+                ),
             )
             if executable_file_digest(Path(command[0])) != executable_digest:
                 raise BuildError(

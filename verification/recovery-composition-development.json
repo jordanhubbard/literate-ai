@@ -1,0 +1,55 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Mechanical private composition of recovered assets/static intake/layout regressions with original Python consumer preflight/document/source observations; complete combined qualification remains pending",
+  "parents": {
+    "recovered_source": "4ae0641a513e32f612026fc0de83c2fe6ba9abcf",
+    "python_and_recorded_deferrals": "7775612ad4e30f7dd6efe4b0b9980cdc3925f3d1"
+  },
+  "merge_resolution_receipt_sha256": "03d78f40fec0dc3e2fada435001312ec02652982b421ea6475d46f268aeffa45",
+  "production_comparison": {
+    "only_shared_changed_path": "src/literate_ai/schema_catalog.py",
+    "original_side_other_paths_byte_identical": 11,
+    "incoming_side_other_paths_byte_identical": 8
+  },
+  "schema_catalog_is_original_plus_exact_python_inventory_line": true,
+  "all_original_and_recovered_schema_entries_and_writers_preserved_in_order": true,
+  "v1_schema_files_unchanged": true,
+  "release_goal_manifest_byte_identical_to_recovered_parent": true,
+  "existing_four_1_5_deferrals_preserved": true,
+  "source_qualification": "Pending fresh complete canonical source suite on exact clean committed composition",
+  "independent_source_review": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "provider_consumer_qualified": false,
+  "release_qualified": false,
+  "limits": [
+    "Parent focused controls and static gates remain scoped to their recorded parent subjects; catalog and whole-project authority changed during composition.",
+    "No historical profile is upgraded to current installed, native provider/consumer or release success. No driver or receipt pin is advanced.",
+    "Current Python command/tool equivalence, actual complete case coverage, provider reopening, source/wheel materialization and public receipt admission remain open."
+  ],
+  "static_gates": {
+    "lint": 0,
+    "format-check": 0,
+    "repository-layout-check": 0,
+    "public-export-check": 0,
+    "documentation-review-record": 0,
+    "documentation-review": 0,
+    "documentation-check": 0,
+    "openspec-check": 0,
+    "schema-check": 0
+  },
+  "static_log_sha256": "5bffbc8955fd5486a1fc1718f477aeb48ee83926369a035960f2fa10f77b58be",
+  "combined_schema_catalogue": {
+    "v1_files": 17,
+    "v1_resources": 84,
+    "v2_files": 136,
+    "v2_resources": 616
+  },
+  "verify": {
+    "exit_code": 1,
+    "authority": "pass",
+    "receipt": "fail: project.test_receipt_stale",
+    "report_sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec",
+    "driver_or_receipt_pins_changed": false
+  }
+}

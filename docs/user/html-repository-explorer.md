@@ -33,7 +33,10 @@ that asset is unavailable. `inline-only` intentionally refuses the interactive D
 because it would forbid its declared graph library.
 
 To make freshness part of ordinary project verification, declare the artifact in
-`literate.project.json`:
+the selected project manifest, normally `litai/literate.project.json` for a fresh
+contained project. Legacy and mixed layouts retain their existing selected
+manifest; do not create a second root manifest. `--project .` and the rendered
+`output_path` remain relative to the application root:
 
 ```json
 {

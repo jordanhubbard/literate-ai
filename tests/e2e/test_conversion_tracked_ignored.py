@@ -441,7 +441,7 @@ class TrackedIgnoredConversionTests(unittest.TestCase):
         self.assertTrue(list((self.root / "_legacy").glob("*/src/workspace/tests.py")))
 
     @unittest.skipUnless(os.name != "nt" and shutil.which("make"), "POSIX Make fixture")
-    def test_completed_lift_shift_can_restore_original_git_custody(self):
+    def test_completed_lift_shift_requires_live_scaffold_owner_for_full_rollback(self):
         before = self.snapshot()
         index = self.git("ls-files", "--stage", "-z")
         result = _adapter().initialize(
@@ -452,13 +452,24 @@ class TrackedIgnoredConversionTests(unittest.TestCase):
             run_baseline=True,
         )
         quarantine = result["convert_quarantine"]
-        lift_shift = json.loads(
-            (self.root / ".literate/legacy-lift-shift.json").read_text()
-        )
+        lift_shift = json.loads((self.root / result["lift_shift"]["path"]).read_text())
         initialization._restore_lift_shift_quarantine(self.root, quarantine, lift_shift)
-        initialization._rollback_converted_tree(self.root, quarantine)
-        self.assertEqual(self.snapshot(), before)
-        self.assertEqual(self.git("ls-files", "--stage", "-z"), index)
+        restored = self.snapshot()
+        with self.assertRaises(initialization.ProjectInitializationError) as caught:
+            initialization._rollback_converted_tree(self.root, quarantine)
+        self.assertEqual(caught.exception.code, "project.convert_rollback_conflict")
+        self.assertEqual(self.snapshot(), restored)
+        directory = quarantine["directory"]
+        for name, content in before.items():
+            self.assertEqual(restored[f"{directory}/{name}"], content)
+        expected = []
+        for row in index.split(b"\0"):
+            if row:
+                header, name = row.split(b"\t", 1)
+                expected.append(header + b"\t" + directory.encode() + b"/" + name)
+        self.assertEqual(
+            self.git("ls-files", "--stage", "-z"), b"\0".join(expected) + b"\0"
+        )
 
     def test_incomplete_quarantine_refuses_before_any_scaffold_deletion(self):
         quarantine = initialization._quarantine_existing_tree(self.root)

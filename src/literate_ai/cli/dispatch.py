@@ -106,6 +106,7 @@ _TOP_LEVEL_COMMANDS = frozenset(
         "prompt",
         "flavor",
         "design",
+        "shadow",
         "video",
     }
 )
@@ -148,6 +149,7 @@ SDLC catalog (verbs unchanged; grouped for flow):
     litai graph [show | rebalance]
     litai project validate | documentation-update | documentation-review
     litai project agent-entrypoints [PATH]
+    litai project layout plan [--project PATH]
     litai project tracker inspect | peer-work | parent checkout | ci-plan
     litai project retained-cargo check | materialize | admit
     litai project test-receipt run-retained | promote-retained | update | check
@@ -159,6 +161,9 @@ SDLC catalog (verbs unchanged; grouped for flow):
     litai component migrate
     litai learn
     litai design refine | explain | accept
+    litai shadow plan | create | pr-plan | pr-capture | pr-status | status
+    litai shadow pr-operations | pr-source-plan | pr-source-stage | pr-source-status
+    litai shadow sync plan | apply
 
   Operator
     litai config paths | migrate [--apply]
@@ -243,6 +248,45 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         from .design import design_from_args
 
         return design_from_args(args)
+    if args.command == "shadow":
+        from .shadow import (
+            apply_shadow_sync,
+            capture_shadow_pr,
+            create_shadow,
+            plan_shadow,
+            plan_shadow_pr,
+            plan_shadow_pr_operations,
+            plan_shadow_pr_source,
+            plan_shadow_sync,
+            stage_shadow_pr_source,
+            status_shadow,
+            status_shadow_pr,
+            status_shadow_pr_source,
+        )
+
+        if args.shadow_command == "pr-plan":
+            return plan_shadow_pr(args), 0
+        if args.shadow_command == "pr-capture":
+            return capture_shadow_pr(args), 0
+        if args.shadow_command == "pr-status":
+            return status_shadow_pr(args), 0
+        if args.shadow_command == "pr-operations":
+            return plan_shadow_pr_operations(args), 0
+        if args.shadow_command == "pr-source-plan":
+            return plan_shadow_pr_source(args), 0
+        if args.shadow_command == "pr-source-stage":
+            return stage_shadow_pr_source(args), 0
+        if args.shadow_command == "pr-source-status":
+            return status_shadow_pr_source(args), 0
+        if args.shadow_command == "create":
+            return create_shadow(args), 0
+        if args.shadow_command == "status":
+            return status_shadow(args), 0
+        if args.shadow_command == "sync":
+            if args.sync_command == "apply":
+                return apply_shadow_sync(args), 0
+            return plan_shadow_sync(args), 0
+        return plan_shadow(args), 0
     if args.command == "release":
         from .release import release_from_args
 
@@ -365,6 +409,10 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             return component_authoring_from_args(args)
         raise CliFailure("cli.usage", "a component command is required")
     if args.command == "project":
+        if args.project_command == "qualify":
+            from .authored_qualification import authored_qualification_from_args
+
+            return authored_qualification_from_args(args), 0
         from .project import (
             agent_entrypoints_from_args,
             documentation_review_from_args,
@@ -373,7 +421,9 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             parent_checkout_from_args,
             parent_readme_from_args,
             project_ci_plan_from_args,
+            project_ci_verify_from_args,
             project_guidance_from_args,
+            project_layout_from_args,
             project_lifecycle_from_args,
             project_peer_work_from_args,
             project_source_intelligence_from_args,
@@ -388,10 +438,22 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         if args.project_command == "agent-entrypoints":
             report = agent_entrypoints_from_args(args)
             return report, 0 if report["ready"] else 1
+        if args.project_command == "layout":
+            report = project_layout_from_args(args)
+            if args.layout_command != "plan" or args.migration:
+                return report, 0
+            return report, 0 if report["planning_complete"] else 1
         if args.project_command == "ci-plan":
             return project_ci_plan_from_args(args), 0
+        if args.project_command == "ci":
+            report = project_ci_verify_from_args(args)
+            return report, 0 if report["observation_status"] == "verified" else 1
         if args.project_command == "guidance":
             return project_guidance_from_args(args), 0
+        if args.project_command == "native-child":
+            from .native_child import native_child_from_args
+
+            return native_child_from_args(args), 0
         if args.project_command == "lifecycle":
             return project_lifecycle_from_args(args), 0
         if args.project_command == "source-intelligence":
@@ -515,15 +577,18 @@ def _add_retained_project_arguments(parser, *, execution_options=False) -> None:
         help="validate retained project and inputs read-only; grants no admission",
     )
     parser.add_argument(
+        "--retain-promotion-evidence",
+        action="store_true",
+        help=(
+            "capture additive historical receipt-promotion facts "
+            "during the authorized live run"
+        ),
+    )
+    parser.add_argument(
         "--authorize-retained-project",
         help="exact reviewed retained-project plan identity",
     )
     if execution_options:
-        parser.add_argument(
-            "--retain-promotion-evidence",
-            action="store_true",
-            help="capture complete promotion assertions during this authorized run",
-        )
         _promotion_budget_arguments(parser)
         parser.add_argument(
             "--allow-host-execution",
@@ -542,6 +607,7 @@ def _parser() -> JsonArgumentParser:
     from .flavor import add_flavor_parser
     from .package import add_package_parser
     from .release import add_release_parser
+    from .shadow import add_shadow_parser
 
     parser = JsonArgumentParser(
         prog="litai",
@@ -743,6 +809,8 @@ def _parser() -> JsonArgumentParser:
         "--refine", metavar="REQUEST", help="refine this mission Markdown before apply"
     )
     onboard_adopt.add_argument("--default-branch")
+    onboard_adopt.add_argument("--implementation-directory")
+    onboard_adopt.add_argument("--wrapper-component")
     onboard_adopt.add_argument(
         "--profile",
         dest="adoption_profile",
@@ -762,6 +830,7 @@ def _parser() -> JsonArgumentParser:
     onboard_adopt.add_argument("--baseline-diagnostic-chars", type=int)
     onboard_adopt.add_argument("--harness-workspace-link", action="append", default=[])
     add_design_parser(commands)
+    add_shadow_parser(commands)
     add_release_parser(commands)
     add_package_parser(commands)
     add_flavor_parser(commands)
@@ -980,6 +1049,9 @@ def _parser() -> JsonArgumentParser:
     worker_commands = worker.add_subparsers(
         dest="worker_command", required=True, parser_class=JsonArgumentParser
     )
+    from .worker_telemetry import add_telemetry_arguments
+
+    add_telemetry_arguments(worker_commands)
     from .worker_registry import add_registry_arguments
 
     add_registry_arguments(worker_commands)
@@ -1755,6 +1827,16 @@ def _parser() -> JsonArgumentParser:
     )
     add_execution_worker_arguments(run_command)
     run_command.add_argument(
+        "--release-managed-worker",
+        action="store_true",
+        help=(
+            "release the explicitly selected managed worker after this terminal RUN's "
+            "evidence is collected; the input executable and prior worker cache may "
+            "be lost, so later runs may require rebuilding; shares the worker timeout "
+            "budget through dispatch and release (health diagnostics may overrun it)"
+        ),
+    )
+    run_command.add_argument(
         "--flavor",
         action="append",
         default=[],
@@ -2022,8 +2104,97 @@ def _parser() -> JsonArgumentParser:
     project_commands = project.add_subparsers(
         dest="project_command", required=True, parser_class=JsonArgumentParser
     )
+    project_qualify = project_commands.add_parser(
+        "qualify", help="qualify genuinely authored Component graphs"
+    )
+    project_qualify_commands = project_qualify.add_subparsers(
+        dest="project_qualify_command", required=True, parser_class=JsonArgumentParser
+    )
+    for name, description in (
+        ("prepare-sdk", "build locked SDKs and return their completion identity"),
+        ("plan", "inspect the current authored graph without writing or executing"),
+        ("apply", "execute an acknowledged authored plan and publish closed evidence"),
+    ):
+        qualify = project_qualify_commands.add_parser(name, help=description)
+        qualify.add_argument(
+            "component", help="root Component path relative to the project root"
+        )
+        qualify.add_argument("--project", default=".")
+        qualify.add_argument("--target", default="host")
+        qualify.add_argument("--flavor", action="append", default=[])
+        qualify.add_argument("--profile", default="litai/qualification.json")
+        qualify.add_argument("--output-root", default="litai/qualification")
+        qualify.add_argument("--model")
+        qualify.add_argument(
+            "--sdk-cache",
+            help="explicit SDK cache path",
+            required=name == "prepare-sdk",
+        )
+        qualify.add_argument(
+            "--sdk-revocations", help="absolute path to current operator revocations"
+        )
+        if name == "prepare-sdk":
+            qualify.add_argument(
+                "--allow-sdk-builds", action="store_true", required=True
+            )
+        else:
+            qualify.add_argument(
+                "--sdk-completion", help="reviewed SDK completion identity"
+            )
+            qualify.add_argument("--sdk-completion-size", type=int)
+        if name == "apply":
+            qualify.add_argument("--acknowledge-plan", required=True)
+            qualify.add_argument("--allow-host-execution", action="store_true")
+            qualify.add_argument("--scratch-parent")
+            qualify.add_argument("--recover-attempt")
+            qualify.add_argument("--max-parallelism", type=int, default=1)
+            qualify.add_argument("--max-bytes", type=int, default=256 * 1024 * 1024)
     project_validate = project_commands.add_parser("validate")
     project_validate.add_argument("path", nargs="?", default=".")
+    project_layout = project_commands.add_parser(
+        "layout", help="plan, apply, renew, finalize or recover framework placement"
+    )
+    layout_commands = project_layout.add_subparsers(
+        dest="layout_command", required=True, parser_class=JsonArgumentParser
+    )
+    layout_plan = layout_commands.add_parser("plan")
+    layout_plan.add_argument("--project", default=".")
+    layout_plan.add_argument("--migration", action="store_true")
+    layout_plan.add_argument(
+        "--place-framework-authority",
+        action="store_true",
+        help="plan original framework authority placement under litai/",
+    )
+    layout_plan.add_argument("--place-forward-skills", action="store_true")
+    layout_plan.add_argument("--place-imported-catalogs", action="store_true")
+    layout_plan.add_argument("--place-release-policy", action="store_true")
+    layout_plan.add_argument("--rewrite-reference", action="append", default=[])
+    for operation in ("apply", "recover", "renew", "finalize"):
+        layout_action = layout_commands.add_parser(operation)
+        layout_action.add_argument("--project", default=".")
+        layout_action.add_argument("--plan-identity", required=True)
+        layout_action.add_argument("--acknowledge", action="store_true")
+        layout_action.add_argument(
+            "--place-framework-authority",
+            action="store_true",
+            help="use the reviewed framework authority plan and journal",
+        )
+        if operation in {"renew", "finalize"}:
+            layout_action.add_argument("--place-imported-catalogs", action="store_true")
+        if operation in {"recover", "renew", "finalize"}:
+            layout_action.add_argument("--successor-plan-identity")
+        if operation == "renew":
+            layout_action.add_argument("--component", required=True)
+            layout_action.add_argument("--target", required=True)
+            layout_action.add_argument("--flavor", action="append", default=[])
+            layout_action.add_argument("--flavor-root", action="append", default=[])
+        if operation == "apply":
+            layout_action.add_argument("--place-forward-skills", action="store_true")
+            layout_action.add_argument("--place-imported-catalogs", action="store_true")
+            layout_action.add_argument("--place-release-policy", action="store_true")
+            layout_action.add_argument(
+                "--rewrite-reference", action="append", default=[]
+            )
     project_guidance = project_commands.add_parser(
         "guidance", help="project configured policy for one repository operation"
     )
@@ -2033,6 +2204,49 @@ def _parser() -> JsonArgumentParser:
         choices=("develop", "land", "release", "backport", "gc", "issue-close"),
     )
     project_guidance.add_argument("path", nargs="?", default=".")
+    native_child = project_commands.add_parser(
+        "native-child", help="plan and publish qualified native child membership"
+    )
+    child_commands = native_child.add_subparsers(
+        dest="native_child_command", required=True, parser_class=JsonArgumentParser
+    )
+    for operation in ("plan-add", "plan-revise"):
+        child_plan = child_commands.add_parser(operation)
+        if operation == "plan-revise":
+            child_plan.add_argument("active_child")
+        child_plan.add_argument("child")
+        child_plan.add_argument("--project", default=".")
+        child_plan.add_argument(
+            "--selection",
+            required=True,
+            help="current per-child qualification profile/provider selections",
+        )
+        child_plan.add_argument(
+            "--output", help="new plan file outside the bound project trees"
+        )
+    child_apply = child_commands.add_parser("apply")
+    child_apply.add_argument("plan")
+    child_apply.add_argument("--project", default=".")
+    child_apply.add_argument("--acknowledge", required=True)
+    for operation in ("status", "recover"):
+        child_operation = child_commands.add_parser(operation)
+        if operation == "status":
+            child_operation.add_argument("publication", nargs="?")
+            child_operation.add_argument(
+                "--plan-identity",
+                help="discover the retained operation for an exact plan",
+            )
+        else:
+            child_operation.add_argument("publication")
+        child_operation.add_argument("--project", default=".")
+        child_operation.add_argument(
+            "--attempt", help="retained attempt handle, including after completion"
+        )
+        if operation == "recover":
+            child_operation.add_argument("--acknowledge", required=True)
+            child_operation.add_argument(
+                "--action", required=True, choices=("finish", "rollback")
+            )
     project_lifecycle = project_commands.add_parser(
         "lifecycle",
         help="review and update project lifecycle authority",
@@ -2070,6 +2284,13 @@ def _parser() -> JsonArgumentParser:
         action="store_true",
         help="authorize changing Standard lifecycle and receipt-policy authority",
     )
+    project_ci = project_commands.add_parser(
+        "ci", help="observe the native CI contract without running or promoting code"
+    )
+    project_ci_commands = project_ci.add_subparsers(dest="ci_command", required=True)
+    project_ci_verify = project_ci_commands.add_parser("verify")
+    project_ci_verify.add_argument("path", nargs="?", default=".")
+    project_ci_verify.add_argument("--pr", type=int, required=True)
     project_ci_plan = project_commands.add_parser(
         "ci-plan",
         help="detect test frameworks and emit a fail-closed shard/impact plan",
@@ -2291,11 +2512,23 @@ def _parser() -> JsonArgumentParser:
         required=True,
         parser_class=JsonArgumentParser,
     )
+    harness_recover = retained_harness_commands.add_parser(
+        "recover", help="inspect or roll back interrupted readmission metadata"
+    )
+    harness_recover.add_argument("--project", default=".")
+    harness_recover.add_argument("--apply", action="store_true")
+    harness_recover.add_argument("--acknowledge", action="store_true")
+    harness_recover.add_argument("--expected-plan-identity")
     harness_readmit = retained_harness_commands.add_parser("readmit")
     harness_readmit.add_argument("--project", default=".")
     harness_readmit.add_argument("--apply", action="store_true")
     harness_readmit.add_argument("--acknowledge", action="store_true")
     harness_readmit.add_argument("--expected-plan-identity")
+    harness_readmit.add_argument(
+        "--command-selection",
+        metavar="PATH",
+        help="review explicit retained command renewal using an adoption selection",
+    )
     harness_readmit.add_argument("--worker-id", default="local")
     harness_readmit.add_argument("--worker-config")
     harness_readmit.add_argument("--timeout-seconds", type=int, default=1800)
@@ -2310,7 +2543,8 @@ def _parser() -> JsonArgumentParser:
         ),
     )
     retained_cargo = project_commands.add_parser(
-        "retained-cargo", help="check or provision a reviewed retained Cargo package"
+        "retained-cargo",
+        help="check, materialize or admit a reviewed retained Cargo binding",
     )
     retained_cargo_commands = retained_cargo.add_subparsers(
         dest="retained_cargo_command", required=True, parser_class=JsonArgumentParser
@@ -2321,18 +2555,55 @@ def _parser() -> JsonArgumentParser:
         for option in (
             "binding",
             "plan",
-            "gates",
             "reviewed-binding",
-            "reviewed-gates",
             "provider-project",
             "provider-component",
             "provider-profile",
-            "provider-id",
             "store-id",
         ):
             retained.add_argument("--" + option, required=True)
-        for option in ("binding-size", "gate-size"):
-            retained.add_argument("--" + option, type=int, required=True)
+        retained.add_argument("--binding-size", type=int, required=True)
+        for option in ("gates", "reviewed-gates", "provider-id"):
+            retained.add_argument("--" + option, help="source-v1 binding only")
+        retained.add_argument("--gate-size", type=int, help="source-v1 binding only")
+        retained.add_argument("--gate-policy", help="authored binding policy path")
+        retained.add_argument(
+            "--producer-review",
+            help="independently reviewed authored producer intent path",
+        )
+        retained.add_argument(
+            "--reviewed-producer-review",
+            help="independent producer review content identity",
+        )
+        retained.add_argument(
+            "--producer-review-size", type=int, help="exact producer review byte count"
+        )
+        retained.add_argument(
+            "--tests", help="current binding-specific test inventory path"
+        )
+        retained.add_argument(
+            "--provider-output-root", help="authored provider output root"
+        )
+        retained.add_argument("--provider-flavor", action="append", default=[])
+        for option in ("old-output-file-bytes", "old-output-total-bytes"):
+            retained.add_argument(
+                "--" + option, type=int, help="required authored old-output byte budget"
+            )
+        for option in ("output-files", "output-entries", "output-metadata-bytes"):
+            retained.add_argument(
+                "--" + option,
+                type=int,
+                help="authored limit for each old or fresh output forest",
+            )
+        retained.add_argument("--timeout-seconds", type=int)
+        retained.add_argument(
+            "--sdk-completion", help="reviewed SDK completion identity"
+        )
+        retained.add_argument("--sdk-completion-size", type=int)
+        retained.add_argument(
+            "--sdk-revocations", help="absolute path to current operator revocations"
+        )
+        retained.add_argument("--sdk-cache", help="explicit provider SDK cache path")
         retained.add_argument("--target", default="host")
         retained.add_argument("--model")
         archive_source = retained.add_mutually_exclusive_group(required=True)
@@ -2346,20 +2617,29 @@ def _parser() -> JsonArgumentParser:
         )
         retained.add_argument("--offline", action="store_true")
         if operation == "admit":
-            for option in (
-                "tests",
-                "reviewed-tests",
-                "retirement",
-                "reviewed-retirement",
-            ):
+            retained.add_argument("--reviewed-tests", help="source-v1 binding only")
+            retained.add_argument(
+                "--tests-size", type=int, help="source-v1 binding only"
+            )
+            for option in ("retirement", "reviewed-retirement"):
                 retained.add_argument("--" + option, required=True)
-            for option in ("tests-size", "retirement-size"):
-                retained.add_argument("--" + option, type=int, required=True)
+            retained.add_argument("--retirement-size", type=int, required=True)
+            for option in ("new-output-file-bytes", "new-output-total-bytes"):
+                retained.add_argument(
+                    "--" + option,
+                    type=int,
+                    help="required authored fresh-output byte budget",
+                )
+            for option in ("exclusion-authority", "reviewed-exclusion-authority"):
+                retained.add_argument(
+                    "--" + option,
+                    help="independently reviewed authored exclusion permission set",
+                )
+            retained.add_argument("--exclusion-authority-size", type=int)
             retained.add_argument("--allow-host-execution", action="store_true")
             retained.add_argument(
                 "--acknowledge-source-retirement", action="store_true"
             )
-            retained.add_argument("--timeout-seconds", type=int, default=900)
     project_receipt = project_commands.add_parser("test-receipt")
     project_receipt_commands = project_receipt.add_subparsers(
         dest="test_receipt_command",
@@ -2716,6 +2996,10 @@ def _parser() -> JsonArgumentParser:
         ),
     )
     rebuild.add_argument(
+        "--qualified-library-receivers",
+        help="explicit local genuine V2 qualified-library receiving configuration",
+    )
+    rebuild.add_argument(
         "--allow-host-execution",
         action="store_true",
         help="acknowledge compilation and execution of generated code on this host",
@@ -2749,7 +3033,8 @@ def _parser() -> JsonArgumentParser:
         "--log-dir",
         dest="profile_log_dir",
         default=None,
-        help="directory for the raw NDJSON trace (default: logs/ under project root)",
+        help="directory for the raw NDJSON trace "
+        "(default: declared project log directory)",
     )
     profile.add_argument(
         "--target", default="host", help="generation/Flavor target profile"
@@ -2979,6 +3264,18 @@ def _human_update_text(result: dict[str, Any]) -> str:
 
     if result.get("schema") == "literate-ai/composite-project-update@1":
         return _human_composite_update_text(result)
+    if result.get("schema") in {
+        "literate-ai/native-project-update@1",
+        "literate-ai/initialized-project-update@1",
+    }:
+        return _human_update_text(
+            {
+                **result["framework"],
+                "mode": result["mode"],
+                "application": result.get("application"),
+                "authority_review_required": result["authority_review_required"],
+            }
+        )
 
     counts = result.get("counts") or {}
     moving = _update_moving_counts(counts)
@@ -3339,40 +3636,51 @@ _HUMAN_RENDERERS = {
 
 
 def _perf_build_root(args: argparse.Namespace) -> Path | None:
-    """Anchor performance telemetry to the invoked project's own OBJ_DIR.
+    """Anchor managed telemetry to the original selected application/cache owner.
 
-    A relative ``OBJ_DIR`` must resolve against the project this exact
-    command targets, not this process's ambient working directory --
-    otherwise a command invoked with ``--project`` pointing elsewhere (or a
-    test harness with a different cwd) writes telemetry into the wrong tree.
-    Once a usable project root is known, every fallback stays anchored to
-    that root too: never hand off to the recorder's own environment-only
-    default, which would re-read an unanchored relative ``OBJ_DIR`` and
-    reintroduce exactly the leak this function exists to prevent. Falls
-    back to no explicit root only when no project was declared at all;
-    performance telemetry must never fail, slow, or redirect the command it
-    is only observing.
+    Explicit cache flags and relative OBJ_DIR retain application-relative meaning.
+    An invalid declared context/cache refuses rather than reviving root _build.
+    The legacy fallback remains only for genuinely unmanaged directories.
     """
-
     project = getattr(args, "project", None)
     if project is None:
         return None
-    try:
-        project_root = Path(project).resolve(strict=True)
-    except OSError:
-        return None
-    try:
-        from literate_ai.cache_directories import (
-            CacheDirectoryError,
-            select_cache_directories,
-        )
+    from literate_ai._filesystem import (
+        UnsafeFilesystemPathError,
+        require_safe_directory,
+    )
+    from literate_ai.cache_directories import (
+        CacheDirectoryError,
+        select_cache_directories,
+    )
+    from literate_ai.projects import ProjectConfigurationStore, ProjectError
 
+    selected = Path(project).absolute()
+    try:
+        require_safe_directory(selected, allow_missing=True)
+        snapshot = ProjectConfigurationStore.discover(selected)
+    except ProjectError as exc:
+        raise CliFailure(exc.code, exc.message) from exc
+    except (OSError, UnsafeFilesystemPathError) as exc:
+        raise CliFailure(
+            "perf.project_path_unsafe",
+            "performance project path must be direct and available",
+        ) from exc
+    try:
+        project_root = (
+            selected.resolve(strict=True) if snapshot is None else snapshot.root
+        )
+    except OSError:
+        return None  # Unmanaged, unavailable old target; no declared authority.
+    try:
         return select_cache_directories(
             project_root,
             build_dir=getattr(args, "build_dir", None),
             obj_dir=getattr(args, "obj_dir", None),
         ).obj_dir
-    except CacheDirectoryError:
+    except CacheDirectoryError as exc:
+        if snapshot is not None:
+            raise CliFailure("perf.cache_root_invalid", str(exc)) from exc
         return project_root / "_build"
 
 
@@ -3446,13 +3754,28 @@ def main(
         "package.retained-project",
     }
     scoped_retained_cargo = command == "project.retained-cargo"
+    deferred_retained_harness = command == "project.retained-harness"
     scoped_worker_health = command == "worker.health"
+    scoped_worker_telemetry = command in {
+        "worker.telemetry",
+        "worker.telemetry-initialize",
+        "worker.telemetry-native-initialize",
+        "worker.telemetry-native-plan",
+        "worker.telemetry-native-provision",
+    }
     scoped_agent_entrypoints = command == "project.agent-entrypoints"
+    scoped_native_ci = command == "project.ci"
+    scoped_layout = command == "project.layout"
+    scoped_authored_qualification = command == "project.qualify"
     scoped_tree_render = command == "render.tree"
     scoped_orchestration = (
         scoped_orchestration
         or scoped_worker_health
+        or scoped_worker_telemetry
         or scoped_agent_entrypoints
+        or scoped_native_ci
+        or scoped_layout
+        or scoped_authored_qualification
         or scoped_tree_render
         or scoped_retained_promotion
     )
@@ -3474,11 +3797,19 @@ def main(
         and not scoped_evidence
         and not scoped_retained_cargo
         and not deferred_retained_frontdoor
+        and not deferred_retained_harness
     ):
         maybe_host_self_update(raw)
     try:
         parser = _parser()
         args = parser.parse_args(arguments)
+        scoped_retained_harness = deferred_retained_harness and (
+            getattr(args, "retained_harness_command", None) == "recover"
+            or getattr(args, "command_selection", None) is not None
+        )
+        scoped_orchestration = scoped_orchestration or scoped_retained_harness
+        if deferred_retained_harness and not scoped_retained_harness:
+            maybe_host_self_update(raw)
         # Canonical parsing recognizes accepted option abbreviations. A retained
         # read-only plan must be identified before any implicit host writer.
         scoped_orchestration = scoped_orchestration or (
@@ -3522,19 +3853,35 @@ def main(
             or getattr(args, "debug", None) not in {None, "-"}
         ):
             raise CliFailure(
-                "project.agent_entrypoints_read_only_options"
+                "project.layout.read_only_options"
+                if scoped_layout
+                else "project.native_ci.read_only_options"
+                if scoped_native_ci
+                else "project.agent_entrypoints_read_only_options"
                 if scoped_agent_entrypoints
                 else (
-                    "worker.health_read_only_options"
-                    if scoped_worker_health
+                    "qualification.authored.scoped_options"
+                    if scoped_authored_qualification
                     else (
-                        "render.tree.scoped_options"
-                        if scoped_tree_render
-                        else "orchestration.read_only_options"
+                        "worker.telemetry_scoped_options"
+                        if scoped_worker_telemetry
+                        else (
+                            "worker.health_read_only_options"
+                            if scoped_worker_health
+                            else (
+                                "render.tree.scoped_options"
+                                if scoped_tree_render
+                                else "orchestration.read_only_options"
+                            )
+                        )
                     )
                 ),
-                "read-only inspection does not admit MCP discovery "
-                "or debug-file output",
+                "qualification does not admit MCP discovery or debug-file output"
+                if scoped_authored_qualification
+                else (
+                    "read-only inspection does not admit MCP discovery "
+                    "or debug-file output"
+                ),
             )
         if (
             args.command not in {"config", "help", "verify"}
@@ -3571,9 +3918,13 @@ def main(
             else:
                 output.write(help_text)
             return 0
-        recorder = PerformanceRecorder(
-            build_root=_perf_build_root(args),
-            project_root=getattr(args, "project", None) or Path.cwd(),
+        recorder = (
+            None
+            if scoped_retained_harness
+            else PerformanceRecorder(
+                build_root=_perf_build_root(args),
+                project_root=getattr(args, "project", None) or Path.cwd(),
+            )
         )
         perf_target = next(
             (

@@ -1,0 +1,122 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Operation-local shared bounded canonical role inputs only; prerequisite to actual catalog publication, retirement and imported-role handoff",
+  "base_commit": "5faa0149d47095d27554de5d207023f8b2c990e6",
+  "subjects": {
+    "src/literate_ai/adapters/catalog_copy_plan.py": {
+      "algorithm": "sha256",
+      "digest": "665f8276e7a2ca4afa47723bc53da5c1e7d8e2ea8d609912ca460d48d7a51d9a"
+    },
+    "src/literate_ai/adapters/conversion_authority.py": {
+      "algorithm": "sha256",
+      "digest": "2a89f6e76c7273c69c50619289877de1ae820fb27704194e5cc95881047530b1"
+    },
+    "src/literate_ai/adapters/project_identity_migration.py": {
+      "algorithm": "sha256",
+      "digest": "75fba2e490f1fa04bbe7d5cdd01670d7eaab65bcb58faa64945d49af496fb919"
+    },
+    "src/literate_ai/adapters/repository_orchestration.py": {
+      "algorithm": "sha256",
+      "digest": "05913cb9c32d4960e9b67f95762f65b7a9b07e90a110b93942e662faaa2a2251"
+    },
+    "src/literate_ai/adapters/repository_refresh.py": {
+      "algorithm": "sha256",
+      "digest": "91b54aa48740f15f3fff97cbfb7e84ae69f7287002ce0f98b02901f1c9c73620"
+    },
+    "src/literate_ai/adapters/repository_refresh_refs.py": {
+      "algorithm": "sha256",
+      "digest": "b39a3ca3f2393afe6cdc94b41c39290c40c20b6c3c5f795802316d9ba2ea0eac"
+    },
+    "src/literate_ai/adapters/retained_layout_git_controls.py": {
+      "algorithm": "sha256",
+      "digest": "d4301620b31453c904df22636a59ad258d3141dd2ec2177b4953d10e19c1221c"
+    },
+    "src/literate_ai/adapters/retained_layout_partition.py": {
+      "algorithm": "sha256",
+      "digest": "09a4e466b4c23c9d5251fe9a1eafcc64c28edb74c0278a600b7bf4786b7e21fb"
+    },
+    "src/literate_ai/projects.py": {
+      "algorithm": "sha256",
+      "digest": "4528ffcf02221b98622cfdc2daa611ff684b01cd837d7f517e1f59d9a61ba457"
+    },
+    "src/literate_ai/adapters/bounded_role_observation.py": {
+      "algorithm": "sha256",
+      "digest": "e1ae7265e966a0c2401bd9d70a3ec2cd17db4350648b4403a5eeca43a64c2e75"
+    },
+    "tests/critical/test_bounded_role_observation.py": {
+      "algorithm": "sha256",
+      "digest": "97d8e64847874f6f825959dd1d6252d562cebf31c918c109042641d65ffb137f"
+    }
+  },
+  "behavior": [
+    "Explicit operation-local scope retains original canonical parsers and ordinary reader defaults; every scoped file ceiling intersects the original helper ceiling and remaining shared source and metadata limits.",
+    "Actual bounded Git subprocess output, decoded records, file payloads, named presence/absence and original native ancestry consume the shared observation ledger; no larger fallback after refusal.",
+    "Project/conversion/native-child/migration inputs use canonical parsing and currentness, including optional conversion/registry absence and child manifest identity rereads.",
+    "Lifetime binds original process and thread; ended or copied thread contexts refuse; no mutation or source exclusion authority."
+  ],
+  "author_affected_suite": {
+    "modules": [
+      "tests.critical.test_bounded_role_observation",
+      "tests.critical.test_catalog_copy_plan",
+      "tests.critical.test_catalog_copy_staging",
+      "tests.critical.test_retained_layout_partition",
+      "tests.critical.test_retained_layout_control_roles",
+      "tests.critical.test_retained_layout_control_publication",
+      "tests.critical.test_retained_layout_metadata",
+      "tests.critical.test_project_configuration",
+      "tests.critical.test_native_project_registry",
+      "tests.critical.test_repository_refresh_inputs",
+      "tests.critical.test_repository_refresh_worktrees",
+      "tests.e2e.test_repository_orchestration",
+      "tests.e2e.test_project_identity_migration"
+    ],
+    "passed": 171,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 141.189,
+    "log_sha256": "1aea5c7a1441f14c9444862a6c14d76b78b7d31b0da0b1849b661020adaedce0"
+  },
+  "maintained_make": {
+    "pattern": "test_bounded_role_observation.py",
+    "passed": 19,
+    "skipped": 0,
+    "seconds": 4.143,
+    "report_sha256": "bbe9b263f82deffcfe4727714500e7b330af4c2faec26c60677de983fa6afef2"
+  },
+  "static_first": [
+    "lint PASS",
+    "format-check PASS",
+    "git diff --check PASS",
+    "repository-layout-check PASS",
+    "public-export-check PASS"
+  ],
+  "independent_review": {
+    "path": "independent-layout-role-inputs-review.json",
+    "sha256": "28ecd50302556522caba1b4cf52dc9ecccd3585afd2ecfdd6e4372df03165932",
+    "decision": "approved_at_exact_read_budget_scope",
+    "findings": []
+  },
+  "acceptance_limits": [
+    "No actual catalog publication, original-node retirement or imported-role handoff is implemented by this read-only scope.",
+    "No new public API, root/shared/initial/wrapper acceptance, recovery, installed/native platform qualification, complete integration or release acceptance.",
+    "Currentness is a closing bounded observation, not a continuous hostile same-user atomic snapshot.",
+    "Currentness covers only recorded inputs/ancestry/presences and does not replace actual project/Git role leases, transient operation guards or effect-specific validation."
+  ],
+  "independent_executions": [
+    {
+      "kind": "new maintained methods",
+      "passed": 19,
+      "seconds": 4.339,
+      "skipped": 0,
+      "log_sha256": "7fa7e9258e5840bd26699477bd5692b23a16d294e54494c0a88d8ede1c27d901"
+    },
+    {
+      "kind": "maintained parser, Git-refresh and migration regressions",
+      "passed": 13,
+      "seconds": 59.3,
+      "skipped": 0,
+      "log_sha256": "8e35189766610a3621f6da714d7a70c7b0b400d22652180f7012095f271f1b8d"
+    }
+  ]
+}

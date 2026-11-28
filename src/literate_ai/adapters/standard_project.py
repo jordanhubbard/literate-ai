@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import os
 import sys
@@ -12,7 +13,11 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
+
+if TYPE_CHECKING:
+    from literate_ai.adapters.node_sdk_host import LocalNodeSDKHostConfiguration
+
 
 from literate_ai.adapters.builders import (
     DEFAULT_ZIG_MINIMUM_VERSION,
@@ -37,6 +42,10 @@ from literate_ai.adapters.builders.cpp import bazel_sdk_build_options
 from literate_ai.adapters.builders.elixir import ElixirToolchain
 from literate_ai.adapters.builders.hex import HexToolchain
 from literate_ai.adapters.builders.rust import RustToolchain
+from literate_ai.adapters.builders.typescript_sdk import (
+    TypeScriptSDKToolchain,
+    capture_typescript_sdk_toolchain,
+)
 from literate_ai.adapters.cache import (
     CachedCodingCliSourceGenerator,
     FilesystemStandardAcceptedSourcePublisher,
@@ -59,7 +68,9 @@ from literate_ai.adapters.generation_preparation import (
     LockedComponentModelSelectionAdapter,
     LockedComponentNodePreparationAdapter,
 )
+from literate_ai.adapters.lifecycle.commonjs_import import commonjs_import_driver_source
 from literate_ai.adapters.lifecycle.cpp_acceptance import cpp_compile_driver_source
+from literate_ai.adapters.lifecycle.python_libraries import PYTHON_LIBRARY_BOOTSTRAP
 from literate_ai.adapters.lifecycle.standard_bazel import (
     StandardBazelLifecyclePorts,
     StandardBazelTarget,
@@ -80,6 +91,7 @@ from literate_ai.adapters.lifecycle.standard_mix import (
     StandardMixLifecyclePorts,
     StandardMixTarget,
 )
+from literate_ai.adapters.lifecycle.standard_node_sdk import StandardNodeSDKTarget
 from literate_ai.adapters.lifecycle.standard_npm import StandardNpmTarget
 from literate_ai.adapters.lifecycle.standard_python import StandardPythonTarget
 from literate_ai.adapters.lifecycle.standard_runtime import (
@@ -121,6 +133,10 @@ from literate_ai.adapters.source_generation import (
     CachedCodingCliSourceGenerationRunner,
     CodingCliSourceGenerationInvocation,
 )
+from literate_ai.adapters.standard_command_profiles import (
+    is_node_sdk_language_profile,
+    read_standard_profile_contribution,
+)
 from literate_ai.application.component_execution_planning import (
     authored_assets_from_lock,
 )
@@ -131,11 +147,16 @@ from literate_ai.application.library_artifacts import (
     project_cpp_library_layout,
     project_library_import_surface,
 )
+from literate_ai.application.native_root_run import (
+    LiveNativeRootRun,
+    activate_native_root_run,
+)
 from literate_ai.application.release_artifacts import StandardReleaseDeclaration
 from literate_ai.application.source_generation_scheduling import (
     ComponentSourceGenerationRunError,
     ComponentSourceGenerationRunner,
 )
+from literate_ai.application.standard_node_sdk_admission import is_node_sdk
 from literate_ai.application.standard_project_lifecycle import (
     AcceptedSourceCachePublisher,
     GenerationIndexer,
@@ -173,6 +194,7 @@ from literate_ai.contracts import (
     StandardLifecycleStageEvidence,
     StandardMakeCommandProfile,
     StandardMixCommandProfile,
+    StandardNodeSDKCommandProfile,
     StandardNpmCommandProfile,
     StandardPlatformCommandProfile,
     StandardPythonWheelCommandProfile,
@@ -181,7 +203,6 @@ from literate_ai.contracts import (
     StandardSourceSelectorSet,
     ToolchainConstraint,
     merge_toolchain_constraints,
-    parse_standard_command_profile,
     standard_entrypoint_source_path,
 )
 from literate_ai.contracts.components import (
@@ -240,8 +261,10 @@ class FilesystemStandardProjectPlanningAdapter:
         coding_cli_selector: Callable[[], CodingCliSelection] = select_coding_cli,
         model_selector: LockedComponentModelSelectionAdapter | None = None,
         native_sdk_inputs=None,
+        qualified_library_inputs=None,
     ) -> None:
         self.native_sdk_inputs = native_sdk_inputs
+        self.qualified_library_inputs = qualified_library_inputs
         self.coding_cli_selector = coding_cli_selector
         self.model_selector = model_selector or LockedComponentModelSelectionAdapter()
 
@@ -271,6 +294,11 @@ class FilesystemStandardProjectPlanningAdapter:
         if not isinstance(snapshot, LockedGenerationAuthoritySnapshot):
             raise TypeError("snapshot must be a LockedGenerationAuthoritySnapshot")
         snapshot.require_unchanged()
+        from literate_ai.adapters.native_root_external_runtime import (
+            require_qualified_library_inputs,
+        )
+
+        require_qualified_library_inputs(self.qualified_library_inputs, snapshot)
         if assets is None:
             assets = authored_assets_from_lock(snapshot.authority.lock)
         from literate_ai.adapters.native_sdk_generation import (
@@ -320,6 +348,10 @@ class StandardProjectRuntimeReadiness:
     blockers: tuple[str, ...]
 
 
+if TYPE_CHECKING:
+    from literate_ai.adapters.generation_preparation import PreparedLockedGeneration
+
+
 @dataclass(frozen=True, slots=True)
 class ProjectedStandardToolchainClosure:
     """Typed host realization of one exact locked Standard toolchain closure."""
@@ -345,8 +377,28 @@ class ProjectedStandardToolchainClosure:
     rust_harness_compilers: _RustHarnessCompilerObservations | None = field(
         default=None, repr=False, compare=False
     )
+    # Derived naming context, not a new serialized field or permission.
+    execution_plan: ComponentExecutionPlan | None = field(
+        default=None, repr=False, compare=False
+    )
+
+    node_sdk_targets: tuple[StandardNodeSDKTarget, ...] = ()
 
     def require_unchanged(self) -> None:
+        if self.execution_plan is not None and (
+            not isinstance(self.execution_plan, ComponentExecutionPlan)
+            or self.execution_plan.identity != self.record.execution_plan_identity
+            or self.execution_plan.component_lock_identity
+            != self.record.component_lock_identity
+        ):
+            raise ValueError("Standard runtime execution plan changed after projection")
+        original_sdk_targets = self.node_sdk_targets
+        if any(
+            type(t) is not StandardNodeSDKTarget for t in self.node_sdk_targets
+        ) or len({t.component_revision.uri for t in self.node_sdk_targets}) != len(
+            self.node_sdk_targets
+        ):
+            raise ValueError("Standard SDK target membership changed after projection")
         if self.rust_harness_compilers is not None:
             if (
                 type(self.rust_harness_compilers)
@@ -357,7 +409,7 @@ class ProjectedStandardToolchainClosure:
         if self.dependency_guard is not None:
             self.dependency_guard()
         required = required_command_toolchains(
-            self.contracts, self.command_phases, self.npm_targets
+            self.contracts, self.command_phases, self.npm_targets, self.node_sdk_targets
         )
         if (
             len({item.toolchain_identity.uri for item in self.tool_bindings})
@@ -369,9 +421,14 @@ class ProjectedStandardToolchainClosure:
             binding.require_unchanged()
         for authority in self.toolchain_authorities:
             authority.require_unchanged()
+        if self.node_sdk_targets is not original_sdk_targets:
+            raise ValueError("Standard SDK target membership changed during validation")
         contracts = {
             item.component_revision.uri: item.identity for item in self.contracts
         }
+        contract_values = {item.component_revision.uri: item for item in self.contracts}
+        for target in self.node_sdk_targets:
+            target.require_contract(contract_values[target.component_revision.uri])
         targets = {
             item.component_revision.uri: item.identity
             for item in (
@@ -380,6 +437,7 @@ class ProjectedStandardToolchainClosure:
                 *self.npm_targets,
                 *self.python_targets,
                 *self.mix_targets,
+                *self.node_sdk_targets,
             )
         }
         authority_revisions = {
@@ -621,6 +679,7 @@ def _inline_python_driver(source: str) -> str:
 
 _STANDARD_LIBRARY_TEST_DRIVER = _inline_python_driver(
     """import json
+import hashlib
 import pathlib
 import shutil
 import subprocess
@@ -632,7 +691,13 @@ tool = json.loads(tool_json)
 export = pathlib.Path(export_value).resolve(strict=True)
 temporary = None
 if language == "python":
-    command = [*tool, str(export / "source" / "main.py"), "--litai-test"]
+    runtime=sys.argv[7]
+    digest=hashlib.sha256(runtime.encode('utf-8')).hexdigest()
+    if digest!='__PYTHON_RUNTIME_DIGEST__':
+        raise RuntimeError('Python library test driver support changed')
+    command = [*tool, "-I", "-S", "-B", "-c", runtime,
+               str(export.parent), str(export), "tree", "source/main.py",
+               "--litai-test"]
 elif language == "javascript":
     command = [*tool, str(export / "source" / "main.js"), "--litai-test"]
 elif language == "elixir":
@@ -670,12 +735,23 @@ try:
 finally:
     if temporary is not None:
         shutil.rmtree(temporary, ignore_errors=True)
-"""
+    """.replace(
+        "__PYTHON_RUNTIME_DIGEST__",
+        hashlib.sha256(_STANDARD_PYTHON_RUNTIME_DRIVER.encode("utf-8")).hexdigest(),
+    )
 )
+
+
+_STANDARD_COMMONJS_IMPORT_DRIVER = _inline_python_driver(
+    commonjs_import_driver_source()
+)
+
+_STANDARD_PYTHON_IMPORT_SUPPORT = _inline_python_driver(PYTHON_LIBRARY_BOOTSTRAP)
 
 
 _STANDARD_LIBRARY_IMPORT_DRIVER = _inline_python_driver(
     """import base64
+import hashlib
 import importlib
 import json
 import pathlib
@@ -788,6 +864,12 @@ IO.puts(JSON.encode!(%{schema: "literate-ai/library-import-observation@1",
     sys.stderr.buffer.write(completed.stderr)
     raise SystemExit(completed.returncode)
 elif language == "python":
+    support=sys.argv[7]
+    digest=hashlib.sha256(support.encode('utf-8')).hexdigest()
+    if digest!='__PYTHON_IMPORT_SUPPORT_DIGEST__':
+        raise RuntimeError('Python library import driver support changed')
+    exec(support)
+    _litai_python_imports(export)
     sys.path.insert(0, str(source))
     for capability in surface["capabilities"]:
         module = importlib.import_module(capability["module"])
@@ -798,50 +880,11 @@ elif language == "python":
             getattr(module, symbol)
         observed.append(capability["capability"])
 elif language == "javascript":
-    script = '''const fs=require('fs'),path=require('path');
-const root=fs.realpathSync(process.argv[1]), surface=JSON.parse(process.argv[2]);
-const packageRoot=fs.realpathSync(path.join(root,'source',surface.package));
-const manifestPath=path.join(packageRoot,'package.json');
-const manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
-if (manifest.name!==surface.package || !manifest.exports ||
-    !['commonjs',undefined].includes(manifest.type))
-  throw Error('library manifest differs from locked import authority');
-const dependencyFields=['dependencies','devDependencies',
-                        'optionalDependencies','peerDependencies'];
-for (const field of dependencyFields)
-  if (manifest[field] && Object.keys(manifest[field]).length)
-    throw Error('dependency-free library manifest declares '+field);
-const seen=[];
-const expectedExports={};
-for (const capability of surface.capabilities) {
-  const prefix=surface.package+'/';
-  if (!capability.module.startsWith(prefix))
-    throw Error('library module escaped package authority');
-  const subpath='./'+capability.module.slice(prefix.length);
-  const targetSpec='./'+capability.module.slice(prefix.length)+'.js';
-  expectedExports[subpath]=targetSpec;
-  if (manifest.exports[subpath]!==targetSpec)
-    throw Error('library exports map differs for '+subpath);
-  const target=path.join(packageRoot,targetSpec);
-  const resolved=fs.realpathSync(require.resolve(target));
-  if (!(resolved===packageRoot || resolved.startsWith(packageRoot+path.sep)))
-    throw Error('library import escaped exact artifact');
-  const value=require(resolved);
-  for (const symbol of capability.symbols)
-    if (!(symbol in value)) throw Error('missing library symbol '+symbol);
-  seen.push(capability.capability);
-}
-const actualExportKeys=Object.keys(manifest.exports).sort();
-const expectedExportKeys=Object.keys(expectedExports).sort();
-if (JSON.stringify(actualExportKeys)!==JSON.stringify(expectedExportKeys))
-  throw Error('library exports map has undeclared entries');
-process.stdout.write(JSON.stringify({schema:'literate-ai/library-import-observation@1',capabilities:seen}));
-'''
-    completed = subprocess.run([*tool, "-e", script, str(export), surface_json],
-                               capture_output=True)
-    sys.stdout.buffer.write(completed.stdout)
-    sys.stderr.buffer.write(completed.stderr)
-    raise SystemExit(completed.returncode)
+    support = sys.argv[7]
+    support_digest = hashlib.sha256(support.encode("utf-8")).hexdigest()
+    if support_digest != "__COMMONJS_DRIVER_DIGEST__":
+        raise RuntimeError("library import driver support changed")
+    exec(support)
 elif language == "rust":
     document = tomllib.loads((export / manifest).read_text(encoding="utf-8"))
     package_name = document["package"]["name"]
@@ -870,7 +913,7 @@ elif language == "rust":
         completed = subprocess.run([*tool, "check", "--quiet", "--offline",
                                     "--manifest-path", str(temporary / "Cargo.toml"),
                                     "--target-dir", str(temporary / "target")],
-                                   capture_output=True)
+                                   cwd=temporary, capture_output=True)
         sys.stderr.buffer.write(completed.stderr)
         if completed.returncode:
             raise SystemExit(completed.returncode)
@@ -881,7 +924,13 @@ else:
 if language != "javascript":
     print(json.dumps({"schema":"literate-ai/library-import-observation@1",
                       "capabilities":observed}, sort_keys=True, separators=(",",":")))
-"""
+""".replace(
+        "__COMMONJS_DRIVER_DIGEST__",
+        hashlib.sha256(_STANDARD_COMMONJS_IMPORT_DRIVER.encode("utf-8")).hexdigest(),
+    ).replace(
+        "__PYTHON_IMPORT_SUPPORT_DIGEST__",
+        hashlib.sha256(_STANDARD_PYTHON_IMPORT_SUPPORT.encode("utf-8")).hexdigest(),
+    )
 )
 
 
@@ -1008,6 +1057,10 @@ def _encoded_library_import_surface(surface: LibraryImportSurface) -> str:
             for item in surface.capabilities
         ],
     }
+    if surface.declarations:
+        declared_surface = surface.to_dict()
+        verifier_surface["schema"] = declared_surface["schema"]
+        verifier_surface["declarations"] = declared_surface["declarations"]
     content = json.dumps(verifier_surface, separators=(",", ":")).encode("utf-8")
     encoded = base64.urlsafe_b64encode(zlib.compress(content, level=9)).decode("ascii")
     if len(encoded) > 4096:
@@ -1085,14 +1138,8 @@ def _profile_contributions(snapshot, node) -> tuple[object, ...]:
             ):
                 continue
             try:
-                content = snapshot.flavor_content(flavor.identity, contribution.content)
-                value = json.loads(content.decode("utf-8"))
-                profile = parse_standard_command_profile(
-                    value,
-                    path=(
-                        f"Flavor {flavor.definition.coordinate.uri} contribution "
-                        f"{contribution.contribution_id}"
-                    ),
+                profile = read_standard_profile_contribution(
+                    snapshot, flavor, contribution
                 )
             except Exception as exc:
                 raise StandardCommandProjectionError(
@@ -1114,6 +1161,7 @@ def _profile_contributions(snapshot, node) -> tuple[object, ...]:
                 ),
                 FlavorAxis.PACKAGING: (
                     StandardNpmCommandProfile,
+                    StandardNodeSDKCommandProfile,
                     StandardPythonWheelCommandProfile,
                 ),
                 FlavorAxis.PLATFORM_OS: StandardPlatformCommandProfile,
@@ -1193,6 +1241,31 @@ def _toolchain_constraints(snapshot, node) -> dict[str, ToolchainConstraint]:
         name: merge_toolchain_constraints(tuple(values))
         for name, values in by_name.items()
     }
+
+
+def _require_sdk_tool_constraint(tool, constraint):
+    """Check every selected field; recording a constraint CID grants no compliance."""
+    from packaging.version import Version
+
+    release = Version(tool.version).release
+
+    def floor(prefix):
+        return (*prefix, *(0 for _ in range(max(0, 3 - len(prefix)))))
+
+    if (
+        (constraint.command is not None and tuple(constraint.command) != tool.command)
+        or (constraint.minimum_version and release < floor(constraint.minimum_version))
+        or (
+            constraint.maximum_exclusive_version
+            and release >= floor(constraint.maximum_exclusive_version)
+        )
+        or (
+            constraint.required_version
+            and release[: len(constraint.required_version)]
+            != constraint.required_version
+        )
+    ):
+        raise ValueError("SDK tool differs from selected command/version constraint")
 
 
 def _discover_toolchain(
@@ -1409,6 +1482,9 @@ def _runtime_command(
     if profile.runtime_strategy is StandardLanguageRuntimeStrategy.PYTHON:
         return (
             "{tool}",
+            "-I",
+            "-S",
+            "-B",
             "-c",
             _STANDARD_PYTHON_RUNTIME_DRIVER,
             *common,
@@ -1503,6 +1579,8 @@ def _command_contract(
     npm_flavor_revision_identity: ContentIdentity | None = None,
     python_profile: StandardPythonWheelCommandProfile | None = None,
     python_flavor_revision_identity: ContentIdentity | None = None,
+    node_sdk_profile: StandardNodeSDKCommandProfile | None = None,
+    node_sdk_flavor_revision_identity: ContentIdentity | None = None,
 ):
     cpp_library = language.target == "cpp" and authoring.resolved_kind == "library"
     if cpp_library and (
@@ -1525,6 +1603,38 @@ def _command_contract(
         if not entrypoints
         else None
     )
+    if node_sdk_profile is not None:
+        if (
+            library_surface is None
+            or not library_surface.node_sdk_exports
+            or language.target != "typescript"
+            or node_sdk_flavor_revision_identity is None
+            or build_system is not None
+            or npm_profile is not None
+            or python_profile is not None
+            or accelerator is not None
+        ):
+            raise StandardCommandProjectionError(
+                "standard_command.node_sdk_profile_unsupported",
+                "Node SDK requires an explicit TypeScript dual library without "
+                "competing build, packaging or accelerator authority",
+            )
+        target = StandardNodeSDKTarget(
+            plan.component_revision,
+            node_sdk_flavor_revision_identity,
+            node_sdk_profile,
+            target_profile_identity,
+            str(authoring.version),
+            tools["typescript"],
+            tools["npm"],
+        )
+        return target.command_contract(library_surface), target, language
+    if library_surface is not None and library_surface.node_sdk_exports:
+        raise StandardCommandProjectionError(
+            "standard_command.node_sdk_profile_required",
+            "TypeScript SDK exports require the opt-in package-node-sdk compiler "
+            "and packer profile; the application profile cannot build this surface",
+        )
     native_layout = (
         project_cpp_library_layout(
             library_surface, kind=language.cpp_library_kind, platform=platform.target
@@ -1916,6 +2026,7 @@ def _command_contract(
             build_system.binary,
             compiler.command,
             library=library_surface is not None,
+            package_layout=build_system.package_layout,
         )
         build_argv = (
             "{tool}",
@@ -1987,6 +2098,11 @@ def _command_contract(
             manifest,
             binary,
             "{artifact_root}",
+            *(
+                (_STANDARD_PYTHON_RUNTIME_DRIVER,)
+                if language.target == "python"
+                else ()
+            ),
         )
         execute_argv = (
             "{tool}",
@@ -2000,6 +2116,13 @@ def _command_contract(
             "{export_path}",
             manifest,
             "{artifact_root}",
+            *(
+                (_STANDARD_COMMONJS_IMPORT_DRIVER,)
+                if language.target == "javascript"
+                else (_STANDARD_PYTHON_IMPORT_SUPPORT,)
+                if language.target == "python"
+                else ()
+            ),
         )
         if language.target == "python" and python_profile is None:
             # The legacy library path also needs isolated interpreter startup:
@@ -2015,15 +2138,12 @@ def _command_contract(
     if python_profile is not None:
 
         def wheel_argv(argv):
-            return (
-                argv[0],
-                "-I",
-                "-S",
-                "-B",
-                "-c",
-                STANDARD_PYTHON_WHEEL_RUNTIME_DRIVER,
-                *argv[3:],
-            )
+            if argv[1:6] != ("-I", "-S", "-B", "-c", _STANDARD_PYTHON_RUNTIME_DRIVER):
+                raise StandardCommandProjectionError(
+                    "standard_command.python_runtime_invalid",
+                    "wheel runtime requires the original isolated Python command",
+                )
+            return (*argv[:5], STANDARD_PYTHON_WHEEL_RUNTIME_DRIVER, *argv[6:])
 
         if library_surface is not None:
             test_argv = (
@@ -2282,6 +2402,10 @@ def project_locked_standard_toolchain_closure(
     | None = None,
     npm_toolchain_discoverer: Callable[[object, Mapping[str, str]], object]
     | None = None,
+    typescript_toolchain_discoverer: Callable[
+        [object, ToolchainConstraint, Mapping[str, str]], TypeScriptSDKToolchain
+    ]
+    | None = None,
     dependency_observer: Callable[
         [tuple[tuple[str, ...], ...]], HostDependencyObservation
     ]
@@ -2290,6 +2414,95 @@ def project_locked_standard_toolchain_closure(
     command_phases: tuple[ComponentCommandPhase, ...] = tuple(ComponentCommandPhase),
     observer_identity: ContentIdentity | None = None,
     dependency_guard: Callable[[], None] | None = None,
+) -> ProjectedStandardToolchainClosure:
+    """Derive all Standard command authority from one exact lock and its Flavors."""
+    return _project_locked_standard_toolchain_closure(
+        snapshot=snapshot,
+        execution_plan=execution_plan,
+        environment=environment,
+        host_platform=host_platform,
+        toolchain_discoverer=toolchain_discoverer,
+        npm_toolchain_discoverer=npm_toolchain_discoverer,
+        **(
+            {"typescript_toolchain_discoverer": typescript_toolchain_discoverer}
+            if typescript_toolchain_discoverer is not None
+            else {}
+        ),
+        dependency_observer=dependency_observer,
+        native_sdk_inputs=native_sdk_inputs,
+        command_phases=command_phases,
+        observer_identity=observer_identity,
+        dependency_guard=dependency_guard,
+        _retain_completion=False,
+    )
+
+
+def _project_locked_standard_toolchain_closure_session(
+    snapshot: LockedGenerationAuthoritySnapshot,
+    execution_plan: ComponentExecutionPlan,
+    *,
+    environment: Mapping[str, str] | None = None,
+    host_platform: str | None = None,
+    toolchain_discoverer: Callable[
+        [str, ToolchainConstraint | None, Mapping[str, str]], object
+    ]
+    | None = None,
+    npm_toolchain_discoverer: Callable[[object, Mapping[str, str]], object]
+    | None = None,
+    typescript_toolchain_discoverer=None,
+    dependency_observer: Callable[
+        [tuple[tuple[str, ...], ...]], HostDependencyObservation
+    ]
+    | None = None,
+    native_sdk_inputs=None,
+    command_phases: tuple[ComponentCommandPhase, ...] = tuple(ComponentCommandPhase),
+    observer_identity: ContentIdentity | None = None,
+    dependency_guard: Callable[[], None] | None = None,
+) -> object:
+    """Private actual original closure and concrete discovery observations."""
+    return _project_locked_standard_toolchain_closure(
+        snapshot=snapshot,
+        execution_plan=execution_plan,
+        environment=environment,
+        host_platform=host_platform,
+        toolchain_discoverer=toolchain_discoverer,
+        npm_toolchain_discoverer=npm_toolchain_discoverer,
+        **(
+            {"typescript_toolchain_discoverer": typescript_toolchain_discoverer}
+            if typescript_toolchain_discoverer is not None
+            else {}
+        ),
+        dependency_observer=dependency_observer,
+        native_sdk_inputs=native_sdk_inputs,
+        command_phases=command_phases,
+        observer_identity=observer_identity,
+        dependency_guard=dependency_guard,
+        _retain_completion=True,
+    )
+
+
+def _project_locked_standard_toolchain_closure(
+    snapshot: LockedGenerationAuthoritySnapshot,
+    execution_plan: ComponentExecutionPlan,
+    *,
+    environment: Mapping[str, str] | None = None,
+    host_platform: str | None = None,
+    toolchain_discoverer: Callable[
+        [str, ToolchainConstraint | None, Mapping[str, str]], object
+    ]
+    | None = None,
+    npm_toolchain_discoverer: Callable[[object, Mapping[str, str]], object]
+    | None = None,
+    typescript_toolchain_discoverer=None,
+    dependency_observer: Callable[
+        [tuple[tuple[str, ...], ...]], HostDependencyObservation
+    ]
+    | None = None,
+    native_sdk_inputs=None,
+    command_phases: tuple[ComponentCommandPhase, ...] = tuple(ComponentCommandPhase),
+    observer_identity: ContentIdentity | None = None,
+    dependency_guard: Callable[[], None] | None = None,
+    _retain_completion: bool = False,
 ) -> ProjectedStandardToolchainClosure:
     """Derive all Standard command authority from one exact lock and its Flavors."""
 
@@ -2378,6 +2591,8 @@ def project_locked_standard_toolchain_closure(
             ContentIdentity | None,
             StandardPythonWheelCommandProfile | None,
             ContentIdentity | None,
+            StandardNodeSDKCommandProfile | None,
+            ContentIdentity | None,
         ],
     ] = {}
     constraints: dict[str, list[ToolchainConstraint]] = {}
@@ -2442,6 +2657,36 @@ def project_locked_standard_toolchain_closure(
             required=False,
             label="Python wheel packaging command",
         )
+        node_sdk_profile = _one_profile(
+            profiles,
+            StandardNodeSDKCommandProfile,
+            required=False,
+            label="Node SDK packaging command",
+        )
+        node_sdk_flavor_revision_identity = (
+            None
+            if node_sdk_profile is None
+            else _selected_flavor_revision_identity(
+                snapshot,
+                node,
+                axis=FlavorAxis.PACKAGING,
+                target=node_sdk_profile.target,
+            )
+        )
+        if node_sdk_profile is not None and (
+            not is_node_sdk_language_profile(language)
+            or authoring.resolved_kind != "library"
+            or authoring.entrypoints
+            or build_system is not None
+            or accelerator is not None
+            or npm_profile is not None
+            or python_profile is not None
+        ):
+            raise StandardCommandProjectionError(
+                "standard_command.node_sdk_profile_unsupported",
+                "Node SDK requires an explicit TypeScript tree dual library "
+                "without competing packaging, build or accelerator authority",
+            )
         python_flavor_revision_identity = (
             None
             if python_profile is None
@@ -2530,6 +2775,8 @@ def project_locked_standard_toolchain_closure(
             npm_flavor_revision_identity,
             python_profile,
             python_flavor_revision_identity,
+            node_sdk_profile,
+            node_sdk_flavor_revision_identity,
         )
         if (
             accelerator is not None
@@ -2546,12 +2793,14 @@ def project_locked_standard_toolchain_closure(
                 build_system, (StandardMakeCommandProfile, StandardCMakeCommandProfile)
             ):
                 required_tool_names.add("python")
-        elif npm_profile is None:
+        elif npm_profile is None and node_sdk_profile is None:
             required_tool_names.add("python")
-        if not authoring.entrypoints:
+        if not authoring.entrypoints and node_sdk_profile is None:
             required_tool_names.add("python")
         if npm_profile is not None:
             required_tool_names.add(npm_profile.toolchain)
+        if node_sdk_profile is not None:
+            required_tool_names.update(("node", "npm", "typescript"))
         if (
             language.runtime_strategy
             is StandardLanguageRuntimeStrategy.NATIVE_EXECUTABLE
@@ -2566,7 +2815,7 @@ def project_locked_standard_toolchain_closure(
     discover = toolchain_discoverer or _discover_toolchain
     tools = {
         name: discover(name, merged_constraints.get(name), configured)
-        for name in sorted(required_tool_names - {"npm", "hex"})
+        for name in sorted(required_tool_names - {"npm", "hex", "typescript"})
     }
     if "hex" in required_tool_names:
         elixir = tools.get("elixir")
@@ -2658,6 +2907,63 @@ def project_locked_standard_toolchain_closure(
                 "standard_command.npm_toolchain_unavailable",
                 "supported npm from the selected Node.js installation is unavailable",
             ) from exc
+    if "typescript" in required_tool_names:
+        constraint = merged_constraints.get("typescript")
+        if constraint is None:
+            raise StandardCommandProjectionError(
+                "standard_command.node_sdk_compiler_constraint_missing",
+                "Node SDK requires explicit bounded TypeScript constraint authority",
+            )
+        try:
+            version_range = constraint.version_range()
+
+            def discover_typescript(node, selected_constraint, environment):
+                from literate_ai.storage.cas import FileSystemCAS
+
+                location = environment.get("LITAI_TYPESCRIPT_SDK")
+                if not location or not Path(location).is_absolute():
+                    raise ValueError("select an absolute LITAI_TYPESCRIPT_SDK package")
+                with tempfile.TemporaryDirectory(
+                    prefix="litai-typescript-capture-"
+                ) as root:
+                    return capture_typescript_sdk_toolchain(
+                        Path(location),
+                        node=node,
+                        store=FileSystemCAS(Path(root) / "cas"),
+                        constraint_identity=selected_constraint.identity,
+                        version_constraint=selected_constraint.version_range(),
+                        environment=environment,
+                        require_current=snapshot.require_unchanged,
+                    )
+
+            compiler_discover = typescript_toolchain_discoverer or discover_typescript
+            selected = compiler_discover(tools["node"], constraint, configured)
+            if (
+                type(selected) is not TypeScriptSDKToolchain
+                or selected.constraint_identity != constraint.identity
+                or selected.version_constraint != version_range
+                or selected.node.identity != tools["node"].identity
+            ):
+                raise ValueError(
+                    "TypeScript selection differs from locked constraint/Node"
+                )
+            _require_sdk_tool_constraint(selected, constraint)
+            npm = tools["npm"]
+            npm_constraint = merged_constraints["npm"]
+            if (
+                npm.constraint_identity != npm_constraint.identity.uri
+                or npm.version_constraint != npm_constraint.version_range()
+            ):
+                raise ValueError("SDK npm differs from selected constraint authority")
+            _require_sdk_tool_constraint(npm, npm_constraint)
+            if merged_constraints.get("node") is not None:
+                _require_sdk_tool_constraint(tools["node"], merged_constraints["node"])
+            tools["typescript"] = selected
+        except Exception as exc:
+            raise StandardCommandProjectionError(
+                "standard_command.node_sdk_compiler_unavailable",
+                "explicit captured TypeScript package differs from selected authority",
+            ) from exc
     for name, tool in tools.items():
         if (
             not isinstance(getattr(tool, "command", None), tuple)
@@ -2682,6 +2988,7 @@ def project_locked_standard_toolchain_closure(
     cargo_targets = []
     mix_targets = []
     npm_targets = []
+    node_sdk_targets = []
     python_targets = []
     language_by_revision = {}
     single_file_revisions = set()
@@ -2701,6 +3008,8 @@ def project_locked_standard_toolchain_closure(
             profiles[5],
             profiles[6],
             profiles[7],
+            profiles[8],
+            profiles[9],
         )
         if plan.component_revision.uri in sdk_runtime_revisions:
             contract = project_native_sdk_commands(
@@ -2723,9 +3032,11 @@ def project_locked_standard_toolchain_closure(
             npm_targets.append(target)
         elif isinstance(target, StandardPythonTarget):
             python_targets.append(target)
+        elif type(target) is StandardNodeSDKTarget:
+            node_sdk_targets.append(target)
     bindings_by_identity = {}
     scoped_identities = required_command_toolchains(
-        tuple(contracts), command_phases, tuple(npm_targets)
+        tuple(contracts), command_phases, tuple(npm_targets), tuple(node_sdk_targets)
     )
     for contract in contracts:
         for identity in contract.execution_toolchain_identities:
@@ -2738,6 +3049,13 @@ def project_locked_standard_toolchain_closure(
                 identity.uri,
                 LocalComponentToolBinding.from_observed_toolchain(tool),
             )
+    for target in node_sdk_targets:
+        for tool in (target.typescript, target.npm, target.typescript.node):
+            if tool.identity in scoped_identities:
+                bindings_by_identity.setdefault(
+                    tool.identity,
+                    LocalComponentToolBinding.from_observed_toolchain(tool),
+                )
     provider_environment = {}
     contracts_by_revision = {item.component_revision.uri: item for item in contracts}
     provider_edges = {
@@ -2815,6 +3133,40 @@ def project_locked_standard_toolchain_closure(
         )
     else:
         observation = dependency_observer(commands)
+    if node_sdk_targets:
+        root_ref = f"urn:literate-ai:component:{execution_plan.root_revision.digest}"
+        images = {
+            target.typescript.identity: target.typescript for target in node_sdk_targets
+        }
+        components = []
+        edges = []
+        for identity, image in sorted(images.items()):
+            ref = "node-sdk-compiler-image:" + image.compiler.identity.digest
+            components.append(
+                {
+                    "type": "library",
+                    "bom-ref": ref,
+                    "name": "typescript",
+                    "version": image.version,
+                    "properties": [
+                        {"name": "literate-ai:dependency-kind", "value": "toolchain"},
+                        {"name": "literate-ai:dependency-scope", "value": "build"},
+                        {"name": "literate-ai:toolchain-identity", "value": identity},
+                        {
+                            "name": "literate-ai:typescript-snapshot",
+                            "value": image.snapshot_identity.uri,
+                        },
+                        {
+                            "name": "literate-ai:typescript-image",
+                            "value": image.compiler.sdk.identity.uri,
+                        },
+                    ],
+                }
+            )
+            edges.append((root_ref, ref))
+        observation = HostDependencyObservation(
+            (*observation.components, *components), (*observation.edges, *edges)
+        )
     snapshot.require_unchanged()
     for tool in tools.values():
         tool.require_unchanged()
@@ -2839,6 +3191,7 @@ def project_locked_standard_toolchain_closure(
         cargo_targets=tuple(cargo_targets),
         mix_targets=tuple(mix_targets),
         npm_targets=tuple(npm_targets),
+        node_sdk_targets=tuple(node_sdk_targets),
         python_targets=tuple(python_targets),
         provider_environment=provider_environment,
         toolchain_authorities=_observed_tool_authorities(tools),
@@ -2853,6 +3206,22 @@ def project_locked_standard_toolchain_closure(
         for tool in tools.values()
         if type(tool) is RustToolchain and tool.identity in compiler_identities
     }
+    if _retain_completion:
+        from literate_ai.adapters.authored_provider_tool_completion import (
+            _retain_original_provider_tools,
+        )
+
+        original_closure = replace(
+            closure,
+            rust_harness_compilers=_retain_rust_harness_compilers(
+                tuple(original_compilers[key] for key in sorted(original_compilers))
+            )
+            if original_compilers and set(original_compilers) == compiler_identities
+            else None,
+        )
+        return _retain_original_provider_tools(
+            original_closure, tools, native_sdk_inputs=native_sdk_inputs
+        )
     return replace(
         closure,
         rust_harness_compilers=(
@@ -2904,6 +3273,7 @@ def project_standard_toolchain_closure(
     cargo_targets: tuple[StandardCargoTarget, ...] = (),
     mix_targets: tuple[StandardMixTarget, ...] = (),
     npm_targets: tuple[StandardNpmTarget, ...] = (),
+    node_sdk_targets: tuple[StandardNodeSDKTarget, ...] = (),
     python_targets: tuple[StandardPythonTarget, ...] = (),
     provider_environment: Mapping[str, tuple[str, str]] | None = None,
     toolchain_authorities: tuple[LocalObservedToolchainAuthority, ...] = (),
@@ -2934,6 +3304,8 @@ def project_standard_toolchain_closure(
         raise TypeError("npm_targets must contain StandardNpmTarget values")
     if any(not isinstance(item, StandardPythonTarget) for item in python_targets):
         raise TypeError("python_targets must contain StandardPythonTarget values")
+    if any(type(item) is not StandardNodeSDKTarget for item in node_sdk_targets):
+        raise TypeError("node_sdk_targets must contain exact SDK targets")
     if any(
         not isinstance(item, LocalObservedToolchainAuthority)
         for item in toolchain_authorities
@@ -2959,12 +3331,16 @@ def project_standard_toolchain_closure(
         *mix_targets,
         *npm_targets,
         *python_targets,
+        *node_sdk_targets,
     )
     target_map = {item.component_revision.uri: item for item in all_targets}
     if len(target_map) != len(all_targets) or not set(target_map).issubset(planned):
         raise ValueError("build targets must name unique planned Components")
     for revision, target in target_map.items():
         contract = contract_map[revision]
+        if type(target) is StandardNodeSDKTarget:
+            target.require_contract(contract)
+            continue
         if (
             contract.locked_build_authority_identity != target.identity
             or contract.build_system_resolver_identity
@@ -2996,7 +3372,7 @@ def project_standard_toolchain_closure(
 
     binding_map = {item.toolchain_identity.uri: item for item in tool_bindings}
     required_bindings = required_command_toolchains(
-        contracts, command_phases, npm_targets
+        contracts, command_phases, npm_targets, node_sdk_targets
     )
     if len(binding_map) != len(tool_bindings) or set(binding_map) != required_bindings:
         raise ValueError("tool bindings must cover every and only execution toolchain")
@@ -3016,6 +3392,15 @@ def project_standard_toolchain_closure(
         raise ValueError("Python target command differs from its locked tool binding")
     for binding in tool_bindings:
         binding.require_unchanged()
+    for target in node_sdk_targets:
+        for tool in (target.typescript, target.npm, target.typescript.node):
+            if (
+                tool.identity in binding_map
+                and binding_map[tool.identity].command != tool.command
+            ):
+                raise ValueError(
+                    "SDK target command differs from its locked tool binding"
+                )
     if not toolchain_authorities:
         toolchain_authorities = tuple(
             LocalObservedToolchainAuthority(
@@ -3107,6 +3492,8 @@ def project_standard_toolchain_closure(
         command_phases,
         dependency_guard,
         mix_targets,
+        execution_plan=execution_plan,
+        node_sdk_targets=node_sdk_targets,
     )
 
 
@@ -3133,8 +3520,29 @@ class StandardProjectExecutionRequest:
     directory_custody_identity: ContentIdentity | None = None
     fresh_source: bool = False
     minimum_test_count: int = 1
+    live_run: LiveNativeRootRun | None = None
+    project_authority_identity: ContentIdentity | None = None
+    # Eligibility metadata only; retained-source authority stays upstream.
+    retained_source_identity: ContentIdentity | None = None
 
     def __post_init__(self) -> None:
+        if (self.live_run is None) != (self.project_authority_identity is None):
+            raise TypeError("live run and project authority must occur together")
+        if self.live_run is not None and (
+            type(self.live_run) is not LiveNativeRootRun
+            or type(self.project_authority_identity) is not ContentIdentity
+        ):
+            raise TypeError(
+                "live run requires its original owner and project authority"
+            )
+        if self.retained_source_identity is not None:
+            if type(self.retained_source_identity) is not ContentIdentity:
+                raise TypeError("retained source identity must be a ContentIdentity")
+            self.retained_source_identity.__post_init__()
+            if self.live_run is None:
+                raise TypeError(
+                    "retained source identity requires its original live run"
+                )
         if not isinstance(self.planned, PlannedStandardProject):
             raise TypeError("planned must be a PlannedStandardProject")
         if not isinstance(self.source_root, Path):
@@ -3264,13 +3672,43 @@ class FilesystemStandardProjectRuntime:
         FilesystemForwardGenerationContextEvidenceRecorder | None
     ) = None
 
+    node_sdk_host: LocalNodeSDKHostConfiguration | None = None
+
+    def _require_sdk_host(self, snapshot):
+        from literate_ai.adapters.node_sdk_host import LocalNodeSDKHostConfiguration
+
+        binding = getattr(self.lifecycle_ports, "_node_sdk_host_binding", None)
+        if self.node_sdk_host is None:
+            if binding is not None:
+                raise ValueError("SDK runtime lost its explicit host configuration")
+            return
+        if type(self.node_sdk_host) is not LocalNodeSDKHostConfiguration:
+            raise TypeError("SDK runtime requires an original host configuration")
+        self.node_sdk_host.require_runtime(self, snapshot)
+
     def plan(
         self,
         snapshot: LockedGenerationAuthoritySnapshot,
         *,
         assets: tuple[AuthoredBinaryAsset, ...] | None = None,
     ) -> PlannedStandardProject:
-        return self.planning.plan(snapshot, assets=assets)
+        planned = self.planning.plan(snapshot, assets=assets)
+        current_plan = getattr(
+            self.lifecycle_ports, "_checked_runtime_execution_plan", None
+        )
+        held = current_plan() if callable(current_plan) else None
+        if held is None:
+            return planned
+        if (
+            not isinstance(held, ComponentExecutionPlan)
+            or not isinstance(planned.execution_plan, ComponentExecutionPlan)
+            or planned.execution_plan != held
+        ):
+            raise ValueError("current plan differs from original projected toolchain")
+        # Replanning revalidates current authority and CLI observations, but
+        # must not replace the plan owned by the measured runtime projection.
+        # Keep that exact plan and its node plans through preparation/execution.
+        return replace(planned, execution_plan=held)
 
     def prepare(
         self,
@@ -3307,6 +3745,19 @@ class FilesystemStandardProjectRuntime:
         snapshot: LockedGenerationAuthoritySnapshot,
         request: StandardProjectExecutionRequest,
     ) -> ExecutedStandardProject:
+        """Propagate the original run through preparation and all runtime stages."""
+        if not isinstance(request, StandardProjectExecutionRequest):
+            raise TypeError("request must be a StandardProjectExecutionRequest")
+        if request.live_run is None:
+            return self._execute(snapshot, request)
+        with activate_native_root_run(request.live_run):
+            return self._execute(snapshot, request)
+
+    def _execute(
+        self,
+        snapshot: LockedGenerationAuthoritySnapshot,
+        request: StandardProjectExecutionRequest,
+    ) -> ExecutedStandardProject:
         """Prepare and execute one exact plan without exposing lifecycle assembly."""
 
         if not hasattr(snapshot, "authority") or not callable(
@@ -3315,6 +3766,13 @@ class FilesystemStandardProjectRuntime:
             raise TypeError("snapshot must provide locked generation authority")
         if not isinstance(request, StandardProjectExecutionRequest):
             raise TypeError("request must be a StandardProjectExecutionRequest")
+
+        def require_live_run():
+            if request.live_run is not None:
+                request.live_run.require_current()
+
+        require_live_run()
+        self._require_sdk_host(snapshot)
         cache = self.lifecycle_ports.shared_cache
         if cache is not None and cache.compiler_tool is not None:
             cache.require_unchanged()
@@ -3332,6 +3790,7 @@ class FilesystemStandardProjectRuntime:
             source_root=request.source_root,
             budget=request.budget,
         )
+        require_live_run()
         require_generated_coverage_capacity(
             (
                 getattr(node.recipe, "generated_test_coverage_authority", None)
@@ -3355,12 +3814,14 @@ class FilesystemStandardProjectRuntime:
                 selection_preflight(tuple(prepared.nodes_by_revision.values()))
             regenerate = {item.uri for item in request.invalidation.regenerate}
             for uri, node in prepared.nodes_by_revision.items():
-                if uri in cache_memberships or uri in regenerate:
+                if uri in cache_memberships or uri in regenerate or is_node_sdk(node):
                     continue
+                require_live_run()
                 restored = self.source_cache_restorer.restore_prepared(
                     request.planned.execution_plan,
                     node,
                 )
+                require_live_run()
                 if restored is not None:
                     cache_memberships[uri] = restored
         if request.accepted_source_only:
@@ -3425,12 +3886,15 @@ class FilesystemStandardProjectRuntime:
                     uri in cache_memberships
                     or uri in source_resumes
                     or uri in regenerate
+                    or is_node_sdk(node)
                 ):
                     continue
+                require_live_run()
                 restored = self.checkpoint_store.restore_prepared(
                     request.planned.execution_plan,
                     node,
                 )
+                require_live_run()
                 if restored is not None:
                     generator = self.application.lifecycle.generator
                     record_cache_key = getattr(
@@ -3443,6 +3907,19 @@ class FilesystemStandardProjectRuntime:
                             planned_cache_key(node),
                         )
                     source_resumes[uri] = restored
+        require_live_run()
+        live_arguments = (
+            {
+                "live_run": request.live_run,
+                "project_authority_identity": request.project_authority_identity,
+            }
+            if request.live_run is not None
+            else {}
+        )
+        if request.retained_source_identity is not None:
+            live_arguments["retained_source_identity"] = (
+                request.retained_source_identity
+            )
         if source_resumes:
             lifecycle = self.application.rebuild(
                 prepared,
@@ -3450,8 +3927,10 @@ class FilesystemStandardProjectRuntime:
                 invalidation=request.invalidation,
                 source_cache_memberships=cache_memberships or None,
                 source_generation_resume_candidates=source_resumes,
+                skip_node_sdk_cache_lookup=request.fresh_source,
                 resume_candidates=request.resume_candidates,
                 max_parallelism=request.max_parallelism,
+                **live_arguments,
             )
         else:
             lifecycle = self.application.rebuild(
@@ -3459,14 +3938,18 @@ class FilesystemStandardProjectRuntime:
                 component_lock=snapshot.authority.lock,
                 invalidation=request.invalidation,
                 source_cache_memberships=cache_memberships or None,
+                skip_node_sdk_cache_lookup=request.fresh_source,
                 resume_candidates=request.resume_candidates,
                 max_parallelism=request.max_parallelism,
+                **live_arguments,
             )
+        require_live_run()
         snapshot.require_unchanged()
         request.planned.coding_cli.require_unchanged()
         if cache is not None and cache.compiler_tool is not None:
             cache.require_unchanged()
             cache.require_compiler_dependencies(cache.environment)
+        require_live_run()
         return ExecutedStandardProject(
             request.planned,
             prepared,
@@ -3562,6 +4045,14 @@ class FilesystemStandardProjectRuntime:
             != planned.execution_plan.component_lock_identity
         ):
             blockers.add("toolchain-closure-plan-mismatch")
+        if getattr(self.toolchain_closure, "node_sdk_targets", ()):
+            if self.node_sdk_host is None:
+                blockers.add("node-sdk-host-unconfigured")
+            else:
+                try:
+                    self._require_sdk_host(self.node_sdk_host.snapshot)
+                except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+                    blockers.add("node-sdk-host-invalid")
         if not self.indexer_configured:
             blockers.add("indexer-unconfigured")
         if not self.durable_source_cache_configured:
@@ -3588,6 +4079,7 @@ def assemble_standard_lifecycle_ports(
     independent_acceptance_oracle: object | None = None,
     browser_driver: object | None = None,
     native_sdk_inputs=None,
+    qualified_library_inputs=None,
     bazel_cache_arguments: tuple[str, ...] = (),
     shared_cache: BoundSharedCache | None = None,
     clock: Callable[[], datetime] = lambda: datetime.now(UTC),
@@ -3600,7 +4092,10 @@ def assemble_standard_lifecycle_ports(
         )
     toolchain_closure.require_unchanged()
     required_tools = required_command_toolchains(
-        toolchain_closure.contracts, command_phases, toolchain_closure.npm_targets
+        toolchain_closure.contracts,
+        command_phases,
+        toolchain_closure.npm_targets,
+        toolchain_closure.node_sdk_targets,
     )
     if not set(command_phases).issubset(toolchain_closure.command_phases):
         raise ValueError("assembly command scope exceeds projected command scope")
@@ -3647,15 +4142,19 @@ def assemble_standard_lifecycle_ports(
         "command_phases": command_phases,
         "tool_bindings": tool_bindings,
         "npm_targets": toolchain_closure.npm_targets,
+        "node_sdk_targets": toolchain_closure.node_sdk_targets,
         "python_targets": toolchain_closure.python_targets,
         "python_wheelhouse": python_wheelhouse,
         "provider_environment": provider_environment,
+        "execution_plan": toolchain_closure.execution_plan,
         "dependency_observation": toolchain_closure.dependency_observation,
         "independent_acceptance_oracle": independent_acceptance_oracle,
         "browser_driver": browser_driver,
         "native_sdk_inputs": native_sdk_inputs,
         "clock": clock,
     }
+    if qualified_library_inputs is not None:
+        port_arguments["qualified_library_inputs"] = qualified_library_inputs
     if toolchain_closure.bazel_targets:
         ports = StandardBazelLifecyclePorts(
             **port_arguments,
@@ -3702,11 +4201,27 @@ def assemble_filesystem_standard_project_runtime(
     independent_acceptance_oracle: object | None = None,
     browser_driver: object | None = None,
     native_sdk_inputs=None,
+    qualified_library_inputs=None,
     bazel_cache_arguments: tuple[str, ...] = (),
     shared_cache: BoundSharedCache | None = None,
+    candidate_verification_authority: PreparedLockedGeneration | None = None,
+    node_sdk_host: LocalNodeSDKHostConfiguration | None = None,
     clock: Callable[[], datetime] = lambda: datetime.now(UTC),
 ) -> FilesystemStandardProjectRuntime:
     """Wire an explicit component-scoped host runtime, never a default CLI claim."""
+
+    if node_sdk_host is not None:
+        from literate_ai.adapters.node_sdk_host import LocalNodeSDKHostConfiguration
+
+        if type(node_sdk_host) is not LocalNodeSDKHostConfiguration:
+            raise TypeError("SDK host configuration must be an original typed policy")
+        node_sdk_host._require_bytes()
+        if (
+            independent_acceptance_oracle is not None
+            and independent_acceptance_oracle is not node_sdk_host.root_oracle
+        ):
+            raise ValueError("SDK host and runtime selected different root oracles")
+        independent_acceptance_oracle = node_sdk_host.root_oracle
 
     registry = source_trees or LocalSourceTreeRegistry()
     composition = assemble_standard_lifecycle_ports(
@@ -3719,12 +4234,20 @@ def assemble_filesystem_standard_project_runtime(
         independent_acceptance_oracle=independent_acceptance_oracle,
         browser_driver=browser_driver,
         native_sdk_inputs=native_sdk_inputs,
+        **(
+            {"qualified_library_inputs": qualified_library_inputs}
+            if qualified_library_inputs is not None
+            else {}
+        ),
         bazel_cache_arguments=bazel_cache_arguments,
         shared_cache=shared_cache,
         clock=clock,
     )
     ports = composition.ports
     toolchain_closure = composition.toolchain_closure
+    node_sdk_admissions = (
+        None if node_sdk_host is None else node_sdk_host.bind(ports, toolchain_closure)
+    )
     planned_cache_key = getattr(generator, "planned_cache_key", None)
 
     def context_cache_key(
@@ -3764,6 +4287,29 @@ def assemble_filesystem_standard_project_runtime(
         FilesystemStandardCandidateRepairAdapter,
     )
 
+    candidate_verifier = None
+    if (
+        candidate_verification_authority is not None
+        and toolchain_closure.cargo_targets
+        and independent_acceptance_oracle is not None
+    ):
+        from literate_ai.adapters.native_candidate_verification import (
+            _native_candidate_verifier,
+        )
+
+        candidate_verifier = _native_candidate_verifier(
+            candidate_verification_authority, ports
+        )
+
+    def native_root_continuation_factory(**arguments):
+        from literate_ai.adapters.native_root_continuation import (
+            _native_root_continuation,
+        )
+
+        return _native_root_continuation(
+            candidate_verification_authority, ports, **arguments
+        )
+
     application = assemble_standard_project_application_service(
         ports=ports,
         generator=register_source_generator(generator, registry),
@@ -3774,15 +4320,30 @@ def assemble_filesystem_standard_project_runtime(
         candidate_repair_port=FilesystemStandardCandidateRepairAdapter(
             ports.failure_diagnostics
         ),
+        generated_candidate_verifier=candidate_verifier,
+        native_root_continuation_factory=native_root_continuation_factory,
+        node_sdk_admissions=node_sdk_admissions,
         clock=clock,
     )
     return FilesystemStandardProjectRuntime(
         planning
         or FilesystemStandardProjectPlanningAdapter(
-            native_sdk_inputs=native_sdk_inputs
+            native_sdk_inputs=native_sdk_inputs,
+            **(
+                {"qualified_library_inputs": qualified_library_inputs}
+                if qualified_library_inputs is not None
+                else {}
+            ),
         ),
         node_preparation
-        or LockedComponentNodePreparationAdapter(native_sdk_inputs=native_sdk_inputs),
+        or LockedComponentNodePreparationAdapter(
+            native_sdk_inputs=native_sdk_inputs,
+            **(
+                {"qualified_library_inputs": qualified_library_inputs}
+                if qualified_library_inputs is not None
+                else {}
+            ),
+        ),
         registry,
         ports,
         application,
@@ -3793,6 +4354,7 @@ def assemble_filesystem_standard_project_runtime(
         source_cache_restorer,
         checkpoint_store,
         context_evidence_recorder,
+        node_sdk_host,
     )
 
 
@@ -3857,6 +4419,19 @@ def compose_filesystem_standard_source_cache(
         checkpoint_recorder=runtime.checkpoint_store,
         context_evidence_recorder=runtime.context_evidence_recorder,
         candidate_repair_port=runtime.application.lifecycle.candidate_repair_port,
+        generated_candidate_verifier=runtime.application.lifecycle.generated_candidate_verifier,
+        **(
+            {
+                "native_root_continuation_factory": (
+                    runtime.application.lifecycle.native_root_continuation_factory
+                )
+            }
+            if runtime.application.lifecycle.native_root_continuation_factory
+            is not None
+            else {}
+        ),
+        node_sdk_admissions=runtime.application.lifecycle.node_sdk_admissions,
+        node_sdk_source_lookup=restorer.restore_prepared,
         clock=runtime.application.lifecycle.clock,
     )
     return replace(
@@ -3892,6 +4467,18 @@ def compose_filesystem_standard_lifecycle_checkpoints(
         checkpoint_recorder=store,
         context_evidence_recorder=runtime.context_evidence_recorder,
         candidate_repair_port=lifecycle.candidate_repair_port,
+        generated_candidate_verifier=lifecycle.generated_candidate_verifier,
+        **(
+            {
+                "native_root_continuation_factory": (
+                    lifecycle.native_root_continuation_factory
+                )
+            }
+            if lifecycle.native_root_continuation_factory is not None
+            else {}
+        ),
+        node_sdk_admissions=lifecycle.node_sdk_admissions,
+        node_sdk_source_lookup=lifecycle.node_sdk_source_lookup,
         clock=lifecycle.clock,
     )
     return replace(runtime, application=application, checkpoint_store=store)
@@ -3987,6 +4574,77 @@ def _coding_cli_generation_stderr_limit_bytes() -> int:
     return value
 
 
+def project_standard_source_invocation(
+    snapshot,
+    execution_plan,
+    node,
+    *,
+    selection,
+    project_authority_identity=None,
+    approved_project_root: Path | None = None,
+) -> CodingCliSourceGenerationInvocation:
+    """Project exact source invocation data without owner, allocation or execution.
+
+    Producer defaults retain their existing ambient workflow-root behavior.
+    Closed replay must supply an independently approved absolute project root;
+    this explicit mode never selects workflow extensions from the caller's CWD.
+    Selection is caller-held metadata, never discovered from archive contents.
+    """
+    if approved_project_root is not None and (
+        not isinstance(approved_project_root, Path)
+        or not approved_project_root.is_absolute()
+        or ".." in approved_project_root.parts
+    ):
+        raise ValueError("approved source replay project root must be absolute")
+    planner = GenerationExecutionPlanningAdapter()
+    recipe = node.recipe
+    execution = planner.plan_node(
+        snapshot,
+        node,
+        selection=selection,
+        model=recipe.model_for(selection.name),
+        **(
+            {"approved_project_root": approved_project_root}
+            if approved_project_root is not None
+            else {}
+        ),
+    )
+    prior = {
+        "component_revision": node.plan.component_revision.uri,
+        "source_generation_request_identity": node.request.request.identity.uri,
+        "component_generation_plan_identity": node.plan.identity.uri,
+        "context_manifest_identity": (
+            node.request.request.context_manifest_identity.uri
+        ),
+        "workspace_allocation_identity": node.workspace.allocation_identity.uri,
+        "recipe_identity": recipe.identity,
+        "generation_key_identity": node.plan.generation_key.identity.uri,
+        "required_entrypoints": list(recipe.all_required_entrypoints),
+        "direct_public_interface_identities": [
+            item.uri
+            for item in (node.plan.generation_key.direct_public_interface_identities)
+        ],
+    }
+    if project_authority_identity is not None:
+        prior["project_authority_identity"] = project_authority_identity.uri
+    request = {
+        "stage_id": execution.model_stages[-1].stage_id,
+        "prior_stage_outputs": {"plan": prior},
+        "input_identity": canonical_identity(prior).to_dict(),
+    }
+    return CodingCliSourceGenerationInvocation.create(
+        execution,
+        request,
+        application_root_revision_identity=(execution_plan.root_revision),
+        readiness_identity=canonical_identity(
+            {
+                "standard-source-readiness": node.plan.component_revision.uri,
+                "execution_plan": execution_plan.identity.uri,
+            }
+        ),
+    )
+
+
 class FilesystemStandardSourceGenerationAdapter:
     """Prepare and run a locked source-only Standard project on the local host."""
 
@@ -4001,6 +4659,7 @@ class FilesystemStandardSourceGenerationAdapter:
         model_selector: LockedComponentModelSelectionAdapter | None = None,
         project_authority_identity: ContentIdentity | None = None,
         native_sdk_inputs=None,
+        qualified_library_inputs=None,
     ) -> None:
         if not isinstance(generator, CodingCliSourceGenerator):
             raise TypeError("generator must be a CodingCliSourceGenerator")
@@ -4023,6 +4682,7 @@ class FilesystemStandardSourceGenerationAdapter:
             )
         self.project_authority_identity = project_authority_identity
         self.native_sdk_inputs = native_sdk_inputs
+        self.qualified_library_inputs = qualified_library_inputs
 
     @classmethod
     def from_environment(
@@ -4038,6 +4698,7 @@ class FilesystemStandardSourceGenerationAdapter:
         accepted_source_retained_review_identity: ContentIdentity | None = None,
         project_authority_identity: ContentIdentity | None = None,
         native_sdk_inputs=None,
+        qualified_library_inputs=None,
         retained_source=None,
     ) -> FilesystemStandardSourceGenerationAdapter:
         """Select and guard the host coding CLI behind the filesystem boundary."""
@@ -4106,6 +4767,11 @@ class FilesystemStandardSourceGenerationAdapter:
             ),
             project_authority_identity=project_authority_identity,
             native_sdk_inputs=native_sdk_inputs,
+            **(
+                {"qualified_library_inputs": qualified_library_inputs}
+                if qualified_library_inputs is not None
+                else {}
+            ),
         )
 
     def generate(
@@ -4137,11 +4803,21 @@ class FilesystemStandardSourceGenerationAdapter:
             coding_cli_selector=lambda: self.generator.selection,
             model_selector=self.model_selector,
             native_sdk_inputs=self.native_sdk_inputs,
+            **(
+                {"qualified_library_inputs": self.qualified_library_inputs}
+                if self.qualified_library_inputs is not None
+                else {}
+            ),
         ).plan(snapshot, assets=assets)
         node_adapter = LockedComponentNodePreparationAdapter(
             model_selector=self.model_selector,
             coding_cli=planned.coding_cli.name,
             native_sdk_inputs=self.native_sdk_inputs,
+            **(
+                {"qualified_library_inputs": self.qualified_library_inputs}
+                if self.qualified_library_inputs is not None
+                else {}
+            ),
         )
         prepared = StandardProjectApplicationService.prepare(
             planned.execution_plan,
@@ -4283,53 +4959,20 @@ class FilesystemStandardSourceGenerationAdapter:
         snapshot: LockedGenerationAuthoritySnapshot,
         execution_plan: ComponentExecutionPlan,
     ) -> Callable[[object], CodingCliSourceGenerationInvocation]:
-        planner = GenerationExecutionPlanningAdapter()
+        # Capture this adapter's admitted project before any per-node callbacks.
+        # A caller's working directory cannot select another workflow extension.
+        approved_project_root = self.project_root
 
         def provide(node: object) -> CodingCliSourceGenerationInvocation:
-            recipe = node.recipe
-            execution = planner.plan_node(
+            return project_standard_source_invocation(
                 snapshot,
+                execution_plan,
                 node,
                 selection=self.generator.selection,
-                model=recipe.model_for(self.generator.selection.name),
-            )
-            prior = {
-                "component_revision": node.plan.component_revision.uri,
-                "source_generation_request_identity": node.request.request.identity.uri,
-                "component_generation_plan_identity": node.plan.identity.uri,
-                "context_manifest_identity": (
-                    node.request.request.context_manifest_identity.uri
+                project_authority_identity=getattr(
+                    self, "project_authority_identity", None
                 ),
-                "workspace_allocation_identity": node.workspace.allocation_identity.uri,
-                "recipe_identity": recipe.identity,
-                "generation_key_identity": node.plan.generation_key.identity.uri,
-                "required_entrypoints": list(recipe.all_required_entrypoints),
-                "direct_public_interface_identities": [
-                    item.uri
-                    for item in (
-                        node.plan.generation_key.direct_public_interface_identities
-                    )
-                ],
-            }
-            if getattr(self, "project_authority_identity", None) is not None:
-                prior["project_authority_identity"] = (
-                    self.project_authority_identity.uri
-                )
-            request = {
-                "stage_id": execution.model_stages[-1].stage_id,
-                "prior_stage_outputs": {"plan": prior},
-                "input_identity": canonical_identity(prior).to_dict(),
-            }
-            return CodingCliSourceGenerationInvocation.create(
-                execution,
-                request,
-                application_root_revision_identity=(execution_plan.root_revision),
-                readiness_identity=canonical_identity(
-                    {
-                        "standard-source-readiness": node.plan.component_revision.uri,
-                        "execution_plan": execution_plan.identity.uri,
-                    }
-                ),
+                approved_project_root=approved_project_root,
             )
 
         return provide
@@ -4359,4 +5002,5 @@ __all__ = [
     "compose_filesystem_standard_lifecycle_checkpoints",
     "project_locked_standard_toolchain_closure",
     "project_standard_toolchain_closure",
+    "project_standard_source_invocation",
 ]

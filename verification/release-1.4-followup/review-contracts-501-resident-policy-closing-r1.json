@@ -1,0 +1,68 @@
+{
+  "status": "source-reviewed-closed-no-new-finding",
+  "head": "53aaac0201d4c31c7c9291250d0752d5ec3e26af",
+  "files": {
+    "CHANGELOG.md": "222192ab194ccea244dd17f4cd9046dc32d526157b8572df9865fc2eba710af5",
+    "docs/user/project-layout.md": "3caffcc5bc0d016adae060738e6e2854ed76e1281e24a0ee9a3e1f4818c26735",
+    "schemas/v2/project-layout-framework-authority.schema.json": "990f9b562f4faad1cab79fbe526febf1af6340bcae42dc8eb3c0b8879a6d4707",
+    "src/literate_ai/adapters/project_layout_framework_ingress.py": "cbd5d5cb2cf3fecc6eefd767a141f4cc63f4d25c7110d1e36300b3db26c9581d",
+    "src/literate_ai/adapters/project_layout_framework_plan.py": "1cad2742b5ed0bcca4da4487abd48781effb54163b636d4c1dec0f3879d746c7",
+    "src/literate_ai/adapters/project_layout_framework_selection.py": "7e39d40c4c378fb07ba20b47bb60ee89b6d7e9f80559407991ea62431d73996e",
+    "src/literate_ai/adapters/project_layout_framework_transaction.py": "1915cf12eceaf335e2b7c767b605dc29c3cea697b5a1ad4cce15e2208d5f547b",
+    "src/literate_ai/adapters/project_layout_policy_reference.py": "8f4d441a4998f7a6758dc3f02e1db0b5b2e4754abe24c3c5180c786b773caa44",
+    "src/literate_ai/cli/project.py": "6ed12824ba3acfe68b005c7b668b857e75a7c8199dbfb0c07c7b51cf19b7a24b",
+    "src/literate_ai/project_releases.py": "888e29f610e8e4286108b8ea3e39c262a58e884422de6580ba044afe2d21ad8b",
+    "tests/critical/test_project_layout_finite_creations.py": "1ef2d72f316441d5d74c8d9c3afc91d791f8aadfc7ed02872a568974fc7692a8",
+    "tests/critical/test_project_layout_policy_reference.py": "c7777fefb4e1a7bf0986eb1347f4ccf4d7a248cc11ee3eb793fd3d5cdac92091",
+    "tests/critical/test_project_layout_policy_reference_transaction.py": "1c13895ae71dd8587e478ce829f010852aab7ee96c11fa9bbb7bf1d5fb0d99a9"
+  },
+  "unreviewed_dirty_paths": [],
+  "review_scope": [
+    "All13 current dirty file deltas, new helper and tests in full; retained prior reviewed ingress/codec/transaction/CLI call-path integration.",
+    "Guarded original typed parser and JSON transitive dependencies; fixed pattern primitives; immutable original observation and reference edit identity; explicit canonical approval at ingress/CLI/fresh apply; durable rollback.",
+    "Escaped reference discovery independent of approval and supported projection, both finite policy names captured; malformed or unsupported semantics fail closed when movement exists.",
+    "Unapproved, imported, protected, root-shadow and unknown-consumer refusal; exact single ledger leaf projection; unsupported optional parser branches remain blocked."
+  ],
+  "closed_findings": [
+    "Foreign JSON delegate dispatch before projector guard",
+    "Required/collateral runtime regex compiler dispatch",
+    "Escaped unapproved or unsupported policy consumer could permit stale relocation"
+  ],
+  "independent_controls": [
+    {
+      "kind": "original owned-observation reproducer rerun",
+      "evidence": "policy-escaped-unapproved-closing-r2.json",
+      "result": "unapproved escaped policy now applicable=false with required owner; approved supported escape produces reference edit"
+    },
+    {
+      "kind": "five actual-observation regression modes",
+      "test": "ObservedPolicyReferenceTests.test_escaped_consumers_block_without_approval_and_with_unsupported_approval",
+      "result": "1 unittest, all5 subtest modes,0skip,0.380s PASS"
+    },
+    {
+      "kind": "earlier independent source probes",
+      "result": "Foreign JSONDecoder refuses before callback; patched re._compile/json.detect_encoding not dispatched by valid collateral policy; mutable JSON tables refused on3.14"
+    }
+  ],
+  "canonical_receipts_read": [
+    {
+      "path": "policy-reference-native-r5.log",
+      "result": "13passed0skip7.122s"
+    },
+    {
+      "path": "policy-reference-original-framework-r3.log",
+      "result": "122passed0skip118.233s before latest escaped-discovery delta"
+    },
+    {
+      "path": "policy-reference-release-regression-r1.log",
+      "result": "17passed0skip3.540s after canonical regex change"
+    }
+  ],
+  "limitations": [
+    "Source review and bounded controls only; latest full original framework cohort must rerun on final frozen candidate.",
+    "No actual historical project apply, installed candidate acceptance, whole wheel, native cross-platform, complete feature or release acceptance from this report.",
+    "Three optional external policy parser owners (qualification, authenticated receipt, README latest-release) intentionally unsupported for rewrite; docs state this.",
+    "Independent native partition source closure belongs to runtime reviewer; unconditional finite two-policy capture extension inspected here.",
+    "Original failed evidence and escaped-consumer finding artifacts preserved; this report supersedes their open source status only."
+  ]
+}

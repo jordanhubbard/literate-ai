@@ -1,0 +1,96 @@
+{
+  "schema": "independent-installed-control-inventory-closing@1",
+  "reviewer": "review_contracts",
+  "observed_at_utc": "2026-11-27T07:59:06.291428+00:00",
+  "repository": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/worktrees/maintained-followup",
+  "head": "ac2e88417a58fe0c2a1f4d318e3f7fb14811b1a1",
+  "path": "scripts/installed_maintained_controls.py",
+  "sha256": "7df21cbdf7b294a1ece58f366d1a7a2c4cc5b8762b9816050a28014ecec371f0",
+  "supersedes_previous_reviewed_script_sha256": "d32c2392b413ba5a2a1df9699865251f2a1b509c93d84387c26aa61da6093901",
+  "verdict": "Exact explicit inventories and order match actual unittest discovery for both bootstrap scopes; no remaining source inventory finding.",
+  "inventories": [
+    {
+      "scope": "bootstrap",
+      "class": "GeneratedBootstrapTests",
+      "expected": [
+        "test_bootstrap_environment_is_not_source_without_git",
+        "test_completed_probe_cannot_hide_changed_pin_or_project_selection",
+        "test_generated_route_and_missing_cli_are_read_only",
+        "test_incompatible_and_ready_runtime_checks_preserve_custom_rules",
+        "test_private_probe_accepts_exact_byte_bounds_before_installation",
+        "test_private_probe_enforces_real_deadline",
+        "test_probe_setup_error_releases_created_owner_before_returning",
+        "test_process_helper_is_exact_reviewed_core_and_tampering_refuses_launch",
+        "test_reader_setup_error_acquires_no_process_owner",
+        "test_update_adds_bootstrap_files_without_replacing_custom_rules",
+        "test_wheel_checksum_and_missing_file_fail_closed"
+      ],
+      "discovered": [
+        "test_bootstrap_environment_is_not_source_without_git",
+        "test_completed_probe_cannot_hide_changed_pin_or_project_selection",
+        "test_generated_route_and_missing_cli_are_read_only",
+        "test_incompatible_and_ready_runtime_checks_preserve_custom_rules",
+        "test_private_probe_accepts_exact_byte_bounds_before_installation",
+        "test_private_probe_enforces_real_deadline",
+        "test_probe_setup_error_releases_created_owner_before_returning",
+        "test_process_helper_is_exact_reviewed_core_and_tampering_refuses_launch",
+        "test_reader_setup_error_acquires_no_process_owner",
+        "test_update_adds_bootstrap_files_without_replacing_custom_rules",
+        "test_wheel_checksum_and_missing_file_fail_closed"
+      ],
+      "exact_order_matches": true
+    },
+    {
+      "scope": "bootstrap",
+      "class": "ContainedGeneratedBootstrapTests",
+      "expected": [
+        "test_default_contained_bootstrap_keeps_pins_from_app_and_framework"
+      ],
+      "discovered": [
+        "test_default_contained_bootstrap_keeps_pins_from_app_and_framework"
+      ],
+      "exact_order_matches": true
+    },
+    {
+      "scope": "bootstrap",
+      "class": "ManifestNativeReadTests",
+      "expected": [
+        "test_exact_manifest_and_helper_reads_use_binary_descriptor_mode",
+        "test_path_and_descriptor_change_clocks_are_independent_and_both_close"
+      ],
+      "discovered": [
+        "test_exact_manifest_and_helper_reads_use_binary_descriptor_mode",
+        "test_path_and_descriptor_change_clocks_are_independent_and_both_close"
+      ],
+      "exact_order_matches": true
+    },
+    {
+      "scope": "bootstrap-posix",
+      "class": "GeneratedBootstrapPosixTests",
+      "expected": [
+        "test_probe_bounds_both_streams_and_retires_overflow_writer",
+        "test_probe_launcher_result_keeps_status_and_retires_helpers",
+        "test_probe_timeout_retires_original_helper"
+      ],
+      "discovered": [
+        "test_probe_bounds_both_streams_and_retires_overflow_writer",
+        "test_probe_launcher_result_keeps_status_and_retires_helpers",
+        "test_probe_timeout_retires_original_helper"
+      ],
+      "exact_order_matches": true
+    }
+  ],
+  "counts": {
+    "total_unique_methods": 17,
+    "existing_head_methods_retained": 15,
+    "new_methods": 2
+  },
+  "assertion_preservation": "The inventory equality, exact testsRun, successful/no-skip result and installed module/source identity checks are unchanged. Compared final correction with prior reviewed addition: only the two new method names reorder to discovery order.",
+  "actual_failure": "wheel-full-r4 remains failed at strict inventory mismatch; unchanged historical failed receipt is not reclassified.",
+  "limits": [
+    "This imports actual fixture classes and uses actual unittest discovery; it does not execute installed qualification or those test methods.",
+    "Native Windows/current noneditable wheel/full-source/release acceptance remains separate and pending as applicable.",
+    "Prior independent bootstrap/Flavor/Elixir source/control closing evidence remains in its exact reports; this report supersedes only the installed runner hash/order.",
+    "No code edits,pins,workers,publication or acceptance markers performed."
+  ]
+}

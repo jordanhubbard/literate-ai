@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:literate-ai:schema:v2:project-layout-catalog-continuation-result",
+  "$ref": "literate-ai/project-layout-catalog-continuation-result@1",
+  "$defs": {
+    "record": {
+      "$id": "literate-ai/project-layout-catalog-continuation-result@1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "operation",
+        "plan",
+        "writes",
+        "full_containment",
+        "qualification",
+        "journal",
+        "retained_scaffolding"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/project-layout-catalog-continuation-result@1"
+        },
+        "operation": {
+          "enum": [
+            "apply",
+            "recover"
+          ]
+        },
+        "plan": {
+          "$ref": "urn:literate-ai:schema:v2:project-layout-catalog-continuation#/$defs/record"
+        },
+        "writes": {
+          "const": true,
+          "type": "boolean"
+        },
+        "full_containment": {
+          "const": false,
+          "type": "boolean"
+        },
+        "qualification": {
+          "const": false,
+          "type": "boolean"
+        },
+        "journal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "retained_scaffolding": {
+          "type": "array",
+          "maxItems": 8192,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^litai/",
+            "minLength": 7
+          }
+        },
+        "applied": {
+          "const": true,
+          "type": "boolean"
+        },
+        "rolled_back": {
+          "const": true,
+          "type": "boolean"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "operation": {
+              "const": "apply"
+            }
+          },
+          "required": [
+            "applied"
+          ],
+          "not": {
+            "required": [
+              "rolled_back"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "recover"
+            }
+          },
+          "required": [
+            "rolled_back"
+          ],
+          "not": {
+            "required": [
+              "applied"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

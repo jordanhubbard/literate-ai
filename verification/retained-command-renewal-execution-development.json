@@ -1,0 +1,130 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Public single-wrapper retained command renewal with bounded v3 read-back and prior-receipt/history custody",
+  "base_commit": "b73627590f28d9fcba751b71caad28dc5e3acad5",
+  "source_files": {
+    "CHANGELOG.md": "5bc4865f353361c17d8eb37426bf17c2406409bf2a1aaa9dfbc07cb6b3b6832d",
+    "docs/architecture/design-traceability.md": "710e2e1e4d38f2776db483e5f7f13b099931277829eb7a23cac3f60ed3784337",
+    "docs/roadmap/active-work.md": "7b1d024968d6b50ce872847a356b15268a53957b6f722e0887736eeb48125247",
+    "docs/user/configuration-and-cli.md": "430be8ceb9b2367ce2b05a8098c7e2d525044789960c8558f7b7b2dac95fecff",
+    "scripts/installed_retained_command_smoke.py": "76d16ef25b68e73c64f6047b8b3da2c17624e4535f5b8e68fd0c27091445cb58",
+    "scripts/wheel_smoke.py": "647f437c5703335539015f76c4c7e14bc816744bd11cbf3a7f30b4581a542b70",
+    "src/literate_ai/adapters/retained_harness_readmission.py": "2e39c0bf8f541477d16ec97d3a9d3112c582a1755682e848e66e75fd66f4fdef",
+    "src/literate_ai/adapters/retained_readmission_publication.py": "c78cb9367093c1029d1c493a8be7b10c96090e476c10eccaca3c75d6aee42437",
+    "src/literate_ai/cli/dispatch.py": "a50a45b09f46cedaf3343232da197575554aeb4a7c6675da52a2b32bc204d021",
+    "src/literate_ai/cli/operator.py": "d6621136b3a160143efb9db900d6d27b12db5f396d9564d6d80999022a89fb51",
+    "tests/critical/test_retained_readmission_publication_owner.py": "3ad61f193f01bb0d41145c4924e7f1077bfab5cd05d631e7a87fcfb0584f749e",
+    "tests/e2e/test_retained_command_execution.py": "5274be11c74b979b51a5c4fdbf40dec851642539d45d78dbbf1561a7f9553bc9",
+    "tests/e2e/test_retained_command_execution_plan.py": "743d383ee949aaae87ad102359f0bb26840b88d14ee2e80c6ae09bd681622ee9",
+    "tests/e2e/test_retained_command_native.py": "0d822d68ae1f33f22732e060cae3bf4f065146d90f0e66a9be18e0b9ea974999",
+    "tests/e2e/test_retained_command_receipt_inputs.py": "9053e50b6d802ded5acdf2b687722a9d7b6d194370de3f3be2fbf9b39f6c6df2",
+    "tests/e2e/test_retained_readmission_publication.py": "735a28b48bc2d2736e45d0bd21085c0f4265e9baf54c2417b055b7b67a18753d"
+  },
+  "current_report_union": {
+    "distinct_passed": 76,
+    "failed": 0,
+    "skipped": 0,
+    "reports": [
+      {
+        "scope": "command-renewal-custody-commands",
+        "summary": {
+          "executed": 41,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 41,
+          "selected": 41,
+          "skipped": 0
+        },
+        "sha256": "6ea7a0458170f1fae0b4e58e614abf777fac2847585d969f2ce49c36f66e2884"
+      },
+      {
+        "scope": "command-renewal-custody-readmission",
+        "summary": {
+          "executed": 35,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 35,
+          "selected": 35,
+          "skipped": 0
+        },
+        "sha256": "6a793345790e10392c4bb2b0f26a45d8e1ea6d41b85ea41de3f6f42912ab56b4"
+      }
+    ]
+  },
+  "unchanged_original_qualification_oracle": {
+    "path": "tests/e2e/test_retained_harness_readmission.py",
+    "sha256": "897d04d60b7dd2fe4be873e4366df83df481dfb161573d0d2344a287560408b9",
+    "observed_development_failure": "Moving source closure beyond parity left evidence history after the original early-refusal injection. Immediate original-source checks after each phase restore this original assertion unchanged; all six original controls pass."
+  },
+  "original_failures": {
+    "execution_plan_missing": {
+      "selected": 4,
+      "observed_failed": 1,
+      "log_sha256": "024b95e95de9b2c5690243fe251b1387423da9fc940e88315059bddaa37f4ba9"
+    },
+    "selected_apply_missing_keyword": {
+      "selected": 4,
+      "observed_failed": 1,
+      "log_sha256": "031c586d4aa3d09bdd546d49ea0dd5d05b28e30f50838b8bca812c938db1d0a0"
+    },
+    "prior_receipt_not_archived": {
+      "selected": 2,
+      "observed_failed": 1,
+      "log_sha256": "155910ea03735e35de003f99f74bfa06c722c61f63185e0331f38fd678bad436"
+    },
+    "foreign_failed_staging_deleted": {
+      "selected": 4,
+      "observed_passed": 2,
+      "observed_failed": 1,
+      "log_sha256": "ce98ba9121b1e551bf250d5a80606b62e1d154260e9b3a5094b20a647b73988a"
+    }
+  },
+  "actual_native_development": {
+    "platform": "local macOS; actual Clang host compiler",
+    "source_public_cli": true,
+    "help_only_default_exit_zero": true,
+    "explicit_compiler_executable_result": "42",
+    "original_real_unittest_cases": 2,
+    "direct_baseline_and_wrapper_parity": true,
+    "source_bytes_and_original_tests_preserved": true,
+    "compilation_coverage_in_plan": "unknown; command spelling alone grants no claim"
+  },
+  "protocol_fixture_boundary": "The other command/receipt plumbing controls retain existing printed-count harness fixtures. Their counts are not genuine test or native acceptance evidence. The separate native case executes both original real unit tests.",
+  "behavior": {
+    "v1_behavior_and_v2_planning_only_meanings_preserved": true,
+    "execution_request_schema": "literate-ai/retained-harness-readmission-plan@3",
+    "closed_readback": "canonical bytes, complete fresh planning, exact reviewed identity, no unknown nested grants; old v2 cannot be reinterpreted",
+    "selected_scope": "one actual existing retained wrapper; all unselected admitted phases preserved",
+    "currentness": "current lifecycle lock; raw source custody through publication; immediate source refusal after each phase; selection and prior receipt close before commit",
+    "prior_receipt": "bounded original bytes included in plan/history and retained unchanged; previous receipt rejects stale after command change",
+    "history": "bounded held native nodes, complete byte/namespace verification and exclusive directory publication; failed staging and foreign files are never recursively deleted",
+    "limits": "existing worker/runtime/deadline/input ceilings retained; no source-pin or receipt repin"
+  },
+  "static_gates": {
+    "state": "passed",
+    "count": 9,
+    "formatted_files": 2403,
+    "markdown_files": 1977,
+    "mermaid_diagrams": 181,
+    "log_sha256": "d87f7a578d1ac87c286073a23afd1aa452d48b2638c6cd5f7408016b163e0d84"
+  },
+  "verification": {
+    "authority": "pass",
+    "receipt": "stale; no driver or receipt repin",
+    "exit_code": 1
+  },
+  "installed_acceptance": {
+    "state": "authored; NOT YET EXECUTED",
+    "script": "scripts/installed_retained_command_smoke.py",
+    "full_wheel_hook": "scripts/wheel_smoke.py; POSIX native C/Make fixture",
+    "intended_scope": "actual public initial selection separately from post-adoption renewal; genuine original two-test retained receipts, stale old receipt refusal and unchanged archive bytes"
+  },
+  "open_work": [
+    "Run exact clean noneditable installed journey and preserve all failures",
+    "Refined Component and modern contained-layout command renewal",
+    "Independent implementation review and complete exact integrated source/native gates",
+    "Native Windows/FreeBSD and full release qualification"
+  ],
+  "release_evidence": false,
+  "qualified": false
+}

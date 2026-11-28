@@ -1,0 +1,39 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_initial_finalization_control_endpoint_projection",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_control_projection.py": {
+      "algorithm": "sha256",
+      "digest": "42ff4b2d5904d0f08e10b2aa2031fb2d2bd16746ddfc176f63d6c3c870b738eb"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_current.py": {
+      "algorithm": "sha256",
+      "digest": "a521d8f88ea026228bb264d5ed372e38a822d285c45fc28e7cabc3cf22cd0c1b"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_metadata_replay.py": {
+      "algorithm": "sha256",
+      "digest": "006cdbe8b902023c15c58810de6fa4aea5878c33c7f92b0f151b172f52c7bce3"
+    },
+    "tests/critical/test_retained_layout_forest_control_projection.py": {
+      "algorithm": "sha256",
+      "digest": "e4fb6c856b8859d46281eca3681f22a4f47288bd65fb44ed03ddaede18278398"
+    }
+  },
+  "findings_closed": [
+    "Returned refreshed_directories now includes actual control parents.",
+    "Maintained native-only regression found duplicated whole-view funding. Genuine unchanged controls now match exact coordinates/native/blob commitments and reuse the already funded view without source-map copies. Initial funding still precedes source access; actual control successors receive separate same-ledger funding. Existing budgets remain unchanged."
+  ],
+  "scope": [
+    "Only actual context-registered fresh observation and independently registered raw/canonical owners supply descriptors. Original source native marker identities match raw generation facts; normalization/retirement provenance belongs to actual acquisition.",
+    "Real incoming publications supply supplemental current public marker nodes. Original retired inodes remain represented privately, including external canonical-control targets. Complete source membership/payload/native closure remains mandatory.",
+    "Original bound retirement pin, actual raw private rosters, current canonical storage and no-follow root handles constrain the full descriptive view. Same actual fresh ledger prepays maps, IO and closing operations.",
+    "Fixture captures genuine normal canonical owner, then performs actual begin_finalization/normalize_advisory/retire_native after explicitly unmanaged native+metadata dependencies. Deliberate exception retains actual partial finalization; fresh factories reacquire real FDs. No SourcePhase or partition is fabricated and no successful canonical forest execution is claimed."
+  ],
+  "not_proven": [
+    "General fresh retry generations and actual acknowledged journaled source/metadata/control recovery effects and disposition",
+    "Genuine canonical integrated forest execution before admission guard removal",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ]
+}

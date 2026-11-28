@@ -3,10 +3,16 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import re
+import stat
+import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
+from literate_ai._filesystem import require_safe_directory, stat_is_link_or_reparse
 from literate_ai.contracts import canonical_identity
 
 SCHEMA = "literate-ai/qualified-release-files@1"
@@ -18,15 +24,19 @@ def file_identity(path: Path) -> str:
         return "sha256:" + hashlib.file_digest(stream, "sha256").hexdigest()
 
 
-def release_file_path(root: Path, relative: object) -> Path:
+def release_file_parts(relative: object) -> list[str]:
     if not isinstance(relative, str) or not _PATH.fullmatch(relative):
         raise ValueError("release artifact path must be portable and relative")
     parts = relative.split("/")
     if any(part in {"", ".", ".."} for part in parts):
         raise ValueError("release artifact path contains traversal")
+    return parts
+
+
+def release_file_path(root: Path, relative: object) -> Path:
     root = root.resolve()
     path = root
-    for part in parts:
+    for part in release_file_parts(relative):
         path /= part
         if path.is_symlink():
             raise ValueError("release artifact path must not contain symlinks")
@@ -99,3 +109,104 @@ def validate_release_files(
             "release files differ from required roles or have duplicate names"
         )
     return value
+
+
+@contextmanager
+def _receiving_release_stage(root: Path):
+    from .projects import ProjectConfigurationStore
+
+    context = ProjectConfigurationStore.context(root)
+    if context.framework_root == context.root:
+        yield None
+        return
+    from .adapters.project_runtime import (
+        _project_for_artifact_store,
+        project_inspection_staging,
+    )
+
+    project = _project_for_artifact_store(context.framework_root / "_build")
+    if project is None or project.root != context.root:
+        raise ValueError("release upload stage requires its original receiving project")
+    with project_inspection_staging(project, prefix=".rf-") as stage:
+        yield stage
+
+
+def _copy_release_payload(source, item, before, flags, output):
+    from .adapters.evidence_files import _signature
+
+    digest, remaining = hashlib.sha256(), item["size"]
+    with os.fdopen(os.open(source, flags), "rb") as original:
+        if os.fstat(original.fileno()) != before:
+            raise ValueError("qualified release file changed before staging")
+        while remaining:
+            data = original.read(min(1024 * 1024, remaining))
+            if not data:
+                break
+            remaining -= len(data)
+            output.write(data)
+            digest.update(data)
+        if (
+            remaining
+            or original.read(1)
+            or "sha256:" + digest.hexdigest() != item["identity"]
+            or _signature(os.fstat(original.fileno())) != _signature(before)
+        ):
+            raise ValueError("qualified release file changed while staging")
+    require_safe_directory(source.parent)
+    observed = source.lstat()
+    if not os.path.samestat(before, observed) or _signature(observed) != _signature(
+        before
+    ):
+        raise ValueError("qualified release file was replaced or changed while staging")
+
+
+@contextmanager
+def staged_release_file(root: Path, item: dict[str, Any]) -> Iterator[Path]:
+    """Capture exact bytes through original receiving-project copy custody."""
+    source = release_file_path(root, item["path"])
+    require_safe_directory(source.parent)
+    before = source.lstat()
+    if (
+        not stat.S_ISREG(before.st_mode)
+        or stat_is_link_or_reparse(before)
+        or before.st_size != item["size"]
+    ):
+        raise ValueError("qualified release file size or type changed")
+    flags = os.O_RDONLY | getattr(os, "O_BINARY", 0)
+    flags |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    with _receiving_release_stage(root) as stage:
+        if stage is None:
+            # Explicit framework/legacy route; no contained-project claim.
+            with tempfile.TemporaryDirectory(
+                prefix="litai-release-custody-"
+            ) as directory:
+                staged = Path(directory) / source.name
+                with staged.open("xb") as output:
+                    _copy_release_payload(source, item, before, flags, output)
+                staged.chmod(0o400)
+                yield staged
+            return
+        from .adapters.evidence_archive import _ArchiveBytes
+        from .adapters.evidence_files import _access
+
+        parts = stage.prepare(source.name)
+        staged = stage.path / source.name
+        with _access(stage.path) as access:
+            descriptor = access.open(
+                parts, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0)
+            )
+            with stage.created(source.name, descriptor, access):
+                _copy_release_payload(
+                    source, item, before, flags, _ArchiveBytes(descriptor)
+                )
+                fchmod = getattr(os, "fchmod", None)
+                if fchmod is not None:
+                    fchmod(descriptor, 0o400)
+                else:
+                    # The Windows original creator read pin denies namespace
+                    # replacement throughout this metadata operation.
+                    os.chmod(staged, 0o400)
+                os.fsync(descriptor)
+        stage.seal()
+        yield staged
+        stage.verify()

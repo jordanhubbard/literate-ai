@@ -1,0 +1,68 @@
+{
+  "review": "read-only full-source-r11 Swift prerequisite diagnosis",
+  "frozen_head": "d5d4deccc0694770363e27cf18a2092545904b77",
+  "raw_evidence": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/full-source-r11.log",
+  "terminal": {
+    "tests": 1105,
+    "skipped": 30,
+    "errors": 1,
+    "seconds": 2674.601,
+    "result": "FAILED"
+  },
+  "first_error": {
+    "test": "tests.critical.test_contained_build_inputs.ContainedBuildInputTests.test_actual_swift_adapter_materializes_inputs_under_litai",
+    "call_path": [
+      "test_contained_build_inputs.py:176 assert_adapter(swift)",
+      "test_contained_build_inputs.py:138 build",
+      "test_contained_build_inputs.py:69 discover_cpp_toolchain(explicit CXX=swiftc)",
+      "builders/cpp.py:728 builder.cpp_toolchain_unavailable"
+    ],
+    "before_adapter_execution": true
+  },
+  "cause": {
+    "compiler_required": "Swift swiftc, not C++",
+    "shared_record": "GuardedSwiftBuilder explicitly documents CppToolchain as historical name for shared executable-identity record. It invokes the selected command with -O, actual Swift sources and -o output.",
+    "deterministic_error_interpretation": "Explicit CXX gives exactly one candidate swiftc. Missing shutil.which result continues to final unavailable error. A discovered executable probe BuildError is re-raised for explicit CXX, rather than replaced by this final unavailable error.",
+    "current_frozen_interpreter_probe": {
+      "platform": "linux",
+      "swiftc": null,
+      "swift": null,
+      "xcrun": null,
+      "c++": "/bin/c++",
+      "clang++": "/usr/local/bin/clang++",
+      "g++": "/bin/g++",
+      "discovery_error": "builder.cpp_toolchain_unavailable: no supported C++ compiler was found through CXX or PATH"
+    }
+  },
+  "original_contracts": {
+    "contained_control": "Unconditional actual native compile and execution; expects exit 0/stdout 42, one input beneath framework/_build, original input retired, native application bytes unchanged. No availability guard in this class.",
+    "older_swift_controls": "GuardedSwiftBuilderTests.setUp selects xcrun swiftc on Darwin and swiftc otherwise; existing BuildError->SkipTest behavior. New contained fixture omits both existing availability guard and Darwin xcrun convention.",
+    "no_cxx_substitution": "Selecting available C++ would compile Swift input with wrong compiler and change intended language control."
+  },
+  "focused_execution": {
+    "command": "frozen r6 python -m unittest -v tests.critical.test_guarded_swift_builder",
+    "result": "3 tests, all 3 skipped by their unchanged existing availability guard, 0.001s",
+    "native_swift_acceptance": false
+  },
+  "recommendation": {
+    "minimal_assertion_preserving": "Treat Swift as a real unmet prerequisite for the unconditional actual Swift control. Retain failed r11 evidence; preflight the same compiler discovery before expensive full source qualification. Use an already provisioned, authorized Swift lane for unchanged focused tests before any later full gate.",
+    "focused_tests_on_available_host": [
+      "tests.critical.test_guarded_swift_builder",
+      "tests.critical.test_contained_build_inputs.ContainedBuildInputTests.test_actual_swift_adapter_materializes_inputs_under_litai"
+    ],
+    "darwin_fixture_followup": "Use the existing xcrun swiftc convention if aligning discovery portability; this does not repair absent Linux Swift.",
+    "no_source_only_success": "No source-only fixture change can produce actual Swift execution on a host without Swift while preserving this unconditional compile-and-run assertion. Adding a skip or fake compiler would change acceptance and is outside this review authorization."
+  },
+  "sha256": {
+    "tests/critical/test_contained_build_inputs.py": "8e30ed40f99300cf0351b7cb5c3d39855c3400f4d50e962b65c63fdc32fe0dfb",
+    "tests/critical/test_guarded_swift_builder.py": "67e91a31e6046369040200b0d01b39b2cb19d09e176af628522a786e76f402f0",
+    "src/literate_ai/adapters/builders/cpp.py": "241db17c7574a7aa03b992ce70e6b2baab5a75fcbcae0bb3bf5352b2fa6a2604",
+    "src/literate_ai/adapters/builders/swift.py": "14a886f778491d3bf1348404e9c7340a674fd320aa6d923cc6e3553608c9a842",
+    "src/literate_ai/adapters/lifecycle/local.py": "98b7399fb60e3e68c66783f05b647b7f261b420ff946dc858eb3f09b1b6f2394"
+  },
+  "limits": [
+    "No installation, toolchain repair, environment/PATH edits, new skips, deadline changes, source edits, worker dispatch or whole gate rerun.",
+    "Current host availability was independently probed; historical run cause is established by exact source/error path.",
+    "No actual Swift binary was executed; existing skipped controls are not native acceptance."
+  ]
+}

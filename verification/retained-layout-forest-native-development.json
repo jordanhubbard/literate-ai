@@ -1,0 +1,170 @@
+{
+  "schema": "literate-ai/native-forest-development@1",
+  "state": "source_reviewed_internal_native_dependency_scoped_maintained_pass",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-native-review.json",
+    "sha256": "295f724fecf17c99db6cee3fdbe7f6cf33331d32d33575958074f296a9d4312b"
+  },
+  "distinct_scoped_methods_passed": 57,
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-native-final-report.json",
+        "sha256": "afb6d30e5f676c02b314dd4fd8123c1b5680655cb6701aec20d8c000b84549a8"
+      },
+      "log": {
+        "path": "_build/forest-native-final-maintained.log",
+        "sha256": "b1b8156a269f8838d3ca9073124698c1c2a73d8c57f11b763ad8cd219a55f2be"
+      },
+      "summary": {
+        "executed": 17,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 17,
+        "selected": 17,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "5daf3f3ba070ea9ee138fe2754c861a2845f2531fa1b2b2b99ec57136e4da8c1",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-native-span-report.json",
+        "sha256": "8636adadcad3910c7833be5a8b056c24425b8861d3d7e7137be5644f959b4e4c"
+      },
+      "log": {
+        "path": "_build/forest-native-span-maintained.log",
+        "sha256": "41e01bbd3736bffc3da9eedda15a783d28889629951dbaf179f95963318f0bc7"
+      },
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "04f61df150b12f9a62fd75db3b93b6a8586d33f3da670136c11b4d486f5b9220",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-native-planning-report.json",
+        "sha256": "eebae88eeea7c753968331b4376da59b20c5946b9c11157d75e0c46e92ba0aec"
+      },
+      "log": {
+        "path": "_build/forest-native-planning-maintained.log",
+        "sha256": "cccf7aaa1830cc68a8e3339a44fb8076478d0054e4f35e6d5986984e4c436378"
+      },
+      "summary": {
+        "executed": 27,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 27,
+        "selected": 27,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "6b5bf54570e23bb5efcdf56d04aad6a4ff4f5d259ed24ae782a4086adc71e0d6",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "causal_diagnostics": [
+    {
+      "path": "_build/forest-native-receipts.log",
+      "sha256": "7ff73149a8542366553bb1aeb82ee514b6e723a5622793c4b73c7fa2c9381141"
+    },
+    {
+      "path": "_build/forest-native-controls.log",
+      "sha256": "35df7f8d8881a247155c3e92a97b29491e141ddffcb7c6f1d1bfdd808d1d615d"
+    },
+    {
+      "path": "_build/forest-native-maintained-report.json",
+      "sha256": "68dd639dc85b140d1b7181eba89666e153e1892287d4038fe8aeab41672b9a83"
+    },
+    {
+      "path": "_build/forest-native-cursor-diagnostic.log",
+      "sha256": "c629beb31d9707cd721fc7b25c28d0daf22dff88ca41fd8093d225eccea869cf"
+    }
+  ],
+  "fixture_limits": [
+    "Actual unmanaged temporary files, native moves and journal; no fabricated canonical phase.",
+    "Restrictive umask is scoped to actual native mkdir. Existing journal payload creation under umask0777 refuses before movement and is not claimed supported.",
+    "Committed payload limits fund reusable sequential checks; they are not lifetime counters of file opens or reread bytes."
+  ],
+  "pending": [
+    "Precharge every newly retained span/program/receipt/journal representation to the same original observation ledger before allocation/effects.",
+    "Join actual canonical control/partition participants and receipt-derived current project namespace; preserve reader/provider/cache ownership.",
+    "Publish coherent metadata and implement genuine fresh recovery with canonical reservations/current endpoint classification.",
+    "Complete root/shared/initial/wrapper/public and installed/native/full-program/release qualification; keep existing high-level admission/recovery guards."
+  ],
+  "static": {
+    "log": {
+      "path": "_build/forest-native-final-static.log",
+      "sha256": "95bc5254373f7788a274ab90afff4e0e17126d6ecd7dbdffe0db5906985620bf"
+    },
+    "exit": 0,
+    "checks": [
+      "reviewed-driver-record",
+      "documentation-authority-record",
+      "lint",
+      "format",
+      "repository-layout",
+      "public-export",
+      "driver-review",
+      "runner-review",
+      "openspec",
+      "roadmap-dependencies",
+      "documentation"
+    ]
+  },
+  "verify": {
+    "report": {
+      "path": "_build/forest-native-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "exit": 1,
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ],
+    "note": "Authority passes; full project receipt remains stale. Scoped development checks do not qualify the complete project."
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "status": "independent_bounded_native_control_acceptance",
+  "frozen_subject": "fef411fafba81dfcf890dd159d69e388589acf4e",
+  "frozen_worktree_head_verified": "fef411fafba81dfcf890dd159d69e388589acf4e",
+  "source_hashes": {
+    "src/literate_ai/adapters/builders/_executable_digest_data.py": {
+      "frozen_sha256": "0b070c0a19b68293cbe22b5190e2d7524efc10bde2bffa794f30d10c8d2fee5e",
+      "current_bytes_equal_frozen": true
+    },
+    "src/literate_ai/adapters/builders/python.py": {
+      "frozen_sha256": "44844a5fda032f8eebad6b7523ce4d6073c6f794d8a30c9a3a2e0a0779e61930",
+      "current_bytes_equal_frozen": true
+    },
+    "src/literate_ai/application/agent_skill_catalog.py": {
+      "frozen_sha256": "e037f1d8320e86039c08d077f7ccadfc579e308834cdb248c9195a778236500f",
+      "current_bytes_equal_frozen": true
+    },
+    "src/literate_ai/projects.py": {
+      "frozen_sha256": "b3cf623844d23c2d51d72c28d9820f260c8e2235d1486bebd15535aee0d7926b",
+      "current_bytes_equal_frozen": true
+    },
+    "src/literate_ai/adapters/retained_cargo_execution_core.py": {
+      "frozen_sha256": "b6f805f6356581461a69d7a55ef4c649f5ece10f9dfa6e5e181695936435559b",
+      "current_bytes_equal_frozen": true
+    },
+    "tests/smoke/test_authored_retained_cargo_native_completion.py": {
+      "frozen_sha256": "b0c7a07d31ae9e1b07d39459335cac7ae62a11dc5dc8cb1f2e16b809a09bdbe5",
+      "current_bytes_equal_frozen": true
+    },
+    "tests/support/fixtures_authored_retained_cargo_native.py": {
+      "frozen_sha256": "1f90f94b5e0cce928ecac82d317711403ba9a412bb411a5cab8b3cd0c5c479f2",
+      "current_bytes_equal_frozen": true
+    }
+  },
+  "receipt": {
+    "report": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/authored-native-completion-r4/python-test-report.json",
+    "sha256": "cee0b0ff51e4346adba0dd31d393da6c5e5cd0eca792e9e59886bffc09f9e391",
+    "summary": {
+      "executed": 3,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 3,
+      "selected": 3,
+      "skipped": 0
+    },
+    "release_evidence": false,
+    "log_sha256": "7bb69b8e5d1d7d8a890f7007034025253da726c3c0fc22661022558dab631049",
+    "elapsed_seconds": 2394.692,
+    "event_sha256": "c956ab988477d2b5ddc558a14a91f67f662bd1a63d6169475b296535be487522",
+    "event_kinds": [
+      "start",
+      "success",
+      "start",
+      "success",
+      "start",
+      "success",
+      "done"
+    ],
+    "tests": [
+      "tests.smoke.test_authored_retained_cargo_native_completion.AuthoredNativeCompletionTests.test_inspector_graph_change_refuses_even_when_original_files_stay_current",
+      "tests.smoke.test_authored_retained_cargo_native_completion.AuthoredNativeCompletionTests.test_inspector_late_outdir_mutation_refuses_and_preserves_changed_bytes",
+      "tests.smoke.test_authored_retained_cargo_native_completion.AuthoredNativeCompletionTests.test_original_native_facts_after_close_keep_the_original_deadline"
+    ]
+  },
+  "assertion_and_deadline_preservation": "Entire original native test file byte-identical across339,7128,b087,frozenfef,current. All three test assertions and fixture gating unchanged. Inner timeout_seconds900 and exact original deadline capture retained. Worker command retains3600seconds;3starts/3successes in one event stream, no skips/retry shown. _execute_cargo_consumer_session function signature/body AST ignoring decorators unchanged across339,7128,b087,fef/current. DATA decorators alter reused immutable parse/digest DATA only; actual test must still execute original guard/native paths.",
+  "accepted_scope": [
+    "Three original controls executed native Cargo/Rust/Make/Git fixture paths and reached their assertions.",
+    "Inspector foreign dependency graph refused after original files remain current.",
+    "Late inspector output mutation refused while changed bytes remain preserved.",
+    "Original native facts survive receiving fixture closure only under original deadline, ended scratch/current-input authority remains refused, and expiry checks preserve original deadline behavior."
+  ],
+  "explicit_limits": [
+    "Provider product/admission is explicitly injected fixture via open_authored_retained_cargo_products patch; no actual authored provider model generation, receiving-retirement/full admission/complete-feature acceptance.",
+    "This is one native host receipt, not all-platform, installed-wheel, whole-suite or whole-release acceptance.",
+    "Source-control closure reports for performance repairs remain separate from actual scope of these three controls.",
+    "Original failed runs retained with hashes; later pass does not rewrite their outcomes.",
+    "No new run, source edit, deadline extension or retry performed by reviewer."
+  ],
+  "original_failures_preserved": {
+    "ci-7128-140391391762.log": "906fd71e2d7425dfc7cd55329541d9400856db8ad078a47485d6af2257e48ced",
+    "ci-b087-140404207306.log": "8208693c5e753f600786331a2c8d05a64bfd4178b357c36d8c4dc1e114594f4e",
+    "ci-b087-140404206572.log": "47dd56aff34db97289defe35da24119d1508a25adf82f6b9f48769891fa16f17"
+  }
+}

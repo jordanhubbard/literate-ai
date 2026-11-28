@@ -1,0 +1,37 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_actual_interruption_boundary_regressions",
+  "subjects": {
+    "tests/critical/test_retained_layout_forest_disposition_retry.py": {
+      "algorithm": "sha256",
+      "digest": "eea51baed099c6b342aea936a6ad406c37487559d5b9c2f086e69ab552eb4264"
+    },
+    "tests/critical/test_retained_layout_forest_pwrite_retry.py": {
+      "algorithm": "sha256",
+      "digest": "fcb96995ef5931c6efbc763a8d067918ea22e2ea1b56df310838becf69f747fb"
+    },
+    "tests/critical/test_retained_layout_forest_normalization_retry.py": {
+      "algorithm": "sha256",
+      "digest": "e526cb3bf75002ba5d1f8c76c47d83145ecfb03f601ac3aa0ebdd1fcb1479e0b"
+    },
+    "tests/critical/test_retained_layout_forest_retirement_retry.py": {
+      "algorithm": "sha256",
+      "digest": "8596d1e1afa32c13c01d21387517457427a24e354247e20f60636ceb68c781e7"
+    }
+  },
+  "findings_closed": [
+    "Actual first advisory pwrite changes byte zero on its held FD while preserving the original multi-byte size and all remaining bytes; interruption precedes truncate.",
+    "Actual normalization and receipt adoption complete with one zero byte on the same original inode, but the matching durable observation append is interrupted.",
+    "Actual native retirement and receipt adoption complete with the original inode only at the private destination, but the matching durable observation append is interrupted.",
+    "Predecision advisory interruptions preserve the injected exception. The native pending retirement occurs after the durable release decision and wraps the injected cause as the existing outcome type.",
+    "Every original owner and descriptor context ends before a fresh actual observer/raw/canonical owner reacquires controls. Advisory cases need no replacement native generation; retired native cases require an actual newly published G2 generation.",
+    "The separately acknowledged second disposition completes. Actual terminal raw owners prove two/three generations, two disposition attempts, the original pending intent and final completion without terminal journal/publication writes or public native controls.",
+    "Every previously retained private inode and byte remains unchanged; each interrupted advisory inode ends normalized in place. Original post-observed retirement and duplicate-handoff subcases retain their original test key and behavior."
+  ],
+  "not_proven": [
+    "Original canonical forest SourcePhase/acquired partition execution, full public project reentry, committed forests and every native/metadata/control/mode or descriptor boundary beyond the precise three new cases remain unqualified.",
+    "Initial/wrapper/root/shared/renewal, installed/platform/integration/release and all other pending roadmap obligations remain open. Production admission and legacy guards are unchanged."
+  ]
+}

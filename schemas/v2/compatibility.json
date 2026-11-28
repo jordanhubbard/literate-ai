@@ -115,6 +115,7 @@
     "urn:literate-ai:schema:v2:generation-input-audit",
     "urn:literate-ai:schema:v2:source-promotion-provenance",
     "urn:literate-ai:schema:v3:source-promotion-provenance",
+    "urn:literate-ai:schema:v4:source-promotion-provenance",
     "urn:literate-ai:schema:v1:inverse-evidence-custody",
     "urn:literate-ai:schema:v1:semantic-requirement-graph",
     "urn:literate-ai:schema:v1:semantic-comparison-model-output",
@@ -158,6 +159,11 @@
     "urn:literate-ai:schema:v2:multi-entrypoint-component-semantics@1",
     "urn:literate-ai:schema:v2:library-capability-import@1",
     "urn:literate-ai:schema:v2:library-import-surface@1",
+    "urn:literate-ai:schema:v2:library-import-surface@2",
+    "urn:literate-ai:schema:v2:library-import-surface@3",
+    "urn:literate-ai:schema:v2:node-sdk-export-declaration@1",
+    "urn:literate-ai:schema:v2:standard-node-sdk-command-profile@1",
+    "urn:literate-ai:schema:v2:commonjs-module-declaration@1",
     "urn:literate-ai:schema:v2:library-consumer-binding@1",
     "urn:literate-ai:schema:v1:project-source-intelligence-policy",
     "literate-ai/source-intelligence-stage-status@1",
@@ -231,6 +237,7 @@
     "urn:literate-ai:schema:v2:native-sdk-tree-snapshot@1",
     "urn:literate-ai:schema:v2:native-sdk-tree@1",
     "literate-ai/retained-project-tree-policy@1",
+    "literate-ai/retained-project-promotion-evidence@1",
     "urn:literate-ai:schema:v2:package-tree-input@1",
     "urn:literate-ai:schema:v2:tree-package-plan@1",
     "urn:literate-ai:schema:v2:tree-package-result@1",
@@ -278,7 +285,67 @@
     "literate-ai/retained-tree-html-freshness@1",
     "literate-ai/retained-tree-html-check-result@1",
     "literate-ai/project-verify@2",
-    "literate-ai/project-tree-html@1"
+    "literate-ai/project-tree-html@1",
+    "literate-ai/worker-telemetry-request@1",
+    "literate-ai/worker-telemetry-observation@1",
+    "literate-ai/worker-telemetry-response@1",
+    "literate-ai/authenticated-worker-telemetry-request@1",
+    "literate-ai/authenticated-worker-telemetry-response@1",
+    "urn:literate-ai:schema:v2:qualification-origin",
+    "urn:literate-ai:schema:v2:authored-qualification-origin",
+    "urn:literate-ai:schema:v2:source-derived-qualification-origin",
+    "urn:literate-ai:schema:v2:authored-qualification-profile",
+    "urn:literate-ai:schema:v2:authored-qualification-oracle-selection",
+    "urn:literate-ai:schema:v2:authored-graph-independent-acceptance",
+    "urn:literate-ai:schema:v2:authored-node-independent-acceptance",
+    "urn:literate-ai:schema:v2:authored-qualification-lifecycle-request",
+    "urn:literate-ai:schema:v2:authored-qualification-plan",
+    "urn:literate-ai:schema:v2:authored-qualification-project-review",
+    "urn:literate-ai:schema:v2:authored-qualification-comparison",
+    "literate-ai/authored-retained-cargo-binding@1",
+    "literate-ai/authored-retained-cargo-admission-receipt@1",
+    "literate-ai/authored-retained-cargo-provisioning@1",
+    "literate-ai/retained-python-workspace-plan@1",
+    "urn:literate-ai:schema:v5:source-promotion-provenance",
+    "urn:literate-ai:schema:v1:source-static-intake-plan",
+    "urn:literate-ai:schema:v1:source-static-intake-review",
+    "urn:literate-ai:schema:v1:source-static-intake-validation",
+    "literate-ai/retained-python-test-inventory@1",
+    "literate-ai/native-root-run-policy@1",
+    "literate-ai/native-root-run-deadline@1",
+    "literate-ai/native-root-qualified-dependency-binding@1",
+    "literate-ai/native-root-run-binding@1",
+    "literate-ai/native-root-acceptance-rejection@1",
+    "literate-ai/native-root-repair-diagnostic@1",
+    "literate-ai/native-root-repair-request@1",
+    "literate-ai/native-root-candidate-attempt@1",
+    "literate-ai/native-root-continuation-stop@1",
+    "literate-ai/native-root-continuation-ledger@1",
+    "literate-ai/native-root-acceptance-closure@1",
+    "literate-ai/native-root-execution-result@1",
+    "literate-ai/project-layout-catalog-continuation@1",
+    "literate-ai/project-layout-catalog-continuation-result@1",
+    "literate-ai/project-layout-framework-authority@1",
+    "literate-ai/authored-retained-python-binding@1",
+    "literate-ai/project-layout-framework-authority-result@1",
+    "literate-ai/project-layout-framework-producer-result@1",
+    "literate-ai/project-layout-catalog-producer-result@1",
+    "literate-ai/project-layout-source-finalization-result@1",
+    "literate-ai/retained-project-historical-admission@1",
+    "literate-ai/retained-project-test-runner@2",
+    "literate-ai/worker-telemetry-request@2",
+    "literate-ai/worker-telemetry-sample@1",
+    "literate-ai/worker-telemetry-response@2",
+    "literate-ai/worker-telemetry-scope@1",
+    "literate-ai/authenticated-worker-telemetry-request@2",
+    "literate-ai/authenticated-worker-telemetry-response@2",
+    "literate-ai/worker-telemetry-query-result@1",
+    "literate-ai/worker-telemetry-namespace-initialization@1",
+    "literate-ai/private-native-provider-build-plan@1",
+    "literate-ai/private-worker-telemetry-native-provider@2",
+    "literate-ai/worker-telemetry-native-initialization@1",
+    "literate-ai/worker-telemetry-native-build-planning@1",
+    "literate-ai/private-native-provider-published@1"
   ],
   "read_paths": [
     {
@@ -646,6 +713,78 @@
       "status": "unreleased-development-compatibility",
       "adapter": "RebuildSourceCachePublicationOffer.from_dict(...).to_dict",
       "output": "urn:literate-ai:schema:v2:rebuild-source-cache-publication-offer"
+    },
+    {
+      "input": "literate-ai/native-root-run-policy@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootRunPolicy.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-run-policy@1"
+    },
+    {
+      "input": "literate-ai/native-root-run-deadline@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootRunDeadline.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-run-deadline@1"
+    },
+    {
+      "input": "literate-ai/native-root-qualified-dependency-binding@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootQualifiedDependencyBinding.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-qualified-dependency-binding@1"
+    },
+    {
+      "input": "literate-ai/native-root-run-binding@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootRunBinding.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-run-binding@1"
+    },
+    {
+      "input": "literate-ai/native-root-acceptance-rejection@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootAcceptanceRejection.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-acceptance-rejection@1"
+    },
+    {
+      "input": "literate-ai/native-root-repair-diagnostic@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootRepairDiagnostic.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-repair-diagnostic@1"
+    },
+    {
+      "input": "literate-ai/native-root-repair-request@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootRepairRequest.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-repair-request@1"
+    },
+    {
+      "input": "literate-ai/native-root-candidate-attempt@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootCandidateAttempt.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-candidate-attempt@1"
+    },
+    {
+      "input": "literate-ai/native-root-continuation-stop@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootContinuationStop.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-continuation-stop@1"
+    },
+    {
+      "input": "literate-ai/native-root-continuation-ledger@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootContinuationLedger.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-continuation-ledger@1"
+    },
+    {
+      "input": "literate-ai/native-root-acceptance-closure@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootAcceptanceClosure.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-acceptance-closure@1"
+    },
+    {
+      "input": "literate-ai/native-root-execution-result@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootExecutionResult.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-execution-result@1"
     }
   ],
   "incompatible_inputs": [

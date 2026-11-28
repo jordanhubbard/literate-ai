@@ -1,0 +1,265 @@
+{
+  "schema": "literate-ai/independent-historical-framework-plan-diagnosis@1",
+  "status": "Real released-producer compatibility gap confirmed; safe generic refusal preserved, no mutation or workaround.",
+  "candidate_subject": {
+    "revision": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+    "wheel_sha256": "9dfc85ef0a5eae2cb8669daa4c8840b62ce765c50385aba55da5b3e6512cef97",
+    "original_published_initializer_revision": "87506c804210c46835723e11d1ca1c6cae0f496c",
+    "original_published_wheel_sha256": "4b075b0b7727a11785a59359ccc3fc2de327baad46ec45350faeb66ddfc14c15"
+  },
+  "finding": {
+    "severity": "P1 release acceptance blocker for authentic historical framework placement; fail-closed security behavior preserved.",
+    "owner": "src/literate_ai/adapters/project_layout_recorded_wrapper_projection.py:371, project_recorded_legacy_wrapper_authority original producer byte reconstruction",
+    "classification": "Missing supported original producer epoch, not changed source, unqualified original parity, missing record, or a demonstrated ordinary renewal prerequisite.",
+    "underlying_exception_type": "ValueError",
+    "underlying_message": "actual recorded converter entries differ from original producer",
+    "public_diagnostic": "project.layout.invalid hides the original-epoch mismatch behind generic containment inspection failure.",
+    "call_path": [
+      "project_layout_framework_ingress.read_existing_framework_authority:980",
+      "project_layout_framework_ingress.observe_existing_framework_authority:540",
+      "project_layout_recorded_wrapper_source.observe_original_recorded_wrapper_source:431",
+      "project_layout_recorded_wrapper_source.project_original:342",
+      "project_layout_recorded_wrapper_projection.project_recorded_legacy_wrapper_authority:371"
+    ],
+    "original_checks_reached_before_failure": [
+      "Exact original seven native byte captures retained.",
+      "Every converter entry matched original initialization baseline preimage identity and size.",
+      "Original inventory/baseline/parity/lift-shift schemas, source tree, full executed phases and original receipt policy accepted.",
+      "Actual admitted original definition/resources/layout coordinates accepted."
+    ],
+    "six_original_entries_match_current_reconstruction": true,
+    "seven_entry_hashes": [
+      {
+        "actual_bytes": 1620,
+        "actual_sha256": "c0c822d25a9e2bfd64136da8445cb8cae0e411a874b70ca2c67de9ed30291f3d",
+        "equal": true,
+        "logical": "components/legacy-project-wrapper/component.md",
+        "rendered_bytes": 1620,
+        "rendered_sha256": "c0c822d25a9e2bfd64136da8445cb8cae0e411a874b70ca2c67de9ed30291f3d"
+      },
+      {
+        "actual_bytes": 750,
+        "actual_sha256": "2b5685b3cb665fc5b852529baaf590f505323e94bea8ddc903b57a0ddcd3ac92",
+        "equal": true,
+        "logical": "flavors/legacy-project-shim/flavor.md",
+        "rendered_bytes": 750,
+        "rendered_sha256": "2b5685b3cb665fc5b852529baaf590f505323e94bea8ddc903b57a0ddcd3ac92"
+      },
+      {
+        "actual_bytes": 413,
+        "actual_sha256": "d28a14e34f8dea9f6439c6c6ad9bc610584a10f51e5e82de61048d8729550fae",
+        "equal": true,
+        "logical": "flavors/legacy-project-shim/openspec/spec.md",
+        "rendered_bytes": 413,
+        "rendered_sha256": "d28a14e34f8dea9f6439c6c6ad9bc610584a10f51e5e82de61048d8729550fae"
+      },
+      {
+        "actual_bytes": 515,
+        "actual_sha256": "994961c9c2de0183bfd7097fcc1af3b58e4e3bc067a1c650774f61be2b9d1096",
+        "equal": false,
+        "logical": "litai.harness.mk",
+        "rendered_bytes": 572,
+        "rendered_sha256": "85a181c64366c814725ecdfbd7807c75555114b1e602995fb0ef38885f5ca9af"
+      },
+      {
+        "actual_bytes": 234,
+        "actual_sha256": "c689ec606596e5cf794bbf8b280efd09612cf8f3192e28e0fb526ba238fa8fc5",
+        "equal": true,
+        "logical": "routing/legacy-adoption.json",
+        "rendered_bytes": 234,
+        "rendered_sha256": "c689ec606596e5cf794bbf8b280efd09612cf8f3192e28e0fb526ba238fa8fc5"
+      },
+      {
+        "actual_bytes": 992,
+        "actual_sha256": "b416da04556cbf6c771585d5c6dd5625daa76ad1f4ab9d9fc8096ec5f240980f",
+        "equal": true,
+        "logical": "skills/specification-to-source/legacy-project-shim/SKILL.md",
+        "rendered_bytes": 992,
+        "rendered_sha256": "b416da04556cbf6c771585d5c6dd5625daa76ad1f4ab9d9fc8096ec5f240980f"
+      },
+      {
+        "actual_bytes": 3156,
+        "actual_sha256": "7a13a2266a78a448c2601e2678973b042465a371ca338f4bc6355f57f2983aea",
+        "equal": true,
+        "logical": "workflows/legacy-adoption/workflow.md",
+        "rendered_bytes": 3156,
+        "rendered_sha256": "7a13a2266a78a448c2601e2678973b042465a371ca338f4bc6355f57f2983aea"
+      }
+    ],
+    "sole_mismatch": {
+      "logical": "litai.harness.mk",
+      "actual_original_bytes": 515,
+      "current_rendered_bytes": 572,
+      "actual_original_sha256": "994961c9c2de0183bfd7097fcc1af3b58e4e3bc067a1c650774f61be2b9d1096",
+      "current_rendered_sha256": "85a181c64366c814725ecdfbd7807c75555114b1e602995fb0ef38885f5ca9af",
+      "exact_difference": "Only three build/test/package recipe cd prefixes differ. Released1.3.1 uses unquoted Make variable expansion; current producer uses shell quoting after Make expansion. All command bodies, implementation coordinate and the other6logical entries are unchanged.",
+      "original_recipe_prefix": "cd $(LITAI_LEGACY) &&",
+      "current_recipe_prefix": "cd '$(subst ','\"'\"',$(LITAI_LEGACY))' &&",
+      "producer_epoch_change_commit": "bd3197765925168137428ba33418ec6175dcc0cf",
+      "producer_epoch_change_owner": "harness_inventory._wrapper_recipe / render_harness_wrapper"
+    }
+  },
+  "public_original_refusals": [
+    {
+      "command": {
+        "argv": [
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/candidate-environment/bin/python",
+          "-I",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/candidate-environment/bin/litai",
+          "--json",
+          "project",
+          "layout",
+          "plan",
+          "--migration",
+          "--place-framework-authority",
+          "--project",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+        ],
+        "exit": 2,
+        "seconds": 2.1414947420125827,
+        "timeout_seconds": 1800
+      },
+      "error": {
+        "code": "project.layout.invalid",
+        "message": "project containment inputs could not be inspected safely"
+      },
+      "logs": [
+        {
+          "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-framework-root-plan.json",
+          "sha256": "1cd53fe8f206fb7695374be879fee860c6ce7d8eeeeb7fe1b830b588badb5e30",
+          "bytes": 618,
+          "device": 1813,
+          "inode": 11849499,
+          "mtime_ns": 1795778773092889001,
+          "mode": 420
+        },
+        {
+          "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-framework-root-plan.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "device": 1813,
+          "inode": 11849497,
+          "mtime_ns": 1795778773091819741,
+          "mode": 420
+        },
+        {
+          "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-framework-root-plan.stderr",
+          "sha256": "a27e0ada6a4c015a981d9c019d4bf10c7e42cac94bf6ef91d1c8944d7cc12a98",
+          "bytes": 186,
+          "device": 1813,
+          "inode": 11849498,
+          "mtime_ns": 1795778773092730842,
+          "mode": 420
+        }
+      ]
+    },
+    {
+      "command": {
+        "argv": [
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/candidate-environment/bin/python",
+          "-I",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/candidate-environment/bin/litai",
+          "--json",
+          "project",
+          "layout",
+          "plan",
+          "--migration",
+          "--place-framework-authority",
+          "--project",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/components/legacy-project-wrapper/implementation"
+        ],
+        "exit": 2,
+        "seconds": 2.1797534020151943,
+        "timeout_seconds": 1800
+      },
+      "error": {
+        "code": "project.layout.invalid",
+        "message": "project containment inputs could not be inspected safely"
+      },
+      "logs": [
+        {
+          "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-framework-descendant-plan.json",
+          "sha256": "27ebe17ae75d82f8b5ced9213dcd6783ef74a8d41aed00ded9e1881b37c12b60",
+          "bytes": 667,
+          "device": 1813,
+          "inode": 11849502,
+          "mtime_ns": 1795778773106627016,
+          "mode": 420
+        },
+        {
+          "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-framework-descendant-plan.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "device": 1813,
+          "inode": 11849500,
+          "mtime_ns": 1795778773105819691,
+          "mode": 420
+        },
+        {
+          "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/logs/candidate-framework-descendant-plan.stderr",
+          "sha256": "a27e0ada6a4c015a981d9c019d4bf10c7e42cac94bf6ef91d1c8944d7cc12a98",
+          "bytes": 186,
+          "device": 1813,
+          "inode": 11849501,
+          "mtime_ns": 1795778773106513289,
+          "mode": 420
+        }
+      ]
+    }
+  ],
+  "private_debug_artifacts": {
+    "trace": {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-framework-private-trace-r1.txt",
+      "sha256": "2d98783f6d16302cefaea488158b6f418572657bb68d050d6bf6669d4f36fd3f",
+      "bytes": 2985,
+      "device": 1813,
+      "inode": 11816976,
+      "mtime_ns": 1795778871518831118,
+      "mode": 384
+    },
+    "seven_entry_diff": {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-framework-render-diff-private-r1.json",
+      "sha256": "4a878f83f49385393a4aac620fcae07d35201ceeef6e5e647ffb30c57e863377",
+      "bytes": 3501,
+      "device": 1813,
+      "inode": 11816981,
+      "mtime_ns": 1795778936529724287,
+      "mode": 384
+    },
+    "permissions": "Both private artifacts are0600; sanitized report omits detailed traceback/local frame data."
+  },
+  "before_after_no_side_effect_proof": {
+    "before_facts": {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-framework-before-facts-r1.json",
+      "sha256": "660e305f6275ced9a8c1414d43d75499566581124c6fa37f2eefc9bedbad337b",
+      "bytes": 280067,
+      "device": 1813,
+      "inode": 11816970,
+      "mtime_ns": 1795778750728481638,
+      "mode": 420
+    },
+    "all613regular_file_bytes_native_facts_and_membership_unchanged": true,
+    "all471directory_native_facts_membership_unchanged": true,
+    "Git_HEAD_index_all_present_refs_exact_byte_native_facts_unchanged": true,
+    "native_source_original6payloads_preserved": "Included in exact613file snapshot and prior catalog/native reviews.",
+    "policy_manifest_receipt_journals_and_marker_unchanged": true,
+    "actions_performed": "Read existing public refusal logs and installed source. Invoked original installed read-only API twice with bytecode writes disabled, retaining detailed trace/diff only in0600B artifacts. No wrapper patching/monkeypatching, update/readmission/marker/apply/renewal."
+  },
+  "repair_invariant": {
+    "required": "Recognize the exact original released producer preimage through its original admitted origin/baseline/parity/source/native custody, then derive the reviewed target projection through the proper producer owner. Do not mutate original input to make it equal a newer renderer.",
+    "minimum_sound_direction": "Add a finite provenance-bound inert original-renderer epoch for genuine1.3.1Make bytes (or equivalent exact supported original-producer projection). Preserve exact seven-entry preimage comparison, original native/resource/record/layout/source checks and target transformation/currentness controls. Treat current quoting as a distinct emitter epoch, not a reason to relabel historical bytes.",
+    "do_not": [
+      "Hand-edit the historical Makefile or producer records/pins.",
+      "Normalize or ignore quoting differences broadly, skip the renderer comparison, or admit arbitrary historical script bytes.",
+      "Run ordinary update/readmission as an assumed prerequisite without proving it preserves and legitimately advances the required original preimage through its owner.",
+      "Record markers, renew receipts or regenerate native source to conceal this refusal."
+    ],
+    "normal_owner_boundary": "Ordinary template updater treats dynamically produced retained shim authority specially; readmission rerenders wrapper but does not establish this current projection exact original initialization preimage by itself. No ordinary update/readmission attempt was made here."
+  },
+  "limits": [
+    "No framework plan, placement, source finalization, full containment or qualification succeeded in this phase.",
+    "Catalog partial placement success and retained-source2test receipt remain bounded earlier evidence; neither proves historical renderer compatibility.",
+    "Current documentation/receipt staleness after catalog is a separate expected prerequisite; changing a marker alone cannot change this literal original Make byte comparison.",
+    "No claim of a bypass or malicious input acceptance; this is a genuine supported-history capability gap exposed by real published initializer, not a modern LEGACY_ROOT_FIXTURE."
+  ]
+}

@@ -7,11 +7,11 @@ from pathlib import PurePosixPath
 
 from literate_ai.adapters.directory_artifacts import read_directory_export
 from literate_ai.adapters.qualification_capture import QualificationRunCapture
+from literate_ai.adapters.retained_source_provider import (
+    verify_current_retained_source_provider,
+)
 from literate_ai.application.locked_generation_authority import (
     LockedGenerationAuthority,
-)
-from literate_ai.application.source_promotion import (
-    verify_qualified_locked_source_promotion,
 )
 from literate_ai.contracts.authority import ComponentGenerationClosure
 from literate_ai.contracts.cargo_workspace import CargoPackageExpectation
@@ -90,33 +90,15 @@ def _verify_retained_cargo_provider(
     current_verifier_identity,
     current_policy_identity,
 ):
-    """Shared current native provider checks, never a binding/plan codec."""
-    projection = verify_qualified_locked_source_promotion(
+    """Compatibility wrapper over the original language-neutral provider joins."""
+    return verify_current_retained_source_provider(
+        binding,
         authority,
         promotion,
         current_generation_closure=current_generation_closure,
         current_verifier_identity=current_verifier_identity,
         current_policy_identity=current_policy_identity,
     )
-    if (
-        binding.qualification_identity
-        != current_generation_closure.qualification_evidence_identity
-        or binding.verifier_identity != current_verifier_identity
-        or binding.policy_identity != current_policy_identity
-    ):
-        raise ValueError("retained.cargo.provider-authority-mismatch")
-    qualification = promotion.qualification_lifecycle_result
-    if qualification is None or not any(
-        r.run_identity == binding.run_identity for r in qualification.runs
-    ):
-        raise ValueError("retained.cargo.provider-run-mismatch")
-    roots = set(binding.exports.link_plan.resolved_root_artifact_identities)
-    if any(
-        p.artifact_export.component_revision != projection.component_revision_identity
-        for p in binding.exports.libraries
-        if p.artifact_export.identity in roots
-    ):
-        raise ValueError("retained.cargo.provider-revision-mismatch")
 
 
 def reopen_retained_cargo_plan(
@@ -170,9 +152,14 @@ def bound_cargo_packages(
     Cargo package names and Rust import names are distinct. The actual package
     name/version and manifest bytes are checked after immutable package reopening.
     """
-    destinations = dict(binding.destinations)
+    return _bound_cargo_package_exports(plan, binding.exports, binding.destinations)
+
+
+def _bound_cargo_package_exports(plan, exports, destinations):
+    """Pure package attribution; callers separately establish origin and trust."""
+    destinations = dict(destinations)
     result = {}
-    for product in binding.exports.libraries:
+    for product in exports.libraries:
         artifact = product.artifact_export.identity
         destination = PurePosixPath(destinations[artifact])
         candidates = [
@@ -236,8 +223,36 @@ def _verify_retained_cargo_package_values(
     destinations = dict(binding.destinations)
     manifests = {item.path: item for item in plan.manifests}
     blobs = dict(capture.blobs)
+    _verify_bound_cargo_package_exports(
+        plan,
+        binding.exports,
+        packages,
+        destinations,
+        manifests,
+        blobs,
+        max_package_bytes=max_package_bytes,
+        max_entries=max_entries,
+    )
+
+
+def _verify_bound_cargo_package_exports(
+    plan,
+    exports,
+    packages,
+    destinations,
+    manifests,
+    blobs,
+    *,
+    max_package_bytes,
+    max_entries,
+):
+    """Check exact exported package bytes without granting receiving authority.
+
+    Both origin-specific readers must finish their own current-authority and
+    archive semantic checks before using this mechanical manifest validation.
+    """
     remaining_bytes, remaining_entries = max_package_bytes, max_entries
-    for product in binding.exports.libraries:
+    for product in exports.libraries:
         artifact = product.artifact_export.identity
         package = packages[artifact]
         destination = PurePosixPath(destinations[artifact])

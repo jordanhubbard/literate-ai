@@ -298,6 +298,9 @@ class StandardLifecycleCheckpointRecorder(Protocol):
 
     def record(self, evidence: StandardLifecycleStageEvidence) -> None: ...
 
+    def start_node_sdk_attempt(self, execution_plan, prepared, invocation) -> None:
+        """Bind a deferred attempt only inside original live SDK admission."""
+
     def start_replacement(
         self,
         execution_plan_identity: ContentIdentity,
@@ -307,6 +310,9 @@ class StandardLifecycleCheckpointRecorder(Protocol):
 
 
 class StandardContextEvidenceRecorder(ComponentContextEvidenceRecorder, Protocol):
+    def start_attempt(self) -> None:
+        """Reset this candidate's projection, retaining prior durable evidence."""
+
     @property
     def prompt_journal_identities(self) -> tuple[ContentIdentity, ...]: ...
 
@@ -331,6 +337,17 @@ class StandardCandidateRepairPort(Protocol):
         diagnostic: CandidateRepairDiagnostic,
         predecessor_attempt_identities: tuple[ContentIdentity, ...],
     ) -> PreparedComponentGenerationNode[object, object]: ...
+
+
+class GeneratedCandidateVerifier(Protocol):
+    """Check a fresh candidate before its existing bounded attempt is accepted."""
+
+    def verify(
+        self,
+        plan: StandardComponentBuildPlan,
+        output: SourceGenerationRunOutput,
+        evidence: StandardComponentAcceptanceEvidence,
+    ) -> StandardNodeFailureEvidence | None: ...
 
 
 class CompleteAcceptedSourceCachePublisher(Protocol):

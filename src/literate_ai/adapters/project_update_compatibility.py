@@ -54,7 +54,9 @@ def _forward(project: LoadedProject, relative: str) -> bool:
     )
 
 
-def _sources(project: LoadedProject) -> dict[str, bytes]:
+def _sources(project: LoadedProject, observation=None) -> dict[str, bytes]:
+    if observation is not None:
+        return observation.skill_sources(project)
     paths = AgentSkillCatalog.discover_manifest_paths(
         project.root,
         catalog_roots=project.roots("skill"),
@@ -118,6 +120,7 @@ def classify_skill_compatibility(
     catalog_overrides: Mapping[str, bytes | None] | None = None,
     adopt_added: bool = False,
     resolutions: Mapping | None = None,
+    _observation=None,
 ) -> tuple[ProjectUpdateFile, ...]:
     """Keep the compatible subset; never replace a pinned dependency to fit it."""
     from .update_merge import resolution_content
@@ -145,7 +148,7 @@ def classify_skill_compatibility(
     if not candidates and not relevant_overrides:
         return files
     try:
-        current = _sources(project)
+        current = _sources(project, _observation)
     except (ProjectValidationError, AgentSkillCatalogError) as exc:
         raise ProjectUpdateError(exc.code, exc.message) from exc
     base = _overlay(current, relevant_overrides, project)
@@ -153,7 +156,11 @@ def classify_skill_compatibility(
     while True:
         updates = {
             path: resolution_content(
-                item, current.get(path), upstream.get(path), resolutions
+                item,
+                current.get(path),
+                upstream.get(path),
+                resolutions,
+                _observation=_observation,
             )
             for path, item in candidates.items()
             if path not in blocked
@@ -180,13 +187,15 @@ def classify_skill_compatibility(
 
 
 def require_selected_skill_closure(
-    root: Path, updates: Mapping[str, bytes | None]
+    root: Path, updates: Mapping[str, bytes | None], *, _observation=None
 ) -> None:
     """Recheck the actual selected subset before the first update write."""
-    project = discover_project(root)
+    project = (
+        discover_project(root) if _observation is None else _observation.project(root)
+    )
     if project is None or not any(_manifest(project, path) for path in updates):
         return
     try:
-        _validate(project, _overlay(_sources(project), updates, project))
+        _validate(project, _overlay(_sources(project, _observation), updates, project))
     except (ProjectValidationError, AgentSkillCatalogError) as exc:
         raise ProjectUpdateError(exc.code, exc.message) from exc

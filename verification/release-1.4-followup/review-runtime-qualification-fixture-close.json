@@ -1,0 +1,19 @@
+{
+  "status": "closed",
+  "worktree": "/home/jkh/Src/literate-ai/.worktrees/release-maintained-followup-20261126",
+  "head": "0918c2fe85bcf6d57d0ca0f14ca92cdad472da66",
+  "file": "tests/critical/test_qualification_capture.py",
+  "sha256": "c75d1a95ceec2969fa02352bf6f24bc80a1378110c5e8c0c5610b4fe235cfb73",
+  "review": "Exact fixture-only change adds node_sdk_resources=None to existing modeled non-SDK SimpleNamespace package custody. Matches LocalProjectPackageCustody default. Unchanged _remember_node_sdk_project_stage returns immediately for None. Recorder identity collection, temporary-directory cleanup and evidence reopening assertions remain intact. No production source change in working-tree diff.",
+  "independent_test": {
+    "name": "tests.critical.test_qualification_capture.QualificationCaptureTests.test_real_packaged_process_recorder_reopens_after_cleanup",
+    "command": "PYTHONPATH=src:. /home/jkh/Src/literate-ai/.venv/bin/python -m unittest <name>",
+    "result": "PASS",
+    "seconds": 1.062
+  },
+  "findings": [],
+  "limits": [
+    "This fixture exercises real process-observation recording and postcleanup evidence reopening with mocked CompletedProcess results and package custody. It does not qualify actual packaged child execution, SDK custody, or full installed native release acceptance.",
+    "Unrelated docs/roadmap/active-work.md working-tree change excluded from this review."
+  ]
+}

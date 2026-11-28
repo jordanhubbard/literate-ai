@@ -115,7 +115,8 @@ class RetainedReceiverPlanningTests(unittest.TestCase):
                 ),
             ),
         )
-        (self.root / "literate.project.json").write_bytes(
+        context = self.project.context
+        context.manifest_path.write_bytes(
             canonical_json_bytes(self.project.definition.to_dict())
         )
         component = self.component
@@ -160,7 +161,7 @@ class RetainedReceiverPlanningTests(unittest.TestCase):
             "receiver",
             ExecutionWorkerKind.SSH,
             endpoint="fixture@unused.invalid",
-            workspace="~/retained-receiver-planning",
+            workspace="~/litai-receiver-planning",
         )
         self.catalog = self.root.parent / (self.root.name + "-workers.json")
         self.addCleanup(self.catalog.unlink, missing_ok=True)
@@ -177,9 +178,18 @@ class RetainedReceiverPlanningTests(unittest.TestCase):
         (self.root / "manual/manual.txt").write_text("original documentation")
         self.profile_path = self.root / "build/profile.json"
         self.profile_path.write_text("{}")
-        (self.root / "literate.release.json").write_bytes(
+        release_policy = context.framework_path("literate.release.json")
+        release_document = json.loads(
             (Path(__file__).resolve().parents[2] / "literate.release.json").read_bytes()
         )
+        release_document["contributions"]["roadmap_goal_manifest"] = (
+            context.framework_path(
+                release_document["contributions"]["roadmap_goal_manifest"]
+            )
+            .relative_to(self.root)
+            .as_posix()
+        )
+        release_policy.write_bytes(canonical_json_bytes(release_document))
         tests = RetainedProjectTestPolicy(
             self.project.definition.test_receipt_policy.identity,
             (RetainedProjectExpectedCase("case", "test"),),
@@ -196,10 +206,10 @@ class RetainedReceiverPlanningTests(unittest.TestCase):
             "build": "build-definition",
             "tests": "test-definition",
             "manual": "docs-definition",
-            "greeting/specs": "specification",
+            (component / "specs").relative_to(self.root).as_posix(): "specification",
             "test-policy.json": "test-policy",
             "sdk-policy.json": "sdk-policy",
-            "literate.release.json": "release-policy",
+            release_policy.relative_to(self.root).as_posix(): "release-policy",
         }
         limits = RetainedProjectLimits(100, 65536, 1024**2)
         initial = discover_retained_project_inputs(
@@ -213,10 +223,7 @@ class RetainedReceiverPlanningTests(unittest.TestCase):
             dependency_identity=initial.role_identity({"dependency"}),
             test_policy_identity=canonical_identity(tests.to_dict()),
             release_policy_identity=ContentIdentity.parse_uri(
-                "sha256:"
-                + hashlib.sha256(
-                    (self.root / "literate.release.json").read_bytes()
-                ).hexdigest()
+                "sha256:" + hashlib.sha256(release_policy.read_bytes()).hexdigest()
             ),
             tools=(
                 (

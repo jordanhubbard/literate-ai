@@ -1,0 +1,208 @@
+{
+  "schema": "literate-ai/forest-bound-prefix-development@1",
+  "state": "source_reviewed_actual_bound_future_participant_validation",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "general_canonical_forest_recovery_proven": false,
+  "fresh_process_retry_proven": false,
+  "control_disposition_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-bound-prefix-review.json",
+    "sha256": "979ab726e3be3fa6313925311b273977dd67ad62559d167a867ee19a4c42a224"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-bound-complete-owner-report.json",
+        "sha256": "d46127bc060af12cc074ac109e6ed4cb1a8ba1415adf146bbc083c2fdacd25ed"
+      },
+      "log": {
+        "path": "_build/forest-bound-complete-owner-maintained.log",
+        "sha256": "a9876d6a23555c13ecabddea511b8f955b2377d7175d9d11e14f0472f8d3122e"
+      },
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "f0ce928e32dd26abad2ba388728dffdb688c79427a05cc3da62a3910192af957",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-bound-complete-metadata-report.json",
+        "sha256": "d2629a24fcd01bd239e10e84d7ea1bd41cc70c8a54b67b28d1c35d1f3af1a140"
+      },
+      "log": {
+        "path": "_build/forest-bound-complete-metadata-maintained.log",
+        "sha256": "ff2ad608bb28e4727a716f29e0ee587af24a11841b496be60f6c0ace3b0dcd7d"
+      },
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "8830cc9346f10ceb7e44609e30add879ae18e5f94b41a36ff86417accf0adeee",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-bound-complete-current-report.json",
+        "sha256": "e466839aab70c75b2848e543a487f1f8cb88cc1291f5586e0c51eb0c898b61ec"
+      },
+      "log": {
+        "path": "_build/forest-bound-complete-current-maintained.log",
+        "sha256": "b639954c2c17fc3e4a04a2f25c47e67010a6eac17452022b85d31734166c4e00"
+      },
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "61d7206cc7ab21a18ca60491c8498c4ef8090a74b77f4dce25f7d986f5b981f1",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-bound-complete-restoration-report.json",
+        "sha256": "e60ca67b7ecacfe83a96c9fb9aa1d0dec11e3ccadb7e298c6651ed4a8adc063c"
+      },
+      "log": {
+        "path": "_build/forest-bound-complete-restoration-maintained.log",
+        "sha256": "d6fbb9455e27ffdc25ac451b1141b5264a9a7e61f67cce6d5887ab1cafc3009b"
+      },
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "f32f0243a0bfd5db930a225199dd9509e67fcc0d15226415a76d8bdddf95ba61",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 33,
+  "causal_failures": [
+    {
+      "log": {
+        "path": "_build/forest-bound-prefix-before-diagnostic.log",
+        "sha256": "82d700db37f5064636900fe0216dae297f219083d390d87e255569437df58341"
+      },
+      "cause": "Before the participant join, an actual bound metadata reservation could be accepted as a recovery quarantine. Planning only; no recovery effects executed."
+    },
+    {
+      "log": {
+        "path": "_build/forest-bound-prefix-parking-before-diagnostic.log",
+        "sha256": "90872281f24bc7aeea37d242ca6e60cbcdf95a78f25023230a18989451387ae1"
+      },
+      "cause": "Before the parking-coordinate guard, an unknown directory created at the original unrecorded parking coordinate could be reinterpreted as quarantine. Planning only; no recovery effects executed."
+    },
+    {
+      "log": {
+        "path": "_build/forest-bound-prefix-complete-before-diagnostic.log",
+        "sha256": "9993b506abae71564c562f8082ed1b94177797754b2c6e0679a9a2a121d1719f"
+      },
+      "cause": "Before the lifecycle refinement, a replaced unused retirement root after actual native-complete was omitted from current closure."
+    }
+  ],
+  "passing_diagnostics": [
+    {
+      "path": "_build/forest-bound-prefix-after-diagnostic.log",
+      "sha256": "9298ebec60b399de5779f182858ddc9457ab5e826147300a26f6df3d2a9f812e"
+    },
+    {
+      "path": "_build/forest-bound-prefix-final-diagnostic.log",
+      "sha256": "4d8317814deb2338f5c9e18a32b9747b421742b8637181bae8a43f1dc8c501e3"
+    },
+    {
+      "path": "_build/forest-bound-prefix-parking-after-diagnostic.log",
+      "sha256": "1b71a249961143993e0ccddb2ff53dd74e3eec7ab70f9573b7a0482498bb92c9"
+    },
+    {
+      "path": "_build/forest-bound-prefix-complete-after-diagnostic.log",
+      "sha256": "757c50def5011afece04a2b02be19c57e514493aaffacc1f24b42404ca23f4d5"
+    }
+  ],
+  "alignment": {
+    "path": "_build/forest-bound-complete-alignment.json",
+    "sha256": "fdafd12ff0cc7f54875f6bcd47a150bbf69f5892676ea14042dfa8abd1e8c74a"
+  },
+  "worker_scope": "Local macos aligned with no findings; remote unreachable/low-disk findings remain, no remote work dispatched.",
+  "scope": [
+    "A real bound source-intent with an incomplete original native prefix retains and validates both original empty metadata/retirement reservations. Full source-effect fields, program/phase binding, exact pins and two-way native/portable separation are checked before source endpoints.",
+    "Actual fresh control-pool, journal and canonical selected-storage footprints cannot reuse either future private participant. Parking coordinates remain reserved before any parking inode has been witnessed; they cannot become a recovery quarantine.",
+    "The unused retirement reservation remains in the complete current native view after original native completion and before control finalization. A replaced original retirement inode refuses under no-follow endpoint ancestry validation.",
+    "Native pending-area indices remain stable until classification. Future participants append afterward. An actual projected retirement roster takes precedence over the original empty fallback, without duplicate roots or lost retired controls; changed complete views are funded on the same ledger.",
+    "Original native/metadata effects are explicitly unmanaged dependencies under real normal canonical control roles. Shared source-intent@2 honestly records acquired_partition_payload_digest=None; no forest SourcePhase or acquired forest partition is manufactured.",
+    "One actual pending-after native prefix is restored through genuine fresh observer/role factories and exact acknowledgement, retaining original bytes/roster and all controls. A separate parking-before case proves observation/classification only.",
+    "Existing metadata, native-current and restoration cohorts cover compatibility, including actual retired controls. These scoped checks do not establish full-program qualification.",
+    "Loader audit correction: incomplete native prefixes previously decoded the bound effects payload then returned None. The gap was missing pin/participant validation and retention, not an unconditional incomplete-native refusal."
+  ],
+  "not_proven": [
+    "Strict fresh-process recovery-prefix observation/replay and actual retry effects at original and recovery intent/effect/observation boundaries; current native loader still rejects new recovery kinds",
+    "Actual reacquisition/projection of already-existing supplemental public-control generations, with original/private and newer public custody retained independently",
+    "Actual forest verified-data handoff and canonical control disposition through genuine normalization/retirement receipts",
+    "Genuine integrated canonical original forest execution and durable commit/recovery acceptance before changing public or legacy admission guards",
+    "Full public initial/wrapper/root/renewal, installed/native/platform/integration/release and all remaining roadmap obligations"
+  ],
+  "final_static": {
+    "exit_code": 0,
+    "log": {
+      "path": "_build/forest-bound-complete-final-static.log",
+      "sha256": "20981880ca9d74f10d6bb6e0be8a66e14f8c8b402a8d812a7bd9ec3af5766aba"
+    },
+    "checks": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "documentation-check",
+      "roadmap-completion-dependencies"
+    ]
+  },
+  "whole_project_verification": {
+    "exit_code": 1,
+    "report": {
+      "path": "_build/forest-bound-complete-final-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "counts": {
+      "fail": 1,
+      "pass": 1,
+      "skipped": 3
+    },
+    "authority": "pass",
+    "receipt": "project.test_receipt_stale",
+    "scope": "Focused maintained checks do not refresh full-project qualification."
+  }
+}

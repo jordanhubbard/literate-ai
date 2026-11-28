@@ -1,0 +1,121 @@
+{
+  "schema": "literate-ai/independent-dynamic-review@1",
+  "decision": "approved_at_limited_internal_linux_scope",
+  "source_review": {
+    "path": "independent-layout-catalog-topology-rereview.json",
+    "sha256": "84c018fb0ae5ea5d98ed2101fcb9ce245eb1266abc866f5ac62b722a6cb1bd3a",
+    "preserved": true
+  },
+  "reviewed_working_source_head": "e519dc90697c5556b6f209481e93b60171bb9959",
+  "executed_snapshot": {
+    "commit": "77492b6e4f422d9aca465404c52566b7bdc6d50d",
+    "tree": "0399de246c0cdee8b0e52a7d6f0cfa5ebaa0bb5b",
+    "qualification": "Exact eight subject hashes match reviewed bytes before and after execution. Private qualification snapshot is not relabeled as original working HEAD or release."
+  },
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_tree_v2.py",
+      "sha256": "b414254a00afc597d7ddf03a566c04fd810db2430d695c8ffd99c02f716162c1"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "d9e371b51275fe932d3a75640e360985a4d3433a9ab49b60afb12d216e7d8f41"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "00765874a87d09a4f9ddb72a366a27fefe42f94cc0c3acc0cd3b77d4d13f3a2f"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "7a363781f066f51bfac82878dd9d29b72fc2911b107af587af7074b2d2c7cbdc"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_forest.py",
+      "sha256": "3ddc3317fcce8bc8839b8d1b2ccb075717e7728c73e8172a4d6d7aa3b10316b8"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "18454f60dbb63aed6645fbd7cf3da0016427a79eace1a402a07dbe565c418b05"
+    },
+    {
+      "path": "tests/critical/test_catalog_source_forest.py",
+      "sha256": "f87d948171af60b52d552bf4aabb2dff413048304bb9c2bfc1b73387e4814bc5"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_topology.py",
+      "sha256": "4caef53604fc267f71e8408950b076346f15b44ee48d73cd9b85c3c4653dccfd"
+    }
+  ],
+  "environment": {
+    "observed_platform": "Linux x86_64",
+    "python": "3.12.3",
+    "kind": "CPU source checkout with its own Make-managed environment",
+    "alignment": "Selected configured Ubuntu worker aligned/no findings; overall fleet report false due other workers, not treated as globally ready.",
+    "temporary_policy": "Task-owned directory outside every Git checkout.",
+    "concurrency": "One independent test process at a time; separate author workload was present.",
+    "local_execution": "Only configured transport launcher; no local tests/builds/installs."
+  },
+  "execution": {
+    "command": "PYTHONPATH=src _build/python-envs/ctq-20261114/bin/python -B -m unittest -v tests.critical.test_catalog_copy_topology tests.critical.test_catalog_source_forest tests.smoke.test_retained_cargo_tree_currentness tests.critical.test_retained_project_tree_inputs tests.critical.test_catalog_source_lease",
+    "timeout_seconds": 420,
+    "session": 65809,
+    "terminal": true,
+    "transport_exit": 0,
+    "explicit_test_exit": 0,
+    "tests": 50,
+    "unique_case_lines": 50,
+    "passed": 50,
+    "skipped": 0,
+    "seconds": 164.311,
+    "module_counts": {
+      "catalog_copy_topology": 4,
+      "catalog_source_forest": 11,
+      "retained_cargo_tree_currentness": 8,
+      "retained_project_tree_inputs": 14,
+      "catalog_source_lease": 13
+    },
+    "verification": "Unittest footer,50 unique case lines and durable INDEPENDENT_TEST_EXIT=0 inspected; transport status alone not accepted.",
+    "log": {
+      "path": "_build/catalog-topology-independent-linux.log",
+      "sha256": "26214146c54f224d457ea58b3ce5a64188044a55496334e0ac4aa7820b414465"
+    }
+  },
+  "identity_evidence": {
+    "before_manifest_sha256": "b74fa510784c43785704e1f789569f5fc3a7f8f744d5e488f1d1473959bd9605",
+    "after_manifest_sha256": "b74fa510784c43785704e1f789569f5fc3a7f8f744d5e488f1d1473959bd9605",
+    "comparison": "Byte-identical exact8 before/after manifests.",
+    "terminal": {
+      "path": "_build/catalog-topology-independent-linux-terminal.txt",
+      "sha256": "852e39bac4e675b8e495d5768e30b6fb2c37530ae4620838138c426eff93d15c"
+    }
+  },
+  "retrieval": {
+    "archive": "_build/catalog-topology-independent-linux-evidence.tar.gz",
+    "sha256": "b4ca3ff7e058df729e8772e3f51f6405117444fd8ac59907e0b5905c664c40e7",
+    "bytes": 2708,
+    "method": "Canonical guarded archive download; four expected regular members listed then explicit named members read through tar stdout to controlled local files. Archive/log hashes match remote."
+  },
+  "health": {
+    "initial_utc": "2026-11-14T09:59:11Z",
+    "final_utc": "2026-11-14T10:03:26Z",
+    "classification": "Disk warning, above bounded-job reserve; no critical condition observed.",
+    "initial_available_KiB": 15560348,
+    "final_available_KiB": 15565272,
+    "free_percent_approx": 3.1,
+    "reserve_GiB": 10,
+    "dispatch_gate_GiB": 11,
+    "inodes_free": 62559754,
+    "memory_available_bytes": 30316576768,
+    "cpu_count": 16,
+    "cleanup": "Read-only cache inventory found about1.15GiB candidates with active use uncertain; no manual deletion."
+  },
+  "findings": [],
+  "coverage": "Actual cross-selected hardlink/directory-alias copy, genuine Git reference, catalog provenance/control finalization/source move; selected/unselected alias boundaries, late unknown native-name rejection in forest and whole closer, hardlink completeness, file/entry/payload limits, legacy reader contracts and source/PID/fork/selector lifetime.",
+  "limits": [
+    "Original50 excludes catalog_copy_plan tests. Author-reported stale per-item namespace-count expectation is outside this cohort; ninth test correction is separate.",
+    "No bespoke probes/reproduction scripts, edits, installs, repairs, endpoint/config changes, new agents or manual cleanup.",
+    "Current author full Make and authority renewal not inferred. This is internal Linux source qualification, not installed-wheel, other platforms, public/root/shared/recovery/full-program/feature/release acceptance.",
+    "No generic partition/exclusion rights, hostile continuous snapshot or clone-storage claim under copy quota.",
+    "No independent test remains live; previous reports immutable."
+  ]
+}

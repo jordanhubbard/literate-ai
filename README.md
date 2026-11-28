@@ -159,7 +159,7 @@ changes cost, not meaning or reconstructability.
 
 Browse the [complete skill catalog](docs/user/skills.md) for development, portable
 code generation, source analysis, documents and presentations, instructional videos,
-OS preparation, testing, packaging and releases. It maps user tasks to all 88
+OS preparation, testing, packaging and releases. It maps user tasks to all 90
 canonical skills and explains which capabilities require selected Flavors or
 separate qualification. The [Google skills assessment](docs/architecture/google-skills-assessment.md)
 compares discovery, composition and useful adaptations.
@@ -222,9 +222,11 @@ cd my-litai-app
 litai project validate
 ```
 
-Initialization creates the complete project taxonomy and an inheritable
-`samples/hello-component` application. Its defaults are Python, GNU Make, the host OS,
-and pip-wheel packaging.
+The 1.4 development initializer places framework authority under `litai/`, including
+the inheritable `litai/samples/hello-component` application. Its defaults are Python,
+GNU Make, the host OS, and pip-wheel packaging. Published 1.3.1 projects retain their
+recorded paths; inspect the [layout migration guidance](docs/user/project-layout.md#derived-project-containment-and-migration)
+before changing an existing tree.
 Use `litai onboard create PATH --from URL[#REVISION]` to inspect inherited authority from that
 repository's complete ancestor DAG without executing parent repository code.
 Apply the reviewed plan with `--apply --acknowledge`. `litai init` remains the
@@ -233,9 +235,9 @@ lower-level initialization command.
 ### 3. Build, test, and run hello on this host
 
 ```bash
-litai build samples/hello-component --target host
-litai test samples/hello-component --target host
-litai run samples/hello-component --target host -- '{"name":"LitAI"}'
+litai build litai/samples/hello-component --target host
+litai test litai/samples/hello-component --target host
+litai run litai/samples/hello-component --target host -- '{"name":"LitAI"}'
 ```
 
 These commands generate source and current tests from the specification,
@@ -358,7 +360,8 @@ to the enclosing selection. `litai plan` reports every resolved binding and trac
 model egress. `run` deliberately has no model option because it launches an already-built
 artifact.
 
-`litai` is the only installed CLI. A complete project lifecycle can be driven with:
+`litai` is the primary operator CLI; the package also installs the `litai-mcp`
+server entry point. A complete project lifecycle can be driven with:
 
 ```bash
 litai build samples/hello-component --target host
@@ -429,7 +432,9 @@ make really-clean   # also remove BUILD_DIR (default: ./generated) generated sou
 The root `_build/` tree is disposable: Git ignores it, and `clean` may
 remove it in full. Do not put authored source, specifications, or durable evidence there.
 
-Project releases use the same CLI and remain project-owned:
+Project releases use the same CLI and remain project-owned. The following example
+runs in this framework's authoring checkout. Derived 1.4 projects declare their
+release policy and default release output beneath `litai/`:
 
 ```bash
 mkdir -p _build/release
@@ -465,10 +470,12 @@ LitAI release commands enforce these rules. Forge branch protection should mirro
 but this repository does not claim protection is live unless the forge is configured and
 verified separately.
 
-Every `litai` invocation records how long it took, and every worker in a `--target
-local` fan-out records its own timing, as JSON-Lines spans under the disposable build
-root (`OBJ_DIR/.litai/perf/`) — schema, stage, target, coding CLI, model, duration, and
-outcome. Inspect that history with:
+`litai` records command timing as JSON-Lines spans under the disposable build
+root (`OBJ_DIR/.litai/perf/`): schema, stage, target, coding CLI, model, duration,
+and outcome. Commands that suppress performance writes omit these spans; examples
+include help, rendering, verification, and read-only onboarding or retained-project
+plans. Workers in a `--target local` fan-out also record their own timing. Inspect
+that history with:
 
 ```bash
 litai perf show                              # aggregate table, grouped by stage

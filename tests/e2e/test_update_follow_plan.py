@@ -13,6 +13,7 @@ from literate_ai.cli.project import update_project_from_args
 from literate_ai.contracts import (
     RepositoryParentSelection,
 )
+from literate_ai.projects import load_project
 from tests.support.fixtures_test_repository_updates import origin
 from tests.support.root_parent_adapter import (
     RootParentProjectInitializationAdapter as FilesystemProjectInitializationAdapter,
@@ -61,9 +62,10 @@ class UpdateFollowPlanTests(unittest.TestCase):
             child = temporary / "derived"
             with patch.dict(os.environ, {"OBJ_DIR": str(temporary / "objects")}):
                 initialize(parent, RepositoryParentSelection.root())
+                parent_skills = load_project(parent).framework_root / "skills"
 
                 def write_skill(name, text):
-                    p = parent / "skills" / name / "SKILL.md"
+                    p = parent_skills / name / "SKILL.md"
                     p.parent.mkdir(parents=True, exist_ok=True)
                     p.write_text(
                         f"---\nname: {name}\n"
@@ -74,8 +76,13 @@ class UpdateFollowPlanTests(unittest.TestCase):
                     )
                     return p.relative_to(parent).as_posix()
 
-                changed = write_skill("git-follow-change", "Revision A.")
-                conflict = write_skill("git-follow-conflict", "Revision A.")
+                def child_path(parent_path):
+                    # Both trees are contained; follow each one's framework root.
+                    logical = (parent / parent_path).relative_to(parent_skills.parent)
+                    return (child_framework / logical).relative_to(child).as_posix()
+
+                parent_changed = write_skill("git-follow-change", "Revision A.")
+                parent_conflict = write_skill("git-follow-conflict", "Revision A.")
                 commit_project(parent)
                 revision_a = git(parent, "rev-parse", "HEAD")
                 initialize(
@@ -84,6 +91,10 @@ class UpdateFollowPlanTests(unittest.TestCase):
                         (repository_parent_reference(str(parent) + "#" + revision_a),)
                     ),
                 )
+                child_framework = load_project(child).framework_root
+                changed = child_path(parent_changed)
+                conflict = child_path(parent_conflict)
+                go_path = (child_framework / go_skill).relative_to(child).as_posix()
                 local = child / conflict
                 local.write_text(
                     local.read_text() + "\nLocal ownership.\n",
@@ -92,8 +103,9 @@ class UpdateFollowPlanTests(unittest.TestCase):
                 )
                 write_skill("git-follow-change", "Revision B.")
                 write_skill("git-follow-conflict", "Upstream revision B.")
-                added = write_skill("git-follow-added", "Added by B.")
-                git(parent, "add", "skills")
+                parent_added = write_skill("git-follow-added", "Added by B.")
+                added = child_path(parent_added)
+                git(parent, "add", parent_skills.relative_to(parent).as_posix())
                 git(parent, "commit", "-m", "Advance parent skills to B")
                 revision_b = git(parent, "rev-parse", "HEAD")
                 before = {
@@ -132,7 +144,7 @@ class UpdateFollowPlanTests(unittest.TestCase):
                     self.assertEqual(files[added]["classification"], "upstream-added")
                     framework_files = {f["path"]: f for f in plan["framework"]["files"]}
                     self.assertEqual(
-                        framework_files[go_skill]["classification"], "upstream-added"
+                        framework_files[go_path]["classification"], "upstream-added"
                     )
                     args.apply = True
                     if empty:
@@ -164,7 +176,7 @@ class UpdateFollowPlanTests(unittest.TestCase):
                             },
                         )
                     applied = update_project_from_args(args)
-                self.assertTrue((child / go_skill).is_file())
+                self.assertTrue((child / go_path).is_file())
                 self.assertEqual(
                     plan["repository_lineage"]["files"],
                     applied["repository_lineage"]["files"],
@@ -175,10 +187,11 @@ class UpdateFollowPlanTests(unittest.TestCase):
                 )
                 self.assertEqual(plan["parent_selectors"], applied["parent_selectors"])
                 self.assertEqual(
-                    (child / changed).read_bytes(), (parent / changed).read_bytes()
+                    (child / changed).read_bytes(),
+                    (parent / parent_changed).read_bytes(),
                 )
                 self.assertEqual(
-                    (child / added).read_bytes(), (parent / added).read_bytes()
+                    (child / added).read_bytes(), (parent / parent_added).read_bytes()
                 )
                 self.assertEqual(local.read_bytes(), before[conflict])
                 self.assertEqual(

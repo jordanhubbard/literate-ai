@@ -1,0 +1,464 @@
+{
+  "schema": "literate-ai/development-observation@1",
+  "scope": "Source-review ledger of all33 top-level docs/user Markdown guides; bounded subset of release collateral",
+  "release_evidence": false,
+  "counts": {
+    "guides": 33,
+    "current_source_text_reviews": 27,
+    "prior_review_unchanged_narrative": 6,
+    "closed_findings_in_three_additional_audits": 22
+  },
+  "files": [
+    {
+      "path": "docs/user/README.md",
+      "sha256": "4d8e6a98ca95a35a8a4c21b140e66eb53cf082380bd9b207873f2d06c1c4a2b0",
+      "disposition": "prior reviewed narrative unchanged; final-candidate source and command validation pending",
+      "review_sha256": "14dcac53ff45ad4dbd12e55479cd9edccc35665461a8f417a1e5edd7d3190e1d",
+      "review_class": "prior review, unchanged narrative"
+    },
+    {
+      "path": "docs/user/caches-packages-publication.md",
+      "sha256": "cf19bc14909c7eaa4b63ede2d107abde20610bcf955a44d0469069517d0b2f5f",
+      "disposition": "all source-text findings closed",
+      "review_sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/coding-cli-plugins.md",
+      "sha256": "d40ee23491e610b5baa8707cbe2ca54389c7a323522b6ead9a29ed7cfd93f91e",
+      "disposition": "all source-text findings closed",
+      "review_sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/components-and-versioning.md",
+      "sha256": "f165c9f0c4e3864fcda0c80da21114cc3f385a81162cfbf849fb67a52059e92b",
+      "disposition": "no actionable mismatch identified in original bounded review; current bytes unchanged",
+      "review_sha256": "91126f61481e5ff6c211431ba3372294afa2be62ad30a5ace5419e801dc629c6",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/concepts.md",
+      "sha256": "4e97aa9acbc28acf8e7d32bef1c133f5bcb22a161a6748a2fd77d7292d9f0f40",
+      "disposition": "all bounded source-text findings closed",
+      "review_sha256": "91126f61481e5ff6c211431ba3372294afa2be62ad30a5ace5419e801dc629c6",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/configuration-and-cli.md",
+      "sha256": "7799acee227a72829e48de7088cfd2e858b4ab1f567bc15fd7420ffe44cb08f3",
+      "disposition": "no finding in actual authored receiving CLI/user-guide source scope; complete receiving acceptance pending",
+      "review_sha256": "8f167bf6624e299df3e4c00581f222abd52d087f36628b1c05ecf53371bd4f27",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/current-features.md",
+      "sha256": "717efcbc66b6133ffcda1a5322877312ba80e2aeeef7b38b9783764cc0aac1d9",
+      "disposition": "prior reviewed narrative unchanged; final-candidate source and command validation pending",
+      "review_sha256": "14dcac53ff45ad4dbd12e55479cd9edccc35665461a8f417a1e5edd7d3190e1d",
+      "review_class": "prior review, unchanged narrative"
+    },
+    {
+      "path": "docs/user/flavors-and-targets.md",
+      "sha256": "a6ba5e3574bc75a9173e7d946759d935103b624e6b09683d152a4f0e2a96ea04",
+      "disposition": "all bounded source-text findings closed",
+      "review_sha256": "91126f61481e5ff6c211431ba3372294afa2be62ad30a5ace5419e801dc629c6",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/framework-flow.md",
+      "sha256": "1b1fd6fc2df7739467aeacff4e6d21344712b4d38be71dcf9c5604eb067d8cc5",
+      "disposition": "all source-text findings closed",
+      "review_sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/getting-started.md",
+      "sha256": "e301135b31f7e8c6beb104ba2cddd9ea6828cf39cd69c2da0f84bb137e4cc8d1",
+      "disposition": "prior reviewed narrative unchanged; final-candidate source and command validation pending",
+      "review_sha256": "14dcac53ff45ad4dbd12e55479cd9edccc35665461a8f417a1e5edd7d3190e1d",
+      "review_class": "prior review, unchanged narrative"
+    },
+    {
+      "path": "docs/user/glossary.md",
+      "sha256": "2472ccc09f04cd57d2f1b352ed1b45e6568e70fca8f16129d042441322c83732",
+      "disposition": "all bounded source-text findings closed",
+      "review_sha256": "91126f61481e5ff6c211431ba3372294afa2be62ad30a5ace5419e801dc629c6",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/html-repository-explorer.md",
+      "sha256": "2f7ac608b82db1a107e26f34c62e9dd667ce4e30e92438463a06a17c1919b94e",
+      "disposition": "source-reviewed closed for original findings; no remaining blocking direct contradiction in inspected scope",
+      "review_sha256": "09cfec5a6147e669480d9217c87f16be3ad36a5e79bc1d07e63f453ea5f18299",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/installation.md",
+      "sha256": "1e9640e1ead131d5cd0b12d0e5aed2bed57c820ced38ce2e754779972e4fc926",
+      "disposition": "prior reviewed narrative unchanged; final-candidate source and command validation pending",
+      "review_sha256": "14dcac53ff45ad4dbd12e55479cd9edccc35665461a8f417a1e5edd7d3190e1d",
+      "review_class": "prior review, unchanged narrative"
+    },
+    {
+      "path": "docs/user/instructional-videos.md",
+      "sha256": "f9d3cabad04ca17e3b3c0ceaebdd4d7d484a2125279ca539d6175cec9502ba80",
+      "disposition": "source-reviewed closed for original findings; no remaining blocking direct contradiction in inspected scope",
+      "review_sha256": "09cfec5a6147e669480d9217c87f16be3ad36a5e79bc1d07e63f453ea5f18299",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/models-and-generation.md",
+      "sha256": "4389f4516ee4d757e8c5a6472756c50509cb8b80acb7adf1969c4b2da06b1cd1",
+      "disposition": "all bounded source-text findings closed",
+      "review_sha256": "91126f61481e5ff6c211431ba3372294afa2be62ad30a5ace5419e801dc629c6",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/native-grpc-oracles.md",
+      "sha256": "0981bcd638fb966f0d604b8e0156aa2e06e90644422160f23b48030d19c0340b",
+      "disposition": "no actionable mismatch identified in original bounded review; bytes unchanged",
+      "review_sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/native-sdk-qualification.md",
+      "sha256": "3f7c8c9d7fe557c1188d48ac53fdb5f604f0f7e3ccecdb228991a28839351c29",
+      "disposition": "no actionable mismatch identified in original bounded review; bytes unchanged",
+      "review_sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/ova-and-migration.md",
+      "sha256": "050fbcbbed5bfbaf02b39399625e1e834b3df19f3f789eca0a1a641fef0f0739",
+      "disposition": "source-reviewed closed for original findings; no remaining blocking direct contradiction in inspected scope",
+      "review_sha256": "09cfec5a6147e669480d9217c87f16be3ad36a5e79bc1d07e63f453ea5f18299",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/project-layout.md",
+      "sha256": "91265d990919f1a2a0fe0029c761e0daa6ff68aa5ea7b5450fcdc48c066d9b73",
+      "disposition": "prior reviewed narrative unchanged; final-candidate source and command validation pending",
+      "review_sha256": "14dcac53ff45ad4dbd12e55479cd9edccc35665461a8f417a1e5edd7d3190e1d",
+      "review_class": "prior review, unchanged narrative"
+    },
+    {
+      "path": "docs/user/public-export.md",
+      "sha256": "6cddd1344279f8fb35d97547a0365105cef604d969b83a16d00c1d47fde75c68",
+      "disposition": "source-reviewed closed for original findings; no remaining blocking direct contradiction in inspected scope",
+      "review_sha256": "09cfec5a6147e669480d9217c87f16be3ad36a5e79bc1d07e63f453ea5f18299",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/reference-http-cache.md",
+      "sha256": "1c5289bd621a56a918f5a9f22af8f2a6fd4ccf9d80866c6eb4c5b171fca32b67",
+      "disposition": "no actionable mismatch identified in original bounded review; bytes unchanged",
+      "review_sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/repository-lifecycle.md",
+      "sha256": "754a2da16fc93858478fc492ef79c993839cda82f2e463da44bc77905c6b7004",
+      "disposition": "prior reviewed narrative unchanged; final-candidate source and command validation pending",
+      "review_sha256": "14dcac53ff45ad4dbd12e55479cd9edccc35665461a8f417a1e5edd7d3190e1d",
+      "review_class": "prior review, unchanged narrative"
+    },
+    {
+      "path": "docs/user/repository-migration.md",
+      "sha256": "aa590c964565d581b2b8a59a72f150e933252a0764c070602e1ca899b432e027",
+      "disposition": "source-reviewed closed for original findings; no remaining blocking direct contradiction in inspected scope",
+      "review_sha256": "09cfec5a6147e669480d9217c87f16be3ad36a5e79bc1d07e63f453ea5f18299",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/retained-cargo.md",
+      "sha256": "d4e1b567f112fae3cccca3d049570e6c7d2565ce14a04d04cc57b5271ef7727e",
+      "disposition": "no finding in actual authored receiving CLI/user-guide source scope; complete receiving acceptance pending",
+      "review_sha256": "8f167bf6624e299df3e4c00581f222abd52d087f36628b1c05ecf53371bd4f27",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/retained-secondary-access.md",
+      "sha256": "6177a9fd4bdf53c481b6e163de205f7bb6ced41b25ef84f39f88c3ccf3fb97d8",
+      "disposition": "no actionable mismatch identified in original bounded review; bytes unchanged",
+      "review_sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/samples.md",
+      "sha256": "b8e1a919527140e2e53acda18a68a048e21a40023ac7ee5324a5c54cd361e365",
+      "disposition": "all bounded source-text findings closed",
+      "review_sha256": "91126f61481e5ff6c211431ba3372294afa2be62ad30a5ace5419e801dc629c6",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/security.md",
+      "sha256": "136e1dd70e109f989e84a76a7061b78e929c3b58012365865a076a1edbb35edc",
+      "disposition": "all source-text findings closed",
+      "review_sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/skills.md",
+      "sha256": "c98384ce55f4628e40e8c22886d5498ce656eaa3ffcdcc768a4ea97f461bb71c",
+      "disposition": "all bounded source-text findings closed",
+      "review_sha256": "91126f61481e5ff6c211431ba3372294afa2be62ad30a5ace5419e801dc629c6",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/source-to-specification.md",
+      "sha256": "5bcee4dcad46615766ecfb8291fefbc1105427180d86d5e10e3c5051eba35fb3",
+      "disposition": "source-reviewed closed for original findings; no remaining blocking direct contradiction in inspected scope",
+      "review_sha256": "09cfec5a6147e669480d9217c87f16be3ad36a5e79bc1d07e63f453ea5f18299",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/specifications.md",
+      "sha256": "26b78adcf250c64bb89ad1ed4811d219380921f6b9d896e6a7a1089db3d42be7",
+      "disposition": "all bounded source-text findings closed",
+      "review_sha256": "91126f61481e5ff6c211431ba3372294afa2be62ad30a5ace5419e801dc629c6",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/target-matrices.md",
+      "sha256": "9a18ca3119b1e33c2eca5be0bc8b832d8c8570ac6d397702f1444d582d0b2a7d",
+      "disposition": "no actionable mismatch identified in original bounded review; bytes unchanged",
+      "review_sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/test-matrix.md",
+      "sha256": "ab72eb1554b7cc9f9f995154ee8968f7a71db3050dfc575f4f19ef6ce560c914",
+      "disposition": "all source-text findings closed",
+      "review_sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0",
+      "review_class": "current source-text review"
+    },
+    {
+      "path": "docs/user/troubleshooting.md",
+      "sha256": "dfa210e149e68aff15d6cada7991c6cc0544ba2316a918cfa8a510dd5ac9dc13",
+      "disposition": "source-reviewed closed for original findings; no remaining blocking direct contradiction in inspected scope",
+      "review_sha256": "09cfec5a6147e669480d9217c87f16be3ad36a5e79bc1d07e63f453ea5f18299",
+      "review_class": "current source-text review"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "scope": "Prior front-door review, carried forward only for unchanged narrative",
+      "sha256": "14dcac53ff45ad4dbd12e55479cd9edccc35665461a8f417a1e5edd7d3190e1d"
+    },
+    {
+      "scope": "Independent current source-text review",
+      "sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0"
+    },
+    {
+      "scope": "Independent current source-text review",
+      "sha256": "91126f61481e5ff6c211431ba3372294afa2be62ad30a5ace5419e801dc629c6"
+    },
+    {
+      "scope": "Independent current source-text review",
+      "sha256": "09cfec5a6147e669480d9217c87f16be3ad36a5e79bc1d07e63f453ea5f18299"
+    },
+    {
+      "scope": "Current authored receiving CLI/user-guide review",
+      "sha256": "8f167bf6624e299df3e4c00581f222abd52d087f36628b1c05ecf53371bd4f27"
+    }
+  ],
+  "closed_findings": [
+    {
+      "finding_id": "GUIDES-01",
+      "status": "closed at source-text scope",
+      "evidence": "Defaults and special disposable boundary now use framework_root; contained/legacy examples, lock location and force-add instructions agree with the original resolution/cleanup/lock owners. Relative override base remains project root."
+    },
+    {
+      "finding_id": "GUIDES-02",
+      "status": "closed at source-text scope",
+      "evidence": "Diagram now validates finalized candidate before committing current receipt; no raw-extraction instruction remains in the changed diagram."
+    },
+    {
+      "finding_id": "GUIDES-03",
+      "status": "closed at source-text scope",
+      "evidence": "Onboarding now follows manifest-declared skill with normal contained litai/SKILL.md and legacy root examples. Dangling source-graph sentence repaired without claiming indexer mandatory."
+    },
+    {
+      "finding_id": "GUIDES-04",
+      "status": "closed at source-text scope",
+      "evidence": "General SSH sample fan-out now distinguishes opencode default from explicit CLI/model override; selected worker must supply the chosen CLI. Stricter POSIX local release-fan-out requirement is unchanged."
+    },
+    {
+      "finding_id": "GUIDES-05",
+      "status": "closed at source-text scope",
+      "evidence": "Wheelhouse example uses quoted REVIEWED_MATCHING_FRAMEWORK_WHEEL with explicit reviewed installed-payload/project-pin join; version label alone expressly insufficient. It does not recommend an unqualified development wheel."
+    },
+    {
+      "finding_id": "GUIDES-06",
+      "status": "closed at source-text scope",
+      "evidence": "Plugin introduction no longer labels current distribution as1.1. Security heading/body are version-neutral, current mutation acknowledgement remains explicit, and no-OS/VM-containment and same-user-shell caveats are unchanged."
+    },
+    {
+      "finding_id": "GUIDES-I01",
+      "severity": "P2",
+      "status": "closed at source-text scope",
+      "evidence": "Manifest-declared onboarding now gives contained litai/SKILL.md and legacy root SKILL.md examples."
+    },
+    {
+      "finding_id": "GUIDES-I02",
+      "severity": "P2",
+      "status": "closed at source-text scope",
+      "evidence": "Read-only default calculation and explicit project documentation-review --record are distinguished; unique/current marker requirements remain."
+    },
+    {
+      "finding_id": "GUIDES-I03",
+      "severity": "P2",
+      "status": "closed at source-text scope",
+      "evidence": "Sample slots and selected BazelConformanceBuildAdapter are described as implemented; each cell still needs execution evidence."
+    },
+    {
+      "finding_id": "GUIDES-I04",
+      "severity": "P2",
+      "status": "closed at source-text scope",
+      "evidence": "Source generation is separated from manifest-selected Standard or external host rebuild dispatch; particular generated applications are not called qualified."
+    },
+    {
+      "finding_id": "GUIDES-I05",
+      "severity": "P2",
+      "status": "closed at source-text scope",
+      "evidence": "Public bounded redacted excerpts and attached-run redacted transcripts are now explicit. Diagnostics remain sensitive and redaction is not claimed to remove every possible secret encoding."
+    },
+    {
+      "finding_id": "GUIDES-I06",
+      "severity": "P2",
+      "status": "closed at source-text scope",
+      "evidence": "Removed unconditional fixed30/eleven-dual-language/every-set-five forward matrix claims, including the residual repeated paragraph. Current text follows pinned/explicit language choices, Python/Make unpinned defaults and four-language/Bazel forward harness. Dedicated five-language roundtrip is preserved accurately as intended and currently disabled."
+    },
+    {
+      "finding_id": "GUIDES-I07",
+      "severity": "P2",
+      "status": "closed at source-text scope",
+      "evidence": "SSH sample opencode default is distinguished from explicit CLI/model pair override; selected CLI must be installed/configured on each worker."
+    },
+    {
+      "finding_id": "GUIDES-I08",
+      "severity": "P3",
+      "status": "closed at source-text scope",
+      "evidence": "Root onboarding is outside90 canonical skills; existing correct90=40/39/11 inventory and guidance-not-acceptance caveat remain."
+    },
+    {
+      "finding_id": "GUIDES-I09",
+      "severity": "P3",
+      "status": "closed at source-text scope",
+      "evidence": "Both actual finite DMN namespaces are listed. Narrow UNIQUE/numeric-interval/literal-output rules, unsupported FEEL refusals and nonexecution boundary remain."
+    },
+    {
+      "id": "inverse-unavailable",
+      "status": "source-reviewed closed",
+      "closure": "Sourceguide now replaces live diagram with local static flow, removes runnable coding-cli derive example, names exact disabled error and explicitly marks old model records and four-language history as retained, with live inverse rows unavailable. Supported forward qualification remains separate."
+    },
+    {
+      "id": "static-egress",
+      "status": "source-reviewed closed",
+      "closure": "Static route accurately local/inert/no model prompt/no egress; signed reviewed intake retained and model flags do not grant authority."
+    },
+    {
+      "id": "contained-source-paths",
+      "status": "source-reviewed closed",
+      "closure": "Runnable APP/LIBRARY qualification examples now use new-project/litai/components and matching profile, with exact existing-project-coordinate note. Native child/update metadata belongs to selected framework root, normally litai/.literate. No generic native-source rebasing added."
+    },
+    {
+      "id": "html-manifest-path",
+      "status": "source-reviewed closed",
+      "closure": "Names selected manifest, normally litai/literate.project.json; root/legacy/mixed selection retained; application-relative --project and HTML output unchanged. Does not instruct a second manifest."
+    },
+    {
+      "id": "sample-retry-inventory",
+      "status": "source-reviewed closed",
+      "closure": "Six rejection kinds documented, exact current model/source-test categories, both source-validation branches, all12 dependency codes and3 static C++ finding codes. Three attempts and exact terminal evidence remain. See additional5buildcode and terminal-text closure below."
+    },
+    {
+      "id": "node-prerequisite",
+      "status": "source-reviewed closed",
+      "closure": "Requires approved Node/npm setup first and explicitly says tools-install requires npm/does not install Node."
+    },
+    {
+      "id": "receipt-coordinate",
+      "status": "source-reviewed closed",
+      "closure": "Guarantee now names declared test_receipt and fresh litai/verification/current.json default, retaining existing layout paths."
+    }
+  ],
+  "supporting_source_sha256": {
+    "src/literate_ai/cache_directories.py": "26f682ed00366e5324c6939816bbfb3293972931c3ac0586b72321842d2224d6",
+    "src/literate_ai/_cache_lock.py": "f08d314d70db68e87305a63825a78bcab44f1b9a8e49252e1cb967c8b12a7316",
+    "src/literate_ai/adapters/project_initialization.py": "8ec2a41f21b8d076a8103fed681686272344e92037ac9fcc66a1ad7ad432f413",
+    "src/literate_ai/adapters/project_scaffold_placement.py": "15795470a5c606786b7c41fff0e6c0686c37d7671a337fad0712ff98e00e6091",
+    "src/literate_ai/test_receipts.py": "7dcf7daf0ef8c414fd5fa85fca5f3ed23a1713e0e64d7a0a6a1bc2e31dfa3e08",
+    "scripts/fanout_samples.py": "0d575f7758ae3a1fbac57153a626cc6af3ac01b693574a732c282e15da0bec93",
+    "src/literate_ai/adapters/live_test_selection.py": "81e95a76ed22a65febbde4d73cf3f3b603cc9806427bed6992ee4f8b6d42dd1c",
+    "src/literate_ai/project_releases.py": "888e29f610e8e4286108b8ea3e39c262a58e884422de6580ba044afe2d21ad8b",
+    "src/literate_ai/version.py": "367472ca1cc8d22a4acba9aaecb8640d22a7648485147cd1cd83667bdf48d980",
+    "README.md": "8b818b8ab5e16efe74184d874f4f98af45fa8aa850a7a8c483847cd75909e536",
+    "Makefile": "8cd79baddf2f2dd807431ea2347c5c3aa1f3568cc0072badc1be9cf86e07e9b4",
+    "src/literate_ai/cli/target_matrix.py": "49fa34505f75a614f2c4f6f8e62d1a9e8661ecdadf35d8aae388d65469e3ffce",
+    "src/literate_ai/target_matrices.py": "9fb6130ca65684f2c9533c3855eff4a052064519f2bff165900eb1e7a53239e5",
+    "src/literate_ai/adapters/cache/http_reference.py": "0a3298c9fbea6a47c111e4c645377cb8dd903a3c7db606f522e9d883dad6388c",
+    "src/literate_ai/contracts/retained_secondary_access.py": "44b02375fc367137aa1df87b03bb9b8d6f6f98edda7b550909e5cd32e6a43cf2",
+    "src/literate_ai/adapters/_grpc_oracle.py": "2a2bba27d764e5911a478613a432bdde4c56878fe78e2c7b678fa8421a0eb1ad",
+    "pyproject.toml": "431749ca1b6749c8b39d0ba48fd7df7a8e1a1e052cd490b2ff41533baaabd9ea",
+    ".github/workflows/native-sdk-qualification.yml": "88a33d9eae000bdc013d901bc2c75cfecd581d6266f729cddc48f07819c15490",
+    ".github/qualifications/native_sdk/run_cell.py": "b92eaa4a37251c7946cdae87c77bbb3a7f9f77616d0f350ee8bf2e519d62f762",
+    "src/literate_ai/adapters/native_sdk_source_custody.py": "cece837f403dc52d24526f483dbc02a78c3d8fff5a6fb9fd187a52ffeae9f6ff",
+    "src/literate_ai/cli/project.py": "6038fdb4da63990109addea4b40f726a53d96d82e7e6d4bd37a32cc8cbd85521",
+    "src/literate_ai/cli/rebuild.py": "feefa4fd90f3d781f00753dff4f479d708976e05a40af278eb4b97dd31e0d6ca",
+    "tests/conformance/support/sample_runner.py": "1147f1d0c10a8ec0b2549de1ee2bf6f5353b97cacc2fe9ec41acf05881da960c",
+    "samples/hello-component/component.md": "f8f3c7033bb73c2b9db742a7e058b445d431fd79e2038c656d92a1d8fe15f67c",
+    "samples/regenerative-roundtrip/component.md": "999b29d7944a260bf4fa2f2a78318eeb0b6875b90acc5c1ac4a0d467ba4f4a16",
+    "samples/_harness/hello-component/acceptance/execution.json": "dc92ae10269a2545ed32f8ea86f078287167d0d9f2d8fd1b06fad42f17b9f99a",
+    "samples/_harness/regenerative-roundtrip/acceptance/execution.json": "553160e940695a9697ad5c4b3249f8f662579344db12df9c069ccf5c68eb3105",
+    "src/literate_ai/adapters/models/coding_cli.py": "45d8ee5ee2c63da57e3f49041fcd3a1fe26a6e73003f7093a7fae4bf7e219d3e",
+    "src/literate_ai/adapters/specifications/dmn.py": "28a0d26dac2c792747440841267b1b1cd536c2e25953ab29ca302b9e7ad2a091",
+    "src/literate_ai/adapters/specifications/scxml.py": "fa6848b338352e04cda0ced49d915576e11e3e065317daa7b3f814420bd0aa42",
+    "src/literate_ai/adapters/specifications/literate_markdown.py": "5e39d590d5a0dca0cc0ef2f16f7240013ff5ffbc8233a98d6add18c81787d2dd",
+    "src/literate_ai/contracts/identity.py": "730437c1a4ac356474b45d6b260dbf16b76a42bff3125d1674d0627fc4b2fb3b",
+    "src/literate_ai/cli/source_to_specification.py": "4a2a603e39fb13d9b0cada4f78533c78c8de5e9900af6312bad90121649cfa97",
+    "src/literate_ai/source_to_specification/static_workflow.py": "fd2a0b86587646a32d209bdcebe49db691e5535bbb063b5cbcffb513e035eb25",
+    "src/literate_ai/adapters/native_project_updates.py": "c3efe82ca66e2eb3f4c3aba09b82bf7b0053a185f213e91f35bd9c54b54b8b89",
+    "src/literate_ai/projects.py": "bd918b5e8104f8c56d7cf71b478896c72818750e3e8fe6ead098a78e0a1c09fb",
+    "src/literate_ai/cli/dispatch.py": "1d53ff80b8b9298ab43c9985226776706fd57735f67acc581ea8ff7f5252659b",
+    "src/literate_ai/cli/video.py": "d695d0ed97c83d471d07c462d146c6527a953449b4778b2ab6bb371b0762ed3b",
+    "src/literate_ai/video_courses.py": "70add560a2d00ea2233871b21458ede1e398ed9ae2361a12655aaa775adf1740",
+    "src/literate_ai/compatibility/ova/reader.py": "06a25ea9081f1d3dd21013de3c6a174c75e5862b4b83680c3612e23fe4cda1c6",
+    "src/literate_ai/compatibility/ova/__init__.py": "3b3aa38a6cbe0f1c9c3cd60b89779cd954d5c3b13d0a0e907fb32ab8fce3ab65",
+    "scripts/check_public_export.py": "f09fffabf8f0f2cda27f14185a9a8839345b00dfe71f0952410508c3246fb12e",
+    "scripts/stage_node_tool.py": "8d9f5ebfd91dea4758fec515e613f7282603cac10e3a53778854b7fed9b847c2",
+    "src/literate_ai/repository_urls.py": "7d72c5d1213c61666b529e428525ad3b77c43e464036e0853a0af328a0294942",
+    "src/literate_ai/adapters/project_updates.py": "7045e6877889e04f14805a0efde842d32288bbbe455c495e45be633a29416e0b",
+    "tests/conformance/test_live_bidirectional_roundtrip.py": "5c7667f17aab98c9e698ece234fb940b468ebb11ba73389cfe6f0ab3fbe645c3",
+    "tests/conformance/test_live_composed_roundtrip.py": "b1f696fea6de1833569d99314b52867f178188d2e4806f15366a3039fb1b41e0",
+    "src/literate_ai/adapters/html_dag_view.py": "9e8d1f660a42145e3f7084a881149f4585f077598bb2723e8a2c88f8db2098ba",
+    "src/literate_ai/adapters/html_surfaces.py": "fe679fb1c7d56c0b5980ac1e66c866338d8266d2c70e1a56c1fd88762392c8c8",
+    "src/literate_ai/spec_map.py": "d38b4a7e9875b1e16d5da02a234e626682a90a5363182019ba3d2d62d210476e",
+    "docs/decisions/0016-codegraph-not-a-product-dependency.md": "56d56b4511628091369c5ceed065dcc796720d4985d60b8246202da7189812ae",
+    "docs/decisions/0049-repository-succession.md": "bacfe59ed38e4130bea70a6a1522f56b16c78aae099bf73c87a8cc3387b0c5df",
+    "docs/migration/phase-2-final-cutover.md": "ea0784d4f3a89615b90df231e24d85663952f96a9bbe0f9ab9048a10f02bf482"
+  },
+  "review_correction": {
+    "finding_id": "GUIDES-I06",
+    "correction": "Original report overextended the forward harness four-language pin to the separate dedicated roundtrip target. The dedicated target genuinely has five intended languages, including Elixir; that is not itself obsolete. The stale assertions were unconditional forward topology/counts and unavailable flow not led clearly enough by disabled status.",
+    "exact_owner_chain": [
+      "Makefile279-280 -> scripts/installed_roundtrip.py54-58 -> tests.conformance.test_live_bidirectional_roundtrip",
+      "tests/conformance/test_live_bidirectional_roundtrip.py52: LANGUAGES=(python,cpp,rust,javascript,elixir)",
+      "samples/_harness/regenerative-roundtrip/acceptance/execution.json60-68: distinct forward Python/C++/Rust/JavaScript+Bazel pins"
+    ],
+    "execution": "source inspection only; no dedicated roundtrip or forward harness launched"
+  },
+  "limits": [
+    "Source-text review is distinct from command execution, rendering, visual inspection, remote-link checking or installed/native/provider acceptance",
+    "Six earlier-reviewed narratives have unchanged bytes; final-candidate source and behavior validation remains pending",
+    "Only top-level docs/user Markdown is covered; other documentation, examples, media, presentations and linked collateral remain in full release scope",
+    "Historical inverse observations remain historical; current coding-CLI inverse translation is unavailable",
+    "All original release goals and targets retained; no full source, installed, platform, public receiving or release acceptance inferred"
+  ],
+  "required_next": [
+    "Revalidate source and narrative against final qualified candidate",
+    "Execute applicable installed examples and complete rendering, visual and link checks",
+    "Finish every remaining collateral surface and software/platform/release gate"
+  ]
+}

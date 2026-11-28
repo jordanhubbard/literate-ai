@@ -1,0 +1,160 @@
+{
+  "schema": "literate-ai/development-qualification-evidence@1",
+  "release_target": "1.4.0",
+  "goal": "AUTHORED-GRAPH-QUALIFICATION-001",
+  "issue": 393,
+  "review": 401,
+  "adr": "0072",
+  "software_base": "cf58370caaec0219c4de73f3931e5ab0dde307c2",
+  "source_sha256": {
+    "src/literate_ai/adapters/authored_qualification_projection.py": "cc58e45e801a6d93aebb0762486490f24d1efa61e26145fc0bd759137ddd3a89",
+    "tests/critical/test_authored_qualification_projection.py": "a973fc3da55256f74e47c072e03152ab435b3dd074faca2f8ba18d2a84677b2e"
+  },
+  "projection_controls": {
+    "selected": 12,
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0,
+    "log_sha256": "dcdb0d171e08cca350ba08381b2f03f175249cbe519f44cc164a9b4580e1b1c4"
+  },
+  "preceding_authored_family": {
+    "selected": 106,
+    "passed": 106,
+    "failed": 0,
+    "skipped": 0,
+    "log_sha256": "3a3ab5566943cb8e5aab1d5a0894a63374c4d09ee0fc8ad25897dec7e6c08cd0",
+    "scope": "Before original-object guard and portable interpreter-copy refinement; current 12 projection controls pass afterward"
+  },
+  "authored_family": {
+    "state": "pass",
+    "selected": 107,
+    "passed": 107,
+    "failed": 0,
+    "skipped": 0,
+    "scope": "Every authored outcome selected and reconciled in the complete source report",
+    "full_source_report_sha256": "d6893765fc3ad3e1fa767ba32b5582dfaff7d8974636243a5d2c5887aa361e3a"
+  },
+  "current_full_source_and_wheel": {
+    "state": "pass",
+    "subject": "3b0cefd25cc43404e0db8f5f31a9faefd7b499e5",
+    "interpreter": {
+      "version": "3.12.3",
+      "implementation": "cpython",
+      "architecture": "aarch64",
+      "platform": "linux"
+    },
+    "source": {
+      "summary": {
+        "executed": 2796,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2796,
+        "selected": 2896,
+        "skipped": 100
+      },
+      "worker_groups": 613,
+      "every_selected_instance_reconciled": true,
+      "report_sha256": "d6893765fc3ad3e1fa767ba32b5582dfaff7d8974636243a5d2c5887aa361e3a"
+    },
+    "wheel": {
+      "wheel_identity": "sha256:f5ca8b53e4dd3cb49b1895641bdcbeb18d7a903d0ea6ccc8ca88b52091593210",
+      "retained_manifest": "_build/ci-wheels/run-3c0hl9rt/manifest.json",
+      "standard_binding": {
+        "distribution": "sha256:3810330d7cfd45ba4f87312255a5999b4147863bdffb5724c937f7caed89c477",
+        "members": 1401,
+        "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+      }
+    },
+    "retained_artifact_rehash_passed": true,
+    "offline_workers": {
+      "worker_runtime": {
+        "installed_distributions": 38,
+        "dependency_closure_identity": "sha256:50031aac4b2e9109cc38db993a93ee4e41ab5a7202bd02dd15ab143d3d6f8ace",
+        "framework_distribution": "sha256:3810330d7cfd45ba4f87312255a5999b4147863bdffb5724c937f7caed89c477"
+      },
+      "uv_tool_worker_runtime": {
+        "installed_distributions": 38,
+        "dependency_closure_identity": "sha256:50031aac4b2e9109cc38db993a93ee4e41ab5a7202bd02dd15ab143d3d6f8ace",
+        "framework_distribution": "sha256:3810330d7cfd45ba4f87312255a5999b4147863bdffb5724c937f7caed89c477"
+      }
+    },
+    "scope": "Complete ordinary source and noneditable wheel/worker gates; not genuine authored model-run, public apply, full public publication/receiving integration or retained receiving acceptance"
+  },
+  "driver_review": {
+    "schema": "literate-ai/lifecycle-driver-review@1",
+    "driver_id": "sample-host-conformance",
+    "state": "stale",
+    "pinned_identity": "sha256:0086cc0a419753fccae6f85b47c44a71ad1b01edba192bec635b64827a7aa1ed",
+    "computed_identity": "sha256:1597a9f87fe730ed72851bb0077d72d13e27156591cc37bf8f49a3daa9eb84f4",
+    "implementation_paths": [
+      "scripts/run_samples.py",
+      "src/literate_ai",
+      "tests/conformance/support/durable_split_service.py",
+      "tests/conformance/support/runtime_oracles.py",
+      "tests/conformance/support/sample_runner.py",
+      "tests/conformance/support/standard_service_stack.py"
+    ],
+    "changed_since_pin": [
+      "src/literate_ai/adapters/authored_graph_acceptance.py",
+      "src/literate_ai/adapters/authored_qualification_authority.py",
+      "src/literate_ai/adapters/authored_qualification_capture.py",
+      "src/literate_ai/adapters/authored_qualification_comparison.py",
+      "src/literate_ai/adapters/authored_qualification_execution.py",
+      "src/literate_ai/adapters/authored_qualification_oracles.py",
+      "src/literate_ai/adapters/authored_qualification_planning.py",
+      "src/literate_ai/adapters/authored_qualification_projection.py",
+      "src/literate_ai/adapters/authored_qualification_reopening.py",
+      "src/literate_ai/adapters/authored_qualification_runs.py",
+      "src/literate_ai/adapters/component_lock_planning.py",
+      "src/literate_ai/adapters/lifecycle/standard_local.py",
+      "src/literate_ai/adapters/locked_generation_authority.py",
+      "src/literate_ai/adapters/qualification.py",
+      "src/literate_ai/adapters/qualification_capture.py",
+      "src/literate_ai/adapters/qualification_workspace_namespace.py",
+      "src/literate_ai/adapters/standard_rebuild.py",
+      "src/literate_ai/cli/authored_qualification.py",
+      "src/literate_ai/cli/dispatch.py",
+      "src/literate_ai/contracts/authored_qualification_acceptance.py",
+      "src/literate_ai/contracts/authored_qualification_comparisons.py",
+      "src/literate_ai/contracts/authored_qualification_plans.py",
+      "src/literate_ai/contracts/authored_qualification_products.py",
+      "src/literate_ai/contracts/authored_qualification_profiles.py",
+      "src/literate_ai/contracts/authored_qualification_requests.py",
+      "src/literate_ai/contracts/authored_qualification_runs.py",
+      "src/literate_ai/contracts/qualification_origins.py",
+      "src/literate_ai/schema_catalog.py"
+    ],
+    "recorded": false
+  },
+  "scope": {
+    "real": [
+      "Current project/lock/model/private-input guards",
+      "Canonical all-node Standard recipe and command projection",
+      "Actual controller Python tool observations",
+      "Actual selected test-owned interpreter byte-drift refusal",
+      "Read-only projection maps and original-object scope expiry/copy refusals",
+      "Before/after current-ownership guards around semantic reopening"
+    ],
+    "injected": [
+      "Project review, installed framework and coding provider admission",
+      "Fixture macOS platform selection; not native macOS qualification",
+      "Semantic reopening result in the owner-wrapper control; complete Standard reopening has separate development evidence"
+    ],
+    "not_established": [
+      "Recoverable public apply/publication",
+      "Current importer review/gate ownership and origin-specific Cargo receiving",
+      "Genuine all-node authored model generations and native independent acceptance",
+      "Positive native-SDK or execution-specific projection integration under genuine qualification",
+      "Resource retirement and closed native replay",
+      "Independent driver review and exact-head/resulting-main release acceptance"
+    ]
+  },
+  "documentation_and_export": {
+    "state": "pass",
+    "mermaid_diagrams": 181,
+    "markdown_files": 1950,
+    "openspec_changes_passed": 4,
+    "public_export": "pass",
+    "canonical_project_validation_before_full": "pass"
+  }
+}

@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import csv
 import json
+import os
 import subprocess
+import sys
 import tempfile
 import tomllib
 import unittest
@@ -12,13 +15,84 @@ from pathlib import Path, PurePosixPath
 from threading import Event
 from unittest import mock
 
+from literate_ai.adapters._processes import run_with_tree_kill
+from literate_ai.remote_worker_bootstrap import (
+    WorkerBootstrapError,
+    installed_distribution_identity,
+)
 from scripts import wheel_smoke
 from scripts.installed_html_smoke import _command_timeout
 from scripts.wheel_smoke import _host_flavor
+from tests.e2e.test_remote_worker_bootstrap import _wheel
 from tools.build_backend.literate_ai_build_backend import distribution_origin_bytes
 
 
 class CleanWheelSourceProjectionTests(unittest.TestCase):
+    def test_real_install_keeps_record_bytecode_in_the_isolated_environment(self):
+        # Use the real pip install boundary and canonical installed-file reader.
+        # Only wheel content is tiny; no pip/process/identity observer is mocked.
+        with tempfile.TemporaryDirectory(prefix="wheel record custody ") as directory:
+            root = Path(directory)
+            environment = root / "environment"
+            created = run_with_tree_kill(
+                [sys.executable, "-I", "-B", "-m", "venv", str(environment)],
+                timeout=60,
+                text=True,
+                check=True,
+            )
+            self.assertEqual(created.returncode, 0)
+            scripts = environment / ("Scripts" if os.name == "nt" else "bin")
+            python = scripts / ("python.exe" if os.name == "nt" else "python")
+            wheel = root / "literate_ai-0.3.0-py3-none-any.whl"
+            _wheel(wheel)
+            parent_cache = root / "parent bytecode cache"
+            install = (
+                str(python),
+                "-m",
+                "pip",
+                "--disable-pip-version-check",
+                "install",
+                "--no-index",
+                "--no-deps",
+                "--no-cache-dir",
+                str(wheel),
+            )
+            with mock.patch.dict(
+                os.environ, {"PYTHONPYCACHEPREFIX": str(parent_cache)}
+            ):
+                wheel_smoke.run(*install, cwd=root)
+            identity = installed_distribution_identity(environment)
+            self.assertTrue(identity.startswith("sha256:"))
+            self.assertFalse(parent_cache.exists())
+            record = next(environment.rglob("literate_ai-0.3.0.dist-info/RECORD"))
+            with record.open(newline="") as stream:
+                members = [row[0] for row in csv.reader(stream)]
+            self.assertTrue(any(name.endswith(".pyc") for name in members))
+            self.assertTrue(
+                all(
+                    (record.parent.parent / name)
+                    .resolve(strict=True)
+                    .is_relative_to(environment.resolve(strict=True))
+                    for name in members
+                )
+            )
+            # Deliberately bypass the default sanitization for an actual corrupt
+            # install. The original containment guard must still reject it.
+            contaminated = {
+                **wheel_smoke._subprocess_environment(),
+                "PYTHONPYCACHEPREFIX": str(parent_cache),
+            }
+            wheel_smoke.run(
+                *install[:-1],
+                "--force-reinstall",
+                install[-1],
+                cwd=root,
+                env=contaminated,
+            )
+            self.assertTrue(any(parent_cache.rglob("__init__*.pyc")))
+            with self.assertRaisesRegex(WorkerBootstrapError, "escapes the isolated"):
+                installed_distribution_identity(environment)
+
     def test_concurrent_timing_writes_hold_one_guard_and_keep_every_span(self) -> None:
         entered = Event()
         release = Event()

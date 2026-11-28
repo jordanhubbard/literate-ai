@@ -1,0 +1,86 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Reconcile legacy preparation refusal with current fixed canonical source-forest ancestors and preserve refusal of the legacy executor before effects",
+  "failed_complete_source_revision": "8c4280f975319128624f185f719e5716067297c1",
+  "failed_complete_source_report_sha256": "bb5b9079031f05e2ea191b4a018d79bed172911f33c779e04e2fc19efd7f49ea",
+  "failed_complete_source_summary": {
+    "executed": 1945,
+    "failed": 1,
+    "known_failed": 0,
+    "passed": 1944,
+    "selected": 5267,
+    "skipped": 39
+  },
+  "failed_complete_source_seconds": 4448.173,
+  "failed_complete_source_unchanged": true,
+  "source_sha256": {
+    "tests/critical/test_retained_layout_authored_roles.py": "ff2b7d11da4acb52ba6f53451907ce2136770658ebfa4f4bc72d3d34a6c9c7b4",
+    "tests/critical/test_retained_layout_source_forest.py": "7c035cb393474d7dc0bf32180bc2cae6693af8646ca21354606d2c4cef4d331c",
+    "src/literate_ai/adapters/retained_layout_source_authored.py": "59cbb66021ac22f2bc3f3374b66d2cebd90da24863184e42856019d143addda2",
+    "src/literate_ai/adapters/retained_layout_source_roles.py": "55c7d6e6c7328047e7e29a2f7f1e9c6438dd3725db9bc7c46ef85f84499e8c4a"
+  },
+  "production_layout_guards_changed": false,
+  "original_control_name_preserved": true,
+  "new_control_checks": [
+    "Actual canonical ancestor is fixed in the original forest graph",
+    "Legacy whole-directory executor refuses the mixed forest",
+    "No source rename or metadata staging call",
+    "Original source and canonical directory inodes unchanged",
+    "Original source bytes and canonical lock absence unchanged",
+    "Destination remains absent"
+  ],
+  "focused": {
+    "authored_roles": {
+      "summary": {
+        "executed": 19,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 19,
+        "selected": 19,
+        "skipped": 0
+      },
+      "seconds": 253.255,
+      "report_sha256": "927d7a14844374b969161fed9f5987830d4f12ad9c6454d3b5168bedd034b549"
+    },
+    "current_source_forest": {
+      "passed": 27,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 107.19,
+      "report_sha256": "c2c25c432e43ebbb97146b2f70e345a592e043d476ac74a930c3f1e84156629d"
+    }
+  },
+  "original_reproduction": {
+    "passed": 6,
+    "failed": 1,
+    "selected": 19,
+    "seconds": 70.323
+  },
+  "independent_source_review": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "release_qualified": false,
+  "limits": [
+    "Both focused groups exercise actual local POSIX fixtures on macOS; they do not qualify a production relocation or source retirement.",
+    "The completed failed source attempt remains failed. Fresh complete source and installed/native qualification are required."
+  ],
+  "static_gates": {
+    "lint": 0,
+    "format-check": 0,
+    "repository-layout-check": 0,
+    "public-export-check": 0,
+    "documentation-review-record": 0,
+    "documentation-review": 0,
+    "documentation-check": 0,
+    "openspec-check": 0,
+    "schema-check": 0
+  },
+  "static_log_sha256": "c9ef368a488d79b4230e280a9879601b779e852cb9a4effdd134990aba55aa96",
+  "verify": {
+    "exit_code": 1,
+    "authority": "pass",
+    "receipt": "fail: project.test_receipt_stale",
+    "report_sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec",
+    "driver_or_receipt_pins_changed": false
+  }
+}

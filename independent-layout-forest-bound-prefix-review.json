@@ -1,0 +1,42 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_bound_future_participant_lifecycle_validation",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_metadata_replay.py": {
+      "algorithm": "sha256",
+      "digest": "3166b55f3f7f901b134e4e0b405b0e9f35f57bb98c11708f12e1721a64ec8b08"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_current.py": {
+      "algorithm": "sha256",
+      "digest": "c67e0c94a971340acf6c5076580e6f3592a81789f906f8840387c94f3ad5bd3c"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery.py": {
+      "algorithm": "sha256",
+      "digest": "8568e1d00b084868b271d1027d8b46ac7734cae39104fd96debfae74cb4789d7"
+    },
+    "tests/critical/test_retained_layout_forest_bound_prefix.py": {
+      "algorithm": "sha256",
+      "digest": "70ff58af4e08e7f94ded84522888d5aab6acf7b0d9502e5af507a193c9f1f948"
+    },
+    "tests/critical/test_retained_layout_forest_metadata_replay.py": {
+      "algorithm": "sha256",
+      "digest": "31556a7a1f7fdd50762fe5e251984645ae298c8ce02cdc0fed7fcc6ba3fd8f49"
+    }
+  },
+  "review_scope": "Two terminal inspections: initial partial-native participant/domain/quarantine change, then complete-native unused-retirement lifecycle refinement. Recovery subject is unchanged from the first approval; the other four subjects carry the final inspection hashes.",
+  "findings_closed": [
+    "A real bound source-intent with an incomplete original native prefix retains and validates both original empty metadata/retirement reservations. Full source-effect fields, program/phase binding, exact pins and two-way native/portable separation are checked before source endpoints.",
+    "Actual fresh control-pool, journal and canonical selected-storage footprints cannot reuse either future private participant. Parking coordinates remain reserved before any parking inode has been witnessed; they cannot become a recovery quarantine.",
+    "The unused retirement reservation remains in the complete current native view after original native completion and before control finalization. A replaced original retirement inode refuses under no-follow endpoint ancestry validation.",
+    "Native pending-area indices remain stable until classification. Future participants append afterward. An actual projected retirement roster takes precedence over the original empty fallback, without duplicate roots or lost retired controls; changed complete views are funded on the same ledger."
+  ],
+  "not_proven": [
+    "Strict fresh-process recovery-prefix observation/replay and actual retry effects at original and recovery intent/effect/observation boundaries; current native loader still rejects new recovery kinds",
+    "Actual reacquisition/projection of already-existing supplemental public-control generations, with original/private and newer public custody retained independently",
+    "Actual forest verified-data handoff and canonical control disposition through genuine normalization/retirement receipts",
+    "Genuine integrated canonical original forest execution and durable commit/recovery acceptance before changing public or legacy admission guards",
+    "Full public initial/wrapper/root/renewal, installed/native/platform/integration/release and all remaining roadmap obligations"
+  ]
+}

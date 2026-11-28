@@ -123,7 +123,7 @@ lists the per-project fields and their defaults.
 - [Authority learning loop](architecture/authority-learning-loop.md)
 - [HTML repository explorer boundary and observability contracts](architecture/html-observability.md)
 - [Accepted 1.1 capability boundaries](decisions/0039-1.1-capability-boundaries.md)
-- [Proposed retained Cargo library bridge](decisions/0040-retained-cargo-library-bridge.md)
+- [Accepted retained Cargo library bridge](decisions/0040-retained-cargo-library-bridge.md)
 - [Accepted action-DAG scheduling and shared verified caches](decisions/0044-action-dag-and-shared-cache.md)
 - [Accepted Debian package construction on compatible workers](decisions/0045-debian-package-worker-custody.md)
 - [Accepted project-scoped worktree lifecycle](decisions/0046-project-scoped-worktree-lifecycle.md)
@@ -131,8 +131,9 @@ lists the per-project fields and their defaults.
 - [Accepted retained-project Standard lifecycle](decisions/0048-retained-project-standard-lifecycle.md)
 - [Accepted repository succession](decisions/0049-repository-succession.md)
 - [Accepted forge issues and reviews as the default tracker](decisions/0050-forge-issues-and-reviews-are-the-default-tracker.md)
-- [Proposed per-unit retained tree packages and verified worker transport](decisions/0052-per-unit-retained-tree-packages.md)
+- [Accepted per-unit retained tree packages and verified worker transport](decisions/0052-per-unit-retained-tree-packages.md)
 - [Proposed declared rustup host-tool provenance](decisions/0053-declared-rustup-host-provenance.md)
+- [Accepted scoped direct-Node runtime validation](decisions/0076-scoped-direct-node-validation.md)
 - [User-directed work loop](architecture/user-directed-work-loop.md)
 - [Project release protocol](architecture/project-releases.md)
 - [Skill architecture](architecture/skills.md)
@@ -183,6 +184,12 @@ lists the per-project fields and their defaults.
 - [Prefix-installed CLI self-update](decisions/0037-prefix-installed-cli-self-update.md)
 - [Continuous upstream shadow qualification](decisions/0063-continuous-upstream-shadow-qualification.md)
 - [Qualified native child revision](decisions/0066-qualified-native-child-revision.md)
+- [Reviewed immutable source assets](decisions/0067-reviewed-source-assets.md)
+- [Reviewed local static source intake](decisions/0068-reviewed-static-source-intake.md)
+- [Promotion authoring independent of lineage](decisions/0069-independent-promotion-authoring-selection.md)
+- [Reviewed retained command renewal](decisions/0070-reviewed-retained-command-renewal.md)
+- [Bounded native root acceptance repair](decisions/0073-native-root-acceptance-repair.md)
+- [Sealed library composition in Node SDKs](decisions/0075-sealed-node-sdk-composition.md)
 - [Source trust and build-security plan](security/source-trust-and-build-policy.md)
 
 ## Migration and roadmap
@@ -212,3 +219,5 @@ lifecycle headers. Their owning queue items remain in
 - [DMN specification provider design](history/roadmap/0.6.0-dmn-provider-design.md)
 - [LOW-layer Design-by-Contract examples](history/roadmap/0.5.0-design-by-contract-examples/NOTES.md)
 - [SCXML declared-trace spike results](history/roadmap/spikes/scxml-trace-prototype/RESULTS.md)
+
+- [Explicit Python Node SDK host configuration](architecture/node-sdk-host.md)

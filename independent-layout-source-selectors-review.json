@@ -1,0 +1,53 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "decision": "approved_at_internal_nonroot_original_selector_and_ancestor_identity_scope",
+  "scope": "Original relative,parent-segment and prospective in-project canonical matrix cell resolution, original reader native presence/ancestry and terminal closure. External shared storage and full layout/public/native/release acceptance remain open. Ancestor identity queries preserve held-FD/name correspondence while strict moving-source/post-effect destination snapshots remain unchanged.",
+  "method": "Independent source inspection only. No reviewer tests, native probes or edits.",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_source_authored.py": {
+      "algorithm": "sha256",
+      "digest": "222eeec0309d7ae884171efa0372393b1a259eb466a88086fb8c500114990440"
+    },
+    "tests/critical/test_retained_layout_source_selectors.py": {
+      "algorithm": "sha256",
+      "digest": "2b45280da3e2a141504d6f729196f876133e7f3466f91fcaa52ca9d6040b4575"
+    },
+    "src/literate_ai/adapters/exclusive_entry.py": {
+      "algorithm": "sha256",
+      "digest": "edbd3cd82b1e9cc7c77d206369ea752ad30458d285e36489a8564e89dadc7e33"
+    },
+    "tests/critical/test_exclusive_layout_entry.py": {
+      "algorithm": "sha256",
+      "digest": "b7d8664e8c9ae413ba71db1ae21b40576e1fcfd1423cdb544e77a624e0db39a5"
+    }
+  },
+  "findings": [
+    {
+      "finding": "Direct or ended helper bypassed original active-reader authentication before CWD/native access",
+      "resolution": "Helper authenticates actual state, active creating reader, unfinished selection and string input before reads",
+      "state": "closed"
+    },
+    {
+      "finding": "Quadratic cumulative prefix storage was retained before corresponding metadata reservation",
+      "resolution": "Conservatively reserve count times absolute supplied byte length before constructing the prefix list",
+      "state": "closed"
+    }
+  ],
+  "review_history": [
+    {
+      "decision": "changes_requested",
+      "source_sha256": "9f75f1ef122b952dbbb91b3b53b154d323d386c214e2d41f6138d977bf1c7028",
+      "tests_sha256": "aa3e35efc1554ce87b4df8490fd9f3846b2d676019744b75ca416173c23134d0"
+    }
+  ],
+  "limits": [
+    "No independent dynamic qualification",
+    "Internal normal nonroot transaction remains committed-unqualified",
+    "Full selector/shared external storage/root/shared/initial/wrapper/public recovery/apply and installed/native/platform/integration/release acceptance remain open"
+  ],
+  "ancestor_repair": {
+    "decision": "approved_source_only",
+    "reason": "Ancestor reads compare exact directory identity facts, not unrelated child-sensitive timestamps or sizes. Five actual native controls cover pin/held-guard sibling activity, name replacement after open, parent permissions and strict source mutation."
+  }
+}

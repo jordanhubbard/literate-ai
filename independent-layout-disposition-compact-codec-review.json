@@ -1,0 +1,34 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_disabled_pure_codec_only",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_disposition_compact.py": {
+      "algorithm": "sha256",
+      "digest": "085afb97bb3bd21d0effb51413284f4010f2fdce4c2d0c9abc3dd7f7de691e0e"
+    },
+    "tests/critical/test_retained_layout_disposition_compact.py": {
+      "algorithm": "sha256",
+      "digest": "86333c970379f5449408d448dfbdc8a484fca3f2d13ecd9cd1b769651c02dfd0"
+    }
+  },
+  "findings_closed": [
+    "Separate absence sentinel preserves valid decision before an empty subrecord prefix.",
+    "Subrecord batch/prefix binds full raw manifest digest separately from plan identity.",
+    "Distinct physical sources outside new retirement area, mode0700 root, public normalization source and original reservation bytes are checked.",
+    "Explicit immutable payload count/item/aggregate limits and prepaid expansion byte ceiling are checked before subrecord decoding.",
+    "Hash/index/predecessor chains, exact intent-observation pairing, immutable native receipt facts and typed boundary heads are checked.",
+    "Expansion reconstructs manifest fields from raw bytes; replaced cached DTO fields cannot change emitted records under an old digest."
+  ],
+  "not_proven": [
+    "Disabled pure codec only: no compact events are emitted or consumed by any live factory.",
+    "Actual factory must derive and bind complete held-control roster, original namespace, canonical epoch and data recovery provenance; descriptive caller fields grant no rights.",
+    "Implement real writer payload/backend and actual immutable resource preflight including decode/retained-workspace/read coupons, payload slots, stages and crash orphans before intent.",
+    "Implement strict suffix/raw control/metadata/terminal replay together and durable abandoned-prefix head anchoring in subsequent actual raw acquisition intent.",
+    "Normalization format currently explicitly restricts physical source to public target; actual planner must prove this restriction or refuse before effects.",
+    "Rerun unchanged actual late mixed-mode interruption through final release and all mixed custody assertions; the old insufficient-event failure remains unresolved.",
+    "Legacy compatibility, all remaining topology/boundary/public reentry/installed/platform/integration/release and other roadmap obligations remain open."
+  ],
+  "inspection_terminal": true
+}

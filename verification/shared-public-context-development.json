@@ -1,0 +1,141 @@
+{
+  "schema": "literate-ai/development-qualification@1",
+  "requirement": "AUTHORED-GRAPH-QUALIFICATION-001 / accepted ADR 0072",
+  "issue": "https://github.com/jordanhubbard/literate-ai/issues/514",
+  "status": "Narrow shared local/direct public-content correction source-qualified; complete coherent replay/receiving remains open",
+  "platform": {
+    "system": "Linux",
+    "machine": "aarch64"
+  },
+  "release_evidence": false,
+  "source_sha256": {
+    "src/literate_ai/application/component_generation_context.py": "4803d7d079de1417291ff9ca28073325fe6697fd87d7d6671e2db6020d040fdd",
+    "tests/critical/test_generation_context_shared_public.py": "7401bab353a8979af59df2a501e07184f63321eed15389632da0b0f5cbab51ab",
+    "tests/critical/test_authored_receiving_coherent_replay.py": "f97e390031ef5b6034fef7113d82cbb8f35533bdb21e8aa4f008f1afe27fd166"
+  },
+  "prior_production_sha256": "8d8d47d44f95d723a4f6a2c96e40e91bb2533d35027efc9f4f3f385df73d8ea0",
+  "independent_source_review_sha256": "ae1d645e3037802324a12c0e798c2c92ba8c6737efbba105e35c59587022e243",
+  "preserved_counterexample": {
+    "report_sha256": "8f3649bce625a3733395e44bc6c7d704abb6c33752308a0b905a2815f54caf0a",
+    "summary": {
+      "executed": 1,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 0,
+      "selected": 1,
+      "skipped": 0
+    },
+    "observation": "Original actual node preparation rejects repeated content identities for equal local and direct public interface bytes; unchanged physical test and assertions then pass after production correction",
+    "test_sha256": "f97e390031ef5b6034fef7113d82cbb8f35533bdb21e8aa4f008f1afe27fd166"
+  },
+  "reports": [
+    {
+      "report_sha256": "478f84a8b95834896d4b5b39958669319778713659b8d0fbba284b26bf769026",
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      },
+      "release_evidence": false
+    },
+    {
+      "report_sha256": "3f504a5bfea4ed9e37d0237503c6f1dfe5507d58f082780f1d9385f657a6b10a",
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "release_evidence": false
+    },
+    {
+      "report_sha256": "dd57c80948fd780e6e6c5b2142ec4526f98391aa8ebeda85094c7fa11cb4f1b4",
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "release_evidence": false
+    },
+    {
+      "report_sha256": "d291b043d86a6e16ebde48b1e0634bd80af39894ee76ba4cb58b5722df5bc452",
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "release_evidence": false
+    },
+    {
+      "report_sha256": "3d058a865df5bc6b92e34c901785c1c820e7e03b5da0133507aa7ef34c5632e9",
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "release_evidence": false
+    }
+  ],
+  "summary": {
+    "executed": 17,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 17,
+    "selected": 17,
+    "skipped": 0
+  },
+  "unchanged_original_tests_and_contract_sha256": {
+    "tests/critical/test_component_generation_context.py": "e04c5a0e05aa3c91a5a6a99eeef63295db5fda6651a7f62dd0746256c713dd12",
+    "tests/smoke/test_node_sdk_shared_interfaces.py": "1a88a6cd3478316b4109d614633f7a608f14b6ed24b9520fe63f5e87c3a90be4",
+    "tests/smoke/test_vfi_context_scaling.py": "ee2e75c58234c8b712dccc78cc6892a45bb33a2aa9bb8d3ff5a0b421c44de7d7",
+    "tests/smoke/test_component_generation_scheduling.py": "3bea6b7a4819052f5b4759e1d00a0ab6e9984e3369db96e4e14e308af61e4e30",
+    "src/literate_ai/contracts/executable_components/context.py": "bad1e42698230ad59c68aae5d606a78faa031e9b7b5f654b141c932921d00340"
+  },
+  "qualified": [
+    "Authenticate every selected role, source, raw byte identity, reason and complete selection before presentation collapse",
+    "Only exact local-public/direct-public shared content is displayed once using its original canonical direct representative; direct visibility and byte/fan-in budgets remain charged",
+    "Complete generation plan/key identities and edge provenance remain intact; reversed valid input order produces identical bounded request and prompt",
+    "Missing local role, local hash/source drift, same-role duplicates and forbidden authority still refuse before collapse; unrelated-role byte collision still fails original manifest uniqueness contract",
+    "Original coherent two-node physical graph and real isolated oracle observations support two original fresh preparations with exact plan pointers/recipes and distinct empty workspaces"
+  ],
+  "limits": [
+    "Two clean preparations are not two complete Standard lifecycle executions; full source/stage/BOM/process/receipt records and actual publication archive remain unfinished",
+    "Physical source fixture explicitly supplies review/framework/provider/package custody and models macOS target; tool observations are controller Python, not native macOS or genuine SDK",
+    "No new receiving owner, complete all-run archived replay, Cargo backend/admission, source retirement, noneditable installation or release acceptance",
+    "Existing broader shared-provider prompt-journal fan-in concern remains open; original journal validation unchanged"
+  ],
+  "required_next": [
+    "Complete same-plan Standard records for both clean runs and original complete publication/archive",
+    "Exercise original receiving owner, current projection, every-run replay and independent comparison without replacing these guards",
+    "Complete actual Cargo, genuine SDK/currentness, installed/public receiving/source-retirement and full original release scope"
+  ],
+  "unchanged_receiving_dependency_source_sha256": {
+    "src/literate_ai/adapters/authored_publication_files.py": "11696b3166387982acb298e0a434a8e293ea9399200f4ddb6712c18f1e239c18",
+    "src/literate_ai/adapters/authored_qualification_comparison.py": "067610acf2707f21d8f2ae1eb5a497fc2baf7d528619856ab4a254bb2332a192",
+    "src/literate_ai/adapters/authored_qualification_projection.py": "1c60c7dba8b9cc1d220516495f3be09c33d5aa42b16458d00b4f307c6168316c",
+    "src/literate_ai/adapters/authored_qualification_receiving.py": "08775758df418c59ca324c0e601990f6afe0130109071e5ca5a983d08e93d5e9",
+    "src/literate_ai/adapters/authored_qualification_reopening.py": "277510c4fdde74c8789f3f59a930bd17bdb234ccbad56bff69a51754ce0227a5",
+    "src/literate_ai/adapters/authored_retained_cargo_admission.py": "ffb177ef63214931fa6b7a3c18b024793a7998ce6740453dcdf44e8822a00d99",
+    "src/literate_ai/adapters/authored_retained_cargo_inputs.py": "759eb620fbb2f078569a7a2a850ea7f21e824a848995cdb4799ca46efcd9d920",
+    "src/literate_ai/adapters/authored_retained_cargo_products.py": "c9005baafcf349098279dd978d304361543e03b36a002de8633301ce6fa87d21",
+    "src/literate_ai/adapters/authored_retained_cargo_provisioning.py": "179d017ea2c77e6372aeb3dffacf2dd4583398427b767abd657d9ec5b14aa833",
+    "src/literate_ai/cli/dispatch.py": "1d53ff80b8b9298ab43c9985226776706fd57735f67acc581ea8ff7f5252659b",
+    "src/literate_ai/cli/retained_cargo_authored.py": "326de52b55aed07c5eb3b4104a89d21f692cac1915800a61a5f565c615fe6b0a",
+    "src/literate_ai/cli/retained_cargo_routing.py": "c57b611eed704fbded8c8a27c877ef455c20ea835d685521024cf72ec2b1d95a"
+  },
+  "receiving_dependency_review_sha256": "736bea899ad0da7c5e5f9bafe411eac7c066961a74797ef8c2bdd3e0e056f25d"
+}

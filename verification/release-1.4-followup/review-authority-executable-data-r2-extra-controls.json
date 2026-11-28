@@ -1,0 +1,45 @@
+{
+  "original_field_poison": {
+    "foreign_digest_correct": true,
+    "old_digest_not_returned": true,
+    "original_data_not_replaced": true
+  },
+  "mutable_hit": {
+    "correct_digest": true,
+    "original_entry_not_replaced": true,
+    "read_requests": [
+      4,
+      4,
+      4,
+      4,
+      4
+    ]
+  },
+  "short_geometry": {
+    "correct_digest": true,
+    "original_entry_not_replaced": true,
+    "read_requests": [
+      4,
+      4,
+      4,
+      4
+    ]
+  },
+  "mutable_first_read": {
+    "correct_digest": true,
+    "retains_nothing": true
+  },
+  "partial_read_failure": {
+    "exact_cause_preserved": true,
+    "retains_nothing": true
+  },
+  "retire_during_hit_close": {
+    "correct_digest": true,
+    "inactive_and_empty": true
+  },
+  "direct_private_caller": {
+    "supplied_stream_digest_correct": true,
+    "actual_native_file_digest_correct": true,
+    "externally_supplied_hasher_rejected": true
+  }
+}

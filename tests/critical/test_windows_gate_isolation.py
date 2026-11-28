@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from literate_ai.adapters._processes import run_with_tree_kill
+from tests.support.windows_lock_observation import observed_temporary_directory
 
 
 class WindowsGateIsolationTests(unittest.TestCase):
@@ -30,14 +31,14 @@ class WindowsGateIsolationTests(unittest.TestCase):
         self.assertIn("--environment", result.stdout)
 
     def test_whole_script_watchdog_cancels_its_real_child(self):
-        with tempfile.TemporaryDirectory() as directory:
+        processes = []
+        with observed_temporary_directory(processes, ("started",)) as directory:
             root = Path(directory)
             marker = root / "started"
             program = (
                 "from pathlib import Path; import time; "
                 f"Path({str(marker)!r}).write_text('started'); time.sleep(60)"
             )
-            processes = []
             popen = subprocess.Popen
 
             def start(*args, **kwargs):
@@ -120,7 +121,16 @@ class WindowsGateIsolationTests(unittest.TestCase):
                 self.assertEqual((root / f"{step}.stderr.log").read_bytes(), b"")
 
     def test_failed_check_terminates_its_owned_competing_process(self):
-        with tempfile.TemporaryDirectory() as directory:
+        launched = []
+        with observed_temporary_directory(
+            launched,
+            (
+                "wheel.stdout.log",
+                "wheel.stderr.log",
+                "tests.stdout.log",
+                "tests.stderr.log",
+            ),
+        ) as directory:
             root = Path(directory)
             ready = root / "sibling.ready"
             sleeping = (
@@ -133,7 +143,6 @@ class WindowsGateIsolationTests(unittest.TestCase):
                 "while not ready.exists() and time.monotonic()<deadline:\n"
                 " time.sleep(0.01)\nassert ready.exists()\nraise SystemExit(7)\n"
             )
-            launched = []
             popen = subprocess.Popen
 
             def start(*args, **kwargs):

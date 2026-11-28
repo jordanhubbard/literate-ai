@@ -20,6 +20,8 @@ from literate_ai.adapters.native_sdk_recipes import (
     NativeSdkRecipeSelection,
     select_native_sdk_recipes,
 )
+from literate_ai.adapters.native_sdk_source_custody import NativeSdkSourceInputClosure
+from literate_ai.adapters.native_sdk_workspace import NativeSdkBuildWorkspace
 from literate_ai.adapters.source.repository_cache import QuarantineRepositorySourceCache
 from literate_ai.adapters.source.repository_git import (
     GitRepositorySourceAcquirer,
@@ -68,7 +70,7 @@ class NativeSdkSourceBuild:
 @dataclass(frozen=True, slots=True)
 class _SourceInspection:
     binding: RepositorySourceIndexBinding
-    files: PinnedInputClosure
+    files: PinnedInputClosure | NativeSdkSourceInputClosure
     origin: OriginAttestation
     scan: SecurityScanReport
 
@@ -99,6 +101,7 @@ class NativeSdkSourceBuildService:
         host_build_acknowledged: bool = False,
         references: ReferenceIndex | None = None,
         authorization_deadline: datetime | None = None,
+        workspace: NativeSdkBuildWorkspace | None = None,
     ) -> None:
         if selection not in select_native_sdk_recipes(
             snapshot, selection.component_revision
@@ -155,6 +158,7 @@ class NativeSdkSourceBuildService:
             grant_lookup=self._grant,
             environment=environment,
             authorization_verifier=self.verifier,
+            workspace=workspace,
         )
         self.planner = NativeSdkRecipePlanner(
             snapshot=snapshot,
@@ -190,6 +194,8 @@ class NativeSdkSourceBuildService:
         capture: SourceCapture,
     ) -> RepositorySourceIndexBinding:
         lock = self.selection.source_lock
+        if checkout.allow_internal_symlinks != lock.dependency.allow_internal_symlinks:
+            raise ValueError("SDK inspection differs from authored link policy")
         actual = GitRepositorySourceCapturer().capture(checkout)
         if (
             actual != capture
@@ -205,14 +211,27 @@ class NativeSdkSourceBuildService:
         ):
             raise ValueError("SDK inspection requires the actual locked source capture")
         self.authority_files.require_unchanged()
-        files = PinnedInputClosure(
-            maximum_files=1_000_000,
-            maximum_file_bytes=1024 * 1024 * 1024,
-            maximum_total_bytes=16 * 1024 * 1024 * 1024,
-        )
+        if lock.dependency.allow_internal_symlinks:
+            files = NativeSdkSourceInputClosure(
+                checkout.source_root, capture.snapshot.entries
+            )
+        else:
+            files = PinnedInputClosure(
+                maximum_files=1_000_000,
+                maximum_file_bytes=1024 * 1024 * 1024,
+                maximum_total_bytes=16 * 1024 * 1024 * 1024,
+            )
         modules = []
         inventory = []
+        regular_contents = {}
         for entry in capture.snapshot.entries:
+            if entry.entry_type is SourceEntryType.SYMLINK and isinstance(
+                files, NativeSdkSourceInputClosure
+            ):
+                content = files.target_bytes(entry)
+                blob = self.store.put_bytes(content)
+                inventory.append({"entry": entry.to_dict(), "blob": blob.to_dict()})
+                continue
             if entry.entry_type is not SourceEntryType.FILE:
                 raise ValueError("SDK inspection requires regular captured files")
             content = files.pin(
@@ -226,13 +245,22 @@ class NativeSdkSourceBuildService:
             blob = self.store.put_bytes(content)
             inventory.append({"entry": entry.to_dict(), "blob": blob.to_dict()})
             modules.append(SourceModule.create(entry.path, content))
+            if isinstance(files, NativeSdkSourceInputClosure):
+                regular_contents[entry.path] = content
+        if isinstance(files, NativeSdkSourceInputClosure):
+            for alias, target in files.file_aliases:
+                modules.append(SourceModule.create(alias, regular_contents[target]))
         scan = self.scanner.scan(tuple(modules))
         scan_blob = self.store.put_manifest(scan.to_dict())
         files.require_unchanged()
         self.authority_files.require_unchanged()
         provider = canonical_identity(
             {
-                "indexer": "native-sdk-captured-files@1",
+                "indexer": (
+                    "native-sdk-captured-files@2"
+                    if lock.dependency.allow_internal_symlinks
+                    else "native-sdk-captured-files@1"
+                ),
                 "scanner": scan.scanner_identity,
                 "rules": scan.rule_set_digest,
                 "source_intelligence_policy": (
@@ -242,12 +270,26 @@ class NativeSdkSourceBuildService:
         )
         inventory_blob = self.store.put_manifest(
             {
-                "schema": "literate-ai/native-sdk-source-inventory@1",
+                "schema": (
+                    "literate-ai/native-sdk-source-inventory@2"
+                    if lock.dependency.allow_internal_symlinks
+                    else "literate-ai/native-sdk-source-inventory@1"
+                ),
                 "source_lock": lock.identity.to_dict(),
                 "files": inventory,
                 "scan": scan_blob.to_dict(),
                 "provider": provider.to_dict(),
                 "semantic_graph": False,
+                **(
+                    {
+                        "file_aliases": [
+                            {"path": alias, "source_path": target}
+                            for alias, target in files.file_aliases
+                        ]
+                    }
+                    if isinstance(files, NativeSdkSourceInputClosure)
+                    else {}
+                ),
             }
         )
         binding = RepositorySourceIndexBinding(

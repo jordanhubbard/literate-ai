@@ -40,12 +40,14 @@ from literate_ai.projects import (
     DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
     LoadedProject,
     ProjectConfigurationStore,
+    ProjectContext,
     ProjectError,
     parse_project_configuration,
     serialize_project_configuration,
 )
 
 REGISTERED_REBIND_PLAN_SCHEMA = "literate-ai/registered-child-rebind-plan@1"
+CONTAINED_REGISTERED_REBIND_PLAN_SCHEMA = "literate-ai/registered-child-rebind-plan@2"
 
 
 def _error(code: str, message: str) -> None:
@@ -97,6 +99,29 @@ class _RegisteredChild:
     manifest: bytes
     parent_manifest: bytes
     context: dict[str, str]
+    parent_context: ProjectContext
+    child_context: ProjectContext
+
+    def require_parent_current(self):
+        if ProjectConfigurationStore.context(self.parent.root) != self.parent_context:
+            _error("registered_metadata_changed", "original parent framework changed")
+
+    def require_current(self):
+        self.require_parent_current()
+        if ProjectConfigurationStore.context(self.child) != self.child_context:
+            _error("registered_metadata_changed", "original child framework changed")
+
+    def framework_path(self, relative):
+        self.require_parent_current()
+        return self.parent_context.framework_path(relative)
+
+    @property
+    def plan_schema(self):
+        return (
+            REGISTERED_REBIND_PLAN_SCHEMA
+            if self.parent_context.framework_root == self.parent.root
+            else CONTAINED_REGISTERED_REBIND_PLAN_SCHEMA
+        )
 
 
 def _capture(parent_path: Path, child_path: Path) -> _RegisteredChild:
@@ -115,27 +140,35 @@ def _capture_unchecked(parent_path: Path, child_path: Path) -> _RegisteredChild:
     if parent_path.is_symlink():
         _error("registered_metadata_invalid", "registered parent must not be a symlink")
     parent_snapshot = ProjectConfigurationStore(parent_path).read()
+    parent_context = ProjectConfigurationStore.context(parent_snapshot.root)
+    if parent_snapshot.directory_binding != parent_context.directory_binding:
+        _error("registered_metadata_changed", "parent framework changed during capture")
     parent = LoadedProject(parent_snapshot.root, parent_snapshot.definition)
-    absolute_child = child_path.absolute()
-    try:
-        relative = absolute_child.relative_to(parent_path.absolute())
-    except ValueError:
-        relative = absolute_child.relative_to(parent.root)
+    # Child and source declarations are always application-relative, including
+    # when the caller selected the parent's declared framework coordinate.
+    relative = child_path.absolute().relative_to(parent.root)
     child = parent.root / relative
     require_native_project_path(parent, ProjectConfigurationStore.manifest_path(child))
-    registry = _read(parent.root / NATIVE_PROJECTS_FILE)
+    registry_path = parent_context.framework_path(NATIVE_PROJECTS_FILE)
+    registry = _read(registry_path)
     roots = _native_project_roots(parent)
-    if _read(parent.root / NATIVE_PROJECTS_FILE) != registry:
+    if ProjectConfigurationStore.context(parent.root) != parent_context:
+        _error("registered_metadata_changed", "parent framework changed during capture")
+    if _read(registry_path) != registry:
         _error("registered_metadata_changed", "registry changed during observation")
     child_snapshot = ProjectConfigurationStore.discover(child)
-    if child_snapshot is not None:
-        child = child_snapshot.root
+    if child_snapshot is None:
+        _error("registered_metadata_invalid", "registered child has no direct project")
+    child = child_snapshot.root
     if child not in roots:
         _error(
             "child_not_registered", "selected child is not registered by this parent"
         )
-    manifest = _read(ProjectConfigurationStore.manifest_path(child))
-    parent_manifest = _read(ProjectConfigurationStore.manifest_path(parent.root))
+    child_context = ProjectConfigurationStore.context(child)
+    if child_snapshot.directory_binding != child_context.directory_binding:
+        _error("registered_metadata_changed", "child framework changed during capture")
+    manifest = _read(child_context.manifest_path)
+    parent_manifest = _read(parent_context.manifest_path)
     entry = next(
         item
         for item in json.loads(registry)["projects"]
@@ -144,53 +177,64 @@ def _capture_unchecked(parent_path: Path, child_path: Path) -> _RegisteredChild:
     definition_identity = canonical_identity(json.loads(manifest)).uri
     if (
         parent_manifest != parent_snapshot.content
+        or manifest != child_snapshot.content
         or definition_identity != entry["project_definition_identity"]
         or parse_project_configuration(manifest).project_id != entry["project_id"]
     ):
         _error(
             "registered_metadata_changed", "parent or child changed during observation"
         )
-    return _RegisteredChild(
+    context = {
+        "parent_project_id": parent.definition.project_id,
+        "parent_configuration_identity": _digest(parent_manifest),
+        "registry_identity": _digest(registry),
+        "child_path": entry["path"],
+        "child_configuration_identity": _digest(manifest),
+        "child_definition_identity": definition_identity,
+    }
+    if parent_context.framework_root != parent.root:
+        context["native_namespace_observation_identity"] = canonical_identity(
+            {
+                "parent": [
+                    [str(v) for v in row] for row in parent_context.directory_binding
+                ],
+                "child": [
+                    [str(v) for v in row] for row in child_context.directory_binding
+                ],
+            }
+        ).uri
+    captured = _RegisteredChild(
         parent,
         child,
         registry,
         manifest,
         parent_manifest,
-        {
-            "parent_project_id": parent.definition.project_id,
-            "parent_configuration_identity": _digest(parent_manifest),
-            "registry_identity": _digest(registry),
-            "child_path": entry["path"],
-            "child_configuration_identity": _digest(manifest),
-            "child_definition_identity": definition_identity,
-        },
+        context,
+        parent_context,
+        child_context,
     )
+    captured.require_current()
+    return captured
 
 
 def registered_parent_for_child(project: Path) -> Path | None:
-    """Identify a direct registered-child location without accepting registry drift."""
+    """Identify direct declared membership, never application metadata by name."""
     lexical = project.absolute()
     for candidate in (lexical, *lexical.parents):
         if (
-            candidate.parent.name == "native-projects"
-            and candidate.parent.parent.name == ".literate"
+            candidate.parent.name != "native-projects"
+            or candidate.parent.parent.name != ".literate"
         ):
-            parent = candidate.parent.parent.parent
-            registry = parent / NATIVE_PROJECTS_FILE
-            if registry.exists() or registry.is_symlink():
-                return parent
-    snapshot = ProjectConfigurationStore.discover(project)
-    if snapshot is None:
-        return None
-    child = snapshot.root
-    if (
-        child.parent.name == "native-projects"
-        and child.parent.parent.name == ".literate"
-    ):
-        parent = child.parent.parent.parent
-        registry = parent / NATIVE_PROJECTS_FILE
-        if registry.exists() or registry.is_symlink():
-            return parent
+            continue
+        context = ProjectConfigurationStore.context(candidate.parent.parent.parent)
+        if candidate.parent != context.framework_path(".literate/native-projects"):
+            continue
+        registry = context.framework_path(NATIVE_PROJECTS_FILE)
+        try:
+            registry.lstat()
+        except FileNotFoundError:
+            continue
+        return context.root
     return None
 
 
@@ -209,10 +253,11 @@ def plan_registered_standard_rebind(
         origin_observer=origin_observer,
         policy_loader=policy_loader,
     )
+    captured.require_current()
     if _capture(parent, child).context != captured.context:
         _error("registered_metadata_changed", "parent or child changed while planning")
     result: dict[str, object] = {
-        "schema": REGISTERED_REBIND_PLAN_SCHEMA,
+        "schema": captured.plan_schema,
         "registration": captured.context,
         "rebind": rebind,
     }
@@ -223,7 +268,16 @@ def plan_registered_standard_rebind(
 def _replace_metadata(
     parent: LoadedProject, path: Path, previous: bytes, content: bytes
 ) -> None:
-    require_native_project_path(parent, path)
+    context = parent.context
+
+    def guard():
+        if parent.context != context:
+            _error(
+                "registered_metadata_changed", "framework changed during replacement"
+            )
+        require_native_project_path(parent, path)
+
+    guard()
     if _read(path) != previous:
         _error("registered_metadata_changed", "metadata changed before replacement")
     if content == previous:
@@ -236,10 +290,11 @@ def _replace_metadata(
             stream.write(content)
             stream.flush()
             os.fsync(stream.fileno())
-        require_native_project_path(parent, path)
+        guard()
         if _read(path) != previous:
             _error("registered_metadata_changed", "metadata changed during replacement")
         os.replace(temporary, path)
+        guard()
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
@@ -259,16 +314,20 @@ def apply_registered_standard_rebind(
         _error("authorization_required", "apply requires --authorize-rebind")
     if (
         set(plan) != {"schema", "registration", "rebind", "identity"}
-        or plan.get("schema") != REGISTERED_REBIND_PLAN_SCHEMA
+        or plan.get("schema")
+        not in {REGISTERED_REBIND_PLAN_SCHEMA, CONTAINED_REGISTERED_REBIND_PLAN_SCHEMA}
         or canonical_identity({k: v for k, v in plan.items() if k != "identity"}).uri
         != plan.get("identity")
         or not isinstance(plan.get("rebind"), dict)
     ):
         _error("plan_invalid", "registered-child rebind plan is invalid")
     initial = _capture(parent, child)
-    registry_path = initial.parent.root / NATIVE_PROJECTS_FILE
+    if plan["schema"] != initial.plan_schema or initial.context != plan["registration"]:
+        _error("registered_metadata_changed", "reviewed parent or child changed")
+    registry_path = initial.framework_path(NATIVE_PROJECTS_FILE)
     try:
         with exclusive_cache_lock(registry_path.with_suffix(".lock")):
+            initial.require_current()
             captured = _capture(parent, child)
             if captured.context != plan["registration"]:
                 _error(
@@ -313,7 +372,7 @@ def _retain_rebind_metadata(
     relative = Path(".literate/native-updates") / (
         str(plan["identity"])[7:23] + ".json"
     )
-    path = captured.parent.root / relative
+    path = captured.framework_path(relative.as_posix())
     require_native_project_path(captured.parent, path)
     ensure_safe_directory(path.parent)
     content = canonical_json_bytes(document) + b"\n"
@@ -324,12 +383,17 @@ def _retain_rebind_metadata(
             stream.flush()
             os.fsync(stream.fileno())
         require_native_project_path(captured.parent, path)
+        captured.require_current()
         # Publish the complete record without overwriting prior retained history.
         os.link(temporary, path)
+        captured.require_current()
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
-    return {"path": relative.as_posix(), "identity": identity}
+    return {
+        "path": path.relative_to(captured.parent.root).as_posix(),
+        "identity": identity,
+    }
 
 
 def _apply_locked(
@@ -342,8 +406,9 @@ def _apply_locked(
 ) -> dict[str, object]:
     parent = captured.parent
     child = captured.child
-    registry_path = parent.root / NATIVE_PROJECTS_FILE
-    manifest_path = ProjectConfigurationStore.manifest_path(child)
+    captured.require_current()
+    registry_path = captured.framework_path(NATIVE_PROJECTS_FILE)
+    manifest_path = captured.child_context.manifest_path
     rebind = _validated_plan(plan["rebind"])
     proposed = replace(
         parse_project_configuration(captured.manifest),
@@ -370,6 +435,7 @@ def _apply_locked(
             origin_observer=origin_observer,
             policy_loader=policy_loader,
         )
+        captured.require_current()
         observed_manifest = _read(manifest_path)
         if observed_manifest != updated_manifest:
             _error(
@@ -384,8 +450,7 @@ def _apply_locked(
                 "rebound child changed before registration",
             )
         if (
-            _read(ProjectConfigurationStore.manifest_path(parent.root))
-            != captured.parent_manifest
+            _read(captured.parent_context.manifest_path) != captured.parent_manifest
             or _read(registry_path) != captured.registry
         ):
             _error("registered_metadata_changed", "parent changed during child update")
@@ -400,7 +465,9 @@ def _apply_locked(
             if registry == json.loads(captured.registry)
             else canonical_json_bytes(registry) + b"\n"
         )
+        captured.require_current()
         _replace_metadata(parent, registry_path, captured.registry, updated_registry)
+        captured.require_current()
         _native_project_roots(parent)
         if rebind["change_required"]:
             recovery = _retain_rebind_metadata(
@@ -408,6 +475,7 @@ def _apply_locked(
             )
     except BaseException:
         try:
+            captured.require_current()
             current_manifest = _read(manifest_path)
             if current_manifest != captured.manifest:
                 canonical_previous = serialize_project_configuration(

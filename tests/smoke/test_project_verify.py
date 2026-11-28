@@ -16,6 +16,7 @@ from pathlib import Path
 
 from literate_ai.cli import main
 from literate_ai.cli.verify import GATES
+from literate_ai.projects import ProjectConfigurationStore
 from tests.support.root_parent_adapter import root_parent_for_fixture_project
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -86,7 +87,8 @@ class VerifyCommandTests(unittest.TestCase):
         self.assertEqual(tree_snapshot(self.project), before)
 
     def test_broken_authority_fails_the_run(self) -> None:
-        readme = self.project / "docs" / "README.md"
+        framework_root = ProjectConfigurationStore.context(self.project).framework_root
+        readme = framework_root / "docs" / "README.md"
         readme.write_text(
             readme.read_text(encoding="utf-8") + "\nstale the marker\n",
             encoding="utf-8",

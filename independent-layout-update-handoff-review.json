@@ -1,0 +1,161 @@
+{
+  "schema": "independent-source-review@1",
+  "reviewer": "single authorized independent reviewer",
+  "created_utc": "2026-11-14T01:08:44.039164+00:00",
+  "decision": "changes_requested",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "2c2435bff209947161b389353fde6b00dd18c589",
+  "subjects": [
+    {
+      "path": "docs/roadmap/retained-layout-transactions.md",
+      "sha256": "bbaa55e0402439fc88448781b9200f77cc4049b7df360128826ae967d35db131",
+      "bytes": 81358
+    },
+    {
+      "path": "src/literate_ai/adapters/project_update_apply.py",
+      "sha256": "a34995a612d3dbadefa65cd0ac3a3fe4539b8a86b48af7417ec269ba7637211e",
+      "bytes": 17316
+    },
+    {
+      "path": "src/literate_ai/adapters/project_update_compatibility.py",
+      "sha256": "02f7907cacc4f4dd02a3f22d26879905a38f2f75f568a435e467daf6136586e6",
+      "bytes": 6992
+    },
+    {
+      "path": "src/literate_ai/adapters/project_updates.py",
+      "sha256": "a5494ed0e6a8a65e5c515723d3612e1607a8f751a115d9289f897d4969f33073",
+      "bytes": 25763
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout.py",
+      "sha256": "3eb6c36fc8903f61e852e412bbcd3c550def507e6c07755eae4cbc06a5d8f3bf",
+      "bytes": 20164
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_ownership.py",
+      "sha256": "0de60fbd2ea466e07d8defe039402e521d391df12830faded91698adfb041cad",
+      "bytes": 23790
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "5839f58c287a13b106ec2de6980d49826fa746d1d0b0052ddeef257eba03cf29",
+      "bytes": 53003
+    },
+    {
+      "path": "src/literate_ai/adapters/roadmap_dependencies.py",
+      "sha256": "130a7deeddc15bcbf7503be32982593e6ccca68bb50a8076c16bba8a62b9d534",
+      "bytes": 3179
+    },
+    {
+      "path": "src/literate_ai/adapters/update_merge.py",
+      "sha256": "9d6fb29d1bcf903a536535bed8d1ee2b62a94829264ee5e41272d4419ca01ebd",
+      "bytes": 19565
+    },
+    {
+      "path": "src/literate_ai/application/agent_skill_catalog.py",
+      "sha256": "20c9428f925e4efdbd47e4b43049ed53ac82032f52c900c40a7c1a3f28f007a2",
+      "bytes": 23837
+    },
+    {
+      "path": "src/literate_ai/adapters/framework_update_roles.py",
+      "sha256": "b5b3926d6eb50c01a9e44b4b2d6fded0dffcfbc8e841f31de9e21374b9219a76",
+      "bytes": 33878
+    },
+    {
+      "path": "tests/critical/test_framework_update_roles.py",
+      "sha256": "3db0d04ab56657d7b8533aaf28bab009202f77d26e422a46507251c6c6cb31d0",
+      "bytes": 17192
+    }
+  ],
+  "preserved_subjects": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-initial-reviewed-subjects",
+  "scope": "Internal POSIX normal nonroot, source-backed file-Git-provider actual updater to one-use live ownership participant; optional source phase integration only.",
+  "reviewed": [
+    "Complete current diff and new framework_update_roles.py/test module.",
+    "Bounded observer routes through actual planner, apply, skill/roadmap/catalog/layout/checkpoint paths.",
+    "Actual selected-row and UNCHANGED/ALREADY_CURRENT provenance, explicit keep-local selection, successful publication native receipts, retained partial failures and interrupt semantics.",
+    "Shared initial project/provider/metadata counters, current HEAD/symbolic chain/packed refs snapshots, full namespace/target closing, exact post-checkpoint/source-plan and actual same-object complete partition binding.",
+    "Default updater paths remain separate; default _write_exact and UpdateBases.write None results preserved."
+  ],
+  "findings": [
+    {
+      "id": "UPDATE-HANDOFF-LIFETIME-001",
+      "severity": "blocking",
+      "status": "open",
+      "location": "src/literate_ai/adapters/framework_update_roles.py:785",
+      "title": "Currentness can return after actual participant context has ended during final native close",
+      "evidence": "Private actual-context control arms after the final cached payload _check. During the final _git.close_native callback it invokes the real enclosing context.__exit__(None,None,None). require_current then returns without refusing, although the actual owner _active is False. No production/private flag is assigned by the reproducer.",
+      "observed": {
+        "actual_context_ended": true,
+        "active_after": false,
+        "currentness_refused": false
+      },
+      "cause": "close_native checks _live(ready=True) only before its observations and lacks a final lifetime/PID/spent closure after the final provider native observation. spend trusts that returned close and sets _spent afterward. before_replace similarly has no final lifetime check after its input callbacks.",
+      "required_change": "Close actual PID/context/spent eligibility after final native observations before returning currentness, consuming the participant, or allowing a publication. Preserve the actual acquiring context binding; do not reconstruct rights from the saved document.",
+      "reproducer": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-context-close-probe.py",
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-context-close-probe.py",
+      "result": "1 test, 1 failure, 5.330s; actual context ended and require_current returned."
+    }
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_framework_update_roles",
+      "result": "16 passed, 0 failures, 0 skips, 74.257s",
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-independent-focused.log",
+      "terminal_exit": 0
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.e2e.test_project_update_apply tests.e2e.test_project_update_merge tests.critical.test_update_base_observation",
+      "result": "18 passed, 0 failures, 0 skips, 3.473s",
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-independent-regression.log",
+      "terminal_exit": 0
+    },
+    {
+      "command": "Private actual-context lifetime reproducer, first version armed on first provider close",
+      "result": "1 passed, 4.643s: early context ending was correctly refused; this is not final-close evidence.",
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-context-close-probe.log",
+      "terminal_exit": 0
+    },
+    {
+      "command": "Private actual-context lifetime reproducer, corrected to arm after last payload check",
+      "result": "1 failed, 5.330s: require_current returned after actual context exit.",
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-context-close-probe-final.log",
+      "terminal_exit": 1
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-independent-focused.log",
+      "sha256": "dbc02d252f0e9ef1368e17bfc5b4fd20bb52379abb04e390b4f2507046013f52",
+      "bytes": 3158
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-independent-regression.log",
+      "sha256": "6de51c67d317bf6c147ddf02e9d39d082a5baac31803ae2dc0c948ae2c6dda35",
+      "bytes": 3334
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-context-close-probe.py",
+      "sha256": "b37cd8f2dab5d5c72f3c272c73016be682c0831b6539475ad4dbb3840b5a02e9",
+      "bytes": 1637
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-context-close-probe.log",
+      "sha256": "e5e50722ce38ac4c3e8f256fe9046339d39b3825f9b21237b0ee76ff0d631516",
+      "bytes": 325
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-context-close-probe-final.log",
+      "sha256": "7c6d40ebf9c51e885801dd80b4c117b6bbadaaa360d3bfe2134f1124a2fdd322",
+      "bytes": 1119
+    }
+  ],
+  "terminal_process_state": "All independent focused/regression/probe processes terminal. Author suite not controlled or claimed by reviewer.",
+  "limits": [
+    "No source/test/pin edits or new agents; report at requested repository-root path and private evidence only.",
+    "Managed editable environment results are source-level local macOS/POSIX evidence, not wheel or isolated installed qualification.",
+    "The maintained HEAD closing test projects a changed native signature; reviewer did not modify the real provider repository HEAD/ref.",
+    "No continuous hostile same-user atomic snapshot or authenticated historical-origin attestation.",
+    "Durable restart/historical overlay lease, recovery, root/shared/initial/wrapper movement, complete metadata owners, public CLI, Windows/cross-platform/native installed, whole feature/program/release acceptance remain open.",
+    "Prior publication/rollback/budget findings from early design audit are structurally addressed in these exact subjects; this does not supersede the demonstrated lifetime blocker."
+  ]
+}

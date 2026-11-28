@@ -1,0 +1,3415 @@
+{
+  "record_version": 1,
+  "scope": "Transfer and consolidate active framework development custody. All saved source states reconciled; consuming-project dependency inputs preserved. Original feature and release acceptance remain open.",
+  "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
+  "continued_subject": "d93b31944ea7e1d707d0835332f69d30e1301564",
+  "continuation_branch": "work/puck-takeover",
+  "inventory": {
+    "registered_worktrees": 269,
+    "dirty_recovery_commits": 90,
+    "stashes": 11,
+    "reflog_revisions": 1488,
+    "legacy_separate_clones": 1
+  },
+  "transfer": {
+    "all_worktree_and_snapshot_commits_verified": true,
+    "original_index_and_patch_files_verified": 270,
+    "snapshot_metadata_sha256": "9415671a24619ffc0719f5f9667ac3c14daea409e3e6b91cea2a906b1971f7dd",
+    "published_recovery_branches": 90,
+    "additional_published_heads": 7
+  },
+  "checkout_cleanup": {
+    "removed_worktrees": 268,
+    "removed_legacy_clones": 1,
+    "preserved_ignored_and_untracked_paths": 695,
+    "remaining_registered_checkouts": 1,
+    "framework_sibling_checkouts": 0,
+    "framework_symlink_aliases": 0,
+    "branch_gc_policy": {
+      "dry_run": true,
+      "candidates": 0,
+      "rejected": 76
+    },
+    "authorization": "Operator explicitly approved preservation, integration and redundant-checkout cleanup; no branch was declared merged merely by removing its checkout.",
+    "continuation_scratch_checkout": {
+      "path": ".worktrees/gcgit",
+      "removed": true,
+      "tracked_state_clean": true,
+      "head_ancestor_of_continuation": true,
+      "preserved_generated_files": 15,
+      "archive_sha256": "3b85bd463b26012c3fbf362c7e0bfd80914f335067ec2840171fcd459c39976d",
+      "editable_runtime_restored": "Verified from an external cwd: /home/jkh/Src/literate-ai/src/literate_ai/__init__.py"
+    },
+    "authored_authority_scratch_checkout": {
+      "subject": "645c19f75511513b7e6e84380ff87325a9355928",
+      "tracked_clean": true,
+      "ancestor": true,
+      "files": 390,
+      "archive_sha256": "12535b4aa61c63e29ce108ffdaa75771e78a9a84448e9865c369f00f1f599504",
+      "archive": "hand49-generated-645c.tar",
+      "path": ".worktrees/hand49",
+      "removed": true
+    },
+    "additional_development_worktrees_removed": 5,
+    "total_development_worktrees_removed": 273,
+    "additional_artifact_directories_removed": 7,
+    "remaining_checkout_scope": "One active standalone framework development checkout. The frozen embedded Aviation dependency and clean pinned Kit fork remain consuming-project inputs; neither is an active framework development worktree.",
+    "embedded_dependency_copies_retained": 2,
+    "other_host_peer_work": "Existing destination-host worktrees/dirty work remain preserved; source-host consolidation does not discard another host-local owner."
+  },
+  "reconciliation": {
+    "counts": {
+      "merged": 91,
+      "preserved-for-reconciliation": 0
+    },
+    "snapshots": [
+      {
+        "label": "acceptwrap1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "d26cdf2109c9978b04f8c07023c1adc85c9e4a6c",
+        "branch": "recovery/puck-20261126/acceptwrap1",
+        "disposition": "merged",
+        "changed_paths": 8,
+        "remaining_paths": 0
+      },
+      {
+        "label": "actionsel1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "b7a7bcf24d2d4fe4deb7c6e3249cd88b92daa3fc",
+        "branch": "recovery/puck-20261126/actionsel1",
+        "disposition": "merged",
+        "changed_paths": 6,
+        "remaining_paths": 0
+      },
+      {
+        "label": "actsel2",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "c98e172a0b2a27353edc24dfcce0285b119c04ca",
+        "branch": "recovery/puck-20261126/actsel2",
+        "disposition": "merged",
+        "changed_paths": 6,
+        "remaining_paths": 0
+      },
+      {
+        "label": "actsel3",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "4de4c8c2b2fae975965b287ff4ddcb424ba279e0",
+        "branch": "recovery/puck-20261126/actsel3",
+        "disposition": "merged",
+        "changed_paths": 6,
+        "remaining_paths": 0
+      },
+      {
+        "label": "actsel4",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "18dec4d764cc0a9b1a56ed1fd88ba936d4e29c9f",
+        "branch": "recovery/puck-20261126/actsel4",
+        "disposition": "merged",
+        "changed_paths": 6,
+        "remaining_paths": 0
+      },
+      {
+        "label": "ad14",
+        "base": "dcd33ba4a31518c4508ef352770072d1869f9976",
+        "commit": "25f1879df668d4a3cc7ce75984354e586fbc2881",
+        "branch": "recovery/puck-20261126/ad14",
+        "disposition": "merged",
+        "changed_paths": 11,
+        "remaining_paths": 0,
+        "reconciliation_commit": "92d859fe73df8970734399e607f0869b05c19870",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "ar14",
+        "base": "1cbbf88f4f003b5ee7623c4134e470730ae4a69d",
+        "commit": "9ca37e2673e530af0422585af7becdfbd74bce19",
+        "branch": "recovery/puck-20261126/ar14",
+        "disposition": "merged",
+        "changed_paths": 4,
+        "remaining_paths": 0,
+        "resolution": "Source already retained; current release-goal membership, terminal evidence and authority pins preserved. Distinct historical Windows observation retained separately."
+      },
+      {
+        "label": "arm14",
+        "base": "fa95e5e6edf7ac9827a7e8e6f5bd2d99d1c04950",
+        "commit": "1101fe0909f2b8106ae2339c1d7841221c03ecef",
+        "branch": "recovery/puck-20261126/arm14",
+        "disposition": "merged",
+        "changed_paths": 4,
+        "remaining_paths": 0
+      },
+      {
+        "label": "arproof1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "3b39b7230ea3fb27497070d6f915f945993a255b",
+        "branch": "recovery/puck-20261126/arproof1",
+        "disposition": "merged",
+        "changed_paths": 12,
+        "remaining_paths": 0,
+        "reconciliation_commit": "9e83090ba78b516aecebbf6d62aa341c53956a95",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "artcust1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "fd8882c82922e8628016f2da5d22baaf64dcfd90",
+        "branch": "recovery/puck-20261126/artcust1",
+        "disposition": "merged",
+        "changed_paths": 14,
+        "remaining_paths": 0,
+        "reconciliation_commit": "2d1a8ba9954541c0ef0ac59a6b1d8f4d74c9443e",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "artpub1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "9ed9dceeca9b14981623c77a53588267762fe92b",
+        "branch": "recovery/puck-20261126/artpub1",
+        "disposition": "merged",
+        "changed_paths": 13,
+        "remaining_paths": 0,
+        "reconciliation_commit": "a483b5f809b7604b685678e0b7729a8bd4bde2e3",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "authoredgraph1",
+        "base": "49a96386d86279352b239c15dc448adbce892fba",
+        "commit": "89452e206df0a24479b95c5e2d5a98c89cf05a10",
+        "branch": "recovery/puck-20261126/authoredgraph1",
+        "disposition": "merged",
+        "changed_paths": 80,
+        "remaining_paths": 42,
+        "resolution": "Normal merge 03553009c preserves identical production/test/script/schema tree after authoredgraph2 reconciliation; original Unreleased changelog feature entries retained. Recovered trees differ only in three already-reviewed older namespace/projection/retirement files; current original-vnode and portable input/projection controls supersede them. All fifteen historical records identical to the imported authoredgraph2 records."
+      },
+      {
+        "label": "authoredgraph2",
+        "base": "743a57fa5f5d0bb192e061bebdda3182e570d097",
+        "commit": "09b7ec082dd759ab282576fc30744ab53fa960a0",
+        "branch": "recovery/puck-20261126/authoredgraph2",
+        "disposition": "merged",
+        "changed_paths": 3,
+        "remaining_paths": 3,
+        "resolution": "Normal merge retains stronger current original-vnode deletion witness, opaque projection/toolchain/deadline/custody and namespace owners. Fifteen byte-exact original development evidence documents imported with historical scope. Test-owned copied interpreter is proved distinct and writable before binding, so actual byte-drift control reaches its original refusal assertion."
+      },
+      {
+        "label": "cancust1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "860542cd4a63343d7e58ac97ac3c6635acb0b043",
+        "branch": "recovery/puck-20261126/cancust1",
+        "disposition": "merged",
+        "changed_paths": 5,
+        "remaining_paths": 0
+      },
+      {
+        "label": "canstep1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "20bdd9c3547fd47ac072a1d631c37463ba67b792",
+        "branch": "recovery/puck-20261126/canstep1",
+        "disposition": "merged",
+        "changed_paths": 4,
+        "remaining_paths": 0
+      },
+      {
+        "label": "caseinv1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "6562a0bfc1e8d4b6686b6044bb5cc791d5ec1365",
+        "branch": "recovery/puck-20261126/caseinv1",
+        "disposition": "merged",
+        "changed_paths": 4,
+        "remaining_paths": 0
+      },
+      {
+        "label": "catcust1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "7bed3e76dc0e6384ea18790d53648d633f335c97",
+        "branch": "recovery/puck-20261126/catcust1",
+        "disposition": "merged",
+        "changed_paths": 4,
+        "remaining_paths": 0
+      },
+      {
+        "label": "catplace1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "d56ec9060c0c86de7ce1203e3b1c9cfba56ee5c2",
+        "branch": "recovery/puck-20261126/catplace1",
+        "disposition": "merged",
+        "changed_paths": 4,
+        "remaining_paths": 0
+      },
+      {
+        "label": "cg14b",
+        "base": "2b9c392d9bb869f31f95a04a4a7a867456dbc58e",
+        "commit": "96cf7add74048cd00fe213aa1ca42cf1c0b328bd",
+        "branch": "recovery/puck-20261126/cg14b",
+        "disposition": "merged",
+        "changed_paths": 13,
+        "remaining_paths": 0,
+        "reconciliation_commit": "20be0932a2e85c06ca0aee9eb0af9484258884bf",
+        "resolution": "Current original-owner API and tests retained after porting three real reproduced gaps; prototype-specific APIs superseded; original notes retained as history."
+      },
+      {
+        "label": "cgproj1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "7ed268e039d5619cdc00ecbd792f112d673c6ac6",
+        "branch": "recovery/puck-20261126/cgproj1",
+        "disposition": "merged",
+        "changed_paths": 5,
+        "remaining_paths": 0,
+        "reconciliation_commit": "c0bd6aaf81a4f08a305f7d451fde14b3a185b90c",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "ciworkflow1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "1f3679fe8573c31c3bc3801582eeeef9213a46c1",
+        "branch": "recovery/puck-20261126/ciworkflow1",
+        "disposition": "merged",
+        "changed_paths": 3,
+        "remaining_paths": 0
+      },
+      {
+        "label": "corigin1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "c3fa11b6244c917149393be7ac59fa5aae128207",
+        "branch": "recovery/puck-20261126/corigin1",
+        "disposition": "merged",
+        "changed_paths": 4,
+        "remaining_paths": 0
+      },
+      {
+        "label": "cq14",
+        "base": "0ddbc6cae1a2b8d5446d4fd08b6dadb68269a9f0",
+        "commit": "a3b9e4c3bd32dcef196dffbfc10195610927015e",
+        "branch": "recovery/puck-20261126/cq14",
+        "disposition": "merged",
+        "changed_paths": 1,
+        "remaining_paths": 0,
+        "resolution": "Current source effects already present; generated crash output retained as an artifact and in original recovery history."
+      },
+      {
+        "label": "cudapos1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "1ce51c9336a5401b0eaf8249b10bbbcaadd50a48",
+        "branch": "recovery/puck-20261126/cudapos1",
+        "disposition": "merged",
+        "changed_paths": 3,
+        "remaining_paths": 0
+      },
+      {
+        "label": "cwf14",
+        "base": "ff08e9ba20e62e87a1a538551f21332a68b61997",
+        "commit": "29891edd5db602bbc1520ff129f863c33f0f6f90",
+        "branch": "recovery/puck-20261126/cwf14",
+        "disposition": "merged",
+        "changed_paths": 2,
+        "remaining_paths": 0
+      },
+      {
+        "label": "d56",
+        "base": "1b676760ac1442a946383c999a709c451ea3bad0",
+        "commit": "785b09f7d4e99aa411570e3d9c041e36e19e1205",
+        "branch": "recovery/puck-20261126/d56",
+        "disposition": "merged",
+        "changed_paths": 2,
+        "remaining_paths": 0,
+        "resolution": "Original proposals remain reachable through the recovered-proposals historical index; current accepted decisions and pending acceptance boundaries are preserved."
+      },
+      {
+        "label": "d5657",
+        "base": "1852d7c86e1a4796f20bcd054f963f21a533900a",
+        "commit": "99f4801a09757282188eee993f8675a83917e1ae",
+        "branch": "recovery/puck-20261126/d5657",
+        "disposition": "merged",
+        "changed_paths": 5,
+        "remaining_paths": 0
+      },
+      {
+        "label": "execview1",
+        "base": "441ee05b35ecfa087dac4f9e1b1a876eb726cc1d",
+        "commit": "e0c20fba44eabfcc26261bb3e9a57187f50b9030",
+        "branch": "recovery/puck-20261126/execview1",
+        "disposition": "merged",
+        "changed_paths": 5,
+        "remaining_paths": 5,
+        "resolution": "Restore genuine missing read-only execution view, shared duplicate-rejecting release-goal authority reader and typed prerequisite projection through original validated dependency graph. Original eight controls plus actual acknowledged contained conversion/shadow/refusal/metadata preservation case pass; current namespace/release eligibility owners unchanged."
+      },
+      {
+        "label": "fc14",
+        "base": "9517459008b18f895c3c1440a088589f53f40122",
+        "commit": "a60a94afed1e5ff3127bf49bec8be116baa7658a",
+        "branch": "recovery/puck-20261126/fc14",
+        "disposition": "merged",
+        "changed_paths": 12,
+        "remaining_paths": 0,
+        "reconciliation_commit": "035388ba2c811f3c8e71a3859d645fdde24fa3b2",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "fexpiry1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "8c16b82497f9cd9f46e8a2439c6f14029d391f72",
+        "branch": "recovery/puck-20261126/fexpiry1",
+        "disposition": "merged",
+        "changed_paths": 5,
+        "remaining_paths": 0
+      },
+      {
+        "label": "fp14",
+        "base": "8eb8ed0a80ace4a3cd9980d1531b13c2547ef2b3",
+        "commit": "8f40eedb75659bef18f53b91c111c0f5e6d786f4",
+        "branch": "recovery/puck-20261126/fp14",
+        "disposition": "merged",
+        "changed_paths": 44,
+        "remaining_paths": 0,
+        "reconciliation_commit": "1e7995c404f49945d90895de009606db3f8d7b82",
+        "resolution": "Current original-owner API and tests retained after porting three real reproduced gaps; prototype-specific APIs superseded; original notes retained as history."
+      },
+      {
+        "label": "go14",
+        "base": "426b71ec4e56afb5d041df8ed0995c09bb20aae5",
+        "commit": "86faf93d6f9cb68f178dada4e01acf65617cc746",
+        "branch": "recovery/puck-20261126/go14",
+        "disposition": "merged",
+        "changed_paths": 7,
+        "remaining_paths": 0
+      },
+      {
+        "label": "goalguard1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "206ef10e77ea063fa06e45c03c85ca8f4be1c2d1",
+        "branch": "recovery/puck-20261126/goalguard1",
+        "disposition": "merged",
+        "changed_paths": 8,
+        "remaining_paths": 0
+      },
+      {
+        "label": "gp14",
+        "base": "26e44e07ec37d806e24a24f2fb15f63c2345e867",
+        "commit": "d9390b3848668301ac2725aa643d40e0b50711a7",
+        "branch": "recovery/puck-20261126/gp14",
+        "disposition": "merged",
+        "changed_paths": 13,
+        "remaining_paths": 0,
+        "reconciliation_commit": "855bdfc65e09b252543bb45f83b3fc3fc0164fef",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "gpupress1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "55e5264c613710480534d64fb7f047c16df8ba7e",
+        "branch": "recovery/puck-20261126/gpupress1",
+        "disposition": "merged",
+        "changed_paths": 3,
+        "remaining_paths": 0
+      },
+      {
+        "label": "labedge1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "1301588c4a7be4a600c092c7ac8ad9fc2dd75eb1",
+        "branch": "recovery/puck-20261126/labedge1",
+        "disposition": "merged",
+        "changed_paths": 15,
+        "remaining_paths": 0
+      },
+      {
+        "label": "labgraph1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "1fcf7bab45c810225bb0f74ed7416d1f32459167",
+        "branch": "recovery/puck-20261126/labgraph1",
+        "disposition": "merged",
+        "changed_paths": 31,
+        "remaining_paths": 0
+      },
+      {
+        "label": "labpin1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "a6adeb7cc2e2ae05cb88f4fc3ac7032248c72a3b",
+        "branch": "recovery/puck-20261126/labpin1",
+        "disposition": "merged",
+        "changed_paths": 15,
+        "remaining_paths": 0
+      },
+      {
+        "label": "laycatalog1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "3b2af06ea85f4bf93155f3e8ecafab013710476a",
+        "branch": "recovery/puck-20261126/laycatalog1",
+        "disposition": "merged",
+        "changed_paths": 32,
+        "remaining_paths": 0,
+        "reconciliation_commit": "1c30487434ca1e758639d8b7e53ecbafa26df674",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
+      },
+      {
+        "label": "laycust1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "4dbb045cb3b686fe2e5e1ebaab194cd8a358d066",
+        "branch": "recovery/puck-20261126/laycust1",
+        "disposition": "merged",
+        "changed_paths": 22,
+        "remaining_paths": 0,
+        "reconciliation_commit": "88232e10ea59eb4234631bc85a4660b486939ea4",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
+      },
+      {
+        "label": "laygraph1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "a6c85f222a3b084d429b311e48118e5954927ad8",
+        "branch": "recovery/puck-20261126/laygraph1",
+        "disposition": "merged",
+        "changed_paths": 34,
+        "remaining_paths": 0,
+        "reconciliation_commit": "d3823e93eb86718774598283a130cefbbda8e6ae",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
+      },
+      {
+        "label": "layjoin1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "7a7851cc6ee3006c1e59031700f4780ce697da6f",
+        "branch": "recovery/puck-20261126/layjoin1",
+        "disposition": "merged",
+        "changed_paths": 123,
+        "remaining_paths": 0,
+        "reconciliation_commit": "8286954e14260799e097f2a5caedef67724cf567",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "laymove1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "4fb1c950bc6f33df466da7b36a40349776b30c32",
+        "branch": "recovery/puck-20261126/laymove1",
+        "disposition": "merged",
+        "changed_paths": 22,
+        "remaining_paths": 0,
+        "reconciliation_commit": "714bdbcaecb30dbad3087b7f283561b223420280",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
+      },
+      {
+        "label": "laynext1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "ee321752cdbffbb47e38251780920bdea33427c1",
+        "branch": "recovery/puck-20261126/laynext1",
+        "disposition": "merged",
+        "changed_paths": 9,
+        "remaining_paths": 0,
+        "reconciliation_commit": "6352bb72f44b51b8e1be2d9d8b3ec733625540ea",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
+      },
+      {
+        "label": "layout14",
+        "base": "2b9c392d9bb869f31f95a04a4a7a867456dbc58e",
+        "commit": "9a449c3ec6d49923e56b1e604f804dc04696abc6",
+        "branch": "recovery/puck-20261126/layout14",
+        "disposition": "merged",
+        "changed_paths": 28,
+        "remaining_paths": 0,
+        "reconciliation_commit": "3da5a0b6a314ec8dc602309ef90cc75e90427bd9",
+        "resolution": "Exact complete replayable original delta retained as historical patch and blob manifest; superseded unregistered prototype is not restored as a second effect path. Current native owners retained; high-level relocation remains unfinished.",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "layrefs1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "1b4dca5978c04ff6179aa64c11b1d75ed42a5eee",
+        "branch": "recovery/puck-20261126/layrefs1",
+        "disposition": "merged",
+        "changed_paths": 35,
+        "remaining_paths": 0,
+        "reconciliation_commit": "3b69efc0bf19cfab20a599ae7bf5e9e9b67cae0e",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
+      },
+      {
+        "label": "layrelease1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "f9a728fb2e5c7e6e54ca5aa2d882317dc896047f",
+        "branch": "recovery/puck-20261126/layrelease1",
+        "disposition": "merged",
+        "changed_paths": 37,
+        "remaining_paths": 0,
+        "reconciliation_commit": "a7b276a4b5d25932e108df6d96b0c5cac11d3d32",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
+      },
+      {
+        "label": "layskill1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "5265b2c7e951c2cc4da445320a6fd83d01fb0524",
+        "branch": "recovery/puck-20261126/layskill1",
+        "disposition": "merged",
+        "changed_paths": 31,
+        "remaining_paths": 0,
+        "reconciliation_commit": "d8eed27e46dbff065fcb50fdf203e19ac583db34",
+        "resolution": "Reviewed current contained-catalog implementation retained with unchanged tree; all original changed named tests present, generalized catalog helpers mapped. Historical source and installed/platform refusals preserved."
+      },
+      {
+        "label": "nativereadopt1",
+        "base": "441ee05b35ecfa087dac4f9e1b1a876eb726cc1d",
+        "commit": "0f5db42608cb25d4a3376377b01af1ba1ea1c46f",
+        "branch": "recovery/puck-20261126/nativereadopt1",
+        "disposition": "merged",
+        "changed_paths": 8,
+        "remaining_paths": 8,
+        "resolution": "Normal merge 7eb417e58 after unique runtime-retirement patch a5343bb7b. Same recovered tree as clean head 6fe9f65e; modern CRLF/Git/index/namespace guards retained. Exact tree equality checked against tested implementation."
+      },
+      {
+        "label": "np14",
+        "base": "53696fdf5431a2ee5c9228ca0f1966a4f1f574fa",
+        "commit": "bd3197765925168137428ba33418ec6175dcc0cf",
+        "branch": "recovery/puck-20261126/np14",
+        "disposition": "merged",
+        "changed_paths": 200,
+        "remaining_paths": 0
+      },
+      {
+        "label": "nt14",
+        "base": "75125268c86915bd2e535a24cc58ad2a88878d8c",
+        "commit": "633e6d71c93c9c2f50867076db5150e599d7c54d",
+        "branch": "recovery/puck-20261126/nt14",
+        "disposition": "merged",
+        "changed_paths": 103,
+        "remaining_paths": 0,
+        "reconciliation_commit": "b0470a4b8899ca1ab926ac0d6e25592921fdf32e",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "nv14",
+        "base": "75125268c86915bd2e535a24cc58ad2a88878d8c",
+        "commit": "fd99a412110ae0305b73ee8d56558a15a1c430aa",
+        "branch": "recovery/puck-20261126/nv14",
+        "disposition": "merged",
+        "changed_paths": 14,
+        "remaining_paths": 13,
+        "resolution": "Normal merge ace2f7d87 retains identical current tree. Original native deadline/admission/source/coding CLI/receipt behavior preserved; current original-root claim, contained-runtime, observer pairing and retained-identity guards retained."
+      },
+      {
+        "label": "pf14",
+        "base": "9213b250eceaa1eaaba03ceb8da3978391078413",
+        "commit": "37affa4ffc7de896157f72f4c0b23215aa8b4d3a",
+        "branch": "recovery/puck-20261126/pf14",
+        "disposition": "merged",
+        "changed_paths": 9,
+        "remaining_paths": 0,
+        "reconciliation_commit": "6c6a9c04a6bb7b9f43e78bf487fd9bc7c1c7f330",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "pr312-profile",
+        "base": "d64f9c917dc6cc54e3036edae94e3254593b1b34",
+        "commit": "19e9bfbd7d445345f6b59cf60e6571a711054663",
+        "branch": "recovery/puck-20261126/pr312-profile",
+        "disposition": "merged",
+        "changed_paths": 2,
+        "remaining_paths": 2,
+        "resolution": "Normal merge of original two-file profile patch. Per-record polling retains original 300-second deadline and byte/memory/payload bounds; full current project/SDK authority reopened at phase boundaries and closing. Original SDK test proves 2..8 full checks, unchanged producer counts/CAS and no owner rehydration."
+      },
+      {
+        "label": "r353",
+        "base": "6b1f33d81a003b268ffc72a2be811e30d0cfa1ec",
+        "commit": "8cf4a1af0062a747b385dbf02a6741d5788dacd4",
+        "branch": "recovery/puck-20261126/r353",
+        "disposition": "merged",
+        "changed_paths": 26,
+        "remaining_paths": 0,
+        "reconciliation_commit": "2f7c4bde4bed3e730874f3b2210cc945d2ce1a9a",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "reljn1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "5175e2e0dd6411528cce97a475d4d441f9ee7b5f",
+        "branch": "recovery/puck-20261126/reljn1",
+        "disposition": "merged",
+        "changed_paths": 126,
+        "remaining_paths": 0,
+        "reconciliation_commit": "8eaa97c09fb994894117298cf7b4a784f48fadd3",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "reljoin1",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "2332fa57d79af3109c9710dfa583fe66abe3fd14",
+        "branch": "recovery/puck-20261126/reljoin1",
+        "disposition": "merged",
+        "changed_paths": 100,
+        "remaining_paths": 0,
+        "reconciliation_commit": "4c1727058a3a57dddc59c7ff2d4d7e592c55ac14",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "relwheel1",
+        "base": "890a32be6ee41af904161d3c7102234adc707282",
+        "commit": "62709c04f538fe2d0e8fcd0daf2d143761cdec5b",
+        "branch": "recovery/puck-20261126/relwheel1",
+        "disposition": "merged",
+        "changed_paths": 3,
+        "remaining_paths": 0
+      },
+      {
+        "label": "rh14",
+        "base": "072d66e81eff85f58515a09d93d19528499a5ec1",
+        "commit": "785087a11eba66cf321b3f67c9cbdce084f6c18c",
+        "branch": "recovery/puck-20261126/rh14",
+        "disposition": "merged",
+        "changed_paths": 26,
+        "remaining_paths": 18,
+        "resolution": "Normal merge 881644cf2 retains identical current tree. Original Rust verifier declaration/contract/input/acceptance/execution and installed journey symbols retained; preserve current paired command/native authority owners, original run claims/deadlines, namespace and immutable evidence custody. Existing ancestor Cargo configuration refusal remains explicit; no fresh native Rust or release qualification claim."
+      },
+      {
+        "label": "rmguard1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "22735143d8fd7caead991e7d767d76fdd2278ef2",
+        "branch": "recovery/puck-20261126/rmguard1",
+        "disposition": "merged",
+        "changed_paths": 12,
+        "remaining_paths": 9,
+        "resolution": "Normal merge 5c6dbc6de retains byte-identical current tree. Preserve newer original role/namespace/CRLF, native index and lifecycle boundary guards; prevent duplicate historical Git helpers from shadowing maintenance and Windows lock handling."
+      },
+      {
+        "label": "sc14",
+        "base": "9213b250eceaa1eaaba03ceb8da3978391078413",
+        "commit": "fa04f7157f4abdd2061b917798d0524fca5cec5b",
+        "branch": "recovery/puck-20261126/sc14",
+        "disposition": "merged",
+        "changed_paths": 7,
+        "remaining_paths": 0,
+        "resolution": "Source already retained; current release-goal membership, terminal evidence and authority pins preserved. Distinct historical Windows observation retained separately."
+      },
+      {
+        "label": "schpre1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "c198191df9a04579d9da242aad3ec9e0ac0bf837",
+        "branch": "recovery/puck-20261126/schpre1",
+        "disposition": "merged",
+        "changed_paths": 5,
+        "remaining_paths": 0
+      },
+      {
+        "label": "sdlcn2",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "ee18dafd6081eb35bb22d8a2f98e3b021745dccf",
+        "branch": "recovery/puck-20261126/sdlcn2",
+        "disposition": "merged",
+        "changed_paths": 57,
+        "remaining_paths": 0,
+        "reconciliation_commit": "6c26923298a2340629c6087035c3f4ff475dfade",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "sdlcn3",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "915417cd31a415d3263f628e79028f833f36f834",
+        "branch": "recovery/puck-20261126/sdlcn3",
+        "disposition": "merged",
+        "changed_paths": 80,
+        "remaining_paths": 0,
+        "reconciliation_commit": "9dba00ea5bef75b1f966864ee663c0fecf898341",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "sdlcn4",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "2428797d2c50fb2b295f4dfc198c8bde238a35bd",
+        "branch": "recovery/puck-20261126/sdlcn4",
+        "disposition": "merged",
+        "changed_paths": 107,
+        "remaining_paths": 0,
+        "reconciliation_commit": "d1eb141ae0417608b2240912a95a88101ce8907a",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "sdlcn5",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "849e866dcc1a61f216cb93d8d785d615982de2ba",
+        "branch": "recovery/puck-20261126/sdlcn5",
+        "disposition": "merged",
+        "changed_paths": 113,
+        "remaining_paths": 0,
+        "reconciliation_commit": "9e1803afd179ea3c1a8615e59ca4ad4dfb19eee4",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "sdlcn6",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "c5620d3be0ae0f578d10f513fa7e07f10977e4b1",
+        "branch": "recovery/puck-20261126/sdlcn6",
+        "disposition": "merged",
+        "changed_paths": 95,
+        "remaining_paths": 0,
+        "reconciliation_commit": "51257e68f90a1b6eaa373a6e0be1bf2060bc5a22",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "sdlcn7",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "909035616185010722191c299f3e268267b584ff",
+        "branch": "recovery/puck-20261126/sdlcn7",
+        "disposition": "merged",
+        "changed_paths": 100,
+        "remaining_paths": 0,
+        "reconciliation_commit": "0f4ee80c56391b18338e1c004003263d63adffbe",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "sdlcq4",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "2312a6c815ae9cbeb71f918b58c169cc414b5247",
+        "branch": "recovery/puck-20261126/sdlcq4",
+        "disposition": "merged",
+        "changed_paths": 69,
+        "remaining_paths": 0,
+        "reconciliation_commit": "f545f564f24caa15848e3454ce99a0d943774466",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "sdlcq5",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "459cd654027a154d48b8ac456489d1213b445d53",
+        "branch": "recovery/puck-20261126/sdlcq5",
+        "disposition": "merged",
+        "changed_paths": 77,
+        "remaining_paths": 0,
+        "reconciliation_commit": "c1d79f3675e077660302dfd7fcdb79b48100c377",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "sdlcw",
+        "base": "f34debb73b62f9fff59a138f86b3640d7be65183",
+        "commit": "146e4fa3c73813f904c748c9f159fcae5cd5aeff",
+        "branch": "recovery/puck-20261126/sdlcw",
+        "disposition": "merged",
+        "changed_paths": 11,
+        "remaining_paths": 0,
+        "reconciliation_commit": "1d22099bb607c5d9120ef434ebc711b0e41bba62",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "sdpil1",
+        "base": "af11434c90d58489a923114a8d8f0c7bdb1ebba0",
+        "commit": "001c8a33b8e1f618e3754d52aa874c63129291bb",
+        "branch": "recovery/puck-20261126/sdpil1",
+        "disposition": "merged",
+        "changed_paths": 1,
+        "remaining_paths": 0,
+        "resolution": "Source already retained; current release-goal membership, terminal evidence and authority pins preserved. Distinct historical Windows observation retained separately."
+      },
+      {
+        "label": "sdsk1",
+        "base": "9ed5a266e5d07bb720292a067d7af50954a6bbd1",
+        "commit": "b599c6bd0e4c1b1ea6857f41102bb7775de0b240",
+        "branch": "recovery/puck-20261126/sdsk1",
+        "disposition": "merged",
+        "changed_paths": 9,
+        "remaining_paths": 0
+      },
+      {
+        "label": "sdsq1",
+        "base": "9ed5a266e5d07bb720292a067d7af50954a6bbd1",
+        "commit": "b10c2247e56085062424b0a33eafe8f452af788d",
+        "branch": "recovery/puck-20261126/sdsq1",
+        "disposition": "merged",
+        "changed_paths": 8,
+        "remaining_paths": 0
+      },
+      {
+        "label": "sh14",
+        "base": "dcd33ba4a31518c4508ef352770072d1869f9976",
+        "commit": "4dadd1f7821a549e1f91ebd5b65e9f2b429ab561",
+        "branch": "recovery/puck-20261126/sh14",
+        "disposition": "merged",
+        "changed_paths": 3,
+        "remaining_paths": 0,
+        "resolution": "Original proposals remain reachable through the recovered-proposals historical index; current accepted decisions and pending acceptance boundaries are preserved."
+      },
+      {
+        "label": "shadow14",
+        "base": "844b00b8e9f62145090ff00be7d6a5e1f9c7c350",
+        "commit": "84b646d5fb6f958e84becd431f2e7326d147434b",
+        "branch": "recovery/puck-20261126/shadow14",
+        "disposition": "merged",
+        "changed_paths": 6,
+        "remaining_paths": 0,
+        "reconciliation_commit": "146108573215b2334045112970f2d970ecf34200",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "si14",
+        "base": "dcd33ba4a31518c4508ef352770072d1869f9976",
+        "commit": "ded4a20f8c32aaa4431bc7cdfe2c6cd8b0988057",
+        "branch": "recovery/puck-20261126/si14",
+        "disposition": "merged",
+        "changed_paths": 1,
+        "remaining_paths": 0,
+        "resolution": "Original proposals remain reachable through the recovered-proposals historical index; current accepted decisions and pending acceptance boundaries are preserved."
+      },
+      {
+        "label": "tm14",
+        "base": "9213b250eceaa1eaaba03ceb8da3978391078413",
+        "commit": "f551c5f70ddc6cfeb57aeeae3f7dfa3dd88c816b",
+        "branch": "recovery/puck-20261126/tm14",
+        "disposition": "merged",
+        "changed_paths": 13,
+        "remaining_paths": 0,
+        "reconciliation_commit": "f2c00d6820122e39dd98743a93de8e3bb81abe86",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "unit14",
+        "base": "fa95e5e6edf7ac9827a7e8e6f5bd2d99d1c04950",
+        "commit": "eb6fab913fd2773faeb2b96928410f4d23f9f3fd",
+        "branch": "recovery/puck-20261126/unit14",
+        "disposition": "merged",
+        "changed_paths": 26,
+        "remaining_paths": 0,
+        "reconciliation_commit": "b51c96b2ca1f2bb3574745d7ee0c17c86a0a2033",
+        "tree_unchanged_from_first_parent": true
+      },
+      {
+        "label": "ur14",
+        "base": "fa95e5e6edf7ac9827a7e8e6f5bd2d99d1c04950",
+        "commit": "fa51bb2b2e167f691eb8ebdfe8c946dc0e3ed6de",
+        "branch": "recovery/puck-20261126/ur14",
+        "disposition": "merged",
+        "changed_paths": 85,
+        "remaining_paths": 0,
+        "reconciliation_commit": "24e9d70952874d35260dd7377b4e65bb7f0643a2",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "ux14",
+        "base": "fa95e5e6edf7ac9827a7e8e6f5bd2d99d1c04950",
+        "commit": "19eb541d767244b46592d4a31738db92a927b35e",
+        "branch": "recovery/puck-20261126/ux14",
+        "disposition": "merged",
+        "changed_paths": 69,
+        "remaining_paths": 0,
+        "reconciliation_commit": "81a87c43bc572b4cbb43408c4aa4a2712c7aff0b",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "wf14",
+        "base": "ba755fb03e4d5137077604cf07eaa37d8a77a6d5",
+        "commit": "8a166306bef87fb905fead2224524c546b70481d",
+        "branch": "recovery/puck-20261126/wf14",
+        "disposition": "merged",
+        "changed_paths": 4,
+        "remaining_paths": 0
+      },
+      {
+        "label": "wheelinv1",
+        "base": "91e06e9c4c4f0401f52b0b2b07bf107fb10c5318",
+        "commit": "0b5d6ae8f0d4eadb70a3b209ec2c1191aa6c4437",
+        "branch": "recovery/puck-20261126/wheelinv1",
+        "disposition": "merged",
+        "changed_paths": 1,
+        "remaining_paths": 0
+      },
+      {
+        "label": "wheelinv2",
+        "base": "707978ce6dc6bf7aa6be2143e180aad9527e6cfb",
+        "commit": "b0f71eb4e26801662367aa4be35fd575af41d927",
+        "branch": "recovery/puck-20261126/wheelinv2",
+        "disposition": "merged",
+        "changed_paths": 1,
+        "remaining_paths": 0,
+        "resolution": "Normal merge 908c1678b retains identical current tree. Both original installed case selectors already present; original diamond-case and CUDA identifier controls observed against exact installed wheel. Modern source/custody/release and Windows CPU authority retained."
+      },
+      {
+        "label": "wi14",
+        "base": "7763e23de54a5c51a4a155b3bcdd8c724fb41e56",
+        "commit": "fff8ed5d888115a08ad6081b1df96c13e5ed9e8e",
+        "branch": "recovery/puck-20261126/wi14",
+        "disposition": "merged",
+        "changed_paths": 4,
+        "remaining_paths": 0,
+        "resolution": "Source already retained; current release-goal membership, terminal evidence and authority pins preserved. Distinct historical Windows observation retained separately."
+      },
+      {
+        "label": "wkcust1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "fca64b921a19fd3438653daf5336474d998ddef9",
+        "branch": "recovery/puck-20261126/wkcust1",
+        "disposition": "merged",
+        "changed_paths": 129,
+        "remaining_paths": 0,
+        "reconciliation_commit": "8e769f26f43a7164fd1f1772ca8068c5ec3e52c1",
+        "resolution": "Reviewed current guarded shared-owner implementation retained with unchanged tree; obsolete method names mapped to current shared cores/generalized owners, duplicate automatic definitions and repeated goal prose rejected. Original native/installed/release holds remain."
+      },
+      {
+        "label": "workscope1",
+        "base": "8ba81d598051d67db1f1997dd25639000907df40",
+        "commit": "9210d9b0a2e601c33d9e045db2245ff71ed3eb78",
+        "branch": "recovery/puck-20261126/workscope1",
+        "disposition": "merged",
+        "changed_paths": 5,
+        "remaining_paths": 0
+      },
+      {
+        "label": "wse14",
+        "base": "426b71ec4e56afb5d041df8ed0995c09bb20aae5",
+        "commit": "aa1a8397074bf8123b632a68ae2b3f6d75c1b490",
+        "branch": "recovery/puck-20261126/wse14",
+        "disposition": "merged",
+        "changed_paths": 3,
+        "remaining_paths": 0
+      },
+      {
+        "label": "wt14",
+        "base": "b14fed8c0fc910ab302654abd8cfc49c53f469d5",
+        "commit": "405a24c3a6167cd56d7ba46b609d2ab1f8e44b51",
+        "branch": "recovery/puck-20261126/wt14",
+        "disposition": "merged",
+        "changed_paths": 52,
+        "remaining_paths": 0,
+        "reconciliation_commit": "82fe2dc69ebcf76f2d363522ef48cac5f089bc22",
+        "resolution": "Substantive port: separate v2 contracts/authentication/codec/schema preserves established v1 bytes and tests. Original observation/native/provider modules and runner hooks integrated with current confirmed-termination, deadline, interrupt, source and cleanup guards. Native/installed live-worker acceptance remains open."
+      },
+      {
+        "label": "ww14",
+        "base": "731c755bc274cf7b57a9d8a90ed6076541108251",
+        "commit": "72bef38e38d726a7626bae77d96b6455e2f5b211",
+        "branch": "recovery/puck-20261126/ww14",
+        "disposition": "merged",
+        "changed_paths": 1,
+        "remaining_paths": 0
+      },
+      {
+        "label": "embedded-node-sdk",
+        "base": "8927c66d2d08efb3344a80cd5c78c1e876c681cd",
+        "commit": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+        "branch": "recovery/puck-20261126/embedded-node-sdk",
+        "disposition": "merged",
+        "changed_paths": 61,
+        "remaining_paths": 0,
+        "scope": "Late complete filesystem scan found active framework work in an embedded project parent repository, outside the original common Git directory. Published exact staged tree; source HEAD/index retained.",
+        "reconciliation_commit": "d93b31944ea7e1d707d0835332f69d30e1301564",
+        "resolution": "Normal three-way source integration. Current native root continuation, deadline/interrupt/telemetry and cooperative cache publication owners retained; recovered SDK private read witnesses join those owners. Existing accepted SDK ADR remains canonical 0075; recovered scoped-validation ADR renumbered 0076 with original acceptance metadata and all implementation/native gates open."
+      }
+    ],
+    "historical_proposals": "docs/history/decisions/recovered-proposals.md",
+    "proofs": {
+      "unchanged_tree_history_merges": [
+        "caseinv1",
+        "ciworkflow1",
+        "corigin1",
+        "cwf14",
+        "fexpiry1",
+        "wheelinv1",
+        "ww14"
+      ],
+      "reviewed_current_tree_resolutions": [
+        "acceptwrap1",
+        "workscope1",
+        "d56",
+        "ar14",
+        "sc14",
+        "wi14",
+        "sdpil1",
+        "d5657",
+        "cudapos1",
+        "go14",
+        "wf14",
+        "actsel4",
+        "actsel3",
+        "sdsk1",
+        "sdsq1",
+        "goalguard1",
+        "labpin1",
+        "actionsel1",
+        "actsel2",
+        "schpre1",
+        "wse14",
+        "labgraph1",
+        "canstep1",
+        "cancust1",
+        "arm14",
+        "catcust1",
+        "catplace1",
+        "laymove1",
+        "laycust1",
+        "laygraph1",
+        "layrefs1",
+        "laycatalog1",
+        "layskill1",
+        "layrelease1",
+        "laynext1",
+        "layjoin1",
+        "nt14",
+        "r353",
+        "reljn1",
+        "reljoin1",
+        "sdlcn2",
+        "sdlcn3",
+        "sdlcn4",
+        "sdlcn5",
+        "sdlcn6",
+        "sdlcn7",
+        "sdlcq4",
+        "sdlcq5",
+        "ur14",
+        "ux14",
+        "wkcust1",
+        "cg14b",
+        "fp14"
+      ],
+      "roadmap_delta_test_methods_identical": 4,
+      "roadmap_delta_added_prose_lines_retained": 17,
+      "hosted_pilot_prose_bytes_retained": 2465,
+      "original_goals_retained_in_release": "1.4.0",
+      "d5657": "Both proposed ADR blobs are identical to archived d56 drafts; accepted decisions and later metadata retained; merge tree unchanged.",
+      "cudapos1": "Normal source/test merge is unchanged; all old positive-signal prose remains, later reviewed-source next action retained; merge tree unchanged.",
+      "go14": "Normal merge has unchanged tree after retaining current review/driver pins. All 21 added observation lines already present verbatim.",
+      "wf14": "All three changed Python module ASTs identical to current files. Original 18 historical evidence lines, including full-suite timeout and pending native qualification, retained under WORKTREE-002.",
+      "actsel4": "32 patched Python symbols match current ASTs. Preserve later native full-source workflow input and native-root archive gate. Merge tree unchanged.",
+      "actsel3": "30 patched Python symbols match current ASTs; sole differing function superseded by actsel4 shared/header/profile SDK selection repair and dedicated regression. Preserve final selector/tests and later gates. Merge tree unchanged.",
+      "sdsk1": "All seven patched Python symbols and full changelog/delivery additions already present. Preserve current review/driver pins. Normal merge tree unchanged.",
+      "sdsq1": "Both patched Python symbols and full changelog/delivery additions already present. Preserve default/module/serial/failure boundaries and simulation limitations. Normal merge tree unchanged.",
+      "goalguard1": "23 patched symbols match current ASTs. Preserve later comment-span/wrapped-checkbox parser, all predecessor and additional summary controls, original intake and native-worker holds. Merge tree unchanged.",
+      "labpin1": "All six rendered configs differ only in embedded renderer source; 90 current embedded contents/digests match actual tracked files. Preserve corrected provider/consumer lock-edge fields and current renderer pins. Merge tree unchanged.",
+      "actionsel1": "All 23 original test methods AST-identical; final actsel4 supersedes initial routing with detected-task preservation, all-row unknown fallback and shared/unknown SDK selection. Normal merge unchanged.",
+      "actsel2": "All 25 original test methods AST-identical; final actsel4 supersedes intermediate fallback/SDK behavior. Normal merge unchanged.",
+      "schpre1": "Schema preflight and prerequisites present. Fifteen original test methods identical; endpoint and unknown-workflow controls superseded by explicit PR merge-base and broad routing regressions. Normal merge unchanged.",
+      "wse14": "Eight patched startup/record-boundary helpers identical. Current main retains sanitized seed/build/install plus later qualification controls. Existing 1.4 goal and bounded completed native evidence retained. Normal merge unchanged.",
+      "labgraph1": "Original score provider, real typed dependency, lock and matching resolution audit integrated. Preview rebuilt with current renderer; shared browser fixture reads actual lock count and explicitly checks Cathedral two-node/one-edge graph. Native lifecycle receipt not renewed; cramped labels remain a diagnostic finding.",
+      "canstep1": "Retain current CPython waitpid lock and waitable-child verification, original direct/bounded cleanup cases, additional no-waitid coverage and unchanged cleanup deadlines. Normal merge unchanged.",
+      "cancust1": "Retain current child-ownership lock/checks with safe no-waitid fallback and extra direct/bounded controls. Normal merge unchanged.",
+      "arm14": "Keep original ARM PE/bundle controls plus later production catalog, script-launcher, explicit CXX, native SDK runtime image, MSVC and Windows descriptor/path identity checks. Normal merge unchanged.",
+      "catcust1": "All 21 original test methods identical. Keep current descriptor/path stamp checks, syntax-only parse frames, clone PID ownership, nested staging and live role observations. Normal merge unchanged.",
+      "catplace1": "18 of 19 original test methods identical. The remaining ancestry assertion preserves paths/identities with POSIX normalization. Keep current nested/forward-skill staging and portable provenance checks. Normal merge unchanged.",
+      "shadow14": "Keep raw Git/filter/SSH and native filesystem safeguards plus later synchronization custody; portable scandir and Windows argv controls retained. Normal merge unchanged; 42 smoke and 14 critical sync methods pass.",
+      "cgproj1": "Keep captured projection behind current nominal Cargo/shared live owners. Ten of twelve original methods identical; later Flavor scope and early exact-closure refusal preserve isolation. Normal merge unchanged. Original isolated-parse suite: 13 passed, one pre-mutation fixture-path error; layout-aware test continuation remains pending. Layout-aware test path now uses the original reviewed binding. The failed mutation case passes separately with all original assertions (78.564 seconds); the failed full run is retained and full composed qualification remains open.",
+      "sdlcw": "Four original checkpoint test methods identical, with extra source-import/cwd custody. Preserve required native gates and later qualified-wheel staging/exports. Normal merge unchanged. Seven checkpoint and three qualified-wheel controls pass.",
+      "arproof1": "Sixteen of seventeen original selection/artifact test methods identical at pre-compatibility subject c0bd6aaf8. Remaining test retains staged-byte binding while exercising implemented stable publication rather than obsolete blanket refusal. Preserve coverage-only, release-candidate and promotion refusals, declared policy base and current receiving-owner staging. Normal merge unchanged.",
+      "artcust1": "All eighteen original selection/artifact test methods identical before the additional ambient no-fetch override control. Preserve descriptor/path closure, sealed receiving-owner stage verification and original exact bytes. Normal merge unchanged.",
+      "artpub1": "Seventeen of eighteen original methods identical before the added ambient no-fetch override control. Publication test retains original checks and adds concurrent annotated-tag identity and independent fresh-checkout recovery. Normal merge unchanged.",
+      "pf14": "All eight original current-lock methods identical and pass. Original complete closure/error checks remain in canonical lock-binding readers; parsed observations remain request scoped and isolated frames restore ambient state. Preserve live registration/attempt custody and guarded return-CAS delivery. Normal merge unchanged.",
+      "ad14": "The single-root baseline inventory helper is byte-identical, with original source-membership guards in planning and post-quarantine conversion. Original real Cargo test differs only by selecting the explicit convert profile. Normal merge unchanged. Current onboarding suite then reports a genuine native hardlink retirement failure; this history is integrated but not behaviorally qualified. Original native retirement now repaired at 055fbc3262def1886dd999bd65da911f71c4b298; nine onboarding controls pass in 22.182 seconds. Stale metadata-only assertions use the declared framework context, retaining exact source-byte and selected-command checks.",
+      "gp14": "Eight original receiver test methods AST-identical at pre-repair subject f0a5da8eb. Guarded request/runtime admission retained with later typed promotion-evidence consumption and canonical preparation currentness. Normal merge unchanged. Canonical fixture now follows default containment and acknowledges actual adopt-original before planning; eight current cases pass with one original macOS-only skip.",
+      "fc14": "Four of five worker and twelve of thirteen SDK methods AST-identical; changed methods retain original assertions and add closing describe revocation, guarded metadata polling and immutable CAS corruption controls. Current bulk metadata retention validates canonical identities and rechecks authority. Normal merge unchanged. Five package-worker and thirteen SDK controls pass.",
+      "tm14": "All nine original cache and six nonhost-health methods AST-identical before later extra controls. Existing onboarding methods retain exact assertions and select explicit convert profile. Keep application-relative managed telemetry, unsafe/invalid declared-context refusal, portable state-root identity and worker context propagation/checkout evidence. Normal merge unchanged; ten cache controls and prior nine onboarding cases pass.",
+      "unit14": "All seventeen original SDK tree controls and eight of nine tree-package methods AST-identical. The changed method adds real graph readback, umask/mode and understated descriptor-count controls. Keep exact partition/DAG/link custody, additional common BOM/recipe identities, pre-allocation memory accounting and typed live HTML exclusions; legacy SDK calls retain complete capture. Normal merge unchanged; seventeen SDK tree and ten tree-package controls pass.",
+      "head-contained-consumer": "Original explicit framework-directory roadmap namespace behavior is retained with the newer omitted-argument sentinel, default project-context discovery and explicit root selection. Normal merge tree unchanged; no weakening of caller-bound dependency observations.",
+      "head-cmd14": "Original historical installed evidence integrated byte-for-byte. Its source cbf4804e8, wheel identity, three local macOS journeys, qualified=false and release_evidence=false remain explicit; changelog now links that historical subject instead of implying a current fresh qualification.",
+      "head-l14/head-sad14": "Both clean heads now ancestors. Unique disposition-capacity test change preserves the original 14 GiB ceiling and consumes the real shared ledger before the real preflight; adds a positive exact-ceiling control without native planning effects. Actual qualification is incomplete: canonical case fails in source-role currentness before reaching capacity assertions.",
+      "rh14_current_owner_resolution": {
+        "sha256": "5fed56899e370ac4be4217403e87ff7490109102feda76ac3436a21283f7b5b4",
+        "merge": "881644cf2",
+        "tree_unchanged": true,
+        "scope": "Original source intent and installed wheel journey hook retained. Equality proves no source regression from the reconciliation; it does not prove the unresolved native qualification matrix."
+      },
+      "layout_eight_generalized_catalogs": {
+        "resolution_sha256": "9957e7d8bd03ca8a43465bdf779368008c0ba6511ceb660c38361cd40b064b34",
+        "inventory_sha256": "9e2050b432691294edcb841b9327667240ed23d882a9ecbd0393905c07dcde84",
+        "scopes": [
+          "contained native/generated reparent authority",
+          "layout-pending update holds and shared selector/reference custody",
+          "typed imported catalog placement with old-root shadow refusal",
+          "forward and reverse skills plus workflow/routing coordinates",
+          "root/contained release policy ownership",
+          "read-only layout planning and explicit receipt evidence location"
+        ],
+        "scope": "Current tree retained in all eight joins; history joins renew no qualification. Unresolved original changed-parent catalog provenance and native forest role-input refusals remain."
+      },
+      "overlapping_sixteen_shared_owners": {
+        "plan_sha256": "5c8dd512d5c214bc9a29c7218dc46a408d888959824da1a99652cee2a2d3b5a6",
+        "resolution_sha256": "bac5c8f849dab4c84f4d9cbfa96f4ed552a3572e5661d5415b0be51fcd5d360e",
+        "scope": "Reviewed identity methods now inherit shared cores; native update helper generalized to contained root updates; original transfer receiver generalized to typed RetainedUnitReturnCustody. All original changed named tests present except nonzero-alone retry test deliberately replaced by stronger retained-but-terminal test. Automatic merge additions consist only of duplicate existing Git/runtime functions or already-present PROJECT.md goal text. No source change or qualification renewal in these history joins."
+      },
+      "cargo_prototypes_original_owners": {
+        "resolution_sha256": "ee567a17f47e34148a2786d0aa0d9ce174960cb5f85d8ce64f527dfbd4d7c1aa",
+        "historical_notes": "docs/history/roadmap/recovered-cargo-prototypes.md",
+        "current_owner_scope": "Three reproduced runtime gaps repaired on current opaque owners. Keep separate absent-only root reservation and qualified package publication, measured native protocols/deadlines and current canonical promotion. Original prototype evidence remains historical; no old API grants restored."
+      },
+      "worker_telemetry_versioned_port": {
+        "merge": "82fe2dc69ebcf76f2d363522ef48cac5f089bc22",
+        "candidate_receipt_sha256": "349818291513eb7d250d23cb150faaf59bbdd13f23215a86903ac6c716f793ab",
+        "preserved_legacy_sha256": {
+          "src/literate_ai/contracts/worker_telemetry.py": "c816d4620371d8ef05c6e46966ba99694866000e050fbb40adcca5d470f100c8",
+          "src/literate_ai/contracts/worker_telemetry_observations.py": "65e5ffd5f483f78ccb32cfeecf278efe318afae734bf8ca4b2173bcef8de0bed",
+          "src/literate_ai/adapters/worker_telemetry_wire.py": "11d2d8fb0f5874bf8f9c110bdbed794d157a084b33660a3d4702b302990cc518",
+          "src/literate_ai/adapters/worker_telemetry_authentication.py": "923864d0f50c71ffdac4c6349756f587d0bb7b7c9e1bba9fb10e1065765571b4",
+          "tests/support/fixtures_worker_telemetry.py": "986193f4d89f64ed3773ea2a0f53d29664ac0a14e8cd2ae620ecc949f79dc81e",
+          "tests/critical/test_action_package_worker.py": "7671c4e5e5cdc89896f11151cc545684f7dd6ebf58c1f3fcc7dab396e6f75736",
+          "schemas/v2/worker-telemetry.schema.json": "cc680fc6728c2d856dc540023e9eb7b8687c652436c3c486a66c8f7449541a37"
+        },
+        "shared_wire_versions": {
+          "literate-ai/authenticated-worker-telemetry-request@1": "literate-ai/authenticated-worker-telemetry-request@2",
+          "literate-ai/authenticated-worker-telemetry-response@1": "literate-ai/authenticated-worker-telemetry-response@2",
+          "literate-ai/worker-telemetry-request@1": "literate-ai/worker-telemetry-request@2",
+          "literate-ai/worker-telemetry-response@1": "literate-ai/worker-telemetry-response@2"
+        },
+        "historical_notes": "docs/history/roadmap/recovered-telemetry-prototype.md",
+        "native_guard_resolution": "Retain current confirmed Job termination and failed-kill fallback. New deferral is separate from successful kernel termination. Preserve live native-root clamping, absolute deadlines, original process registration, native command admission/closure and interrupt relay. Optional observation cannot claim the Job or execute fallback from a reader thread."
+      },
+      "layout_prototype_archive": {
+        "subject": "3da5a0b6a314ec8dc602309ef90cc75e90427bd9",
+        "patch_sha256": "9f2424297b7f2d3b72523ffba6e508ce0b03aa385dd4c3f94818dbdba9083232",
+        "replayed_tree": "99146eaabbad130a05a9b136c287a5a74e9b0194",
+        "original_tree": "99146eaabbad130a05a9b136c287a5a74e9b0194",
+        "changed_paths": 28,
+        "functional_equivalence": false,
+        "active_requirements": "Native source role-input publication, compiler/inspection/workspace/public composition, independent review and original platform/installed gates remain open."
+      },
+      "embedded_node_sdk_current_owner_port": {
+        "subject": "d93b31944ea7e1d707d0835332f69d30e1301564",
+        "snapshot": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+        "all_five_detached_heads_are_ancestors": true,
+        "normal_merge_parents": [
+          "9548cac08206f2bdcbe3147ebd014c02429c6279",
+          "1cb1ef461d6df7d4c6092a460308ec811c044283"
+        ],
+        "source_file_manifest_sha256": "8e7e955235a81218367126cd9f59e1d8dbd87290f9b1a46f94c508d9c4c7e77e",
+        "full_feature_acceptance": false
+      }
+    },
+    "committed_heads": [
+      {
+        "label": "head-authority496",
+        "commit": "1044bc65e186a0bd91351b7225547902dedf4896",
+        "disposition": "merged",
+        "reconciliation_subject": "645c19f75511513b7e6e84380ff87325a9355928"
+      },
+      {
+        "label": "head-batch17",
+        "commit": "11740f084256ee3ae54cd3faf6135db6896fa2b9",
+        "disposition": "merged",
+        "resolution": "Port complete canonical historical promotion contracts and original per-action/native dependency context capture, strict nonexecuting authority reads and pure runner identity. Preserve current namespace/custody, observer pairing, original-root budgets, journals, receiver and SDK forgery controls; qualify original public/native cases before committing."
+      },
+      {
+        "label": "head-cmd14",
+        "commit": "6e07a97da325dcacd532a124f3912464e655868c",
+        "disposition": "merged"
+      },
+      {
+        "label": "head-contained-consumer",
+        "commit": "8fe9d4cece06b9d6be9589333d25373b8078863f",
+        "disposition": "merged"
+      },
+      {
+        "label": "head-l14",
+        "commit": "cfd7575d58fb977e12d8ceedc1eefce40f25fdfa",
+        "disposition": "merged"
+      },
+      {
+        "label": "head-nativereadopt-wheel1",
+        "commit": "6fe9f65e08c6567473286429225dccc08fafaf7f",
+        "disposition": "merged"
+      },
+      {
+        "label": "head-sad14",
+        "commit": "71cbd1eafee43bb102390dbf01369e0d74dc736e",
+        "disposition": "merged"
+      },
+      {
+        "label": "embedded-sdk-1158d5f4",
+        "commit": "1158d5f4fdcced53447abfc89825020d77d5a9d4",
+        "disposition": "merged",
+        "preserved_in": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+        "reconciliation_subject": "d93b31944ea7e1d707d0835332f69d30e1301564"
+      },
+      {
+        "label": "embedded-sdk-8c2e108f",
+        "commit": "8c2e108ff685e4ed6574f4c4fe4581a16fb5ba9b",
+        "disposition": "merged",
+        "preserved_in": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+        "reconciliation_subject": "d93b31944ea7e1d707d0835332f69d30e1301564"
+      },
+      {
+        "label": "embedded-sdk-b57e6687",
+        "commit": "b57e6687b0c758f8c5603c44f377d19cd4e75b03",
+        "disposition": "merged",
+        "preserved_in": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+        "reconciliation_subject": "d93b31944ea7e1d707d0835332f69d30e1301564"
+      },
+      {
+        "label": "embedded-sdk-2b6fb2a3",
+        "commit": "2b6fb2a31411c9be1e33f424f95cd8dc42c02649",
+        "disposition": "merged",
+        "preserved_in": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+        "reconciliation_subject": "d93b31944ea7e1d707d0835332f69d30e1301564"
+      },
+      {
+        "label": "embedded-sdk-cf652de5",
+        "commit": "cf652de551d14bb5db1735117ef3216a21dcb7c9",
+        "disposition": "merged",
+        "preserved_in": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+        "reconciliation_subject": "d93b31944ea7e1d707d0835332f69d30e1301564"
+      }
+    ],
+    "committed_head_counts": {
+      "merged": 12,
+      "preserved-for-reconciliation": 0
+    },
+    "actual_missing_file_review": {
+      "scope": "Only layout14 remains unreconciled, including its 13 absent prototype paths. Obsolete cg14b configuration/materializer/test APIs were intentionally superseded by current opaque-owner APIs and 39 scoped controls; wt14 uses separate versioned contract/codec/authentication/fixture/receiver-test files to preserve legacy telemetry bytes. Original snapshots and historical notes remain reachable.",
+      "inventory_sha256": "3f55400d51066f034bbe10310a5b4c6b071f98bcc6b8b2cb3f67d5733697cafa"
+    },
+    "historical_authored_graph_documents": {
+      "classification": "Original historical development observations for their recorded source subjects; no current/native/model/release renewal",
+      "documents": {
+        "verification/authored-execution-development.json": "ded1aef7a6dfc96931b4ab21d0daa813a63e3d21279d406f893039be2be06f52",
+        "verification/authored-graph-acceptance-development.json": "8564cdf7d35841ca982502b5855af7b5830e9e763d40270bfc7c37600408fe25",
+        "verification/authored-product-capture-development.json": "c7940e0d8ea9ccccba3d13ed02ad6d7f3097cd20d54f8b1447ff6d9801c132c9",
+        "verification/authored-projection-development.json": "332f132a2a5cbac40a7806a4ccca7e20074c22afcdba250eb2af29a45a36b13d",
+        "verification/authored-publication-development.json": "b51c0dddd17b61822badd09dd60ea0a7102be08e9a1f9f9a52d260040fe4609c",
+        "verification/authored-qualification-comparison-development.json": "e7b4acbc9f6ed78066d1b8f4e9883ae20a70697a00a7bca40c2267f32e0f0ded",
+        "verification/authored-qualification-oracles-development.json": "4e2e875fe8319598264d356b078168e6a16d978ce81145a5b382b936e538f24e",
+        "verification/authored-qualification-origin-foundation.json": "2b0a234e7688b83849fe2a680ea7936bd79f549160b6ed196acc2daf6b1cce46",
+        "verification/authored-qualification-planning-development.json": "84b60fd6e8b34712834851f0de0e19f0907f42643cc8ae2a6c58b61fea4496b4",
+        "verification/authored-qualification-runs-development.json": "069b7f3f66b61dd814a4861b12eb38016947e08755ecfdabf7ca0a8448b7b466",
+        "verification/authored-qualification-workspace-development.json": "fc5f2dafc5703f86c3da12bebf8ddda02390a2864f62af9f1e6334f37a1fbf41",
+        "verification/authored-retirement-pr-stack.json": "b31499ef683db9f0195e297d46ba13436342f3b105cc0470c16f079bf5ce08cb",
+        "verification/authored-retirement-windows-development.json": "6c881e643dd3dcab1f52d3c4066858f479da89d2ed7fa0eaf51f36489b0351ff",
+        "verification/authored-semantic-reopening-development.json": "930cb319aea1388d5fd133cca1961d3dd48b8d8ddf57d6a6daa6b285c4e62e4f",
+        "verification/authored-standard-runner-development.json": "570daa3f7e4e3b74d1bda0ca2c4225882ef4ca36d0b04ee859bec335081895eb"
+      },
+      "resolution_sha256": "24423dbda3dff34870af24e938d6affbc4c06aa1842c39e438ffcec0345a0c61"
+    },
+    "next_source_work": {
+      "status": "All saved framework source states reconciled; original feature acceptance remains open.",
+      "scope": "Continue canonical retained source role-input publication and changed-parent catalog provenance through their actual owners. Complete sealed SDK native/installed consumer and scoped-validation implementation/review, native telemetry/live-worker and every original platform/independent/full-regression gate. The old layout prototype is an explicit archival integration, not a completed port."
+    }
+  },
+  "checks": {
+    "source": {
+      "platform": "Linux ARM64",
+      "cases": 13,
+      "failures": 0,
+      "modules": [
+        "tests.smoke.test_project_reparenting",
+        "tests.critical.test_project_layout_root_updates",
+        "tests.critical.test_project_layout_reparent_history"
+      ]
+    },
+    "installed": {
+      "platform": "Linux ARM64",
+      "subject": "46a35323f459828dc5e2b330393fcb2fcb141a41",
+      "distribution": "sha256:a33f1d8c290238215f081c148d17172c08af26b14da487a91f736aef6d50cc67",
+      "case": "tests.support.installed_framework_producer_journey",
+      "methods": 1,
+      "commands": 32,
+      "failures": 0,
+      "elapsed_seconds": 147.431,
+      "raw_receipt_sha256": "72306b7d714e183e5a043e50654f35f446dda978c2c5172c030e397fd2b29ac6",
+      "scope": "Actual noneditable wheel, real legacy initialization, metadata migration/recovery, framework placement, producer renewal, repeated finalization and recovery; not update/reparent application or complete containment."
+    },
+    "shared_wrapper_source": {
+      "subject": "6783c5ee3ac12daef701ee48d1d9f33967e6b803",
+      "pattern": "tests/critical/test_*wrapper*.py",
+      "cases": 50,
+      "failures": 0,
+      "elapsed_seconds": 125.053,
+      "log_sha256": "f39353073f5f49f95cb7985ada8d4d0c6e913edae66bf576656cbeabd856ae64",
+      "scope": "Shared wrapper source regression only; original metadata-transition fixture explicitly requests historical layout, preserving all drift/refusal assertions. Native-root, installed final-candidate and release qualification remain separate."
+    },
+    "roadmap_source": {
+      "pattern": "tests/critical/test_roadmap_dependencies.py",
+      "cases": 23,
+      "failures": 0,
+      "elapsed_seconds": 1.215,
+      "log_sha256": "47fd4f7483d79a2257ba35d0e104dbeddfa4b12e03187f38b143e91343d64fa8",
+      "scope": "Original roadmap cycle/refusal/byte-preservation controls, selecting the declared canonical queue; rollback checks assert both legacy and contained output absence."
+    },
+    "installed_maintenance_application": {
+      "subject": "de87bad35ec08e3d2884dfc868d9ccc7fe688c87",
+      "distribution": "sha256:77d3027a67cbac1584da97660f0a588e118c0ccc3ba0419f9222a03986b5502f",
+      "status": "failed",
+      "commands_completed": 25,
+      "elapsed_seconds": 104.615,
+      "failed_phase": "maintenance-update-apply",
+      "error": "cli.invalid_input: documentation link target unavailable in litai/docs/README.md",
+      "receipt_sha256": "35ceefc42eb7785b76f6855033b1304647e0ad4e8ee9a7300252e820ae02c259",
+      "preservation": {
+        "source_preserved": true,
+        "index_preserved": true,
+        "intent_preserved": true,
+        "head_preserved": true,
+        "distribution_preserved": true
+      },
+      "diagnosis": {
+        "upstream_link": "decisions/0001-legacy-project-lift-and-shift.md",
+        "upstream_target_exists": false,
+        "recorded_decision_paths": [
+          "docs/decisions/0001-legacy-project-lift-and-shift.md"
+        ],
+        "original_decision_exists": true
+      },
+      "scope": "Real installed migration/finalization and root/descendant update planning pass; actual update application refuses a future-coordinate documentation link. Reparent application is not reached.",
+      "executed_harness_sha256": "1d56619a41e51233f91354c086b033769300caaf76deed480b9d4a51cf699187",
+      "harness": "tests/support/installed_framework_maintenance_apply_journey.py",
+      "execution_note": "This exact apply-cell body was loaded before relocation from the preexisting maintenance journey filename. Original planning journey restored byte-for-byte; use the new apply filename for any subsequent execution.",
+      "repair_status": "Source projection repaired and 22 focused controls pass; exact original installed-fixture verification pending."
+    },
+    "native_root_source": {
+      "summary": {
+        "executed": 631,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 631,
+        "selected": 631,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "23c11f2d12bc108b0b3e750d65e0cb3c3e73e91f1287d2111edf7f76084a9f8a",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "elapsed_seconds": 2248.97,
+      "report_sha256": "49bf413c3d342892852a942311ac6d3686643f7f23bcb5826c77b4b078178b0e",
+      "log_sha256": "2e731c8ab4c6d6c61be9dbbb0559411fc9b4f79987caf32e5a7b7d8ce44ed39b",
+      "scope": "Resumed native-root cohort after the harness-custody fix. Began before the update-reference repair; not evidence for later template changes, installed/platform acceptance or release qualification."
+    },
+    "update_reference_source": {
+      "new_reference_controls": 5,
+      "canonical_update_controls": 7,
+      "legacy_merge_controls": 10,
+      "failures": 0,
+      "production_sha256": "c131bca98c011c994a7e87aa53c30ea86a099550eb59347b7fabdeff47528108",
+      "logs": {
+        "update-reference-source.log": "6f78ddbdc0ba1035d8f551582f6000f0d9c7ae799b938e0fa48bd6684012299d",
+        "core-update-reference-regression.log": "3815a13692100d33e8b4aef5b4013ebd5ecee62253c2e5fe7d5943c4acc08987",
+        "update-merge-reference-fixed2.log": "9b6e03c4a6fcea83c1040a4d849a703d4504802593f094326c08af6cba6693bf"
+      },
+      "scope": "Source regression only; installed verification against original failed fixture is pending."
+    },
+    "installed_maintenance_resume": {
+      "status": "failed",
+      "subject": "c03c3375c291fc356e09fc8a4ed3372f3f3840b1",
+      "fixture_reconstructed": false,
+      "original_receipt_sha256": "35ceefc42eb7785b76f6855033b1304647e0ad4e8ee9a7300252e820ae02c259",
+      "error": "documentation fragment is unavailable: litai/docs/roadmap/native-rewrite-program.md:4#adopt-002",
+      "scope": "Exact original failed-fixture continuation; reference repair advances, queue namespace guard defect blocks update; reparent not reached."
+    },
+    "contained_roadmap_takeover": {
+      "namespace_methods_passed": 12,
+      "namespace_seconds": 9.733,
+      "owner_guard_methods_passed": 4,
+      "owner_guard_seconds": 0.446,
+      "scope": "Source controls for integrated PR493 namespace validation and selected queue replacement guard; installed continuation remains pending.",
+      "composed_dependency_methods_passed": 23,
+      "composed_dependency_seconds": 7.264
+    },
+    "installed_maintenance_owner_resume": {
+      "status": "failed",
+      "subject": "080333899c8927556a53bde00999574977ae9dd4",
+      "distribution": "sha256:8b9bade331f84ff20c176c8bced03191988bab565685568e3d782e4c20b1858d",
+      "cases": 1,
+      "seconds": 31.879,
+      "commands": 5,
+      "original_fixture_reconstructed": false,
+      "queue_review": "Exact typed conflict inputs, keep-local rationale preserving active ADOPT-002 owner",
+      "error": "Component lock Flavor selection cannot resolve into the effective catalog",
+      "preservation": {
+        "original_receipt": true,
+        "source": true,
+        "git_index": true,
+        "git_head": true,
+        "migration_intent": true
+      },
+      "scope": "References and queue resolution advance to validator; root-only retained shim protection exposed. No installed update/reparent success."
+    },
+    "retained_shim_declared_catalogs": {
+      "status": "passed",
+      "methods": 7,
+      "seconds": 17.752,
+      "scope": "Source controls for historical, contained and mixed catalogs, selected wrapper/source custody, missing dependents, invalid source layout and ambiguous duplicate authority. Installed continuation required."
+    },
+    "retained_root_update_regression": {
+      "status": "passed",
+      "methods": 7,
+      "seconds": 60.234,
+      "scope": "Contained generated-root update publication and rollback source controls after declared shim-catalog repair."
+    },
+    "installed_maintenance_retained_resume": {
+      "status": "failed",
+      "subject": "13cc2e2c389047636c2c630609bafafb56b161da",
+      "distribution": "sha256:3c1af1ab4dbabadbe2eb6b5510b82e064a5227eecec7514f24adb74b42a3566a",
+      "methods": 1,
+      "seconds": 5.185,
+      "original_fixture_reconstructed": false,
+      "error": "Flavor authoring reference is unavailable",
+      "diagnosis": "Unchanged fixture validates. Instrumented original apply preserves validator behavior and identifies retirement of litai/skills/specification-to-source/legacy-project-shim/SKILL.md: Component selector protection compares old logical URI to current roots without shared catalog resolution.",
+      "compiler_startup_failure": "Earlier launch encountered transient merge markers before discovery; zero installed cases ran. Startup log retained separately; no test failure relabeled."
+    },
+    "retained_component_selector_protection": {
+      "status": "passed",
+      "methods": 8,
+      "seconds": 31.949,
+      "scope": "Retained update source controls plus current catalog resolution of logical Component input selectors. Original source/index/HEAD/intent/receipt independently preserved after diagnostic apply rollback. Installed continuation remains pending."
+    },
+    "installed_maintenance_application_success": {
+      "status": "passed",
+      "platform": "Linux ARM64",
+      "subject": "65ef424f2da98f39b37c0bce8a0b3a542c410433",
+      "distribution": "sha256:6fc486124715d7ee33fcfcb09d00b88ffad0fbe1a7542f8856ee431a91183e9a",
+      "methods": 1,
+      "seconds": 16.137,
+      "public_commands": 10,
+      "original_failed_receipt_sha256": "35ceefc42eb7785b76f6855033b1304647e0ad4e8ee9a7300252e820ae02c259",
+      "continuation_receipt_sha256": "d567b823ef5ed7bd9c2b3b88631ac4e6f90bd58302447ad0f7977676ca63ee88",
+      "fixture_reconstructed": false,
+      "authority_repinned": false,
+      "source_git_index_head_intent_and_distribution_preserved": true,
+      "operations": [
+        "update apply with typed keep-local queue review",
+        "unchanged-parent reparent apply"
+      ],
+      "scope": "Exact original failed fixture after genuine migration/renewal/finalization. Root/descendant plans agree; actual update and unchanged-parent application pass. Changed-parent application, composed-candidate/platform/independent review and release acceptance remain open."
+    },
+    "post_maintenance_audits": {
+      "parent_readme": "unchanged; no parents",
+      "agent_entrypoints": "ready; all four delegates and contained agent skill current",
+      "writes": false,
+      "lifecycle_admitted": false
+    },
+    "installed_changed_parent_original": {
+      "status": "failed",
+      "subject": "65ef424f2da98f39b37c0bce8a0b3a542c410433",
+      "methods": 1,
+      "seconds": 30.119,
+      "public_commands": 14,
+      "original_journey_modified": false,
+      "failure": "repository_lineage.authority_missing: repository revision does not contain required authority: literate.project.json",
+      "scope": "Fresh canonical producer fixtures and actual root update pass. Real local changed-parent planning refuses the contained parent manifest; apply/inherited update not reached. Original source/index preservation assertions pass on the failed command."
+    },
+    "git_authority_namespaces": {
+      "status": "passed",
+      "new_methods": 6,
+      "new_seconds": 15.817,
+      "existing_methods": 9,
+      "existing_seconds": 8.559,
+      "scope": "Real Git root/contained resolution, exact raw manifest identity and catalog paths/bytes; missing, duplicate, misplaced and linked metadata refusals. The first new test launch failed during fixture setup on an omitted optional MCP root; original failure retained. Installed original-fixture continuation pending."
+    },
+    "installed_changed_parent_continuation": {
+      "status": "partial; inherited update refused",
+      "subject": "93c6766fb4e49e41072a510c629abf0ffa6ad074",
+      "distribution": "sha256:5eddc7f4df376a26777f7e34b6f71ac4f83a3ac673047bcfddd72c11c3be8eff",
+      "methods": 1,
+      "seconds": 26.143,
+      "public_commands": 7,
+      "original_fixture_reconstructed": false,
+      "changed_parent_plans_agree": true,
+      "changed_parent_apply": "passed; authority review required",
+      "source_index_head_preserved": true,
+      "continuation_receipt_sha256": "03e4780e9803e05a9ab496530ea3694a75dc2745d980659d0a4a340b3057eb63",
+      "failure": "repository_update.provenance_missing: inherited catalog provenance is missing; update cannot classify local authority safely",
+      "resulting_state": "Successful actual parent transition retained and independently bound to its typed selection/lineage identities. Do not restore old root lineage, reconstruct the fixture or fabricate provenance."
+    },
+    "reconciled_ci_policy": {
+      "status": "passed",
+      "methods": 35,
+      "seconds": 4.837,
+      "predecessor": "Original exactly-once coverage test failed after 13 methods: two neutral retained-product modules lacked shard ownership.",
+      "repair": "Add non-Cargo retained-module family to the existing non-native Cargo partitions on both Linux and macOS Python 3.11/3.14, preserving shard counts, deadlines and every original test assertion.",
+      "scope": "Local CI policy/source coverage controls; no hosted/native matrix success inferred."
+    },
+    "reconciled_interrupts": {
+      "status": "passed",
+      "methods": 5,
+      "seconds": 23.884,
+      "scope": "Actual local nested direct/bounded subprocess interrupt cleanup, including no-waitid fallback; original cleanup/deadlines preserved."
+    },
+    "reconciled_host_install": {
+      "status": "passed",
+      "methods": 9,
+      "seconds": 2.86,
+      "scope": "Source host-install/ARM image and bundle controls, not native Windows acceptance."
+    },
+    "recovered_cathedral_graph": {
+      "source_integrity_methods": 6,
+      "source_integrity_seconds": 0.2,
+      "offline_bundles_verified": 6,
+      "provider_queries_passed": 3,
+      "canonical_lock_audit_check": "current; semantically verified",
+      "desktop_mobile_browser": "passed; 1440 and 390 widths, two Components/one edge, provider selection, source parity and offline checks",
+      "actual_media_cases_passed": 10,
+      "visual_finding": "Graph labels are cramped in captured desktop/mobile views; readability work remains.",
+      "native_lifecycle_receipt_renewed": false,
+      "release_qualification": false
+    },
+    "reconciled_shadow": {
+      "status": "passed",
+      "methods": 42,
+      "seconds": 50.798,
+      "log_sha256": "dee9ac9d74d8f9bfe1327e507ed2264662c9d8fa1c686520e207f89dc44dc116",
+      "scope": "Local shadow smoke controls; no remote service or publication acceptance.",
+      "report_sha256": "139c97ea3ccbfb9bc640251c1317243bc75e6cb60126b769a86cd6d83e86acbc"
+    },
+    "reconciled_shadow_sync": {
+      "status": "passed",
+      "methods": 14,
+      "seconds": 49.7,
+      "log_sha256": "1dbc7a41414d18859365b682d5a858377cd14837e010c45c4098f30d9ee9557f",
+      "scope": "Local synchronization custody controls.",
+      "report_sha256": "0e6bd0d5ed5ca11523471b90aa9e71a676b7a69c7848abec3ba777e33bc6ca67"
+    },
+    "reconciled_current_locks": {
+      "status": "passed",
+      "methods": 8,
+      "seconds": 5.839,
+      "log_sha256": "2e91e5b81751712c37bce499c9193390d2e7f759419890150588a478b0c89b06",
+      "scope": "Original current lock and complete input closure controls; no cached currentness authority.",
+      "report_sha256": "d9c840e308e454c350c4e981d80a0110b5b1eaccfbffb92dbd1d2bd965b0d90e"
+    },
+    "reconciled_checkpoints": {
+      "status": "passed",
+      "methods": 7,
+      "seconds": 5.844,
+      "log_sha256": "7dc06659c89540f7e23079910267eec79591090870f1d03c6f35f224f16105da",
+      "scope": "Original checkpoint controls and source import custody after cwd changes; no weakened required native gates.",
+      "report_sha256": "a3f6e3945dd3b9d53da2d7c767affa5bd4f58ab67f6fd0c8412472f4fa62230f"
+    },
+    "reconciled_qualified_wheel": {
+      "status": "passed",
+      "methods": 3,
+      "seconds": 6.325,
+      "log_sha256": "4041ea7985a6caa28d16c06505b31fb5e8286f14c1a0fd730b18872e1c2e38d8",
+      "scope": "Local qualified wheel installation source controls; not full native release qualification.",
+      "report_sha256": "ca34ec090ac41b8c5321ac72202f0898f965eac23763dfad4408c8e1af35dbb6"
+    },
+    "release_git_compatibility": {
+      "status": "passed",
+      "methods": 20,
+      "seconds": 86.537,
+      "log_sha256": "cba7dc56ddd5ad5455e27029fcdd121616716a98903b70b594fdb031d8614427",
+      "scope": "Git 2.43 no-fetch environment enforcement and real coverage artifact/publish/recovery fixture controls. Separate Native CI Git requirement unchanged; no hosted release publication.",
+      "report_sha256": "288d2ca1d3348ed4054d4bdd2ad8b2c3ad5f915c11142fc4ac1dee1fab5d0c19",
+      "subject": "ebb150b30",
+      "earlier_failures": "Original Git flag refusal in native producer, then exporter; both unmodified failing logs retained.",
+      "real_partial_clone_probe_sha256": "25976263ceaa89e977abbd8d223f3c8f20c4cee28f10c8ad448db3daa8155e11"
+    },
+    "reconciled_cargo_parses": {
+      "status": "failed",
+      "subject": "c0bd6aaf81a4f08a305f7d451fde14b3a185b90c",
+      "methods": 14,
+      "passed": 13,
+      "errors": 1,
+      "seconds": 1116.34,
+      "log_sha256": "7c80a738982d1bc419ed614f7f8f9dad087e6654a4d9df70b84fa031ba2f8379",
+      "report_sha256": "d75022bba67b4129a784e1819b708a34de64d991613b854dc586a463d3c96e5c",
+      "error": "FileNotFoundError before mutation: hard-coded root wrapper path differs from contained fixture. Layout-aware test repair/focused continuation pending.",
+      "scope": "Original full selected source suite and deadline retained; not a pass and not native/release acceptance."
+    },
+    "cargo_mutation_path_repair": {
+      "status": "passed",
+      "subject": "df71346529e2b1abb3fd0d7a29f8e87d4f84bd2a",
+      "methods": 1,
+      "seconds": 78.564,
+      "log_sha256": "46e5c155f2854823c0d9310a94d161c0acd0e58be1c39d6fde870c656af63ae4",
+      "scope": "Only the original failed mutation method, after replacing a stale root path with the exact reviewed binding. No original refusal, mutation, recapture or closing-fence assertion changed. Not a full-suite or release pass."
+    },
+    "reconciled_onboarding": {
+      "status": "failed",
+      "methods": 9,
+      "passed": 8,
+      "failures": 1,
+      "seconds": 21.54,
+      "log_sha256": "0bd634c094ff7ab7435742c13e4c2727bbcb0668c2258714ea6c112bd15e17ae",
+      "failure": "Real selected Cargo baseline reaches native execution, then owned cleanup mistakes its own first hardlink unlink for foreign peer mutation; rollback refuses and preserves native state.",
+      "reproduction_seconds": [
+        9.853,
+        8.13
+      ],
+      "metadata_mismatch_sha256": "c4d4d64db06409180d6534ad17de693e46c353b88bbb0a03fb29cc1d8715e101",
+      "first_retained_fixture_sha256": "13370d8aa48a58b13574e450e18c016bcaebf0d4f20e2d86c51d7ca951e34fac",
+      "second_retained_fixture_sha256": "dbe4ca457324adc486fdd6778ed904716c1199af0638a5abfd0e72be94014b5d",
+      "observed": "Same device/inode, mode, uid, gid, size and mtime; st_nlink 2 to 1 and ctime changes after an original native hardlink unlink. No weakening of metadata guards or adoption of retained outputs performed.",
+      "scope": "Local actual Cargo build/test conversion. Existing failed cases and retained source/native namespaces are not relabeled as passes or reconstructed.",
+      "retained_fixture_binding_sha256": "32b6cd14c6dbeaec65feddca5cb0307ac44aeba8163a268ce3533492ae3175da"
+    },
+    "native_hardlink_retirement": {
+      "status": "passed",
+      "subject": "055fbc3262def1886dd999bd65da911f71c4b298",
+      "methods": 12,
+      "seconds": 69.898,
+      "log_sha256": "20aa39b7c346303904b45d66744a8f38e3ccbe9a5162475d2d4764f22ba5cb77",
+      "report_sha256": "01ec535d49b7cf0667d8ffe47bd6bdf99a5100a08e7de02db9d1e4b7da271e35",
+      "scope": "Original POSIX native custody controls plus actual hardlink producer cleanup, changed same-size/restored-mtime peer preservation and external-peer refusal. Local Linux ARM64; no macOS/FreeBSD/native Windows acceptance inferred.",
+      "before_repair": "The added real hardlink producer test failed in 2.023 seconds with the same custody/rollback refusal before the production change.",
+      "before_log_sha256": "55591aba09d250fe537db7fb96a4cf0f9180e06df63b3e6d23606815e05c9c23",
+      "byte_custody": "Complete original group, original descriptor, exact link count, unchanged original identity/mode/ownership/size/mtime, streaming byte identity and exact named-peer stamps. Only owned unlink ctime/nlink changes are accounted for; external peers and changed bytes refuse.",
+      "production_sha256": "31417115f2d34a90ada00aa42eae98a2b8531567b290870429c9f66eeeb1986a"
+    },
+    "reviewed_cargo_onboarding": {
+      "status": "passed",
+      "subject": "055fbc3262def1886dd999bd65da911f71c4b298",
+      "methods": 9,
+      "seconds": 22.182,
+      "log_sha256": "99a985e767d196497f44fc823b449a90aff85d158de28653910ff195fa0c0398",
+      "report_sha256": "2b8dbfdc3caec4fc2bbac0f34ae650ec79a7ae3c705efbf3f535d6aa7e2a6b2c",
+      "scope": "Full local onboarding control module, including actual Cargo selected baseline, exact original retained source bytes and exact selected phase commands. Only stale metadata assertions follow the declared framework context. Not full containment or release acceptance.",
+      "intermediate_failure": "With native retirement fixed, the same actual conversion passes and then the legacy test asserts a root manifest (30.045 seconds). The test now reads manifest/baseline/lift-shift metadata via declared ProjectContext; all source and phase-command assertions retained.",
+      "intermediate_log_sha256": "5cf1d209b72d60591cd50ca682effdb67c9b5c0ae04b19748d172102de9b0e08"
+    },
+    "cargo_parses_composed": {
+      "status": "passed",
+      "subject": "f0a5da8ebf67a7c0aa297f6813962dd056df9902",
+      "seconds": 960.386,
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      },
+      "log_sha256": "a4e36012ea570ab99deb9cbcf120b2006df656d4ca4bf9708fb8353b1849aa12",
+      "report_sha256": "c57474928a4ccd9b2023d5234e13c24f92ac51024e2d50b78562c008955b8bbd",
+      "scope": "Full original 14-case selected module at stable pre-receiver-repair subject. All mutation/refusal/isolation and closing-fence assertions and the 3600-second worker deadline retained. Not exact latest-head, installed or native release acceptance."
+    },
+    "reconciled_package_worker": {
+      "status": "passed",
+      "subject": "f0a5da8ebf67a7c0aa297f6813962dd056df9902",
+      "seconds": 11.688,
+      "summary": {
+        "executed": 5,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 5,
+        "selected": 5,
+        "skipped": 0
+      },
+      "log_sha256": "629da447370d6dabe63c61c3f7f40a89937ee1d9a4c78f176a584171c0448e39",
+      "report_sha256": "203e98c0a86658e1d4b2ba4c9850295b676d04af0d69ec9932f3e3ecf8f2eb28",
+      "scope": "Actual local worker capability closing publication/refusal controls; no fleet dispatch."
+    },
+    "reconciled_retained_sdks": {
+      "status": "passed",
+      "subject": "f0a5da8ebf67a7c0aa297f6813962dd056df9902",
+      "seconds": 67.876,
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      },
+      "log_sha256": "b55d34f9269b689659f648c68a521a9fdeef4a72aee0ad4000cdbfe58f4af7eb",
+      "report_sha256": "0927a258cef39ac5562094ecc031984070ffdbe94966fd143c077c5e64d4ca01",
+      "scope": "Local actual SDK/source/CAS evidence and revocation controls; no native release qualification."
+    },
+    "reconciled_build_cache": {
+      "status": "passed",
+      "subject": "f0a5da8ebf67a7c0aa297f6813962dd056df9902",
+      "seconds": 1.025,
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "log_sha256": "ba782863495d8fe7a01cfb7f483d1b9e5ab436921fdb81f64104caeaad2a2ad5",
+      "report_sha256": "72343dc178ce227ba5724708061a6bcea0b8b3fd36efdc8da2995e2e76c70a44",
+      "scope": "Declared current cache/telemetry ownership controls."
+    },
+    "reconciled_sdk_tree": {
+      "status": "passed",
+      "subject": "f0a5da8ebf67a7c0aa297f6813962dd056df9902",
+      "seconds": 26.52,
+      "summary": {
+        "executed": 17,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 17,
+        "selected": 17,
+        "skipped": 0
+      },
+      "log_sha256": "ed351d6602a2b625dab60f47e5e4d44e29392572b5e122fe5c83a3d10975e602",
+      "report_sha256": "f06eb1e8f689b194b8decd1aadcedbcb9b415937052f13b243f74c1e749ad10e",
+      "scope": "Native filesystem complete-tree/alias/sharded custody controls."
+    },
+    "reconciled_tree_packages": {
+      "status": "passed",
+      "subject": "f0a5da8ebf67a7c0aa297f6813962dd056df9902",
+      "seconds": 1.378,
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "log_sha256": "3d471de122704706d5644a667caeaed1c9f1b6104b62c64ae43cc31c9993c43d",
+      "report_sha256": "fef303b88778c7107e6b215deb731dba157653c3b521e86093f30c35844aec0d",
+      "scope": "Exact composed DAG/tree package geometry and link/mode preservation controls."
+    },
+    "contained_receiver_planning": {
+      "status": "passed",
+      "subject": "96eec2299e4bd3b892d5066465bc9cf295d29403",
+      "seconds": 318.297,
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 9,
+        "skipped": 1
+      },
+      "log_sha256": "ef534685a98382a6d106b9ad8b2500df8d58bbcb8321e98949f7e0f6353da724",
+      "report_sha256": "9879429cfa6c688d2733d127190b742fbdb412edbce3a48f1a3218bace91d96e",
+      "scope": "Eight passed; the original macOS-only actual-host case is skipped on Linux. Canonical catalogs, manifest, policy and declared goal paths use contained context. Original capability/mutation assertions retained; actual acknowledged adopt-original establishes conversion authority."
+    },
+    "retained_release_namespace": {
+      "status": "passed",
+      "subject": "96eec2299e4bd3b892d5066465bc9cf295d29403",
+      "seconds": 35.538,
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "log_sha256": "43a14677fa79310d7c7d89fabbad0bf5c37cdc8a410e776cda566ff14f7b6455",
+      "report_sha256": "ed1a54902341450aff3528f819a95e248f454a436d0a4ca41124524468793992",
+      "scope": "Eight original root controls plus three real POSIX converted-project controls. Exact configured coordinate/raw identity, equal-byte alternative refusal, root shadow ambiguity and original owner eligibility retained. No native release publication.",
+      "historical_counterexample": {
+        "receipt_sha256": "682ebb7e70a6ed2688e4a8416984813adb91ef276ff20d1c0f2ff85f60a04c8d",
+        "log_sha256": "f0075d494ca4bd387b19f4eaa6c0ac93d128cd0521c7603ec7ab8b501605e099",
+        "seconds": 12.269,
+        "scope": "Exact historical f0a5da8eb adapter against current shared owners and the same actual converted fixture; original root-only refusal observed. A local historical-source probe, not an installed distribution."
+      },
+      "prior_failures": "Original canonical fixture used root SKILL (0.917s); contained fixture exposed copied root goal-path (3.958s), then genuine retained policy-coordinate refusal (5.383s). An initial synthetic contained test lacked required conversion authority and correctly refused; final controls use actual conversion. All failed logs retained."
+    },
+    "reconciled_forest_capacity": {
+      "status": "failed before capacity assertions",
+      "subject": "8921730f5889c3eb23af26abb09ac27bf21d8b91",
+      "methods_run": 1,
+      "seconds": 39.921,
+      "log_sha256": "b090a07ca0fb1a5daf551ba74dd39e8b90057f5f8ecbd9ab0f2e304cbeb3f1d3",
+      "primary_error": "layout.role-inputs: original role input changed during actual source metadata publication",
+      "secondary_error": "layout.role-inputs: read scope ended, inherited or exhausted while closing failed controls",
+      "prior_startup": "Temporary checkout with canonical editable installation had two Git origins; zero cases in 0.031 seconds. Canonical rerun preserves the original case and policy bounds.",
+      "scope": "Actual canonical source operation fails before committed disposition/capacity planning. No capacity, relocation or release pass inferred; guard and bounds preserved."
+    },
+    "readmission_publication_owner": {
+      "status": "passed",
+      "summary": {
+        "executed": 19,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 19,
+        "selected": 19,
+        "skipped": 0
+      },
+      "seconds": 6.95,
+      "report_sha256": "f74e8ac20fb0b814882f9e173f431056e99f4269acb39cf5231c5bac8cd8e58e",
+      "log_sha256": "89d8b604640f15aa6b3d49e4889e62998252a6027a70cd01791cbcc464e00506",
+      "scope": "Nineteen actual native publication-owner controls, including owner edits before the next write. Unchanged production journal owner; no new raw overwrite guard needed."
+    },
+    "readmission_publication_api": {
+      "status": "passed",
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "seconds": 10.475,
+      "report_sha256": "94ba190d8d82d9a64aacd82143d1f6c18fe9cb603cbb7d55a14107802a937b69",
+      "log_sha256": "de6f395da5c845d24657b762e0609093ee584ac2a902964a24c8891ca55c16da",
+      "scope": "Six actual legacy-layout readmission cases, including recovered component/flavor edits after inventory publication. Original writer refuses and preserves the edited inode/bytes.",
+      "additional_preservation_controls": {
+        "methods": 2,
+        "seconds": 4.977,
+        "log_sha256": "f314751e386309f05beb85b5e375b2fe7071b9d75cfab661c4c9d0066ae38d24",
+        "scope": "Also verify all companion old documents retain original bytes and a pending recovery marker remains. The first added assertion attempt re-resolved metadata via a recovery-blocked project and failed in test introspection; final assertions use already observed paths. All earlier logs retained. Final formatting is nonsemantic."
+      }
+    },
+    "recovered_authored_shim": {
+      "status": "failed; missing source behavior confirmed",
+      "seconds": 3.228,
+      "log_sha256": "2e98734470a76f745ad60d0bef5f0bc289845f11535ed1114b97297f75d2534e",
+      "production_sha256": "2274aa57fe65661db07c7c4d213e02d5e623c0291b8d555112a954cea7aaf8be",
+      "scope": "Recovered authored-shim preservation test from the pending historical head runs against canonical current production modules with matching installed origin. Actual readmission planning proposes different replacement identities for existing authored shim content. Not a startup/origin refusal and not an apply success."
+    },
+    "reconciled_authored_authority": {
+      "status": "source and exact-commit installed controls passed",
+      "subject": "645c19f75511513b7e6e84380ff87325a9355928",
+      "source": {
+        "summary": {
+          "executed": 18,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 18,
+          "selected": 18,
+          "skipped": 0
+        },
+        "seconds": 301.909,
+        "log_sha256": "919ece5da33b35c9cefabf1aedb7833eeb882c4df9435ed49e31b118b6c14732",
+        "report_sha256": "b73dda4087eeb0ba342d303e54d2baa9c690604dc1e4cb0f082e0c9f32aec543"
+      },
+      "inputs": {
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "seconds": 4.205,
+        "log_sha256": "97b2ad5a71b4b979af459aeb602983de0cc1f1d23b382679200481c685f34956",
+        "report_sha256": "213c3037cde6490b1a76464e8b1a08a045570703815be14a649ec751cb128c0e"
+      },
+      "owner": {
+        "summary": {
+          "executed": 19,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 19,
+          "selected": 19,
+          "skipped": 0
+        },
+        "seconds": 6.002,
+        "log_sha256": "e16754915a76f2bdf67bc29cea12e57d7a79ffc0aacaac47cac05ccf999f436e",
+        "report_sha256": "93ac16a484540e7a113bab53b0f1cd0db3db615454fb78e5b809183a0a87a749"
+      },
+      "fixture_sha256": "8eaf054ac6b4414de4bae5c66f42ccf152ec80d14e992bef60511719c32678af",
+      "scope": "Legacy and actual contained readmission preserve all authored shim bytes except one recognized generated baseline summary. Exact full-inventory and referenced-input guards compose with modern per-write publication custody; live rollback preserves owner deletion and exact acknowledged recovery remains available. Original owner-byte/type and source-membership assertions preserved. Failed publication retains exact reviewed-plan history; prepublication failures still leave no history. No original source commands, deadlines, validation guards or authority pins relaxed.",
+      "existing_failures": {
+        "refined_command": {
+          "canonical_seconds": 6.716,
+          "scratch_seconds": 8.354,
+          "error": "FileNotFoundError for legacy root installation metadata in current contained fixture",
+          "canonical_log_sha256": "fb2f7aaa4b486b77c1c7b46b9e72f7d457f2c2c0f445d319f0f506f69affe746"
+        },
+        "initialization": {
+          "canonical_seconds": 4.294,
+          "scratch_seconds": 4.983,
+          "error": "Old root .gitignore assertion after default contained conversion",
+          "canonical_log_sha256": "3ac0cef4029da26ce6e5984583fdb48c664496e0b2efc93a91b861ee63efb15c"
+        },
+        "project_cli": {
+          "canonical_seconds": 3.262,
+          "scratch_seconds": 2.946,
+          "error": "Old root documentation path in review fixture",
+          "canonical_log_sha256": "7d0ea18504642ca3a235ce4e420104cd84da8ffc0ef64e35083e61a726295648"
+        },
+        "repository_style": {
+          "error": "Nineteen existing long lines in untouched installed-parent helper",
+          "log_sha256": "fec4f904676bb1242f62459c48dac5f427ded57e369ed55c8b58a1a686359ec3",
+          "changed_files_lint_and_format": "passed"
+        }
+      },
+      "prior_failed_attempts": "Preserved original ownership-regex, refined-membership and old empty-history diagnostic failures; no failed run presented as qualification. Final source module passes all eighteen cases.",
+      "release_evidence": false,
+      "composed_owner": {
+        "summary": {
+          "executed": 20,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 20,
+          "selected": 20,
+          "skipped": 0
+        },
+        "seconds": 6.348,
+        "log_sha256": "f5f18230ca5c1697d22385ce15ff395b499917c93973a22f98545acce9aef4be",
+        "report_sha256": "05c7bc1ac21afb4418b6ab0f499c0139c6ad86e56fa216f3e5f844261e909796"
+      },
+      "composed_publication": {
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "seconds": 13.57,
+        "log_sha256": "b972be46026602414b57ca41ac3d1b49be4a4cb8a76ad1f9104a751f5494caf5",
+        "report_sha256": "fc27766d347501936cd1381bc95327bb103b766de1af4fc071f6a091e372c18f"
+      },
+      "repository_style": {
+        "status": "passed",
+        "log_sha256": "0d526005067b5482e39da1c761ae949b860f7f954159b8c5139c1c65d6b6117c",
+        "formatted_python_files": 2759,
+        "repair": "AST-identical formatting of existing installed-parent helper; no product/test behavior changed."
+      },
+      "installed": {
+        "schema": "literate-ai/takeover-authored-readmission-installed@1",
+        "subject": "645c19f75511513b7e6e84380ff87325a9355928",
+        "origin": "https://github.com/jordanhubbard/literate-ai",
+        "wheel": "literate_ai-1.4.0-py3-none-any.whl",
+        "wheel_sha256": "36187a62b0f4ef7da9be9079d571dafd81cd582eabf17b3111555417677d8766",
+        "seconds": 185.37003498099511,
+        "seed": {
+          "all_record_paths_contained": true,
+          "distributions_checked": 1,
+          "mode": "seed",
+          "outside_record_counts": {},
+          "records_checked": 889,
+          "seeded_pip_record_checked": true
+        },
+        "binding": {
+          "distribution": "sha256:cdff8ac05956c290fa790b33079278247830fbce1973718263296e347d7345f3",
+          "members": 1720,
+          "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+        },
+        "probe": {
+          "status": "passed",
+          "selected": 6,
+          "passed": 6,
+          "skipped": {},
+          "console_command_runs": 4,
+          "race_injection": "maintained in-process fault hooks",
+          "installed_module_origins_verified": true,
+          "fixture_sha256": "8eaf054ac6b4414de4bae5c66f42ccf152ec80d14e992bef60511719c32678af",
+          "native_component_acceptance": false
+        },
+        "release_evidence": false,
+        "receipt_sha256": "5f04e526d01ef4b69b654ce0a576585a19b693fe789c49d16daccb4a123bca72",
+        "scope": "Fresh non-editable wheel from clean 645c19f75, isolated installed module origins, six maintained cases and four actual public console invocations. Full wheel smoke matrix, native Component acceptance, later revisions and release acceptance are not established."
+      }
+    },
+    "native_removal_reconciliation": {
+      "status": "passed",
+      "subject": "c9fceb6440f115d4fbe380780ae48aa4b7a6ea38",
+      "removal": {
+        "summary": {
+          "executed": 24,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 24,
+          "selected": 24,
+          "skipped": 0
+        },
+        "seconds": 53.895,
+        "log_sha256": "28c6d47b839395f25f0d515c86d68698b21543fccee70406cf0b382272416b48",
+        "report_sha256": "2bf9b6b55fe55389d22a9eab1eac94febc1b1c49d8fc1c2a521aeacecfc294c5"
+      },
+      "update": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "seconds": 20.453,
+        "log_sha256": "1fa3f016f1697c70a9e1e539dd4737a5e1b5f31827edd3b755f1b632c2d6af2a",
+        "report_sha256": "a1df3fb43c41b89f3d9bde34c955b90c35d96fe0c961f7316e267737935bca89"
+      },
+      "scope": "Original nested Git, lock-path, recovery and index custody controls retained. Later CRLF and Windows-specific fixture behavior remains intact. Actual Linux source-development controls only; installed readoption/runtime-retirement extension remains pending.",
+      "release_evidence": false
+    },
+    "native_readoption": {
+      "status": "source and scoped exact-wheel controls passed",
+      "tested_tree_subject": "a5343bb7b",
+      "installed_subject": "7eb417e5855d8e3fcd6f119849aa11ca5f9caa08",
+      "source": {
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        },
+        "seconds": 81.75,
+        "log_sha256": "5b4a7e9604b756adebd81aa6859c52a5db353b63613513148314a4cb11d002fb",
+        "report_sha256": "454d144e785ab44189d41ef8df8ecc0adb5ab717b5a2ac81ff9ed25d1d2dd649"
+      },
+      "update": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "seconds": 20.011,
+        "log_sha256": "2b4b5e36667bf4a6a5f7905bccc3ef1601159caf0ff580612c3b5f557eb8fa8e",
+        "report_sha256": "545af9ab70a1417e4bbcd8143323fb5366a81e0efdcb00890efac5eccf665f1e"
+      },
+      "cache": {
+        "summary": {
+          "executed": 1,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 1,
+          "skipped": 0
+        },
+        "seconds": 0.275,
+        "log_sha256": "02b82aeb6774d227cb9c7725bb0c7bb099b0970706ef63c7981fef48663fbef5",
+        "report_sha256": "9e7b2fde89c4ff8283964e4856b8e3fb05e1aaa80ed162c055c4daf0810f5d32"
+      },
+      "lifecycle": {
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        },
+        "seconds": 0.387,
+        "log_sha256": "df0da65e0e4dc9861a801ac1fc98af6903ef7dbb9dc2133faf5c4534cb400f94",
+        "report_sha256": "95d8320276f16b4c863b0ac2bcb3b5adbccbdc49070accd04aa18628b68ae59f"
+      },
+      "installed": {
+        "schema": "literate-ai/takeover-native-readoption-installed@1",
+        "subject": "7eb417e5855d8e3fcd6f119849aa11ca5f9caa08",
+        "origin": "https://github.com/jordanhubbard/literate-ai",
+        "wheel": "literate_ai-1.4.0-py3-none-any.whl",
+        "wheel_sha256": "191e0e190c8a38f620bf3acaad31ac21873ead1678272a9ec05f073ac61c2576",
+        "seconds": 33.770029494015034,
+        "seed": {
+          "all_record_paths_contained": true,
+          "distributions_checked": 1,
+          "mode": "seed",
+          "outside_record_counts": {},
+          "records_checked": 889,
+          "seeded_pip_record_checked": true
+        },
+        "binding": {
+          "distribution": "sha256:2a9dc74253000d24b55809f467aac4cf31f461e20077bf14ada76d929b72ecad",
+          "members": 1720,
+          "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+        },
+        "probe": {
+          "status": "passed",
+          "selected": 6,
+          "passed": 6,
+          "skipped": 0,
+          "cases": [
+            "test_cold_and_warm_removal_allow_repeated_public_adoption",
+            "test_cross_device_refusal_is_a_retryable_retained_runtime",
+            "test_exact_legacy_retry_preserves_foreign_slot_and_runtime_contents",
+            "test_interruption_after_move_reports_the_bounded_slot_for_disposition",
+            "test_open_legacy_waiter_cannot_enter_the_readopted_project",
+            "test_process_with_active_lifecycle_lock_preserves_worktree_and_index"
+          ],
+          "console_calls": [
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "update",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 2
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 0
+            },
+            {
+              "command": "onboard",
+              "returncode": 2
+            }
+          ],
+          "installed_module_origins_verified": true,
+          "framework_module_count": 348,
+          "fixture_identities": {
+            "tests/e2e/test_native_project_removal.py": "46157a4466088afaf30b3aafd428a41c50ad027e7d44efbdfb0be1916e4c6983",
+            "tests/support/native_repository.py": "549228a7ec11c731818deac7456c4851465148a7e0064b005aeb160053673aec"
+          },
+          "fault_injection": "original maintained in-process hooks",
+          "native_component_acceptance": false
+        },
+        "release_evidence": false,
+        "receipt_sha256": "44e1ab2a052c69b888e5341fe109931106597bd1bbd4fe699dc4e8b3f7dfaef8",
+        "scope": "Fresh noneditable exact-commit wheel; six original maintained controls with 34 actual public console invocations. Original 90-second per-console deadline, fixtures and mutation/refusal assertions unchanged. All framework module origins inside installation. Not the full wheel matrix, other-platform/native Component or release acceptance."
+      },
+      "merge_resolution_sha256": "dbf5b1266ea87ee0317b6b11862b91af77ce7a65fe6b1cc73bc9ae2ebf7e9bed",
+      "scope": "Retire only exact idle native lock residue, preserve foreign or interrupted resources, serialize namespace selection, refuse active or already-open stale contenders, and support repeated cold/post-update readoption. Keep current Git/CRLF/index and lifetime guards. Initial unpublished duplicate-helper merge was corrected before publication; both normal merges resolve to the tested tree.",
+      "release_evidence": false
+    },
+    "reconciled_native_run": {
+      "status": "focused controls passed; broader control refused ambient input",
+      "subject": "7eb417e5855d8e3fcd6f119849aa11ca5f9caa08",
+      "focused": {
+        "summary": {
+          "executed": 43,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 43,
+          "selected": 43,
+          "skipped": 0
+        },
+        "seconds": 0.412,
+        "log_sha256": "c39a67ab99ee517589eebee64d076fdaa116563675407d32cffcec008cbca017",
+        "report_sha256": "7ef02cb1e42b5c43359f7963d24a2c80facc0ef530cfc2b2257f2052edaf0095"
+      },
+      "broader": {
+        "summary": {
+          "executed": 10,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 631,
+          "skipped": 0
+        },
+        "seconds": 1.54,
+        "log_sha256": "e99f65838b847d725343b9fcbace4df81581bd62d5c207b5273a2331765a7d4d",
+        "error": "Original offline Rust verifier refuses existing ancestor Cargo configuration. Nine passed and one errored before stopping; 631 selected, remaining 621 not run. Guard/source unchanged; no Cargo configuration modified or hidden."
+      },
+      "scope": "Forty-three original native-run, bridge, admission and runtime-plan controls. Source-only modeled tool/runtime observations, not actual native product acceptance.",
+      "release_evidence": false
+    },
+    "reconciled_installed_inventory": {
+      "status": "CUDA inventory passed; broader diagnostics failed; both recovered selectors observed passed",
+      "installed_subject": "7eb417e5855d8e3fcd6f119849aa11ca5f9caa08",
+      "cuda": {
+        "selected": 16,
+        "passed": 16,
+        "skipped": 0,
+        "receipt_sha256": "2de67434798e0363c893d98ad21f1f4a0fac4d0def8dfea6c97d0782d92d2956",
+        "log_sha256": "8a510fcdc714bc0d68d3b4fd613608d39e60750d7f978fe325cab5251d4c2e3b",
+        "installed_module_origins_verified": true
+      },
+      "diagnostics": {
+        "status": "failed",
+        "methods": 32,
+        "reported_errors": 12,
+        "seconds": 4.194,
+        "error": "Existing mocked verified-promotion objects lack required authored_asset_bindings; current guard unchanged. No mock/default fabricated and no broader pass inferred.",
+        "log_sha256": "26765107bb042c7bce6854bd49fdeb35dc3f03ef3f1957b091c7cffe3db7cf2a",
+        "recovered_diamond_case": "passed as explicitly observed in original log"
+      },
+      "release_evidence": false
+    },
+    "readoption_repository_style": {
+      "status": "passed",
+      "subject": "ace2f7d87",
+      "log_sha256": "0d526005067b5482e39da1c761ae949b860f7f954159b8c5139c1c65d6b6117c",
+      "formatted_python_files": 2759
+    },
+    "retained_promotion_canonical_reconciliation": {
+      "status": "source and scoped exact-wheel controls passed",
+      "recovered_head": "11740f084256ee3ae54cd3faf6135db6896fa2b9",
+      "contracts": {
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        },
+        "seconds": 34.269,
+        "report_sha256": "f9a78dea19e1b8c42fc0510e313098792196681f365d788b77dd159c35628535",
+        "log_sha256": "470040d5523e2c8480a55270b9b9296a36295c3b7b6b6c30f48e7879efecef1d"
+      },
+      "receipt": {
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "seconds": 26.434,
+        "report_sha256": "b08eade254a819156998129c5e137ebebddd648f15d054104c9805a9df6a2bae",
+        "log_sha256": "a7cd8492d7ce349eb6615324e1db670fb50fb297246a17769a6d171349e549f1"
+      },
+      "documents": {
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        },
+        "seconds": 0.197,
+        "report_sha256": "8309769e88beba84fcf215c8f78ebedf092d3ae468253670c076439335d6a210",
+        "log_sha256": "910b691b7221a0eb4af32957e1871fac2d108e14a3eeb7491d4bf7e7bda5a448"
+      },
+      "public_journey": {
+        "summary": {
+          "executed": 1,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 1,
+          "skipped": 0
+        },
+        "seconds": 137.863,
+        "report_sha256": "a883fc1079474647751d6025819ced38bbe710e9d24d673a6a8e3cd29f30c974",
+        "log_sha256": "b8295df1abe1ba0f29daa7ff8afb59c23ed8df70e4b660981106df938b8e0064"
+      },
+      "sdk_custody": {
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        },
+        "seconds": 61.504,
+        "report_sha256": "d099cea7facd355d1e4391da441e6adc74af0f2a774784a41292ab51c49a6258",
+        "log_sha256": "22f7495200fcd87fff1dedcfe87f0309802a6a7bcac9dcc7ddf7f303ce3c4a13"
+      },
+      "acceptance": {
+        "summary": {
+          "executed": 15,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 15,
+          "selected": 15,
+          "skipped": 0
+        },
+        "seconds": 1.043,
+        "report_sha256": "d9fc8e5bc9bef67aee72f7954ab0c029320e933bc3741708ee1e85ead8c3c3e5",
+        "log_sha256": "b81ea31541250f42977e7ea7e8569edbf50cc3b540a20b94cd6b19fecf0cce3d"
+      },
+      "sdk_batch_journey": {
+        "methods": 1,
+        "status": "passed before a separate obsolete API import failed discovery",
+        "scope": "Actual original native SDK batch-capture journey passed in initial combined two-module run; overall batch failed on the second module import and is not marked passed. Existing SDK custody cases now both pass through the new canonical verifier.",
+        "combined_failed_log_sha256": "241fcc34f3902245588e73e2a5787cb3804f191480d849e0ac7dfea40034648b"
+      },
+      "schemas": {
+        "status": "passed",
+        "v2_schema_files": 147,
+        "v2_resources": 648,
+        "log_sha256": "9472f1310b598cf9f3786dbc4edb58567319a8c76d8cd2d8b39f935534d96d55",
+        "scope": "Complete catalog/index/resource/ref/compatibility validation. Replace conflicting smaller unreleased draft composite with the three canonical records; no duplicate schema identity, no historical authority restoration and no schema migration fabricated."
+      },
+      "style": {
+        "status": "passed",
+        "formatted_python_files": 2769,
+        "log_sha256": "abea4f032dff71007ac79b2ef24fe9dd65a6c6edbf6fb28f2e412b228f542ae7"
+      },
+      "scope": "Actual public run/promotion/separate update on default contained fixture, strict no-write/no-command provider behavior, canonical complete captured contexts, pure runner policy projection, 15 acceptance controls including both native and document drift seams. Preserve current SDK closure/environment/dependency forgery assertions and move current actual journey schema-injection controls to the recovered public module. Original native tool observer pairing and command/complete-currentness distinction retained.",
+      "prior_failures": "Initial missing dependency to_dict; root-only manifest/release fixture paths; obsolete consumer callback and historical-reader import. Corrected at their owning source/fixture surfaces, without weakening guards, counts, limits or assertions. All original failed logs retained.",
+      "release_evidence": false,
+      "installed": {
+        "schema": "literate-ai/takeover-canonical-promotion-installed@1",
+        "subject": "2ec59a540c8ef1e9b5eb08b3c610297cd82a0f68",
+        "origin": "https://github.com/jordanhubbard/literate-ai",
+        "wheel": "literate_ai-1.4.0-py3-none-any.whl",
+        "wheel_sha256": "992e4203b15805e1433d3ee78f343284cc0b3b483c2409372b39df1b98d4dbf8",
+        "seconds": 173.19023582397494,
+        "seed": {
+          "all_record_paths_contained": true,
+          "distributions_checked": 1,
+          "mode": "seed",
+          "outside_record_counts": {},
+          "records_checked": 889,
+          "seeded_pip_record_checked": true
+        },
+        "binding": {
+          "distribution": "sha256:cff9457c3c00d253f4cfc583fc2ab1b7f11cd576f0a43e64a58752bf23e544ed",
+          "members": 1725,
+          "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+        },
+        "probe": {
+          "status": "passed",
+          "selected": 36,
+          "passed": 36,
+          "skipped": 0,
+          "installed_module_origins_verified": true,
+          "packaged_schema_catalog_verified": true,
+          "framework_module_count": 623,
+          "fixture_identities": {
+            "tests/critical/test_retained_promotion_capture_scope.py": "45c95246c0674ad471cae407d4a0b93926df53698f7fc4c1ac15815865dce556",
+            "tests/critical/test_retained_promotion_contract.py": "ae13218585b24cf7b8648b6d9dd41b033697a50f5b4ad9fa028fb540c1184e07",
+            "tests/critical/test_retained_promotion_public_readonly.py": "367ed854ff4b05241f9814161c69b165e5b2c3caccd6bcdf19eae1780275ca74",
+            "tests/critical/test_retained_promotion_schemas.py": "52af85ceb4a604ed465f6494de8ff4c6acf3bfe06b67ad6bd0a10374c34fcc85",
+            "tests/critical/test_retained_receipt_promotion.py": "d86f06ea65e917e9571d07dab2822d62d3089db363331a2c6edfd8603d807f63"
+          },
+          "console_invocations": 0,
+          "scope": "Original contract/capture/readonly/schema/receipt controls against installed production modules; public CLI readonly checks use maintained in-process entry point; framework observations remain explicit fixtures.",
+          "native_component_acceptance": false
+        },
+        "release_evidence": false,
+        "receipt_sha256": "5659fdf35e984c06c767fe18ba2ffb4efb34049dc0cf21d641720b3216f0938c",
+        "scope": "Fresh exact 2ec59a540 noneditable wheel; 36 maintained contract/capture/readonly/schema/receipt cases, no skips. All 623 loaded framework module origins and complete packaged schema catalog verified under installed prefix. In-process CLI checks and explicit framework observations remain modeled; no full wheel matrix/native Component or release qualification claim."
+      }
+    },
+    "retained_promotion_phase_checks": {
+      "status": "passed",
+      "sdk": {
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        },
+        "seconds": 71.376,
+        "report_sha256": "f7da329d7e04060dc3c88a5d1a9562fa2753df1a8374cca04120609cb66d4c1a",
+        "log_sha256": "b04f7f40beab76e282d987691a857aa9cf378d87cfb198d231e4e6b102543bb6"
+      },
+      "contracts": {
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        },
+        "seconds": 32.683,
+        "report_sha256": "25fef3cd990480ab3f6421281ab91ad9b0180aaf33ee2004dbc39b578759e27f",
+        "log_sha256": "b5c8f09e4d29a87fb0618f3daec12491ff939cbbf8b594176f724db8e0cb2ab8"
+      },
+      "public": {
+        "summary": {
+          "executed": 1,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 1,
+          "skipped": 0
+        },
+        "seconds": 133.188,
+        "report_sha256": "ab659d0860592a068e413cd80b1251715530a52670306a793b2e9c079ece26c1",
+        "log_sha256": "22c00abcf79f9d2714ad03d381575ad0bab51b51b686575391bb63b7e1e1a995"
+      },
+      "scope": "Original three SDK cases, thirty contract/capture/readonly/schema cases and full actual public journey pass after phase polling change. Bound full-currentness count to 2..8 in recovered SDK control while retaining per-record deadline checks, original overall 300-second deadline, metadata/memory/payload caps, full closing authority and no native SDK rebuild or CAS mutation. Timings are bounded local observations, not a controlled speed benchmark.",
+      "release_evidence": false
+    },
+    "release_execution_view": {
+      "status": "passed",
+      "summary": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "seconds": 14.555,
+        "report_sha256": "f2cc00653a9c9e3f84ae4dbe71c3a911a80f330443ac09efeeecf8b03ad9a5b2",
+        "log_sha256": "867f23034d979345ec737efb5c4cc5c062506e4e67166deac2fb270911a602ed"
+      },
+      "dependency_graph": {
+        "summary": {
+          "executed": 23,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 23,
+          "selected": 23,
+          "skipped": 0
+        },
+        "seconds": 1.538,
+        "report_sha256": "8f3241865a4b59253f1336acc659eb7f3ccfee86527ee1a6e7026cd46f417eaa",
+        "log_sha256": "b65dfbb32babd30ca78c6e2b541f3ac935aecd37bba0410d162b36ae63a1884a"
+      },
+      "contributions": {
+        "summary": {
+          "executed": 20,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 20,
+          "selected": 20,
+          "skipped": 0
+        },
+        "seconds": 1.379,
+        "report_sha256": "f0e67ce764c2c7eccd3a17ebe1433152706921aa7d6cefd4b27f3cf173e3d877",
+        "log_sha256": "036f069acbeaf1f8f4d8c50a0ecc95495fe5f580f6896b27ca2860672091d310"
+      },
+      "actual_repository": {
+        "exit_code": 0,
+        "release": "1.4.0",
+        "included_goals": 83,
+        "closed_goals": 35,
+        "open_goals": 48,
+        "unchecked_criteria": 198,
+        "stdout_sha256": "d1bd0347a34482a61fcdd816b91c113bc72ca50d4dc58d005302cab19d695f21",
+        "stderr_empty": true
+      },
+      "scope": "Queue/ledger planning projection only. Read configured policy/manifest/queue, refuse stale/duplicate/cyclic authority, preserve unknown external inputs and release phases as unverified. Current six baseline cases did not contain this feature; recovered cases and actual contained conversion control establish restored behavior. Native release eligibility and root policy-shadow refusal remain original owner decisions. Initial moved-metadata fixture lacked a declared contained project and correctly refused; replaced with actual initialization/conversion, not fabricated baseline authority.",
+      "release_evidence": false
+    },
+    "authored_graph_reconciliation": {
+      "status": "bounded source controls passed; Darwin cells not run here",
+      "retirement": {
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 11,
+          "skipped": 3
+        },
+        "seconds": 0.155,
+        "report_sha256": "d495f1c2c5ded68d428dc2576d26428eecc845f65dca3bbeff9f10ae4cc85251",
+        "log_sha256": "142db1b5f73ead54531053ad49add366382e3a711a881c00e93201db79934404"
+      },
+      "projection": {
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        },
+        "seconds": 92.994,
+        "report_sha256": "d78374bbdb3281171b85d0f38c80d82eda7aac1c2c6e631d21affc82acdcf4c6",
+        "log_sha256": "fc2088fa006c2b2a6b2e8688d70e79c8665b0c52915048061b815a2c74f8f680"
+      },
+      "scope": "Eight actual POSIX retirement controls pass, three original Darwin-only vnode cells skipped on Linux. Twelve projection controls use actual native Python inputs/commands with explicitly modeled framework/provider/macOS selection, not generated/native application or release acceptance. Preserve current KQUEUE NOTE_DELETE and held POSIX inode proof rather than recovered F_GETPATH name heuristic. Original borrowed/substituted toolchain refusal and portable selected-interpreter byte/inode checks retained.",
+      "prior_failure": {
+        "seconds": 5.552,
+        "error": "Test-owned interpreter copy inherited nonwritable source mode; mutation failed with PermissionError before original drift assertion. Corrected only the test-owned distinct copy before capturing binding; original interpreter remains unchanged.",
+        "log_sha256": "e83c1475507741c291a21f6882abac32ad03d55e4140c64e29265b38d0b798f6"
+      },
+      "style": {
+        "status": "passed",
+        "log_sha256": "abea4f032dff71007ac79b2ef24fe9dd65a6c6edbf6fb28f2e412b228f542ae7",
+        "scope": "Full lint/format. Only existing promotion-profile line wrapping changed production bytes; parsed AST equality verified separately.",
+        "format_proof_sha256": "96777e4b09d0f08aabdee32beebff301c0e1132ed0d17a303d502c2b72973eb9"
+      },
+      "release_evidence": false
+    },
+    "recovered_cargo_input_custody": {
+      "status": "39 focused actual-owner controls passed; both recovered prototype histories reconciled",
+      "source_commits": [
+        "c3358e21f",
+        "cac4efa22",
+        "ebfe2594a",
+        "4f788a94a"
+      ],
+      "original_counterexamples": {
+        "unowned_external_alias": {
+          "summary": {
+            "executed": 2,
+            "failed": 1,
+            "known_failed": 0,
+            "passed": 1,
+            "selected": 2,
+            "skipped": 0
+          },
+          "seconds": 189.662,
+          "report_sha256": "98dee9e2cecfe8777b9787578c9ba6553b9b3937db78d9dd0d8904cd1bd438ad",
+          "log_sha256": "7413ba3a274f6d4210dcc3b4d65149f3c7a4e8d16cf25b1994bfe20b4259dec9"
+        },
+        "ended_wrapper_rearmed": {
+          "summary": {
+            "executed": 1,
+            "failed": 1,
+            "known_failed": 0,
+            "passed": 0,
+            "selected": 1,
+            "skipped": 0
+          },
+          "seconds": 8.881,
+          "report_sha256": "77d5b159a0def9d5e5f3e7961f5badd95e7d5f04818222e28860a1b41c4fd41b",
+          "log_sha256": "aa57f4a30538fe94516a9e3e2b2cde654cfb794ec64439fccd1a00ba26c1aa55"
+        },
+        "late_ancestor_configuration": {
+          "summary": {
+            "executed": 2,
+            "failed": 1,
+            "known_failed": 0,
+            "passed": 1,
+            "selected": 9,
+            "skipped": 0
+          },
+          "seconds": 280.977,
+          "report_sha256": "8500929507c79d4678ba3a89fcd6ac84a5246cea80cb26337918f825e459d34f",
+          "log_sha256": "0f56e4a134ee9eba3946ba4b7ac6b47c8e54d7ece7faeeb82923e0d2c2da06d5"
+        }
+      },
+      "metadata": {
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "seconds": 402.903,
+        "report_sha256": "792239622e7af4b8ccf95d1724338518761cbaecac1140ee0daf3b8843a0e6a3",
+        "log_sha256": "9d6385db2e6022c284c656def5bca9eae46d244961439bc95e5fa748dbbe233b"
+      },
+      "wrapper_original_issuance": {
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        },
+        "seconds": 18.075,
+        "report_sha256": "46142f20373ff386cc640802da0377f6fb3aa9909c9bfcc637ec59b746b1a540",
+        "log_sha256": "de1883e958cc036377a243beff45d3c56b38b716ae8dc1425b575eef5fbd25b7"
+      },
+      "authored_wrapper": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "seconds": 65.145,
+        "report_sha256": "878013921fecc2d27e122e8199b4978b4d660097f2bbd7c2edc4a3ce4e9da893",
+        "log_sha256": "1f5742c5d13ca3cf2840ea281df316ba545760cde5b72daa4ba31bb3d964f068"
+      },
+      "python_observation": {
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        },
+        "seconds": 78.643,
+        "report_sha256": "eac0931e1279fd0d9bd03b2fd785887c5eb779442e66c7bdc3286539b56f1bd3",
+        "log_sha256": "87ffd60c6d25a7126bce40c166915584cbcbe0bd3dc4e1f19a4852e6b7c65dfa"
+      },
+      "receiving_recovered_controls": {
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "seconds": 139.27,
+        "report_sha256": "8d7b7746236c7968fef7acf136788ab4a95844061fba20d2e3c6d5349f05d738",
+        "log_sha256": "776466b471cef04e262a0e508906d7bfbb17684a464fccffc6e86d0abe2681cc"
+      },
+      "ports": {
+        "metadata": "Bounded logical projection and nearest captured-owner internal-alias resolution through shared original input facade; no metadata-selected filesystem resolve/open. Both complete original guards remain.",
+        "configuration": "Keep independently pinned ancestor config instead of restoring old uncaptured-config blanket refusal. Recheck original pinned bytes and absence after final materialization callback.",
+        "wrapper": "Exact issuer-registered core and facade, original lifetime/process/thread, closing checks and retirement invalidation; retain current context/native/source/lock guards.",
+        "materialization": "Keep current separate absent-only scratch reservation and archive-qualified package publication. Corrupt archive/revoked provider cannot publish packages; original empty reserved roots remain owned and unchanged. Do not restore obsolete arbitrary initial_contents or constructible scratch materialization.",
+        "execution": "Keep modern exact-source/authored native sessions, original measured tool owners, shared deadlines/output bounds and target protocols instead of prototype SimpleNamespace command grants."
+      },
+      "scope": "Actual adopted Make/Git, archive/scratch/filesystem custody and real thread/fork controls; fixture Cargo/provider declarations. No Cargo command, genuine generated provider, independent native product, macOS/Windows/FreeBSD or release qualification inferred.",
+      "canonical_style": {
+        "status": "passed",
+        "python_files": 2772,
+        "log_sha256": "b3b4b49409f6e40d227f7ae68d9a6232335fd23a0552a642837f3e7be09f097a"
+      },
+      "earlier_unqualified_diagnostics": [
+        "External test-discovery start directory refused as not importable before case execution; canonical Make discovery used for actual counterexample.",
+        "Raw ruff check dot included historical/lab examples and failed 703 findings outside canonical Make lint scope; these files were not changed."
+      ],
+      "complete_execution_inputs": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "seconds": 1030.642,
+        "report_sha256": "b3d3becd0cc98a6bde67f7185f6aacffc22727728401e09144a00e1d9385ebef",
+        "log_sha256": "9255eca395ff12ada38b8a015f384f3151014c0065f1c5ead337b0a98083d32e",
+        "scope": "All nine original execution-input methods including both present/absent late ancestor-config controls, whole-home drift, original scope/materialization identity, actual authored metadata and ended-owner/cross-origin refusal. Fixture provider/Cargo declarations; no native Cargo execution."
+      },
+      "integrated_source_subject": "1e7995c404f49945d90895de009606db3f8d7b82",
+      "source_file_sha256": {
+        "src/literate_ai/adapters/retained_cargo_metadata_inputs_v2.py": "273bd6ed4b390b3ad00c25533ac5cc7735ee507a2794bdcacc176dda735531e4",
+        "src/literate_ai/adapters/retained_cargo_execution_inputs_core.py": "167a2ed6891568af1a2f49ffcc20df9c475c727a5e12a86f32e0ff4fb2e73092",
+        "src/literate_ai/adapters/retained_cargo_wrapper_core.py": "6a159674aa8404eed5574db0a4bc1c370d17d229d27efac1c7e61a0e46646d02",
+        "src/literate_ai/adapters/retained_cargo_wrapper_v2.py": "21eb90fe84c502853082171ebc9ce898c91356b0a3358ef6309111e5a03fe7b5",
+        "src/literate_ai/adapters/authored_retained_cargo_wrapper.py": "d8063c8aaa2bec1d7d1740777caa10bd51ab2bc292250130df00f635be318eab",
+        "src/literate_ai/adapters/retained_python_wrapper.py": "a3d50112b8dd11dbef903edc59679c104a2fad961bf35e0d807c66a8bf6224ef"
+      },
+      "recovered_helper_sources": {
+        "src/literate_ai/adapters/retained_cargo_configuration_v2.py": "9c2ff895fa5a03326e87e43ababc119c0b5f844afacf8ec9fe0dbc12ba8684df",
+        "src/literate_ai/adapters/retained_cargo_metadata_inputs_v2.py": "a471664e49581c14e4b6f73e1de487f9e01b1bfa05ec7a1e692976d083c1985e"
+      }
+    },
+    "reconciled_failure_and_return_owners": {
+      "factual_failure": {
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        },
+        "seconds": 6.482,
+        "report_sha256": "57de08bfa547c0f2b11573962a19bf7a26a0d562c07bcdcfa3d3d62951e790d2",
+        "log_sha256": "5398ef9e21b76a2b9f7a2ed0528d30a45df5106d4aebd08ec5c86d872d1f36ea"
+      },
+      "typed_package_return": {
+        "summary": {
+          "executed": 14,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 14,
+          "selected": 15,
+          "skipped": 1
+        },
+        "seconds": 5.878,
+        "report_sha256": "52c804e51f658024769df83eb7ae2d00f53e19759409dac24b4aac2e4121b17a",
+        "log_sha256": "12086d45eb5f0cb48b958b49ca2da8d929dbea5b6168ce4ebb6e3b7b802bc3b9"
+      },
+      "scope": "Actual Python owner/CAS and finite transfer behavior, modeled process outcomes/FreeBSD declarations. Nonzero exit alone remains terminal. One original native FreeBSD case skipped on Linux; no FreeBSD/native product acceptance inferred.",
+      "earlier_discovery": "Incorrect nonexistent test_retained_unit_transfer.py selector returned no tests; runner refused before cases. Correct existing test_freebsd_tree_packaging.py module used for the recorded 15-case result."
+    },
+    "recovered_worker_telemetry": {
+      "status": "integrated; source and scoped fresh-wheel controls passed; native/live-worker/full-feature acceptance open",
+      "subject": "82fe2dc69ebcf76f2d363522ef48cac5f089bc22",
+      "telemetry_dual_protocol": {
+        "summary": {
+          "executed": 109,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 109,
+          "selected": 113,
+          "skipped": 4
+        },
+        "seconds": 164.405,
+        "report_sha256": "ea5c5e1deb0d3f98054f208b42391a2411a0ea06378788216d7f1b72521d677f",
+        "log_sha256": "fbf0cddf1afde30271810e673c23521236f32c671fc14cd0530d1b6d7e90c6e1"
+      },
+      "process_tree": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 13,
+          "skipped": 4
+        },
+        "seconds": 1.318,
+        "report_sha256": "26c1b70820066ac23d0f4e10dee4db1b27c86115175cb5b6371e8a56adf0d98c",
+        "log_sha256": "b339d361dbf6ce6f745503d586d8a56e571752ccdce9a611857b3643dabca18b"
+      },
+      "guarded_builder": {
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "seconds": 2.528,
+        "report_sha256": "34af638941287486cbf62c6a7ea2b2ee9b07e2fac78113622ddef3b8ad46e0de",
+        "log_sha256": "48cf1291cf09f5fb1994befbf7c36f3f7a762170b4b1f76ae9aa7fa61732f420"
+      },
+      "legacy_action_package": {
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "seconds": 12.408,
+        "report_sha256": "1f8b918370d2e9ec15f03e316af55cab05c352f13984b73a5afbc0130e960e7d",
+        "log_sha256": "a76ca874e33b0f4e57edfc0099174ccaa3da85bcb6c787275a867e81f0e402ab"
+      },
+      "existing_windows_job_controls": {
+        "summary": {
+          "executed": 15,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 15,
+          "selected": 18,
+          "skipped": 3
+        },
+        "seconds": 0.195,
+        "report_sha256": "d18ee7c71774fc1ca56fc77899e3890981788e80b3a9ba511d785c68160e7a35",
+        "log_sha256": "337c876bfd03e1f0ffed5e068008e39f81565e9656cd22c3d22eb24328ac5eea"
+      },
+      "v2_job_handoff": {
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        },
+        "seconds": 0.033,
+        "report_sha256": "9978fdf9b07b0be81440b03a78d1babe8e4cc83318814daa8da45098c7b5f07d",
+        "log_sha256": "7905cdc72e9102224423efd035882a484c8dd2a3dd5469a125c50c3efaf45ab7"
+      },
+      "ci_policy": {
+        "summary": {
+          "executed": 35,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 35,
+          "selected": 35,
+          "skipped": 0
+        },
+        "seconds": 0.557,
+        "report_sha256": "f47c041985bd0db869aa2cb3d604507876db0ec7deaa3596f4e045167ceeffea",
+        "log_sha256": "59c58b8ec1d93bbf7a7b54cb828c2abe4629ea2aed8477aca03e41017845e320"
+      },
+      "skipped_telemetry_cases": [
+        "tests.critical.test_worker_telemetry_receiver_v2.WorkerTelemetryReceiverTests.test_native_observation_pipe_never_controls_execution_or_retained_parent",
+        "tests.critical.test_worker_telemetry_receiver_v2.WorkerTelemetryReceiverTests.test_native_resources_follow_live_and_reaped_processes",
+        "tests.critical.test_worker_telemetry_receiver_v2.WorkerTelemetryReceiverTests.test_public_native_provider_provision_is_receipt_bound_and_current",
+        "tests.critical.test_worker_telemetry_receiver_v2.WorkerTelemetryReceiverTests.test_public_native_provider_rejects_real_input_and_output_mutation"
+      ],
+      "schema_catalog": {
+        "v2_files": 149,
+        "v2_resources": 663,
+        "new_unique_write_contracts": 13,
+        "unchanged_legacy_telemetry_ids": 5,
+        "overlapping_ids_advanced_to_v2": 4
+      },
+      "installed": {
+        "subject": "82fe2dc69ebcf76f2d363522ef48cac5f089bc22",
+        "wheel_sha256": "ba6ac062bb46047430e2723d0749eb0144c52ae1d9b0697b38752fb62917a74f",
+        "distribution_binding": {
+          "distribution": "sha256:e0642b6c24c7e4ab56b345a573cf137c61f18a9b2ef487449cd2396119c0355f",
+          "members": 1759,
+          "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+        },
+        "methods": 35,
+        "console_invocations": 3,
+        "verified_framework_module_origins": 272,
+        "v2_signed_data_roundtrip": true,
+        "v2_corruption_and_cross_version_refusals": 3,
+        "packaged_native_c_sha256": "602d4de7d5fd625ecbf1227397a0ef669fd4bfe31f0c8174fc025c8bdf0739ce",
+        "seconds": 6.129,
+        "receipt_sha256": "37adb91af234bb65b6f313a3845486ab3f197a7fa4ffefd4c8e1f3316400040a",
+        "scope": "Fresh noneditable wheel: legacy contract/codec/authentication plus modeled Job handoff units, v2 signed data roundtrip/refusals, packaged C/schema bytes and actual console help/unconfigured refusal. No worker contact, native C execution/provisioning, observed live job, SSH/command action or release acceptance.",
+        "initial_harness_failures": {
+          "logs_sha256": {
+            "wt14-installed-82fe.log": "672dc5db15c1c5f3d9a3f062fd3b8135acfead57b4606f29fc1f489e46960651",
+            "wt14-installed-82fe-resume.log": "c7384831b5a3c088d72229aed7d3b65e0787b5cff6cc6e14d8304bbec9ce4a5d",
+            "wt14-installed-82fe-final.log": "428ba12db97a41fed8c6125a47fa04ba77483447f021e598ced36e6c4bfccff7"
+          },
+          "reason": "External probe first called the private schema validator with reversed arguments/omitted code, then omitted catalog_version=v2 in schema_path (whose default is v1). The third probe expected the generic query error instead of the actual specific configuration_unavailable refusal. All three harness expectations corrected. Original immutable built wheel and fresh prefix reused; production source/wheel unchanged."
+        }
+      },
+      "scope": "147 source methods pass and 11 native-platform cases skip across telemetry/process/builder/action/Job cohorts; 35 CI policy methods also pass. Actual local receiver operations and observation races retain provider/native modeling boundaries. Real thread/feed handoff checks use a modeled Windows Job, not Windows accounting. Fresh wheel units/CLI help/unconfigured refusal and package bytes do not qualify native C execution, a live worker query, SSH/command routes, complete configuration tooling or release acceptance.",
+      "canonical_style_and_schema": {
+        "status": "passed",
+        "python_files": 2805,
+        "log_sha256": "3cd2efdfb5373ce5937870792e303ef5cc701225dbf101ac1853bd48ef432ca0"
+      }
+    },
+    "retained_layout_current_admission": {
+      "subject": "16a3185fdfc25075c898a2886d5766e155acae63",
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      },
+      "seconds": 513.718,
+      "report_sha256": "48aa0227a1ec2f022a25220023eff05fbb24a60783c984501b61f21ee0d0bde7",
+      "log_sha256": "5124d3298762128ff43e5a14a676a41ee61baebf509ff32804569b2ead33362e",
+      "scope": "Fourteen existing modern admission controls pass without skips after fixture paths follow configured contained metadata and actual selected Component declaration. Actual local Git/filesystem/layout/readmission; modeled Cargo. No native Cargo, high-level public relocation or release acceptance.",
+      "prior_failures": "Four original failed fixture attempts retained. Hardcoded metadata paths, implementation-parent-as-Component rename and workflow path replaced by actual configured owners; assertions, guards and deadlines retained."
+    },
+    "recovered_embedded_node_sdk": {
+      "subject": "d93b31944ea7e1d707d0835332f69d30e1301564",
+      "summary": {
+        "selected": 926,
+        "executed": 671,
+        "passed": 671,
+        "failed": 0,
+        "skipped": 255
+      },
+      "cohorts": [
+        {
+          "cohort": "extra-node-source-current-closure",
+          "summary": {
+            "executed": 480,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 480,
+            "selected": 712,
+            "skipped": 232
+          },
+          "report_sha256": "00e2170d8e34d69625237fe8b542835afe71d13df980ec6ea300b1ca3f1c1e4e",
+          "log_sha256": "47cb2b932fe7efdbda2e955c04beb649d57e2a8af4e62ab5b03ad6cbad47a663"
+        },
+        {
+          "cohort": "extra-node-cache-final",
+          "summary": {
+            "executed": 57,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 57,
+            "selected": 57,
+            "skipped": 0
+          },
+          "report_sha256": "acbedee8ad1ce79632716a67e33cf08b959b63a2d3cc5a4299f80e4737ef169e",
+          "log_sha256": "d5769d2bd0052549f363fea1a133f62910ce5ce1088870d6a4fb357f03aa8696"
+        },
+        {
+          "cohort": "extra-node-test_standard_runtime_candidate_repair",
+          "summary": {
+            "executed": 4,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 4,
+            "selected": 4,
+            "skipped": 0
+          },
+          "report_sha256": "ae9bad7f35ccbb2da01570a20a4a241edd6932b11d6657472a0affa89d95fe0e",
+          "log_sha256": "27ced70c818427a79d22f8e354eb55cc1a617046db2415b61ae84d36ff249c31"
+        },
+        {
+          "cohort": "extra-node-test_standard_project_lifecycle-ready-cache",
+          "summary": {
+            "executed": 5,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 5,
+            "selected": 5,
+            "skipped": 0
+          },
+          "report_sha256": "899c90c92ba040ec1efd55e6eeee1478b108d372095aae6148ef2965605209bd",
+          "log_sha256": "5714e1e4a6ee55856698a5280fe0b1120775e4322c71a9f110296ea6b5d562ba"
+        },
+        {
+          "cohort": "support/test_agent_skill_metadata_scope.py",
+          "summary": {
+            "executed": 14,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 14,
+            "selected": 14,
+            "skipped": 0
+          },
+          "report_sha256": "a4a49c0bdfbed6af2f2c9848321d79db7709d6f4b5c782c6efb80409c73557a8",
+          "log_sha256": "c935e04b2ab5292738b64b6d894c84a5843b4a762d267e96259627fe323a6bb0"
+        },
+        {
+          "cohort": "support/test_process_liveness.py",
+          "summary": {
+            "executed": 16,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 16,
+            "selected": 16,
+            "skipped": 0
+          },
+          "report_sha256": "43d93d18d75025fcc5595cd092cf79fd28e12c75d21e6829f108144388f3c7f6",
+          "log_sha256": "e7e23791f1f75cc54c5d4ecb7100c331a5d6d036dd7255d99438b8240cc5d59e"
+        },
+        {
+          "cohort": "support/test_sdk_runtime_cleanup.py",
+          "summary": {
+            "executed": 8,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 8,
+            "selected": 8,
+            "skipped": 0
+          },
+          "report_sha256": "5d0260bdc73e6bb5ae96d1b596438a40db43f9f31944c8ecc93720ac01f17bdb",
+          "log_sha256": "a26403b5cc37a36b3dca897bd2560e0281d8cef4cda988e8e48646e9fa64c2e9"
+        },
+        {
+          "cohort": "support/test_sdk_runtime_diagnostic.py",
+          "summary": {
+            "executed": 20,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 20,
+            "selected": 20,
+            "skipped": 0
+          },
+          "report_sha256": "773e4146c3c34bc65431ce807ef2ed8eb132a5ec8b2f629a7233d5f0792d1387",
+          "log_sha256": "e29ee43195825ae1565fd28f30143a757f8660bb7954db912d46a616233a4da2"
+        },
+        {
+          "cohort": "support/test_evidence_streaming.py",
+          "summary": {
+            "executed": 6,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 6,
+            "selected": 6,
+            "skipped": 0
+          },
+          "report_sha256": "2b4268e73c53eb1ec2edc384a91631226d63ae6772f9afa1494b5fbefa85732d",
+          "log_sha256": "792bc57ef8e48348b83c7190528eda40e9ea874bf271c93c4e26fed7371e3295"
+        },
+        {
+          "cohort": "support/test_bounded_source_scanning.py",
+          "summary": {
+            "executed": 4,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 4,
+            "selected": 4,
+            "skipped": 0
+          },
+          "report_sha256": "9071fd73f41deaa9598a0f1c7ee48db83492db9a044957a512b3a95e3539baf3",
+          "log_sha256": "45e7e15acf645dd102103bb3d090761c3c10fe2c25782034ddf49f65b8c45013"
+        },
+        {
+          "cohort": "support/test_pinned_input_closure.py",
+          "summary": {
+            "executed": 9,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 9,
+            "selected": 9,
+            "skipped": 0
+          },
+          "report_sha256": "36729f7ebd020f36696712c2b46d7c820378d7862e7c3f269474579ea25406c6",
+          "log_sha256": "ee9251d19f17e24413a59bf078a6fa605f6f6247551bfd4d72d7fb10724555b9"
+        },
+        {
+          "cohort": "receivers/test_standard_command_projection.py",
+          "summary": {
+            "executed": 8,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 8,
+            "selected": 8,
+            "skipped": 0
+          },
+          "report_sha256": "e690d8726b96f1b51e910e64db1ca89c0bf2ef000116c5e22b8f4ba32372d465",
+          "log_sha256": "10d10bebca427edd2fc93f76e33f35e1746adefc340bed3a9fd99d9530952aa9"
+        },
+        {
+          "cohort": "receivers/test_elixir_mix_projection.py",
+          "summary": {
+            "executed": 6,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 6,
+            "selected": 6,
+            "skipped": 0
+          },
+          "report_sha256": "2c57c08ff30a56089aa6dc9b9e96d13496a7425e39700435f307fa8c1fee857e",
+          "log_sha256": "5442d3a10b22725683ff8ae3a9344fbff34f2a02183181f883daf862733be095"
+        },
+        {
+          "cohort": "receivers/test_coding_cli_success_cleanup.py",
+          "summary": {
+            "executed": 1,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 1,
+            "selected": 1,
+            "skipped": 0
+          },
+          "report_sha256": "8a1a3082e98f32ea81f392a6c16377c7fd93844fd431bbe00c6b963e651fc1f5",
+          "log_sha256": "008224ebf1c7926ab5e0b78a31fbc0dca811c3a896986fffe00db233c6c05f93"
+        },
+        {
+          "cohort": "receivers/test_guarded_builder.py",
+          "summary": {
+            "executed": 6,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 6,
+            "selected": 6,
+            "skipped": 0
+          },
+          "report_sha256": "f58d89ff06d377d6c6ccc1f21d2e5b53b0f53a5f6dc1c7c72fb0da5ffe12b665",
+          "log_sha256": "e67b30f8c9638e372c2015c8e39c20b4c379f7dedff2ff8decba39dda6e9b5a8"
+        },
+        {
+          "cohort": "receivers/test_authored_coding_cli.py",
+          "summary": {
+            "executed": 0,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 0,
+            "selected": 9,
+            "skipped": 9
+          },
+          "report_sha256": "7d8dbf8928adb4503e518f056488dcc8b3c3a4992e823e90ac33cf2b21177439",
+          "log_sha256": "a558a850bae8014a76f896155644e7cc11430a7b588c93eaf2a80a36d611f8e5"
+        },
+        {
+          "cohort": "receivers/test_coding_cli_generation.py",
+          "summary": {
+            "executed": 22,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 22,
+            "selected": 22,
+            "skipped": 0
+          },
+          "report_sha256": "546fc885f000ee32e12ada981cc3a049b67ec354e0cf98bc77ef46154e31baa9",
+          "log_sha256": "b05d21b8951bd934e78944cd42ed4702473f1ec2710582b29a8202bd5a7e8be6"
+        },
+        {
+          "cohort": "composition/test_standard_source_cache_roundtrip.py",
+          "summary": {
+            "executed": 2,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 2,
+            "selected": 2,
+            "skipped": 0
+          },
+          "report_sha256": "308adca5c61b4088a376a63cf1809dd49fc9d8485a4abb9a4f6f69e110a981c0",
+          "log_sha256": "45f1def42ce0d4a41fb87f0a4ca5c79fc8c81e41a63097a177621ddf3cb45581"
+        },
+        {
+          "cohort": "composition/test_standard_node_sdk_build.py",
+          "summary": {
+            "executed": 3,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 3,
+            "selected": 16,
+            "skipped": 13
+          },
+          "report_sha256": "7f9537c537f90724c1bd0742b5baa3e556c01812ee180844dd26694b228f9c57",
+          "log_sha256": "60d87382b30b0d61cd4357a2cd7caec6c9fd9fa0be464f89d377dccede493885"
+        },
+        {
+          "cohort": "composition/test_canonical_sdk_rebuild.py",
+          "summary": {
+            "executed": 0,
+            "failed": 0,
+            "known_failed": 0,
+            "passed": 0,
+            "selected": 1,
+            "skipped": 1
+          },
+          "report_sha256": "1ad7f00fa99455a5eca6caae7f79038d1e9a90d00c4e9e7cde911ee24609fe97",
+          "log_sha256": "634fb3b444c11b60058e6cae9b2849aa6478584680baa1f27472ce335923161e"
+        }
+      ],
+      "source_file_manifest_sha256": "8e7e955235a81218367126cd9f59e1d8dbd87290f9b1a46f94c508d9c4c7e77e",
+      "changed_source_test_script_files": 182,
+      "scope": "Focused source controls on the candidate tree; pending native/installed/independent/full regression and resulting-main gates remain separate. Counts include imported/reused discovery instances and are not a distinct-case claim.",
+      "current_owner_resolution": {
+        "normal_merge": true,
+        "conflicting_paths": 26,
+        "native_root": "One finalization implementation retains current native continuation and external-library assembly plus incoming SDK observation boundaries. Original root/command/controller, lease, journal, interrupt and worker telemetry ownership remains.",
+        "cache": "Original held bytes, file identity and parents enclose immutable publication and retirement. Existing cooperative lock, per-link rollback and original native deadline remain authoritative. SDK-only calls retain original currentness checks under the unchanged 30-second local lock ceiling; no original lease is renewed.",
+        "process": "Shared process runner joins incoming original liveness with current native start/complete, interrupt relay, absolute deadline and confirmed Job cleanup; provider trace redaction preserved.",
+        "parsing": "Existing bounded project parse scopes retain their original limits. Recovered bounded immutable SDK metadata observations remain DATA with original copied-context retirement and no filesystem/issuance permission."
+      },
+      "original_failures": {
+        "cache_equal_byte_replacement": "The first two-case run accepted an equal-byte replacement of an existing immutable file; original held-file custody fixes it.",
+        "cache_retirement": "After porting the old private frame cut to the current retirement method, the original counterexample deleted a foreign replacement. Earlier read custody now remains live across the first native removal callback; both late cuts pass.",
+        "fixture_paths": "Contained metadata/workflow roots and the current optional execution-plan slot replace stale fixture assumptions without removing original assertions or guards.",
+        "npm": "Default Homebrew npm inventory refused an internal .bin symlink. Original strict path admission retained; explicit existing system Node 22.23.4/npm 10.9.9 independently admitted for the successful source and installed controls.",
+        "cargo": "Common home Cargo configuration selected its existing sccache wrapper; long fixture TMPDIR prevented its startup. A task-owned short socket/cache on the mounted volume was started before the unchanged hostile-caller/import control and stopped afterward.",
+        "cache_rollback": "Historical postlink SDK failure expected one partial membership. Current guarded cooperative transaction correctly removes its own pointer before commit; receiving assertion now requires zero for every lost-owner cut. Unguarded legacy partial-publication policy remains.",
+        "first_node_discovery": "An incorrect helper import prevented one discovered module from reloading; the original worker error and import trace remain separate from executed cases.",
+        "evidence_limit": "One early per-module Rust failure log was reused by a later attempt. Its captured console observation is retained separately as a factual summary, not reconstructed original raw evidence. Later attempts archive existing logs before execution."
+      },
+      "installed": {
+        "subject": "d93b31944ea7e1d707d0835332f69d30e1301564",
+        "wheel_sha256": "8a3be03a7cc4f2945ecb8b195f6a81fd603f295f1a46660c0272a08650f09753",
+        "binding": {
+          "distribution": "sha256:f1f5b783c59f55fafc8747977bb2cb96905569482a49384c6b5e1e082d891956",
+          "members": 1811,
+          "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+        },
+        "methods": 133,
+        "skipped": 0,
+        "console": [
+          {
+            "args": [
+              "--help"
+            ],
+            "exit_code": 0
+          },
+          {
+            "args": [
+              "version",
+              "check",
+              "--no-project"
+            ],
+            "exit_code": 0
+          }
+        ],
+        "verified_framework_module_origins": 546,
+        "assets": {
+          "literate_ai.adapters/node_sdk_compiler.cjs": "448ad5693f41b371c6f555558e879b328d13120f25478c0d9976a2b60a244127",
+          "literate_ai.adapters/node_sdk_compiler_bootstrap.cjs": "596789c06453215b298fc352b51ce92a1843dcff570b5ad7bc36c67a73ecf1b4",
+          "literate_ai.project_template/flavors/lang-typescript-library/flavor.md": "aed4a622d9d388ecd2db349ba0bd34ae8e960b905e08f16424dca8299d84f634",
+          "literate_ai.project_template/flavors/package-node-sdk/typescript.json": "d6646487038f17d9b9052e43e751411f1dc9968295802f2d41303c1447a84680",
+          "literate_ai.project_template/skills/specification-to-source/typescript-node-sdk/SKILL.md": "062979ee72ccca2c0bea17dce203f62ab3f7cce358d94264ec3f1ac985b09fb3",
+          "literate_ai/native/freebsd_telemetry_snapshot.c": "602d4de7d5fd625ecbf1227397a0ef669fd4bfe31f0c8174fc025c8bdf0739ce"
+        },
+        "seconds": 44.06300831498811,
+        "receipt_sha256": "9b1d6b09bd2339158643a4613c97f5ef1fdd84dd255b27275413946b36f2ef49",
+        "scope": "Fresh noneditable wheel: scoped SDK/data/liveness/cache controls and package assets plus actual console help/version/catalog checks. Actual local Node and filesystem operations; modeled verifier/grant/native-Windows observations. No full TypeScript compiler SDK, generated/retained consumer, macOS/Windows/native platform, live telemetry worker or release qualification."
+      },
+      "canonical_static": {
+        "lint": "passed",
+        "format_python_files": 2923,
+        "schemas_v2_files": 150,
+        "schemas_v2_resources": 669,
+        "layout": "passed",
+        "public_export": "passed",
+        "skill_evaluator_commit": "0827e0fab5ca93d525cb8ff1ec2af3d7dfcf6d5d",
+        "skill_views": 4,
+        "skill_checks": "schema,pii,license,quality,unicode,lint; no LLM or dedup",
+        "skills": "passed with advisories; missing-tool attempt retained",
+        "logs_sha256": {
+          "extra-node-static-qualified.log": "08efdb733990a46741aa53b830e80163f3062c76d9d77a0bd0baf7c84a084569",
+          "extra-node-export.log": "1d42e1c9e0e5671b6120b104458902051825d5c5582e189be46403ef90a5b6b3",
+          "extra-node-skills-qualified.log": "833370feaf9741498d53fe5b7798f51e793cdc0dd26ef8ffcf5dc9235f100bb5"
+        }
+      }
+    }
+  },
+  "remaining_requirements": [
+    "All 91 source snapshots and 12 additional clean heads are reconciled. Continue original layout, SDK, telemetry, source/native/installed/platform and review requirements; archival integration and scoped passing controls do not complete those features.",
+    "Complete resulting composed-source qualification. Fourteen Cargo cases pass at f0a5da8eb; later retained-release/fixture changes have their own bounded controls. Diagnose canonical source metadata publication role-input refusal before the recovered forest capacity assertions; do not weaken its guards or expand declared budgets.",
+    "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
+    "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
+  ],
+  "preserved_holds": [
+    "project.documentation_authority_review_stale remains reported; no review marker, driver or release receipt was repinned.",
+    "Prior source-timeout and storage-cutover holds are not lifted by this custody observation."
+  ],
+  "release_qualification": false,
+  "resumed_original_working_state": "6ca69e404f672aaeb7107049b30c58e5e618305b",
+  "historical_observations": [
+    {
+      "source_recovery": "fff8ed5d888115a08ad6081b1df96c13e5ed9e8e",
+      "scope": "Historical Windows checkpoint retained verbatim; no current native Windows acceptance or superseding failure is inferred.",
+      "queue_prose": "- **Windows qualification follow-up (2026-11-01):** The native gate at\n  `7763e23de54a5c51a4a155b3bcdd8c724fb41e56` preserved a clean checkout but failed\n  worktree discovery when a native filesystem identifier exceeded canonical JSON's\n  signed 64-bit integer range. The preceding actual admitted-receiver integration\n  case passed. Preserve exact raw filesystem comparisons and represent only wide\n  observation-signature integers losslessly in the identity document; retain the\n  global canonical integer bounds. Native Windows discovery/audit checks and fresh\n  full regression are required before landing this correction.\n"
+    }
+  ],
+  "late_filesystem_discovery": {
+    "dirty_recovery_commits": 1,
+    "additional_clean_heads": 5,
+    "registered_checkouts": 6,
+    "staged_paths": 61,
+    "index_sha256": "26669968d09e3ae9b07e30e3709eb67e6fb80413304ad6336f3fb0da545b5067",
+    "snapshot_tree": "8733c389cad39c124f35d367fe0afc16a9650b55",
+    "snapshot": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+    "standalone_worktrees": 5,
+    "artifact_directories": 7,
+    "transfer": "Independent full transfer comparison passed before cleanup.",
+    "consuming_projects": "Clean pinned Kit framework dependency and clean hosted pilot consumer fixtures are dependency/project inputs, not additional active framework development. Preserve their consuming project authority.",
+    "transfer_receipt_sha256": "0da3126a422f34a571d9d10e857dd45a439db93b5848d29d60d22e85cf2abec0",
+    "transfer_comparison": {
+      "parent": {
+        "rsync_checksum_comparison": "All source files, ignored artifacts and symlink targets match; remaining itemized rows are symlink mode and directory mtime differences across filesystems.",
+        "report_sha256": "ae0c08d9fabaf72a6aee53506e009ef3325db1431fe629e9cfb83729a1c6bb51",
+        "metadata_only_rows": 116,
+        "equivalent_git_objects": 15,
+        "object_verification": {
+          "objects": {
+            "0cd0896c6fa699554c4e3a40aae7f3cc94a26f20": "279ad08f7ab3f5079779436a99b616104285cf293b0d3b1a665b243b13504439",
+            "145fb0158cca51dda5b27fae29709072f8abd7ae": "dffed954b53604b74ce2f8d2e73587adb8408ed88a5d2ce7108c51af337c86d5",
+            "54d00cc880327ccb8b091a77cc867be91495d125": "af69249ed11b5739f3d6eddf74e001d4b411413354aa3436724c35dd582f8e92",
+            "5619365d4947cd69fda06931c32f9239e31bc80c": "a7ea723d4eba7ab06ca81abcc0c71384fbf0dd4e05d6cb1f4c7c016375b40131",
+            "6387ec172f2329c68b665da0d31f70582e6f2834": "5acf66aa6058881c82fc7e09f3b09e0daedd2fceca9a95d1269e4c31cdb4e3a4",
+            "85573887ff61ed7cb133700214cdc8d1e29344cc": "a52a0f0224abbd1658e7b74cdbf0f1f7447bd0754d8b20e955190c6778bde5b0",
+            "8733c389cad39c124f35d367fe0afc16a9650b55": "0e8898149abd97688bd4675622aebefb3edb908e5d00bf549e1fbf9cd538f14e",
+            "937ca96befbe3a367ca8a4b2987e8450265fc937": "566c43e58986705a0a56342a90ba120337bd9524b4da01ed28e73471ee2566f2",
+            "95afdd2b787ce5b6d4bbd70d14713076d249aed8": "b3204f10616de59d35de5d34ccc9c018414a54b1e11e92b815b096a3620cf05e",
+            "b9d630e95950feaf12ec290b376558882a4dac43": "e2f65e21fa9038b80b19cc820e25b98b02f187ae82d747fe4c41ae123d1b6d55",
+            "c9bf62dc726c74c8840d4b750004d818ef4be607": "d4f9c52c7a75bca78650adfb449d98736a29cc9183eb50a898ba9db4b8be4aea",
+            "d37e49df0b543ffce70ce4f2acf256c623bebe75": "1ea4bdaa644b21f80a2aec454b51c6a8546d8bd06ac708a877552c13471f3f31",
+            "d6e5ac534e63ebf1d6e6a20ee9930d346297315c": "d8d77fa57580525339127c240bf0c63c08481179b3803188526fce93c0970a92",
+            "f237b47d68817bc915806f79b9f56e68844a1742": "e8c179c336ba3d7c462bc5dadc7d1d32206fb56a1a83041ae7acc3d64ab4d729",
+            "f9b526a7f9359da6901854a0c154e955c79720a4": "45294e0db2390a8bd2e81aa1cafa40842986104360b9316202742af80820176f"
+          },
+          "verified_equal_uncompressed_git_objects": true,
+          "reason": "The same staged trees were written on both hosts. Git versions produced different compressed loose-object bytes; exact logical Git object content matches independently."
+        }
+      },
+      "siblings": {
+        "rsync_checksum_comparison": "All source files, ignored artifacts and symlink targets match; remaining itemized rows are symlink mode and directory mtime differences across filesystems.",
+        "report_sha256": "629934fe1d7df989ef3b71b33e30635c67efc09b814871fab4fc3120ba133870",
+        "metadata_only_rows": 27,
+        "equivalent_git_objects": 0
+      },
+      "scope": "Independent transfer acceptance for late-discovered embedded framework Git directory and all sibling development/evidence directories. Original source refs, index, files and ignored evidence preserved before cleanup."
+    },
+    "cleanup": {
+      "removed_development_worktrees": [
+        "sealed-sdk-declarations-1158d5f4",
+        "sealed-sdk-foundation-8c2e108f",
+        "sealed-sdk-joined-b57e6687",
+        "sealed-sdk-policy-2b6fb2a3",
+        "sealed-sdk-schema-cf652de5"
+      ],
+      "removed_artifact_directories": [
+        "backport-tmp",
+        "eqf125",
+        "id361-gates",
+        "sealed-js-bom-e2e-20261116",
+        "sealed-js-e2e-20261116",
+        "sealed-js-policy-e2e-20261116",
+        "sealed-js-shipped-policy-e2e-20261116"
+      ],
+      "remaining_framework_sibling_directory": false,
+      "embedded_dependency_subject": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+      "embedded_dependency_tracked_clean": true,
+      "embedded_dependency_worktrees": "worktree /Users/jkh/.worktrees/Aviation/native-roadmap/parents/literate-ai\nHEAD 1cb1ef461d6df7d4c6092a460308ec811c044283\ndetached",
+      "scope": "Five additional standalone development worktrees and seven artifact directories removed after independent transfer acceptance. Embedded consumer dependency retained at its original exact saved tree; no product qualification inferred."
+    },
+    "index_refresh": {
+      "index_sha256": "edc200c81d84e8a1c2650b63c3e847e97f5349ab24cd05e88c64545ca284469e",
+      "tree": "8733c389cad39c124f35d367fe0afc16a9650b55",
+      "entries_sha256": "5dd6126d23dcfe291b519a99e02b65a2c8655ba78d758445fc0b038df544767b",
+      "note": "git write-tree refreshed the optional cache-tree extension on both independently matched indexes. Refreshed index bytes, exact stage entries and original tree match; no source/staging change."
+    }
+  },
+  "final_custody_verification": {
+    "source_subject": "d93b31944ea7e1d707d0835332f69d30e1301564",
+    "all_91_snapshots_ancestors": true,
+    "all_12_clean_heads_ancestors": true,
+    "active_source_checkout_tracked_clean": true,
+    "active_source_checkout_registrations": 1,
+    "source_home_legacy_clone_exists": false,
+    "source_sibling_development_directory_exists": false,
+    "embedded_consuming_inputs": {
+      "aviation": {
+        "subject": "1cb1ef461d6df7d4c6092a460308ec811c044283",
+        "tracked_clean": true
+      },
+      "kit": {
+        "subject": "2f3012d5d1be3393686534a7768ebaa0f1cedbbb",
+        "tracked_clean": true
+      }
+    },
+    "source_receipt_sha256": "e46a366827d36e2e784a24dc9190ca8ea56203cd32990b25662253bacaba1e2e",
+    "destination_peer_worktrees_preserved": 99,
+    "collectable_peer_worktrees": 0,
+    "source_webmux_health": "ok",
+    "source_mac_light_duty_presence_last_exit": 0,
+    "destination_webmux_health": "ok",
+    "destination_mac_agent_service": "active",
+    "origin_main_behind": 0,
+    "source_subject_ahead_of_origin_main": 876,
+    "default_branch_landed": false,
+    "release_qualified": false
+  }
+}

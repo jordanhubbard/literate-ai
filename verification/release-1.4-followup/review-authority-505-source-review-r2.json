@@ -1,0 +1,31 @@
+{
+  "review": "independent505 exact source implementation review r2",
+  "base_head": "e0ed424699155877ec9a72071f5b1b5920bdd2c1",
+  "observed_at_utc": "2026-11-27T19:22:14.659589+00:00",
+  "status": "source_review_accepted_original_execution_pending",
+  "sha256": {
+    "src/literate_ai/adapters/retained_layout_forest_operation.py": "0fb205dd282db42a67292ef9aaa53f05c6625006e18d218b018aa72de7d5be82",
+    "src/literate_ai/adapters/retained_layout_control_publication.py": "18e9da710b513ac163b92480bab4c213f28eb8ed9bcc5e90610930c52d776c30",
+    "tests/critical/test_retained_layout_forest_operation.py": "23c3dca561c96c0764f444a6cc7b2d57a67a5a73c943602f9ba30dd3c3f56f12"
+  },
+  "findings": [],
+  "reviewed_behavior": {
+    "execute": "Actual issued exact-type proposal lookup and creating-proposal refusal remain first. New exact ContentIdentity type and allow_host_execution is True gate uses no equality, stringify, properties, JSON, paths, callback or native state. Original _require and complete later object-identity/type/ack-equality/host gate remain unchanged.",
+    "planning": "Existing plain concrete coordinate type checks now precede _state, followed only by owner pure original pool reference check. Neither caller coordinate nor pool is coerced or called. Original full _state, live pool validation, journal and field/currentness closures stay afterward.",
+    "pool_reference_owner": "Exact _ControlPool type and membership in original _LIVE_POOLS dict; _ControlPool retains object identity equality/hash, no caller methods or fields touched. Helper returns existing registration only; no new owner issuance, native operation or admission permission.",
+    "live_pool": "Original full helper reuses pure reference helper then exactly preserves original field seals, poison refusal, native _guard callback, closing field seal and return. Native guard is not moved into preflight and not bypassed.",
+    "errors": "Original creating/acknowledgement/plain-coordinate and actual-live-pool refusal messages/types preserved for original negative cases. True identity test still exact singleton; no boolean coercion or ContentIdentity subclass acceptance.",
+    "remaining_authority": "Original process/thread, parsed witness, plan/source-phase identity, proposal field seal, canonical document bytes, control pool and journal bindings, held effect area, canonical partition, source movement, publication, finalization and terminal cleanup unchanged."
+  },
+  "exact_static_comparison": {
+    "forest_module": "Removing only new early ack gate and pure pool front call, restoring original coordinate-loop/state ordering, and removing new import restores original whole module AST exactly.",
+    "control_module": "Inlining original type/map prefix at full helper and removing new pure helper restores original whole module AST exactly.",
+    "original_negative_test": "Entire original forest operation test file byte-identical to clean e0ed base; all None/impostor/allowFalse/copied proposal/foreign copied pool/impostor path no-fstat traps and original no-event/source/destination assertions preserved."
+  },
+  "scope_limit": "Early gate rejects missing/non-exact acknowledgement and missing exact True permission. A wrong well-typed identity still follows original binding/currentness checks before equality; this review does not claim every invalid canonical digest now rejects without inspection.",
+  "execution_limits": [
+    "No tests, jobs, retry, posts or source edits by reviewer in this task. Root owns unchanged original cohort execution; no pass inferred from source review.",
+    "Historical catalog finalization session62847 and installed e0ed target were not inspected, waited on, consumed or modified.",
+    "No native Windows, installed historical, whole suite or release acceptance implied."
+  ]
+}

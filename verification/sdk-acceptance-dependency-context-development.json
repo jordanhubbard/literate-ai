@@ -1,0 +1,129 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Original per-case SDK dependency capture and nonexecuting historical consistency joins; actual POSIX CMake SDK/native programs with the maintained external Standard binding/project-placement fixture seam",
+  "production_sdk_base_revision": "f3bd986b114f83c68587fa0dacc5ac56c3425492",
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_project_dependencies.py": "06a4f41ee8265909cd181248cb974766356ca8f96115123291480e98135eb89b",
+    "src/literate_ai/adapters/retained_project_acceptance.py": "a90461aab4997066aabc91722f29233f298c542e83206a651601f81d67844673",
+    "src/literate_ai/adapters/retained_project_execution.py": "8e643c3a1903f9e59fb0bedec3d6bb4f04cdad7cf49f3463ee99e2d49c0919bc",
+    "src/literate_ai/adapters/retained_project_sdks.py": "f7e561e8d5c72706ba7b1477ba1f9b7c6da74679ecf032943da8ea2fa57c6e8d",
+    "src/literate_ai/adapters/retained_sdk_command_context.py": "e9d0f8bfd25ea9fcd676a9084ac0a2af487d5ec0de5330946a2ae416b66cc107",
+    "src/literate_ai/adapters/retained_sdk_metadata.py": "0577281629022bddee1658a31c72129409bafe633c84a7b3886e4ed48b2592b8",
+    "src/literate_ai/adapters/retained_sdk_run_inspection.py": "bfc08f409ff9defae150fd6f431e576b3c28e290a6b92792bf17568a033730a4",
+    "tests/e2e/test_retained_sdk_promotion.py": "b95d50e10aaa7cff36b271855a2367787504207bbadf73a38ab58c22fd82d1b9",
+    "tests/e2e/test_retained_sdk_public.py": "cf872583a53b68b5c9953a100c1b99a723c8ddc28e64192405e09067c1938379",
+    "tests/e2e/test_retained_sdk_runtime_context.py": "62968e9aba4eaabd664f4ef4134f77c48a29e61c19b342a79b55f9ecbbab6a11",
+    "tests/critical/test_retained_project_acceptance.py": "aa065ef53154e3e9045e607836a20cbc175e250f8f36ad223c39ce52062f60ba",
+    "tests/support/fixtures_public_retained_promotion.py": "0baac5242c972ab3c5f3ca3f0971136a05f1677501797cdf87db98cfd4e49bcd"
+  },
+  "checks": {
+    "capture-context-and-filesystem": {
+      "report_sha256": "e2811eefc8c5e867a77b9e16b48a1159f3aaf9dfba3c436051287d9d6cd96b33",
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "seconds": 482.293
+    },
+    "original-sdk": {
+      "report_sha256": "681665632893c5615aec3708964e3b9c6ff42dfb830bda6c831af2026d589ed6",
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      },
+      "seconds": 543.057
+    },
+    "original-public": {
+      "report_sha256": "93929a416c489005337771f18c5f8b55b8733ccc7d7490904667d8c5dcc41ea8",
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "seconds": 531.932
+    },
+    "original-runtime-context": {
+      "report_sha256": "3c84c1fe87fb5b2d7c25fd68f9025176e655533130b84580e3decd572338f751",
+      "summary": {
+        "executed": 7,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 7,
+        "selected": 7,
+        "skipped": 0
+      },
+      "seconds": 433.468
+    },
+    "original-acceptance": {
+      "report_sha256": "b2479a278e674f2c331e40732acd4c0f66492509cdd51aebe174a0faaf4cb814",
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      },
+      "seconds": 34.968
+    },
+    "original-filesystem": {
+      "report_sha256": "ac19b742af348ccd6bffa6b0934adb20e866ac74f375a2582bdd72e43086e3ba",
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "seconds": 43.885
+    }
+  },
+  "passing_cases": 58,
+  "original_failure": {
+    "log": "pc14-sdk-acceptance-dependency-homebrew-red.log",
+    "seconds": 190.677,
+    "finding": "The valid original capture reopened, but the reader accepted a coherently rehashed acceptance dependency identity forgery."
+  },
+  "intermediate_fixture_failure": {
+    "log": "pc14-sdk-acceptance-context-and-filesystem-green.log",
+    "seconds": 494.926,
+    "summary": {
+      "passed": 1,
+      "failed": 1
+    },
+    "finding": "A private-case context forgery collapsed base and case documents by assigning the same forged environment. Existing metadata uniqueness correctly refused first. Preserve distinct original environments in forged identities; do not weaken uniqueness or the expected semantic refusal."
+  },
+  "capture": {
+    "ordinary_execution_schema": "literate-ai/native-sdk-command-execution@5",
+    "acceptance_execution_schema": "literate-ai/native-sdk-command-execution@6",
+    "original_native_observation_probes_duplicated": false,
+    "frozen_receipt_acceptance_planning_wire_shapes_changed": false,
+    "missing_old_sdk_acceptance_facts": "explicit fresh-capture refusal",
+    "reader": "Existing bounded custody/metadata owner follows only the two named native dependency references. Pure graph validation and recomputed digests join exact plan, stage output manifest and base/private case environments."
+  },
+  "native_controls": [
+    "valid ordinary and private-case original captures reopen after verifier cleanup",
+    "coherent ordinary environment/dependency forgeries refuse",
+    "coherent acceptance dependency, private filesystem dependency/environment and raw dependency-document environment forgeries refuse",
+    "historical reopening executes no retained/acceptance command, acquires no SDK execution owner and writes no CAS object",
+    "original acceptance drift control observes both original native graphs around the actual program"
+  ],
+  "trust_boundary": "Historical assertions and byte/context consistency under the original typed producer/operator boundary; not cryptographic proof against an arbitrary hostile store writer and never live executable authority.",
+  "independent_whole_implementation_review": false,
+  "complete_combined_source_passed": false,
+  "installed_sdk_promotion_qualified": false,
+  "requesting_consumer_promotion_qualified": false,
+  "release_qualified": false
+}

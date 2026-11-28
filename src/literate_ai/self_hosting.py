@@ -18,6 +18,9 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 
+from packaging.requirements import InvalidRequirement, Requirement
+from packaging.utils import canonicalize_name
+
 from literate_ai.adapters.builders import (
     UNSANDBOXED_HOST_BUILD_PRIVILEGES,
     UNSANDBOXED_HOST_BUILD_PROFILE,
@@ -587,7 +590,44 @@ def _project_runtime_requirements(path: Path) -> _PythonDependencyAuthority:
                 "self-host project optional Python dependency groups are invalid",
             )
         optional_groups.append((group, tuple(values)))
-    return _PythonDependencyAuthority(tuple(dependencies), tuple(optional_groups))
+    try:
+        aliases = (
+            document.get("tool", {})
+            .get("literate-ai", {})
+            .get("snapshot-replication", {})
+            .get("optional-imports", {})
+        )
+        declared = {
+            canonicalize_name(Requirement(raw).name)
+            for _group, values in optional_groups
+            for raw in values
+        }
+        if not isinstance(aliases, dict):
+            raise ValueError("optional imports must be a table")
+        normalized: dict[str, tuple[str, ...]] = {}
+        for name, imports in aliases.items():
+            coordinate = canonicalize_name(name)
+            if (
+                coordinate not in declared
+                or coordinate in normalized
+                or not isinstance(imports, list)
+                or not imports
+                or any(
+                    not isinstance(item, str) or not item.isidentifier()
+                    for item in imports
+                )
+                or len(set(imports)) != len(imports)
+            ):
+                raise ValueError("optional import mapping lacks exact authority")
+            normalized[coordinate] = tuple(sorted(imports))
+    except (AttributeError, TypeError, ValueError, InvalidRequirement) as exc:
+        raise SelfHostError(
+            "self-host.project-optional-imports-invalid",
+            "self-host optional imports must name declared Python requirements",
+        ) from exc
+    return _PythonDependencyAuthority(
+        tuple(dependencies), tuple(optional_groups), tuple(sorted(normalized.items()))
+    )
 
 
 def _source_bom_runtime_requirements(path: Path) -> _PythonDependencyAuthority:

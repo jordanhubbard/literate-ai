@@ -1,0 +1,102 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Original raw-source custody before retained readmission baseline and wrapper commands, supporting ADR 0070 execution preparation",
+  "base_commit": "859fae8845c3f3b955975fe67572c5925f9f6ffb",
+  "source_files": {
+    "src/literate_ai/adapters/retained_harness_readmission.py": "8e86e607bff39329bac9049a3ad45eb4a0e583ed77ff09cba3d6d9270620b1d6",
+    "src/literate_ai/adapters/harness_tree.py": "83db0a4c96468d79fd6a4e64c2af3b18c9256bd4282dfa10645d16f6c5e29aea",
+    "src/literate_ai/adapters/harness_inventory.py": "3208fe770133e2d42772a0bc5639e5be58d647916b5f6db8fb5b459a66fc7682",
+    "tests/e2e/test_retained_readmission_source_inputs.py": "5275a9cd52ed7a990bc77deb0ff551c997da417878e59121cf43fe08a170568f",
+    "tests/e2e/test_retained_harness_readmission.py": "897d04d60b7dd2fe4be873e4366df83df481dfb161573d0d2344a287560408b9",
+    "tests/e2e/test_harness_inventory.py": "defd6ddd5cbf04fcb29ced3082ee843a9440fffd774f8ca75317e0d638b8754f",
+    "tests/e2e/test_retained_command_renewal.py": "0e7c3f519cd9341aa812d2a016e9ed04965f1acfd4fafa0a2d175e2f2ff521a4",
+    "tests/e2e/test_retained_command_renewal_readback.py": "8f8a1e94e577dcc4b68ec1d603197e653807603240ef7c4af4d9c92df73798c4"
+  },
+  "current_report_union": {
+    "distinct_passed": 50,
+    "failed": 0,
+    "skipped": 0,
+    "reports": [
+      {
+        "scope": "new-source-custody",
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "seconds": 12.85,
+        "report_sha256": "408254f91fdccc692d3d4097f944aabffbaa7de4345479c846bd567c2eb26a4e"
+      },
+      {
+        "scope": "existing-readmission",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "seconds": 30.89,
+        "report_sha256": "be263af3643bb5611d63b586ab8e1e1ffae414c5d1a11661e421aedb57d4310f"
+      },
+      {
+        "scope": "existing-harness",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        },
+        "seconds": 46.778,
+        "report_sha256": "43468d446beff566e743e9c315bd9bf5a5eb7daa897de87a80dbadf1443cf035"
+      },
+      {
+        "scope": "planning-readback",
+        "summary": {
+          "executed": 25,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 25,
+          "selected": 25,
+          "skipped": 0
+        },
+        "seconds": 33.552,
+        "report_sha256": "59b6557aaaf254d2ec4dc7fa31fb1d9e2f43f70cb4fa45d649fe231a4297d18c"
+      }
+    ]
+  },
+  "original_failure": {
+    "executed": 1,
+    "selected": 4,
+    "passed": 0,
+    "failed": 1,
+    "cause": "An altered disposable app.py reached the baseline command port; the test blocked actual command execution at that port",
+    "retained_locally": true
+  },
+  "raw_source_bytes_and_modes_compared": true,
+  "extra_initial_copy_names_refused": true,
+  "original_observation_shared_across_baseline_and_parity": true,
+  "guard_expiration_exercised": true,
+  "original_absolute_path_bytes_preserved": true,
+  "native_disposable_build_transformations_preserved": true,
+  "normalized_baseline_and_parity_wire_meanings_changed": false,
+  "ordinary_harness_parity_default_guard": "none; existing callers retain their original behavior",
+  "new_public_command_selection_apply": false,
+  "driver_or_receipt_pins_changed": false,
+  "independent_source_review": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "release_qualified": false,
+  "limits": [
+    "Only the initial disposable input is closed against original bytes/modes and namespace. Subsequent native build/test source transformations remain under the existing report/parity semantics.",
+    "The positive transformation control executes actual local Make commands in disposable copies and proves the original source remains unchanged; its fixture-printed test count supplies no full retained-case or compiler qualification.",
+    "Remote paths recheck original host inputs and the staged wrapper copy while preserving the existing worker transport, original source identity protocol, timeouts and retry bound. No configured worker was dispatched by these controls.",
+    "New command-selection apply/public routing, durable transaction/recovery, actual selected native compilation and installed/platform/release qualification remain open."
+  ]
+}

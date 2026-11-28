@@ -1,0 +1,88 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Current promotion evidence wire registration and explicit negative catalog fixture permissions under a private umask; complete renewed source and native SDK capture still pending",
+  "base_revision": "79ffff610fe64335289233165185220e8f35e589",
+  "public_wire_ids": [
+    "literate-ai/retained-project-promotion-evidence@1",
+    "literate-ai/retained-project-admission-assertion@1"
+  ],
+  "source_sha256": {
+    "schemas/v2/retained-project-promotion.schema.json": "9245e8353f665bb05ac233d37e112008bbf3ebafc87bb0a0f77cdfba31eac441",
+    "schemas/v2/index.json": "b412e73c488fa8dcc8f7b942a230367dea93890915fdcdaca9ec23ce4eba0095",
+    "schemas/v2/compatibility.json": "cb8974870f54cb3c8934e788cdb3ba1e80b041109e1faf0838764160d50bcc03",
+    "src/literate_ai/schema_catalog.py": "a65235787d4c9e21d81fdecd3e90888c385b0ebf645715762e158bb3f31966c6",
+    "tests/critical/test_retained_receipt_promotion.py": "68e9a8f34c2501adead033d7fc8a4ee254cf7c9d914d0eb816103a89c1079e23",
+    "tests/critical/test_catalog_copy_staging.py": "55ca2ab711b6b24009612eec4a8b895c699dd38f7fad3a4c260c3999d63e9837"
+  },
+  "original_native_public_promotion": {
+    "summary": {
+      "executed": 1,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 1,
+      "selected": 1,
+      "skipped": 0
+    },
+    "report_sha256": "5faeebce35aecf660b3de552901f00d00012fef61efd1207013348a325ef00a4",
+    "seconds": 165.61,
+    "wire_documents_validated": "Actual CAS records from the existing original native public run. Changed authority flags, added grant fields and malformed receipt identities refuse under JSON Schema.",
+    "provider_and_installed_release_qualification": false
+  },
+  "private_umask_staging": {
+    "umask": "077",
+    "summary": {
+      "executed": 28,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 28,
+      "selected": 28,
+      "skipped": 0
+    },
+    "report_sha256": "437a6dab29d29e508add6f18a97a5b2f17ddd49e2e3d64f090285c3c2fb6a174",
+    "seconds": 2.016,
+    "production_permission_guard_changed": false,
+    "fixture_actual_permissions_set_and_asserted": true
+  },
+  "catalog_structure": {
+    "summary": {
+      "executed": 2,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2,
+      "selected": 2,
+      "skipped": 0
+    },
+    "report_sha256": "865c08784256c422b944fada2490db61c7d42f4b960499a03e2f755d5fa2ee07"
+  },
+  "combined_baseline_failure": {
+    "revision": "79ffff610fe64335289233165185220e8f35e589",
+    "summary": {
+      "executed": 708,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 707,
+      "selected": 5259,
+      "skipped": 35
+    },
+    "source_unchanged": true,
+    "failure": "The mode-negative fixture requested 0755 under umask077 and actually created 0700; the production owner correctly accepted the private empty directory.",
+    "controller_privacy_policy_relaxed": false
+  },
+  "initial_catalog_check": "Refused missing compatibility write_contract entries; explicit entries added and canonical schema-check now passes for both catalogs including unchanged frozen v1.",
+  "missing_historical_sdk_command_context_capture_implemented": false,
+  "full_source_qualified": false,
+  "independent_implementation_review_complete": false,
+  "release_qualified": false,
+  "canonical_gates_passed": [
+    "schema-check",
+    "lint",
+    "format-check",
+    "repository-layout-check",
+    "public-export-check",
+    "documentation-review-record",
+    "documentation-review",
+    "documentation-check",
+    "openspec-check"
+  ],
+  "gate_log_sha256": "582b8259e2d6fcf76bea80c52e0de14b0ae260b1c53a4b18c4641752af900697"
+}

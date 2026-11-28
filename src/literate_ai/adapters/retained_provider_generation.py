@@ -1,18 +1,19 @@
 """Reopen current provider generation inputs without allocating or generating source."""
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
 
 from literate_ai._filesystem import require_safe_directory
 from literate_ai.adapters.generation_preparation import (
     FilesystemLockedGenerationApplicationAdapter,
+    FilesystemLockedGenerationPreparationAdapter,
     LockedComponentModelSelectionAdapter,
     LockedComponentNodePreparationAdapter,
     PreparedLockedGeneration,
 )
-from literate_ai.adapters.models import GenerationRecipe
+from literate_ai.adapters.models import CODING_CLIS, GenerationRecipe
 from literate_ai.adapters.project_initialization import flavor_selector_directory
 from literate_ai.adapters.standard_project import (
     FilesystemStandardProjectPlanningAdapter,
@@ -23,6 +24,7 @@ from literate_ai.contracts import (
     ComponentGenerationClosure,
     ContentIdentity,
 )
+from literate_ai.projects import ProjectConfigurationStore
 from literate_ai.source_to_specification.promotion_materialization import (
     PromotionInputKind,
     VerifiedSourcePromotionEvidence,
@@ -42,8 +44,29 @@ class RetainedProviderGeneration:
     prepared: PreparedLockedGeneration
     execution: ComponentExecutionPlan
     recipes: Mapping[ContentIdentity, GenerationRecipe]
+    provider_id: str
+    pipeline_model: str | None = None
+    _logical_selection: tuple = field(init=False, repr=False)
+    _original_qualified_library_inputs: object = field(
+        init=False, repr=False, compare=False
+    )
 
     def __post_init__(self) -> None:
+        if self.provider_id not in CODING_CLIS or (
+            self.pipeline_model is not None
+            and (
+                type(self.pipeline_model) is not str or not self.pipeline_model.strip()
+            )
+        ):
+            raise ValueError("retained.provider.logical-selection-invalid")
+        object.__setattr__(
+            self, "_logical_selection", (self.provider_id, self.pipeline_model)
+        )
+        object.__setattr__(
+            self,
+            "_original_qualified_library_inputs",
+            getattr(self.prepared, "qualified_library_inputs", None),
+        )
         recipes = dict(self.recipes)
         expected = {
             node.revision.identity
@@ -56,7 +79,21 @@ class RetainedProviderGeneration:
         object.__setattr__(self, "recipes", MappingProxyType(recipes))
 
     def require_unchanged(self) -> None:
+        if (self.provider_id, self.pipeline_model) != self._logical_selection:
+            raise ValueError("retained.provider.logical-selection-changed")
+        if (
+            getattr(self.prepared, "qualified_library_inputs", None)
+            is not self._original_qualified_library_inputs
+        ):
+            raise ValueError("retained.provider.external-owner-changed")
         FilesystemLockedGenerationApplicationAdapter().require_unchanged(self.prepared)
+        if (
+            getattr(self.prepared, "qualified_library_inputs", None)
+            is not self._original_qualified_library_inputs
+        ):
+            raise ValueError("retained.provider.external-owner-changed")
+        if (self.provider_id, self.pipeline_model) != self._logical_selection:
+            raise ValueError("retained.provider.logical-selection-changed")
 
     def generation_closure(
         self,
@@ -83,8 +120,14 @@ class RetainedProviderGeneration:
         component = self.prepared.component_root.relative_to(root) / "component.md"
         audit = evidence.audit_containing(component.as_posix())
         audit.verify(root)
+        # The audit records Flavors at their placed (possibly contained) paths.
+        context = ProjectConfigurationStore(root).context(root)
         prefixes = tuple(
-            f"flavors/{flavor_selector_directory(f'+{flavor.flavor_id}')}"
+            context.framework_path(
+                f"flavors/{flavor_selector_directory(f'+{flavor.flavor_id}')}"
+            )
+            .relative_to(root)
+            .as_posix()
             for flavor in self.prepared.selected_flavors
         )
         kinds = frozenset({PromotionInputKind.REVIEWED_FLAVOR})
@@ -116,6 +159,7 @@ def read_retained_provider_generation(
     *,
     provider_id: str,
     pipeline_model: str | None = None,
+    qualified_library_inputs=None,
 ) -> RetainedProviderGeneration:
     """Read current files and project the same model-bound recipes as Standard.
 
@@ -131,20 +175,51 @@ def read_retained_provider_generation(
         not isinstance(pipeline_model, str) or not pipeline_model.strip()
     ):
         raise ValueError("retained.provider.model-invalid")
-    adapter = FilesystemLockedGenerationApplicationAdapter()
+    adapter = (
+        FilesystemLockedGenerationApplicationAdapter()
+        if qualified_library_inputs is None
+        else FilesystemLockedGenerationApplicationAdapter(
+            FilesystemLockedGenerationPreparationAdapter(
+                qualified_library_inputs=qualified_library_inputs
+            )
+        )
+    )
     prepared = adapter.prepare(request)
     snapshot = prepared.locked_authority_snapshot
     selector = LockedComponentModelSelectionAdapter(pipeline_model=pipeline_model)
     execution = FilesystemStandardProjectPlanningAdapter(
-        model_selector=selector
+        model_selector=selector,
+        **(
+            {"qualified_library_inputs": qualified_library_inputs}
+            if qualified_library_inputs is not None
+            else {}
+        ),
     ).plan_for_coding_cli(snapshot, coding_cli=provider_id)
     projector = LockedComponentNodePreparationAdapter(
-        model_selector=selector, coding_cli=provider_id
+        model_selector=selector,
+        coding_cli=provider_id,
+        **(
+            {"qualified_library_inputs": qualified_library_inputs}
+            if qualified_library_inputs is not None
+            else {}
+        ),
     )
     recipes = {
         plan.component_revision: projector.project(snapshot, plan).recipe
         for plan in execution.generation_plans
     }
-    result = RetainedProviderGeneration(prepared, execution, recipes)
+    if (
+        getattr(prepared, "qualified_library_inputs", None)
+        is not qualified_library_inputs
+    ):
+        raise ValueError("retained.provider.external-owner-changed")
+    result = RetainedProviderGeneration(
+        prepared, execution, recipes, provider_id, pipeline_model
+    )
     result.require_unchanged()
+    if (
+        getattr(prepared, "qualified_library_inputs", None)
+        is not qualified_library_inputs
+    ):
+        raise ValueError("retained.provider.external-owner-changed")
     return result

@@ -1,0 +1,29 @@
+{
+  "pre_delete_absence": {
+    "refused": true,
+    "type": "FileNotFoundError",
+    "same_cancel": false,
+    "native_disposals": 0,
+    "source_preserved": true,
+    "all_handles_released": true
+  },
+  "cancel_before_delete": {
+    "refused": true,
+    "type": "Cancelled",
+    "same_cancel": true,
+    "native_disposals": 0,
+    "source_preserved": true,
+    "selected_original_preserved": true,
+    "all_handles_released": true
+  },
+  "parent_replacement": {
+    "refused": true,
+    "type": "WindowsCleanupError",
+    "same_cancel": false,
+    "native_disposals": 0,
+    "source_preserved": true,
+    "foreign_preserved": true,
+    "original_parent_output_preserved": true,
+    "all_handles_released": true
+  }
+}

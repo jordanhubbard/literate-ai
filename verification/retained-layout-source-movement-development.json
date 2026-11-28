@@ -1,0 +1,237 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "27bcb4b25eae2cb3e7998c67e3051d28a6f87a8c",
+  "scope": "Actual one-use partition consumption and nonroot source movement under original preparation ledger; metadata/finalization/terminal success unfinished.",
+  "subjects": {
+    "src/literate_ai/adapters/catalog_copy_roles.py": {
+      "algorithm": "sha256",
+      "digest": "62113766fffcfc7117607cc2ed88673707eba9810fce5610c3f7a9f2f686d059"
+    },
+    "src/literate_ai/adapters/framework_update_roles.py": {
+      "algorithm": "sha256",
+      "digest": "de234e75042e80b352f13e5d0b088c9af0f9b53c0a9a5eae7cd720c5ca63cc32"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "0715af77bbfd2b6f596a5d20992c7f5affda8857e5f2fc6067063975cd0bebda"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "f6604ceb0f2e35495cd68906f3899a53fa9d665f5f7663f3026f55a24a999886"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "9d0b2f4191704fa201d2753809afe94ae38fe0c349fe06a11830ad4c2283055c"
+    },
+    "src/literate_ai/adapters/retained_layout_source_movement.py": {
+      "algorithm": "sha256",
+      "digest": "9d8399a06176c487b61ceacd507ab7723e456c26acd7c3280040213dc05d73ac"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "c48c7e935b4fc432d5e4e69f761f38521257ac99b75f97d64b81cee166ed608c"
+    }
+  },
+  "behavior": [
+    "An actual original complete partition is consumed once only during the registered source movement call. Framework/catalog spend remains one-way; currentness retains original native witnesses without restoring ready or write rights.",
+    "The actual original source census is retained by tree identity from the same ledger. Its already reserved before/after view funds destination comparison; new graph/history and mapped lineage storage and source counterparts of destination absences are funded before intent, spend and rename.",
+    "Exact native rename/root/source correspondence derives the complete postmove graph and affected parent stamps from original held identities. No fresh whole-project baseline is adopted. Original predecessor accounting is not imported again.",
+    "Only verified moved payloads, lineages and presence can advance destination absences; original antecedents and original source absence remain in history/current expectations. No caller read ContextVar remains active across caller yield.",
+    "Original source namespace absence scans precede whole-project namespace and final reader/consumed-producer native closure. Final known nodes and callback-free phase/preparation/control/movement lifetime binding precede return.",
+    "The enclosing movement activation ends before the final independent activation and complete resulting-span closure. A late payload callback cannot change moved source unchecked.",
+    "Actual foreign state remains preserved with pending intact. An incomplete source phase still cannot exit as a complete relocation; metadata/finalization/terminal transitions remain guarded and unfinished."
+  ],
+  "qualified_author_make": {
+    "command": "make python-check",
+    "selection": "tests/critical/test_retained_layout_source_admission.py",
+    "exit_code": 0,
+    "summary": {
+      "executed": 23,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 23,
+      "selected": 23,
+      "skipped": 0
+    },
+    "seconds": 102.62,
+    "report": {
+      "path": "_build/source-effects-qualified-make-report.json",
+      "sha256": "7b301018422622ea5a18ec14a6bfccc5be11641edd3716534510cb3c3cccb9cf"
+    },
+    "log": {
+      "path": "_build/source-effects-qualified-make.log",
+      "sha256": "12a5eb39dc39ef886d3d86520cae141967ad96183d7b614787b2d2aaa32ac78b"
+    },
+    "also_checks": [
+      "compileall src/tests",
+      "maintained script py_compile",
+      "host-path policy"
+    ]
+  },
+  "causal_controls": [
+    {
+      "findings": [
+        "Observed destination absence was not advanced from original-source correspondence.",
+        "Last old-source absence scan could change consumed catalog input after its native close."
+      ],
+      "before": {
+        "path": "_build/source-effects-review-before.log",
+        "sha256": "bee5c6685c8ff07762695b117357402a3033f18d4bd97986855176536493a34b",
+        "tests": 2,
+        "seconds": 17.895,
+        "footer": "FAILED (failures=1, errors=1)"
+      },
+      "after": "Both maintained controls pass in final scoped Make23."
+    },
+    {
+      "findings": [
+        "Fresh mapped lineage quota debit occurred after movement intent.",
+        "Preparation ending at last native callback was unchecked.",
+        "Enclosing activation teardown could change moved source after the final span."
+      ],
+      "before": {
+        "path": "_build/source-effects-final-close-before.log",
+        "sha256": "4b4ac3ac7ed44f7702185e71ff5c7bb075b769ce5fca31d537a4b0a7f5141e15",
+        "tests": 3,
+        "seconds": 14.499,
+        "footer": "FAILED (failures=3)"
+      },
+      "after": "All three maintained controls pass in final scoped Make23."
+    }
+  ],
+  "author_history": [
+    {
+      "path": "_build/source-effects-first.log",
+      "sha256": "63ffc5e6969d07a6dce6f77be185c9c8874adbeb354f66848208989541fd9007",
+      "tests": 16,
+      "seconds": 29.752,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-effects-second.log",
+      "sha256": "efc4155546a5bc48ac946beae9904129ba0ff961bf39310050076137c64f277a",
+      "tests": 17,
+      "seconds": 39.958,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-effects-make.log",
+      "sha256": "411911dca3c2e146dc0ec729a11d93191b712b051907df087aec7b61ade86cee",
+      "tests": 17,
+      "seconds": 39.967,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-effects-review-after.log",
+      "sha256": "826a0fdb433f1652c5ee01f849687df7002d4112264d692a04a73360119e58b3",
+      "tests": 20,
+      "seconds": 84.038,
+      "footer": "FAILED (errors=1)",
+      "interpretation": "Genuine combined predecessor exhausted allowance when a redundant new source census was requested. Original already-funded census is now retained by exact identity; ceilings and original accounting unchanged."
+    },
+    {
+      "path": "_build/source-effects-final-focused.log",
+      "sha256": "ae427b86f5236e4188b7faad38e2f0b87b9712d175b97926069f6a84a2ef5fe0",
+      "tests": 20,
+      "seconds": 89.089,
+      "footer": "FAILED (errors=1)",
+      "interpretation": "Actual combined movement succeeded; negative fixture expected ValueError instead of the actual FrameworkUpdateRoleError. Corrected fixture retains its custom exception assertion."
+    }
+  ],
+  "independent_review": {
+    "path": "independent-layout-source-movement-review.json",
+    "sha256": "a925fb2a4226cf203f1315ab82264676cf5642a7d6989c72009212fa03d6c950",
+    "decision": "approved_at_source_moved_metadata_pending_scope",
+    "independent_dynamic_qualification": false
+  },
+  "static_gates": {
+    "exit_code": 0,
+    "commands": [
+      "make lint",
+      "make format-check",
+      "make repository-layout-check",
+      "make public-export-check",
+      "make openspec-check",
+      "make skills-check"
+    ],
+    "log": {
+      "path": "_build/source-effects-final-static.log",
+      "sha256": "a80581eb836df6c7dacecbe837614cbe12434cc101ebe74505109ca6b6020c1a"
+    }
+  },
+  "acceptance": {
+    "actual_partition_consumption": true,
+    "actual_source_movement": true,
+    "source_moved_metadata_pending": true,
+    "metadata_publication_and_control_finalization": false,
+    "terminal_preparation_success": false,
+    "canonical_authored_role_completion": false,
+    "normal_complete_nonroot_transaction": false,
+    "root_shared_initial_wrapper_public_recovery": false,
+    "installed_native_platform_integration_release": false,
+    "full_roadmap": false
+  },
+  "next_action": "Join exact metadata staging/quarantine/publication receipts and control normalization/retirement to original expectations and allowance. Preserve antecedents and verified release dispositions, then retain terminal observation after actual descriptor teardown so normal nonroot completion can exit its original preparation. Continue all authored-role/root/public/recovery/platform/full-roadmap requirements.",
+  "supplemental_regression": {
+    "state": "pass",
+    "runner": "managed Python unittest -v",
+    "exit_code": 0,
+    "passed": 357,
+    "skipped": 0,
+    "seconds": 526.6,
+    "unique_case_lines": 357,
+    "modules": [
+      "tests.critical.test_bounded_role_observation",
+      "tests.critical.test_catalog_copy_plan",
+      "tests.critical.test_catalog_copy_protection",
+      "tests.critical.test_catalog_copy_roles",
+      "tests.critical.test_catalog_copy_staging",
+      "tests.critical.test_catalog_copy_topology",
+      "tests.critical.test_catalog_entry_publication",
+      "tests.critical.test_framework_update_roles",
+      "tests.critical.test_retained_layout_control_publication",
+      "tests.critical.test_retained_layout_control_roles",
+      "tests.critical.test_retained_layout_finalization",
+      "tests.critical.test_retained_layout_journal",
+      "tests.critical.test_retained_layout_metadata",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_retained_layout_reservations",
+      "tests.critical.test_retained_layout_source_preparation",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_standard_lifecycle_binding_adapter"
+    ],
+    "log": {
+      "path": "_build/source-effects-regression.log",
+      "sha256": "84f70ad29a58733179746c04fefdb86b17fbcb762ae8d71c8db590cd4c8ad6eb"
+    }
+  },
+  "qualification_interpretation": "Separate final author Make23 and supplemental357 cohorts pass without skips. Independent review is source-only. Full package/installed/native/cross-platform/integration/release and all other roadmap acceptance remain open.",
+  "authority": {
+    "project_validate": {
+      "exit_code": 0,
+      "report": {
+        "path": "_build/source-effects-project-validate.json",
+        "sha256": "0d61e53eacc29b86482d47118eb37780bffc6668778f05b71f11a3c1f076954c"
+      }
+    },
+    "supported_renewal": [
+      "make driver-review-record",
+      "make documentation-review-record"
+    ],
+    "driver_review": {
+      "path": "_build/source-effects-driver-review.log",
+      "sha256": "5371428b9f665770ecec6840f438a945c92fb168611febb42fef9946c2958549"
+    },
+    "documentation_review": {
+      "path": "_build/source-effects-documentation-review.log",
+      "sha256": "0e1f7f1dccb820a7dc1d13382859cdb34cd1ed21c7103468d4fa26d69a56c028"
+    },
+    "driver_runner_checks": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-effects-authority-checks.log",
+        "sha256": "608df7346e189e4017db9b48f3223d24ec957c239d2e6bcaa744efb5cce295a8"
+      }
+    }
+  }
+}

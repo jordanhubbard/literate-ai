@@ -146,3 +146,34 @@ admission and receiving validation are required; relaxing the current source-der
 front door is insufficient. This is included 1.4.0 work, with no release goal
 deferred. The directing user accepted this design on 2026-11-10; implementation
 and its complete native/installed/integration acceptance remain open.
+
+## Explicit shared Cargo package layout
+
+The genuine nominal provider run exposed a producer layout gap: independent
+self-contained exports duplicate native path packages when one consumer imports
+several nodes. Native Cargo refuses the resulting name/version lock collision.
+The accepted ordinary receiving requirement therefore needs one shared package
+coordinate for each provider across all incoming edges.
+
+Cargo command profile v3 explicitly selects `shared-siblings`; Standard target v2
+binds that choice. Canonical Cargo Flavor 1.1.0 and its initialization template
+select this profile. Existing profile v2, target v1 and embedded projection v1
+retain their formats, identities and behavior. Changing the Flavor selection is
+new generation and qualification authority, not a rebind of an older reference.
+
+Each package occupies its full Component revision's digest directory under one
+shared parent. The root's ordinary relative dependencies point to the exact
+provider siblings. Providers with native dependencies must already export those
+same paths and a closed projection record v2; the producer refuses legacy
+embedded provider graphs instead of rewriting qualified provider bytes. Leaf
+packages with no native edges remain usable unchanged. The native builder compiles
+this exact forest, retains its local immutable sibling inputs for generated tests,
+and packages all library exports at matching sibling coordinates.
+
+Closed replay independently projects the current exact provider graph and compares
+the complete original root-source transformation, derived lock, projection records
+and provider file membership. It executes nothing and opens no recorded path.
+Retained materialization continues to copy exact qualified exports. The reviewed
+consumer plan must choose the corresponding sibling destinations and complete
+Cargo graph and inventory. No provider qualification grants importer admission,
+source retirement or permission to reuse an old consumer receipt.

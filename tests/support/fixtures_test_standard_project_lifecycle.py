@@ -1462,6 +1462,9 @@ class _ContextEvidenceRecorder:
     def __init__(self):
         self._records = {}
 
+    def start_attempt(self):
+        self._records.clear()
+
     def record(self, prepared, result):
         journal = create_forward_generation_prompt_journal(
             prepared.request.request, result

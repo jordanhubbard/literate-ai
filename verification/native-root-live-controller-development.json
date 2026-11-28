@@ -1,0 +1,192 @@
+{
+  "scope": "source development; complete controlled-provider native continuation demonstrated separately; no installed/live-model/full replay/held-dependency/release acceptance",
+  "base_revision": "75125268c86915bd2e535a24cc58ad2a88878d8c",
+  "dirty_source": true,
+  "source_sha256": {
+    "src/literate_ai/adapters/native_root_continuation.py": "d898b2d1a5e7811a4b5a4a631ccbe3cb41868e2719cfc20a8a9caa97e9d64611",
+    "src/literate_ai/adapters/native_candidate_verification.py": "05184d634fdb42ab459ef0149700f96678554f433171abbec8f726078dc2c548",
+    "src/literate_ai/adapters/standard_project.py": "a966cddf61bb0da10faaf3c1016e62004eeefe5a242c75d9712403145e28125d",
+    "tests/critical/test_native_root_export_capture.py": "6f8301a5ff3f98ccc56cdc51814164ce4e9e4309da2aba6f8d6f79143d164508",
+    "tests/critical/test_native_root_runtime_plan.py": "a72846d4e8429482b62b3f57998f26eb3e624de10ededa886341c93b3e5e0e1f"
+  },
+  "checks": [
+    {
+      "module": "test_native_root_runtime_plan.py",
+      "passed": 3,
+      "failed": 0,
+      "seconds": 0.393,
+      "purpose": "preserve the exact measured runtime plan after equal current replanning; refuse drift"
+    },
+    {
+      "module": "test_native_root_export_capture.py",
+      "passed": 4,
+      "failed": 0,
+      "seconds": 0.794,
+      "purpose": "actual filesystem guard counts, mutation, original expiry and physical export custody"
+    }
+  ],
+  "capture_counts": {
+    "exported_files": 32,
+    "original_full_guards": 33,
+    "corrected_full_guards": 2,
+    "payloads_equal": true,
+    "full_source_verifier_mutation_refusal": true,
+    "per_entry_original_deadline_refusal": true,
+    "later_physical_export_mutation_refusal": true
+  },
+  "legacy_verify_ast_unchanged": true,
+  "interrupted_actual_native_source_attempt": {
+    "original_plan_handoff_passed": true,
+    "source_requests_observed": 1,
+    "last_retained_stage": "execute",
+    "last_retained_stage_outcome": "passed",
+    "terminal_acceptance": false,
+    "interruption": "one owned SIGTERM after source review confirmed multiplicative guard traversals; make143, wrapper2, child gone",
+    "native_behavior_failure_claim": false,
+    "deadline_expiry_claim": false
+  },
+  "remaining": [
+    "held immutable qualified dependencies and public runtime ingress",
+    "full strict closed history replay from independently current promotion authority",
+    "two clean installed qualification runs",
+    "native refusal and required platform qualification",
+    "complete integrated source/noneditable-wheel/review/main/release gates",
+    "Windows native cache-transaction qualification and outstanding bounded cancellation evidence"
+  ],
+  "authority_and_receipt_repinned": false,
+  "nas_or_configured_worker_actions": false,
+  "later_source_integration": {
+    "source_sha256": {
+      "src/literate_ai/application/native_root_continuation.py": "6b8ccbfc4b7f3567e35378839d94335c7072241bf98447a9ca513e611ad99a30",
+      "src/literate_ai/application/standard_project_lifecycle.py": "5bb5b69cfe7a12b4f6b91cef26b7c2c02135354109c077ef1ec73e1481dc9909",
+      "tests/critical/test_native_root_controller_terminal.py": "958f7d1b2391513ce7ad1ab17065eac4f439cf252ff25eeae523b958735070c3",
+      "tests/critical/test_native_root_scheduler_deadline.py": "8036252efe92e565e662579f8994507cc52a40c92bf9fbc6129bf9d1b7859c60",
+      "tests/critical/test_native_root_completion_deadline.py": "24737485f07e798020c9d3906a07d7010e6fe74ed1251c67032ddc6ee6f6e57d"
+    },
+    "canonical_pattern": "test_native_root_*.py",
+    "modules": 18,
+    "passed": 153,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 144.869,
+    "distinct_focused_source_cases": 153,
+    "includes_previous_plan_and_capture_controls": true,
+    "terminal_history_controls": 7,
+    "scheduler_controls": 3,
+    "completion_controls": 3,
+    "original_policy_and_deadline_retained": true,
+    "filesystem_cache_commit_atomicity_proven": false,
+    "arbitrary_running_future_cancellation_proven": false
+  },
+  "later_actual_native_source_attempt": {
+    "passed": 0,
+    "failed": 1,
+    "seconds": 651.838,
+    "native_processes": [
+      {
+        "stage": "early-export",
+        "value": 42,
+        "exit": 0
+      },
+      {
+        "stage": "final-package",
+        "value": 41,
+        "exit": 0
+      }
+    ],
+    "requests": 1,
+    "cli_code": "native_root_run.closed",
+    "first_refusal": "not established; next controlled source attempt records closure type/code/frame metadata",
+    "native_replacement_or_deadline_expiry_claim": false
+  },
+  "current_source_integration": {
+    "source_sha256": {
+      "src/literate_ai/adapters/standard_rebuild.py": "b2d6c645d52e71951870bf3969da5a17243cea504181066145cd5ba3ab3ad846",
+      "src/literate_ai/adapters/standard_project.py": "96f4f23d59f456841f2b0de2854fdda2dd1d7c1f45370129dce07f43f5fd3be5",
+      "src/literate_ai/application/standard_project_services.py": "6023381131c48d71ec4f643d99707f3bbb7ca71a738a19849a9e8f46208c8172",
+      "src/literate_ai/application/standard_project_lifecycle.py": "ee4301332e28abfb36dc7771f520ea5fd1f98a58a4fa9cffdc60af560a13c427",
+      "src/literate_ai/adapters/rust_library_harness_execution.py": "cd165c66b08286bd1ebae43b6dd48245493ae6f647921d8d389a99ecc5862ebc",
+      "tests/critical/test_native_root_retained_mode.py": "dc5f16442eb8f090d85c3134801e18f8f698b76ac58416060459cc1361b18c91",
+      "tests/critical/test_rust_harness_operation_budget.py": "8da11bd7ddd886aee4e74e57d31d7d3bff714273a434cce81db98ec569737dc5"
+    },
+    "native_root": {
+      "passed": 160,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 78.231,
+      "modules": 19
+    },
+    "rust_harness": {
+      "passed": 19,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 26.607,
+      "modules": 3
+    },
+    "distinct_focused_source_cases": 179,
+    "retained_source_mode": "actual original identity reaches early ineligibility; absent marker and legacy authorization/currentness unchanged",
+    "operation_expiry": "refuse nonpositive verifier remainder before clamping; preserve longer original budget; zero new probes or commands",
+    "source_reviews": "no concrete issue found in marker, deadline and fixture changes"
+  },
+  "diagnosed_native_source_failure": {
+    "seconds": 343.572,
+    "cli_code": "native_root_run.closed",
+    "first_refusal_observed": "native_root_run.timeout_invalid",
+    "reproduced_callsite": "Rust current.remaining clamps nonpositive operation remainder before checking its expiry",
+    "original_case_red_seconds": 1.425,
+    "current_native_replacement_pass": false
+  },
+  "next_late_fixture_budget": {
+    "per_verifier_seconds": 300,
+    "legacy_helper_default_seconds": 180,
+    "whole_original_seconds": 1800,
+    "production_limits_changed": false,
+    "authority_selected_before_command": true
+  },
+  "latest_source_cohort": {
+    "pattern": "test_native_root_*.py",
+    "passed": 182,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 153.441,
+    "modules": 21,
+    "report": "owned-cleanup-root-report.json",
+    "scope": "source only",
+    "review": "no concrete issue in readonly original-scope retirement/context ownership review",
+    "source_sha256": {
+      "src/literate_ai/application/native_root_continuation.py": "cb413017ee40a4f31854a1053f572eaffa2d62fba6aa27f1fb7da6926573c84d",
+      "src/literate_ai/application/native_root_candidate_sequence.py": "7fcbb70ccb61e420f720ff80d09b52b3cac70c631a20bcf1018a586a1e07444f",
+      "tests/critical/test_native_root_guard_pairing.py": "cff3f14d5c42a4afbe510d228836503bfed2c7530234bcf04f5f749bc27ccfa8",
+      "tests/critical/test_native_root_controller_terminal.py": "99e104f086f85e828bc7511dc748d0a6da6a29077db5b405481e417f742e44fe"
+    }
+  },
+  "latest_actual_native_source_attempt": {
+    "recorded_at": "2026-11-24T08:59:04.551710+00:00",
+    "exit": 2,
+    "failed": 1,
+    "seconds": 843.528,
+    "code": "component_acceptance.rust_harness_deadline",
+    "native": [
+      "early-export42exit0",
+      "final-package41exit0"
+    ],
+    "requests": 1,
+    "native_observation_retained": true,
+    "replacement_accepted": false,
+    "root_expiry_claim": false
+  },
+  "historical_source_sha256_scope": "the original export-capture optimization subject; later source hashes are separately bound",
+  "latest_complete_native_source_journey": {
+    "record": "verification/native-root-late-source-journey-development.json",
+    "passed": 1,
+    "seconds": 317.312,
+    "native": [
+      42,
+      41,
+      42,
+      42
+    ],
+    "source_only": true,
+    "installed_or_release_acceptance": false
+  }
+}

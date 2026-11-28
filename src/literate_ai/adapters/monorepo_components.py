@@ -11,10 +11,14 @@ import json
 import os
 import tempfile
 from collections.abc import Callable
-from contextlib import suppress
+from contextlib import contextmanager, suppress
 from pathlib import Path
 from typing import Any
 
+from literate_ai._atomic_publication import (
+    _scoped_atomic_writer,
+    publish_atomic_file_if_scoped,
+)
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
     require_safe_directory,
@@ -45,11 +49,15 @@ from literate_ai.adapters.monorepo_adoption import (
     _source_members,
     _unique_object,
 )
+from literate_ai.adapters.repository_refresh import _file, _signature
 from literate_ai.adapters.retained_harness_receipts import (
     _sanitized_phases,
     _strict_test_total,
     retained_harness_worker_identity,
 )
+from literate_ai.adapters.retained_layout import RETAINED_LAYOUT_PATH
+from literate_ai.adapters.retained_layout_partition import _lineage
+from literate_ai.adapters.retained_layout_renewal import observe_retained_layout_renewal
 from literate_ai.contracts import (
     ContentIdentity,
     ProjectTestEvidence,
@@ -61,10 +69,19 @@ from literate_ai.contracts import (
     canonical_json_bytes,
 )
 
+from .retained_scaffold_coordinates import (
+    retained_scaffold_coordinate as _metadata_coordinate,
+)
+from .retained_scaffold_coordinates import (
+    retained_scaffold_path as _metadata_path,
+)
+
 BUNDLE_SCHEMA = "literate-ai/monorepo-component-bundle@1"
 BINDING_SCHEMA = "literate-ai/monorepo-component-binding@1"
 RECEIPT_SCHEMA = "literate-ai/monorepo-component-receipt@1"
 INSTALLATION_SCHEMA = "literate-ai/monorepo-component-installation@1"
+INSTALLATION_LAYOUT_SCHEMA = "literate-ai/monorepo-component-installation@2"
+
 INSTALLATION_ROOT = ".literate/monorepo-components"
 _MANIFEST = "bundle.json"
 _SUITE = "monorepo-retained-harness"
@@ -105,9 +122,76 @@ def _parse_document(content: bytes) -> dict[str, Any]:
     return value
 
 
-def _write_new(path: Path, content: bytes) -> tuple[int, int]:
+def _stage_coordinate(owner, path):
+    from .evidence_staging import EvidenceStage
+
+    root = EvidenceStage.path.__get__(owner)
+    try:
+        relative = Path(path).absolute().relative_to(root).as_posix()
+    except ValueError:
+        _fail("staging_scope", "metadata output differs from original staging owner")
+    return _relative(relative)
+
+
+@contextmanager
+def _refresh_staging(project):
+    from literate_ai._cache_lock import CacheLockError
+    from literate_ai.cache_directories import CacheDirectoryError
+    from literate_ai.projects import ProjectConfigurationStore, load_project
+
+    from .evidence_staging import EvidenceStagingError
+    from .project_runtime import ProjectRuntimeError, project_inspection_staging
+
+    context = ProjectConfigurationStore.context(project)
+    if context.framework_root == context.root:
+        with tempfile.TemporaryDirectory(
+            prefix="litai-monorepo-refresh-", dir=project.parent
+        ) as temporary:
+            yield Path(temporary), None
+        return
+    coordinate = None
+    body_error = None
+    try:
+        with project_inspection_staging(load_project(project), prefix=".mr-") as owner:
+            coordinate = owner.path.relative_to(context.root).as_posix()
+            try:
+                yield owner.path, owner
+            except BaseException as error:
+                body_error = error
+                raise
+    except (
+        EvidenceStagingError,
+        ProjectRuntimeError,
+        CacheLockError,
+        CacheDirectoryError,
+        UnsafeFilesystemPathError,
+    ) as error:
+        if body_error is not None and not isinstance(body_error, EvidenceStagingError):
+            if error is not body_error:
+                body_error.add_note(
+                    "Monorepo staging closure refused; preserve remaining state: "
+                    + str(error)
+                )
+                raise body_error from error
+            raise
+        message = "Monorepo staging conflict; preserve remaining state"
+        if coordinate is not None:
+            message += f" (original coordinate: {coordinate})"
+        _fail("staging_conflict", message)
+
+
+def _write_new(
+    path: Path, content: bytes, *, _output_owner=None
+) -> tuple[int, int] | None:
     if len(content) > _MAX_DOCUMENT:
         _fail("bundle_invalid", "component evidence document exceeds 16 MiB")
+    if _output_owner is not None:
+        from .evidence_staging import EvidenceStage
+
+        relative = _stage_coordinate(_output_owner, path)
+        EvidenceStage.write(_output_owner, relative, content, durable=True)
+        # The original stage actor owns disposal, not a returned native-ID claim.
+        return None
     require_safe_directory(path.parent)
     identity = None
     try:
@@ -156,6 +240,185 @@ def _source_root(path: Path) -> Path:
     root = Path(path).absolute()
     require_safe_directory(root)
     return root
+
+
+def _installation_document(content):
+    installation = _parse_document(content)
+    schema = installation.get("schema")
+    if schema not in {INSTALLATION_SCHEMA, INSTALLATION_LAYOUT_SCHEMA}:
+        _fail("installation_invalid", "unsupported installed Component schema")
+    _fields(
+        installation,
+        {
+            "schema",
+            "state",
+            "stage",
+            "authority",
+            "source_root",
+            "bundle_identity",
+            "receipt_identities",
+            "retained_check_identity",
+            "components",
+            "boundary_transfer",
+            "source_copied",
+        }
+        | (
+            {"retained_layout_identity"}
+            if schema == INSTALLATION_LAYOUT_SCHEMA
+            else set()
+        ),
+        "installed Component custody",
+    )
+    if (
+        installation["state"] != "current"
+        or installation["stage"] != "retained"
+        or installation["authority"] != "original-source"
+        or installation["source_copied"] is not False
+        or _relative(installation["source_root"]) == "."
+    ):
+        _fail("installation_invalid", "unsupported installed Component custody")
+    if schema == INSTALLATION_LAYOUT_SCHEMA:
+        try:
+            ContentIdentity.parse_uri(installation["retained_layout_identity"])
+        except (TypeError, ValueError):
+            _fail("installation_invalid", "invalid retained layout identity")
+    return installation
+
+
+def _installed_inputs(project, installation, original, *, maximum_files=None):
+    """Retain the complete consumed payload set before validating its contents."""
+    bundle = _direct(
+        project, _metadata_coordinate(project, f"{INSTALLATION_ROOT}/bundle")
+    )
+    manifest_input = _file(bundle / _MANIFEST, maximum_bytes=_MAX_DOCUMENT)
+    manifest = _parse_document(manifest_input.content)
+    if canonical_identity(manifest).uri != installation["bundle_identity"]:
+        _fail("installation_changed", "installed bundle differs from original binding")
+    names = installation["components"]
+    if (
+        not isinstance(names, list)
+        or not all(isinstance(name, str) for name in names)
+        or names != sorted(set(names))
+        or not isinstance(manifest.get("files"), dict)
+    ):
+        _fail("installation_invalid", "installed payload inventory is invalid")
+    relatives = tuple(
+        dict.fromkeys(
+            (
+                f"{INSTALLATION_ROOT}/installation.json",
+                f"{INSTALLATION_ROOT}/bundle/{_MANIFEST}",
+                *(
+                    f"{INSTALLATION_ROOT}/bundle/{_relative(name)}"
+                    for name in manifest["files"]
+                ),
+                *(f"{INSTALLATION_ROOT}/receipts/{name}.json" for name in names),
+                *(
+                    f"components/{name}/{filename}"
+                    for name in names
+                    for filename in ("binding.json", "component.md")
+                ),
+            )
+        )
+    )
+    relatives = tuple(_metadata_coordinate(project, name) for name in relatives)
+    if maximum_files is not None and len(relatives) > maximum_files:
+        _fail("input_limit", "installed Component payload count exceeds its bound")
+    paths = {name: _direct(project, name) for name in relatives}
+    native = {name: _signature(path) for name, path in paths.items()}
+    native[_metadata_coordinate(project, f"{INSTALLATION_ROOT}/installation.json")] = (
+        original.signature
+    )
+    native[_metadata_coordinate(project, f"{INSTALLATION_ROOT}/bundle/{_MANIFEST}")] = (
+        manifest_input.signature
+    )
+    ancestry = tuple(
+        (parent, _lineage(parent))
+        for parent in dict.fromkeys(path.parent for path in paths.values())
+    )
+
+    def require_ancestry_current():
+        if any(_lineage(path) != nodes for path, nodes in ancestry):
+            _fail("installation_changed", "installed payload ancestry changed")
+
+    def require_current():
+        if any(_signature(paths[name]) != node for name, node in native.items()):
+            _fail(
+                "installation_changed",
+                "original installed payload changed during observation",
+            )
+        require_ancestry_current()
+        if os.path.lexists(project / "litai/layout.pending"):
+            _fail("layout_pending", "pending relocation requires explicit recovery")
+
+    return native, require_current, require_ancestry_current
+
+
+def _layout_source(project, installation=None, *, renewing=False):
+    """Select actual declared source; saved installation coordinates grant no rights."""
+    if os.path.lexists(project / "litai/layout.pending"):
+        _fail("layout_pending", "pending relocation requires explicit recovery")
+    if not os.path.lexists(_metadata_path(project, RETAINED_LAYOUT_PATH)):
+        if (
+            installation is not None
+            and installation.get("schema") != INSTALLATION_SCHEMA
+        ):
+            _fail("layout_changed", "layout-bound installation lost its declaration")
+        return None, None, lambda: None
+    from literate_ai.projects import load_project
+
+    from .conversion_authority import FilesystemConversionAuthorityStore
+
+    role_inputs = tuple(
+        _file(_metadata_path(project, name), maximum_bytes=_MAX_DOCUMENT)
+        for name in ("literate.project.json", ".literate/conversion-authority.json")
+    )
+    actual_project = load_project(project)
+    conversion = FilesystemConversionAuthorityStore(project).load_optional()
+    if (
+        conversion is None
+        or conversion.project_id != actual_project.definition.project_id
+    ):
+        _fail(
+            "layout_invalid",
+            "declared retained source lacks current conversion authority",
+        )
+    try:
+        observed = observe_retained_layout_renewal(project)
+    except (OSError, ValueError) as exc:
+        _fail("layout_invalid", str(exc))
+    identity = canonical_identity(json.loads(observed.inputs[1].content)).uri
+    source = observed.layout.implementation_root
+    if (
+        installation is not None
+        and not renewing
+        and (
+            installation.get("schema") != INSTALLATION_LAYOUT_SCHEMA
+            or installation.get("retained_layout_identity") != identity
+            or installation.get("source_root")
+            != observed.layout.implementation_directory
+        )
+    ):
+        _fail(
+            "layout_stale",
+            "installed retained evidence requires current-layout refresh",
+        )
+    from .retained_scope_refresh import (
+        _close_source_native_inputs,
+        _source_native_inputs,
+    )
+
+    scope = capture_retained_source_scope(source)
+    native = _source_native_inputs(source, [{"path": name} for name in scope["paths"]])
+
+    def require_current():
+        observed.require_current()
+        _close_source_native_inputs(native)
+        if any(_signature(item.path) != item.signature for item in role_inputs):
+            _fail("layout_changed", "actual project/conversion authority changed")
+        if os.path.lexists(project / "litai/layout.pending"):
+            _fail("layout_pending", "pending relocation requires explicit recovery")
+
+    return source, identity, require_current
 
 
 def _scope(paths: list[str]) -> dict[str, Any]:
@@ -226,11 +489,15 @@ def stage_monorepo_components(
     expected_plan_identity: str,
     acknowledged: bool,
     default_branch: str | None = None,
+    _output_owner=None,
 ) -> dict[str, Any]:
     """Publish a new source-free bundle, not an adopted project."""
     if not acknowledged:
         _fail("acknowledgement_required", "component staging requires acknowledgement")
     ContentIdentity.parse_uri(expected_plan_identity)
+    if _output_owner is not None:
+        _stage_coordinate(_output_owner, destination)
+    write_options = {} if _output_owner is None else {"_output_owner": _output_owner}
     source = _source_root(source_root)
     target = _external(source, destination)
     # Late import avoids making the converter depend on its staging consumer.
@@ -263,29 +530,41 @@ def stage_monorepo_components(
     created: list[tuple[Path, tuple[int, int], bytes]] = []
     directories: list[tuple[Path, tuple[int, int]]] = []
     try:
-        target.mkdir()
-        node = target.lstat()
-        directories.append((target, (node.st_dev, node.st_ino)))
+        if _output_owner is None:
+            target.mkdir()
+            node = target.lstat()
+            directories.append((target, (node.st_dev, node.st_ino)))
+        else:
+            _output_owner.prepare(
+                _stage_coordinate(_output_owner, target), directory=True
+            )
         for relative, content in payloads.items():
             path = target / relative
-            missing = []
-            parent = path.parent
-            while parent != target and not parent.exists():
-                missing.append(parent)
-                parent = parent.parent
-            for parent in reversed(missing):
-                require_safe_directory(parent.parent)
-                parent.mkdir()
-                node = parent.lstat()
-                directories.append((parent, (node.st_dev, node.st_ino)))
-            created.append((path, _write_new(path, content), content))
+            if _output_owner is None:
+                missing = []
+                parent = path.parent
+                while parent != target and not parent.exists():
+                    missing.append(parent)
+                    parent = parent.parent
+                for parent in reversed(missing):
+                    require_safe_directory(parent.parent)
+                    parent.mkdir()
+                    node = parent.lstat()
+                    directories.append((parent, (node.st_dev, node.st_ino)))
+            identity = _write_new(path, content, **write_options)
+            if identity is not None:
+                created.append((path, identity, content))
         if fresh_plan()["plan_identity"] != expected_plan_identity:
             _fail("plan_changed", "source or selection changed during staging")
         content = _json_bytes(manifest)
-        created.append(
-            (target / _MANIFEST, _write_new(target / _MANIFEST, content), content)
-        )
+        identity = _write_new(target / _MANIFEST, content, **write_options)
+        if identity is not None:
+            created.append((target / _MANIFEST, identity, content))
     except BaseException:
+        if _output_owner is not None:
+            # Original creator/native postimages, including partial writes, stay
+            # with the outer stage. Never invoke path/ID-based legacy disposal.
+            raise
         for path, node, content in reversed(created):
             _remove_owned(path, node, content)
         for directory, identity in reversed(directories):
@@ -627,6 +906,56 @@ def _receipt(
     )
 
 
+@contextmanager
+def _component_lifecycle(bundle, name, output_owner):
+    from literate_ai.projects import ProjectConfigurationStore
+
+    if output_owner is not None:
+        from .project_runtime import project_inspection_execution
+
+        with project_inspection_execution(output_owner):
+            yield
+        return
+    # A saved path into a contained transient runtime is not its live issuer.
+    snapshot = ProjectConfigurationStore.discover(bundle)
+    if snapshot is not None:
+        context = ProjectConfigurationStore.context(snapshot.root)
+        if context.framework_root != context.root and bundle.is_relative_to(
+            context.framework_root / "_build"
+        ):
+            _fail(
+                "staging_owner_required",
+                "contained runtime execution requires its original inspection owner",
+            )
+    with project_lifecycle_lock(bundle, operation=f"monorepo-retained:{name}"):
+        yield
+
+
+@contextmanager
+def _component_workspace(output_owner):
+    if output_owner is None or os.name != "posix":
+        with tempfile.TemporaryDirectory(
+            prefix="litai-component-retained-"
+        ) as temporary:
+            yield Path(temporary).resolve()
+        return
+    from .retained_execution_workspace import (
+        RetainedExecutionWorkspaceError,
+        retained_execution_workspace,
+    )
+
+    try:
+        with retained_execution_workspace(output_owner) as path:
+            yield path
+    except MonorepoAdoptionError:
+        raise
+    except (RetainedExecutionWorkspaceError, OSError, ValueError):
+        _fail(
+            "execution_custody",
+            "native execution custody refused; preserve remaining runtime state",
+        )
+
+
 def run_component_retained_harness(
     source_root: Path,
     bundle_root: Path,
@@ -636,6 +965,7 @@ def run_component_retained_harness(
     acknowledged: bool,
     worker_id: str,
     timeout_seconds: int = 1800,
+    _output_owner=None,
 ) -> dict[str, Any]:
     """Earn one scoped receipt using real execution, never relabel a project receipt."""
     if not acknowledged:
@@ -643,6 +973,9 @@ def run_component_retained_harness(
             "execution_acknowledgement_required",
             "retained host execution requires acknowledgement",
         )
+    if _output_owner is not None:
+        _stage_coordinate(_output_owner, output)
+    write_options = {} if _output_owner is None else {"_output_owner": _output_owner}
     timeout = validate_harness_command_timeout(timeout_seconds)
     worker = retained_harness_worker_identity(worker_id)
     source = _source_root(source_root)
@@ -652,16 +985,12 @@ def run_component_retained_harness(
         _fail(
             "destination_invalid", "receipt output must be outside the immutable bundle"
         )
-    with project_lifecycle_lock(bundle, operation=f"monorepo-retained:{name}"):
+    with _component_lifecycle(bundle, name, _output_owner):
         before = component_retained_revision(source, bundle, name)
         binding, _ = _binding(bundle, name)
         inventory = binding["inventory"]
-        with tempfile.TemporaryDirectory(
-            prefix="litai-component-retained-"
-        ) as temporary:
-            # Canonicalize our newly created temporary parent (macOS /var is an
-            # OS alias), not any operator-supplied source or evidence path.
-            execution = Path(temporary).resolve() / "source"
+        with _component_workspace(_output_owner) as temporary:
+            execution = temporary / "source"
             copy_retained_source_tree(source, execution, inventory["source_scope"])
             if (
                 _source_members(execution, inventory["source_scope"]["paths"])
@@ -701,7 +1030,7 @@ def run_component_retained_harness(
             "receipt": receipt.to_dict(),
             "evidence": evidence,
         }
-        _write_new(destination, _json_bytes(envelope))
+        _write_new(destination, _json_bytes(envelope), **write_options)
         return envelope
 
 
@@ -823,7 +1152,47 @@ def check_monorepo_retained_receipts(
     return {**result, "identity": canonical_identity(result).uri}
 
 
-def _publish_payloads(root: Path, payloads: dict[str, bytes]) -> None:
+def _publish_payloads(
+    root: Path,
+    payloads: dict[str, bytes],
+    *,
+    require_current: Callable[[], None] | None = None,
+    validate: Callable[[], dict[str, Any]] | None = None,
+) -> dict[str, Any] | None:
+    writer = _scoped_atomic_writer()
+    if writer is not None:
+        # The original installer owns its exact new payloads and source checks;
+        # their physical creation/rollback belongs to the live publication owner.
+        published = []
+        for relative, content in sorted(payloads.items()):
+            path = root.joinpath(*Path(_relative(relative)).parts)
+            require_safe_directory(path.parent, allow_missing=True)
+            if os.path.lexists(path):
+                _fail("destination_exists", "installed Component path must be new")
+            if require_current is not None:
+                require_current()
+            if (
+                _scoped_atomic_writer() is not writer
+                or not publish_atomic_file_if_scoped(
+                    path, content, require_current=require_current, preserve_mode=False
+                )
+            ):
+                _fail("publication_scope_changed", "original Component writer closed")
+            item = _file(path, maximum_bytes=_MAX_DOCUMENT)
+            if item.content != content:
+                _fail("installation_changed", "newly published payload changed")
+            published.append(item)
+        result = None if validate is None else validate()
+        if require_current is not None:
+            require_current()
+        if _scoped_atomic_writer() is not writer or any(
+            _signature(item.path) != item.signature for item in published
+        ):
+            _fail(
+                "installation_changed",
+                "published payload changed during final observations",
+            )
+        return result
     created: list[tuple[Path, tuple[int, int], bytes]] = []
     directories: list[tuple[Path, tuple[int, int]]] = []
     try:
@@ -843,7 +1212,27 @@ def _publish_payloads(root: Path, payloads: dict[str, bytes]) -> None:
                 directories.append((directory, (node.st_dev, node.st_ino)))
             if path.exists() or path.is_symlink():
                 _fail("destination_exists", "installed Component path must be new")
+            if require_current is not None:
+                require_current()
             created.append((path, _write_new(path, content), content))
+            if require_current is not None:
+                require_current()
+        published = tuple(
+            _file(path, maximum_bytes=_MAX_DOCUMENT)
+            for path, _node, _content in created
+        )
+        for item, (_path, node, content) in zip(published, created, strict=True):
+            if item.signature[:2] != node or item.content != content:
+                _fail("installation_changed", "newly published payload changed")
+        result = None if validate is None else validate()
+        if require_current is not None:
+            require_current()
+        if any(_signature(item.path) != item.signature for item in published):
+            _fail(
+                "installation_changed",
+                "published payload changed during final observations",
+            )
+        return result
     except BaseException:
         for path, node, content in reversed(created):
             _remove_owned(path, node, content)
@@ -864,14 +1253,54 @@ def _replace_payloads(
     payloads: dict[str, bytes],
     *,
     validate: Callable[[], dict[str, Any]] | None = None,
+    require_current: Callable[[], None] | None = None,
+    expected_inputs: dict[str, tuple] | None = None,
 ) -> dict[str, Any] | None:
     """Replace one closed installed payload set, restoring owned bytes on failure."""
 
     paths = {relative: _direct(root, relative) for relative in sorted(payloads)}
+    native = (
+        {relative: _signature(path) for relative, path in paths.items()}
+        if expected_inputs is None
+        else dict(expected_inputs)
+    )
+    if set(native) != set(paths):
+        _fail(
+            "installation_changed",
+            "replacement payload set differs from original inputs",
+        )
     before = {relative: _read(path) for relative, path in paths.items()}
     written: list[str] = []
 
-    def replace(path: Path, content: bytes) -> None:
+    writer = _scoped_atomic_writer()
+    if writer is not None:
+        # The ordinary producer still owns the closed payload set, input
+        # currentness and final consumer validation. Physical writes and rollback
+        # belong to the original finite readmission writer while it is scoped.
+        def require_scoped_current():
+            if _scoped_atomic_writer() is not writer:
+                _fail("publication_scope_changed", "original Component writer changed")
+            if require_current is not None:
+                require_current()
+            if _scoped_atomic_writer() is not writer:
+                _fail("publication_scope_changed", "Component callback changed writer")
+            if any(_signature(paths[name]) != node for name, node in native.items()):
+                _fail("installation_changed", "installed Component payload changed")
+
+        for relative, content in sorted(payloads.items()):
+            if not publish_atomic_file_if_scoped(
+                paths[relative],
+                content,
+                require_current=require_scoped_current,
+                preserve_mode=False,
+            ):
+                _fail("publication_scope_changed", "original Component writer closed")
+            native[relative] = _signature(paths[relative])
+        result = None if validate is None else validate()
+        require_scoped_current()
+        return result
+
+    def replace(path: Path, content: bytes, *, forward=False) -> None:
         require_safe_directory(path.parent)
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=f".{path.name}.", dir=path.parent
@@ -882,6 +1311,15 @@ def _replace_payloads(
                 stream.write(content)
                 stream.flush()
                 os.fsync(stream.fileno())
+            if forward and require_current is not None:
+                require_current()
+                if any(
+                    _signature(paths[name]) != node for name, node in native.items()
+                ):
+                    _fail(
+                        "installation_changed",
+                        "installed inputs changed before replacement",
+                    )
             os.replace(temporary, path)
         finally:
             with suppress(FileNotFoundError):
@@ -889,9 +1327,18 @@ def _replace_payloads(
 
     try:
         for relative, content in sorted(payloads.items()):
-            replace(paths[relative], content)
+            replace(paths[relative], content, forward=True)
             written.append(relative)
-        return None if validate is None else validate()
+            native[relative] = _signature(paths[relative])
+        result = None if validate is None else validate()
+        if require_current is not None:
+            require_current()
+            if any(_signature(paths[name]) != node for name, node in native.items()):
+                _fail(
+                    "installation_changed",
+                    "installed outputs changed during final validation",
+                )
+        return result
     except BaseException:
         for relative in reversed(written):
             if _read(paths[relative]) == payloads[relative]:
@@ -914,6 +1361,9 @@ def _installation_payloads(
             "source_invalid",
             "installed retained source must be a project-relative directory",
         )
+    declared_source, layout_identity, require_current = _layout_source(project)
+    if declared_source is not None and source != declared_source:
+        _fail("layout_changed", "installed source differs from actual retained layout")
     bundle = Path(bundle_root).absolute()
     check = check_monorepo_retained_receipts(
         source,
@@ -967,6 +1417,14 @@ def _installation_payloads(
         "source_copied": False,
     }
     payloads[f"{INSTALLATION_ROOT}/installation.json"] = _json_bytes(installation)
+    if layout_identity is not None:
+        installation["schema"] = INSTALLATION_LAYOUT_SCHEMA
+        installation["retained_layout_identity"] = layout_identity
+        payloads[f"{INSTALLATION_ROOT}/installation.json"] = _json_bytes(installation)
+    require_current()
+    payloads = {
+        _metadata_coordinate(project, key): value for key, value in payloads.items()
+    }
     return project, payloads, installation
 
 
@@ -979,6 +1437,7 @@ def install_monorepo_components(
     expected_bundle_identity: str,
 ) -> dict[str, Any]:
     """Publish verified source-free projections and retained receipt custody."""
+    _source, _identity, require_current = _layout_source(_source_root(project_root))
     project, payloads, installation = _installation_payloads(
         source_root,
         bundle_root,
@@ -987,53 +1446,51 @@ def install_monorepo_components(
         expected_bundle_identity=expected_bundle_identity,
     )
     destinations = [
-        project.joinpath(*Path(INSTALLATION_ROOT).parts),
-        *(project / "components" / name for name in installation["components"]),
+        _metadata_path(project, INSTALLATION_ROOT),
+        *(
+            _metadata_path(project, f"components/{name}")
+            for name in installation["components"]
+        ),
     ]
     if any(path.exists() or path.is_symlink() for path in destinations):
         _fail("destination_exists", "installed Component paths must be new")
-    _publish_payloads(project, payloads)
-    return check_installed_monorepo_components(project)
+    result = _publish_payloads(
+        project,
+        payloads,
+        require_current=require_current,
+        validate=lambda: check_installed_monorepo_components(project),
+    )
+    assert result is not None
+    return result
 
 
 def check_installed_monorepo_components(project_root: Path) -> dict[str, Any]:
     """Reopen an installed refined-adoption projection without executing commands."""
     project = _source_root(project_root)
-    installation_path = _direct(project, f"{INSTALLATION_ROOT}/installation.json")
-    before = _read(installation_path)
-    installation = _parse_document(before)
-    _fields(
-        installation,
-        {
-            "schema",
-            "state",
-            "stage",
-            "authority",
-            "source_root",
-            "bundle_identity",
-            "receipt_identities",
-            "retained_check_identity",
-            "components",
-            "boundary_transfer",
-            "source_copied",
-        },
-        "installed Component custody",
+    installation_path = _direct(
+        project, _metadata_coordinate(project, f"{INSTALLATION_ROOT}/installation.json")
     )
-    if (
-        installation["schema"] != INSTALLATION_SCHEMA
-        or installation["state"] != "current"
-        or installation["stage"] != "retained"
-        or installation["authority"] != "original-source"
-        or installation["source_copied"] is not False
-    ):
-        _fail("installation_invalid", "unsupported installed Component custody")
-    source = _direct(project, installation["source_root"])
-    bundle = _direct(project, f"{INSTALLATION_ROOT}/bundle")
+    installation_input = _file(installation_path, maximum_bytes=_MAX_DOCUMENT)
+    before = installation_input.content
+    installation = _installation_document(before)
+    _native, require_installed_current, _ancestry = _installed_inputs(
+        project, installation, installation_input
+    )
+    declared_source, layout_identity, require_current = _layout_source(
+        project, installation
+    )
+    source = declared_source or _direct(project, installation["source_root"])
+    bundle = _direct(
+        project, _metadata_coordinate(project, f"{INSTALLATION_ROOT}/bundle")
+    )
     names = installation["components"]
     if not isinstance(names, list) or names != sorted(set(names)):
         _fail("installation_invalid", "installed Component inventory is invalid")
     receipts = {
-        name: _direct(project, f"{INSTALLATION_ROOT}/receipts/{name}.json")
+        name: _direct(
+            project,
+            _metadata_coordinate(project, f"{INSTALLATION_ROOT}/receipts/{name}.json"),
+        )
         for name in names
     }
     if installation["receipt_identities"] != {
@@ -1068,12 +1525,19 @@ def check_installed_monorepo_components(project_root: Path) -> dict[str, Any]:
         _fail("installation_invalid", "Component boundary-transfer state is invalid")
     for name in names:
         for filename in ("binding.json", "component.md"):
-            if _read(_direct(project, f"components/{name}/{filename}")) != _read(
-                _direct(bundle, f"components/{name}/{filename}")
-            ):
+            if _read(
+                _direct(
+                    project,
+                    _metadata_coordinate(project, f"components/{name}/{filename}"),
+                )
+            ) != _read(_direct(bundle, f"components/{name}/{filename}")):
                 _fail("binding_changed", "installed Component projection changed")
     if _read(installation_path) != before:
         _fail("installation_changed", "installed Component custody changed")
+    require_current()
+    require_installed_current()
+    if _signature(installation_path) != installation_input.signature:
+        _fail("installation_changed", "installed custody changed during layout closure")
     return {**installation, "identity": canonical_identity(installation).uri}
 
 
@@ -1093,21 +1557,40 @@ def refresh_installed_monorepo_components(
             "Component refresh execution requires acknowledgement",
         )
     project = _source_root(project_root)
-    installation = _document(_direct(project, f"{INSTALLATION_ROOT}/installation.json"))
-    old_bundle = _direct(project, f"{INSTALLATION_ROOT}/bundle")
+    installation_path = _direct(
+        project, _metadata_coordinate(project, f"{INSTALLATION_ROOT}/installation.json")
+    )
+    installation_input = _file(installation_path, maximum_bytes=_MAX_DOCUMENT)
+    installation = _installation_document(installation_input.content)
+    original_native, require_installed_current, require_original_ancestry = (
+        _installed_inputs(project, installation, installation_input)
+    )
+    declared_source, layout_identity, require_layout_current = _layout_source(
+        project, installation, renewing=True
+    )
+    layout_changed = layout_identity is not None and (
+        installation.get("schema") != INSTALLATION_LAYOUT_SCHEMA
+        or installation.get("retained_layout_identity") != layout_identity
+        or installation.get("source_root")
+        != declared_source.relative_to(project).as_posix()
+    )
+    old_bundle = _direct(
+        project, _metadata_coordinate(project, f"{INSTALLATION_ROOT}/bundle")
+    )
     old_plan = _verified_bundle(old_bundle, installation["bundle_identity"])
-    source = _direct(project, installation["source_root"])
+    source = declared_source or _direct(project, installation["source_root"])
     names = list(installation["components"])
     old_receipts = {
-        name: _direct(project, f"{INSTALLATION_ROOT}/receipts/{name}.json")
+        name: _direct(
+            project,
+            _metadata_coordinate(project, f"{INSTALLATION_ROOT}/receipts/{name}.json"),
+        )
         for name in names
     }
-    with tempfile.TemporaryDirectory(
-        prefix="litai-monorepo-refresh-", dir=project.parent
-    ) as temporary_name:
-        temporary = Path(temporary_name)
+    with _refresh_staging(project) as (temporary, output_owner):
+        write_options = {} if output_owner is None else {"_output_owner": output_owner}
         selection = temporary / "selection.json"
-        _write_new(selection, _json_bytes(old_plan["selection"]))
+        _write_new(selection, _json_bytes(old_plan["selection"]), **write_options)
         from literate_ai.adapters.project_initialization import plan_convert
 
         refinement = plan_convert(
@@ -1121,15 +1604,25 @@ def refresh_installed_monorepo_components(
             expected_plan_identity=refinement["plan_identity"],
             acknowledged=True,
             default_branch=default_branch,
+            **write_options,
         )
         receipts_root = temporary / "receipts"
-        receipts_root.mkdir()
+        if output_owner is None:
+            receipts_root.mkdir()
+        else:
+            output_owner.prepare(
+                _stage_coordinate(output_owner, receipts_root), directory=True
+            )
         receipts: dict[str, Path] = {}
         reused: list[str] = []
         executed: list[str] = []
         for name in names:
             receipt = receipts_root / f"{name}.json"
             try:
+                if layout_changed:
+                    _fail(
+                        "layout_stale", "new layout requires fresh Component execution"
+                    )
                 check_component_retained_receipt(
                     source, bundle, name, old_receipts[name]
                 )
@@ -1142,10 +1635,11 @@ def refresh_installed_monorepo_components(
                     acknowledged=True,
                     worker_id=worker_id,
                     timeout_seconds=timeout_seconds,
+                    **write_options,
                 )
                 executed.append(name)
             else:
-                _write_new(receipt, _read(old_receipts[name]))
+                _write_new(receipt, _read(old_receipts[name]), **write_options)
                 reused.append(name)
             receipts[name] = receipt
         _project, payloads, _installation = _installation_payloads(
@@ -1158,10 +1652,12 @@ def refresh_installed_monorepo_components(
         expected_paths = set(payloads)
         current_paths = {
             path.relative_to(project).as_posix()
-            for path in _direct(project, INSTALLATION_ROOT).rglob("*")
+            for path in _direct(
+                project, _metadata_coordinate(project, INSTALLATION_ROOT)
+            ).rglob("*")
             if path.is_file()
         } | {
-            f"components/{name}/{filename}"
+            _metadata_coordinate(project, f"components/{name}/{filename}")
             for name in names
             for filename in ("binding.json", "component.md")
         }
@@ -1170,11 +1666,29 @@ def refresh_installed_monorepo_components(
                 "installation_invalid",
                 "installed Component payload inventory changed outside refresh",
             )
+
+        def require_current():
+            require_layout_current()
+            require_installed_current()
+            if _signature(installation_path) != installation_input.signature:
+                _fail("installation_changed", "installation changed during refresh")
+
+        def require_publication_current():
+            require_layout_current()
+            require_original_ancestry()
+            if output_owner is not None:
+                output_owner.verify()
+
+        # Per-file facts evolve only under the replacement owner; the original
+        # parent identities remain fixed through every publication and validation.
+        require_current()
         try:
             refreshed = _replace_payloads(
                 project,
                 payloads,
                 validate=lambda: check_installed_monorepo_components(project),
+                require_current=require_publication_current,
+                expected_inputs=original_native,
             )
         except MonorepoAdoptionError:
             _fail("refresh_invalid", "refreshed Component custody did not reopen")

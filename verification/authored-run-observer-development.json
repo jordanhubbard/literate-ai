@@ -1,0 +1,64 @@
+{
+  "schema": "literate-ai/development-qualification@1",
+  "requirement": "AUTHORED-GRAPH-QUALIFICATION-001 / ADR0072 / issues345 and393",
+  "status": "Run-observer read-owner defect repaired; complete installed receiving remains open",
+  "release_evidence": false,
+  "source_sha256": {
+    "src/literate_ai/adapters/authored_qualification_runs.py": "b7202ae33a673f72c34e4553e97b1a37781c961ff30a545797d6878a2e41fa6b",
+    "tests/critical/test_authored_qualification_receiving.py": "d8a80cf40b2f70dc9a792ada75d51e3801dd6bdec905d8556c3b2d439aaf8be6"
+  },
+  "observed_failure": {
+    "scope": "Actual installed public retained-Cargo check, followed by isolated original-CLI exception observation",
+    "exception": "TypeError",
+    "location": "authored_qualification_runs.observe_authored_qualification_run",
+    "cause": "The semantic observer accepted generation owners but rejected separately authenticated read-only receiving owners",
+    "diagnostic_sha256": "25fab8d021f9f3814fe7268efbf8bcdb79198babe76cf01c6300224ec30fd6ff",
+    "public_refusals_retained": true,
+    "provider_packages_placed": false,
+    "admission_issued": false
+  },
+  "repair": "Accept the exact original receiving owner at the closed type gate and authenticate both original currentness fences through the existing sealed read ports. All substantive run checks remain unchanged.",
+  "reports": {
+    "regression_before_fix": {
+      "sha256": "f2304efdb4bfd54b8ba51a42b16313558a9fa685c4b59700095b8d2f7a71d37d",
+      "summary": {
+        "executed": 19,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 18,
+        "selected": 20,
+        "skipped": 0
+      }
+    },
+    "receiving_after_fix": {
+      "sha256": "8d58ce627c1109c066df8f7fe0c8c64f29aeb86223449120ba416d964222f375",
+      "summary": {
+        "executed": 20,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 20,
+        "selected": 20,
+        "skipped": 0
+      }
+    },
+    "unchanged_producer_controls": {
+      "sha256": "2f004cffc5c331fb9077519e5cefe7be231b36509b83bd2b4a399b12bb9ae976",
+      "summary": {
+        "executed": 22,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 22,
+        "selected": 22,
+        "skipped": 0
+      }
+    }
+  },
+  "source_review_sha256": "a728f659178edb874f25dfad48d6d2326f9a06a6f4f69ae739ba1093cb449b42",
+  "remaining_read_gate_audit_sha256": "4ef9fc7cee5b06f84c59f68a7161df5a7f0b4975dd6a5beeeaa18270e0e5ac32",
+  "limits": [
+    "New regressions use real issued current read-owner guards and explicit simulated Standard records; comparison is mocked and never reached. They prove plan/membership refusals and expiry/unissued rejection, not a successful complete receiving run.",
+    "All18 original receiving tests remain unchanged. Original producer run controls remain source development evidence.",
+    "No generation, allocation or writable-publication owner gate was widened; no budget, deadline, original assertion or release goal was relaxed.",
+    "Fresh immutable installed-candidate qualification, genuine complete receiving and broader release/platform/SDK goals remain required. Historical producer evidence cannot be restamped with a new framework identity."
+  ]
+}

@@ -15,12 +15,14 @@ from types import MappingProxyType
 from typing import Any, ClassVar
 
 from literate_ai.contracts import semantic_version
+from literate_ai.contracts.component_locking.authoring import ComponentAssetSelector
 from literate_ai.contracts.library_imports import (
     AuthoredLibraryImport,
     validate_library_imports,
 )
 
 from .errors import SourceToSpecificationError
+from .reviewed_assets import validate_asset_selectors
 
 
 def _text(value: str, field_name: str) -> str:
@@ -727,6 +729,9 @@ class ComponentGraphNodeDraft:
     library_imports: tuple[AuthoredLibraryImport, ...] = field(
         default=(), metadata={"omit_empty": True}
     )
+    assets: tuple[ComponentAssetSelector, ...] = field(
+        default=(), metadata={"omit_empty": True}
+    )
 
     def __post_init__(self) -> None:
         for name in ("coordinate", "title"):
@@ -747,6 +752,7 @@ class ComponentGraphNodeDraft:
                     self.capability_contracts,
                     self.entrypoints,
                     self.build_needs,
+                    self.assets,
                 )
             ):
                 raise SourceToSpecificationError(
@@ -823,6 +829,7 @@ class ComponentGraphNodeDraft:
                 "source_paths",
             ),
         )
+        validate_asset_selectors(self.assets)
         object.__setattr__(
             self,
             "observation_ids",

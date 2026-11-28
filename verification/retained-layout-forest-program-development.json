@@ -1,0 +1,249 @@
+{
+  "schema": "literate-ai/forest-program-development@1",
+  "state": "source_reviewed_new_process_program_and_original_data_binding",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "canonical_forest_recovery_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-program-review.json",
+    "sha256": "763f21325e68cbfea1b9bbb7cb8dbe9a358fd2cc8aaf9ff61628c42aec5f5f49"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-program-forest_original_read-report.json",
+        "sha256": "7c7f0e328e9e43ac975c06ec873e5710c0f0420fefceb4d655de9d17de198ed9"
+      },
+      "log": {
+        "path": "_build/forest-program-forest_original_read-maintained.log",
+        "sha256": "2931e5ca91a0ddb26bb992377aa3f97fb5d4c416f4037fcbc4698ce6042dceed"
+      },
+      "summary": {
+        "executed": 7,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 7,
+        "selected": 7,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "64d4f65ef54566e4da2831e5cc0095bd58390cd1c0ac86299a953426487b9aec",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-program-forest_program_read-report.json",
+        "sha256": "af97ae98db614a617c62348330b30721f8b0c3963d808c0b3b206eef11d2c1b2"
+      },
+      "log": {
+        "path": "_build/forest-program-forest_program_read-maintained.log",
+        "sha256": "71958a05853f8cc5c3210210dfb9065258f12d4edc016e13f9b1787cc21d2039"
+      },
+      "summary": {
+        "executed": 7,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 7,
+        "selected": 7,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "80f0e2de642b8158f70ff112b608f516063f24e4efbc69bfb93f6d53dc6f82bc",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-program-forest_recovery_read-report.json",
+        "sha256": "05f5191a727ee0b0a7397dee9950fa6cdf90a365c15ece4fa133e5c791f36685"
+      },
+      "log": {
+        "path": "_build/forest-program-forest_recovery_read-maintained.log",
+        "sha256": "6611000478bf1de185e8854455c7936b908e75e314f013bf61f4e8574156f45a"
+      },
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "6d0306fb4b7b2825f54e2a80a5ea2e27d9a3c8a12ae81c29bff84391bfc26e75",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-program-forest_replay-report.json",
+        "sha256": "adfc7cc0aed131a717d03e2a956fb60561c94a294fa2efbb16e8c6a5f0428e57"
+      },
+      "log": {
+        "path": "_build/forest-program-forest_replay-maintained.log",
+        "sha256": "57b9de804df85bfabb36e496b0fcb4e72a12e4d6ac83af09f1199b89c5133d54"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "8d6b6e47cd3f28a3b3a290d5c0e96277bb37dd43644916f744f34d2efb9b0e90",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-program-forest_native-report.json",
+        "sha256": "be4a8084fdef3403ac724cf8e17c2da38245e288fe3f4457e1a428ea4f81e16c"
+      },
+      "log": {
+        "path": "_build/forest-program-forest_native-maintained.log",
+        "sha256": "2e6a20ac82ee7d7c9615dbe8fc87c0a48797d57bca711db9047f72065fb709a0"
+      },
+      "summary": {
+        "executed": 37,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 37,
+        "selected": 37,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "aa7208192ec25867fee33c1811611ae252e4b2d969e80f2770e7e57a48e42a71",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-program-source_state-report.json",
+        "sha256": "5910f22153bcf3e6d9d8f0b856a384130ed872b5d966293319943f836708b2ab"
+      },
+      "log": {
+        "path": "_build/forest-program-source_state-maintained.log",
+        "sha256": "3b430b5578667ee08c034f2c6c59e216c186be14d428e6e390a615c86b068cc7"
+      },
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "9dd8b2bc40760926f9b1415872717d73a13b0b7ba1bbcdf743082690d8b26f2d",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-program-source_forest-report.json",
+        "sha256": "8fffc61ec0a2cd6072ae084f39a5e3803b6d033638d5a2ea330c56a6876ca417"
+      },
+      "log": {
+        "path": "_build/forest-program-source_forest-maintained.log",
+        "sha256": "84918ce63c10f963d2c31aca4457ca1e2142b40f2aa294a06f77d4b45285ef81"
+      },
+      "summary": {
+        "executed": 27,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 27,
+        "selected": 27,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "2d719e893ea154604c3c0070b1d8c05ac5f0c41ce2d256bec979c7107637f69e",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 112,
+  "diagnostics": [
+    {
+      "path": "_build/forest-program-first-diagnostic.log",
+      "sha256": "4029b4914f8b82b1b9f6db53e42abc2fe23ba1b5c98779e6a2e280f41a318841"
+    },
+    {
+      "path": "_build/forest-program-original-first-diagnostic.log",
+      "sha256": "1b672ea32c942ea4a57e1e9f22a89b7940bcbcf593d1d1642b9f511ab39fddf0"
+    },
+    {
+      "path": "_build/forest-program-review-control.log",
+      "sha256": "30154a3ccc6565e8c5a7e9be1a3fcfabf181436731bfb8d3e8cd4447e8e09e89"
+    },
+    {
+      "path": "_build/forest-program-order-control.log",
+      "sha256": "0e2c8cd90b1980397887858a692313ece1b86cf0cf0543a971385b7bc379caa7"
+    },
+    {
+      "path": "_build/forest-program-original-fixed-diagnostic.log",
+      "sha256": "2a4344a08c5c156e328a09cf644cec05043bab546f90ce94f8c03268952edd46"
+    }
+  ],
+  "causal_notes": [
+    "Separate process reopens the actual native journal, decodes programme data without receiving the old object, and matches actual final span/program identities.",
+    "Original-state positive genuinely exercises the canonical admission refusal, then separately acknowledges unmanaged native dependency execution. No successful canonical phase, partition or current canonical recovery owner is fabricated.",
+    "Control-delta fixture uses the actual pool publisher for a missing parent and marker. Initial omitted private/public parent setup errors are retained; production refusal unchanged.",
+    "Review controls reproduce saved event/packed witness mutation acceptance and publications-before-durable acceptance. Native-before-durable was already indirectly refused for a missing control delta; the new explicit ordering guard covers it directly."
+  ],
+  "remaining": [
+    "Genuine fresh canonical forest recovery roles or effect ownership",
+    "Current endpoint classification and acknowledged source/metadata/control recovery effects",
+    "Genuine canonical integrated forest execution",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ],
+  "static": {
+    "session": 2306,
+    "terminal": true,
+    "exit_code": 0,
+    "log": {
+      "path": "_build/forest-program-final-static.log",
+      "sha256": "9928c6e5deb4d8cc280ff065ca86e658e1a78fc77a311c49da36916c42be9558"
+    },
+    "checks": [
+      "supported driver/documentation review records",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "roadmap dependencies",
+      "documentation-check"
+    ]
+  },
+  "verify": {
+    "session": 52228,
+    "terminal": true,
+    "exit_code": 1,
+    "report": {
+      "path": "_build/forest-program-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "authority": "pass",
+    "receipt": "project.test_receipt_stale",
+    "normal_skips": 3
+  },
+  "diff_check": {
+    "exit_code": 0
+  }
+}

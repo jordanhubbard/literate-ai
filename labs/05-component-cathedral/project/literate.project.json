@@ -5,7 +5,7 @@
   "profile": "canonical",
   "agent_skill": "SKILL.md",
   "component_roots": [
-    "components/frontend-application/component-cathedral"
+    "components"
   ],
   "flavor_roots": [
     "flavors"
@@ -107,7 +107,8 @@
   "default_flavor_selectors": [
     "+flavor://literate-ai/lang-javascript",
     "+flavor://literate-ai/build-make",
-    "+flavor://literate-ai/os-macos"
+    "+flavor://literate-ai/os-macos",
+    "+flavor://unprompted/lang-python-score"
   ],
   "mcp_roots": [
     "mcps"

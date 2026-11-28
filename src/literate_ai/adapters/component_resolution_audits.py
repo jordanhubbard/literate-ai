@@ -12,12 +12,20 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from literate_ai._atomic_publication import publish_atomic_file_if_scoped
 from literate_ai._cache_lock import CacheLockError, exclusive_cache_lock
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
     path_is_link_or_reparse,
     require_safe_directory,
     stat_is_link_or_reparse,
+)
+from literate_ai.adapters.component_namespace import (
+    ComponentNamespaceError,
+    bind_component_namespace,
+    component_mutation_gate,
+    require_component_mutation_current,
+    require_component_physical_current,
 )
 from literate_ai.contracts.component_locking import ComponentResolutionAudit
 from literate_ai.contracts.identity import canonical_json_bytes
@@ -98,8 +106,19 @@ class ComponentResolutionAuditStore:
             storage_root = self.root
         self.storage_root = storage_root
         self.target_name = target_name
-        self.path = storage_root / f"{_AUDIT_PREFIX}{target_name}{_AUDIT_SUFFIX}"
+        self.path = self._path_for_storage(storage_root, target_name)
         self.write_lock_path = storage_root / f".{self.path.name}.write.lock"
+        try:
+            bind_component_namespace(self)
+        except (ComponentNamespaceError, OSError) as error:
+            raise ComponentResolutionAuditStoreError(
+                "component_resolution_audit.root_unsafe", str(error)
+            ) from error
+
+    @staticmethod
+    def _path_for_storage(storage_root: Path, target_name: str) -> Path:
+        """Name a validated target's endpoint without filesystem access."""
+        return storage_root / f"{_AUDIT_PREFIX}{target_name}{_AUDIT_SUFFIX}"
 
     def read(self) -> ComponentResolutionAudit:
         content = self._read_bytes(required=True)
@@ -126,7 +145,10 @@ class ComponentResolutionAuditStore:
         expected = _audit_bytes(expected_current)
         replacement = snapshot.content
         try:
-            with exclusive_cache_lock(self.write_lock_path):
+            with (
+                component_mutation_gate(self),
+                exclusive_cache_lock(self.write_lock_path),
+            ):
                 self._require_root_current()
                 if self._read_bytes(required=False) != expected:
                     return False
@@ -138,6 +160,10 @@ class ComponentResolutionAuditStore:
                     return True
                 self._replace_bytes(replacement, prefix=f".{self.path.name}.rollback.")
                 return True
+        except ComponentNamespaceError as error:
+            raise ComponentResolutionAuditStoreError(
+                "component_resolution_audit.root_unsafe", str(error)
+            ) from error
         except ComponentResolutionAuditStoreError:
             raise
         except (CacheLockError, OSError) as exc:
@@ -181,25 +207,22 @@ class ComponentResolutionAuditStore:
                 "resolution audit exceeds the persisted byte limit",
             )
         try:
-            with exclusive_cache_lock(self.write_lock_path):
+            with (
+                component_mutation_gate(self),
+                exclusive_cache_lock(self.write_lock_path),
+            ):
                 self._require_root_current()
                 current = self._read_bytes(required=False)
                 if current == content:
                     if revalidate is not None:
                         revalidate()
                     return False
-                descriptor, temporary_name = tempfile.mkstemp(
-                    prefix=f".{self.path.name}.", dir=self.storage_root
-                )
-                temporary = Path(temporary_name)
-                try:
-                    with os.fdopen(descriptor, "wb") as stream:
-                        stream.write(content)
-                        stream.flush()
-                        os.fsync(stream.fileno())
+
+                def close_publication_inputs():
                     if revalidate is not None:
                         revalidate()
                     self._require_root_current()
+                    require_component_mutation_current(self)
                     if self._read_bytes(required=False) != current:
                         raise ComponentResolutionAuditStoreError(
                             "component_resolution_audit.concurrent_change",
@@ -216,10 +239,29 @@ class ComponentResolutionAuditStore:
                             "component_resolution_audit.path_unsafe",
                             "resolution-audit destination must be a regular file",
                         )
+
+                if publish_atomic_file_if_scoped(
+                    self.path, content, require_current=close_publication_inputs
+                ):
+                    return True
+                descriptor, temporary_name = tempfile.mkstemp(
+                    prefix=f".{self.path.name}.", dir=self.storage_root
+                )
+                temporary = Path(temporary_name)
+                try:
+                    with os.fdopen(descriptor, "wb") as stream:
+                        stream.write(content)
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                    close_publication_inputs()
                     os.replace(temporary, self.path)
                     _fsync_directory(self.storage_root)
                 finally:
                     temporary.unlink(missing_ok=True)
+        except ComponentNamespaceError as error:
+            raise ComponentResolutionAuditStoreError(
+                "component_resolution_audit.root_unsafe", str(error)
+            ) from error
         except ComponentResolutionAuditStoreError:
             raise
         except (CacheLockError, OSError) as exc:
@@ -296,6 +338,24 @@ class ComponentResolutionAuditStore:
         return content
 
     def _replace_bytes(self, content: bytes, *, prefix: str) -> None:
+        def close_publication_inputs():
+            self._require_root_current()
+            require_component_mutation_current(self)
+            if path_is_link_or_reparse(self.path):
+                raise ComponentResolutionAuditStoreError(
+                    "component_resolution_audit.path_unsafe",
+                    "resolution-audit destination cannot be a link or reparse point",
+                )
+            if self.path.exists() and not self.path.is_file():
+                raise ComponentResolutionAuditStoreError(
+                    "component_resolution_audit.path_unsafe",
+                    "resolution-audit destination must be a regular file",
+                )
+
+        if publish_atomic_file_if_scoped(
+            self.path, content, require_current=close_publication_inputs
+        ):
+            return
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=prefix, dir=self.storage_root
         )
@@ -322,9 +382,10 @@ class ComponentResolutionAuditStore:
 
     def _require_root_current(self) -> None:
         try:
+            require_component_physical_current(self)
             require_safe_directory(self.root)
             require_safe_directory(self.storage_root, allow_missing=True)
-        except UnsafeFilesystemPathError as exc:
+        except (UnsafeFilesystemPathError, ComponentNamespaceError) as exc:
             raise ComponentResolutionAuditStoreError(
                 "component_resolution_audit.root_unsafe",
                 "Component root became unsafe",
@@ -360,3 +421,27 @@ __all__ = [
     "ComponentResolutionAuditStore",
     "ComponentResolutionAuditStoreError",
 ]
+
+
+# Original field descriptors are captured with the actual class, before callbacks.
+_COMPONENT_NAMESPACE_ORIGIN = (
+    ComponentResolutionAuditStore,
+    type.__getattribute__(ComponentResolutionAuditStore, "__bases__"),
+    type.__getattribute__(ComponentResolutionAuditStore, "__mro__"),
+    tuple(
+        (name, ComponentResolutionAuditStore.__dict__.get(name))
+        for name in (
+            "root",
+            "storage_root",
+            "path",
+            "write_lock_path",
+            "operation_lock_path",
+            "target_name",
+            "__dict__",
+            "__getattribute__",
+            "__getattr__",
+            "__hash__",
+            "__eq__",
+        )
+    ),
+)

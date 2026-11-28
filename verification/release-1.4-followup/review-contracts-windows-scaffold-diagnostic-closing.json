@@ -1,0 +1,10 @@
+{
+  "status": "independent_source_closing_review_accepted",
+  "sha256": "49c2ce6c7d77c4cc0656947c28e5f054b0cf99b4a0fc9e1ceef65d00e4cb29df",
+  "scope": "One CI diagnostic step only, exact Windows tests group3 guard, before existing boundary/shard, pwsh single Python pytest invocation, configured xdist disabled by addopts override, original positive case and assertions unchanged. Distinct short per-job RUNNER_TEMP/scaffold-boundary. No retries or continue-on-error.",
+  "finding": "Resolved: exact diagnostic JUnit included in existing Windows always-upload artifact.",
+  "existing_workflow_policy_controls": "4passed0.025s: receiver once/no-xdist; scoped profile ownership; full action SHA pins; native serial-module budget.",
+  "limits": "Read-only source/policy review, no actual Windows execution or diagnosis that source publication is fixed. Existing positive test remains in original full shard; isolated preflight is extra diagnostic invocation, not a retry.",
+  "unchanged_workflow": "Parsed complete workflow equals original after removing only new step and exact new JUnit artifact line; no other commands/guards changed.",
+  "parent_source_receipt_tail_observed": "kers; logs /home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/scaffold-isolation-source-r1/workers/6da38c3bec0b\n............\n----------------------------------------------------------------------\nRan 12 tests in 0.630s\n\nOK\n"
+}

@@ -135,7 +135,11 @@ def oracle_path(
                 "component_acceptance.path_invalid",
                 f"{label} must be one safe non-empty path segment",
             )
-    root = project_root.joinpath(*ACCEPTANCE_DIRECTORY.split("/"))
+    from literate_ai.projects import ProjectConfigurationStore
+
+    root = ProjectConfigurationStore.context(project_root).framework_path(
+        ACCEPTANCE_DIRECTORY
+    )
     if entrypoint_name is None:
         return root / f"{component_name}.json"
     return root / component_name / f"{entrypoint_name}.json"

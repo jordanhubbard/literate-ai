@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
 import os
 import runpy
 import shutil
@@ -17,6 +18,7 @@ from literate_ai.self_hosting import (
     run_snapshot_replication,
 )
 from tests.conformance.support.self_hosting_proof import platform_flavor as host_flavor
+from tests.support.windows_lock_observation import observed_temporary_directory
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PACKAGE_ROOT = REPO_ROOT / "src" / "literate_ai"
@@ -52,6 +54,34 @@ def self_host_temporary_directory() -> tempfile.TemporaryDirectory[str]:
 
 
 class SnapshotReplicationConformanceTests(unittest.TestCase):
+    def test_offline_replication_without_optional_grpc_distributions(self):
+        execute_proof = runpy.run_path(str(PROOF_HARNESS))["execute_replication_proof"]
+        original = importlib.metadata.distribution
+        absent = {"protobuf", "grpcio", "grpcio-reflection", "grpcio-status"}
+
+        def distribution(name):
+            if name.casefold().replace("_", "-") in absent:
+                raise importlib.metadata.PackageNotFoundError(name)
+            return original(name)
+
+        with self_host_temporary_directory() as temporary:
+            with (
+                mock.patch("importlib.metadata.distribution", side_effect=distribution),
+                mock.patch(
+                    "socket.create_connection",
+                    side_effect=AssertionError("replication must remain offline"),
+                ),
+            ):
+                report = execute_proof(
+                    repo_root=REPO_ROOT,
+                    sample_root=SAMPLE_ROOT,
+                    scratch=Path(temporary),
+                    host_build_acknowledged=True,
+                )
+        self.assertEqual(report["replication_count"], 2)
+        self.assertTrue(report["complete_file_set_stable"])
+        self.assertFalse(report["original_import_fallback"])
+
     def test_isolated_candidate_timeout_terminates_descendant_process_tree(
         self,
     ) -> None:
@@ -67,7 +97,7 @@ class SnapshotReplicationConformanceTests(unittest.TestCase):
             "time.sleep(60)"
         )
         started = time.monotonic()
-        with tempfile.TemporaryDirectory() as temporary:
+        with observed_temporary_directory([], ()) as temporary:
             with mock.patch.dict(globals_, {"_CANDIDATE_PROCESS_TIMEOUT_SECONDS": 0.2}):
                 with self.assertRaisesRegex(
                     harness["SelfHostSampleError"], "could not complete"

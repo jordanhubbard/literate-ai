@@ -50,7 +50,7 @@ from literate_ai.contracts.retained_project_tests import (
     RetainedProjectExpectedCase,
     RetainedProjectTestPolicy,
 )
-from literate_ai.projects import load_project
+from literate_ai.projects import ProjectConfigurationStore, load_project
 
 KINDS = (
     "acceptance-result",
@@ -271,7 +271,10 @@ def author_public_retained_project(
         "tests": "test-definition",
         "retained-docs": "docs-definition",
         "test-policy.json": "test-policy",
-        "literate.release.json": "release-policy",
+        ProjectConfigurationStore.context(project)
+        .framework_path("literate.release.json")
+        .relative_to(project)
+        .as_posix(): "release-policy",
     }
     if package_zip:
         roots.update(
@@ -295,7 +298,11 @@ def author_public_retained_project(
         manifest.role_identity({"sdk", "toolchain"}),
         manifest.role_identity({"dependency"}),
         _identity(test_path.read_bytes()),
-        _identity((project / "literate.release.json").read_bytes()),
+        _identity(
+            ProjectConfigurationStore.context(project)
+            .framework_path("literate.release.json")
+            .read_bytes()
+        ),
         (("runner", "tools/runner", _identity(tool.read_bytes())),),
         actions,
         ("app.bin", "docs.txt"),
@@ -323,9 +330,13 @@ def author_public_retained_project(
     ):
         raise AssertionError("only the project-policy cycle was omitted")
     (project / "manifest.json").write_bytes(canonical_json_bytes(manifest.to_dict()))
-    configuration = json.loads((project / "literate.project.json").read_bytes())
+    configuration = json.loads(
+        ProjectConfigurationStore.context(project).manifest_path.read_bytes()
+    )
     configuration["test_receipt_policy"] = policy.to_dict()
-    (project / "literate.project.json").write_bytes(canonical_json_bytes(configuration))
+    ProjectConfigurationStore.context(project).manifest_path.write_bytes(
+        canonical_json_bytes(configuration)
+    )
     _invoke(invoke, ["project", "documentation-review", str(project), "--record"])
     for argv in (
         ["init", "-q", "--initial-branch=main"],
@@ -425,7 +436,58 @@ def forge_public_run_evidence(store, retained_receipt, promotion_reference, *, k
         return json.loads(store.get_bytes(reference))
 
     completed = read(BlobRef.from_dict(retained_receipt["roots"]["completed-run"]))
-    if kind == "report":
+    targets = None
+    if kind in {"command-environment", "command-dependency"}:
+        field = (
+            "environment_identity"
+            if kind == "command-environment"
+            else "dependency_identity"
+        )
+        targets = []
+        for identity in completed["command_observations"]:
+            reference = by_identity[identity]
+            observation = read(reference)
+            observation[field] = canonical_identity({"forged": kind}).uri
+            targets.append((reference, canonical_json_bytes(observation)))
+    elif kind in {
+        "acceptance-dependency",
+        "acceptance-filesystem-dependency",
+        "acceptance-filesystem-environment",
+    }:
+        field = {
+            "acceptance-dependency": "dependency_identity",
+            "acceptance-filesystem-dependency": "filesystem_dependency_identity",
+            "acceptance-filesystem-environment": "filesystem_environment_identity",
+        }[kind]
+        targets = []
+        for identity in completed["acceptance_observations"]:
+            reference = by_identity[identity]
+            observation = read(reference)
+            if field not in observation:
+                raise AssertionError("actual private filesystem observation required")
+            observation[field] = canonical_identity({"forged": kind}).uri
+            targets.append((reference, canonical_json_bytes(observation)))
+        if not targets:
+            raise AssertionError("actual acceptance observations required")
+    elif kind == "acceptance-dependency-context":
+        targets = []
+        for row in run_evidence["sdk_metadata_records"]:
+            reference = BlobRef.from_dict(row)
+            document = read(reference)
+            if document.get("schema") != (
+                "literate-ai/retained-export-dependency-observation@1"
+            ):
+                continue
+            document["environment_identity"] = canonical_identity(
+                {
+                    "forged": kind,
+                    "original_environment": document["environment_identity"],
+                }
+            ).uri
+            targets.append((reference, canonical_json_bytes(document)))
+        if not targets:
+            raise AssertionError("actual captured native dependency facts required")
+    elif kind == "report":
         observation = read(by_identity[completed["test_observations"][0]])
         target = by_identity[observation["blob_identity"]]
         actual_report = read(target)
@@ -440,11 +502,15 @@ def forge_public_run_evidence(store, retained_receipt, promotion_reference, *, k
         raw = b"same exit code, wrong actual " + kind.encode()
     else:
         raise AssertionError("closed forgery scenario required")
-    replacement = store.put_bytes(raw, media_type=target.media_type)
-    replacements = {target.identity: replacement}
+    if targets is None:
+        targets = [(target, raw)]
+    replacements = {
+        reference.identity: store.put_bytes(content, media_type=reference.media_type)
+        for reference, content in targets
+    }
     documents = {}
     for reference in references:
-        if reference.identity == target.identity:
+        if reference.identity in replacements:
             continue
         try:
             value = read(reference)
@@ -511,13 +577,15 @@ def forge_public_run_evidence(store, retained_receipt, promotion_reference, *, k
             canonical_json_bytes(transform(read(reference))),
             media_type=reference.media_type,
         )
-    reference = BlobRef.from_dict(root["workspace_admission"])
-    replacements[reference.identity] = store.put_bytes(
-        canonical_json_bytes(transform(read(reference))),
-        media_type=reference.media_type,
+    # The converged encoder preserves the complete inline historical assertion
+    # and per-action contexts. Rehash their join too: these negatives must reach
+    # actual report/oracle verification, not merely fail a stale sidecar hash.
+    altered_root = transform(root)
+    altered_root["historical_admission"]["command_contexts_identity"] = (
+        canonical_identity(altered_root["command_contexts"]).uri
     )
     new_bundle = store.put_bytes(
-        canonical_json_bytes(transform(root)),
+        canonical_json_bytes(altered_root),
         media_type="application/json",
     )
     return new_receipt, new_bundle
@@ -534,7 +602,10 @@ def refresh_public_retained_manifest(project):
             "tests": "test-definition",
             "retained-docs": "docs-definition",
             "test-policy.json": "test-policy",
-            "literate.release.json": "release-policy",
+            ProjectConfigurationStore.context(project)
+            .framework_path("literate.release.json")
+            .relative_to(project)
+            .as_posix(): "release-policy",
         },
         RetainedProjectLimits(100, 8 * 1024**2, 16 * 1024**2),
         executable_paths=("tools/runner",),

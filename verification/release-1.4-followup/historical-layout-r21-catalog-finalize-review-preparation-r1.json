@@ -1,0 +1,322 @@
+{
+  "created_utc": "2026-11-27T19:21:41.701609+00:00",
+  "status": "IN PROGRESS: terminal finalization not accepted",
+  "catalog_plan": "sha256:0a083149cd38189d11b86dbb7a8e72248cc779498e76752287a1e548ecfec915",
+  "framework_plan": "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+  "framework_intent": "sha256:dcd88e6b6cbdea3434d62f021486628d9db5386a8d08250d65b03034265eb5e9",
+  "live_processes": [
+    {
+      "pid": 3727001,
+      "argv": [
+        "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r21/environment/bin/python",
+        "-I",
+        "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r21/environment/bin/litai",
+        "--json",
+        "project",
+        "layout",
+        "finalize",
+        "--place-imported-catalogs",
+        "--acknowledge",
+        "--plan-identity",
+        "sha256:0a083149cd38189d11b86dbb7a8e72248cc779498e76752287a1e548ecfec915",
+        "--successor-plan-identity",
+        "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+        "--project",
+        "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+      ]
+    }
+  ],
+  "terminal_files": [],
+  "in_progress_preservation_checks": {
+    "original_native6_and_rawGit": [
+      {
+        "path": "components/legacy-project-wrapper/implementation/.gitignore",
+        "matches_original": true,
+        "actual": {
+          "sha256": "f996b5ad9b75106c60fd509debb9032c34463b1841809e600f81106459dba27e",
+          "bytes": 21,
+          "device": 1813,
+          "inode": 11848518,
+          "mode": 420,
+          "mtime_ns": 1795773862415538191
+        }
+      },
+      {
+        "path": "components/legacy-project-wrapper/implementation/Makefile",
+        "matches_original": true,
+        "actual": {
+          "sha256": "a673a5bcc1dc7878a5136c1d6414746df1ac342e9a9e5fe03ed028387d592460",
+          "bytes": 147,
+          "device": 1813,
+          "inode": 11848517,
+          "mode": 420,
+          "mtime_ns": 1795773862415515119
+        }
+      },
+      {
+        "path": "components/legacy-project-wrapper/implementation/__pycache__/app.cpython-314.pyc",
+        "matches_original": true,
+        "actual": {
+          "sha256": "83c16bd365da560eee4a4226977722a7e2e5dd4f54c3905f37ab8269c3e01653",
+          "bytes": 223,
+          "device": 1813,
+          "inode": 12012344,
+          "mode": 420,
+          "mtime_ns": 1795773862495801483
+        }
+      },
+      {
+        "path": "components/legacy-project-wrapper/implementation/app.py",
+        "matches_original": true,
+        "actual": {
+          "sha256": "ba1a531f581d2e6094e978ed6f7aca7a8d92eeb62c6e7ad73ee692f7f18bc772",
+          "bytes": 32,
+          "device": 1813,
+          "inode": 11848515,
+          "mode": 420,
+          "mtime_ns": 1795773862415455454
+        }
+      },
+      {
+        "path": "components/legacy-project-wrapper/implementation/app.zip",
+        "matches_original": true,
+        "actual": {
+          "sha256": "910d7de3d20c971a134b83708b93fd3b29e2319bcc3c688628788b47cdcfe7df",
+          "bytes": 142,
+          "device": 1813,
+          "inode": 11848531,
+          "mode": 420,
+          "mtime_ns": 1795773862622092696
+        }
+      },
+      {
+        "path": "components/legacy-project-wrapper/implementation/test_app.py",
+        "matches_original": true,
+        "actual": {
+          "sha256": "56b4a6feb9a025ca25eda7a6adb4d0dc654ff7f35e125dcb5a834be4531f464b",
+          "bytes": 193,
+          "device": 1813,
+          "inode": 11848516,
+          "mode": 420,
+          "mtime_ns": 1795773862415490478
+        }
+      },
+      {
+        "path": ".git/HEAD",
+        "matches_original": true,
+        "actual": {
+          "sha256": "28d25bf82af4c0e2b72f50959b2beb859e3e60b9630a5e8c603dad4ddb2b6e80",
+          "bytes": 21,
+          "device": 1813,
+          "inode": 11881281,
+          "mode": 420,
+          "mtime_ns": 1795773862436596161
+        }
+      },
+      {
+        "path": ".git/index",
+        "matches_original": true,
+        "actual": {
+          "sha256": "a8d1defd581c27cdd8c41022454ce9f54ddaf36e83a47697d1c9b0b007a81f60",
+          "bytes": 542,
+          "device": 1813,
+          "inode": 11881291,
+          "mode": 420,
+          "mtime_ns": 1795774188594071690
+        }
+      },
+      {
+        "path": ".git/refs/heads/main",
+        "matches_original": true,
+        "actual": {
+          "sha256": "509a9f0fe4cc6e2db8e94ecfce8f198b6e034452bf8c901a6b247475bc7ba756",
+          "bytes": 41,
+          "device": 1813,
+          "inode": 11881293,
+          "mode": 420,
+          "mtime_ns": 1795773862446090003
+        }
+      }
+    ],
+    "all37framework_postimages": [
+      {
+        "path": ".cursor/rules/literate-ai.mdc",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "AGENTS.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "CLAUDE.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/SKILL.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "agents/openai.yaml",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/components/legacy-project-wrapper/component.lock.json",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/components/legacy-project-wrapper/component.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/components/legacy-project-wrapper/component.resolution-audit.host.json",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/README.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/architecture/authority-learning-loop.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/architecture/design-traceability.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/architecture/mission-specification-composition.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/architecture/skills.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/roadmap/active-work.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/roadmap/native-rewrite-program.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/roadmap/release-goals.json",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/user/framework-flow.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/user/getting-started.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/user/models-and-generation.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/user/project-layout.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/user/security.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/user/specifications.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/docs/user/test-matrix.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/flavors/legacy-project-shim/flavor.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/flavors/legacy-project-shim/openspec/spec.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/litai.harness.mk",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/.gitignore",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/.literate/initialization-baseline.json",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/.literate/update-bases.json",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/literate.project.json",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/literate.release.json",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/literate.test.example.json",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/literate.workers.example.json",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/routing/legacy-adoption.json",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/skills/specification-to-source/legacy-project-shim/SKILL.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/skills/specification-to-source/portable-application/SKILL.md",
+        "bytes_hash_mode_native_match": true
+      },
+      {
+        "path": "litai/workflows/legacy-adoption/workflow.md",
+        "bytes_hash_mode_native_match": true
+      }
+    ],
+    "receipts": [
+      {
+        "path": "litai/verification/current.json",
+        "matches_original": true,
+        "actual": {
+          "sha256": "845bcdee398b2d17bfb4881990ac5afad54a7e3218410144d71a46d94fd77b69",
+          "bytes": 2483,
+          "device": 1813,
+          "inode": 11913305,
+          "mode": 384,
+          "mtime_ns": 1795777018494972679
+        }
+      }
+    ],
+    "receipt_policy_equal_original": true,
+    "lifecycle_binding_equal_original": true,
+    "test_receipt_reference_equal_original": true
+  },
+  "required_terminal_checks": [
+    "Terminal JSON/stdout/stderr and child process absent; exact public acknowledgment/successor ID/1800 deadline and result normal producer currentness.",
+    "All8 original catalog source Component roots archived under same old catalog journal, each exact record/native source directory/coordination/payload joins; no invented target renewals (all8 original target_names empty).",
+    "Original245 catalog payloads/4resident edits and source backups/history native joins preserved, accounting exact acknowledged framework metadata handoff.",
+    "All37 framework output native bytes/modes, original36 before slots, prior3 source controls archive and exact journal intent joins preserved.",
+    "Original native6/rawGit/receipt/policy/manifest binding preserved; compare613 original file facts after exact framework transforms and allowed source-control archive mappings.",
+    "Exact framework successor membership closes the previously recorded6names in5parents, unrelated names remain absent.",
+    "Full_containment/qualification false; no ordinary lifecycle/build/test execution or full release acceptance inferred."
+  ],
+  "limits": [
+    "Read-only in-progress facts only; no CLI/jobs/project mutation by reviewer.",
+    "A completed result and final source retirement records are missing while process live."
+  ]
+}

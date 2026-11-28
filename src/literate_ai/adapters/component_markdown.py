@@ -25,6 +25,7 @@ from literate_ai.contracts.components import Entrypoint
 from literate_ai.contracts.flavors import FlavorAxis, FlavorCardinality, FlavorSlot
 from literate_ai.contracts.identity import ComponentCoordinate, ContentIdentity
 from literate_ai.contracts.library_imports import AuthoredLibraryImport
+from literate_ai.contracts.node_sdk import NodeSDKExportDeclaration
 from literate_ai.contracts.provider_resolution import (
     ProviderCapabilitySet,
     ProviderResolutionDeclaration,
@@ -407,6 +408,34 @@ def _render_library_import(item: AuthoredLibraryImport) -> list[str]:
         for key in ("language", "package", "capability", "module")
     ]
     _append_scalar_list(lines, "symbols", item.symbols)
+    if item.node_module is not None:
+        lines.append("node_module:")
+        lines.extend(
+            f"  {key}: {_yaml_string(value)}"
+            for key, value in item.node_module.to_dict().items()
+        )
+    if item.node_sdk_exports:
+        _append_mapping_list(
+            lines, "node_sdk_exports", item.node_sdk_exports, _render_node_sdk_export
+        )
+    return lines
+
+
+def _render_node_sdk_export(item: NodeSDKExportDeclaration) -> list[str]:
+    data = item.to_dict()
+    lines = [
+        f"{key}: {_yaml_string(data[key])}"
+        for key in ("schema", "module", "stem", "format")
+    ]
+    for kind in ("require", "import"):
+        _append_nested_mapping(
+            lines,
+            kind,
+            [
+                f"{key}: {_yaml_string(data[kind][key])}"
+                for key in ("runtime", "declaration")
+            ],
+        )
     return lines
 
 
@@ -511,6 +540,8 @@ def _render_source_dependency(item: AuthoredRepositorySourceDependency) -> list[
             f"optional: {'true' if item.optional else 'false'}",
         )
     )
+    if item.allow_internal_symlinks:
+        lines.append("allow_internal_symlinks: true")
     if item.integration_contract is None:
         lines.append("integration_contract: null")
     else:
@@ -886,7 +917,7 @@ def _source_dependency(value: Any, index: int) -> AuthoredRepositorySourceDepend
             "revision_selector",
             "dependency_kind",
         },
-        optional={"optional", "integration_contract"},
+        optional={"optional", "integration_contract", "allow_internal_symlinks"},
     )
     selector_data = _record(
         data["revision_selector"],
@@ -924,6 +955,10 @@ def _source_dependency(value: Any, index: int) -> AuthoredRepositorySourceDepend
                 f"{path}.integration_contract",
                 fixed_kind="integration-contract",
             )
+        ),
+        allow_internal_symlinks=_boolean(
+            data.get("allow_internal_symlinks", False),
+            f"{path}.allow_internal_symlinks",
         ),
     )
 

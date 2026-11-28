@@ -16,6 +16,7 @@ from literate_ai.contracts import (
     ProjectUpdateClassification,
     RepositoryParentSelection,
 )
+from literate_ai.projects import ProjectConfigurationStore
 
 
 def git(root: Path, *arguments: str) -> str:
@@ -50,6 +51,10 @@ def initialize(target: Path, selection: RepositoryParentSelection) -> dict[str, 
         source_intelligence_provider="none",
         parent_selection=selection,
     )
+
+
+def framework_root(root: Path) -> Path:
+    return ProjectConfigurationStore.context(root).framework_root
 
 
 def commit_project(root: Path) -> None:
@@ -98,15 +103,16 @@ class RepositoryInitializationEndToEndTests(unittest.TestCase):
 
             self.assertEqual(result["repository_lineage"]["node_count"], 3)
             self.assertGreater(result["inherited_catalogs"]["item_count"], 0)
+            framework = framework_root(target)
             self.assertTrue(
-                (target / "samples" / "hello-component" / "component.md").is_file()
+                (framework / "samples" / "hello-component" / "component.md").is_file()
             )
             self.assertTrue(
-                (target / "flavors" / "lang-python" / "flavor.md").is_file()
+                (framework / "flavors" / "lang-python" / "flavor.md").is_file()
             )
             self.assertTrue(
                 (
-                    target
+                    framework
                     / "skills"
                     / "specification-to-source"
                     / "python-portable-application"
@@ -117,14 +123,19 @@ class RepositoryInitializationEndToEndTests(unittest.TestCase):
             update = FilesystemRepositoryUpdateAdapter().plan(target)
             self.assertFalse(update.contract.changed)
 
-            selected_flavor = selected / "flavors" / "lang-python" / "flavor.md"
+            selected_flavor = (
+                framework_root(selected) / "flavors" / "lang-python" / "flavor.md"
+            )
+            selected_coordinate = selected_flavor.relative_to(selected).as_posix()
+            flavor = framework / "flavors" / "lang-python" / "flavor.md"
+            coordinate = flavor.relative_to(target).as_posix()
             selected_flavor.write_text(
                 selected_flavor.read_text(encoding="utf-8")
                 + "\n<!-- inherited update -->\n",
                 encoding="utf-8",
                 newline="\n",
             )
-            git(selected, "add", "flavors/lang-python/flavor.md")
+            git(selected, "add", selected_coordinate)
             git(selected, "commit", "-m", "Advance inherited Python flavor")
             adapter = FilesystemRepositoryUpdateAdapter()
             update = adapter.plan(target)
@@ -132,17 +143,14 @@ class RepositoryInitializationEndToEndTests(unittest.TestCase):
                 item.path: item.classification for item in update.contract.files
             }
             self.assertEqual(
-                classifications["flavors/lang-python/flavor.md"],
+                classifications[coordinate],
                 ProjectUpdateClassification.UPSTREAM_ONLY,
             )
 
             applied = adapter.apply(target, update)
 
-            self.assertIn("flavors/lang-python/flavor.md", applied.applied)
-            self.assertIn(
-                "<!-- inherited update -->",
-                (target / "flavors" / "lang-python" / "flavor.md").read_text(),
-            )
+            self.assertIn(coordinate, applied.applied)
+            self.assertIn("<!-- inherited update -->", flavor.read_text())
 
 
 if __name__ == "__main__":

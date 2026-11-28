@@ -73,14 +73,30 @@ class FileSystemCAS:
         elif not configured.is_dir():
             raise StorageSafetyError("read-only CAS root must already exist")
         self.root = configured.resolve(strict=True)
-        if not self.root.is_dir():
+        try:
+            root_metadata = self.root.stat()
+        except (OSError, ValueError):
+            raise StorageSafetyError("CAS root must be a directory") from None
+        if not stat.S_ISDIR(root_metadata.st_mode):
             raise StorageSafetyError("CAS root must be a directory")
         self.blob_root = Path(_native_cas_path(self.root / "blobs" / "sha256"))
         if create:
             self.blob_root.mkdir(mode=0o700, parents=True, exist_ok=True)
         elif not self.blob_root.is_dir():
             raise StorageSafetyError("read-only CAS blob root must already exist")
-        self._require_safe_directory(self.blob_root)
+        blob_witness = self._require_safe_directory(self.blob_root)
+        self._original_namespace_witness = (
+            (
+                self.root,
+                (root_metadata.st_dev, root_metadata.st_ino, root_metadata.st_mode),
+            ),
+            (self.blob_root, blob_witness),
+        )
+
+    @property
+    def original_namespace_witness(self):
+        """Passive immutable paths/identities from existing constructor validation."""
+        return self._original_namespace_witness
 
     def put_bytes(
         self,
@@ -346,13 +362,22 @@ class FileSystemCAS:
         finally:
             temp_path.unlink(missing_ok=True)
 
-    def _require_safe_directory(self, path: Path) -> None:
-        if path.is_symlink() or not path.is_dir():
+    def _require_safe_directory(self, path: Path) -> tuple[int, int, int]:
+        if path.is_symlink():
+            raise StorageSafetyError("managed CAS path must be a regular directory")
+        try:
+            metadata = path.stat()
+        except (OSError, ValueError):
+            raise StorageSafetyError(
+                "managed CAS path must be a regular directory"
+            ) from None
+        if not stat.S_ISDIR(metadata.st_mode):
             raise StorageSafetyError("managed CAS path must be a regular directory")
         resolved = path.resolve(strict=True)
         native_root = Path(_native_cas_path(self.root))
         if resolved != native_root and not resolved.is_relative_to(native_root):
             raise StorageSafetyError("managed CAS path escaped its root")
+        return metadata.st_dev, metadata.st_ino, metadata.st_mode
 
     @staticmethod
     def _fsync_directory(path: Path) -> None:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
@@ -20,6 +21,13 @@ from .._validation import (
 from ..cpp_libraries import CppLibraryLayout, is_cpp_name, validate_cpp_header
 from ..elixir_libraries import elixir_namespace, is_elixir_module, is_elixir_symbol
 from ..identity import ContentIdentity, canonical_identity, contract_identity
+from ..node_sdk import (
+    CommonJSModuleDeclaration,
+    NodeSDKExportDeclaration,
+    is_node_sdk_package_name,
+    node_sdk_package_boundary_records,
+)
+from ..paths import canonical_relative_posix_paths
 from ._common import identity, portable_name, tuple_value
 
 COMPONENT_LIFECYCLE_COMMAND_SCHEMA = (
@@ -35,6 +43,12 @@ LIBRARY_CAPABILITY_IMPORT_SCHEMA = (
     "urn:literate-ai:schema:v2:library-capability-import@1"
 )
 LIBRARY_IMPORT_SURFACE_SCHEMA = "urn:literate-ai:schema:v2:library-import-surface@1"
+DECLARED_LIBRARY_IMPORT_SURFACE_SCHEMA = (
+    "urn:literate-ai:schema:v2:library-import-surface@2"
+)
+NODE_SDK_LIBRARY_IMPORT_SURFACE_SCHEMA = (
+    "urn:literate-ai:schema:v2:library-import-surface@3"
+)
 LIBRARY_CONSUMER_BINDING_SCHEMA = "urn:literate-ai:schema:v2:library-consumer-binding@1"
 _LIBRARY_SYMBOL = re.compile(r"^[A-Za-z_$][A-Za-z0-9_$]{0,126}$")
 
@@ -169,13 +183,20 @@ class LibraryImportSurface:
     language: str
     package: str
     capabilities: tuple[LibraryCapabilityImport, ...]
+    declarations: tuple[CommonJSModuleDeclaration, ...] = ()
+    node_sdk_exports: tuple[NodeSDKExportDeclaration, ...] = ()
 
     SCHEMA: ClassVar[str] = LIBRARY_IMPORT_SURFACE_SCHEMA
 
     def __post_init__(self) -> None:
         portable_name(self.language, "LibraryImportSurface.language")
         string_value(self.package, "LibraryImportSurface.package", max_length=255)
-        if any(character in self.package for character in ("\x00", "\\", "/")):
+        if self.node_sdk_exports:
+            if not is_node_sdk_package_name(self.package):
+                fail(
+                    "LibraryImportSurface.package", "requires an exact Node SDK package"
+                )
+        elif any(character in self.package for character in ("\x00", "\\", "/")):
             fail(
                 "LibraryImportSurface.package",
                 "must be one bounded language-native package name",
@@ -231,6 +252,131 @@ class LibraryImportSurface:
         unique(names, "LibraryImportSurface.capabilities", "capability names")
         if names != tuple(sorted(names)):
             fail("LibraryImportSurface.capabilities", "must use canonical order")
+        declarations = tuple_value(
+            self.declarations, "LibraryImportSurface.declarations"
+        )
+        if declarations:
+            if (
+                self.language != "javascript"
+                or len(declarations) > 256
+                or len(capabilities) > 256
+            ):
+                fail(
+                    "LibraryImportSurface.declarations",
+                    "requires bounded JavaScript modules",
+                )
+            if any(
+                not isinstance(item, CommonJSModuleDeclaration) for item in declarations
+            ):
+                fail(
+                    "LibraryImportSurface.declarations",
+                    "requires typed module declarations",
+                )
+            modules = tuple(item.module for item in declarations)
+            if modules != tuple(sorted(set(item.module for item in capabilities))):
+                fail(
+                    "LibraryImportSurface.declarations",
+                    "must cover exactly the public modules in canonical order",
+                )
+            if len(
+                {unicodedata.normalize("NFC", name.casefold()) for name in modules}
+            ) != len(modules):
+                fail(
+                    "LibraryImportSurface.declarations",
+                    "public modules alias on a supported filesystem",
+                )
+            canonical_relative_posix_paths(
+                tuple(
+                    sorted(
+                        {
+                            path
+                            for item in declarations
+                            for path in (item.runtime, item.declaration)
+                        }
+                    )
+                ),
+                label="sealed CommonJS files",
+            )
+            for item in declarations:
+                if not (
+                    item.module == self.package
+                    or item.module.startswith(self.package + "/")
+                ):
+                    fail(
+                        "LibraryImportSurface.declarations",
+                        "module escapes the package namespace",
+                    )
+                if not all(
+                    path.startswith("source/" + self.package + "/")
+                    for path in (item.runtime, item.declaration)
+                ):
+                    fail(
+                        "LibraryImportSurface.declarations",
+                        "files must remain in the provider source package",
+                    )
+
+        sdk_exports = tuple_value(
+            self.node_sdk_exports, "LibraryImportSurface.node_sdk_exports"
+        )
+        if sdk_exports:
+            if (
+                self.language != "typescript"
+                or declarations
+                or not 1 <= len(sdk_exports) <= 128
+                or len(capabilities) > 256
+                or any(
+                    not isinstance(item, NodeSDKExportDeclaration)
+                    for item in sdk_exports
+                )
+            ):
+                fail(
+                    "LibraryImportSurface.node_sdk_exports",
+                    "requires an exclusive bounded TypeScript SDK surface",
+                )
+            modules = tuple(item.module for item in sdk_exports)
+            capability_modules = {item.module for item in capabilities}
+            if (
+                modules != tuple(sorted(set(modules)))
+                or not capability_modules <= set(modules)
+                or self.package not in modules
+            ):
+                fail(
+                    "LibraryImportSurface.node_sdk_exports",
+                    "requires complete canonical modules with an explicit package root",
+                )
+            if len({name.casefold() for name in modules}) != len(modules) or any(
+                name != self.package and not name.startswith(self.package + "/")
+                for name in modules
+            ):
+                fail(
+                    "LibraryImportSurface.node_sdk_exports",
+                    "public modules alias or leave the package",
+                )
+            primary_stems = {
+                item.stem for item in sdk_exports if item.module in capability_modules
+            }
+            if any(item.stem not in primary_stems for item in sdk_exports):
+                fail(
+                    "LibraryImportSurface.node_sdk_exports",
+                    "public aliases must share exact capability export files",
+                )
+            paths = sorted(
+                {path for item in sdk_exports for path in item.paths}
+                | {row["path"] for row in node_sdk_package_boundary_records()}
+            )
+            canonical_relative_posix_paths(paths, label="Node SDK export file")
+            for inventory in (modules, paths):
+                prefixes = {}
+                for name in inventory:
+                    parts = name.split("/")
+                    for depth in range(1, len(parts) + 1):
+                        prefix = "/".join(parts[:depth])
+                        alias = unicodedata.normalize("NFC", prefix.casefold())
+                        if prefixes.setdefault(alias, prefix) != prefix:
+                            fail(
+                                "LibraryImportSurface.node_sdk_exports",
+                                "export directory paths alias",
+                            )
 
     @property
     def identity(self) -> ContentIdentity:
@@ -247,23 +393,78 @@ class LibraryImportSurface:
         )
 
     def to_dict(self) -> dict[str, object]:
-        return {
-            "schema": self.SCHEMA,
+        result: dict[str, object] = {
+            "schema": NODE_SDK_LIBRARY_IMPORT_SURFACE_SCHEMA
+            if self.node_sdk_exports
+            else DECLARED_LIBRARY_IMPORT_SURFACE_SCHEMA
+            if self.declarations
+            else self.SCHEMA,
             "language": self.language,
             "package": self.package,
             "capabilities": [item.to_dict() for item in self.capabilities],
         }
+        if self.declarations:
+            result["declarations"] = [item.to_dict() for item in self.declarations]
+        if self.node_sdk_exports:
+            result["node_sdk_exports"] = [
+                item.to_dict() for item in self.node_sdk_exports
+            ]
+            result["package_boundaries"] = node_sdk_package_boundary_records()
+        return result
 
     @classmethod
     def from_dict(
         cls, value: Any, *, path: str = "LibraryImportSurface"
     ) -> LibraryImportSurface:
+        schema = value.get("schema") if isinstance(value, dict) else None
+        declared = schema == DECLARED_LIBRARY_IMPORT_SURFACE_SCHEMA
+        sdk = schema == NODE_SDK_LIBRARY_IMPORT_SURFACE_SCHEMA
         data = contract_fields(
             value,
             path=path,
-            schema_uri=cls.SCHEMA,
-            required=frozenset({"language", "package", "capabilities"}),
+            schema_uri=NODE_SDK_LIBRARY_IMPORT_SURFACE_SCHEMA
+            if sdk
+            else DECLARED_LIBRARY_IMPORT_SURFACE_SCHEMA
+            if declared
+            else cls.SCHEMA,
+            required=frozenset(
+                {
+                    "language",
+                    "package",
+                    "capabilities",
+                    *(["declarations"] if declared else []),
+                    *(["node_sdk_exports", "package_boundaries"] if sdk else []),
+                }
+            ),
         )
+        declarations = (
+            parse_tuple(
+                data["declarations"],
+                f"{path}.declarations",
+                CommonJSModuleDeclaration.from_dict,
+            )
+            if declared
+            else ()
+        )
+        exports = (
+            parse_tuple(
+                data["node_sdk_exports"],
+                f"{path}.node_sdk_exports",
+                NodeSDKExportDeclaration.from_dict,
+            )
+            if sdk
+            else ()
+        )
+        if declared and not declarations:
+            fail(f"{path}.declarations", "must contain explicit module declarations")
+        if sdk and (
+            not exports
+            or data["package_boundaries"] != node_sdk_package_boundary_records()
+        ):
+            fail(
+                f"{path}.node_sdk_exports",
+                "requires exact dual-format exports and package boundaries",
+            )
         return cls(
             language=portable_name(data["language"], f"{path}.language"),
             package=string_value(data["package"], f"{path}.package", max_length=255),
@@ -272,6 +473,8 @@ class LibraryImportSurface:
                 f"{path}.capabilities",
                 LibraryCapabilityImport.from_dict,
             ),
+            declarations=declarations,
+            node_sdk_exports=exports,
         )
 
 

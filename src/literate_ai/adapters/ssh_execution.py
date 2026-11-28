@@ -35,6 +35,7 @@ from literate_ai.contracts import (
     RemoteEvidenceCustodyReceipt,
     RemoteExecutionControlResult,
     canonical_json_bytes,
+    remote_cleanup_acknowledgement_identity,
 )
 from literate_ai.diagnostics import log_operation
 
@@ -385,6 +386,12 @@ class SshLifecycleRequestHandler:
             acknowledgement_identity: ContentIdentity | None = None
             acknowledgement_error: Exception | None = None
             acknowledged = None
+            expected_acknowledgement_identity = remote_cleanup_acknowledgement_identity(
+                request_identity=request.identity,
+                manifest_identity=manifest.identity,
+                bundle_identity=control.evidence_reference.identity,
+                cleanup_token=manifest.cleanup_token,
+            )
             for _attempt in range(3 if worker.reachability is None else 1):
                 acknowledged = self._run(
                     worker,
@@ -417,6 +424,7 @@ class SshLifecycleRequestHandler:
                         != control.manifest_identity.uri
                         or ack_result.get("bundle_identity")
                         != control.evidence_reference.identity.uri
+                        or acknowledgement_identity != expected_acknowledgement_identity
                     ):
                         raise ValueError
                 except (

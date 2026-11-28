@@ -177,6 +177,7 @@ class RepositorySourceDependency:
     dependency_kind: DependencyKind
     optional: bool = False
     integration_contract: ContentReference | None = None
+    allow_internal_symlinks: bool = False
 
     SCHEMA: ClassVar[str] = REPOSITORY_SOURCE_DEPENDENCY_SCHEMA
 
@@ -197,6 +198,11 @@ class RepositorySourceDependency:
             )
         if not isinstance(self.optional, bool):
             fail("RepositorySourceDependency.optional", "must be a boolean")
+        if type(self.allow_internal_symlinks) is not bool:
+            fail(
+                "RepositorySourceDependency.allow_internal_symlinks",
+                "must be a boolean",
+            )
         if not isinstance(self.integration_contract, (ContentReference, type(None))):
             fail(
                 "RepositorySourceDependency.integration_contract",
@@ -208,7 +214,7 @@ class RepositorySourceDependency:
         return contract_identity(self)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        value = {
             "schema": self.SCHEMA,
             "dependency_id": self.dependency_id,
             "repository_url": self.repository_url,
@@ -221,6 +227,9 @@ class RepositorySourceDependency:
                 else self.integration_contract.to_dict()
             ),
         }
+        if self.allow_internal_symlinks:
+            value["allow_internal_symlinks"] = True
+        return value
 
     @classmethod
     def from_dict(
@@ -230,6 +239,7 @@ class RepositorySourceDependency:
             value,
             path=path,
             schema_uri=cls.SCHEMA,
+            optional=frozenset({"allow_internal_symlinks"}),
             required=frozenset(
                 {
                     "dependency_id",
@@ -256,6 +266,10 @@ class RepositorySourceDependency:
                 DependencyKind, data["dependency_kind"], f"{path}.dependency_kind"
             ),
             optional=bool_value(data["optional"], f"{path}.optional"),
+            allow_internal_symlinks=bool_value(
+                data.get("allow_internal_symlinks", False),
+                f"{path}.allow_internal_symlinks",
+            ),
             integration_contract=(
                 None
                 if integration is None

@@ -1,0 +1,167 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Local POSIX current-provider initializer/source/control/independent-child composition inside a normal nonroot source phase; not full L1 or root/public relocation acceptance",
+  "base_revision": "37f002bc36ad298bff6522f45c37d4ec97769c88",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "a967f6f369a9506b02a37cd393f88e9b07c9946aacea854b6f08cbc469401a72"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "1e1c6c64ddcf91d72e672516a05387cb17a399c125c123c5072a13303ba0293e"
+    },
+    "src/literate_ai/adapters/retained_layout_reservations.py": {
+      "algorithm": "sha256",
+      "digest": "55440e36e58fd3f2691d844325b00593b2aae29a5882c17729785b3459445472"
+    },
+    "tests/critical/test_retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "69ad67d400bba8548cfa752ed02fa89bcf121138a193ff58dc50223a6d61cf30"
+    }
+  },
+  "behaviors": [
+    "Capture the complete raw namespace with explicit entry/byte/metadata limits and no exclusions; preserve unknown files, empty directories and shared ancestors.",
+    "Join actual initializer roles, original retained source, held project/Git controls and registered independent native children; reject links across actual role classes.",
+    "Recover the original initializer manifest from its exact baseline digest/size and bounded retained update-base snapshot; apply actual selected-template gates, reject unproduced starters and non-host initializer audit targets.",
+    "Require the exact actual framework origin at acquisition and while live; historical providers without their original path rosters refuse. Self-consistent metadata is not historical attestation.",
+    "Keep live public bindings read-only and detached observations non-authoritative; journal the partition observation and spend the actual owner before normal source movement.",
+    "Close original external reservation/journal/stage dependencies after project payload/membership reads, including on the original source-only path; preserve foreign state and prove fresh interrupted-source recovery."
+  ],
+  "affected_suite": {
+    "modules": [
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_reservations"
+    ],
+    "selected": 64,
+    "passed": 64,
+    "skipped": 0,
+    "seconds": 42.874,
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "4c61ba26d10c208fb49deed12262786cb4f5d9b170614ec99403f2a23a206454"
+    }
+  },
+  "historical_runs": [
+    {
+      "qualification": "Earlier approved source subjects before selector/provenance repair; not a pass of final ownership source. Transaction/reservation subjects unchanged.",
+      "selected": 280,
+      "passed": 280,
+      "skipped": 0,
+      "seconds": 766.97,
+      "exit_code": 0,
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "9b6ca7efc45749fa8b1d8126152c606495f0780c90b4564a8a1bbe97afe00477"
+      },
+      "ownership_sha256": "ffd04d159b6e0672491640f2dcc1af51eb4c42fc649435e61b08eafa95bcb40b",
+      "tests_sha256": "4f92110bd445f8e6d662f7cc527cf3cf9a8afffbadc7f0b6351990d3bc86b0d2"
+    },
+    {
+      "qualification": "First selector/blob/host repair before actual provider-origin gate; superseded",
+      "selected": 62,
+      "passed": 62,
+      "seconds": 38.098,
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "ca6da4565a65186cf30bcf85d2dd4405f555978d8bfe0ca9393c38ecfe249744"
+      }
+    }
+  ],
+  "causal_history": [
+    "Independent first review reproduced contradictory mutable roles and an external journal mutation after final project inventory; both repaired with maintained causal controls.",
+    "Private actual initialized Mac/Python counterexample added only a forged baseline record at an inactive Windows template endpoint and obtained framework classification; repaired with original manifest selection.",
+    "Review found arbitrary canonical audit targets were not emitted by initialization; repaired with actual host-only producer target.",
+    "Source-backed historical counterexample: revision 906c2ffaf added scripts/_bootstrap_processes.py without changing template protocol; current catalog plus original selectors cannot establish an older provider path roster. Optional current-provider join now refuses differing origins.",
+    "Two intermediate current-origin test runs failed because fixture origin injection wrapped per-test copying rather than actual class template initialization; fixture injection now wraps actual initialization and final 64 tests pass."
+  ],
+  "independent_review": {
+    "current_subject_decision": "approved_at_limited_scope",
+    "historical_reports": [
+      {
+        "name": "independent-layout-ownership-review.json",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "eb637d20c852ed58cac915b8169f3b0ad57fdf0e13cd0a2cca8d16902d69e98c"
+        }
+      },
+      {
+        "name": "independent-layout-ownership-rereview.json",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "a3279a2a7eefd6a07eaee9070085d1af381e45bb03a884e9fc0a88f9618b1987"
+        }
+      }
+    ],
+    "current_report": {
+      "name": "independent-layout-ownership-provenance-review.json",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "80ab7fbae3ed1d97df593f51ae006711157d55bffd1399b2c57e654ff5c7bd58"
+      },
+      "executed": [
+        {
+          "selected": 25,
+          "passed": 25,
+          "skipped": 0,
+          "seconds": 33.282
+        },
+        {
+          "selected": 39,
+          "passed": 39,
+          "skipped": 0,
+          "seconds": 9.676
+        }
+      ],
+      "qualification": "Independent source/editable-development tests, not immutable installed distribution qualification; historical providers and full L1 remain open."
+    }
+  },
+  "checks": {
+    "driver_review": "pass",
+    "runner_review": "pass",
+    "lint": "pass",
+    "format": "pass",
+    "repository_layout": "pass",
+    "public_export": "pass",
+    "project_validation": "pass",
+    "static_log_identity": {
+      "algorithm": "sha256",
+      "digest": "a577c68cd500794aa43deb0706772d5ff47e34e8959f9f5bc7a1c511144e27bd"
+    },
+    "project_validate_log_identity": {
+      "algorithm": "sha256",
+      "digest": "15201a15bc284fb6b68c4bea592caf26fde274e8121648e592034ccd150824b8"
+    },
+    "verify": {
+      "exit_code": 1,
+      "result_ok": false,
+      "counts": {
+        "pass": 1,
+        "fail": 1,
+        "skipped": 3
+      },
+      "failure": "project.test_receipt_stale",
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+      },
+      "qualification": "No full-source, integration, main or release green claim."
+    },
+    "final_static_log_identity": {
+      "algorithm": "sha256",
+      "digest": "ffcbf377e9e495f6b3c4741cd88d901b3deb8b25e9d5dfac5973db522a161076"
+    },
+    "final_project_validate_log_identity": {
+      "algorithm": "sha256",
+      "digest": "15201a15bc284fb6b68c4bea592caf26fde274e8121648e592034ccd150824b8"
+    }
+  },
+  "limits": [
+    "Historical original-provider roster support and additional update/import/authored/history metadata owners remain open; this optional composition refuses unsupported roles.",
+    "No root/shared/initial/custom-wrapper movement, source exclusions, public relocation/recovery or execution qualification is granted.",
+    "Native Windows, immutable installed/public matrix, full-source receipt renewal, consolidation, exact-main CI and release gates remain unproven.",
+    "Whole goal complete all pending roadmap items remains active."
+  ]
+}

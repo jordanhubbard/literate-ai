@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from literate_ai.projects import load_project
 from tests.support.fixtures_test_project_update_adapter import _origin
 from tests.support.root_parent_adapter import RootParentProjectInitializationAdapter
 
@@ -33,15 +34,20 @@ class CargoWrapperAdoptionTests(unittest.TestCase):
                 standard_binding_provider=lambda: None,
                 initialization_origin_provider=lambda: _origin("a", "1.4.0"),
             ).initialize(root, convert=True, source_intelligence_provider="none")
+            project = load_project(root)
             manifest = json.loads(
-                (root / "literate.project.json").read_text(encoding="utf-8")
+                project.context.manifest_path.read_text(encoding="utf-8")
             )
             self.assertIn(
                 "+flavor://literate-ai/lang-rust", manifest["default_flavor_selectors"]
             )
-            wrapper = root / "components/legacy-project-wrapper"
+            # Retained source keeps its application coordinate; the wrapper's
+            # framework metadata is placed under the declared framework root.
+            wrapper_coordinate = "components/legacy-project-wrapper"
+            implementation = root / wrapper_coordinate / "implementation"
+            wrapper = project.framework_root / wrapper_coordinate
             self.assertEqual(
-                (wrapper / "implementation/src/main.rs").read_text(encoding="utf-8"),
+                (implementation / "src/main.rs").read_text(encoding="utf-8"),
                 original,
             )
             lock = json.loads(

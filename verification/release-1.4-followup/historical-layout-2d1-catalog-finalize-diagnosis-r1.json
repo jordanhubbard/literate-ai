@@ -1,0 +1,405 @@
+{
+  "schema": "literate-ai/independent-historical-catalog-successor-census-diagnosis@1",
+  "status": "Confirmed reusable integration defect; original refusal preserved; no mutation/retry",
+  "severity": "P1 historical journey blocker",
+  "public_failure": {
+    "command": "project.layout",
+    "error": {
+      "code": "project.layout.recovery_conflict",
+      "message": "new catalog directory has unrelated content"
+    },
+    "ok": false,
+    "schema": "literate-ai/cli-error@1"
+  },
+  "public_execution": {
+    "argv": [
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r16/environment/bin/python",
+      "-I",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r16/environment/bin/litai",
+      "--json",
+      "project",
+      "layout",
+      "finalize",
+      "--place-imported-catalogs",
+      "--acknowledge",
+      "--plan-identity",
+      "sha256:0a083149cd38189d11b86dbb7a8e72248cc779498e76752287a1e548ecfec915",
+      "--successor-plan-identity",
+      "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+      "--project",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+    ],
+    "exit": 2,
+    "seconds": 3.6050391719909385,
+    "timeout_seconds": 1800
+  },
+  "catalog_plan": "sha256:0a083149cd38189d11b86dbb7a8e72248cc779498e76752287a1e548ecfec915",
+  "framework_successor_plan": "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+  "framework_intent_identity": "sha256:dcd88e6b6cbdea3434d62f021486628d9db5386a8d08250d65b03034265eb5e9",
+  "first_conflict": "litai/components -> legacy-project-wrapper; actualparentnative1813/11946240/16877 equals original catalognewdirectory node",
+  "full_census": [
+    {
+      "directory": "litai/components",
+      "original_new_directory_node": [
+        1813,
+        11946240,
+        16877
+      ],
+      "actual_node": [
+        1813,
+        11946240,
+        16877
+      ],
+      "original_allowed": [
+        "backend-application",
+        "document-pair",
+        "frontend-application",
+        "invoice-service",
+        "literate-ai-overview",
+        "mcp-application",
+        "money-calculation"
+      ],
+      "unexpected": [
+        {
+          "name": "legacy-project-wrapper",
+          "successor_destinations": [
+            "litai/components/legacy-project-wrapper/component.lock.json",
+            "litai/components/legacy-project-wrapper/component.md",
+            "litai/components/legacy-project-wrapper/component.resolution-audit.host.json"
+          ],
+          "successor_directories": [
+            "litai/components/legacy-project-wrapper"
+          ],
+          "successor_coordination": [
+            "litai/components/legacy-project-wrapper/.component.lock.write.lock",
+            "litai/components/legacy-project-wrapper/.component.operation.write.lock",
+            "litai/components/legacy-project-wrapper/.component.resolution-audit.host.json.write.lock"
+          ]
+        }
+      ]
+    },
+    {
+      "directory": "litai/flavors",
+      "original_new_directory_node": [
+        1813,
+        11946241,
+        16877
+      ],
+      "actual_node": [
+        1813,
+        11946241,
+        16877
+      ],
+      "original_allowed": [
+        "accel-nvidia-cuda",
+        "accelerator-cpu",
+        "build-bazel",
+        "build-cargo",
+        "build-cmake",
+        "build-make",
+        "build-mix",
+        "build-repo-man",
+        "container-python",
+        "deploy-docker",
+        "doc-google-workspace",
+        "doc-microsoft-365",
+        "lang-cpp",
+        "lang-elixir",
+        "lang-go",
+        "lang-javascript",
+        "lang-python",
+        "lang-rust",
+        "lang-swift",
+        "lang-typescript",
+        "lang-zig",
+        "os-base",
+        "os-freebsd",
+        "os-linux",
+        "os-macos",
+        "os-windows",
+        "package-apt",
+        "package-brew",
+        "package-cargo",
+        "package-chocolatey",
+        "package-conan",
+        "package-npm",
+        "package-pip",
+        "package-pkg",
+        "package-winget",
+        "package-zip",
+        "toolchain-swift-apple",
+        "toolchain-swift-linux",
+        "toolchain-swift-windows",
+        "toolchain-zig-cc",
+        "ui-react"
+      ],
+      "unexpected": [
+        {
+          "name": "legacy-project-shim",
+          "successor_destinations": [
+            "litai/flavors/legacy-project-shim/flavor.md",
+            "litai/flavors/legacy-project-shim/openspec/spec.md"
+          ],
+          "successor_directories": [
+            "litai/flavors/legacy-project-shim",
+            "litai/flavors/legacy-project-shim/openspec"
+          ],
+          "successor_coordination": []
+        }
+      ]
+    },
+    {
+      "directory": "litai/routing",
+      "original_new_directory_node": [
+        1813,
+        11946242,
+        16877
+      ],
+      "actual_node": [
+        1813,
+        11946242,
+        16877
+      ],
+      "original_allowed": [
+        "production",
+        "sample-host.json"
+      ],
+      "unexpected": [
+        {
+          "name": "legacy-adoption.json",
+          "successor_destinations": [
+            "litai/routing/legacy-adoption.json"
+          ],
+          "successor_directories": [],
+          "successor_coordination": []
+        }
+      ]
+    },
+    {
+      "directory": "litai/skills/specification-to-source",
+      "original_new_directory_node": [
+        1813,
+        12373168,
+        16877
+      ],
+      "actual_node": [
+        1813,
+        12373168,
+        16877
+      ],
+      "original_allowed": [
+        "backend-application",
+        "bazel-build-system",
+        "cargo-build-system",
+        "cmake-build-system",
+        "cpp-ecosystem",
+        "cpp17-portable-json-application",
+        "debug-spec-map",
+        "docker-container-application",
+        "document-pair",
+        "elixir-portable-application",
+        "frontend-application",
+        "generate-nvidia-cuda-application",
+        "go-portable-application",
+        "javascript-ecosystem",
+        "javascript-portable-json-application",
+        "make-build-system",
+        "mcp-application",
+        "mix-build-system",
+        "portable-application-implementation",
+        "portable-specification-planning",
+        "python-portable-application",
+        "python-repository-layout",
+        "repo-man-build-system",
+        "repository-layout",
+        "rust-ecosystem",
+        "rust-portable-json-application",
+        "swift-portable-json-application",
+        "typescript-portable-application",
+        "zig-portable-application"
+      ],
+      "unexpected": [
+        {
+          "name": "legacy-project-shim",
+          "successor_destinations": [
+            "litai/skills/specification-to-source/legacy-project-shim/SKILL.md"
+          ],
+          "successor_directories": [
+            "litai/skills/specification-to-source/legacy-project-shim"
+          ],
+          "successor_coordination": []
+        },
+        {
+          "name": "portable-application",
+          "successor_destinations": [
+            "litai/skills/specification-to-source/portable-application/SKILL.md"
+          ],
+          "successor_directories": [
+            "litai/skills/specification-to-source/portable-application"
+          ],
+          "successor_coordination": []
+        }
+      ]
+    },
+    {
+      "directory": "litai/workflows",
+      "original_new_directory_node": [
+        1813,
+        11946245,
+        16877
+      ],
+      "actual_node": [
+        1813,
+        11946245,
+        16877
+      ],
+      "original_allowed": [
+        "production",
+        "sample-host.md"
+      ],
+      "unexpected": [
+        {
+          "name": "legacy-adoption",
+          "successor_destinations": [
+            "litai/workflows/legacy-adoption/workflow.md"
+          ],
+          "successor_directories": [
+            "litai/workflows/legacy-adoption"
+          ],
+          "successor_coordination": []
+        }
+      ]
+    }
+  ],
+  "exact_successor_subtrees": [
+    {
+      "prefix": "litai/components/legacy-project-wrapper",
+      "actual_files": [
+        "litai/components/legacy-project-wrapper/.component.lock.write.lock",
+        "litai/components/legacy-project-wrapper/.component.operation.write.lock",
+        "litai/components/legacy-project-wrapper/.component.resolution-audit.host.json.write.lock",
+        "litai/components/legacy-project-wrapper/component.lock.json",
+        "litai/components/legacy-project-wrapper/component.md",
+        "litai/components/legacy-project-wrapper/component.resolution-audit.host.json"
+      ],
+      "expected_successor_files": [
+        "litai/components/legacy-project-wrapper/.component.lock.write.lock",
+        "litai/components/legacy-project-wrapper/.component.operation.write.lock",
+        "litai/components/legacy-project-wrapper/.component.resolution-audit.host.json.write.lock",
+        "litai/components/legacy-project-wrapper/component.lock.json",
+        "litai/components/legacy-project-wrapper/component.md",
+        "litai/components/legacy-project-wrapper/component.resolution-audit.host.json"
+      ],
+      "exact": true
+    },
+    {
+      "prefix": "litai/flavors/legacy-project-shim",
+      "actual_files": [
+        "litai/flavors/legacy-project-shim/flavor.md",
+        "litai/flavors/legacy-project-shim/openspec/spec.md"
+      ],
+      "expected_successor_files": [
+        "litai/flavors/legacy-project-shim/flavor.md",
+        "litai/flavors/legacy-project-shim/openspec/spec.md"
+      ],
+      "exact": true
+    },
+    {
+      "prefix": "litai/routing/legacy-adoption.json",
+      "actual_files": [
+        "litai/routing/legacy-adoption.json"
+      ],
+      "expected_successor_files": [
+        "litai/routing/legacy-adoption.json"
+      ],
+      "exact": true
+    },
+    {
+      "prefix": "litai/skills/specification-to-source/legacy-project-shim",
+      "actual_files": [
+        "litai/skills/specification-to-source/legacy-project-shim/SKILL.md"
+      ],
+      "expected_successor_files": [
+        "litai/skills/specification-to-source/legacy-project-shim/SKILL.md"
+      ],
+      "exact": true
+    },
+    {
+      "prefix": "litai/skills/specification-to-source/portable-application",
+      "actual_files": [
+        "litai/skills/specification-to-source/portable-application/SKILL.md"
+      ],
+      "expected_successor_files": [
+        "litai/skills/specification-to-source/portable-application/SKILL.md"
+      ],
+      "exact": true
+    },
+    {
+      "prefix": "litai/workflows/legacy-adoption",
+      "actual_files": [
+        "litai/workflows/legacy-adoption/workflow.md"
+      ],
+      "expected_successor_files": [
+        "litai/workflows/legacy-adoption/workflow.md"
+      ],
+      "exact": true
+    }
+  ],
+  "callchain": [
+    "cli.layout_component_commands.finalize_layout_from_args",
+    "catalog_finalization.finalize_catalog_components: decodeoriginalcatalogintent; observeexplicitcatalogsuccessor; nativeoperation/reservation",
+    "catalog_finalization._normal_current -> _views -> catalog_renewal._guard",
+    "catalog_renewal._guard: native._current BEFORE require_catalog_successor",
+    "native._current -> _guard_journal -> _guard_directories:307-351",
+    "strictoldcatalognewdirectory immediate-childset excludes valid acknowledgedframeworksiblings"
+  ],
+  "recommendation": {
+    "owner": "project_layout_catalog_successor.py plus narrowly threaded native directory census input through catalogrenewal/finalization originalguard path",
+    "derive": "Use original existing explicit successor binding(planidentity+intentidentity), sameproject/root/frameworkphysicalnative nodes, currentRootlease, validatedsuccessorjournal/publishedpostimages/nativeafterinodes, exactnormalproducerhistories and strictnewdirroster. Derive finite immediatechildnames only for oldcatalogcreatedparents from exact proven successor payload/directory/coordination coordinates.",
+    "threading": "Successor must be checked before old strict census, and checked again after callback/native observations. Pass validated detached bounded membership data internally; do not trust arbitrary caller sets or skip fullnative._current. Keep originalbasecensus and union only exactderived paths.",
+    "preserve": [
+      "originalcatalogparentnativeidentities and allbefore/after/history/coordination custody",
+      "source-retirement original Component membership, normalcurrentness and currentfreshowners",
+      "framework normalproducerhistories and sourcecontrols finalized states",
+      "strict no-successor behavior and extraunknownsibling/descendant refusal",
+      "explicitackoriginalplans and sameintentpreimage handoff",
+      "recovery requires originalframeworkrollback first; noextra successor additions afterward",
+      "no rewrites of originalcatalogintent, no wildcardcatalogroots or genericlivefilesystemdiscovery"
+    ]
+  },
+  "preservation_after_failed_finalize": {
+    "all574other_originalfiles_and3archivedsourcecontrols_plusGit_exact": true,
+    "all37frameworkoutputs_nativebytes_modes_exact": true,
+    "native6_receipt_policy_currentreceipt_andGit_unchanged": true,
+    "all6unexpectednames_fully_proved_by_exact_framework_subtrees": true,
+    "extra_unacknowledged_files_detected": []
+  },
+  "tracker": {
+    "bounded_search_file": "review-runtime-catalog-successor-tracker-search-r1.json",
+    "no_specific_existing_issue_found": true,
+    "related_distinct": [
+      501,
+      129
+    ],
+    "unposted_issue_draft": {
+      "title": "Join acknowledged framework sibling membership during catalog source finalization",
+      "body": "Catalog source finalization rejects a valid explicitly acknowledged framework successor because original catalog-created directory censuses do not admit the successor-owned siblings.\n\nAuthentic published1.3.1 ->installedcurrent migration: public catalog placement0a083149... succeeded; public framework successor febac496... succeeded; wrapperhost normal producer is current and framework source controls finalized. Explicit public catalog finalize --successor-plan-identity febac496... then fails project.layout.recovery_conflict: new catalog directory has unrelated content.\n\nFirst directory litai/components retains its original native inode but now correctly contains legacy-project-wrapper from the acknowledged framework journal. The full census finds only6proved successor additions in5catalog-created parents: wrapper Component,legacy Flavor,routing document,two initializer Skills,legacy workflow. All payload/native preimages and published hashes remain valid.\n\nOwner mismatch: catalog_renewal._guard invokes native._current/_guard_journal/_guard_directories before successor metadata handoff. Existing catalog_successor validates exact framework journal/native custody and shadows handed-off metadata, but does not expose the finite successor directory membership to the old catalog census.\n\nRepair in original successor integration: revalidate the explicit same-root/native/lease/intent-bound framework successor, derive only exact acknowledged currently published payload/coordination/new-directory coordinates (including admitted normal producer history), and compose this finite membership into catalog directory checks before the old census. Preserve default strict behavior without successor, original parent inode/absence/custody checks, exact metadata preimage joins, no arbitrary path grants or arbitrary new siblings. Keep recovering branch's framework-rollback-first rule. Do not delete valid framework files, rewrite old journal, bypass native guard, or adopt all current siblings.\n\nRegression: actual catalog-created parent plus independently proved framework-created sibling; original source finalization succeeds only with explicit valid successor. Missing/wrong/same-identity foreign journal, altered native inode/bytes, changed Component history, and any unrecorded sibling or descendant refuse before source effects; recovery ordering and all original lease/callback/cleanup guards remain. Preserve genuine historical receipts/native application and original test bounds."
+    }
+  },
+  "evidence_sha256": {
+    "2d1-catalog-finalize.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "2d1-catalog-finalize.stderr": "0a7b1174ee4dd9b71cd359142fbf9491aa54e114295186324d09f43e7f6f45b1",
+    "2d1-catalog-finalize.json": "923fc84564c8631c6bb3f28d8eecba597b3ef14ee2859e0495962ab80fd7a900"
+  },
+  "source_sha256": {
+    "src/literate_ai/adapters/project_layout_continuation.py": "55dc2d5822d80a629aad47ddc5771a5495f94860611b1d17d9303674216fc7d0",
+    "src/literate_ai/adapters/project_layout_catalog_successor.py": "bf5ca72da4f0dcea85f868eb618d12a2157715adaed39c421a1df3e4d87d1172",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "d0b715248ca31cb8e5debc1c958fe5fa799ce03e9cdbb03cb4234c6b122b6a5a",
+    "src/literate_ai/adapters/project_layout_catalog_finalization.py": "ec758edc4ce9f19f01ee59fea5115211a8656be2baf4b4f10e7d24de183e5755"
+  },
+  "limits": [
+    "Pure saved-intent/currentfilesystem census and source inspection; no newplan,privatefinalizer,renewal,apply,delete,redo orprojectmutation.",
+    "Bounded3trackerqueries; no directmatchingissuefound; draft unposted.",
+    "No acceptance bypass; full historical lifecycle/native/product release still open."
+  ]
+}

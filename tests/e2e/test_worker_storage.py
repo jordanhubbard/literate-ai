@@ -161,15 +161,22 @@ class WorkerStorageTests(unittest.TestCase):
                 timeout_seconds=timeout_seconds,
             )
 
+        # Probe execution uses monotonic time; UTC freshness is a separate
+        # policy clock. A timeout may remain fresh and must still fail closed.
+        utc = iter((1000, 1098))
         started = time.monotonic()
         observed = observe_worker_storage(
-            bound, selected, job_identity=JOB, runner=stalled
+            bound, selected, job_identity=JOB, runner=stalled, clock_ms=utc.__next__
         )
         self.assertLess(time.monotonic() - started, 5)
         self.assertEqual(
             observed.samples[0].available_bytes.status, CapacityProbeStatus.TIMED_OUT
         )
-        self.assertGreaterEqual(observed.completed_at_ms, observed.expires_at_ms)
+        self.assertEqual(
+            observed.expires_at_ms, observed.started_at_ms + selected.maximum_age_ms
+        )
+        self.assertEqual(observed.completed_at_ms, 1098)
+        self.assertLess(observed.completed_at_ms, observed.expires_at_ms)
         self.assertEqual(type(observed).from_dict(observed.to_dict()), observed)
         result = assess_worker_capacity(
             selected,
@@ -179,6 +186,20 @@ class WorkerStorageTests(unittest.TestCase):
             now_ms=observed.completed_at_ms,
         )
         self.assertNotEqual(result.decision, CapacityDecision.PROCEED)
+        self.assertIn(
+            "probe-timed-out", {finding.reason for finding in result.findings}
+        )
+        expired = assess_worker_capacity(
+            selected,
+            observed,
+            worker_id=bound.worker.worker_id,
+            job_identity=JOB,
+            now_ms=observed.expires_at_ms,
+        )
+        self.assertNotEqual(expired.decision, CapacityDecision.PROCEED)
+        self.assertIn(
+            "stale-observation", {finding.reason for finding in expired.findings}
+        )
 
         selected = selected_policy(bound)
 

@@ -1,0 +1,31 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_internal_cooperative_native_forest_dependency",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_native.py": {
+      "algorithm": "sha256",
+      "digest": "4b1364758869e2c8411db12e00f7107d6f16fb70aa94856183e4386c9e207752"
+    },
+    "tests/critical/test_retained_layout_forest_native.py": {
+      "algorithm": "sha256",
+      "digest": "ffc83e530d5d1fae81d0b34bf9d8d1a78b6a4589a4636a16b7ed38fc9d232474"
+    }
+  },
+  "addressed_findings": [
+    "All effects require the registry-held exact next original stage/action and a one-use in-flight token; receipts consume that same actual step.",
+    "Original canonical program bytes and acquiring PID/thread are sealed independently of mutable instance attributes.",
+    "Journal/native callbacks are followed by callback-free owner and exact registry-reference closure, including the final private traversal."
+  ],
+  "scope": [
+    "Separately authorized unmanaged POSIX native dependency with actual held journal, exact program acknowledgement, no-follow native movement and original parent receipts.",
+    "All carriers park before target publication; empty original containers and interrupted endpoints remain retained.",
+    "Finite immutable journal preflight, exact original directory permissions, descriptor custody, one-use execution and complete span checks."
+  ],
+  "limitations": [
+    "No high-level source, canonical project/control, partition or recovery authority is granted.",
+    "Same-original-ledger precharge and original source/control integration remain required before high-level admission.",
+    "Metadata, fresh recovery, public/installed/platform and full-roadmap qualification remain open."
+  ]
+}

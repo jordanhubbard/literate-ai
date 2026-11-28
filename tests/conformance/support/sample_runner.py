@@ -2435,6 +2435,7 @@ def _shared_flavor_input_closure(
 def _shared_flavors(samples_root: Path) -> tuple[_SharedFlavor, ...]:
     flavors: list[_SharedFlavor] = []
     keys: set[tuple[FlavorAxis, str]] = set()
+    coordinates: set[str] = set()
     project = discover_project(samples_root)
     catalog_roots = (
         project.roots("flavor") if project is not None else (samples_root / "_flavors",)
@@ -2460,8 +2461,10 @@ def _shared_flavors(samples_root: Path) -> tuple[_SharedFlavor, ...]:
             raise SampleFailure(f"shared Flavor must select one target: {root.name}")
         axis_value = definition.supported_targets[0]
         key = (definition.primary_axis, axis_value)
-        if key in keys:
-            raise SampleFailure(f"duplicate shared Flavor target: {root.name}")
+        coordinate = definition.coordinate.uri
+        if coordinate in coordinates:
+            raise SampleFailure(f"duplicate shared Flavor coordinate: {coordinate}")
+        coordinates.add(coordinate)
         keys.add(key)
         loaded = OpenSpecProvider().load(
             root, tuple(item.uri for item in definition.specification_fragments)
@@ -2636,30 +2639,29 @@ def _sample_runtime_recipe(
 def _ordered_selected_flavors(
     definition: ComponentDefinition,
     selected: Sequence[_SharedFlavor],
-    variant: _ExecutionVariant,
+    authority: LockedGenerationAuthority,
 ) -> tuple[_BoundSharedFlavor, ...]:
-    by_target = {
-        (item.definition.primary_axis, item.descriptor.axis_value): item
-        for item in selected
-    }
+    by_revision = {item.descriptor.revision_identity.uri: item for item in selected}
+    if len(by_revision) != len(selected):
+        raise SampleFailure("selected Flavor revisions must be distinct")
+    roots = tuple(
+        node
+        for node in authority.lock.nodes
+        if node.revision.identity == authority.lock.root_revision
+    )
+    if len(roots) != 1:
+        raise SampleFailure("sample recipe requires one exact root lock node")
     bindings: dict[str, tuple[_SharedFlavor, list[str]]] = {}
     axis_counts = Counter(slot.axis for slot in definition.flavor_slots)
-    for slot in definition.flavor_slots:
-        if not variant.has_value(slot.slot_id):
-            continue
-        for value in variant.values_for(slot.slot_id):
-            if slot.axis is FlavorAxis.PLATFORM_OS:
-                value = _host_os()
-            flavor = by_target.get((slot.axis, value))
+    for resolution in roots[0].target_flavor_selection.slots:
+        slot = resolution.slot
+        for selected_flavor in resolution.selected:
+            identity = selected_flavor.flavor_revision.uri
+            flavor = by_revision.get(identity)
             if flavor is None:
-                # An optional slot whose capability contract excludes all shared
-                # Flavors is legitimately zero-selected by the lock planner.
-                if slot.cardinality is FlavorCardinality.ZERO_OR_ONE:
-                    continue
                 raise SampleFailure(
                     f"resolved Flavor for slot {slot.slot_id!r} is unavailable"
                 )
-            identity = flavor.descriptor.revision_identity.uri
             existing = bindings.get(identity)
             if existing is None:
                 existing = (flavor, [])
@@ -4110,7 +4112,7 @@ def _run_host_e2e_once(
     ordered_flavors = _ordered_selected_flavors(
         definition,
         selected_flavors,
-        variant,
+        authority,
     )
     effective_toolchain_constraints = _effective_toolchain_constraints(
         ordered_flavors,
@@ -9214,7 +9216,7 @@ def plan_recipes(root: Path) -> tuple[dict[str, object], ...]:
             ordered_flavors = _ordered_selected_flavors(
                 definition,
                 selected_flavors,
-                variant,
+                authority,
             )
             toolchain_constraints = _effective_toolchain_constraints(
                 ordered_flavors,

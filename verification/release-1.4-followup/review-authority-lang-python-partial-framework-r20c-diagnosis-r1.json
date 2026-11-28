@@ -1,0 +1,55 @@
+{
+  "review": "bounded read-only r20c langPython mixed ownership diagnosis; not503 acceptance",
+  "observed_at_utc": "2026-11-27T18:20:34.305233+00:00",
+  "conclusion": {
+    "established": "The admitted modeled partial-layout fixture exposes a concrete initial-reference-vs-closing-reference coordinate asymmetry in ordinary component lock planning.",
+    "not_established": "No actual public init/adopt/historical producer of the exact manually limited baseline/import state was demonstrated. r20c is not native or historical qualification.",
+    "classification": "Conditional mixed-reference consumer followup requiring producer-backed admissibility regression; do not label it proven public product breakage, and do not dismiss all partial layouts as impossible.",
+    "503_scope": "Separate owner from catalog-successor empty-anchor recovery. r20c framework plan/apply had succeeded; failure is subsequent ordinary component snapshot closure. It does not independently block503. Self-contained os-macos target isolates shared-parent/empty-anchor behavior without this out-of-scope dependency."
+  },
+  "fixture_provenance": {
+    "helper": "MixedComponentChannelTests.fixture import_flavor branch",
+    "modeled_origin": "Underlying resource fixture supplies invented historical origin1.3 and patched current installed-origin lookup. This is explicitly fixture data.",
+    "langPython_variant": "Prior oneparameter variant added exact template lang-python Flavor files to modeled initial baseline and framework update bases while root Skill copies were present but unowned. Imported os-base was separately exact catalog provenance.",
+    "current_variant": "Current dirty helper uses exact os-macos Flavor files in baseline/updatebases; its authoring_inputs empty, unlike lang-python external PythonSkill URI.",
+    "evidence": "r20c actual current original frame plan/apply pass, ordinary lock then fails missing litai/skills. r20d retained log10tests PASS89.048s. Neither implies public installed acquisition or historical initializer provenance."
+  },
+  "public_profile_and_guard_facts": [
+    "Current generated initializer _include_template_file1971 alwaysincludes Python portableapplication Skill; _TEMPLATE_FILES loop writes included file and records it in created/baseline. Fresh generated langPython init does not yield langPython-owned/Skill-unowned baseline as constructed.",
+    "Minimal native-adoption baseline is profile native; this existing-framework resource owner explicitly refuses it, requiring original native-template owner. Do not use native profile as proof that generated langPython-only historical baseline is real.",
+    "ProjectInitializationBaseline validates sorted unique nonempty file records/origin/protocol, not independently complete historical producer inventory. Resource owner checks original origin join/profile and actual current producer bytes; file proofs require original source/base/resource joins. A schema-valid modeled subset is not an actual old producer receipt.",
+    "Framework ingress deliberately leaves rows without matching original base/current bytes unclaimed and does not adopt imported/custom authority. Mixed/partial ownership is intended by source contracts, so absent public proof is not evidence that every such state is impossible."
+  ],
+  "precise_consumer_asymmetry": {
+    "typed_uri": "lang-python authoring input ../../skills/specification-to-source/python-portable-application/SKILL.md",
+    "initial_load": "component_lock_planning._load_flavors -> _resolve_reference_path1893 -> configured_catalog_path resolves typed URI. projects.configured_catalog_path explicitly handles moved recorded litai/flavors/.../flavor.md referencing still-unmoved root skills.",
+    "closing": "_require_inputs_unchanged2399 calls _pin_catalog_reference(component=False). Direct-capture path uses raw root/reference.uri and fallback uses raw _resolve_path, skipping configured_catalog_path; it pins missing litai/skills path instead of original rootSkill identity already read.",
+    "actual_error": "PinnedInputClosureError component_lock.content_unavailable -> ComponentLockPlanningError Component content is unavailable, in snapshot.require_unchanged, not source move/recovery.",
+    "owner": "component_lock_planning Flavor reference capture/closing, with existing configured typed URI resolver. Not catalog successor membership/anchor owner."
+  },
+  "recommended_next_action": [
+    "Preserve r20c failed log and exact modeled-provenance limit; retain current os-macos self-contained503 fixture and its original anchor/rollback/renewal assertions.",
+    "Use a genuine public generated/historical initialized project with its untouched original baseline/origin rather than manually deleting/adding ownership claims. If partial ownership is needed, create a legitimate application customization that the existing public framework planner leaves unclaimed; confirm plan applicability under original blockers. Do not add baseline/base entries to manufacture producer proof.",
+    "Perform actual acknowledged existing-framework placement on fresh owned copy, then ordinary component lock/plan. If public ownership guards refuse partial state, retain that refusal and classify this original variant as fixture-only outside admission. If placement succeeds and normal closer fails, record separate consumer defect with producer-backed regression.",
+    "If confirmed, make initial and final Flavor reference capture use the same original typed configured path and expected identity, preserving no-follow/read-bound/currentness/membership/fallback behavior. Do not copy/adopt all rootSkills, rewrite immutable Flavor bytes, drop closure pinning, add missing-path fallback or change503 anchor admission."
+  ],
+  "sha256": {
+    "tests/critical/test_project_layout_mixed_component_channels.py": "b1912ac4c6100b05fb9d9e9824a3b5a4471690a862819a1ca69f43806085341e",
+    "tests/critical/test_project_layout_initialized_component_capture.py": "5b5fbfef14034b2158b389e9446461cb476e3d708d76371ba2b7232d7b014636",
+    "tests/critical/test_project_layout_framework_resources.py": "bd47aea8412ba55ae6583b38f8df9bacde91f898dc50cddbd3e09308ebc51cf0",
+    "src/literate_ai/adapters/project_initialization.py": "8ec2a41f21b8d076a8103fed681686272344e92037ac9fcc66a1ad7ad432f413",
+    "src/literate_ai/adapters/project_layout_framework_resources.py": "deecde73f11fc17d2cc0e9ea0e6acf9610a48de09baab97aa5c11180c62cb476",
+    "src/literate_ai/adapters/project_layout_framework_ingress.py": "cbd5d5cb2cf3fecc6eefd767a141f4cc63f4d25c7110d1e36300b3db26c9581d",
+    "src/literate_ai/adapters/component_lock_planning.py": "1fd63b217f2783431e538179467ed89bdb9e966dde05765ca88867ed65f2a085",
+    "src/literate_ai/projects.py": "b3cf623844d23c2d51d72c28d9820f260c8e2235d1486bebd15535aee0d7926b"
+  },
+  "evidence_sha256": {
+    "catalog-membership-recovery-r20c.log": "b6d9f17323321e1d1cac6163126521c1e40976fef5213ccd552a6b80075b0495",
+    "catalog-membership-recovery-r20d.log": "e6d25812f75cc01d0f12b6e21ca18e9fe6b12ae7c0ebfbca8ccd2d4dae510d87"
+  },
+  "limits": [
+    "Read-only source/log review, no tests, installed/public init/adopt calls, source edits, jobs or posts.",
+    "No reproduced public admissible partial state in this task; proposed producer-backed regression not executed.",
+    "No latest-source/#503/fullnative/historical/release acceptance inferred."
+  ]
+}

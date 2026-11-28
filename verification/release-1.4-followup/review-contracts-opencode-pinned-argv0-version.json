@@ -1,0 +1,32 @@
+{
+  "status": "read_only_version_probe_completed",
+  "configured_readiness_error_code": "coding_cli.model_unavailable",
+  "private_model_route": "intentionally omitted, not needed for launcher diagnosis",
+  "selection_name": "opencode",
+  "resolved_pinned_image": "/home/jkh/Src/webmux/webmux/bin/webmux",
+  "executable_identity": "sha256:860e0303026739e3f15f452b188fc84cf2ab7c0a68ae200cab3b459927369ace",
+  "alias": "/home/jkh/.cache/webmux/browser-open/7f12ccd1c7e9b6fa/opencode",
+  "alias_target": "/home/jkh/Src/webmux/webmux/bin/webmux",
+  "probes": [
+    {
+      "mode": "alias",
+      "returncode": 0,
+      "stdout": "1.18.18\n",
+      "stderr": ""
+    },
+    {
+      "mode": "resolved",
+      "returncode": 2,
+      "stdout": "",
+      "stderr": "flag provided but not defined: -version\nUsage of /home/jkh/Src/webmux/webmux/bin/webmux:\n  -home string\n    \twritable configuration/data directory (de"
+    },
+    {
+      "mode": "pinned-logical-argv0",
+      "returncode": 0,
+      "stdout": "1.18.18\n",
+      "stderr": ""
+    }
+  ],
+  "original_pin_guards_before_after": "passed",
+  "limits": "Public --version only; no modelquery/configmutation/generation. Explicitpinnedimage logicalargv0 isolated15s boundednativeprocess proof, not productionfix acceptance."
+}

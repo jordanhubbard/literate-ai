@@ -429,6 +429,16 @@ class WindowsArm64HostInstallTests(unittest.TestCase):
         _, sbom = host_install.load_host_install_sbom(
             self.root / "flavors", self.target, flavor_names=self.flavors
         )
+        sdk = next(item for item in sbom.packages if item.prerequisite_for)
+        sdk_root = root / "programs/OpenSSL"
+        sdk_executable = sdk_root / sdk.sdk_executable_relative
+        image(sdk_executable)
+        for relative in sdk.required_runtime_paths:
+            image(sdk_root / relative)
+        for relative in sdk.required_development_paths:
+            path = sdk_root / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"SDK development-file counterexample fixture\n")
         artifact = next(item for item in sbom.artifacts if "codex" in item.capabilities)
         bundle = root / "bundle"
         executable = bundle / artifact.executable_path
@@ -460,6 +470,7 @@ class WindowsArm64HostInstallTests(unittest.TestCase):
                 "Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35224 for ARM64"
             ),
             "codex": "codex-cli 0.153.0",
+            "openssl": "OpenSSL 4.0.3",
         }
         installs = []
 
@@ -470,6 +481,8 @@ class WindowsArm64HostInstallTests(unittest.TestCase):
             key = name(command)
             if key == "codex":
                 return str(executable)
+            if key == "openssl":
+                return str(sdk_executable)
             if key == "cl" and missing_compiler:
                 return None
             return str(root / "tools" / key) if key in {*versions, "winget"} else None

@@ -1,0 +1,96 @@
+{
+  "review": "507 catalog source r24 frozen prototype",
+  "created_utc": "2026-11-27T19:48:41.178641+00:00",
+  "head": "55c31be8d4ae07b77aa5318e301ac44fc1f48842",
+  "files_sha256": {
+    "src/literate_ai/adapters/project_layout_native_identity.py": "c007b993ce0b88aae42fc3f68daaaacd5e345637e97eb95693e76730c80abbe9",
+    "src/literate_ai/adapters/component_namespace_closing.py": "dd79c946b00d8217e8e0ca8f1366d18c8c8deb96d8dd33ba2a7b6500aa5d6d91",
+    "src/literate_ai/adapters/project_layout_catalog_continuation.py": "92f6b8f3e84e1fb5c7f355d358059d1fd2d8588e54f40ab197acbb5fd0293abf",
+    "src/literate_ai/adapters/project_layout_catalog_finalization.py": "489b447d476d69560164562cd2122f3e0c9b90c3b1a38b72df544d675bf9c529",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "fcf52eb7e90a4dd7f67102769cc5fc3417a387c9dd9839afe42fba8e2dbb1117",
+    "src/literate_ai/adapters/project_layout_continuation.py": "ad4555154491cbfe3eaded2fedf980cc09acce085921d6c9e92ee860c44fcba6",
+    "src/literate_ai/adapters/project_layout_migration.py": "3e9520d2c1cf9a8f687cd423bca65ed8f6d8d733420bfe778f1bfb0e4e734a16",
+    "src/literate_ai/adapters/project_layout_pair_publication.py": "ed31c183acd3f7910be38e153ee9ef97525ff289fca12417c934dec6559404c3",
+    "src/literate_ai/cli/layout_component_commands.py": "aea9b9cdad47b8830dbdcb12cff5f7f2b955cb52b8438e94f9ffd0de7bb80bd4",
+    "schemas/v2/project-layout-catalog-continuation.schema.json": "a68f2e8b92e7a8ff3a2fdff7f0f827547635bd722cffe27cb8468afab80d3550",
+    "tests/critical/test_catalog_native_identity.py": "4ddcf2092c8c911021bb6031affadcd4d6065a21e235f00a3afea112816a187e"
+  },
+  "status": "changes requested: original-helper import baseline not closed",
+  "findings": [
+    {
+      "id": "catalog-native-identity-fresh-baseline",
+      "severity": "medium",
+      "file": "src/literate_ai/adapters/project_layout_native_identity.py",
+      "lines": "12-45, 110-130",
+      "finding": "Each call to bind_native_identity_calls snapshots the current graph rather than validating against an original helper-module-owned baseline. A helper/scalar implementation or the validator defining-module scalar export changed after helper import is accepted as original when a later owner imports and binds its callports. The new owner and its boundary checker then attest to that changed baseline. Existing earlier owners refusing does not close the later-import path. The boundary installer similarly constructs new baselines from caller current state.",
+      "source_call_path": [
+        "project_layout_native_identity imported and exposes raw helper functions/installers",
+        "mutate _identity/_vector/scalar implementation or _filesystem.stat_identity_value export",
+        "later owner imports helper names and calls bind_native_identity_calls",
+        "binder constructs function_rows/slot_rows from altered current functions",
+        "owner factory captures new ports/guard, which now accept altered baseline"
+      ],
+      "recommendation": "Capture immutable original supported roots/dependency graph and installer/checker implementations once within the helper module at initial definition/import. Every later installer call must first validate that original baseline and requested roots, including code/default/keyword-default contents and actual defining-module scalar slot; derive ports from captured originals. Keep per-owner dependency selection finite, and reject fresh baselining from arbitrary caller functions. Bind owner boundaries against their originally captured functions; do not allow reinstalling to replace an existing baseline.",
+      "proof_limit": "Static complete source call-path finding; no execution or native admission reproduction performed."
+    },
+    {
+      "id": "catalog-native-identity-unrelated-helper-test",
+      "severity": "test-correctness",
+      "file": "tests/critical/test_catalog_native_identity.py",
+      "lines": "25-44",
+      "finding": "test_original_helper_graph_code_and_cross_module_export_are_sealed mutates _renewal and _closure, then always probes continuation._stage. Current continuation roots catalog_intent_native/catalog_intent_wire/native_node do not use _renewal/_closure, so those mutations are outside the graph its guard captures. The existing source cannot satisfy those subtests as written.",
+      "recommendation": "Either explicitly choose/document helper-wide immutable baseline validation as part of the first repair, or probe the actual renewal/finalization/physical-source owner for changes specific to those graphs. Preserve per-used-owner coverage rather than accidentally requiring unrelated dependencies."
+    }
+  ],
+  "field_map_review": {
+    "catalog_plan": "root_node and framework_node dev/ino encoded; mode remains integer; nested public plan stays wire and retains identity. Schema and Python codec correspond to nonnegative canonical signed64-or-decimal-wide IDs.",
+    "catalog_intent": [
+      "entries.* node/after_node",
+      "coordination.* node/native_node",
+      "source_coordination.* node/native_node",
+      "history.* node",
+      "new_directories.* node",
+      "original_directories.*",
+      "journal_directories.*",
+      "journal_node"
+    ],
+    "catalog_renewal": [
+      "entries.* node/after_node",
+      "original_directories.*",
+      "journal_directories.*",
+      "journal_node"
+    ],
+    "source_closure": [
+      "source_node",
+      "source_parent_node",
+      "archive_parent_node",
+      "coordination.* node/native_node",
+      "payloads.* node",
+      "empty_directories.*"
+    ],
+    "boundary_result": "No further E/D field or concrete hash/write/export callsite omission found in reviewed catalog paths. Renewal parents decode wire root explicitly; directory inventory uses raw original observations. Original moves/current comparisons retain native integers. Public nested plan is not rewritten into a native plan. Separate framework-record pair publication remains unchanged for its own explicit schema."
+  },
+  "guard_review": {
+    "positive": [
+      "Actual validator defining-module scalar slot is traversed/captured in existing bound graph.",
+      "Used function code/default pointer and keyword-default pointer plus contents are checked.",
+      "Imported callports are closed over original per-binding function objects; owner factories capture port/guard implementation seals and probe before callbacks.",
+      "Stage/decode/select/plan-codec/root-Git/physical-read/export/CLI boundaries check before original operations.",
+      "Contextmanager boundary checks at __enter__, covering mutation after context construction."
+    ],
+    "limits": [
+      "No claim against arbitrary Python closure-cell/interpreter mutation.",
+      "Exception paths retain original propagation; no new full release or native authority acceptance."
+    ]
+  },
+  "coverage": [
+    "Read every production diff for the nine changed existing files, full new helper, changed schema and complete new nine-control test file.",
+    "Traced original intent staging/decode/guard/currentness, normal renewal staging/decode/journal checking/publication, finalization/source closure read/export/context, CLI receipt and adjacent framework consumers.",
+    "Inspected complete new provenance binders and owner-factory enrollment changes."
+  ],
+  "execution": {
+    "reviewer": "No tests, jobs, posts, source edits, retries, deadline changes or native effects performed.",
+    "parent": "New nine-control cohort reported running at review request; terminal result not independently inspected.",
+    "acceptance": "No catalog issue closure, native Windows success, historical producer success or full installed release acceptance claimed."
+  }
+}

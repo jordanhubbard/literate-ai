@@ -1,0 +1,50 @@
+{
+  "before_sha256": {
+    "src/literate_ai/adapters/retained_layout_disposition_recording.py": "ffbb57497d6d0f8cf08a727e2710225a62508cb212cb96df543b8e6093f1f499",
+    "src/literate_ai/adapters/retained_layout_journal.py": "4e9121b0dce5cd7ea38bf8d4a14782048a516551bddb18989eabd8c68761d396",
+    "tests/critical/test_retained_layout_journal.py": "0894c7fbc2c3d4b6678351c004403fd3e4aacd96e3687ebcb0b195d7900beaae"
+  },
+  "custody_and_order": {
+    "accounting": "2*old_total+2*new_unit and 2*old_count+2 match actual body I/O. Existing 128+8*final_count record workspace covers peak nonreentrant roster/name sets and fixed native/directory tuple scratch; 65536+2*peak+1 byte allowance remains. No policy ceiling widened.",
+    "capture": "Stage directory signature captured immediately after actual exclusive creation, within try/finally FD ownership; published signature immediately after actual rename and before fsync/read callbacks. No supplied baseline, public flag, or reusable admission token.",
+    "directory_facts": "Original directory identity plus size, link count, mtime_ns, ctime_ns from held descriptor. Final ancestry guard keeps path identity distinct from held-FD identity.",
+    "final_order": "Pure references, guard, pure references, membership enumeration, original ancestry/named-path guard, pure references, all known file signatures, directory change signature, pure references/admission. No subsequent enumeration or guard.",
+    "read_semantics": "Both opening full-byte passes and both actual bounded new-body reads remain. Standalone require_current and explicit reopen retain full bytes. Existing writer registration/poison/immutable row identity checks remain."
+  },
+  "decision": "Approved only the journal publication optimization in publication-closed-review.diff against its exact before snapshots, bound to the three final subject hashes below. All previously reported publication findings are resolved.",
+  "limits": [
+    "Observed native metadata and callback closure is not an atomic snapshot against arbitrary continually mutating filesystems.",
+    "The existing mixed-mode capacity failure occurs in _prepay before recording.prepare; this optimization does not establish that failure is fixed.",
+    "No full suite, complete mixed-mode recovery/disposition run, other native target, integration or release acceptance performed.",
+    "Source approval is for this delta, not all other changes in these l1 files relative to Git HEAD or all dirty l1 work."
+  ],
+  "resolved_findings": [
+    "Old payload mutation after final guard: native file signatures now close after all guard/enumeration callbacks.",
+    "Foreign member at final enumeration exit: actual owned publication directory change signature closes membership changes.",
+    "Journal/ancestor rename at final enumeration: original named-path/ancestry guard now runs after enumeration and before known-member signatures."
+  ],
+  "review_diff_sha256": "a9a47280e9ef84010d4862b599c5c62e6b738552132d3ad92ca421e6b7dcc75f",
+  "reviewed_at": "2026-11-16T15:23:13.142825+00:00",
+  "reviewer": "/root/sdlc_review",
+  "reviewer_authored_implementation": false,
+  "schema": "literate-ai/independent-review-note@1",
+  "scope": "Narrow delta only; no blanket approval of unrelated dirty l1 work or complete retained-layout delivery.",
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_layout_disposition_recording.py": "d090e899f8f2ca46621017949dd86341cab85a6b830c34b3db17b6c52f7724b6",
+    "src/literate_ai/adapters/retained_layout_journal.py": "9937b0e3837ea79d491dc9d458796a3a0693a3f4b1a61742e43024b8470e096a",
+    "tests/critical/test_retained_layout_journal.py": "9639018769a6f8d4598c9c0e89f04fa4d3a90408e41bf05a8c8b083ed7963b41"
+  },
+  "validation": {
+    "causal_author_evidence_inspected": "before-path-controls.log reproduces three misses against exact second-reviewed source; earlier causal evidence retained for byte count and late payload/guard failures.",
+    "diff": "Exactly regenerated from retained before snapshots and final files; matches publication-closed-review.diff.",
+    "hashes": "All three subjects match at approval.",
+    "reviewer_tests": {
+      "passed": 23,
+      "seconds": 2.809,
+      "selected": 23,
+      "skipped": 0,
+      "retained_log_sha256": "10dc989a35cc699cf7fcd3577ddab09437fd1a09bc86026fbb4e29d49d3ff0b1"
+    },
+    "workspace_files_modified_by_reviewer": false
+  }
+}

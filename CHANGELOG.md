@@ -2,19 +2,1136 @@
 
 ## Unreleased
 
-- Retained Cargo native tests follow validated compiler-reported artifact paths
-  across Cargo's intermediate layout changes, preserving runtime byte and
-  namespace custody, original target accounting and existing limits.
-  The native incremental-cache fixture likewise locates its actual library
-  while preserving byte and timestamp reuse/invalidation assertions.
+- Let complete authored run replay use an authenticated read-only receiving
+  owner while preserving the original graph, receipt and oracle checks.
+  Fresh installed receiving qualification remains open.
 
-- Expose complete retained-project ZIP packaging through the public CLI using
-  the existing Standard admission and selected ZIP provider. Preserve original
-  authority, exact retained provenance and independent archive verification;
-  read-only intent and parsed receipts grant no package or release authority.
-  Public read-only plans avoid implicit host configuration and telemetry;
-  invalid current locks retain bounded typed CLI errors.
-  Installed native-project qualification remains open under issue #22.
+- Keep retained packaging plans free of implicit host writes and preserve typed
+  current-lock failures in CLI error responses.
+
+- Hold compiler-advertised Cargo artifacts through native runtime capture while
+  preserving compiler-reported loader order across intermediate layouts.
+
+- Keep Python library dependencies in directory exports and verify their
+  original build inputs during qualification and worker-transfer replay.
+
+- Present identical local and direct public-interface bytes once after validating
+  both selected roles, preserving direct visibility, budgets and complete plan
+  provenance during Component preparation.
+
+- Require independent producer review for authored Cargo receiving, carry its
+  complete identity through read-only consumers, and remove receiver-side coding
+  CLI selection. Complete archive, SDK and installed qualification remains open.
+
+- Refuse authored read-input checks whose original scope retires during a review
+  callback, while preserving the callback’s primary failure.
+
+- Keep independently reviewed authored producer inputs current without launching
+  a coding CLI. The read scope grants no execution or publication rights; public
+  receiving integration remains in development.
+
+- Retained Cargo review can bind independently reviewed producer intent alongside
+  its exact consumer declarations. This passive foundation grants no execution
+  or admission authority; public model-free receiving remains in development.
+
+- Report bounded native identity and signature differences when a remote cleanup
+  control changes during open, preserving the original refusal and custody guards.
+
+- Add `litai package retained-project` to construct and verify the selected ZIP
+  from live complete retained admission, preserving original source authority
+  and separate project receipt and release qualification.
+
+- Resolve relocated retained-harness metadata through its initialization
+  provenance so documentation review and receipt renewal follow contained layout.
+
+- Share retained ancestry records and honor reserved Git scratch during fresh
+  verification, preserving original resource limits, native checks and errors.
+
+- Correct current onboarding, build defaults, receipt-policy and framework-root
+  documentation, including cache paths, finalized receipts and explicit SSH
+  sample coding-CLI overrides. Clarify the unavailable live inverse route,
+  selected sample matrix, diagnostic excerpts and typed candidate replacement.
+
+- Preserve wide native IDs in catalog plans and stored migration state while
+  retaining native integer comparisons and original ownership checks.
+
+- Preserve wide native device and inode IDs in recorded-wrapper source proof
+  identities without changing live native observations.
+
+- Reject missing forest-operation acknowledgement and foreign planning inputs
+  before inspecting native witnesses, retaining full original-owner checks.
+
+- Preserve exact framework successor membership during catalog finalization and
+  recovery, including explicit successor selection for interrupted recovery.
+
+- Recognize contained imported catalog targets in framework Markdown references
+  through read-only native observations, preserving source ownership and refusing
+  changed target identities.
+
+- Restore accepted Codex source-cache replay by owning private runtime state
+  while reconstructing invocation metadata, without another generation call.
+
+- Keep evidence-stage reader flags portable on platforms without `O_NONBLOCK`,
+  preserving native custody and retirement checks.
+
+- Restore standalone bootstrap process execution and preserve release Git
+  cleanup custody and exact bundled-helper verification.
+
+- Preserve coding CLI invocation names when launching pinned native images,
+  including multicall launchers, while retaining executable drift checks.
+
+- Recognize the exact published 1.3.1 retained-wrapper producer during framework
+  placement and preserve its original bytes and provenance.
+
+- Exclude imported and protected catalog files from initialized framework
+  candidate selection, preserving their original ownership.
+
+- Support an approved resident release-policy ledger reference during framework
+  placement, preserving other policy settings and exact original rollback data.
+
+- Match Git filesystem boundaries during layout discovery while preserving
+  same-filesystem ancestor repositories and explicit linked worktrees.
+
+- Keep standalone bootstrap checks independent of optional telemetry imports and
+  reject changed project pins or authority selection after runtime probes.
+
+- Bind cache operations to their original target and native/SDK owners, preserving
+  foreign membership rewrites during retirement and the existing rollback policy.
+
+- Resolve contained Component catalog references consistently during ordinary
+  lock reads and descriptor capture, preserving file identity and redirect refusal.
+
+- Keep application and SDK Flavor profiles available in the shared sample catalog
+  when they share a target, while refusing duplicate coordinates and retaining
+  exact lock-based selection and pinned input checks.
+
+- Restore the optional release execution view with declared owners, next actions
+  and unresolved prerequisites from the configured ledger and queue; reject stale,
+  duplicate or cyclic authority and keep external inputs explicitly unverified.
+
+- Keep retained promotion's per-record deadline polling while checking complete
+  project and SDK authority at phase boundaries and closing, avoiding repeated
+  whole-project replanning for every historical graph record.
+
+- Reopen retained-run promotion from complete canonical historical action and
+  dependency facts without restoring live execution owners. Preserve strict
+  read-only authority checks, finite metadata bounds and the separate receipt
+  update; publish complete promotion, historical-admission and runner schemas.
+
+- Retire only exact idle native lifecycle-lock residue after committed-profile
+  removal, allowing repeated adoption while preserving foreign runtime contents,
+  interrupted resources and active or already-open lifecycle contenders.
+
+- Preserve authored retained-wrapper requirements, interfaces and shim metadata
+  during harness readmission. Update only one recognized generated baseline
+  summary, fence referenced authority through publication, and retain foreign
+  edits or deletions for explicit recovery.
+
+- Bind retained release-policy inputs to the existing owner's declared root or
+  contained path, preserving exact byte identity, ambiguity refusal and normal
+  initialization/conversion eligibility checks.
+
+- Retire original native hardlink groups without mistaking an owned unlink for
+  foreign mutation. Verify peer bytes through the original descriptor, preserve
+  changed peers, and refuse groups with links outside the owned workspace.
+
+- Keep strict release Git observations and coverage producers usable with Git
+  2.43 by enforcing the no-lazy-fetch environment guard, including when the
+  calling environment would permit fetching missing objects.
+
+- Include neutral retained-product test modules in existing Linux and macOS
+  partitions, preserving exactly-once coverage, shard counts and deadlines.
+
+- Resolve inherited project and parent authority from declared root or `litai/`
+  locations in immutable Git snapshots; reject duplicate, misplaced and linked
+  metadata while preserving exact manifest identities and catalog coordinates.
+
+- Preserve retained shim authority and locks through declared current catalogs
+  during contained updates, retaining recorded application source coordinates.
+
+- Validate contained roadmap lifecycle and dependency authority under `litai/`
+  while preserving root and separately declared application plans. Refuse
+  cross-namespace queue substitution and retain lifecycle/evidence checks.
+
+- Project layout: keep update-template references bound to recorded dynamic resources in mixed layouts, and reject ambiguous locations without moving those resources.
+
+- Project layout: resolve retained Cargo consumer harness custody through the declared scaffold coordinates for legacy, mixed and contained projects.
+
+- Project layout: qualify installed root and descendant update/reparent planning on the original finalized migration fixture, preserving application source, Git and original authority/history.
+
+- Project layout: update contained initialized root projects through the normal template updater, keep planning and application placement consistent, and report actual framework changes while preserving source and Git state.
+
+- Project layout: allow contained nonnative reparent planning with historical baseline paths, require a matching initialization origin, and preserve native-profile and current-agent boundaries.
+
+- Project layout: qualify installed Component renewal, repeated source finalization and recovery while preserving retained application source and Git state.
+
+- Project layout: qualify installed macOS framework placement and repeated recovery with retained source and Git state preserved; complete containment remains pending.
+
+- Project layout: recognize the original converted native rewrite program using its validated implementation path while retaining historical ownership checks.
+
+- Project layout: prove reviewed-document ownership, expire historical markers in migration plans and require fresh review without adopting body edits.
+
+- Project layout: journal framework bases for approved reference rewrites while preserving custom files, inherited ownership and exact rollback.
+
+- Project layout: publish proven initialized catalogs beside retained roots, verify normal resolution before success and preserve recovery.
+
+- Project layout: preserve current imported catalog ownership when historical initialization snapshots record the same files.
+
+- Project layout: resolve recorded initialized catalog coordinates in mixed roots while rejecting shadows, redirects and origin mismatch.
+
+- Project layout: recognize proven initialized workflow and routing items while preserving unknown payload and mixed catalog boundaries.
+
+- Project layout: verify a repaired installed SDK can recover the original failed metadata journal while preserving application source, Git state and unchanged archived history.
+
+- Project layout: exercise noneditable installed metadata migration and rollback with real initializer/harness records, early recovery-import checks, and retained source/Git preservation.
+
+- Project layout: include the internal Make-path encoder required to import migration recovery’s recorded-wrapper provider.
+
+- Project layout: migrate retained root projects that never imported a catalog without manufacturing import provenance; preserve strict catalog-history checks and exact rollback records.
+
+- Project layout: exercise noneditable installed native adoption while checking the complete application tree and Git state remain unchanged; record scoped macOS creation and discovery results.
+
+- Framework layout: read-only planning reuses bounded, private copies of parsed provenance while retaining native reads and currentness checks. Copy or storage limits preserve original parsing behavior. Source regressions and real-catalog admission checks pass; installed timing and complete platform qualification remain pending.
+
+- Framework runtime: ship the original live-run context provider required by bounded subprocess adapters. Add an isolated installed-wheel layout journey that checks exact distribution origin and public CLI discovery; repaired-wheel qualification remains pending.
+
+- Framework layout: installed-project smoke checks now follow contained manifests, catalogs, Component selectors and release staging, while preserving application files and root agent delegates and using each project’s cache defaults. Source regressions pass; installed-wheel and platform qualification remain pending.
+
+Retain contained external-driver diagnostics through original project and file custody, preserve private or substituted state and original failures, and resolve rebuild fixture authority through canonical project context.
+
+Keep contained POSIX source-admission test copies under their original project, preserve private or replaced files, bound original test processes, and reject scratch overlapping inspected source before allocation.
+
+Stream published README asset digests without a temporary download workspace; bound bytes and diagnostics, preserve exact size checks, and retire original owned process trees.
+
+- Stage retained publisher upload files under their original contained project with exclusive copy-descriptor custody and sealed read-only handoff; preserve private/replaced state and original consumer failures.
+
+- Pin original atomic release file creators through verified replacement and exact cleanup, retain foreign or unverified state, and join file/rollback writes to isolated Git worktree custody. Correct unsupported automatic-advancement claims; publisher integration remains open.
+
+- Track original backport checkout and Git administration outputs at actual process completion; retain private, ignored or replaced state and original conflict errors when cleanup refuses, while retiring unchanged owned worktrees.
+
+- Terminate the original temporary-checkout Git process tree on timeout while preserving captured output and existing release errors, preventing Git helpers from surviving into cleanup.
+
+- Contain release-asset readback in original project native staging with bounded downloader processes, retained size/digest verification and preservation of conflicting private or replaced output.
+
+- Stage both original GitHub release-note files under contained project custody, preserving UTF-8 bytes, original consumer errors and foreign state when disposal is refused.
+
+- Preserve unknown wheel outputs and prior builds with fresh contained artifact directories, verified creator-FD copies and atomic no-replace publication; retain failed partials and conflicting state.
+
+- Stage contained POSIX release wheels through original project/native custody, with bounded pip process closure and contained backend/cache/bytecode paths. Refuse private or replaced staging before copy and preserve original pip/context errors.
+
+- Materialize all six local build adapters through original contained project input staging; preserve exact private or replaced input state, original compiler/materializer failures, and enclosing runtime retention on refused retirement.
+
+- Contain Rust, Go and composite backend compiler output through original project/native workspace custody; close actual process groups before callbacks, stop owned descendants on refusal, and preserve private output and original failures. Avoid repeated pure teardown-facts projection.
+
+- Stage locked remote assets under the receiving candidate CAS with original native creator custody; support contained promotion asset bindings and reject mixed layouts or duplicate asset owners while preserving exact source relations.
+
+- Preserve enclosing project runtimes when an original inspection child cannot retire; retain private child state and expire runtime execution handles, including nested and active-child cleanup conflicts.
+
+- PROJECT-LAYOUT-001: contain actual POSIX Component execution copies and diagnostics under the live inspection object root, close original native producer postimages and process groups before exact retirement, and preserve foreign state and original gate rejection through failed or enclosing runtime cleanup. Windows native and full layout/release qualification remain open.
+
+- PROJECT-LAYOUT-001: stage actual refined-conversion bundles and receipts under the initialized contained project after source transfer; preserve selection identity and require original stage retirement before exact source rollback, including real Component command failures. Native execution scratch containment remains open.
+
+- PROJECT-LAYOUT-001: retire only original scaffold creations during conversion rollback, preserving foreign state and rejecting errors; restore exact source/Git custody on ordinary failure and resolve contained wrapper/Component metadata during real source-scope refresh.
+
+- PROJECT-LAYOUT-001: expose process-bound stage retirement completion after actual native disposal and handle release; retain incomplete state on foreign entries or failed cleanup. Conversion rollback integration remains open.
+
+- Verify retained Component source movement, fresh receipt renewal and subsequent reuse after default contained conversion.
+
+- Preserve application-owned metadata aliases when recovering contained readmission transactions.
+
+- Support retained-source movement, metadata publication and fresh harness readmission in default contained projects.
+
+- Resolve retained-layout control files and writer locks through the actual framework directory in default contained projects.
+
+- Contain installed monorepo metadata staging and retain original writer and execution custody through publication and cleanup.
+
+- Report original audit scratch coordinates in bounded CLI failures while preserving the verifier error code and conflicting state.
+
+- Contain historical native-child audit views under their original project runtime and preserve foreign scratch state on cleanup conflicts.
+
+- Contain derived-project source-index status snapshots under litai and preserve unknown or replaced scratch files during cleanup.
+
+- Protect declared source intelligence state from cache outputs and reject unsafe path aliases before following their targets.
+
+- Keep native child promotion, rebind history and replacement recovery in the declared framework directory; refuse stale plans and preserve application metadata.
+
+- Keep repository locks beneath litai/ for contained projects, preserve application metadata, and reject stale framework bindings before publication.
+
+- Refuse remote accepted-source-cache restoration over existing files, directories or aliases, preserving private data and rejecting aliased build parents before extraction.
+
+- Preserve original evidence staging ownership through copying, archiving and disposal; retain unexpected files and preserve the primary failure when cleanup refuses.
+
+- Framework cleanup metadata now coexists with original live Windows runtime/cache writers using attribute-only native queries. Payload reads and deletion remain restrictive; changed names/metadata and failed closes refuse. The original receiver/import/ACK API-model journey and producer-refusal controls pass; actual native Windows and release qualification remain open.
+
+- Framework captured-entry and cleanup-ticket disposal now has a Windows native-handle implementation with checked identity, extended disposition and handle closure. Readonly hardlink peers keep their attributes. Local API-model controls pass; producer live-lock metadata integration and actual native Windows qualification remain required.
+
+- Framework deferred evidence cleanup now binds POSIX retirement to the exact manifest, original native roots and a private recovery journal. Legacy path-only tickets and replaced/private entries refuse; interrupted cleanup resumes from empty original-directory anchors. Native Windows cleanup remains unavailable pending its native owner and qualification.
+
+- Framework evidence archives now stream native verified files against the captured manifest ledger, verify compressed output bytes, and publish without replacing existing final or fixed partial files. Failed private partials remain for owned recovery; full transfer cleanup and supported-platform qualification remain pending.
+
+Project layout: census producer evidence without following links, stream exact native file descriptors within existing quotas, verify copied bytes, and preserve regular hardlink-path accounting. Native Windows and complete transfer/recovery qualification remain pending.
+
+Project layout: keep default contained receiver runtime, candidate and per-attempt object output under the framework directory. Carry original native custody through local rebuild and evidence publication, exclude live controls, and preserve conflicting runtime state and original failures.
+
+Project layout: keep implicit Standard rebuild scratch state under the contained framework object directory with live native custody and cleanup exclusion. Preserve retained attempts, unrelated session state, original rebuild failures and legacy request arguments; external-driver and receiver runtime/candidate containment remains pending.
+
+Project layout: select worker-receiver default generated/object caches from the transported project context, isolating ambient cache overrides and preserving explicit attempt custody. Separate runtime/candidate containment remains pending.
+
+Project layout: keep retained-child execution logs and receipts in the selected framework directory while preserving native child outputs. Bind reviewed lifecycle plans to the manifest and stop before a dependent child when it changes.
+
+Project layout: expose acknowledged catalog producer renewal and scoped source finalization through public commands, preserving original recovery. Full-project containment and platform qualification remain pending.
+
+- Finalize inherited Component source namespaces from fresh Root and normal producer checks while preserving native control inodes and original rollback history. Reject unknown residual names before payload reads; public/full-project and supported-platform qualification remain open.
+
+- Join inherited-catalog producer renewal to an explicitly selected framework metadata successor using exact native beforeimages. Preserve ordered recovery, original v1 pair journals and newly authored policy; full containment and installed-platform qualification remain open.
+
+- Add internal native-history-backed renewal for inherited catalog producer pairs, sharing finite atomic publication with framework renewals and preserving exact rollback across process interruption. Full containment and release qualification remain open.
+
+- Allow imported Component placement in contained generated projects, preserving original lock/audit history separately from normal currentness; compose catalog then framework placement with exact reverse rollback.
+
+- Add acknowledged project layout renew for an original migrated Component/target, using fresh normal preparation and native journal custody, with registered inert result schema and exact public rollback support.
+
+- Verify fresh-process producer renewal after the original Component directory is archived, preserving its control inodes and newly authored local policy through exact rollback.
+
+- Renew migrated Component producers from a fresh destination owner bound to the current Root, actual normal preparation and original native journal, using the existing atomic publisher without reviving the retired source actor.
+
+- Cover process exits during wrapper control-file archive and restore, renewed-target revalidation after closure, and exact original rollback alongside initialized-Component compatibility.
+
+- Archive original recorded-wrapper control files separately from retained application directories, preserving native inode custody and restoring controls before ordinary rollback fences.
+
+- Admit genuine recorded-wrapper targets through normal Component destination checks and renewal; exercise actual typed target capture, deliberate local Flavor renewal and exact history rollback.
+
+- Expose acknowledged framework-authority plan/apply/recovery through the public layout CLI, including exact-journal recovery while the manifest is backed up and refusal of mixed placement scopes.
+
+- Compose all seven original conversion-wrapper outputs through default framework migration planning and recovery, preserve retained source at its native path, and keep independent catalog ownership blockers explicit.
+
+- Join original recorded conversion-wrapper source custody to normal Component producer readers, keeping retained implementation bounded and refusing unknown members and late membership changes.
+
+- Exercise actual process exits during Component source closure and restoration, preserving original journal recovery and control identities.
+
+- Add a versioned framework source archive that preserves Component control inodes, validates actual normal destination catalogs/producers after restart, and restores source namespaces before exact pair/file rollback; retain v1 recovery and refuse private residuals.
+
+- Keep genuine Component control paths outside authored reference maps and unknown-file classification so acquiring the first normal locks preserves an acknowledged no-target placement plan.
+
+- Exercise actual child-process exits at all four reverse lock/audit recovery moves, then complete exact framework rollback from the parent without restoring a child-side owner.
+
+- Refuse cross-project Component renewal before filesystem probes by joining the genuine original store namespace to the acknowledged Root; retain physical custody across planned metadata changes.
+
+- Journal actual normal Component lock/audit publication before native replacement and restore the placed pair before framework rollback, including recovery after process exits at every pair-publication move.
+
+- Bind the scoped metadata publisher and project-read delegate once, preserving their original receiver and scope lifetime across callbacks.
+
+- Join original initialized Component records to the framework journal and ordinary destination checks; retain exact history through current-pair preservation, genuine Flavor renewal and rollback coverage.
+
+- Keep a contained root Skill logically joined to an unchanged declared Skill catalog, while refusing competing root authority.
+
+- Register and validate bounded framework placement and rollback results without granting producer finalization or release qualification.
+
+- Recognize unchanged contained ignore files from original initialization or framework-base proofs during fresh migration planning, while preserving custom and application-owned ignore rules.
+
+- Add source-tested backup and recovery for changed-byte framework placement and bootstrap creation; ordinary producer renewal and full containment qualification remain open.
+
+- Include original initialized Component lock/audit records in default containment planning, preserve coordination custody, and reject occupied or aliased destinations through no-follow absence checks.
+
+- Join all seven recorded conversion-wrapper inputs to their original initialization preimages, producer records and current source observation before migration projection.
+
+- Capture initialized Component lock/audit transitions through the original producer readers, refusing held, private, unknown or incomplete source scopes before broad reads.
+
+- Recheck retained-source reader origin around callbacks and preserve original cleanup/error handling before migration planning continues.
+
+- Compose original absent-target ownership for contained framework ignore/bootstrap creation into read-only migration planning; preserve occupied files and historical initialization records.
+
+- Framework layout plans now retain their original source, metadata, resource and Git observation; copied plans, changed inputs and substituted callbacks cannot reuse that ownership.
+
+- New-project guidance now uses contained Component, package and release paths, distinguishes the framework authoring checkout, and keeps existing 1.3.1 migration limits explicit.
+
+- Layout checks distinguish current destination records from records needing normal producer renewal, retain original history, and refuse changed nonproducer files or substituted callbacks.
+
+- Standalone Component planning preserves native relative catalog references without requiring a project manifest; contained-project namespace checks still apply.
+
+- Layout planning retains the original addresses and bytes of all seven converter inputs; mixed layouts preserve the original Makefile location, and ambiguous producer addresses refuse selection.
+
+- Layout creation inputs are limited to the contained framework ignore file and a proven bootstrap helper, with fresh absence, namespace, source and resource checks before publication.
+
+- Layout planning can reproduce all seven original conversion-wrapper outputs from retained records and initializer resources, refusing custom edits and incomplete stage evidence.
+
+- Layout planning can retain an original bounded source observation through readmission checks, refusing changed source, metadata, inventory and ownership without a fallback scan.
+
+- Layout recovery now versions source-retirement journals explicitly while preserving recovery of the original five-directory journal format.
+
+- Existing framework authority selection uses genuine initialized-file proofs and original catalog item membership, preserves historical catalog bytes, and renders references only to actual selected/resident coordinates. Versioned inert plans reject mixed fields and portable path aliases. Schema document roots and cross-references now resolve through the standard registry while retaining public payload identifiers. Source/schema checks pass; complete migration effects and installed acceptance remain open.
+
+- Initialized Components now use their genuine initialization/base proof with the original catalog, lock and audit owners, without inventing inherited imports. Fresh destination checks preserve source-guard lifetime boundaries. Inherited catalog publication remains restricted to inherited provenance; source regressions pass.
+
+- Component writers retain their original directory, authoring and project witnesses and acquire the original layout gate before creating coordination paths. Retired or replaced source roots refuse without recreation. Genuine publication hardlink pins remain valid read inputs; changed bytes still refuse. Source and readmission controls pass; source retirement and native Windows qualification remain open.
+
+- Combined layout regressions preserve strict provenance custody after the standard Python copy cache appears, reject foreign cache shapes, and create explicit legacy input for old-layout migration fixtures. Combined source and scaffold publication checks pass.
+
+- Existing-project layout planning gains original initializer resource custody, corroborated per-file initialization/update-base provenance, and bounded source observation that keeps private state and output trees unopened. Source controls pass; full migration publication and platform acceptance remain in progress.
+
+- Default profiling logs, telemetry caches and retained wheel outputs follow the declared project context from root or descendants. Invalid managed contexts refuse root fallbacks; explicit output overrides retain their meaning. Source regressions pass; native wheel qualification remains open.
+
+- Existing-project layout rendering follows explicit selected and resident coordinates, preserves immutable catalog bytes, replaces exact reviewed root delegate regions, and binds bootstrap updates to their original helper. Source controls pass; full migration and installed qualification remain open.
+
+- Derived-project discovery rejects redirected framework and manifest ancestry
+  before probing targets, preserves independent children and pending-readmission
+  protections, and leaves contained projects' application metadata untouched.
+  Focused discovery, readmission, publication and migration controls pass.
+
+- Derived-project layout: place reviewed imported catalogs into an existing
+  `litai/` directory through the acknowledged project migration, preserving
+  application files, Git state and earlier journals. Recover exact owned entries
+  after interruption and preserve concurrent changes. Contained release output
+  defaults now use `litai/_build/release/`. Focused source controls pass; complete
+  containment and installed platform qualification remain in progress.
+
+- Develop opt-in native-root repair under one original finite lifetime and
+  three-candidate budget. Controlled-provider Rust source regressions cover late
+  packaged rejection and replacement, compiler rejection followed by late repair,
+  and build/test/package exhaustion without a fourth allocation or publication.
+  Installed, live-model, held-dependency, strict replay and complete release
+  qualification remain open.
+
+- Preserve rejected source, package and request history without rewriting accepted
+  node observations. Close the original native verifier before diagnostic
+  bookkeeping, and begin each replacement's context-journal projection while
+  retaining prior immutable records. Keep private oracle data out of feedback and
+  preserve original errors, operation limits, custody and terminal refusals.
+
+- Guard source-cache publication and retirement with the original run, coordinate
+  readers and writers through existing read-only storage, and roll back only the
+  operation's exact metadata links. Scoped source controls pass; native Windows
+  and complete release qualification remain required.
+
+- Retained readmission journal: reject Boolean values substituted for integer
+  header limits or step indexes in the live guard. Preserve every bounded native
+  record read, namespace check and malformed-record diagnostic. Scoped source
+  controls pass; installed and complete release qualification remain open.
+
+- Refined retained command renewal: add a distinct acknowledged public request
+  that preserves admitted phases and other owners, uses current project bounds,
+  executes through the existing Component harness, and joins the actual metadata
+  publication journal. Preserve original receipts, failed staging and foreign
+  nodes. Charge the original root receipt in preflight and preserve whole-file
+  binding and archival across streamed reads. Source development passes a real
+  native journey. At `cbf4804e8`, a noneditable wheel passed local installed initial,
+  wrapper-renewal and refined-renewal journeys with real compilation, both
+  original tests and receipt preservation. Its [historical evidence](verification/retained-component-command-installed-development.json)
+  binds that exact subject; complete release qualification remains open.
+
+- Initializer compatibility: retain earlier exact helper transitions while
+  admitting the finite retained-readmission publication port and its one direct
+  import. Preserve historical template ownership and refuse changed callbacks,
+  destinations, imports and surrounding producer code. Full integration remains open.
+
+- Retained readmission publication: retain exact original and staged native files,
+  preserve foreign replacements and failed evidence, and block ordinary project
+  reads while metadata publication is pending. Add acknowledged rollback recovery
+  that can inspect an invalid manifest without replaying saved commands or
+  granting qualification. Installed and native platform renewal remain open.
+
+- Retained readmission: verify original bytes, modes and initial copy membership
+  before direct or wrapper commands. Recheck original source across baseline and
+  parity, preserve absolute-path bytes and native disposable build transformations,
+  and close the observation after success or refusal. Installed renewal stays open.
+
+- Retained command renewal: explicitly select one existing wrapper's commands
+  through the readmission CLI, preserving every unselected phase and historical
+  evidence. Reopen complete versioned requests, reject stale or unacknowledged
+  changes, and revalidate source/selection before execution and publication.
+  Preserve saved v1 and planning-only v2 meanings. Successful command exit alone
+  grants no compilation claim. A fresh installed macOS journey passes actual
+  native compilation and genuine receipt renewal while preserving old evidence.
+  Refined/contained renewal and full native release qualification remain open.
+
+- Retained Python bridge development: observe the actual original-source
+  wrapper/parity and complete bounded native source without granting execution.
+  Reject changed source namespaces, unmatched prospective original bytes and
+  missing original stages. Keep native command/test coverage, providers,
+  package execution and public receipt admission open.
+
+- Retained Python bridge development: pin independently reviewed consumer
+  documents under byte, file-identity, ancestry and project-context checks,
+  including rejection closure. Classify every reviewed gate and preserve exact
+  original test membership and declared skips. Actual wrapper/source coverage,
+  qualified providers, execution and public receipt admission remain open.
+
+- Retained Python bridge development: compare exact reviewed plans with current
+  consumer inventories, complete gates, target/environment and the original
+  live interpreter observation. Close custody on success and refusal. Current
+  provider resolution, package execution and public receipt admission remain open.
+
+- Source promotion recovery: restore reviewed immutable asset declarations and
+  signed local static intake from accepted ADRs 0067 and 0068. Keep ordinary
+  writers, original source inventory, private qualification bindings and exact
+  archive reopening. Local controls pass; installed and release renewal remain open.
+- Promotion evidence: restore ordinary generation-closure audit/tree validation
+  outside Standard rebind, retaining migration and qualification checks. Preserve
+  the original failed control and add it to maintained test discovery.
+
+- Windows ARM64 installation: declare the native C++/Rust/Cargo and complete
+  OpenSSL development SDK needed to source-build pinned Python dependencies.
+  Bind child build variables to the observed SDK, reject conflicting native
+  target overrides, and select its static libraries. Portable controls and
+  vendor metadata inspection pass; native installed-host renewal remains open.
+
+- SDK receipt reopening: bind ordinary command identities to the existing
+  captured launch context, and retain original per-case native dependency facts
+  in additive SDK acceptance execution metadata. Historical inspection joins
+  those facts without execution, SDK acquisition or writes. Original and private
+  case reopening plus 58 focused SDK/acceptance controls pass; installed
+  promotion and full release qualification remain open.
+- Native source qualification: retain the base interpreter for stdlib monorepo
+  fixtures, suppress child core files while preserving failing exit status, and
+  exercise Cargo late-mutation regressions against the current wrapper owner.
+
+- Receipt promotion: publish schemas for the current promotion evidence and
+  historical admission assertion documents, preserving their false admission
+  and release-authority flags. Per-case SDK dependency capture and release
+  acceptance remain pending.
+
+- Authored provisioning: stop before further scratch allocation or package
+  publication when the original operation deadline expires, retaining native
+  currentness checks for unexpired operations. Installed receiving qualification
+  remains pending.
+- Catalog recovery composition: use the current bounded source-record and ancestry
+  readers when preparing provenance for native publication.
+
+- Retained layout integration: preserve recovered recovery work alongside current
+  contained project metadata, native update rollback and nominal consumer custody.
+  Focused composition controls pass; complete combined qualification remains open.
+
+- Self-hosting: declare optional gRPC import names from project authority when
+  optional runtimes are absent. Offline replication controls pass; native FreeBSD
+  source renewal remains pending, including a separate source-drift finding.
+- Cargo qualification: use portable dependency paths in the packaged native test's
+  TOML. Native Windows renewal remains required.
+
+- Native ARM64 CI: select the fresh registered Python after WinGet replaces the
+  setup-python installation, verify its actual native runtime, and pass its
+  absolute executable to the supported installer.
+
+- Native ARM64 CI: provision the declared WinGet Python package before starting
+  the installer controller, then recheck its native runtime and required standard
+  library. Keep the supported installer's full dependency and installed-host
+  checks; native renewal remains pending.
+
+- Native ARM64 CI: preserve the initial native preflight interpreter while
+  exposing WinGet, then use the fresh registered interpreter by absolute path
+  for installation so the Microsoft Store alias cannot intercept either step.
+
+- Native ARM64 CI: bootstrap WinGet from SHA-256 pinned Microsoft release
+  assets and native dependencies after the module-based repair returned
+  `Not Found`. Supported Litai installation and host acceptance remain required.
+
+- Windows ARM64 qualification: explicitly authorize the supported installer to
+  install declared prerequisites on its ephemeral runner after a native preflight
+  passed and installation safely refused. Portable controls pass; the renewed
+  native installed-host result remains pending.
+
+- Rust library verifier guards keep native tool observations within the actual
+  child environment and original deadline, while preserving launcher/source drift
+  refusal and closing checks after rejected results (issue #217).
+
+- Windows ARM64 development: add a source-bound hosted acceptance route for the
+  installed runtime, public host refusals and ordinary MSVC compile/execution.
+  Discover Visual Studio 2026's standard `18` directory after existing choices.
+  Portable controls pass; native execution and whole-goal qualification remain open.
+
+- CI maintenance: include the reviewed, SHA-pinned FreeBSD VM 1.6.0 and Bazel
+  setup 0.19.2 action updates. Integrated native execution and CI qualification
+  remain pending.
+- Authored publication reads: retain full current-provider checks around each
+  complete bounded read, and validate owned directory traversal through its native
+  namespace owner. Writer checks are unchanged. Native drift controls pass;
+  installed receiving and full release qualification remain pending.
+
+- Authored qualification: project oracle identities privately inside one captured
+  native plan guard, then close the original owners after all native callbacks.
+  Keep public property validation and every explicit guard. Native regression
+  controls pass; installed receiving and full release qualification remain open.
+
+- Cargo receiving: keep authored `check` under a nominal read-only wrapper so it
+  can observe a consumer while another operation holds the lifecycle lock,
+  without writing lock ownership metadata or obtaining scratch/execution rights.
+  Full installed receiving and timeout qualification remain pending.
+
+- Authored qualification: reuse bounded syntax observations inside each current
+  plan guard, preserving every native authority, selector and review check and
+  starting each independent guard with fresh parse state. Receiving timeout and
+  installed qualification remain open.
+
+- Cargo controls: stage changed bytes and replace the disposable launcher after
+  its real version probe in original-file and completion controls, preserving the
+  late byte-change refusal on Linux systems that retain executable image
+  references after process exit.
+
+- Native FreeBSD qualification: add an explicit complete source-suite mode with
+  an exact Git checkout, finite process ownership and a separate source verdict.
+  A requested full suite requires its complete matching report in copied results.
+  Native execution and release qualification of this mode remain pending.
+
+- Packaging: keep declared provider bindings attached to their exact export when
+  an explicit package layout renames its directory. Preserve legacy paths and
+  refuse missing files, links and paths outside package custody.
+
+- Native Cargo: add an explicit shared sibling package layout so independently
+  exported libraries can share nominal Rust types without duplicate path packages.
+  Preserve legacy profile and target formats; require fresh qualification for the
+  new selection.
+
+- Qualification development: complete two genuine nominal Rust graph runs through
+  an installed public provider, preserving all original acceptance inputs. Retained
+  consumer admission remains unfinished. A fresh shared-layout provider and
+  transported replay now pass, and a disposable consumer passes its original
+  commands with unchanged qualified packages; public admission remains pending.
+
+- Native library artifacts: record provider bindings from the exact current build
+  intent, preventing prior generated-source attempts from duplicating later
+  dependency evidence and blocking qualification replay. Strict archive duplicate
+  and current-interface checks remain in place; genuine acceptance is pending.
+
+- Cargo qualification replay validates native provider graphs against current export/contract bindings, original source, metadata and locked dependency closure, preserving provider-free records and read-only archive handling.
+
+- CI: budget the complete four-case serial authored owning-admission module with a finite 6,600-second worker limit in its Linux/macOS cells, retaining production deadlines, test coverage and overall job limits. Native successor qualification remains pending.
+
+- Add a private bounded observation of an independently pinned running Python
+  interpreter without starting a tool. It retains no execution or provider grant;
+  full Python bridge joining, workspace execution and qualification remain pending.
+
+- Define an explicit versioned retained Python workspace plan, with complete export
+  destinations, source/wheel mounts, original inventories, interpreter and target,
+  reviewed gates, prospective source removal and finite bounds. Strict codecs and
+  the production schema catalog validate intent only; current provider joining,
+  materialization, execution and public bridge qualification remain pending.
+
+- Python qualification capture: retain bounded raw bytes from the original whole
+  wheel-backed library artifact, including runtime siblings, under its live build
+  observer and existing recorder limits. Preserve export shapes and native final
+  checks. Public Python bridge integration and qualification remain pending.
+
+- Standard Python artifacts: share bounded dependency-record validation between
+  sealed payload checks and read-only replay, retaining current build, source,
+  interpreter and target bindings plus final filesystem checks. Retained Python
+  bridge integration and public qualification remain pending.
+
+- Worker alignment: bound local configuration and credential-file capture before
+  comparison or synchronization; report stalled, unsafe or oversized inputs without
+  disclosing contents or preparing a destination from an unreadable source.
+
+- CI: partition the complete Ubuntu Python 3.11 source suite so late native Cargo
+  tests have their own runtime budget; preserve every module and PR gate alongside
+  the existing validation, installation and wheel checks.
+
+- Add authored-native qualification planning, acknowledged Standard execution,
+  independent-oracle custody, versioned origin evidence, closed capture/replay
+  and recoverable reference publication. Preserve contained project manifest
+  owners and require original-descriptor deletion evidence for macOS retirement.
+  Ordinary authored retained receiving and genuine installed/native acceptance
+  remain required.
+
+- Project admitted Rust Component provider graphs into disposable Cargo builds,
+  preserving one shared provider, original manifests, exact exports and managed
+  lock/SBOM evidence. Refuse generator-authored projection provenance even on
+  provider-free leaves; complete authored and retained-consumer qualification
+  remains required.
+
+- Compose explicit closed POSIX source-link custody through SDK locking, scanning,
+  quarantine and build checks; bound input read requests under existing quotas.
+  Add canonical and packaged FreeBSD ARM64 host-install plans and live external
+  SDK output workspaces with exact recipe/grant custody. Native OS-SDK and final
+  installed/platform qualification remain required.
+
+- Add reviewed native-child addition/revision plans and acknowledged recoverable
+  registry/evidence publication, preserving current qualification readers and
+  migration identity. The transaction never performs missing qualification or
+  grants consumer acceptance; installed/native release qualification is pending.
+
+- Add unqualified shadow repositories for tracked upstream refs and staged PR
+  source through explicit plans and acknowledged custody operations. Preserve raw
+  bytes and interrupted sync state; mapped execution and outcome acceptance
+  remain in progress.
+
+- Exercise worker probe timeout and UTC observation freshness as independent
+  refusal conditions while retaining the real bounded probe controls.
+
+- Avoid a redundant Windows root kill after confirmed job termination so the
+  caller waits for kernel completion instead of trusting a premature exit cache.
+
+- Preserve original Windows cleanup diagnostic note order while sampling owned
+  job identities before the separate file-user diagnostic.
+
+- Retain bounded test-owned Windows job and process-identity observations for
+  native timeout cleanup failures without changing termination behavior.
+
+- Prevent background Git maintenance from racing copies of disposable native
+  repository fixtures while preserving user and project Git configuration.
+
+- Retain bounded Cargo receiving measurements on original failures under parallel
+  case reporting, including input-check cost and the unchanged admission deadline.
+
+- Preserve private Git-object fixture modes across deliberate missing-object
+  checks and retain bounded Windows cleanup observations with original failures.
+
+- Apply the release owner's verified false-positive disposition to the historical
+  PyYAML source digest finding as well as the framework source digest findings.
+
+- Preserve late Git-boundary fixture commits while Windows lock bytes remain
+  locked, and give the POSIX interrupt fixture an explicit signal disposition.
+
+- Keep the Cargo reuse regression independent of Cargo's private dependency
+  directory layout while requiring one exact fixture library and unchanged reuse.
+
+- Report Windows boundary-control failures before the complete source shard,
+  retaining separate probe evidence and the full qualification requirements.
+
+- Detect restored writes in Windows retained Cargo input censuses using bound
+  native handle change times, including changes after the closing census.
+
+- Capture retained Cargo test runtime directories from reported artifacts across
+  Cargo's shared and per-unit output layouts, retaining output custody limits.
+- Use separate short temporary roots for Windows CI shards and receiver checks
+  so nested native compiler outputs stay within the host path budget.
+
+- Remove unchanged owned native-profile files after Git LF/CRLF checkout
+  conversion, preserving exact working-state checks and refusing content filters.
+
+- Read unchanged contained catalog provenance across Windows path/descriptor
+  timestamp differences, with checks for descriptor changes during the read.
+
+- Observe a clean native CI policy across Git's LF/CRLF checkout conversion while
+  retaining refusal of uncommitted policy changes.
+- Relay nested process interruption on macOS Python versions without `waitid`,
+  retaining child lifetime custody and already-exited statuses.
+
+- Preserve a native Windows release gate's exit status after closing its managed
+  checkout reservation.
+- Use complete no-follow metadata for repository object link counts while
+  retaining private backing-file checks on Windows.
+
+- Preserve captured stdout and stderr on Windows timeout errors after owned
+  process-tree cleanup, including project bootstrap helpers.
+
+- Admit static release checkouts by complete repository identity and verified
+  ownership before synchronization. Hold one exact reservation through transfer
+  and the native gate. Preserve foreign work, older basename checkouts and ignored
+  cache collisions; distinguish repositories addressed through different SSH
+  accounts (#488).
+
+- Add a read-only project containment plan that keeps retained application paths,
+  separates producer provenance and shared root integrations, and reports the
+  unresolved references and recovery dependencies before migration. Contained
+  native profiles can report that no legacy relocation is proposed. Planning
+  grants no apply or lifecycle qualification authority.
+
+- Reuse locally available exact parent commits during lineage and catalog reads.
+  Keep mutable-reference refresh, bounded missing-commit fetches and current
+  project/catalog checks. Refuse redirected or partial parent caches before
+  reusing their object storage.
+
+- Add explicit terminal RUN release for a selected managed remote worker. Collect
+  this RUN's evidence, save its outcome and release intent, then stop health
+  polling before provider release. Keep defaults reusable. The opt-in permits
+  discarding the executable and prior worker cache; uncertain cleanup retains
+  the original outcome and the same release request for explicit recovery.
+
+- Verify SSH cleanup acknowledgement identities against the exact imported
+  request, manifest, bundle and cleanup token before accepting custody. Preserve
+  the worker's existing identity format and bounded acknowledgement retries.
+
+- Align this development line's executable pre-release target with 1.4 through
+  the existing authenticated state owner. Retain the other release gates.
+
+- Canonicalize the installed-wheel harness’s own temporary workspace so reviewed
+  local dependency wheels work with macOS temporary-path aliases. Keep redirected
+  user-input directories refused.
+
+- Recognize in-progress roadmap goals during release contribution sweeps. Keep
+  them incomplete and keep their release targets within their own sections.
+
+- Isolate OpenCode state before its first child, including V1. Project only the
+  selected provider/model API configuration and credentials; exclude ambient
+  instructions, MCP, plugins and unrelated models. Refuse unsupported refreshing
+  logins and SDKs before prompting while preserving original user state. Set a
+  fixed V1 session title to avoid a separate title-generation model request.
+
+- Run framework validation preflight before its long Python, skill and installed
+  checks, including with parallel Make. Check cheap release gates before Python
+  while retaining the later driver recheck and every existing release gate.
+
+- Reuse immutable skill metadata for identical bytes within an existing project
+  parse scope. Bound retained syntax data and restore isolated frames; catalog
+  discovery, content hashing, dependency/reference checks and native custody
+  guards remain fresh.
+
+- Start the measured long native-Cargo test module earlier using an opt-in
+  bounded module priority. Default discovery order, intact case groups and serial
+  barriers remain. Failure can change which peers had started, while existing
+  fail-fast, source binding, cancellation and outcome checks remain authoritative.
+
+- Separate documentation-rendering dependencies from the OpenSpec CLI, so a
+  documentation-only check installs only its own tools. Audit both locked graphs
+  before their respective checks; full CI, Windows and release qualification keep
+  both. This separation does not waive or remediate an OpenSpec advisory.
+- Bound compiler serialization with a prepaid immutable view and fresh original
+  storage checks, sharing existing command/identity formats. Use a conservative
+  ASCII source policy on reviewed CPython 3.12–3.14 while preserving fallbacks
+  and memory ceilings. Three measured quota sequences and two actual independent
+  provider operations fit; full native root qualification remains separate.
+
+- Wire original verifier captures to prepare/commit detached observations after
+  original closing checks, retaining pending payload cleanup and charges through
+  cancellation and lost acknowledgments. Actual provider controls with injected
+  operation binding pass after source-scope exit. The full native scenario,
+  expiry recovery and typed execution permission remain open.
+
+- Borrow joined verifier observations during final verification outside the
+  binding lock, with original-token publication before borrowing and explicit
+  dropped-view proof before completion. Recover interrupted metadata completion
+  without replaying guards; recheck closing identity after cleanup. Full native
+  qualification remains open.
+
+- Bind verifier enrollment to its original pool/lease and add metadata-only
+  PREPARED/COMMITTED handoff support with no uncertain-commit replay. Account each
+  compiler observation separately from shared source, require all three cleanup
+  owners, and clear failed method/decorator source references. Full native
+  qualification remains open.
+
+- Charge bounded file metadata during live verifier capture and explicitly retire
+  original file/ancestry observations outside the capture lock before settlement.
+  Add opt-in guard/release pairs while preserving default callers and owned moves;
+  releasing observers refuse moves until descendant custody is implemented.
+
+- Add a bounded file-metadata preflight for verifier closing custody. Measure
+  root ancestry and repeated parent/path storage before canonical inventory
+  parsing; detach primitive rows and clear failed construction references.
+  Capture-to-closing transfer and native qualification remain open.
+
+- Protect initial verifier capture setup and wrapper entry failures with source
+  cleanup. Keep wrapper release before quota settlement and preserve original
+  errors through early reservation/file/tool refusal and local snapshot failure.
+
+- Clear original file-source references from materialized-file validation failure
+  frames, including partial snapshots and cancellation. Preserve original errors,
+  byte/namespace checks and the source-free successful metadata guard.
+
+- Preserve original compiler tuple-field identity with immutable anchors, and add
+  lazy operation resource ownership with durable allocation/retirement journals.
+  Recover interrupted metadata cleanup outside binding locks while preserving
+  the original failure. Capture-to-closing transfer remains unfinished.
+
+- Add durable, fixed-ABI closing-payload cleanup to verifier quota draining. Keep
+  charges through partial component release and final detachment, reject getter
+  substitution and clear source-bearing field-reader failure frames. Runtime
+  closing handoff enrollment and native qualification remain open.
+
+- Add charged live oracle observation using fresh weak original roots, exact
+  registry/storage membership and detached file/ancestry stamps. Preserve full
+  original byte checks and add explicit metadata release through retained
+  tracebacks; operation-closing custody and native qualification remain open.
+
+- Reserve and account original compiler storage during live Node verifier capture,
+  with exact private-field, SDK-file and identity/enum observations bracketed by
+  full byte checks. Explicit cleanup severs retained traceback references, keeps
+  uncertain live-entry removal charged and preserves original failures. Runtime
+  closing transfer and native qualification remain open.
+
+- Support bounded nested original-reference facts for operation-local Node
+  compiler quota sharing. Refuse changed leaves and substituted containers
+  without invoking equality; compiler custody integration remains open.
+
+- Defer Node verifier CLOSED tickets until original capture cleanup settles.
+  Preserve sticky failure through cancellation and uncertain terminal reporting;
+  recovery releases resources without replaying successful acknowledgment.
+
+- Add a detached direct-Node tool observation with original full capture checks
+  and payload-free sticky file/ancestry continuation. Sixteen synthetic controls
+  pass; runtime closing integration and native qualification remain open.
+
+- Centralize Node verifier capture storage in one bounded transferable quota.
+  Retain ended-capture cleanup through cancellation, remove original identity
+  before releasing its charge, and destroy retained references outside locks.
+  Runtime closing-witness integration and native qualification remain open.
+
+- Add bounded inert scanning for exact live SDK verifier captures. A separate
+  six-suffix JavaScript/TypeScript rule policy preserves baseline scan identities,
+  refuses finding/metadata overflow and labels uncovered DATA separately. Original
+  capture/ticket joins and fixed dependency checks withhold substituted results;
+  returned metadata grants no origin, classification or execution authority.
+
+- Bind Node verifier inspections to their original host operation, provider scope
+  and actual SDK invocation. Opaque membership tickets retire with the operation;
+  capture failures remain sticky and closing checks use pinned storage without
+  serializers. Tickets retain no released source/tool captures and grant no
+  execution permission; installed lifecycle and downstream qualification remain open.
+
+- Distinguish bounded npm dependency/version subprocess timing from whole Node
+  probes in the explicit SDK diagnostic. Preserve default-off instrumentation,
+  original calls and unqualified results; record no commands or request data.
+
+- Project private authored SDK legal assets into separate portable package copies,
+  preserving original source custody and mode guards. Bind the legal-copy policy
+  into composition and build-cache identities; generic inventories stay strict.
+
+- Keep authored SDK rebuild project-configuration checks in its callback and
+  snapshot validation in the original host owner, removing a duplicate fixture
+  traversal without changing production guards or deadlines.
+
+- Add an explicit installed SDK probe diagnostic that observes original process
+  and guard operations under unchanged deadlines. Keep it separate from ordinary
+  preflight acceptance, with bounded private timing data and restored observers.
+
+- Preserve the original SDK node failure when recording its checkpoint by using
+  the returned bound preparation. Retain bounded private authored-rebuild failure
+  diagnostics before temporary cleanup without replacing the original exception.
+
+- Defer SDK checkpoint attempts until live admission binds the exact recipe,
+  preserving immutable attempt lineage and rejecting stale, substituted or
+  reentrant binding. SDK checkpoint records remain unavailable for historical
+  source recovery; installed rebuild acceptance still requires qualification.
+
+- Collect TypeScript SDK source from `src/` only for a bound SDK recipe, preserving
+  ordinary application confinement and rejection of package/build output. Reject
+  recipe changes during generation and keep failed installed-preflight diagnostics
+  readable through canonical temporary paths without following diagnostic links.
+
+- Add a separate authored installed SDK rebuild preflight using the canonical
+  installer and real receipt checks, with explicit unqualified evidence retention.
+  Native execution and ordinary model-backed CLI acceptance remain unqualified.
+
+- Add an authored fixture CLI preflight through the original source generator and
+  cache, checking provenance, replay and changed-recipe refusal before qualifying
+  SDK rebuild integration. Preserve the original SDK runtime scenarios.
+
+- Route an explicitly owned Node SDK host through the Standard rebuild adapter,
+  checking original snapshot and actual plan ownership while refusing unsupported
+  retained/action-worker execution before generation. Nine routing controls pass;
+  actual rebuild execution and ordinary CLI integration remain separate gates.
+
+- Qualify authored macOS cold-start provider restoration and receipt-driven SDK
+  regeneration with fresh runtime custody and unchanged authorization deadlines.
+  Preserve private cached artifacts while projecting separate SDK-owned copies
+  under an explicit npm mode policy; generic inventories remain strict. Installed,
+  broader recovery/platform and downstream qualification remain separate.
+
+- Remove one adjacent duplicate library custody check only when the optional
+  process observer is absent. Keep both oracle checks, all callback guards and
+  original authorization deadlines.
+
+- Qualify authored-generator `runtime.execute` orchestration for the one-provider
+  control and two-provider/root-subpath cell under unchanged original grants,
+  retaining provider re-admission, independent acceptance and publication order.
+  Ordinary model generation and performance with larger provider sets remain open.
+
+- Qualify the opt-in Python SDK host's complete native two-provider build,
+  cache, test, execution, packaging and independent packaged acceptance path,
+  including CommonJS/ESM root and subpath declarations/runtime probes. Retain
+  separate authored/model, recovery, installed and downstream-cutover evidence.
+
+- Share bounded original directory topology across local catalog-reference reads,
+  retaining fresh file/namespace checks and ordinary fallback. Fence reentrant
+  reads, preserve original cleanup ownership and snapshot expected identities
+  before blocking I/O. Discovery, asset handling and authorization stay live.
+
+- Share SDK operation entry/exit validation with the existing process-liveness
+  context, removing only adjacent duplicate checks. Provider custody, final
+  witnesses, callback cuts and original authorization expiry remain unchanged.
+
+- Validate pinned inputs through bounded, fresh POSIX directory handles while
+  preserving ordinary-reader fallback and file/namespace checks. Saved stamp
+  guards now retain primitive entry values so in-place entry metadata changes
+  cannot escape through aliased frozen objects.
+
+- Attribute shared public-interface bytes deterministically across selected
+  providers. Validate every origin, render equal bytes once, retain all exact
+  dependency facts, and enforce provider fan-in from the original graph rather
+  than its displayed representatives.
+
+- Retain original SDK output observations through packing, metadata writes,
+  package moves and final owner callbacks. Create reserved evidence exclusively,
+  reject redirected parents and refuse unknown occupied SDK output/checkpoint
+  destinations. Known live compiled-plan reuse remains available; durable cold
+  recovery still requires separate qualification.
+
+- Snapshot SDK compiler/declaration inputs before callbacks, account for repeated
+  retained oracle sources, and remove ambient producer bindings from SDK tool
+  environments. Cache publication and retirement retain original native object
+  identity through their filesystem effects, preserving foreign replacements.
+
+- Preserve original provider registry and scope metadata through verifier closing,
+  while separating fixed request description from full custody validation. Reject
+  initial retargeting and late registry substitution without removing replacement
+  state or relaxing subject, oracle, clock, grant or catalog checks.
+
+- Supply the shared independent SDK runtime checker with the bounded canonical
+  package projection so original harnesses can resolve bare ESM root and subpath
+  imports. Bind namespace identity and retain original POSIX file stamps across
+  children, callbacks and combined oracle closure. Legacy direct-runtime checks
+  keep their identities; unsupported strong namespace custody refuses early.
+
+- Permit bounded exact provider sets in opt-in SDK operation admission and Python
+  host configuration, sharing the existing 32-provider composition ceiling.
+  Preserve nonempty matched oracle/receipt inventories, original recursive
+  custody, independent verifier grants and aggregate scope quotas. Native
+  qualification covers two distinct-interface providers; complete multi-provider
+  SDK lifecycle and shared-interface attribution remain separate gates.
+
+- Honor exact declared CommonJS runtime paths in JavaScript library EXEC,
+  including nested `.cjs` files and root/subpath aliases. Preserve complete v2
+  declaration facts, reuse CommonJS metadata and membership checks, and pin fixed
+  driver support by SHA256 within the existing command argument limit. Legacy
+  convention-based surfaces and independent execution grants remain unchanged.
+
+- Close public SDK host bindings and original locked-authority witnesses before
+  returning owned operation results. Native regressions reproduced late registry
+  replacement and same-byte authority writes escaping the lower operation.
+  Preserve original baselines and retired contexts without another callback or
+  clock sample after the lower owner returns.
+
+- Close original SDK operation input witnesses after the final clock callback.
+  Actual regressions reproduced escaped results after oracle/file writes or
+  oracle-selection replacement at that cut. Preserve the original finite
+  baselines, current membership and one sampled time for all verifier grants.
+
+- Qualify explicit Python SDK host orchestration through actual `runtime.execute`
+  with a deterministic authored generator. The native fixture passes in 1081.895
+  seconds, including original provider admission, finalization re-admission,
+  packaged six-type/two-runtime checks and publication after root acceptance.
+  Real-model, durable-cache/recovery and installed qualification remain open.
+
+- Add opt-in Python host configuration for a Node SDK root and one sealed
+  CommonJS provider. Bind the original runtime, snapshot, graph and loaded
+  oracles; select root acceptance only during its owned invocation. Retired or
+  foreign contexts and callback delegate replacement refuse without rollback.
+  Separate verifier grants and the shared native checker remain required.
+  The authored assembled-runtime fixture passes build, cache, package and root
+  acceptance in 995.361 seconds; complete runtime orchestration remains pending.
+  Ordinary model-generated, retained and installed qualification remain open.
+
+- Reduce repeated root SDK validation by separating host ownership from package
+  custody within the existing shared verifier. Preserve original snapshot, legal
+  bytes, source/package stamps and grant expiry checks. The extended authored
+  fixture passes in about 16m20s versus the prior 22m25s, including added host-loss,
+  package-drift and grant-revocation refusals. Public SDK admission remains gated.
+
+- Add explicit internal SDK project acceptance using the shared Node verifier
+  lifecycle. Require original complete component plans, registered package and
+  TEST/EXEC evidence, locked legal bytes, the loaded root oracle and a separate
+  verifier grant. Final clock callbacks cannot replace original oracle, package
+  or locked inputs unnoticed. The authored canonical fixture passes actual dual
+  runtime and declaration checks; public admission and generated SDK qualification
+  remain open.
+
+- Retain exact accepted SDK ownership across root finalization, separately from
+  source-cache publication. Pin graph, link and package identities through later
+  callbacks. Packaged SDK TEST/EXEC share the existing runner and protected source
+  custody; path and coordinated metadata substitutions are rejected. This
+  foundation does not qualify a complete SDK lifecycle.
+
+- Bind local SDK tarballs as explicit package resources using original complete
+  BUILD custody. SDK packaging writes validated immutable library blob rows and
+  checks finite source, export and staged-package inventories through registration.
+  Late resource substitution and expired grants are rejected. Public finalization
+  and independent SDK acceptance remain unfinished.
+
+- Add an internal SDK legal-byte comparison against the original locked Component
+  immutable assets and selected packaging profile. Missing authority, changed bytes,
+  stale original inputs and substituted filename policies are rejected. This is a
+  read-only foundation; final SDK acceptance wiring remains unfinished.
+
+- Verify authored SDK source through the real canonical owned invocation: strict
+  bound-recipe registration, separately authorized BUILD, shared compilation/packing,
+  cache reuse, TEST and EXEC. The shared canonical fixture now supplies explicit
+  addition behavior and fixture-only legal text before locking. Exact compiler and
+  provider evidence is checked in build metadata/resolved BOM. This establishes
+  authored integration, not model generation or independent SDK acceptance.
+
+- Canonical SDK recipes can now reference declaration-bearing JavaScript libraries
+  under an explicit TypeScript dual-library SDK policy. Preparation and execution
+  share pinned profile decoding and language-shape checks. Other language mismatches,
+  malformed SDK policy and competing build profiles remain refused. A real canonical
+  graph now joins strict authored provider stages and original v2 verification to
+  the existing owned SDK invocation. Static recipe data grants no execution, and
+  generated SDK BUILD/acceptance and full qualification remain unfinished.
+
+- Add opt-in `lang-typescript-library` and `package-node-sdk` Flavors with a
+  versioned pure SDK generation policy and matching initialization templates.
+  Real lock/recipe/profile projection selects the shared SDK target and exact
+  policy bytes; application or competing build profiles fail before tool discovery.
+  Existing TypeScript application policy is unchanged. Canonical selection does
+  not establish provider admission, independent SDK acceptance or native/installed
+  qualification; license contents still require exact Component authority.
+
+- Explicit Node SDK profiles now project the shared SDK target through locked
+  toolchain closure and ordinary runtime assembly. Compiler selection captures an
+  explicitly located TypeScript image and enforces its original Node, exact
+  command/version constraints and selected packaging Flavor. SDK npm selection
+  obeys the same complete constraints. Scoped runtime bindings and closing target
+  membership checks remain enforced. Canonical SDK Flavors/generation policy and
+  independent SDK lifecycle acceptance remain unfinished.
+
+- Node SDK local build integration: explicitly selected targets bind the compiler,
+  offline packer, profile and dual-export surface to the command contract. BUILD
+  retains original invocation custody and a separately current build grant through
+  compilation, packing, dependency evidence and artifact registration. Cache
+  readback checks the original bounded product inventory before generic hashing;
+  TEST/EXEC use the shared runtime without producer-checkout paths. Public profile
+  selection and generated/native/installed lifecycle qualification remain open.
+
+- Node SDK internal integration: explicitly configured local SDK nodes wait for
+  provider acceptance and retain original ownership through source/cache selection,
+  stage reservations, current build inputs and bounded repair. Root cache
+  publication revalidates the original invocation, and filesystem membership links
+  check ownership after staging. Late loss retains committed evidence with no
+  acknowledgment. Repaired cached source publishes its new winning membership.
+  Default/public SDK profile activation and native/installed qualification remain
+  open; remote and checkpoint recovery remain refused.
+
+- Node SDK groundwork: add an explicit internal synchronous operation owner for
+  one genuinely accepted provider under fresh verifier grants. Renewal preserves
+  the exact original invocation and consumer command contract. Closing checks
+  reject ownership loss during final reads and late oracle writes. The shared
+  complete-node repair driver can retain per-stage reservations under that owner;
+  ownership loss ends the operation before further repair. Public SDK generation
+  and multi-provider lifecycle admission remain unfinished.
+
+- Coding-agent and tool children now share bounded process supervision. Scoped
+  owner checks stop launches and running process trees after revocation, including
+  copied contexts, and withhold results when ownership expires during cleanup.
+  Coding-agent timeout/output error codes remain unchanged. This supplies the
+  live-owner process path for SDK work without activating public SDK generation.
+
+- Node SDK generation groundwork: bind exact verified provider facts and public
+  declaration closure into a new recipe and bounded context/cache identity while
+  preserving the static plan. Oracle-only private imports stay out of model
+  context. Existing source, cache/resume and remote routes refuse the data-only
+  invocation pending live generation admission; SDK source cannot be retagged
+  with a different provider recipe.
+
+- Node library verification: join genuine accepted provider custody to exact locked
+  specifications, original oracle files and selected compiler/Node tools under a
+  separate explicit execution grant. Controller-only runtimes cannot execute the
+  verifier. Synchronous results are withheld after owner/grant loss, including loss
+  during closing oracle reads; returned data does not grant SDK admission.
+
+- Library providers: add bounded internal live custody of genuine registered
+  acceptance stages, current build authority, sealed bytes and original files.
+  Closing checks reject changed or retired scopes, including same-size rewrites
+  with restored modification times. Long-lived custody refuses platforms without
+  POSIX change timestamps; public Node SDK lifecycle admission remains unfinished.
+
+- Library acceptance refuses the new Node runtime/declaration oracle at legacy
+  single-harness entry points, before custody lookup or evidence publication.
+  Original-input, ESM and declaration requirements cannot be discarded through
+  subclass compatibility; public SDK lifecycle admission remains unfinished.
+
+- Library contracts: add opt-in, exact CommonJS runtime and TypeScript declaration
+  paths while preserving existing library import wire identities. Node SDK
+  composition under accepted ADR 0073 remains in development; its internal shared
+  owner now supplies bounded compiler snapshots, offline exact tarball readback,
+  explicit dual-output authority, and original runtime/declaration verifier input
+  custody. Public lifecycle/profile integration and
+  native qualification remain open.
 
 - Existing repositories default to a contained native adoption profile under
   `litai/`, preserving source, build tools, CI and custom instructions. Explicit
@@ -65,6 +1182,287 @@
   and rejection of built-in or consumer-scope collisions (#447).
   Expected directory keys remain portable on Windows while retaining exact
   namespace, mode, byte and link/reparse verification.
+- Internal layout recovery: fund the actual finite native action checks and
+  marker reads separately. The three-generation retry and five disposition
+  controls pass under their existing limits; public and release qualification
+  remain pending.
+
+- Internal retained-layout journal publication halves repeated body reads while preserving bounded native path, membership and content checks. Complete retained-layout recovery qualification remains pending.
+
+- Retained-layout development can prepare and durably reopen the original
+  logical source forest for root-out planning. Actual canonical ownership,
+  complete namespace custody and fresh bounded decoding remain required.
+  Root/shared execution and legacy recovery for that profile stay guarded (#265).
+
+- Retained-layout development now journals the acknowledged plan, complete
+  original namespace and role observations, and packed metadata bytes before
+  acquiring public controls. Recovery requires a fresh bounded reader and actual
+  canonical owners. Repeated raw metadata chunks reopen with physical
+  deduplication and bounded logical expansion. Root/shared execution and complete
+  public recovery remain unfinished (#265).
+
+- Retained-layout development now observes initializer, provider and authored
+  roles before source-plan acknowledgement. Admission retains the original
+  participants and shared observation allowance. Changed plan bindings and
+  provider selections refuse. Root and shared-directory execution, public
+  application and recovery remain unfinished (#265).
+
+- Retained-layout development now binds the complete original project namespace
+  before source-plan acknowledgement. Actual canonical control publications
+  advance that observation through their live receipts and acquired descriptors;
+  unknown neighbors, replacements and changed witnesses refuse. Root/shared
+  execution, public application and recovery remain unfinished (#265).
+
+- Retained-layout development now binds a source move graph to its live
+  ownership partition and durable intent. Proposed shared ancestors stay fixed;
+  collisions, changed alias targets and additions inside Git or independent
+  project namespaces refuse. Root execution, public application and complete
+  lifecycle qualification remain unfinished (#265).
+
+- Retained-layout development can preserve selected external Component lock
+  evidence through its internal source transaction under the original read
+  allowance. Existing and absent locks stay read-only; changed or replaced
+  observations and overlapping private effects refuse. This internal nonroot
+  result remains unqualified (#265).
+
+- Retained-layout development now resolves relative and prospective in-project
+  matrix cell roots under the original observation allowance. Store selection
+  stays fixed after environment or working-directory changes; redirected,
+  source-crossing and changed resolution paths refuse. Native ancestor checks
+  tolerate unrelated sibling activity while preserving held-directory identity
+  and strict source/output checks. Public/root/shared and
+  complete lifecycle qualification remain open (#265).
+
+- Retained-layout development can carry an external original initializer's
+  Git-backed observations through the source transaction under its existing
+  allowance, including readonly checks after descriptor teardown. Expired or
+  replaced participants and overlapping private outputs refuse. This internal
+  nonroot result remains unqualified; broader layouts, public recovery and
+  installed/platform/release acceptance remain open (#265).
+
+- Retained-layout development can carry a nonroot transaction from funded
+  discovery through source movement, metadata publication and control handoff
+  under its original allowance. It preserves source topology, unknown neighbors,
+  original producer witnesses and verified metadata backups. Terminal observation
+  survives successful descriptor teardown and refuses late changes. This internal
+  result remains unqualified. Selected canonical metadata and optional lock roles
+  now follow actual original discovery, including absent locks and in-project
+  matrix storage. Later environment changes cannot redirect those roles, and
+  aliased moving-source storage refuses. External provider admission, other layout
+  cells, public recovery and installed/platform/release acceptance remain open (#265).
+
+- Catalog-copy development can observe multiple selected sources as one bounded
+  forest, resolve cross-item links while copying and carry the original
+  observations through source ownership handoff. Native closing scans reject
+  unknown entries before retaining or descending into them. Complete public
+  application, recovery and platform qualification remain unfinished (#265).
+
+- Catalog-copy development can retain an actual canonical Git checkout through
+  source ownership handoff and record its resolved commit in provenance. Source
+  observations share the copy budget; ended or changed leases refuse. Complete
+  public application and platform qualification remain unfinished. Canonical
+  clone cleanup preserves the parent's checkout when a fork child unwinds an
+  inherited context (#265).
+
+- Retained-layout development can carry an actual completed catalog copy into a
+  fresh nonroot source plan, classify its precise imported paths and consume the
+  live handoff once. Setup and later phases share the original budget, including
+  an optional actual framework-update predecessor. Complete public application,
+  recovery and platform qualification remain unfinished (#265).
+
+- Catalog-copy development can finalize its original held controls after verified
+  provenance publication, preserve existing advisory bytes and retire native
+  markers with the pending barrier last. Git reads charge actual channel usage
+  within unchanged limits. Imported-role handoff remains unfinished (#265).
+
+- Catalog-copy development can publish canonical provenance from verified item
+  receipts, preserving old metadata, unrelated imports and inheritance decisions.
+  Local source references and prospective metadata share the original finite
+  allowance; control finalization and imported-role handoff remain pending (#265).
+
+- Catalog-copy development can retain original item directories and exclusively
+  publish verified stages under actual held controls, including missing parent
+  chains with ordinary modes. Entry effects remain explicitly incomplete until
+  provenance and control finalization exist; no imported roles are issued (#265).
+
+- Catalog-publication development joins actual held project/Git controls to
+  bounded retained-source, wrapper and child-project protections. Alternate target
+  spellings and cross-role aliases refuse during preflight; publication and
+  imported-role handoff remain unfinished (#265).
+
+- Retained-source planning and partitioning recognize portable project-manifest
+  spellings and alias leaves before source movement. Registered children retain
+  their actual independent roles; a basename alone grants no ownership (#265).
+
+- Retained-layout development can bound canonical project, conversion, migration,
+  child-registry and Git role inputs under one operation-local allowance while
+  preserving ordinary reader defaults. Changed inputs and ended scopes refuse;
+  the read scope grants no catalog publication or movement rights (#265).
+
+- Catalog-copy development can materialize bounded private trees with durable
+  journal intent and validated source/output identities, retaining partial stages
+  after interruption without publishing into the project (#265).
+
+- Catalog-copy development can inspect complete destination and selected-source
+  namespaces with bounded canonical project/DAG inputs before any copy effects.
+  Saved provenance remains descriptive and grants no ownership (#265).
+
+- Retained-layout development can carry actual framework update additions and
+  reviewed local overlays into acknowledged nonroot source moves. Changed inputs
+  and ended update contexts refuse ownership handoff; strict removals retain
+  original nodes and durable intent in a private directory (#265).
+
+- Retained-layout ownership validates observed update checkpoints through the
+  canonical parser and includes their records in the shared metadata budget,
+  preserving legacy update data and changed checkpoint bytes (#265).
+
+- Retained-layout producer fingerprints use a versioned structural encoding so
+  the same reviewed helper transitions work across Python 3.11 through 3.14 (#265).
+
+- Retained-layout development can verify supported historical initializer roles
+  from exact local Git objects without fetching or executing historical code.
+  Unsupported producers, forged later endpoints and changed provider inputs refuse
+  before source movement (#265).
+
+- Retained-layout development joins complete live initializer, source, control and
+  independent-child roles before a normal source move, preserving unknown entries
+  and refusing changed private state. Historical initializer providers and root
+  placement remain pending (#265).
+
+- Native rewrite planning uses genuinely readmitted declared source while preserving
+  custom progress. Monorepo refresh reruns retained Components after a layout change
+  and binds their installation to the current declaration (#265).
+
+- Retained source-scope refresh and schema migration can locate declared nonroot
+  source before readmission, preserve historical evidence, and refuse pending or
+  changed inputs without granting execution admission (#265).
+
+- Retained harness receipts and Cargo contexts can use freshly readmitted nonroot
+  layouts and their selected wrapper locks; prior receipts stay stale and pending
+  or mismatched layout evidence refuses (#265).
+
+- Retained-layout development can rerun direct harness and wrapper parity at a
+  relocated nonroot source location, retaining prior evidence and refusing changed
+  layout or pending transaction state; qualified admission remains pending (#265).
+
+- Retained-layout development releases recovery controls through their original
+  descriptors, preserving evidence and permitting a fresh ordinary layout transaction;
+  public recovery and full relocation acceptance remain pending (#265).
+
+- Retained-layout development restores still-owned source and metadata after
+  interruption, preserving foreign files and durable committed layouts;
+  recovery control release and public transaction recovery remain pending (#265).
+
+- Retained-layout development binds recovery to current project/Git control roles
+  and reacquires released native controls through acknowledged staged publication;
+  source/metadata and public transaction recovery remain pending (#265).
+
+- Retained-layout development can reacquire retained control descriptors after
+  interruption with exact acknowledgement and fresh native locks, preserving
+  unresolved state; source/metadata and public recovery remain pending (#265).
+
+- Retained-layout development adds normal control handoff with a durable,
+  unqualified commit decision and explicit post-commit error outcomes; public
+  relocation and fresh recovery remain pending (#265).
+
+- Add exclusive native entry movement for retained-layout transactions, preserving
+  nodes and retaining closing conflicts for explicit recovery (#265).
+
+- Add a read-only retained-layout partition census for transactional placement
+  and relocation, with raw source and physical-custody checks (#265).
+
+- Generated bootstrap checks cap stdout and stderr while reading and retire
+  owned helpers on completion, timeout or overflow, preserving runtime pins (#332).
+
+- Retained-layout declaration reads refuse incomplete bytes and changed directory
+  ancestry through parsing, preserving file custody and canonical encoding (#265).
+
+- Worker reservation observations preserve concurrent quarantine and retirement,
+  while slow observation reads leave original job completion independent (#280).
+
+- Worker telemetry polling rechecks its monotonic deadline after current-policy
+  validation and refuses clock regression while retaining live collector slots (#280).
+
+- Bounded coding CLI invocations retire descendant helpers before removing private
+  state, retaining the launcher exit code and captured streams (#365).
+
+- Source inventory excludes recognized SPDX and copyright attribution from CUDA
+  evidence without changing input bytes; explicit CUDA source, compiler, headers
+  and runtime/driver API signals remain detectable (#396).
+- Generated project agent instructions lead to a standard-library bootstrap check
+  before requiring LitAI, preserving the pinned runtime and custom instructions (#332).
+- Add optional guidance for suitable A2A peers already connected through the agent
+  host, preserving delegation limits, tracker ownership and independent acceptance.
+
+- Avoid redundant initial Cargo census metadata and semantic JSON work during
+  fresh input-currentness checks, retaining every payload hash and closing
+  namespace, physical-node and lineage check (#432).
+- Reuse bounded project/Flavor parsing within one native currentness check while
+  retaining every member guard, fresh graph and byte check, and closing Flavor
+  membership validation; each independent call gets a fresh observation (#432).
+
+- Retained Cargo v2 can explicitly review finite native executable, runtime and
+  build-output byte budgets with fresh streaming custody instead of retaining
+  multi-GiB payload copies; defaults and complete membership checks remain (#433).
+
+- Retained Cargo v2 composition keeps independently measured consumer Cargo/Rust
+  tools separate from the provider's guarded native observations (#430).
+
+- Retained Cargo v2 can explicitly reserve secondary build outputs under the same
+  live ownership and source-input fences, preserving unchanged full gates (#429).
+
+- Native retained-Cargo integration tests use the existing finite API deadline
+  default on slower workers while preserving production bounds and input checks.
+
+- Native retained-Cargo fixtures preserve the caller's implicit Rustup toolchain root
+  before isolating HOME, while retaining explicit values and discovery refusals.
+
+- Add a public Python v2 retained-Cargo receiving transaction with live scratch
+  publication, patch-aware consumer gates, honest typed test outcomes and strict
+  already-retired source admission; preserve v1 contracts (#222–#226).
+
+- Bind declared runtime capability variables to the consumer's locked provider
+  artifacts during node and packaged execution, refusing missing or ambiguous
+  providers, escaped package paths and ambient capability overrides (#422).
+
+- Identify the published 1.3.1 lab curriculum as historical at its front door and
+  route current readers to current setup guidance while retaining the open 1.4
+  multi-Component curriculum requirements.
+- Reuse the existing admitted-compiler test oracle for accepted-source bytecode
+  on mixed-interpreter hosts, preserving full artifact and binding assertions (#424).
+
+- Reuse bounded lexical path parsing during retained Cargo input capture while
+  keeping all filesystem observations, byte reads and currentness guards fresh (#432).
+- Release policy: accept an omitted optional contribution roadmap manifest, including the serialized default, while retaining strict milestone, field and path validation (#441).
+
+- Retire authored scratch runs through their original private container/native
+  identity and require intent-bound completion before recovery. Recursive Windows
+  readonly permission retries refuse shared hardlink peers at every depth (#393).
+
+- Add acknowledged `project qualify apply` with bounded authored archive capture,
+  transaction-owned run retirement and atomic reference publication. Interrupted
+  staged archives can be replayed under fresh authority without restoring cleanup
+  rights from saved paths. Genuine native and receiving qualification remain in
+  progress (#393).
+
+- Derive authored qualification recipes and commands from live canonical project,
+  model and native-tool owners, with bounded scopes that reject copied or expired
+  projections before reopening. Receiving admission remains in progress (#393).
+
+- Reopen authored run evidence through shared Standard provenance, authorization,
+  native-stage, receipt and generated-case checks before reading retained products.
+  Genuine native qualification and receiving admission remain in progress (#393).
+
+- Capture authored clean-run library bytes under original execution custody,
+  retaining bounded run/product membership for integrity-only archive reopening.
+  Full genuine authored qualification remains in progress (#393).
+
+- Bind authored qualification to the current complete plan before generation and
+  retain original verifier and run-directory ownership through capture (#393).
+
+- Retain truthful authored all-node clean-run observations and derived per-node
+  test counts, with closed run/result records under accepted ADR 0072. Genuine
+  qualification and complete authored retained admission remain in progress (#393).
 
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
@@ -76,6 +1474,16 @@
 
 - Capability deadline qualification observes actual original child cleanup, including
   expiry before a receiver writes its PID file, without extending caller budgets (#420).
+
+- Fresh single-node Rust libraries can replace a candidate after an exact native
+  public-result rejection within the existing three-candidate budget. Private
+  oracle content stays out of feedback, custody drift remains terminal, and final
+  packaged acceptance still runs (#405).
+
+- Automated Codex invocations avoid optional remote catalog downloads that can
+  exceed a caller's finite file-size limit (#412).
+
+- Coding CLI tasks and source generation keep Codex SQLite and diagnostic logs in private invocation state, preserving authentication, selected models and finite file limits (#365).
 
 - Standalone source promotion can explicitly select root repository lineage with
   `spec accept --project-target ... --root-project`; default inheritance and
@@ -92,6 +1500,10 @@
 
 - Installed-wheel qualification exercises lazy project startup and strict MAC BOM
   rejection, verifying installed module origins and exact candidate bytes (#121).
+
+- Retain bounded original qualification-failure observations in a separate
+  diagnostic archive/store, preserving the failing CLI result and keeping failed
+  product captures empty (#389).
 
 - Complete current-main native qualification of retained Windows system context,
   base/private interpreter DLL capture, and the five-minute C++ discovery bound;

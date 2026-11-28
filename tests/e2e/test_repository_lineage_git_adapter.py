@@ -11,7 +11,10 @@ import sys
 import tempfile
 import time
 import unittest
+from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from literate_ai.adapters.repository_lineage import (
     REPOSITORY_PARENT_FILE,
@@ -21,6 +24,7 @@ from literate_ai.adapters.repository_lineage import (
 )
 from literate_ai.application.repository_lineage import resolve_repository_lineage
 from literate_ai.contracts import (
+    ContentIdentity,
     RepositoryParentReference,
     RepositoryParentSelection,
 )
@@ -143,6 +147,220 @@ def reference(repository: Path) -> RepositoryParentReference:
 
 
 class GitRepositorySnapshotProviderTests(unittest.TestCase):
+    def test_cached_objects_use_complete_metadata_instead_of_directory_hints(self):
+        with tempfile.TemporaryDirectory() as directory:
+            temporary = Path(directory)
+            repository = create_repository(
+                temporary, "parent", RepositoryParentSelection.root()
+            )
+            revision = git(repository, "rev-parse", "HEAD")
+            pinned = RepositoryParentReference(repository.resolve().as_uri(), revision)
+            provider = GitRepositorySnapshotProvider(temporary / "cache")
+            self.assertEqual(provider.resolve(pinned).resolved_revision, revision)
+            actual_scandir = os.scandir
+
+            class CachedDirectoryEntry:
+                def __init__(self, entry):
+                    self.entry = entry
+
+                def __getattr__(self, name):
+                    return getattr(self.entry, name)
+
+                def stat(self, *, follow_symlinks=True):
+                    actual = self.entry.stat(follow_symlinks=follow_symlinks)
+                    fields = {
+                        name: getattr(actual, name)
+                        for name in dir(actual)
+                        if name.startswith("st_")
+                    }
+                    fields["st_nlink"] = 0
+                    return SimpleNamespace(**fields)
+
+            @contextlib.contextmanager
+            def windows_directory_hints(path):
+                with actual_scandir(path) as entries:
+                    yield (CachedDirectoryEntry(entry) for entry in entries)
+
+            with patch.object(os, "scandir", windows_directory_hints):
+                self.assertEqual(provider.resolve(pinned).resolved_revision, revision)
+
+    def test_hard_linked_cached_object_is_still_refused(self):
+        with tempfile.TemporaryDirectory() as directory:
+            temporary = Path(directory)
+            repository = create_repository(
+                temporary, "parent", RepositoryParentSelection.root()
+            )
+            revision = git(repository, "rev-parse", "HEAD")
+            pinned = RepositoryParentReference(repository.resolve().as_uri(), revision)
+            cache = temporary / "cache"
+            provider = GitRepositorySnapshotProvider(cache)
+            provider.resolve(pinned)
+            bare = cache / (
+                hashlib.sha256(pinned.repository_url.encode()).hexdigest() + ".git"
+            )
+            backing = next(
+                path for path in (bare / "objects").rglob("*") if path.is_file()
+            )
+            original = backing.read_bytes()
+            mode = stat.S_IMODE(backing.stat().st_mode)
+            outside = temporary / "borrowed-object"
+            try:
+                os.link(backing, outside)
+            except OSError as exc:
+                self.skipTest(f"requires file hard links: {exc}")
+            try:
+                with self.assertRaises(GitRepositoryLineageError) as refused:
+                    provider.resolve(pinned)
+                self.assertEqual(
+                    refused.exception.code, "repository_lineage.cache_unsafe"
+                )
+                self.assertEqual(outside.read_bytes(), original)
+            finally:
+                # Windows Git objects are read-only; restore the owned fixture's
+                # original mode after removing the additional link.
+                outside.chmod(mode | stat.S_IWUSR)
+                outside.unlink()
+                backing.chmod(mode)
+            self.assertEqual(provider.resolve(pinned).resolved_revision, revision)
+
+    def test_redirected_cached_object_refuses_before_using_external_backing(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            temporary = Path(directory)
+            repository = create_repository(
+                temporary, "parent", RepositoryParentSelection.root()
+            )
+            revision = git(repository, "rev-parse", "HEAD")
+            pinned = RepositoryParentReference(repository.resolve().as_uri(), revision)
+            cache = temporary / "cache"
+            provider = GitRepositorySnapshotProvider(cache)
+            provider.resolve(pinned)
+            bare = cache / (
+                hashlib.sha256(pinned.repository_url.encode()).hexdigest() + ".git"
+            )
+            loose = bare / "objects" / revision[:2] / revision[2:]
+            backing = (
+                loose
+                if loose.is_file()
+                else next((bare / "objects/pack").glob("*.pack"))
+            )
+            outside = temporary / "outside-object"
+            backing.rename(outside)
+            try:
+                try:
+                    backing.symlink_to(outside)
+                except OSError as exc:
+                    self.skipTest(
+                        f"object-link control requires symlink support: {exc}"
+                    )
+                with self.assertRaises(GitRepositoryLineageError) as redirected:
+                    provider.resolve(pinned)
+                self.assertEqual(
+                    redirected.exception.code, "repository_lineage.cache_unsafe"
+                )
+            finally:
+                if backing.is_symlink():
+                    backing.unlink()
+                outside.rename(backing)
+            self.assertEqual(provider.resolve(pinned).resolved_revision, revision)
+
+    def test_exact_cached_authority_survives_remote_loss_without_staling_mutable_refs(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            temporary = Path(directory)
+            repository = create_repository(
+                temporary, "parent", RepositoryParentSelection.root()
+            )
+            catalog_file = repository / "flavors/example/flavor.md"
+            catalog_file.parent.mkdir(parents=True)
+            catalog_file.write_text("original catalog\n", encoding="utf-8")
+            git(repository, "add", ".")
+            git(repository, "commit", "-m", "Publish original catalog")
+            revision = git(repository, "rev-parse", "HEAD")
+            pinned = RepositoryParentReference(repository.resolve().as_uri(), revision)
+            cache = temporary / "cache"
+            provider = GitRepositorySnapshotProvider(cache)
+            lineage = resolve_repository_lineage(
+                RepositoryParentSelection.inherit((pinned,)), provider
+            )
+            node = lineage.nodes[0]
+
+            # This removes the real transport target, rather than mocking an
+            # object read or supplying a pre-approved catalog result.
+            unavailable = temporary / "unavailable"
+            repository.rename(unavailable)
+            try:
+                self.assertEqual(provider.resolve(pinned).resolved_revision, revision)
+                catalog = provider.catalog(node)
+                self.assertEqual(len(catalog.files), 1)
+                self.assertEqual(catalog.files[0].content, b"original catalog\n")
+            finally:
+                unavailable.rename(repository)
+
+            manifest = repository / "literate.project.json"
+            value = json.loads(manifest.read_bytes())
+            value["project_id"] = "advanced-parent"
+            manifest.write_text(json.dumps(value) + "\n", encoding="utf-8")
+            catalog_file.write_text("new catalog\n", encoding="utf-8")
+            git(repository, "add", ".")
+            git(repository, "commit", "-m", "Advance mutable parent")
+            advanced = provider.resolve(reference(repository))
+            self.assertEqual(advanced.project_id, "advanced-parent")
+            self.assertEqual(
+                advanced.resolved_revision, git(repository, "rev-parse", "HEAD")
+            )
+            self.assertNotEqual(advanced.resolved_revision, revision)
+
+            key = hashlib.sha256(pinned.repository_url.encode()).hexdigest()
+            bare = cache / (key + ".git")
+            git(bare, "replace", revision, advanced.resolved_revision)
+            self.assertEqual(provider.resolve(pinned).project_id, "parent")
+            self.assertEqual(
+                provider.catalog(node).files[0].content, b"original catalog\n"
+            )
+            with self.assertRaises(GitRepositoryLineageError) as wrong_identity:
+                provider.catalog(
+                    replace(
+                        node,
+                        project_identity=ContentIdentity.parse_uri(
+                            "sha256:" + "f" * 64
+                        ),
+                    )
+                )
+            self.assertEqual(
+                wrong_identity.exception.code, "repository_lineage.project_changed"
+            )
+
+            alternate = bare / "objects/info/alternates"
+            alternate.write_text(
+                str(repository / ".git/objects") + "\n", encoding="utf-8"
+            )
+            try:
+                with self.assertRaises(GitRepositoryLineageError) as redirected:
+                    provider.resolve(pinned)
+                self.assertEqual(
+                    redirected.exception.code, "repository_lineage.cache_unsafe"
+                )
+            finally:
+                alternate.unlink()
+            self.assertEqual(provider.resolve(pinned).project_id, "parent")
+
+            # Older supported Git versions do not implement the lazy-fetch
+            # suppression variable. A promisor cache must refuse before any
+            # object read can delegate to that transport.
+            git(bare, "config", "remote.cache-control.promisor", "true")
+            try:
+                with self.assertRaises(GitRepositoryLineageError) as partial:
+                    provider.resolve(pinned)
+                self.assertEqual(
+                    partial.exception.code, "repository_lineage.cache_unsafe"
+                )
+            finally:
+                git(bare, "config", "--remove-section", "remote.cache-control")
+            self.assertEqual(provider.resolve(pinned).project_id, "parent")
+
     def test_cli_source_rejects_embedded_credentials_without_echoing_them(self) -> None:
         secret = "do-not-repeat"
         with self.assertRaises(GitRepositoryLineageError) as raised:
@@ -162,6 +380,7 @@ class GitRepositorySnapshotProviderTests(unittest.TestCase):
             )
             marker = temporary / "hook-ran"
             hook = root / ".git" / "hooks" / "post-checkout"
+            hook.parent.mkdir(parents=True, exist_ok=True)
             hook.write_text(
                 f"#!/bin/sh\nprintf ran > {marker}\n",
                 encoding="utf-8",
@@ -234,7 +453,7 @@ class GitRepositorySnapshotProviderTests(unittest.TestCase):
                         str(temporary),
                         name,
                         "fetch",
-                        revision,
+                        "HEAD",
                     ],
                     stdin=subprocess.DEVNULL,
                     stdout=subprocess.PIPE,

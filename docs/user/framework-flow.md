@@ -48,7 +48,7 @@ flowchart TD
     N -->|yes| P[Validate offer + publish immutable entries]
     N -->|no| C[Outer writes finalized candidate envelope]
     P --> C
-    C --> M[Extract raw receipt + commit current receipt]
+    C --> M[Validate finalized candidate + commit current receipt]
 ```
 
 The two implementations should not be mentally collapsed:
@@ -324,12 +324,16 @@ binary dependency closure:
 
 ```console
 litai worker wheelhouse export \
-  --framework-wheel dist/literate_ai-0.3.0-py3-none-any.whl \
+  --framework-wheel "$REVIEWED_MATCHING_FRAMEWORK_WHEEL" \
   --distribution-identity sha256:<project-pinned-installed-payload> \
   --platform manylinux_2_17_x86_64 \
   --python-version 3.12 --implementation cp --abi cp312 \
   --output _build/worker-wheelhouse-linux
 ```
+
+`REVIEWED_MATCHING_FRAMEWORK_WHEEL` must name the reviewed wheel whose installed
+payload matches the project's pinned distribution identity; a matching version
+label alone is insufficient.
 
 After staging the complete output directory, invoke:
 
@@ -414,10 +418,13 @@ for the line between invariant behavior, current policy, and delivery goals.
 
 An author has five jobs:
 
-1. Start at the project root `SKILL.md`, keep the linked documentation graph reviewed,
-   and keep `litai project validate` green. Validation is non-mutating and does not
+1. Start at the manifest-declared onboarding skill, normally `litai/SKILL.md` in
+   a contained project or `SKILL.md` in a legacy root-layout project. Keep the linked
+   documentation graph reviewed and keep `litai project validate` green.
+   Validation is non-mutating and does not
    require a source-graph indexer.
-   fail-closed only when a project has opted into that provider. `litai build`,
+   Source-graph checks fail closed only when a project has opted into that provider.
+   `litai build`,
    `litai run`, and `litai rebuild` do not fail closed on a missing or stale
    optional index.
 2. Describe observable behavior and known acceptance examples in OpenSpec.

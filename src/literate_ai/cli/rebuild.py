@@ -37,6 +37,14 @@ from literate_ai.adapters.project_lifecycle_driver import (
     ProjectLifecycleDriverAdapterError,
     bind_external_project_lifecycle_driver,
 )
+from literate_ai.adapters.project_runtime import (
+    allocate_project_runtime,
+    close_project_runtime,
+    current_project_runtime,
+    require_project_runtime,
+    require_runtime_candidate,
+    require_scoped_runtime_candidate,
+)
 from literate_ai.adapters.project_validation import (
     ProjectValidationError,
 )
@@ -58,6 +66,11 @@ from literate_ai.adapters.standard_rebuild import (
     assemble_filesystem_standard_rebuild_adapter,
 )
 from literate_ai.application import GenerationPreparationRequest
+from literate_ai.application.native_root_run import (
+    LiveNativeRootRun,
+    NativeRootRunError,
+    current_native_root_run,
+)
 from literate_ai.application.standard_test_receipts import (
     StandardTestReceiptProjectionError,
     combine_standard_project_test_receipts,
@@ -343,19 +356,47 @@ def _write_standard_candidate(path: Path, finalized: object) -> None:
     """Write the finalized in-process Standard receipt to one new external path."""
 
     content = canonical_json_bytes(finalized.to_dict()) + b"\n"
+    require_scoped_runtime_candidate(path)
+    owner = current_native_root_run()
     descriptor = -1
+    created = None
     try:
+        require_scoped_runtime_candidate(path)
         descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        if owner is not None:
+            created = os.fstat(descriptor)
         with os.fdopen(descriptor, "wb") as stream:
             descriptor = -1
             stream.write(content)
             stream.flush()
             os.fsync(stream.fileno())
-    except OSError as exc:
-        raise CliFailure(
-            "rebuild.candidate_write_failed",
-            "Standard candidate receipt could not be written atomically",
-        ) from exc
+            if owner is not None:
+                owner.require_current()
+    except BaseException as exc:
+        if descriptor >= 0:
+            os.close(descriptor)
+            descriptor = -1
+        if created is not None:
+            try:
+                observed = path.lstat()
+                if (observed.st_dev, observed.st_ino) == (
+                    created.st_dev,
+                    created.st_ino,
+                ):
+                    path.unlink()
+            except FileNotFoundError:
+                pass
+            except OSError as cleanup_error:
+                raise CliFailure(
+                    "rebuild.candidate_cleanup_failed",
+                    "The refused candidate receipt could not be removed",
+                ) from cleanup_error
+        if isinstance(exc, OSError):
+            raise CliFailure(
+                "rebuild.candidate_write_failed",
+                "Standard candidate receipt could not be written atomically",
+            ) from exc
+        raise
     finally:
         if descriptor >= 0:
             os.close(descriptor)
@@ -416,9 +457,12 @@ def _standard_rebuild_from_args(
     *,
     cache_directories: CacheDirectories | None = None,
     observer: Callable[[Any, Any, Any, Any], None] | None = None,
+    live_run: LiveNativeRootRun | None = None,
 ) -> dict[str, object]:
     """Route the ordinary command through the public in-process Standard adapter."""
 
+    if live_run is not None:
+        live_run.require_current()
     if (
         args.source_cache_root
         or args.source_cache_entry
@@ -452,6 +496,12 @@ def _standard_rebuild_from_args(
             update_receipt=bool(getattr(args, "update_receipt", False)),
             write_candidate=True,
             hold_lock=True,
+            **({"live_run": live_run} if live_run is not None else {}),
+        )
+    if getattr(args, "qualified_library_receivers", None) is not None:
+        raise CliFailure(
+            "qualified_libraries.component_required",
+            "qualified library receiving requires an explicit Component path",
         )
     try:
         components = _locked_standard_component_roots(project)
@@ -556,6 +606,8 @@ def _standard_rebuild_from_args(
                 except SourceCacheError as exc:
                     raise CliFailure(exc.code, exc.message) from exc
             for component, label in zip(components, labels, strict=True):
+                if live_run is not None:
+                    live_run.require_current()
                 override = (
                     None
                     if shared_runtime is None
@@ -584,8 +636,11 @@ def _standard_rebuild_from_args(
                         write_candidate=not multiple,
                         hold_lock=False,
                         runtime_root_override=override,
+                        **({"live_run": live_run} if live_run is not None else {}),
                     )
                 )
+            if live_run is not None:
+                live_run.require_current()
             aggregated = _aggregate_standard_rebuild_results(results)
             if multiple:
                 binding.require_unchanged()
@@ -609,6 +664,8 @@ def _standard_rebuild_from_args(
                     lifecycle_policy=binding.policy,
                     receipt_policy=project.definition.test_receipt_policy,
                 )
+                if live_run is not None:
+                    live_run.require_current()
                 receipt_update = (
                     update_project_test_receipt_finalized_value(
                         project, finalized, project_revision_identity=validated
@@ -617,6 +674,8 @@ def _standard_rebuild_from_args(
                     else None
                 )
                 if candidate_path is not None:
+                    if live_run is not None:
+                        live_run.require_current()
                     _write_standard_candidate(candidate_path, finalized)
                 aggregated.update(
                     project_revision_identity=project_revision.uri,
@@ -672,9 +731,45 @@ def _standard_rebuild_one_component(
     write_candidate: bool,
     hold_lock: bool,
     runtime_root_override: Path | None = None,
+    live_run: LiveNativeRootRun | None = None,
+) -> dict[str, object]:
+    arguments = dict(locals())
+    if getattr(args, "qualified_library_receivers", None) is None:
+        return _standard_rebuild_one_component_impl(**arguments)
+    from .qualified_library_receivers import qualified_library_receiving_operation
+
+    with qualified_library_receiving_operation(
+        project,
+        args,
+        hold_consumer_lock=hold_lock,
+        operation="qualified-library-consumer-rebuild",
+    ) as receivers:
+        arguments["hold_lock"] = False  # the actual caller scope owns this lock
+        return _standard_rebuild_one_component_impl(
+            **arguments, qualified_library_builder=receivers.prepare
+        )
+
+
+def _standard_rebuild_one_component_impl(
+    project: LoadedProject,
+    binding: ResolvedStandardProjectLifecycleDriver,
+    args: Any,
+    specification: Path,
+    specification_label: str,
+    *,
+    cache_directories: CacheDirectories | None = None,
+    observer: Callable[[Any, Any, Any, Any], None] | None = None,
+    update_receipt: bool,
+    write_candidate: bool,
+    hold_lock: bool,
+    runtime_root_override: Path | None = None,
+    live_run: LiveNativeRootRun | None = None,
+    qualified_library_builder=None,
 ) -> dict[str, object]:
     """Rebuild one locked Component through the public Standard adapter."""
 
+    if live_run is not None:
+        live_run.require_current()
     explicit_selectors = tuple(
         flavor_selector(value, f"rebuild Flavor selector[{index}]")
         for index, value in enumerate(args.flavor)
@@ -733,7 +828,7 @@ def _standard_rebuild_one_component(
         )
 
         def acquire_sdk_inputs(snapshot):
-            if any(
+            if qualified_library_builder is None and any(
                 node.revision.repository_sources
                 for node in snapshot.authority.lock.nodes
             ):
@@ -743,7 +838,12 @@ def _standard_rebuild_one_component(
 
         prepared = FilesystemLockedGenerationApplicationAdapter(
             FilesystemLockedGenerationPreparationAdapter(
-                native_sdk_builder=acquire_sdk_inputs
+                native_sdk_builder=acquire_sdk_inputs,
+                **(
+                    {"qualified_library_builder": qualified_library_builder}
+                    if qualified_library_builder is not None
+                    else {}
+                ),
             )
         ).prepare(
             GenerationPreparationRequest(
@@ -843,6 +943,13 @@ def _standard_rebuild_one_component(
         from .execution_workers import validate_worker_platform_flavors
 
         validate_worker_platform_flavors(selected_worker, prepared.selected_flavors)
+    candidate = (
+        None
+        if not write_candidate or getattr(args, "candidate_receipt", None) is None
+        else _external_candidate(project, args.candidate_receipt)
+    )
+    project_runtime = current_project_runtime(project)
+    owns_project_runtime = False
     if runtime_root_override is not None:
         owns_runtime = False
         runtime_root = runtime_root_override
@@ -856,18 +963,35 @@ def _standard_rebuild_one_component(
     else:
         configured_runtime = getattr(args, "runtime_root", None)
         owns_runtime = configured_runtime is None
-        runtime_root = (
-            Path(tempfile.mkdtemp(prefix="litai-standard-rebuild-")).resolve(
-                strict=True
+        if project_runtime is not None:
+            if (
+                configured_runtime is not None
+                and Path(configured_runtime) != project_runtime.path
+            ):
+                raise CliFailure(
+                    "rebuild.runtime_root_changed",
+                    "runtime differs from original live custody",
+                )
+            runtime_root = _external_runtime_root(project, str(project_runtime.path))
+            owns_runtime = False
+        elif (
+            owns_runtime
+            and getattr(project.definition, "framework_directory", None) == "litai"
+        ):
+            try:
+                project_runtime = allocate_project_runtime(project)
+                owns_project_runtime = True
+            except (ValueError, RuntimeError, OSError) as exc:
+                raise CliFailure("rebuild.runtime_root_unsafe", str(exc)) from exc
+            runtime_root = project_runtime.path
+        else:
+            runtime_root = (
+                Path(tempfile.mkdtemp(prefix="litai-standard-rebuild-")).resolve(
+                    strict=True
+                )
+                if owns_runtime
+                else _external_runtime_root(project, configured_runtime)
             )
-            if owns_runtime
-            else _external_runtime_root(project, configured_runtime)
-        )
-    candidate = (
-        None
-        if not write_candidate or getattr(args, "candidate_receipt", None) is None
-        else _external_candidate(project, args.candidate_receipt)
-    )
     revisions = tuple(
         item.revision.identity
         for item in prepared.locked_authority_snapshot.authority.lock.nodes
@@ -905,6 +1029,7 @@ def _standard_rebuild_one_component(
                     accepted_cas_root=directories.build_dir / "accepted-source-cas",
                     checkpoint_root=directories.build_dir / "standard-checkpoints",
                     binding=binding,
+                    **({"live_run": live_run} if live_run is not None else {}),
                     independent_acceptance_oracle=_component_acceptance_oracle(
                         project.root,
                         specification_label,
@@ -930,6 +1055,7 @@ def _standard_rebuild_one_component(
                         prepared,
                         runtime_root / "sources",
                         invalidation,
+                        project_runtime=project_runtime,
                         update_receipt=update_receipt,
                         max_parallelism=getattr(args, "jobs", None),
                         accepted_source_only=getattr(
@@ -948,10 +1074,13 @@ def _standard_rebuild_one_component(
                             else None
                         ),
                         directory_custody_identity=directories.identity,
+                        **({"live_run": live_run} if live_run is not None else {}),
                     )
                 )
                 if observer is not None:
                     observer(rebuilt, adapter, prepared, directories)
+                if live_run is not None:
+                    live_run.require_current()
                 root_result = next(
                     item
                     for item in rebuilt.execution.lifecycle.node_results
@@ -1034,6 +1163,8 @@ def _standard_rebuild_one_component(
                         )
                     artifact = execution_command.cwd
                 if candidate is not None:
+                    if live_run is not None:
+                        live_run.require_current()
                     _write_standard_candidate(candidate, rebuilt.finalized_receipt)
                 application_lifecycle = getattr(
                     getattr(adapter.runtime, "application", None), "lifecycle", None
@@ -1172,11 +1303,18 @@ def _standard_rebuild_one_component(
                     getattr(exc, "message", str(exc)),
                     message_limit=8192,
                 ) from exc
-            finally:
-                if owns_runtime and not getattr(args, "keep_runtime", False):
-                    shutil.rmtree(runtime_root)
     except ProjectLifecycleLockError as exc:
         raise CliFailure(exc.code, exc.message) from exc
+    finally:
+        if owns_project_runtime:
+            try:
+                close_project_runtime(
+                    project_runtime, keep=getattr(args, "keep_runtime", False)
+                )
+            except (ValueError, RuntimeError, OSError) as exc:
+                raise CliFailure("rebuild.runtime_root_changed", str(exc)) from exc
+        elif owns_runtime and not getattr(args, "keep_runtime", False):
+            shutil.rmtree(runtime_root)
 
 
 def _project(selected: str) -> LoadedProject:
@@ -1253,6 +1391,19 @@ def _external_runtime_root(
     project: LoadedProject, configured: str, *, create: bool = True
 ) -> Path:
     candidate = Path(configured)
+    owner = current_project_runtime(project)
+    if owner is not None:
+        if candidate != owner.path:
+            raise CliFailure(
+                "rebuild.runtime_root_changed",
+                "runtime differs from original live custody",
+            )
+        require_project_runtime(owner, project)
+        if any(candidate.iterdir()):
+            raise CliFailure(
+                "rebuild.runtime_root_not_empty", "runtime root must be new or empty"
+            )
+        return candidate
     if candidate.is_symlink():
         raise CliFailure(
             "rebuild.runtime_root_unsafe", "runtime root cannot be a symbolic link"
@@ -1306,6 +1457,9 @@ def _external_runtime_root(
 
 def _external_candidate(project: LoadedProject, configured: str) -> Path:
     candidate = Path(configured)
+    owner = current_project_runtime(project)
+    if owner is not None:
+        return require_runtime_candidate(owner, project, candidate)
     if candidate.is_symlink() or candidate.exists():
         raise CliFailure(
             "rebuild.candidate_exists",
@@ -1359,6 +1513,7 @@ def _commit_candidate_receipt(
         source_cache_lifecycle_identity=source_cache_lifecycle_identity,
     )
     canonical = canonical_json_bytes(finalized.to_dict()) + b"\n"
+    require_scoped_runtime_candidate(destination)
     try:
         parent = destination.parent.resolve(strict=True)
         if (
@@ -1386,6 +1541,7 @@ def _commit_candidate_receipt(
         os.chmod(temporary, 0o600)
         temporary_stat = temporary.stat()
         committed_identity = (temporary_stat.st_dev, temporary_stat.st_ino)
+        require_scoped_runtime_candidate(destination)
         if (
             os.name == "nt"
         ):  # Windows rename fails rather than replacing an existing file.
@@ -1563,6 +1719,15 @@ def rebuild_from_args(
 ) -> dict[str, object]:
     """Run one project-authorized full lifecycle and validate its external receipt."""
 
+    if getattr(args, "retained_project_plan", False):
+        from literate_ai.adapters.readonly_authority import strict_readonly_authority
+
+        with strict_readonly_authority():
+            return _rebuild_from_args_body(
+                args,
+                cache_directories=cache_directories,
+                standard_observer=standard_observer,
+            )
     from literate_ai.diagnostics import debug_stage
 
     with debug_stage("rebuild", specification=str(getattr(args, "specification", "."))):
@@ -1573,6 +1738,17 @@ def rebuild_from_args(
         )
 
 
+def _rebuild_project_index(project: LoadedProject) -> object:
+    try:
+        return require_lifecycle_project_index(
+            project.root,
+            project.definition.source_intelligence,
+            stage=SourceIntelligenceStage.SOURCE_GENERATION,
+        )
+    except ProjectSourceIntelligenceError as exc:
+        raise CliFailure(exc.code, exc.message) from exc
+
+
 def _rebuild_from_args_body(
     args: Any,
     *,
@@ -1581,6 +1757,20 @@ def _rebuild_from_args_body(
 ) -> dict[str, object]:
     """Run one project-authorized full lifecycle and validate its external receipt."""
 
+    if getattr(args, "qualified_library_receivers", None) is not None and any(
+        getattr(args, name, None)
+        for name in (
+            "retained_project",
+            "retained_project_plan",
+            "retained_source",
+            "retained_source_plan",
+            "authorize_retained_source",
+        )
+    ):
+        raise CliFailure(
+            "qualified_libraries.retained_mode_conflict",
+            "qualified receiving uses the ordinary explicit Component rebuild",
+        )
     from .retained_project import retained_project_requested
 
     retained_project = getattr(args, "retained_project", None)
@@ -1662,20 +1852,50 @@ def _rebuild_from_args_body(
             )
         except ConversionAuthorityError as exc:
             raise CliFailure(exc.code, exc.message) from exc
-    try:
-        project_index = require_lifecycle_project_index(
-            project.root,
-            project.definition.source_intelligence,
-            stage=SourceIntelligenceStage.SOURCE_GENERATION,
+    if getattr(project.definition, "native_root_run_policy", None) is not None:
+        from literate_ai.adapters.native_root_run_admission import (
+            admit_native_root_command,
         )
-    except ProjectSourceIntelligenceError as exc:
-        raise CliFailure(exc.code, exc.message) from exc
+
+        driver = project.definition.lifecycle_driver
+        if not isinstance(driver, StandardProjectLifecycleDriver):
+            raise CliFailure(
+                "native_root_run.standard_required",
+                "An explicit native root run requires the Standard lifecycle",
+            )
+        binding = _resolve_standard_binding(driver)
+        try:
+            with admit_native_root_command(project, binding) as live_run:
+                project_index = _rebuild_project_index(project)
+                live_run.require_current()
+                result = _standard_rebuild_from_args(
+                    project,
+                    binding,
+                    args,
+                    cache_directories=cache_directories,
+                    observer=standard_observer,
+                    live_run=live_run,
+                )
+                live_run.require_current()
+                return {**result, "project_source_intelligence": project_index}
+        except NativeRootRunError as exc:
+            raise CliFailure(
+                exc.code, "Original native root run is no longer current"
+            ) from exc
+    project_index = _rebuild_project_index(project)
     driver = project.definition.lifecycle_driver
     if driver is None:
         raise CliFailure(
             "rebuild.driver_unconfigured",
             "project manifest must configure a trusted lifecycle_driver before "
             "litai rebuild can execute the full SDLC",
+        )
+    if getattr(
+        args, "qualified_library_receivers", None
+    ) is not None and not isinstance(driver, StandardProjectLifecycleDriver):
+        raise CliFailure(
+            "qualified_libraries.standard_driver_required",
+            "qualified library receiving requires the Standard lifecycle",
         )
     if isinstance(driver, StandardProjectLifecycleDriver):
         result = _standard_rebuild_from_args(

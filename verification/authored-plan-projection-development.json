@@ -1,0 +1,67 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Private pure oracle projections inside one captured fully guarded native plan call",
+  "tests": [
+    {
+      "name": "authored-plan-projections",
+      "sha256": "369c1fa4f56cad456fe2f6e23941d481dea71e5a6212672c63fcc098024ad401",
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "authored-projection-regressions",
+      "sha256": "74f10fe153692558db8c57d78caf265fdd8767d8a166650e465eea61d8c6b4b4",
+      "summary": {
+        "executed": 58,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 58,
+        "selected": 58,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "authored-projection-sdk-regressions",
+      "sha256": "3219fcbf601ed2770606b5231e9ed9480b7af2cbff75e387ec53cd7c5aac68d9",
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      }
+    }
+  ],
+  "source_sha256": {
+    "src/literate_ai/adapters/authored_qualification_oracles.py": "729d5cd88b3d2817a887032befbd94e7c082ce3a4ab8ce389b12dba81d219bf3",
+    "src/literate_ai/adapters/authored_qualification_planning.py": "98645d0e8f3e700bb8d230830354725c10b50c6373d4d9968bad03933c98797e",
+    "tests/critical/test_authored_plan_projections.py": "2a2ea7903b25085b86e25a67286398e91eabc82ffd3a66d3c9ed1941e16d77d0"
+  },
+  "all_explicit_native_guards_preserved": true,
+  "public_properties_validate_freshly": true,
+  "plan_local_only": true,
+  "provider_semantics_test_ports": true,
+  "paired_native_input_diagnostic": {
+    "baseline_mean_seconds": 4.1013965,
+    "candidate_mean_seconds": 3.285697,
+    "baseline_native_reads": 4896,
+    "candidate_native_reads": 3578,
+    "distribution_provenance_covers_candidate_functions": false,
+    "candidate_methods_temporarily_attached_in_memory": true,
+    "native_input_bytes_and_plan_unchanged": true,
+    "qualification": false
+  },
+  "genuine_installed_receiving_passed": false,
+  "consumer_admitted": false,
+  "performance_qualified": false,
+  "independent_authority_review": false,
+  "full_source_gate_passed": false,
+  "release_qualified": false
+}

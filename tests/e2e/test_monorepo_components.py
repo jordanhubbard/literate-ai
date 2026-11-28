@@ -64,9 +64,11 @@ class MonorepoComponentTests(unittest.TestCase):
         }
         (self.source / "shared").mkdir()
         (self.source / "shared" / "api.py").write_text("API = 1\n", encoding="utf-8")
-        # A versionless alias may be absent or select another installation.
+        # These stdlib-only harnesses must survive outside the controller's
+        # managed environment. Keep the selected installation's base interpreter;
+        # a versionless alias may be absent or select another installation.
         command = [
-            Path(sys.executable).as_posix(),
+            Path(getattr(sys, "_base_executable", sys.executable)).as_posix(),
             "-m",
             "unittest",
             "discover",

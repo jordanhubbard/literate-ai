@@ -1,0 +1,216 @@
+{
+  "schema": "literate-ai/original-destination-prefix-development@1",
+  "state": "source_reviewed_internal_destination_prefix_planning_scoped114pass",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-destination-prefix-review.json",
+    "sha256": "fcb3864e669a0a33afcb289c865593db8d916ac281a51f499cb6efdf9440d1d5"
+  },
+  "distinct_scoped_methods_passed": 114,
+  "checks": [
+    {
+      "report": {
+        "path": "_build/source-prefix-forest-final-report.json",
+        "sha256": "49d40a72f8480db57e1d733bd8d76392d0aaca4677f287b24200afe5f9e6e491"
+      },
+      "log": {
+        "path": "_build/source-prefix-forest-final.log",
+        "sha256": "30e8fe1f3c088759ad6e67b9a2bbc62b8cf68c3c26987072a751ffb6d0f6ef14"
+      },
+      "summary": {
+        "executed": 23,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 23,
+        "selected": 23,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "14b917bf5f648c1d50d65ea3a0d7410134e6a0c1e8714c71bb0f16c2ce98a6cb",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "source_change_after_run": null
+    },
+    {
+      "report": {
+        "path": "_build/source-prefix-state-report.json",
+        "sha256": "a0a161cf641f6a1a4d8979336f7530c6f54f14633f1e1d34b8d300ab0c1e0e75"
+      },
+      "log": {
+        "path": "_build/source-prefix-state.log",
+        "sha256": "2e7b7258c88840d288441a41f0af25d90ee6c0a8abb0628da5a530099a72a792"
+      },
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "b98116cddf1a8903117c35b97429eab78c2755c15e69f1ea95d134567e3a6a06",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "source_change_after_run": "Only the separately reviewed diagnostic wording in source_destination.py changed; forest final replay covers both error assertions. No behavior under these passed scopes changed."
+    },
+    {
+      "report": {
+        "path": "_build/source-prefix-preparation-report.json",
+        "sha256": "c4e063a0fae51d5793efd7da4927eff435010f98030cb339391adaffa756f04d"
+      },
+      "log": {
+        "path": "_build/source-prefix-preparation.log",
+        "sha256": "e7a57287fecf4da823439600534fa4b2f2ec30b23ea93ea426e15f942a47b82c"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "79c2e9f88aa2416cf8e0ac1470d09d8b321463a79e57e7d146875be4c11dba05",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "source_change_after_run": "Only the separately reviewed diagnostic wording in source_destination.py changed; forest final replay covers both error assertions. No behavior under these passed scopes changed."
+    },
+    {
+      "report": {
+        "path": "_build/source-prefix-transaction-report.json",
+        "sha256": "0e8117c56f85aa7fb4aba9d8aa4cf38c558cbae1a2cb7b07fdde27619f2dd3d0"
+      },
+      "log": {
+        "path": "_build/source-prefix-transaction.log",
+        "sha256": "a735be91775b067561e4b6c8be459893941e1946baa1ad4446f66ff4238dfc92"
+      },
+      "summary": {
+        "executed": 26,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 26,
+        "selected": 26,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "f19457d888ae5b05c3b0a4b0a5408bb560d7b9a76d778645781182fb3cd5699b",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "source_change_after_run": "Only the separately reviewed diagnostic wording in source_destination.py changed; forest final replay covers both error assertions. No behavior under these passed scopes changed."
+    },
+    {
+      "report": {
+        "path": "_build/source-prefix-graph-report.json",
+        "sha256": "7cfa0d5753d22b5092de5a0d7e88aa7094274a8a9b9bcbef3427288b01970dbb"
+      },
+      "log": {
+        "path": "_build/source-prefix-graph.log",
+        "sha256": "9b09b57fdfb0202705eea0c27faaa93d8a9aa48f076562364278b1be937c87de"
+      },
+      "summary": {
+        "executed": 24,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 24,
+        "selected": 24,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "73b60999b1b57a216a6a1f499a0354155837076f06c4e50a1190832f6037865f",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "source_change_after_run": "Only the separately reviewed diagnostic wording in source_destination.py changed; forest final replay covers both error assertions. No behavior under these passed scopes changed."
+    }
+  ],
+  "causal_diagnostics": [
+    {
+      "path": "_build/source-destination-prefix-before.log",
+      "sha256": "bc5984efd351d868c87ef1cca9e0f002bfbb096bfe61f737545e3c7026cce9b8"
+    },
+    {
+      "path": "_build/source-destination-prefix-matrix.log",
+      "sha256": "56c88badf25d5ec2e337b882a27e41dd2ce6edeb8fe4d001da07a21b24dfc319"
+    },
+    {
+      "path": "_build/source-prefix-forest.log",
+      "sha256": "28647533b881519c73889f7a19eeea2d0c91369d98a5733ac6e1d337a5e87440"
+    }
+  ],
+  "fixture_limits": [
+    "Genuine initializer/conversion, real registered observations/native files/Git/journal; no fabricated phase or patched ownership result",
+    "Ancestor test arranges a fixture outside wrapper using real canonical prospective bytes, then renames source/writes those bytes manually; no production relocation execution claim",
+    "Root-out arrangement retains its previously disclosed fixture-only source placement",
+    "All forest admission and legacy recovery guards remain; no public source/control effect is enabled"
+  ],
+  "pending": [
+    "Remaining admissible shared-occupancy cells and physical participant preflight",
+    "Complete receipt-backed all-carriers-parked executor, retained container custody and coherent metadata transitions",
+    "Fresh explicit bounded recovery and full public placement/relocation/recovery/renewal",
+    "Broader current admission/provider/recovery/full-source, installed/native/integration/release and all other roadmap requirements"
+  ],
+  "static_gates": {
+    "log": {
+      "path": "_build/source-prefix-final-static.log",
+      "sha256": "8a78efc79a98accc28a528a7de8391c23d4bafb642997554054e9aa4312b027b"
+    },
+    "passed": [
+      "driver-review-record",
+      "documentation-review-record",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "documentation-check"
+    ]
+  },
+  "full_project_verify": {
+    "report": {
+      "path": "_build/source-prefix-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "exit": 1,
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ],
+    "qualification": false
+  }
+}

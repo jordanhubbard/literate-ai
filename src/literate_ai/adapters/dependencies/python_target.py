@@ -83,15 +83,16 @@ class PythonWheelTarget:
 
     @property
     def identity(self) -> ContentIdentity:
-        return canonical_identity(
-            {
-                "schema": "literate-ai/python-wheel-target@1",
-                "toolchain_identity": self.toolchain_identity,
-                "probe_identity": self.probe_identity.uri,
-                "environment": dict(self.environment),
-                "tags": list(self.tags),
-            }
-        )
+        return canonical_identity(self.identity_document())
+
+    def identity_document(self):
+        return {
+            "schema": "literate-ai/python-wheel-target@1",
+            "toolchain_identity": self.toolchain_identity,
+            "probe_identity": self.probe_identity.uri,
+            "environment": dict(self.environment),
+            "tags": list(self.tags),
+        }
 
     def require_lock(self, lock: PythonWheelLock) -> None:
         lock.require_target(dict(self.environment), self.tags)

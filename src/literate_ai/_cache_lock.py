@@ -6,6 +6,7 @@ import errno
 import hashlib
 import os
 import stat
+import sys
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
@@ -24,6 +25,23 @@ _LOCK_RETRY_SECONDS = 0.01
 
 class CacheLockError(RuntimeError):
     """A cache publication lock could not be acquired safely."""
+
+
+def _lock_cleanup_allowed(
+    path: Path, require_path: Callable[[Path], None] | None
+) -> bool:
+    """Recheck mutable path custody while retaining any existing operation error."""
+    if require_path is None:
+        return True
+    active_error = sys.exception()
+    try:
+        require_path(path)
+    except Exception as refusal:
+        if active_error is None:
+            raise
+        active_error.add_note(str(refusal))
+        return False
+    return True
 
 
 def cache_lock_path(
@@ -46,7 +64,9 @@ def cache_lock_path(
     return framework / ".litai-cache-locks" / identity / Path(*parts)
 
 
-def _open_lock_with_retry(lock_path: Path, flags: int) -> int:
+def _open_lock_with_retry(
+    lock_path: Path, flags: int, *, deadline_monotonic: float | None = None
+) -> int:
     """Open the lock file, retrying a transient Windows delete-pending race.
 
     On Windows, when one thread's ``_remove_idle_lock`` has unlinked the lock
@@ -58,16 +78,28 @@ def _open_lock_with_retry(lock_path: Path, flags: int) -> int:
     permission failure and is raised immediately.
     """
 
+    if deadline_monotonic is not None and time.monotonic() >= deadline_monotonic:
+        raise CacheLockError(f"cache lock acquisition timed out: {lock_path}")
     if not _is_windows():
         return os.open(lock_path, flags, 0o600)
-    deadline = time.monotonic() + _LOCK_TIMEOUT_SECONDS
+    deadline = (
+        time.monotonic() + _LOCK_TIMEOUT_SECONDS
+        if deadline_monotonic is None
+        else deadline_monotonic
+    )
     while True:
+        if deadline_monotonic is not None and time.monotonic() >= deadline:
+            raise CacheLockError(f"cache lock acquisition timed out: {lock_path}")
         try:
             return os.open(lock_path, flags, 0o600)
         except PermissionError:
             if time.monotonic() >= deadline:
                 raise
-            time.sleep(_LOCK_RETRY_SECONDS)
+            time.sleep(
+                _LOCK_RETRY_SECONDS
+                if deadline_monotonic is None
+                else min(_LOCK_RETRY_SECONDS, max(0.0, deadline - time.monotonic()))
+            )
 
 
 @contextmanager
@@ -76,6 +108,8 @@ def exclusive_cache_lock(
     *,
     timeout_seconds: float = _LOCK_TIMEOUT_SECONDS,
     on_locked: Callable[[int], None] | None = None,
+    deadline_monotonic: float | None = None,
+    existing_only: bool = False,
 ) -> Iterator[None]:
     """Hold one same-host advisory lock until the publication decision is complete.
 
@@ -85,11 +119,24 @@ def exclusive_cache_lock(
     lock is held (passed the open descriptor) and before the safety re-check
     and ``yield`` -- callers use it to publish owner diagnostics or to signal a
     deterministic test synchronization point while still holding the lock.
+    An optional absolute deadline covers opening, acquisition and callbacks in
+    one window, capped by the normal acquisition timeout. Omission preserves the
+    existing platform-specific retry behavior.
     """
 
     lock_path = Path(path).absolute()
+    deadline = (
+        None
+        if deadline_monotonic is None
+        else min(deadline_monotonic, time.monotonic() + timeout_seconds)
+    )
+    if deadline is not None and time.monotonic() >= deadline:
+        raise CacheLockError(f"cache lock acquisition timed out: {lock_path}")
     try:
-        ensure_safe_directory(lock_path.parent)
+        if existing_only:
+            require_safe_directory(lock_path.parent)
+        else:
+            ensure_safe_directory(lock_path.parent)
     except UnsafeFilesystemPathError as exc:
         raise CacheLockError(f"cache lock ancestor is unsafe: {lock_path}") from exc
     try:
@@ -102,10 +149,16 @@ def exclusive_cache_lock(
         stat_is_link_or_reparse(existing) or not stat.S_ISREG(existing.st_mode)
     ):
         raise CacheLockError(f"cache lock is unsafe: {lock_path}")
-    flags = os.O_RDWR | os.O_CREAT | getattr(os, "O_BINARY", 0)
+    flags = os.O_RDWR | getattr(os, "O_BINARY", 0)
+    if not existing_only:
+        flags |= os.O_CREAT
     flags |= getattr(os, "O_NOFOLLOW", 0)
     try:
-        descriptor = _open_lock_with_retry(lock_path, flags)
+        descriptor = _open_lock_with_retry(
+            lock_path,
+            flags,
+            **({} if deadline is None else {"deadline_monotonic": deadline}),
+        )
     except OSError as exc:
         raise CacheLockError(f"cache lock is unsafe: {lock_path}") from exc
     locked = False
@@ -129,22 +182,43 @@ def exclusive_cache_lock(
         # exact race only after the descriptor proves the byte now exists, then
         # let ``_acquire`` wait for the peer's byte-range lock normally.
         if descriptor_metadata.st_size == 0:
+            if existing_only:
+                raise CacheLockError(f"existing cache lock is empty: {lock_path}")
             try:
                 os.write(descriptor, b"\0")
             except PermissionError:
                 if not _is_windows() or os.fstat(descriptor).st_size == 0:
                     raise
         os.lseek(descriptor, 0, os.SEEK_SET)
-        _acquire(descriptor, lock_path, timeout_seconds=timeout_seconds)
+        _acquire(
+            descriptor,
+            lock_path,
+            timeout_seconds=timeout_seconds,
+            **({} if deadline is None else {"deadline_monotonic": deadline}),
+        )
         locked = True
+        if deadline is not None and time.monotonic() >= deadline:
+            raise CacheLockError(f"cache lock acquisition timed out: {lock_path}")
+
+        def require_current() -> None:
+            _require_safe_ancestors(lock_path.parent)
+            try:
+                observed = lock_path.lstat()
+            except FileNotFoundError as exc:
+                raise CacheLockError(f"cache lock was retired: {lock_path}") from exc
+            if stat_is_link_or_reparse(observed) or not _identity_matches(
+                lock_path, observed, descriptor, descriptor_metadata
+            ):
+                raise CacheLockError(
+                    f"cache lock changed while acquiring it: {lock_path}"
+                )
+
+        require_current()
         if on_locked is not None:
             on_locked(descriptor)
-        _require_safe_ancestors(lock_path.parent)
-        observed = lock_path.lstat()
-        if stat_is_link_or_reparse(observed) or not _identity_matches(
-            lock_path, observed, descriptor, descriptor_metadata
-        ):
-            raise CacheLockError(f"cache lock changed while acquiring it: {lock_path}")
+            require_current()
+        if deadline is not None and time.monotonic() >= deadline:
+            raise CacheLockError(f"cache lock acquisition timed out: {lock_path}")
         yield
     finally:
         if locked:
@@ -332,10 +406,20 @@ def _identity_matches(
 
 
 def _acquire(
-    descriptor: int, path: Path, *, timeout_seconds: float = _LOCK_TIMEOUT_SECONDS
+    descriptor: int,
+    path: Path,
+    *,
+    timeout_seconds: float = _LOCK_TIMEOUT_SECONDS,
+    deadline_monotonic: float | None = None,
 ) -> None:
-    deadline = time.monotonic() + timeout_seconds
+    deadline = (
+        time.monotonic() + timeout_seconds
+        if deadline_monotonic is None
+        else deadline_monotonic
+    )
     while True:
+        if deadline_monotonic is not None and time.monotonic() >= deadline:
+            raise CacheLockError(f"cache lock acquisition timed out: {path}")
         try:
             if os.name == "nt":
                 import msvcrt
@@ -356,7 +440,11 @@ def _acquire(
                 raise CacheLockError(
                     f"cache lock acquisition timed out: {path}"
                 ) from exc
-            time.sleep(_LOCK_RETRY_SECONDS)
+            time.sleep(
+                _LOCK_RETRY_SECONDS
+                if deadline_monotonic is None
+                else min(_LOCK_RETRY_SECONDS, max(0.0, deadline - time.monotonic()))
+            )
 
 
 def _release(descriptor: int) -> None:

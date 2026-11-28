@@ -17,7 +17,7 @@ from literate_ai.contracts.repository_orchestration import (
     RepositoryPin,
 )
 from literate_ai.project_authority_graph import project_authority_graph
-from literate_ai.projects import ProjectConfigurationStore, ProjectError
+from literate_ai.projects import ProjectConfigurationStore, ProjectContext, ProjectError
 
 from .project_validation import (
     ProjectValidationError,
@@ -36,6 +36,7 @@ class PreparedRepositoryLock:
 
     root: Path
     root_node: tuple[int, int]
+    framework_context: ProjectContext
     manifest_content_identity: str
     lock: RepositoryLock
     inventory: GitlinkInventory
@@ -63,8 +64,14 @@ def _root_node(root: Path) -> tuple[int, int]:
 
 
 def _observe(root: Path) -> PreparedRepositoryLock:
+    context = ProjectConfigurationStore.context(root)
+    root = context.root
     node = _root_node(root)
     snapshot = ProjectConfigurationStore(root).read()
+    if snapshot.directory_binding != context.directory_binding:
+        raise OrchestrationInventoryError(
+            "inputs_changed", "repository framework changed during preparation"
+        )
     definition = snapshot.definition
     binding = definition.repository_orchestration
     if binding is None:
@@ -93,7 +100,8 @@ def _observe(root: Path) -> PreparedRepositoryLock:
             "locking does not refresh authority",
         )
     if (
-        ProjectConfigurationStore(root).read().content != snapshot.content
+        ProjectConfigurationStore(root).read() != snapshot
+        or ProjectConfigurationStore.context(root) != context
         or _root_node(root) != node
     ):
         raise OrchestrationInventoryError(
@@ -103,6 +111,7 @@ def _observe(root: Path) -> PreparedRepositoryLock:
     return PreparedRepositoryLock(
         root,
         node,
+        context,
         snapshot.content_identity.uri,
         RepositoryLock(
             definition.project_id,

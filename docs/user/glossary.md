@@ -7,8 +7,9 @@ before becoming accepted source.
 create or revise specifications or source.
 
 **Authority-review marker** — The sole content identity in declared documentation that
-records human review of the current project authority and narrative graph. Validation
-requires it to be unique and current; the CLI calculates but never writes it.
+records review of the current project authority and narrative graph. Validation
+requires it to be unique and current. The CLI calculates it without writing by
+default; `litai project documentation-review --record` atomically records it after review.
 
 **Capability** — A versioned semantic contract provided by a Component. Requirements
 resolve capabilities rather than filenames or import names.

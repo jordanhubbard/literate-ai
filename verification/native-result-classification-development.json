@@ -1,0 +1,175 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Early native candidate rejection classification and controller origin; source development, not installed/platform/full ADR0073/release qualification",
+  "base_revision": "fb9c2fd88a9731d493a3fb0f2235622ecc61ae0a",
+  "goal": "NATIVE-ACCEPTANCE-REPAIR-001",
+  "source_files": {
+    "src/literate_ai/adapters/native_candidate_verification.py": "107b60275328722e095d4879f6dd5dd0b8ee8c18339ccf0089dcb291e6d346b0",
+    "src/literate_ai/adapters/rust_library_harness_execution.py": "8da37ee6afc5a101920a5df0a0cf4373c1ac97cbbcc122fd82e16435ec085888",
+    "src/literate_ai/application/standard_project_lifecycle.py": "57468f190a9c3712e94925f8fa01538669c9ec6e650564c45a400cf492ef9779",
+    "tests/e2e/test_native_candidate_repair.py": "8b581b917d4816fbaf60f9da499a8a707d309823f518b59037a3e6be6dcb640a",
+    "tests/critical/test_candidate_rejection_origin.py": "280023959e1c4c3f688109d712723e2622cbb145573fb56d7e8093bcd5b17937",
+    "tests/critical/test_native_result_classification.py": "d2d00f54a0ce98a9abfbef4a6780658fcc4dfd87d1925a3a229250b8ef3056e3",
+    "tests/critical/test_native_origin_integration.py": "398a4c99f24c52dcf9b1793ffc409cd5dfbedf8eb98466520a296185f67b4cfc"
+  },
+  "original_failure": {
+    "log_sha256": "e5ccceaaf84559666d531121d9dbad360d57ff3d67335128ceff79ad15fb42e4",
+    "selected": 10,
+    "executed": 4,
+    "passed": 3,
+    "failed": 1,
+    "reason": "Foreign capability was reinterpreted through the historical mismatch code, retried and admitted on the original base"
+  },
+  "development_failures_retained": [
+    {
+      "log_sha256": "c004c0dacee6fb97600233c622ef731768b5e5789d09f91b178c4a158f268c64",
+      "reason": "First correction failed after6passes because its private callback was not forwarded to the actual node-stage generator; fixed and rerun"
+    },
+    {
+      "log_sha256": "d4261c2bf8592b9dfb4135d00aee242c2453438c4a43cba210b66dff72c02770",
+      "reason": "A second rejection observation did not revoke the first; fixed and rerun"
+    }
+  ],
+  "behavior": {
+    "classification": "Validate complete protocol, exact case inventory and capabilities before comparing product JSON values; preserve historical public errors",
+    "origin": "Use one private live attempt object; record only an actual validated verifier return; require exact original failure/output objects; consume once and close on generator exit",
+    "terminal_paths": "Generic same-code exceptions and directly raised private markers cannot grant repair; copied, expired, ambiguous and other-PID holders refuse",
+    "native_custody": "Original source/export/native executable/tool finally guards, finite native budgets and the existing three-total-attempt budget remain",
+    "no_authority_from_data": "No serialized marker, decoded record, error class or public mismatch code restores live origin"
+  },
+  "current_report_union": {
+    "distinct_passed": 48,
+    "failed": 0,
+    "skipped": 0,
+    "reports": [
+      {
+        "cohort": "native-origin-controls-final",
+        "scope": "controller-local bookkeeping; no native execution",
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "sha256": "c0b78971599e750b4f89431dec2b9826d7827f2b0fbabec927b5cf70e897832c"
+      },
+      {
+        "cohort": "native-result-classification-units",
+        "scope": "pure result protocol classification",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        },
+        "sha256": "b4b854de56d19116da3d80cf279e54dde3a7855c0e91b53c5906dd45a76eece6"
+      },
+      {
+        "cohort": "native-origin-controller-final",
+        "scope": "actual lifecycle control flow; synthetic typed stage observations",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "sha256": "89afbfd10b88702cc97752a577b64f3a95a6b8637eaa3491f1dc4acd6980e882"
+      },
+      {
+        "cohort": "native-runtime-repair-current",
+        "scope": "existing runtime recomposition and checkpoint controls",
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        },
+        "sha256": "242e9685d07e4589a4cca3ac2fbc97df1f40ce8009a93ae17000f3c953a22913"
+      },
+      {
+        "cohort": "native-standard-lifecycle-current",
+        "scope": "existing lifecycle source controls",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "sha256": "4d4a50dd4a8ef92feca2871fd52e8a12c7790342509abef2f1c7f7e8c0086045"
+      },
+      {
+        "cohort": "native-original-guard-budget-current",
+        "scope": "existing modeled native guard/budget protocol controls",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "sha256": "01845d7c1ef748e0e60513570b1883ba8738520e09ef20a9db47000bc12ac874"
+      },
+      {
+        "cohort": "native-inventory-current13",
+        "scope": "original7 real-native plus3 controlled transport and3 actual native protocol controls; controlled external source provider and synthetic framework observer",
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 13,
+          "skipped": 0
+        },
+        "sha256": "47b834d1684898810a69eb20e6b5cb09ff268767bda67c4ccbcb93db0680058d"
+      }
+    ]
+  },
+  "independent_peer_review": {
+    "sha256": "344ee09486663ec25a65a07c7649b7eff4b76332f4dea3abee811967b2f917cb",
+    "scope": "Exact current production and new controller controls; local source review only",
+    "concrete_remaining_defects": []
+  },
+  "full_ADR_counterexample": {
+    "scope": "Separate isolated controlled-provider source development test; not part of the passing safety union or installed qualification",
+    "log_sha256": "8ef4e8aec3691fd4ddaed7e1bd143f02e1863dcb36dd86cc10eadbfed1f3df0d",
+    "observations_sha256": "30f94b6bf4963dd3a7c0af9396db632cf4e33f3e277c4652779f7152cf02bfbe",
+    "executed": 1,
+    "passed": 0,
+    "failed": 1,
+    "seconds": 101.028,
+    "actual_native_sequence": [
+      "early-export:42",
+      "final-package:41"
+    ],
+    "native_exit_codes": [
+      0,
+      0
+    ],
+    "source_requests": 1,
+    "replacement_prepared": false,
+    "current_receipt_created": false,
+    "native_streams_replaced": false,
+    "oracle_modified": false,
+    "conclusion": "Early node repair does not implement same-budget continuation after actual packaged-root rejection"
+  },
+  "remaining": [
+    "New versioned packaged-root acceptance-repair contract/schema and immutable attempt/package lineage, preserving frozen v2 meanings",
+    "Original live run owner/deadline and same-budget continuation after actual final packaged rejection, with fresh full stages and held qualified dependencies",
+    "Rejected-package retention, closed replay and two independently allocated clean qualification runs",
+    "Fresh final integrated source/noneditable installed/native Linux/macOS/Windows qualification and resulting-main release delivery"
+  ],
+  "goal_complete": false,
+  "qualified": false,
+  "release_evidence": false
+}

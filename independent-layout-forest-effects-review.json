@@ -1,0 +1,58 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_guarded_bound_future_effects_and_metadata_coordinate_join",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_effects.py": {
+      "algorithm": "sha256",
+      "digest": "9882b8086035bed7d90e880b4b084e9b7bc10d5d697b0f9695dc116f9d36814d"
+    },
+    "tests/critical/test_retained_layout_forest_effects.py": {
+      "algorithm": "sha256",
+      "digest": "7d954cc1ff422a71d39f5087e12ab7c15f4de2658660f51e02cd714d4cacf188"
+    },
+    "src/literate_ai/adapters/retained_layout_source_forest_movement.py": {
+      "algorithm": "sha256",
+      "digest": "659e0aed0ec2bc121755fa866b0bf7308724f553cc2f940024bfe890b9fcb2c8"
+    },
+    "src/literate_ai/adapters/retained_layout_source_movement.py": {
+      "algorithm": "sha256",
+      "digest": "fa946484ba63ba9a4ba79f478f3885dc11505b91dafd387573e9d196c27f993c"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "fb5133647439071e3368f59b7752dde1ce9d2783a06f7ce3864ec8d606fb443e"
+    },
+    "src/literate_ai/adapters/retained_layout_source_metadata.py": {
+      "algorithm": "sha256",
+      "digest": "1688ba10c781686f97a4d66447d3eedeebd38dfbc6a9b1d8c686d816961faf74"
+    },
+    "src/literate_ai/adapters/retained_layout_source_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "a9146bc26324ddca1438281a221ab01f818f516c4fa95afc49c642e912c06cde"
+    },
+    "src/literate_ai/adapters/retained_layout_reservations.py": {
+      "algorithm": "sha256",
+      "digest": "15c705e60da699b86730d8362862e14570ec2704f8f742f64423f4c4a256f7d0"
+    }
+  },
+  "scope": [
+    "Bind both actual private effect directories through the original source resource registrar before movement, with native separation, empty mode0700 custody and same-filesystem preflight.",
+    "Precharge actual metadata/backup/finalization graph representations through the same original ledger; actual phases consume independently bound one-use prepaid allowances.",
+    "Bind the complete future journal event/payload/storage tail and validate/fund known mandatory document encodings and dynamic decoding headroom before movement.",
+    "Forest-only compact versioned finalization decisions bind the original plan and journal receipt prefix; legacy fields remain unchanged.",
+    "Authenticated forest metadata coordinate validation follows complete actual prospective-byte receipts and current namespace closure; public strict legacy root validation remains."
+  ],
+  "addressed_findings": [
+    "Fixed per-event node allowance did not establish64KiB document acceptance. Both compact forest decision bodies and the exact control-roster body now share preflight/runtime builders, pass byte/node validation, and are hash-checked before append."
+  ],
+  "corrections": [
+    "Raw input contents were already hashed by _custody_wire, not embedded in the legacy decision body. Roster/path/document growth was the relevant encoding boundary."
+  ],
+  "limitations": [
+    "Actual canonical forest execution remains guarded and unqualified.",
+    "Parking terminal snapshots, carrier-based Git finalization and fresh recovery remain required.",
+    "Low-level fixtures hold real private pins and actual native journals; no successful canonical phase is fabricated."
+  ]
+}

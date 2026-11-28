@@ -115,12 +115,14 @@ def _driver_failure_excerpt(diagnostic: str) -> str:
 
 
 def _retain_driver_diagnostic(
-    diagnostic: str, *, project_root: Path | None = None
+    diagnostic: str, *, project_root: Path | None = None, capture=None
 ) -> str | None:
     """Retain the complete driver output so a bounded excerpt is never the only copy."""
 
     if not diagnostic.strip():
         return None
+    if capture is not None:
+        return capture.retain(diagnostic)
     run = attach_run(project_root)
     if run is not None:
         context = run.node(
@@ -432,6 +434,26 @@ class BoundExternalProjectLifecycleDriver:
         environment: Mapping[str, str] | None = None,
         timeout_seconds: int | None = None,
     ) -> None:
+        from .driver_diagnostics import driver_diagnostic_capture
+
+        with driver_diagnostic_capture(
+            self.project, ledger_factory=attach_run, reporter=report_progress
+        ) as capture:
+            self._run(
+                argv,
+                environment=environment,
+                timeout_seconds=timeout_seconds,
+                diagnostic_capture=capture,
+            )
+
+    def _run(
+        self,
+        argv: Sequence[str],
+        *,
+        environment: Mapping[str, str] | None = None,
+        timeout_seconds: int | None = None,
+        diagnostic_capture=None,
+    ) -> None:
         try:
             completed = run_bounded_process(
                 argv,
@@ -470,6 +492,7 @@ class BoundExternalProjectLifecycleDriver:
             retained = _retain_driver_diagnostic(
                 decoded,
                 project_root=self.project.root,
+                capture=diagnostic_capture,
             )
             location = f"; complete driver output: {retained}" if retained else ""
             raise ProjectLifecycleDriverAdapterError(

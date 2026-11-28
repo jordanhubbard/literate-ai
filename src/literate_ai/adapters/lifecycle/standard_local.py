@@ -8,6 +8,7 @@ carry exact provider artifacts into consumer command environments.
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
 import os
 import re
@@ -31,6 +32,8 @@ from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Protocol
 
 from literate_ai._filesystem import (
+    capture_directory_ancestries,
+    ensure_safe_directory,
     name_or_magic_is_native_or_wasm,
     path_is_link_or_reparse,
     require_safe_directory,
@@ -65,7 +68,15 @@ from literate_ai.adapters.dependencies.python_source import (
     prepare_python_source_authority,
 )
 from literate_ai.adapters.dependencies.python_target import observe_python_wheel_target
+from literate_ai.adapters.exclusive_directory import (
+    directory_node,
+    publish_directory_exclusive,
+)
 from literate_ai.adapters.lifecycle._service_http import open_service_request
+from literate_ai.adapters.lifecycle.standard_node_sdk import (
+    StandardNodeSDKTarget,
+    build_standard_node_sdk,
+)
 from literate_ai.adapters.lifecycle.standard_npm import (
     StandardNpmDependencyEvidence,
     StandardNpmLifecycleError,
@@ -95,6 +106,10 @@ from literate_ai.adapters.source_evidence_validation import (
 )
 from literate_ai.application.artifact_graph import (
     create_package_plan,
+)
+from literate_ai.application.native_root_run import (
+    current_native_root_run,
+    native_root_timeout,
 )
 from literate_ai.application.standard_authorization import StandardAuthorizationInputs
 from literate_ai.application.standard_build_inputs import (
@@ -126,6 +141,7 @@ from literate_ai.contracts import (
     CycloneDxBomBinding,
     CycloneDxLifecycle,
     CycloneDxManagedGraph,
+    DependencyKind,
     StandardBuildEvidence,
     StandardComponentAcceptanceEvidence,
     StandardEntrypointExecutionEvidence,
@@ -199,6 +215,18 @@ from literate_ai.security import (
 
 class LocalStandardLifecycleError(RuntimeError):
     pass
+
+
+def _require_legacy_library_oracle(oracle):
+    # Node oracles add original input custody, a second runtime and independent
+    # declaration checks. Subclass compatibility cannot discard those duties.
+    from literate_ai.adapters.node_library_acceptance import NodeLibraryAcceptance
+
+    if isinstance(oracle, NodeLibraryAcceptance):
+        raise LocalStandardLifecycleError(
+            "Node library oracle requires its explicit SDK verification profile; "
+            "the legacy single-harness acceptance path is unavailable"
+        )
 
 
 class GeneratedCandidateCommandError(LocalStandardLifecycleError):
@@ -354,6 +382,117 @@ _MAX_NPM_INSTALLED_FILE_BYTES = 128 * 1024 * 1024
 _MAX_NPM_INSTALLED_TREE_BYTES = 1024 * 1024 * 1024
 
 
+_MAX_LIBRARY_PROVIDER_SCOPES = 32
+_MAX_LIBRARY_PROVIDER_SCOPE_BYTES = 128 * 1024 * 1024
+
+
+def _local_standard_acceptance_policy():
+    return {
+        "schema": "literate-ai/local-standard-acceptance-policy@1",
+        "requires": ["build", "generated-tests", "execution"],
+    }
+
+
+def _require_library_oracle_authority(oracle, revision, surface):
+    expected_interfaces = tuple(
+        sorted(
+            (item.identity for item in revision.public_interfaces),
+            key=lambda item: item.uri,
+        )
+    )
+    if (
+        oracle.component != revision.coordinate.name
+        or oracle.specification_set_identity != revision.specification_set_identity
+        or oracle.public_interface_identities != expected_interfaces
+        or oracle.import_surface_identity != surface.identity
+        or oracle.language != surface.language
+    ):
+        raise LocalStandardLifecycleError(
+            "library acceptance oracle differs from exact locked authority"
+        )
+    capabilities = {item.capability for item in surface.capabilities}
+    if any(item.capability not in capabilities for item in oracle.cases):
+        raise LocalStandardLifecycleError(
+            "library acceptance oracle names an undeclared capability"
+        )
+
+
+def _node_provider_verifier_input_document(scope, oracle, compiler):
+    return {
+        "schema": "literate-ai/local-node-provider-verifier-inputs@1",
+        "acceptance": scope.acceptance.identity.uri,
+        "artifact": scope.export.identity.uri,
+        "contract": scope.contract.identity.uri,
+        "oracle": oracle.identity.uri,
+        "surface": scope.contract.library_import_surface.identity.uri,
+        "compiler": compiler.identity.uri,
+        "node": compiler.node.identity,
+    }
+
+
+def _node_provider_verifier_inputs(scope, oracle, compiler):
+    return canonical_identity(
+        _node_provider_verifier_input_document(scope, oracle, compiler)
+    )
+
+
+def _node_provider_verifier_request(scope, *, revision, oracle, compiler):
+    """Describe immutable request DATA; no custody or execution is admitted here."""
+    from literate_ai.adapters.node_library_acceptance import NodeLibraryAcceptance
+    from literate_ai.adapters.node_sdk_typescript import NodeSDKTypeScriptCompiler
+    from literate_ai.contracts.component_locking.locks import (
+        LockedComponentRevision,
+    )
+
+    if (
+        type(revision) is not LockedComponentRevision
+        or revision.identity != scope.export.component_revision
+        or type(oracle) is not NodeLibraryAcceptance
+        or type(compiler) is not NodeSDKTypeScriptCompiler
+        or compiler.selection_identity is None
+    ):
+        raise LocalStandardLifecycleError(
+            "provider verifier requires exact locked authority and selected tools"
+        )
+    surface = scope.contract.library_import_surface
+    if (
+        surface is None
+        or surface.language != "javascript"
+        or not surface.declarations
+        or surface.node_sdk_exports
+    ):
+        raise LocalStandardLifecycleError(
+            "provider verifier requires declared CommonJS library files"
+        )
+    _require_library_oracle_authority(oracle, revision, surface)
+    inputs = _node_provider_verifier_inputs(scope, oracle, compiler)
+    return BuildRequest(
+        effective_revision_digest=revision.identity.uri,
+        source_bundle_digest=inputs.uri,
+        builder_id="local-node-provider-verifier@1",
+        toolchain_digest=compiler.identity.uri,
+        sandbox_profile="local-explicit-host-process",
+        requested_privileges=("execute-library-verifier",),
+        allowed_outputs=("verifier-workspace", "stdout", "stderr"),
+    )
+
+
+@dataclass(frozen=True, slots=True, weakref_slot=True)
+class LocalLibraryProviderCustody:
+    """DATA checked only by its originating ports' live scope registry.
+
+    This is neither independent library acceptance nor execution authorization.
+    Consumers must call that exact owner's require_library_provider_custody()
+    through publication; copies and deserialized values have no membership.
+    """
+
+    acceptance: StandardComponentAcceptanceEvidence
+    contract: ComponentCommandContract
+    export: ArtifactExport
+    root: Path
+    files: tuple = field(repr=False)
+
+
 @dataclass(frozen=True, slots=True)
 class LocalProjectPackageCustody:
     package_plan: PackagePlan
@@ -367,6 +506,7 @@ class LocalProjectPackageCustody:
     native_sdk_execution_scope: NativeSdkPackageExecutionScope | None = None
     python_dependency_observer: StandardPythonDependencyObserver | None = None
     python_artifact_tree_identity: ContentIdentity | None = None
+    node_sdk_resources: object | None = None
 
 
 def _directory_export_bytes(root: Path) -> bytes:
@@ -508,6 +648,13 @@ class LocalSourceTreeRegistry:
                 )
             validation_inputs = SourceEvidenceValidationInputs.from_recipe(recipe)
         if validation_inputs is not None:
+            if (
+                ContentIdentity.parse_uri(validation_inputs.recipe_identity)
+                != candidate.recipe_identity
+            ):
+                raise LocalStandardLifecycleError(
+                    "source validation recipe differs from the original candidate"
+                )
             managed_graph = validation_inputs.managed_graph
             source_bom_path = path.joinpath(*Path(CYCLONEDX_SOURCE_SBOM_PATH).parts)
             suite_path = path.joinpath(*Path(GENERATED_TEST_SUITE_PATH).parts)
@@ -870,11 +1017,20 @@ class LocalComponentToolBinding:
     def command(self) -> tuple[str, ...]:
         return (self.executable, *self.arguments)
 
-    def require_unchanged(self) -> None:
+    def require_command_unchanged(self) -> None:
+        """Check bound command custody without invoking a native observer.
+
+        This does not establish native toolchain currentness. Bounded callers
+        must also use the original native owner with the actual child environment
+        and remaining deadline; ordinary require_unchanged retains that guard.
+        """
         if self._current_identity() != self._initial_identity:
             raise LocalStandardLifecycleError(
                 "locked local tool executable changed after binding"
             )
+
+    def require_unchanged(self) -> None:
+        self.require_command_unchanged()
         if self._authority_guard is not None:
             try:
                 self._authority_guard()
@@ -896,6 +1052,7 @@ def required_command_toolchains(
     contracts: tuple[ComponentCommandContract, ...],
     command_phases: tuple[ComponentCommandPhase, ...],
     npm_targets: tuple[StandardNpmTarget, ...] = (),
+    node_sdk_targets: tuple[StandardNodeSDKTarget, ...] = (),
 ) -> frozenset[str]:
     """Exact host command identities for one canonical execution scope."""
     if (
@@ -925,6 +1082,8 @@ def required_command_toolchains(
                 required_toolchains.add(acceptance.uri)
     if any(not isinstance(item, StandardNpmTarget) for item in npm_targets):
         raise TypeError("npm_targets must contain StandardNpmTarget values")
+    if any(type(item) is not StandardNodeSDKTarget for item in node_sdk_targets):
+        raise TypeError("node_sdk_targets must contain exact SDK targets")
     if ComponentCommandPhase.BUILD in command_phases:
         from literate_ai.adapters.standard_project import _STANDARD_BUILD_DRIVER
 
@@ -937,6 +1096,11 @@ def required_command_toolchains(
         )
         required_toolchains.update(
             target.node_toolchain_identity.uri for target in npm_targets
+        )
+        required_toolchains.update(
+            identity
+            for target in node_sdk_targets
+            for identity in (target.npm.identity, target.typescript.node.identity)
         )
     return frozenset(required_toolchains)
 
@@ -955,10 +1119,13 @@ class LocalStandardLifecyclePorts:
             ComponentCommandPhase
         ),
         npm_targets: tuple[StandardNpmTarget, ...] = (),
+        node_sdk_targets: tuple[StandardNodeSDKTarget, ...] = (),
         native_sdk_inputs: NativeSdkConsumerInputs | None = None,
+        qualified_library_inputs=None,
         python_targets: tuple[StandardPythonTarget, ...] = (),
         python_wheelhouse: Path | None = None,
         provider_environment: Mapping[str, tuple[str, str]] | None = None,
+        execution_plan: ComponentExecutionPlan | None = None,
         dependency_observation: HostDependencyObservation | None = None,
         independent_acceptance_oracle: object | None = None,
         browser_driver: object | None = None,
@@ -966,8 +1133,16 @@ class LocalStandardLifecyclePorts:
         shared_cache: BoundSharedCache | None = None,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
     ) -> None:
+        if execution_plan is not None and not isinstance(
+            execution_plan, ComponentExecutionPlan
+        ):
+            raise TypeError("runtime capability bindings require an execution plan")
+        self._runtime_execution_plan = execution_plan
+        self._runtime_execution_plan_identity = (
+            None if execution_plan is None else execution_plan.identity
+        )
         required_toolchains = required_command_toolchains(
-            contracts, command_phases, npm_targets
+            contracts, command_phases, npm_targets, node_sdk_targets
         )
         self._command_phases = command_phases
         self.source_trees = source_trees
@@ -992,6 +1167,29 @@ class LocalStandardLifecyclePorts:
         self.npm_targets = {item.component_revision.uri: item for item in npm_targets}
         if len(self.npm_targets) != len(npm_targets):
             raise ValueError("Standard npm targets must name unique Components")
+        self.node_sdk_targets = {
+            item.component_revision.uri: item for item in node_sdk_targets
+        }
+        self._node_sdk_compiled_plans = {}
+        # Explicit trusted-host root verifier policy; inactive by default.
+        self.node_sdk_project_acceptance = None
+        self._node_sdk_host_binding = None
+        self._node_sdk_project_stages = {}
+        self._node_sdk_cache_lock = threading.RLock()
+        if len(self.node_sdk_targets) != len(node_sdk_targets) or set(
+            self.node_sdk_targets
+        ) & set(self.npm_targets):
+            raise ValueError(
+                "Node SDK targets must be unique and separate from npm applications"
+            )
+        for revision, target in self.node_sdk_targets.items():
+            target.require_contract(self.contracts[revision])
+            if ComponentCommandPhase.BUILD in command_phases:
+                for tool in (target.typescript, target.npm, target.typescript.node):
+                    if self.tool_bindings[tool.identity].command != tool.command:
+                        raise ValueError(
+                            "SDK tool binding differs from selected target"
+                        )
         for revision, target in self.npm_targets.items():
             contract = self.contracts.get(revision)
             if contract is None:
@@ -1027,6 +1225,8 @@ class LocalStandardLifecyclePorts:
         ):
             raise TypeError("native SDK inputs require live producer-backed custody")
         self._native_sdk_inputs = native_sdk_inputs
+        self._qualified_library_inputs = qualified_library_inputs
+        self._original_qualified_library_inputs = qualified_library_inputs
         if any(not isinstance(item, StandardPythonTarget) for item in python_targets):
             raise TypeError("python_targets must contain StandardPythonTarget values")
         self.python_targets = {
@@ -1034,7 +1234,7 @@ class LocalStandardLifecyclePorts:
         }
         if len(self.python_targets) != len(python_targets) or set(
             self.python_targets
-        ) & set(self.npm_targets):
+        ) & (set(self.npm_targets) | set(self.node_sdk_targets)):
             raise ValueError("Python targets must name unique, non-npm Components")
         self.python_wheelhouse = python_wheelhouse
         if python_wheelhouse is not None and not isinstance(python_wheelhouse, Path):
@@ -1122,6 +1322,10 @@ class LocalStandardLifecyclePorts:
         self._sdk_build_authorizations: dict[
             str, tuple[BuildRequest, BuildAuthorization]
         ] = {}
+        self._library_provider_scope_lock = threading.RLock()
+        self._library_provider_scopes = {}
+        self._library_provider_scope_count = 0
+        self._library_provider_scope_bytes = 0
         self._planned_exports: dict[str, ArtifactExport] = {}
         self._exports_by_identity: dict[str, ArtifactExport] = {}
         self._artifact_paths: dict[str, Path] = {}
@@ -1173,6 +1377,109 @@ class LocalStandardLifecyclePorts:
                 report_progress(f"Retained lifecycle diagnostic: {path.resolve()}")
                 node.fail("lifecycle component failed")
 
+    def _qualified_library_owner(self):
+        original = getattr(self, "_original_qualified_library_inputs", None)
+        if getattr(self, "_qualified_library_inputs", None) is not original:
+            raise LocalStandardLifecycleError("original external input owner changed")
+        return original
+
+    def _qualified_library_operation(self, owner):
+        from literate_ai.adapters.native_root_external_libraries import (
+            BorrowedExternalQualifiedLibraries,
+        )
+
+        if (
+            type(owner) is not BorrowedExternalQualifiedLibraries
+            or self._qualified_library_owner() is not owner
+        ):
+            raise LocalStandardLifecycleError("original external input owner changed")
+        plan = self._checked_runtime_execution_plan()
+        if plan is None:
+            raise LocalStandardLifecycleError(
+                "external inputs lack original runtime plan"
+            )
+        asset = owner._asset
+        contracts = self.contracts
+        targets = getattr(self, "cargo_targets", {})
+        return (
+            id(asset),
+            asset.identity,
+            id(plan),
+            plan.identity,
+            id(contracts),
+            tuple(
+                sorted(
+                    (key, id(value), value.identity) for key, value in contracts.items()
+                )
+            ),
+            id(targets),
+            tuple(
+                sorted(
+                    (key, id(value), value.identity) for key, value in targets.items()
+                )
+            ),
+        )
+
+    def _require_qualified_library_operation(self, owner, original):
+        if self._qualified_library_operation(owner) != original:
+            raise LocalStandardLifecycleError(
+                "original external input operation changed"
+            )
+
+    def _qualified_library_data(self):
+        owner = self._qualified_library_owner()
+        if owner is None:
+            return None
+        from literate_ai.adapters.native_root_external_runtime import (
+            qualified_library_runtime_data,
+        )
+
+        original = self._qualified_library_operation(owner)
+        plan = self._checked_runtime_execution_plan()
+        if (
+            plan is None
+            or owner._asset.component_revision != plan.root_revision
+            or owner._asset.authorization_identity != plan.component_lock_identity
+            or set(self.contracts) != {plan.root_revision.uri}
+            or set(getattr(self, "cargo_targets", {})) != {plan.root_revision.uri}
+        ):
+            raise LocalStandardLifecycleError(
+                "external libraries differ from the root-only plan"
+            )
+        data = qualified_library_runtime_data(owner, plan.root_revision)
+        self._require_qualified_library_operation(owner, original)
+        for export in data.exports:
+            old = self._exports_by_identity.get(export.identity.uri)
+            if old is not None and old != export:
+                raise LocalStandardLifecycleError(
+                    "external export conflicts with local custody"
+                )
+            self._exports_by_identity[export.identity.uri] = export
+        self._require_qualified_library_operation(owner, original)
+        return data
+
+    def external_build_provider_inputs(self, revision):
+        data = self._qualified_library_data()
+        if data is None:
+            return (), ()
+        if revision != self._qualified_library_inputs._asset.component_revision:
+            raise LocalStandardLifecycleError(
+                "external libraries name a foreign consumer"
+            )
+        return data.direct_exports, data.accepted_receipts
+
+    def external_assembly_inputs(self):
+        return self._qualified_library_data()
+
+    def _external_assembly_arguments(self):
+        data = self.external_assembly_inputs()
+        if data is None:
+            return {}
+        return {
+            "external_manifests": data.manifests,
+            "external_assembly_dependencies": data.assembly_dependencies,
+        }
+
     def _contract(self, revision: ContentIdentity) -> ComponentCommandContract:
         try:
             return self.contracts[revision.uri]
@@ -1180,6 +1487,22 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "Component has no local command contract"
             ) from exc
+
+    def _provider_contract(self, revision: ContentIdentity) -> ComponentCommandContract:
+        """Read import/package metadata; never select a local execution contract."""
+        if revision.uri in self.contracts:
+            return self.contracts[revision.uri]
+        data = self._qualified_library_data()
+        matches = (
+            ()
+            if data is None
+            else tuple(
+                row for row in data.contracts if row.component_revision == revision
+            )
+        )
+        if len(matches) != 1:
+            raise LocalStandardLifecycleError("provider has no exact admitted metadata")
+        return matches[0]
 
     def locked_command_authority_is_current(self) -> bool:
         """Check that every neutral contract still has its measured launcher bytes."""
@@ -1339,8 +1662,32 @@ class LocalStandardLifecyclePorts:
         contract = inputs.contract
         provider_artifacts = inputs.providers
         package_artifacts = inputs.packages
-        library_bindings: list[LibraryConsumerBinding] = []
+        original_owner = self._qualified_library_owner()
+        original_operation = (
+            self._qualified_library_operation(original_owner)
+            if original_owner is not None
+            else None
+        )
+        external = self._qualified_library_data()
+        if original_owner is not None:
+            self._require_qualified_library_operation(
+                original_owner, original_operation
+            )
+        external_exports = () if external is None else external.direct_exports
+        if (
+            external is not None
+            and tuple(item for item in provider_artifacts if item in external.exports)
+            != external_exports
+        ):
+            raise LocalStandardLifecycleError(
+                "intent omits or changes selected external providers"
+            )
+        library_bindings: list[LibraryConsumerBinding] = (
+            [] if external is None else list(external.consumer_bindings)
+        )
         for artifact in provider_artifacts:
+            if artifact in external_exports:
+                continue
             provider_contract = self.contracts.get(artifact.component_revision.uri)
             if provider_contract is None or not provider_contract.is_library:
                 continue
@@ -1391,6 +1738,10 @@ class LocalStandardLifecyclePorts:
                     self._record_evidence(entrypoint.to_dict())
                     for command in entrypoint.commands:
                         self._record_evidence(command.to_dict())
+        if original_owner is not None:
+            self._require_qualified_library_operation(
+                original_owner, original_operation
+            )
         self._intent_artifacts[intent.identity.uri] = provider_artifacts
         self._intent_package_artifacts[intent.identity.uri] = package_artifacts
         self._library_consumer_bindings[intent.identity.uri] = bindings
@@ -1410,10 +1761,64 @@ class LocalStandardLifecyclePorts:
                 "consumer build intent has no retained library bindings"
             ) from exc
 
+    def _observed_managed_python_imports(self, plan):
+        """Declare native imports only from current intent and held provider bytes."""
+
+        from literate_ai.adapters.dependencies.managed_python import (
+            managed_python_import_map,
+        )
+
+        inputs = self._plan_inputs_by_revision.get(plan.component_revision.uri)
+        if inputs is None:
+            return ()
+        providers = self._intent_artifacts[inputs.intent.identity.uri]
+        self._provider_materials(providers, consumer_plan=plan)
+        artifacts = {item.identity: item for item in providers}
+        declarations = set()
+        for binding in self.library_consumer_bindings(inputs.intent):
+            provider = self._provider_contract(binding.provider_component_revision)
+            surface = provider.library_import_surface
+            if surface is None or surface.language != "python":
+                continue
+            artifact = artifacts.get(binding.artifact_identity)
+            capability = surface.capability(binding.capability)
+            if (
+                artifact is None
+                or binding.consumer_component_revision != plan.component_revision
+                or artifact.component_revision != binding.provider_component_revision
+                or binding.import_surface_identity != surface.identity
+                or binding.interface_identity != capability.interface_identity
+                or binding.target_identity != artifact.target_identity
+                or artifact.target_identity
+                != self._contract(
+                    plan.component_revision
+                ).artifact_export.target_identity
+                or binding.dependency_artifact_identities
+                != artifact.dependency_artifact_identities
+            ):
+                raise LocalStandardLifecycleError(
+                    "managed Python imports differ from accepted provider bindings"
+                )
+            self.read_artifact_blob(artifact.blob)
+            declarations.add(
+                (artifact.component_revision, capability.module.split(".")[0])
+            )
+        result = tuple(sorted(declarations, key=lambda item: (item[0].uri, item[1])))
+        source = self.source_trees.evidence(plan.request.source_tree_identity)
+        managed_python_import_map(source.managed_graph, result)
+        return result
+
     def index(
         self, component_revision: ContentIdentity, source: ContentIdentity
     ) -> ContentIdentity:
         root = self.source_trees.resolve(source)
+        validation = self.source_trees._validation_inputs.get(source.uri)
+        if validation is not None and validation.recipe_document is not None:
+            identity = self._record_evidence(json.loads(validation.recipe_document))
+            if identity.uri != validation.recipe_identity:
+                raise LocalStandardLifecycleError(
+                    "original recipe evidence identity changed"
+                )
         return self._record_evidence(
             {
                 "indexer": "local-tree@1",
@@ -1543,7 +1948,7 @@ class LocalStandardLifecyclePorts:
         self,
         providers: tuple[ArtifactExport, ...],
         *,
-        consumer_revision: ContentIdentity | None = None,
+        consumer_plan: StandardComponentBuildPlan | None = None,
     ) -> tuple[dict[str, object], ...]:
         pending = list(providers)
         closure: dict[str, ArtifactExport] = {}
@@ -1556,13 +1961,34 @@ class LocalStandardLifecyclePorts:
                 self._exports_by_identity[dependency.uri]
                 for dependency in item.dependency_artifact_identities
             )
-        bindings = tuple(
-            binding
-            for values in self._library_consumer_bindings.values()
-            for binding in values
-            if consumer_revision is not None
-            and binding.consumer_component_revision == consumer_revision
-        )
+        bindings = ()
+        if consumer_plan is not None:
+            if not isinstance(consumer_plan, StandardComponentBuildPlan):
+                raise LocalStandardLifecycleError(
+                    "provider materials require a typed BUILD plan"
+                )
+            revision = consumer_plan.component_revision.uri
+            inputs = self._plan_inputs_by_revision.get(revision)
+            if inputs is None:
+                # Provider-free and non-library compatibility callers have no
+                # import bindings. A library never acquires intent from history.
+                if any(
+                    self._provider_contract(item.component_revision).is_library
+                    for item in providers
+                ):
+                    raise LocalStandardLifecycleError(
+                        "provider materials lack current BUILD intent"
+                    )
+            else:
+                if (
+                    self._plans_by_revision.get(revision) != consumer_plan
+                    or tuple(item.identity for item in providers)
+                    != inputs.intent.provider_artifact_identities
+                ):
+                    raise LocalStandardLifecycleError(
+                        "provider materials differ from current BUILD intent"
+                    )
+                bindings = self.library_consumer_bindings(inputs.intent)
         materials = []
         for item in sorted(closure.values(), key=lambda value: value.export_id):
             value: dict[str, object] = {
@@ -1594,6 +2020,116 @@ class LocalStandardLifecyclePorts:
         }
         return controlled_node_environment(controlled)
 
+    def _checked_runtime_execution_plan(self) -> ComponentExecutionPlan | None:
+        plan = self._runtime_execution_plan
+        if (
+            (plan is None) != (self._runtime_execution_plan_identity is None)
+            or plan is not None
+            and (
+                not isinstance(plan, ComponentExecutionPlan)
+                or plan.identity != self._runtime_execution_plan_identity
+            )
+        ):
+            raise LocalStandardLifecycleError("runtime execution plan changed")
+        return plan
+
+    def _runtime_capability_environment(
+        self,
+        environment: dict[str, str],
+        providers: tuple[ArtifactExport, ...],
+        component_revision: ContentIdentity | None,
+        phase: ComponentCommandPhase | None,
+    ) -> dict[str, str]:
+        """Name existing admitted inputs; this projection grants no authority."""
+        if (
+            phase is not ComponentCommandPhase.EXECUTE
+            or self._checked_runtime_execution_plan() is None
+        ):
+            return environment
+        return self._declared_capability_environment(
+            environment,
+            providers,
+            component_revision,
+            phase,
+            self._provider_environment_values(providers),
+        )
+
+    def _declared_capability_environment(
+        self,
+        environment: dict[str, str],
+        providers: tuple[ArtifactExport, ...],
+        component_revision: ContentIdentity | None,
+        phase: ComponentCommandPhase | None,
+        values: dict[str, str],
+    ) -> dict[str, str]:
+        """Project names only from paths resolved by the owning custody adapter."""
+        if phase is not ComponentCommandPhase.EXECUTE:
+            return environment
+        plan = self._checked_runtime_execution_plan()
+        if plan is None:
+            return environment
+        if component_revision not in {
+            item.component_revision for item in plan.generation_plans
+        }:
+            raise LocalStandardLifecycleError("runtime consumer is outside its plan")
+        # Caller/tool variables cannot impersonate a locked runtime capability.
+        result = {
+            name: value
+            for name, value in environment.items()
+            if not name.casefold().startswith("litai_capability_")
+        }
+        primary_owners = {
+            binding[0]: export_id
+            for export_id, binding in self.provider_environment.items()
+            if binding[0] in values
+        }
+        result.update(
+            (name, value)
+            for name, value in values.items()
+            if name.startswith("LITAI_CAPABILITY_")
+        )
+        aliases: dict[str, tuple[ContentIdentity, str]] = {}
+        seen = set()
+        for action in plan.action_plans:
+            for edge in action.dependency_edges:
+                if (
+                    edge.kind is not DependencyKind.RUNTIME
+                    or edge.consumer_revision != component_revision
+                    or edge.identity in seen
+                ):
+                    continue
+                seen.add(edge.identity)
+                local = edge.capability.rsplit(".", 1)[-1]
+                name = "LITAI_CAPABILITY_" + local.upper().replace("-", "_")
+                if re.fullmatch(r"LITAI_CAPABILITY_[A-Z0-9_]+", name) is None:
+                    raise LocalStandardLifecycleError("capability name is not portable")
+                export_id = self._provider_contract(
+                    edge.provider_revision
+                ).artifact_export.export_id
+                supplied = tuple(
+                    item
+                    for item in providers
+                    if item.component_revision == edge.provider_revision
+                    and item.export_id == export_id
+                )
+                if len(supplied) != 1:
+                    raise LocalStandardLifecycleError("runtime provider is unavailable")
+                binding = self.provider_environment[export_id]
+                value = values[binding[0]]
+                owner = (supplied[0].identity, value)
+                if (
+                    name in aliases
+                    and aliases[name] != owner
+                    or name in primary_owners
+                    and primary_owners[name] != export_id
+                ):
+                    raise LocalStandardLifecycleError(
+                        "runtime capability alias is ambiguous"
+                    )
+                aliases[name] = owner
+                result[name] = value
+        return result
+
     @staticmethod
     def _binding_environment(
         environment: dict[str, str], binding: LocalComponentToolBinding
@@ -1615,6 +2151,19 @@ class LocalStandardLifecyclePorts:
         """Resolve only declared provider bindings, never ambient host secrets."""
 
         environment: dict[str, str] = {}
+        if not providers:
+            return environment
+        original_owner = self._qualified_library_owner()
+        original_operation = None
+        external_exports, external_contracts = (), {}
+        if original_owner is not None:
+            original_operation = self._qualified_library_operation(original_owner)
+            data = self._qualified_library_data()
+            self._require_qualified_library_operation(
+                original_owner, original_operation
+            )
+            external_exports = data.exports
+            external_contracts = {row.component_revision: row for row in data.contracts}
         pending = list(providers)
         closure: dict[str, ArtifactExport] = {}
         while pending:
@@ -1627,6 +2176,20 @@ class LocalStandardLifecyclePorts:
                 for dependency in item.dependency_artifact_identities
             )
         for item in closure.values():
+            if item in external_exports:
+                contract = external_contracts.get(item.component_revision)
+                if (
+                    item.role != "library"
+                    or contract is None
+                    or not contract.is_library
+                    or contract.library_import_surface.language != "rust"
+                ):
+                    raise LocalStandardLifecycleError(
+                        "external provider lacks native Rust import authority"
+                    )
+                # This exact already-qualified library is supplied by the
+                # admitted Cargo graph, never a process-runtime capability.
+                continue
             binding = self.provider_environment.get(item.export_id)
             if binding is None:
                 raise LocalStandardLifecycleError(
@@ -1639,7 +2202,8 @@ class LocalStandardLifecyclePorts:
                 raise LocalStandardLifecycleError("provider binding cannot be a link")
             target = candidate.resolve(strict=True)
             library_directory = (
-                target.is_dir() and self._contract(item.component_revision).is_library
+                target.is_dir()
+                and self._provider_contract(item.component_revision).is_library
             )
             if (
                 root not in target.parents
@@ -1650,6 +2214,10 @@ class LocalStandardLifecyclePorts:
                     f"provider artifact {item.export_id} binding is unavailable"
                 )
             environment[environment_name] = str(target)
+        if original_owner is not None:
+            self._require_qualified_library_operation(
+                original_owner, original_operation
+            )
         return environment
 
     def _run(
@@ -1661,6 +2229,8 @@ class LocalStandardLifecyclePorts:
         binding: LocalComponentToolBinding | None = None,
         timeout_seconds: float = 60.0,
         extra_environment: Mapping[str, str] | None = None,
+        component_revision: ContentIdentity | None = None,
+        phase: ComponentCommandPhase | None = None,
     ) -> subprocess.CompletedProcess[str]:
         if not command:
             raise LocalStandardLifecycleError("local command cannot be empty")
@@ -1669,6 +2239,9 @@ class LocalStandardLifecyclePorts:
             environment = self._binding_environment(environment, binding)
         if extra_environment is not None:
             environment.update(extra_environment)
+        environment = self._runtime_capability_environment(
+            environment, providers, component_revision, phase
+        )
         environment = inherited_verbose_environment(environment)
         return self._run_with_environment(
             command, cwd=cwd, environment=environment, timeout_seconds=timeout_seconds
@@ -1692,7 +2265,7 @@ class LocalStandardLifecyclePorts:
             cwd=cwd,
             env=environment,
             text=True,
-            timeout=timeout_seconds,
+            timeout=native_root_timeout(timeout_seconds),
         )
         trace_subprocess(
             command,
@@ -1703,13 +2276,35 @@ class LocalStandardLifecyclePorts:
             stderr=completed.stderr,
             started_at=_started,
         )
+        from literate_ai.application.native_root_failed_stage import (
+            observe_native_root_process,
+        )
+
         if completed.returncode != 0:
             from literate_ai.diagnostics import redact_secrets
 
-            raise LocalStandardLifecycleError(
+            error = LocalStandardLifecycleError(
                 f"local command failed ({completed.returncode}): "
                 f"{redact_secrets(completed.stderr.strip(), environment)}"
             )
+            observe_native_root_process(
+                self,
+                command,
+                cwd,
+                completed.returncode,
+                completed.stdout,
+                completed.stderr,
+                failure_error=error,
+            )
+            raise error
+        observe_native_root_process(
+            self,
+            command,
+            cwd,
+            completed.returncode,
+            completed.stdout,
+            completed.stderr,
+        )
         return completed
 
     def retain_evidence_with(self, recorder) -> None:
@@ -1762,6 +2357,7 @@ class LocalStandardLifecyclePorts:
         phase: str,
         plan_identity: ContentIdentity,
         execution_authority: StandardExecutionAuthority | None = None,
+        python_build_inputs: ContentIdentity | None = None,
     ) -> ContentIdentity:
         """Record bounded process facts without embedding host-specific paths."""
 
@@ -1773,6 +2369,12 @@ class LocalStandardLifecyclePorts:
             "stdout_identity": self._record_evidence(result.stdout).uri,
             "stderr_identity": self._record_evidence(result.stderr).uri,
         }
+        if python_build_inputs is not None:
+            if phase != "build" or type(python_build_inputs) is not ContentIdentity:
+                raise ValueError(
+                    "Python build inputs require original build observation"
+                )
+            document["python_build_inputs_identity"] = python_build_inputs.uri
         if execution_authority is not None:
             document["execution_authority_identity"] = execution_authority.identity.uri
         sdk_execution = getattr(result, "native_sdk_execution_identity", None)
@@ -2099,15 +2701,24 @@ class LocalStandardLifecyclePorts:
         }
 
     def _write_resolved_sbom(
-        self, plan: StandardComponentBuildPlan, artifact_root: Path
+        self,
+        plan: StandardComponentBuildPlan,
+        artifact_root: Path,
+        *,
+        write_evidence: Callable[[Path, bytes], None] | None = None,
     ) -> CycloneDxBomBinding:
         if plan.component_revision.uri in self.python_targets:
             observer = self._python_observers[str(artifact_root.resolve())]
             return self._resolve_and_write_sbom(
-                plan, artifact_root, python_observer=observer
+                plan,
+                artifact_root,
+                python_observer=observer,
+                write_evidence=write_evidence,
             )
         if plan.component_revision.uri not in self.npm_targets:
-            return self._resolve_and_write_sbom(plan, artifact_root)
+            return self._resolve_and_write_sbom(
+                plan, artifact_root, write_evidence=write_evidence
+            )
         evidence = self._validated_npm_evidence(plan, artifact_root)
         manifest_digest = evidence["evidence_manifest_digest"]
         assert isinstance(manifest_digest, str)
@@ -2122,6 +2733,7 @@ class LocalStandardLifecyclePorts:
             artifact_root,
             artifact_digest=manifest_digest,
             additional_build_evidence=additional,
+            write_evidence=write_evidence,
         )
 
     @staticmethod
@@ -2163,6 +2775,10 @@ class LocalStandardLifecyclePorts:
         additional_build_evidence: Mapping[str, object] | None = None,
         python_observer: StandardPythonDependencyObserver | None = None,
         mix_observer: MixDependencyObserver | None = None,
+        native_cargo_graph=None,
+        native_cargo_manifest: str | None = None,
+        additional_observation: HostDependencyObservation | None = None,
+        write_evidence: Callable[[Path, bytes], None] | None = None,
     ) -> CycloneDxBomBinding:
         source = self.source_trees.evidence(plan.request.source_tree_identity)
         from literate_ai.adapters.native_sdk_dependencies import (
@@ -2192,6 +2808,10 @@ class LocalStandardLifecyclePorts:
                 plan.component_revision, parent=self.object_root
             )
         sdk_observation, sdk_resolutions = merge_native_sdk_dependencies(sdk_evidence)
+        if additional_observation is not None:
+            sdk_observation = merge_sdk_host_observations(
+                sdk_observation, additional_observation
+            )
         dependency_inventory = self.dependency_observation
         if sdk_evidence:
             host_observation = _RecordedHostDependencyObserver(
@@ -2216,8 +2836,9 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "build output occupied the reserved resolved-SBOM evidence path"
             )
-        evidence_directory.mkdir(parents=True, exist_ok=True)
-        if evidence_directory.resolve(strict=True).parent != artifact_root.resolve(
+        if write_evidence is None:
+            evidence_directory.mkdir(parents=True, exist_ok=True)
+        if evidence_directory.parent.resolve(strict=True) != artifact_root.resolve(
             strict=True
         ):
             raise LocalStandardLifecycleError(
@@ -2253,10 +2874,21 @@ class LocalStandardLifecyclePorts:
                     + ", ".join(sorted(reserved))
                 )
             build.update(additional_build_evidence)
+
+        def observe_python_dependencies():
+            evidence = python_observer()
+            if evidence.target is not None:
+                self._record_evidence(evidence.target.identity_document())
+                self._record_evidence(
+                    self.python_targets[plan.component_revision.uri].identity_document()
+                )
+            return evidence
+
         resolver = CycloneDxLifecycleResolver(
             managed_graph=source.managed_graph,
             observer=_RecordedHostDependencyObserver(dependency_inventory),
             evidence_path=destination,
+            write_evidence=write_evidence,
             additional_components=sdk_observation.components,
             additional_edges=sdk_observation.edges,
             repository_resolutions=sdk_resolutions,
@@ -2269,11 +2901,20 @@ class LocalStandardLifecyclePorts:
             python_source_authority=(
                 None if python_observer is None else python_observer.source
             ),
-            python_dependency_observer=python_observer,
+            python_dependency_observer=(
+                None if python_observer is None else observe_python_dependencies
+            ),
+            observed_managed_python_imports=(
+                ()
+                if python_observer is None
+                else self._observed_managed_python_imports(plan)
+            ),
             mix_source_authority=(
                 None if mix_observer is None else mix_observer.source
             ),
             mix_dependency_observer=mix_observer,
+            native_cargo_graph=native_cargo_graph,
+            native_cargo_manifest=native_cargo_manifest,
             allow_missing_cargo_lock=(
                 additional_build_evidence is not None
                 and additional_build_evidence.get("cargo_lifecycle_profile") is True
@@ -2296,13 +2937,27 @@ class LocalStandardLifecyclePorts:
         artifact_root: Path,
         provider_materials: tuple[dict[str, object], ...],
         process_observation: ContentIdentity,
+        *,
+        additional_observation: HostDependencyObservation | None = None,
+        write_evidence: Callable[[Path, bytes], None] | None = None,
     ) -> None:
         manifest_path = artifact_root / _ARTIFACT_MANIFEST
         if manifest_path.exists() or manifest_path.is_symlink():
             raise LocalStandardLifecycleError(
                 "build output occupied the reserved artifact evidence path"
             )
-        resolved_sbom = self._write_resolved_sbom(plan, artifact_root)
+        resolved_sbom = (
+            self._write_resolved_sbom(
+                plan, artifact_root, write_evidence=write_evidence
+            )
+            if additional_observation is None
+            else self._resolve_and_write_sbom(
+                plan,
+                artifact_root,
+                additional_observation=additional_observation,
+                write_evidence=write_evidence,
+            )
+        )
         artifact_tree = self._record_evidence(_local_tree_document(artifact_root))
         observation = self._record_evidence(
             {
@@ -2322,16 +2977,37 @@ class LocalStandardLifecyclePorts:
             sort_keys=True,
             separators=(",", ":"),
         ).encode()
-        manifest_path.write_bytes(manifest_bytes)
+        if write_evidence is None:
+            manifest_path.write_bytes(manifest_bytes)
+        else:
+            write_evidence(manifest_path, manifest_bytes)
         if self._evidence_recorder is not None:
             self._evidence_recorder.remember_bytes(manifest_bytes)
         self._build_observations[str(artifact_root.resolve())] = observation
 
     def _provider_roots(self, providers: tuple[ArtifactExport, ...]) -> tuple[str, ...]:
-        return tuple(
-            str(self._artifact_paths[item.identity.uri].resolve(strict=True))
-            for item in providers
-        )
+        owner = self._qualified_library_owner()
+        if owner is None:
+            return tuple(
+                str(self._artifact_paths[item.identity.uri].resolve(strict=True))
+                for item in providers
+            )
+        operation = self._qualified_library_operation(owner)
+        external = self._qualified_library_data()
+        self._require_qualified_library_operation(owner, operation)
+        roots = []
+        for item in providers:
+            # External role values are exact original held package roots.
+            # Existing local values remain their old artifact workspace roots.
+            # Neither branch infers a retained parent/export_id arrangement.
+            root = (
+                self.artifact_path(item)
+                if item in external.exports
+                else self._artifact_paths[item.identity.uri].resolve(strict=True)
+            )
+            roots.append(str(root))
+        self._require_qualified_library_operation(owner, operation)
+        return tuple(roots)
 
     def _run_locked(
         self,
@@ -2347,6 +3023,45 @@ class LocalStandardLifecyclePorts:
     ) -> subprocess.CompletedProcess[str]:
         """Resolve typed roles to argv without a shell or ambient tool inference."""
         self._require_command_phase(phase)
+        if contract.component_revision.uri in self.node_sdk_targets:
+            # The SDK carries its providers inside the sealed export. Runtime
+            # stages receive no producer-checkout environment or fallback path.
+            providers = ()
+            from literate_ai.adapters.node_sdk_tools import node_sdk_tool_environment
+            from literate_ai.adapters.process_liveness import process_liveness
+            from literate_ai.application.standard_node_sdk_admission import (
+                capture_node_sdk_lifecycle,
+            )
+
+            guard = capture_node_sdk_lifecycle()
+            if guard is None:
+                raise LocalStandardLifecycleError(
+                    "SDK commands require original live invocation admission"
+                )
+            with process_liveness(guard):
+                argv = self._locked_argv(
+                    contract,
+                    phase,
+                    source_root=source_root,
+                    object_root=object_root,
+                    artifact_root=artifact_root,
+                    export_path=export_path,
+                    providers=(),
+                )
+                binding = self.tool_bindings[
+                    contract.tool_binding(phase).toolchain_identity.uri
+                ]
+                binding.require_unchanged()
+                result = self._run_with_environment(
+                    argv,
+                    cwd=artifact_root,
+                    environment=node_sdk_tool_environment(
+                        self._binding_environment(self._environment(()), binding)
+                    ),
+                )
+                binding.require_unchanged()
+                guard()
+                return result
 
         command = (
             contract if entrypoint_contract is None else entrypoint_contract
@@ -2431,7 +3146,12 @@ class LocalStandardLifecyclePorts:
                     result.compiler_cache_observation = session.observation
                 else:
                     result = self._run(
-                        argv, cwd=artifact_root, providers=providers, binding=binding
+                        argv,
+                        cwd=artifact_root,
+                        providers=providers,
+                        binding=binding,
+                        component_revision=contract.component_revision,
+                        phase=phase,
                     )
             except LocalStandardLifecycleError as exc:
                 code = {
@@ -2497,12 +3217,13 @@ class LocalStandardLifecyclePorts:
             ComponentCommandRole.OBJECT_ROOT: (str(object_root),),
             ComponentCommandRole.ARTIFACT_ROOT: (str(artifact_root),),
             ComponentCommandRole.EXPORT_PATH: (str(export_path),),
-            ComponentCommandRole.PROVIDER_ARTIFACTS: (
+        }
+        if ComponentCommandRole.PROVIDER_ARTIFACTS in command.roles:
+            values[ComponentCommandRole.PROVIDER_ARTIFACTS] = (
                 self._provider_roots(providers)
                 if provider_roots is None
                 else provider_roots
-            ),
-        }
+            )
         if native_sdk_manifest is not None:
             values[ComponentCommandRole.NATIVE_SDK_INPUTS] = (str(native_sdk_manifest),)
         try:
@@ -2657,6 +3378,10 @@ class LocalStandardLifecyclePorts:
             )
         )
 
+        environment = self._runtime_capability_environment(
+            environment, providers, contract.component_revision, phase
+        )
+
         with prepare_native_sdk_execution(
             owner,
             contract.component_revision,
@@ -2719,22 +3444,27 @@ class LocalStandardLifecyclePorts:
         plan: StandardComponentBuildPlan,
         provider_artifacts: tuple[ArtifactExport, ...],
     ) -> StandardBuildOutput:
-        self._require_command_phase(ComponentCommandPhase.BUILD)
-        contract = self._contract(plan.component_revision)
-        sdk_inputs = self._sdk_input_identities(contract)
-        if sdk_inputs != plan.materialization.native_sdk_input_identities:
-            raise LocalStandardLifecycleError(
-                "build plan differs from the exact live native SDK inputs"
-            )
-        try:
-            if sdk_inputs:
-                self._require_sdk_build_plan(plan, contract)
-            return self._build_locked(plan, provider_artifacts, contract)
-        except Exception as exc:
-            self._record_failure_diagnostic(
-                plan.component_revision.uri, f"{type(exc).__name__}: {exc}"
-            )
-            raise
+        from literate_ai.application.native_root_failed_stage import (
+            observe_native_root_stage,
+        )
+
+        with observe_native_root_stage(self, plan, "build"):
+            self._require_command_phase(ComponentCommandPhase.BUILD)
+            contract = self._contract(plan.component_revision)
+            sdk_inputs = self._sdk_input_identities(contract)
+            if sdk_inputs != plan.materialization.native_sdk_input_identities:
+                raise LocalStandardLifecycleError(
+                    "build plan differs from the exact live native SDK inputs"
+                )
+            try:
+                if sdk_inputs:
+                    self._require_sdk_build_plan(plan, contract)
+                return self._build_locked(plan, provider_artifacts, contract)
+            except Exception as exc:
+                self._record_failure_diagnostic(
+                    plan.component_revision.uri, f"{type(exc).__name__}: {exc}"
+                )
+                raise
 
     def _require_sdk_build_plan(
         self, plan: StandardComponentBuildPlan, contract: ComponentCommandContract
@@ -3004,7 +3734,10 @@ class LocalStandardLifecyclePorts:
             target.python_toolchain_identity,
         )
         provider_materials = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
+            provider_artifacts, consumer_plan=plan
+        )
+        python_imports = self._python_library_imports(
+            plan, provider_artifacts, contract
         )
         cache_identity = canonical_identity(
             {
@@ -3012,6 +3745,7 @@ class LocalStandardLifecyclePorts:
                 "binding": binding.to_dict(),
                 "target": target.identity.uri,
                 "provider_materials": provider_materials,
+                "python_library_imports": python_imports.identity.uri,
             }
         )
         artifact = self.object_root / cache_identity.digest
@@ -3120,6 +3854,25 @@ class LocalStandardLifecyclePorts:
                 export_path=workspace / shape.export_id,
                 providers=provider_artifacts,
             )
+            from .python_libraries import (
+                capture_python_library_runtime,
+                materialize_python_library_imports,
+            )
+
+            observer = self._python_observers[str(workspace.resolve())]
+            observer()
+            runtime = (
+                capture_python_library_runtime(workspace / "python-runtime")
+                if contract.is_library
+                else ()
+            )
+            observer()
+            materialize_python_library_imports(
+                python_imports,
+                workspace / shape.export_id,
+                runtime=runtime,
+                runtime_identity=evidence.identity if runtime else None,
+            )
             _require_generated_export(workspace / shape.export_id)
             if local_generated_source_tree_identity(source) != source_identity:
                 raise LocalStandardLifecycleError(
@@ -3135,7 +3888,12 @@ class LocalStandardLifecyclePorts:
                 workspace,
                 provider_materials,
                 self._process_observation(
-                    result, phase="build", plan_identity=plan.identity
+                    result,
+                    phase="build",
+                    plan_identity=plan.identity,
+                    python_build_inputs=self._python_build_inputs_identity(
+                        plan, python_imports, workspace
+                    ),
                 ),
             )
             self._install_sealed_artifact(
@@ -3389,7 +4147,7 @@ class LocalStandardLifecyclePorts:
         manifest_bytes = source_manifest.read_bytes()
         lockfile_bytes = source_lock.read_bytes()
         provider_materials = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
+            provider_artifacts, consumer_plan=plan
         )
         cache_identity = canonical_identity(
             {
@@ -3594,6 +4352,35 @@ class LocalStandardLifecyclePorts:
         self.build_seconds += time.monotonic() - started
         return output
 
+    def _node_builtin_modules(self, toolchain_identity):
+        node = self.tool_bindings[toolchain_identity.uri]
+        node.require_unchanged()
+        observed = self._run(
+            (
+                *node.command,
+                "-e",
+                "process.stdout.write(JSON.stringify(require('node:module').builtinModules))",
+            ),
+            cwd=self.object_root,
+            providers=(),
+            binding=node,
+        )
+        node.require_unchanged()
+        if (
+            observed.returncode != 0
+            or observed.stderr
+            or len(observed.stdout.encode("utf-8")) > 65536
+        ):
+            raise ValueError("Node builtin namespace exceeds its bound")
+        names = json.loads(observed.stdout)
+        if (
+            not isinstance(names, list)
+            or not 1 <= len(names) <= 1024
+            or any(not isinstance(n, str) or len(n) > 128 for n in names)
+        ):
+            raise ValueError("Node builtin namespace unavailable")
+        return frozenset(n.removeprefix("node:").split("/", 1)[0] for n in names)
+
     def _javascript_library_imports(self, plan, providers, contract):
         from literate_ai.adapters.lifecycle.javascript_libraries import (
             prepare_javascript_library_imports,
@@ -3608,45 +4395,18 @@ class LocalStandardLifecyclePorts:
         ):
             return None
         if not providers or not any(
-            self._contract(p.component_revision).is_library for p in providers
+            self._provider_contract(p.component_revision).is_library for p in providers
         ):
             return None
         try:
             inputs = self._plan_inputs_by_revision[plan.component_revision.uri]
             bindings = self.library_consumer_bindings(inputs.intent)
             if not bindings and not any(
-                self._contract(p.component_revision).is_library for p in providers
+                self._provider_contract(p.component_revision).is_library
+                for p in providers
             ):
                 return None
-            node = self.tool_bindings[contract.language_compiler_identity.uri]
-            node.require_unchanged()
-            observed = self._run(
-                (
-                    *node.command,
-                    "-e",
-                    "process.stdout.write(JSON.stringify(require('node:module').builtinModules))",
-                ),
-                cwd=self.object_root,
-                providers=(),
-                binding=node,
-            )
-            node.require_unchanged()
-            if (
-                observed.returncode != 0
-                or observed.stderr
-                or len(observed.stdout.encode("utf-8")) > 65536
-            ):
-                raise ValueError("Node builtin namespace exceeds its bound")
-            names = json.loads(observed.stdout)
-            if (
-                not isinstance(names, list)
-                or not 1 <= len(names) <= 1024
-                or any(not isinstance(n, str) or len(n) > 128 for n in names)
-            ):
-                raise ValueError("Node builtin namespace unavailable")
-            builtins = frozenset(
-                n.removeprefix("node:").split("/", 1)[0] for n in names
-            )
+            builtins = self._node_builtin_modules(contract.language_compiler_identity)
             imports = prepare_javascript_library_imports(
                 contract,
                 providers,
@@ -3663,12 +4423,197 @@ class LocalStandardLifecyclePorts:
                 "JavaScript library import authority unavailable"
             ) from exc
 
+    def _python_build_inputs_identity(self, plan, imports, artifact):
+        """Retain original build-input DATA, never grant provider acceptance."""
+        if imports is None:
+            return None
+        from .python_libraries import capture_python_library_runtime
+
+        source = self.source_trees.evidence(plan.request.source_tree_identity)
+        source_root = self.source_trees.resolve(plan.request.source_tree_identity)
+        source_files = tuple(
+            item
+            for item in capture_python_library_runtime(source_root)
+            if ".codegraph" not in Path(item.path).parts
+        )
+        source_document = [
+            {
+                "path": item.path,
+                "size": len(item.content),
+                "digest": "sha256:" + hashlib.sha256(item.content).hexdigest(),
+            }
+            for item in source_files
+        ]
+        if canonical_identity(source_document) != source.candidate.tree_identity:
+            raise LocalStandardLifecycleError("Python source input capture differs")
+        if self._evidence_recorder is not None:
+            for item in source_files:
+                self._evidence_recorder.remember_bytes(item.content)
+            self._record_evidence(source_document)
+        if self.source_trees.resolve(plan.request.source_tree_identity) != source_root:
+            raise LocalStandardLifecycleError(
+                "Python source custody changed during capture"
+            )
+        inputs = self._plan_inputs_by_revision.get(plan.component_revision.uri)
+        if inputs is None:
+            if plan.provider_artifact_identities:
+                raise LocalStandardLifecycleError(
+                    "Python build lost original provider inputs"
+                )
+            providers = ()
+        else:
+            providers = inputs.intent.provider_artifact_identities
+            if providers != plan.provider_artifact_identities:
+                raise LocalStandardLifecycleError(
+                    "Python build provider identity changed"
+                )
+        pending, known = list(providers), {}
+        while pending:
+            identity = pending.pop()
+            if identity in known:
+                continue
+            if len(known) >= 16384:
+                raise LocalStandardLifecycleError(
+                    "Python build provider graph exceeds bound"
+                )
+            export = self._exports_by_identity[identity.uri]
+            provider_build = next(
+                (
+                    item
+                    for item in self._build_evidence.values()
+                    if export in item.exports
+                ),
+                None,
+            )
+            if provider_build is None:
+                raise LocalStandardLifecycleError(
+                    "Python provider lost original build proof"
+                )
+            command = self._provider_contract(export.component_revision)
+            known[identity] = {
+                "export": export.to_dict(),
+                "build_evidence_identity": self._record_evidence(
+                    provider_build.to_dict()
+                ).uri,
+                "command_contract_identity": self._record_evidence(
+                    command.to_dict()
+                ).uri,
+            }
+            if self._evidence_recorder is not None:
+                raw = self.read_artifact_blob(export.blob)
+                if (
+                    self._evidence_recorder.remember_bytes(raw).uri
+                    != export.blob.identity
+                ):
+                    raise LocalStandardLifecycleError(
+                        "Python provider blob identity changed"
+                    )
+            pending.extend(export.dependency_artifact_identities)
+        runtime, runtime_identity = (), None
+        if plan.component_revision.uri in self.python_targets:
+            observer = self._python_observers.get(str(artifact.resolve()))
+            if observer is None:
+                raise LocalStandardLifecycleError(
+                    "Python build lost original runtime observer"
+                )
+            observer()
+            runtime = capture_python_library_runtime(artifact / "python-runtime")
+            observer()
+            runtime_identity = observer.expected_identity.uri
+            if self._evidence_recorder is not None:
+                for item in runtime:
+                    self._evidence_recorder.remember_bytes(item.content)
+        return self._record_evidence(
+            {
+                "schema": "literate-ai/python-build-inputs@1",
+                "command_contract_identity": self._record_evidence(
+                    self._contract(plan.component_revision).to_dict()
+                ).uri,
+                "recipe_identity": source.candidate.recipe_identity.uri,
+                "providers": [
+                    known[identity]
+                    for identity in sorted(known, key=lambda item: item.uri)
+                ],
+                "runtime_evidence_identity": runtime_identity,
+                "runtime_files": [
+                    {
+                        "path": item.path,
+                        "sha256": hashlib.sha256(item.content).hexdigest(),
+                        "size": len(item.content),
+                        "mode": item.mode,
+                    }
+                    for item in runtime
+                ],
+            }
+        )
+
+    def _python_library_imports(self, plan, providers, contract):
+        from .python_libraries import (
+            is_python_import_contract,
+            prepare_python_library_imports,
+        )
+
+        if not is_python_import_contract(contract):
+            return None
+        self._provider_materials(providers, consumer_plan=plan)
+        inputs = self._plan_inputs_by_revision.get(plan.component_revision.uri)
+        bindings = (
+            () if inputs is None else self.library_consumer_bindings(inputs.intent)
+        )
+        contracts = dict(self.contracts)
+        known = {item.identity: item for item in self._exports_by_identity.values()}
+        known.update((item.identity, item) for item in providers)
+        pending, seen, runtimes = list(providers), set(), {}
+        while pending:
+            provider = pending.pop()
+            if provider.identity in seen:
+                continue
+            seen.add(provider.identity)
+            contracts[provider.component_revision.uri] = self._provider_contract(
+                provider.component_revision
+            )
+            if provider.component_revision.uri in self.python_targets:
+                path = self._artifact_paths.get(provider.identity.uri)
+                observer = (
+                    None if path is None else self._python_observers.get(str(path))
+                )
+                if observer is None:
+                    raise LocalStandardLifecycleError(
+                        "Python provider lacks original runtime evidence custody"
+                    )
+                runtimes[provider.identity] = observer.expected_identity
+            for identity in provider.dependency_artifact_identities:
+                if identity not in known:
+                    raise LocalStandardLifecycleError(
+                        "Python library dependency lacks original artifact custody"
+                    )
+                pending.append(known[identity])
+        result = prepare_python_library_imports(
+            contract,
+            providers,
+            bindings,
+            contracts,
+            self.read_artifact_blob,
+            dependency_exports=known,
+            runtime_identities=runtimes,
+        )
+        self._provider_materials(providers, consumer_plan=plan)
+        return result
+
     def _build_locked(
         self,
         plan: StandardComponentBuildPlan,
         provider_artifacts: tuple[ArtifactExport, ...],
         contract: ComponentCommandContract,
     ) -> StandardBuildOutput:
+        if plan.component_revision.uri in self.node_sdk_targets:
+            return build_standard_node_sdk(
+                self,
+                plan,
+                provider_artifacts,
+                contract,
+                self.node_sdk_targets[plan.component_revision.uri],
+            )
         if plan.component_revision.uri in self.python_targets:
             return self._build_python_target(plan, provider_artifacts, contract)
         npm_target = self.npm_targets.get(plan.component_revision.uri)
@@ -3693,9 +4638,12 @@ class LocalStandardLifecyclePorts:
         source = self.source_trees.resolve(plan.request.source_tree_identity)
         source_identity = local_generated_source_tree_identity(source)
         provider_materials = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
+            provider_artifacts, consumer_plan=plan
         )
         javascript_imports = self._javascript_library_imports(
+            plan, provider_artifacts, contract
+        )
+        python_imports = self._python_library_imports(
             plan, provider_artifacts, contract
         )
         cache_key: dict[str, object] = {
@@ -3706,6 +4654,8 @@ class LocalStandardLifecyclePorts:
         }
         if javascript_imports is not None:
             cache_key["javascript_library_imports"] = javascript_imports.identity.uri
+        if python_imports is not None:
+            cache_key["python_library_imports"] = python_imports.identity.uri
         if (
             self.shared_cache is not None
             and self.shared_cache.compiler_tool is not None
@@ -3779,6 +4729,13 @@ class LocalStandardLifecyclePorts:
                         raise LocalStandardLifecycleError(
                             "JavaScript library materialization refused"
                         ) from exc
+                if python_imports is not None:
+                    from .python_libraries import materialize_python_library_imports
+
+                    for declaration in plan.manifest.export_declarations:
+                        materialize_python_library_imports(
+                            python_imports, artifact_workspace / declaration.export_id
+                        )
                 for declaration in plan.manifest.export_declarations:
                     _require_generated_export(
                         artifact_workspace / declaration.export_id
@@ -3794,7 +4751,12 @@ class LocalStandardLifecyclePorts:
                 artifact_workspace,
                 provider_materials,
                 self._process_observation(
-                    build_result, phase="build", plan_identity=plan.identity
+                    build_result,
+                    phase="build",
+                    plan_identity=plan.identity,
+                    python_build_inputs=self._python_build_inputs_identity(
+                        plan, python_imports, artifact_workspace
+                    ),
                 ),
             )
             if plan.materialization.native_sdk_input_identities:
@@ -3834,11 +4796,26 @@ class LocalStandardLifecyclePorts:
         cache_identity: ContentIdentity,
         plan: StandardComponentBuildPlan,
         artifact: Path,
+        *,
+        require_current: Callable[[], None] | None = None,
+        retain_observation: Callable[[Callable[[], None]], None] | None = None,
     ) -> ContentIdentity:
+        if require_current is not None:
+            require_current()
         tree = local_tree_identity(artifact)
         path = self._artifact_checkpoint_path(cache_identity)
         parent = path.parent
-        parent.mkdir(parents=True, exist_ok=True)
+        if require_current is None:
+            parent.mkdir(parents=True, exist_ok=True)
+        else:
+            # Create each SDK-owned parent only after checking its predecessor;
+            # a preexisting ancestor link must not redirect directory creation.
+            current_parent = self.object_root
+            require_safe_directory(current_parent)
+            for name in parent.relative_to(self.object_root).parts:
+                current_parent = current_parent / name
+                current_parent.mkdir(exist_ok=True)
+                require_safe_directory(current_parent)
         if path_is_link_or_reparse(parent) or not parent.is_dir():
             raise LocalStandardLifecycleError("artifact checkpoint directory is unsafe")
         if path.exists() and (path_is_link_or_reparse(path) or not path.is_file()):
@@ -3852,9 +4829,34 @@ class LocalStandardLifecyclePorts:
                 "cache_identity": cache_identity.uri,
             }
         )
-        temporary = parent / f".{cache_identity.digest}.json.tmp"
-        temporary.write_bytes(payload)
-        os.replace(temporary, path)
+        if require_current is None:
+            temporary = parent / f".{cache_identity.digest}.json.tmp"
+            temporary.write_bytes(payload)
+            os.replace(temporary, path)
+        else:
+            # SDK output has an owned original witness; unknown checkpoints
+            # refuse rather than replace a peer's file or follow a reserved tmp.
+            from literate_ai.adapters.directory_artifacts import (
+                DirectoryExportFile,
+                capture_materialized_file_stamps,
+            )
+
+            require_safe_directory(parent)
+            parents = capture_directory_ancestries((parent,))
+            require_current()
+            parents()
+            with path.open("xb") as stream:
+                stream.write(payload)
+            path.chmod(0o644)
+            original = capture_materialized_file_stamps(
+                parent, (DirectoryExportFile(path.name, payload, 0o644),)
+            )
+            try:
+                if retain_observation is not None:
+                    retain_observation(original)
+                require_current()
+            finally:
+                original()
         self._artifact_checkpoints[cache_identity.uri] = tree
         return tree
 
@@ -4128,7 +5130,9 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "transferred build evidence record differs"
             )
-        verify_qualification_build(evidence_reader, plan=plan, build=evidence)
+        verify_qualification_build(
+            evidence_reader, plan=plan, build=evidence, python_command=inputs.contract
+        )
         if not isinstance(artifact, Path) or not artifact.is_absolute():
             raise LocalStandardLifecycleError(
                 "transferred artifact root must be absolute"
@@ -4140,18 +5144,14 @@ class LocalStandardLifecyclePorts:
                 "transferred artifact is outside object custody"
             )
         tree = local_tree_identity(root)
-        materials = self._provider_materials(
-            inputs.providers, consumer_revision=plan.component_revision
-        )
+        materials = self._provider_materials(inputs.providers, consumer_plan=plan)
 
         def before_register():
             require_authority()
             if (
                 self.source_trees.evidence(plan.request.source_tree_identity).identity
                 != evidence.source_custody_identity
-                or self._provider_materials(
-                    inputs.providers, consumer_revision=plan.component_revision
-                )
+                or self._provider_materials(inputs.providers, consumer_plan=plan)
                 != materials
             ):
                 raise LocalStandardLifecycleError(
@@ -4285,6 +5285,17 @@ class LocalStandardLifecyclePorts:
                 blob_paths[export.blob.identity] = export_path
             else:
                 blob_bytes[export.blob.identity] = export_bytes
+            if self._evidence_recorder is not None:
+                from .python_libraries import is_python_import_contract
+
+                if is_python_import_contract(self._contract(plan.component_revision)):
+                    if (
+                        self._evidence_recorder.remember_bytes(export_bytes).uri
+                        != export.blob.identity
+                    ):
+                        raise LocalStandardLifecycleError(
+                            "Python export capture identity changed"
+                        )
             exports.append(export)
         export_tuple = tuple(exports)
         planned_export = next(
@@ -4337,6 +5348,17 @@ class LocalStandardLifecyclePorts:
                 "transferred build differs from exact expected evidence"
             )
         if self._evidence_recorder is not None:
+            if plan.component_revision.uri in self.python_targets:
+                from .standard_python_capture import (
+                    capture_standard_python_artifact_records,
+                )
+
+                capture_standard_python_artifact_records(
+                    artifact,
+                    expected_tree=artifact_tree,
+                    observer=self._python_observers.get(str(artifact_root)),
+                    recorder=self._evidence_recorder,
+                )
             # Preserve validated raw payloads under their existing byte identities.
             # JSON reserialization would change SBOM or generated-suite identity.
             for payload, expected in (
@@ -4364,6 +5386,17 @@ class LocalStandardLifecyclePorts:
                 evidence.to_dict(),
             ):
                 self._record_evidence(document)
+            validation = self.source_trees._validation_inputs.get(
+                plan.request.source_tree_identity.uri
+            )
+            if validation is not None and validation.recipe_document is not None:
+                if (
+                    self._record_evidence(json.loads(validation.recipe_document)).uri
+                    != validation.recipe_identity
+                ):
+                    raise LocalStandardLifecycleError(
+                        "original recipe evidence identity changed"
+                    )
         output = StandardBuildOutput(export_tuple, evidence.identity, evidence)
         if before_register is not None:
             before_register()
@@ -4381,6 +5414,20 @@ class LocalStandardLifecyclePorts:
 
         if not isinstance(reference, BlobRef):
             raise TypeError("reference must be a BlobRef")
+        original_owner = self._qualified_library_owner()
+        if original_owner is not None:
+            original_operation = self._qualified_library_operation(original_owner)
+            original_reader = original_owner.read_artifact_blob
+            external = self._qualified_library_data()
+            self._require_qualified_library_operation(
+                original_owner, original_operation
+            )
+            if reference in {row.blob for row in external.exports}:
+                content = original_reader(reference)
+                self._require_qualified_library_operation(
+                    original_owner, original_operation
+                )
+                return content
         content = self._artifact_blob_bytes.get(reference.identity)
         if content is not None:
             if (
@@ -4479,6 +5526,26 @@ class LocalStandardLifecyclePorts:
 
         if not isinstance(export, ArtifactExport):
             raise TypeError("export must be an ArtifactExport")
+        original_owner = self._qualified_library_owner()
+        if original_owner is not None:
+            original_operation = self._qualified_library_operation(original_owner)
+            from literate_ai.adapters.native_root_external_libraries import (
+                _original_borrowed_artifact_path,
+            )
+
+            original_path = _original_borrowed_artifact_path(original_owner)
+            external = self._qualified_library_data()
+            _original_borrowed_artifact_path(original_owner)
+            self._require_qualified_library_operation(
+                original_owner, original_operation
+            )
+            if export in external.exports:
+                root = original_path(export)
+                _original_borrowed_artifact_path(original_owner)
+                self._require_qualified_library_operation(
+                    original_owner, original_operation
+                )
+                return root
         try:
             root = self._artifact_paths[export.identity.uri].resolve(strict=True)
         except (KeyError, OSError) as exc:
@@ -4553,30 +5620,35 @@ class LocalStandardLifecyclePorts:
     def test(
         self, plan: StandardComponentBuildPlan, exports: tuple[ArtifactExport, ...]
     ) -> StandardGeneratedTestExecutionEvidence:
-        self._require_command_phase(ComponentCommandPhase.TEST)
-        try:
-            return self._test_locked(plan, exports)
-        except LocalStandardLifecycleError as error:
-            if isinstance(error, GeneratedCandidateCommandError):
-                attributed = error
-            elif str(error).startswith(_GENERATED_TEST_PROTOCOL_FAILURE_PREFIXES):
-                attributed = GeneratedCandidateCommandError(
-                    "generated-test.failed", str(error)
+        from literate_ai.application.native_root_failed_stage import (
+            observe_native_root_stage,
+        )
+
+        with observe_native_root_stage(self, plan, "test", exports=exports):
+            self._require_command_phase(ComponentCommandPhase.TEST)
+            try:
+                return self._test_locked(plan, exports)
+            except LocalStandardLifecycleError as error:
+                if isinstance(error, GeneratedCandidateCommandError):
+                    attributed = error
+                elif str(error).startswith(_GENERATED_TEST_PROTOCOL_FAILURE_PREFIXES):
+                    attributed = GeneratedCandidateCommandError(
+                        "generated-test.failed", str(error)
+                    )
+                else:
+                    attributed = error
+                self._record_failure_diagnostic(
+                    plan.component_revision.uri,
+                    f"{type(attributed).__name__}: {attributed}",
                 )
-            else:
-                attributed = error
-            self._record_failure_diagnostic(
-                plan.component_revision.uri,
-                f"{type(attributed).__name__}: {attributed}",
-            )
-            if attributed is error:
+                if attributed is error:
+                    raise
+                raise attributed from error
+            except Exception as error:
+                self._record_failure_diagnostic(
+                    plan.component_revision.uri, f"{type(error).__name__}: {error}"
+                )
                 raise
-            raise attributed from error
-        except Exception as error:
-            self._record_failure_diagnostic(
-                plan.component_revision.uri, f"{type(error).__name__}: {error}"
-            )
-            raise
 
     def _test_locked(
         self, plan: StandardComponentBuildPlan, exports: tuple[ArtifactExport, ...]
@@ -4630,9 +5702,15 @@ class LocalStandardLifecyclePorts:
                 or raw_case.get("outcome") != "passed"
                 or raw_case["case_id"] in observed_cases
             ):
-                raise LocalStandardLifecycleError(
+                error = LocalStandardLifecycleError(
                     "generated-test runner emitted an invalid or failed case result"
                 )
+                from literate_ai.application.native_root_failed_stage import (
+                    note_native_root_test_failure,
+                )
+
+                note_native_root_test_failure(self, error)
+                raise error
             observed_cases[raw_case["case_id"]] = raw_case
         if set(observed_cases) != set(suite.case_ids):
             raise LocalStandardLifecycleError(
@@ -5172,6 +6250,12 @@ class LocalStandardLifecyclePorts:
         checked = self.clock() if at is None else at
         authority.require_valid(now=checked)
         if (
+            self._checked_runtime_execution_plan() is not None
+            and authority.input_scope.execution_plan_identity
+            != self._runtime_execution_plan_identity
+        ):
+            raise LocalStandardLifecycleError("execution authority names another plan")
+        if (
             tuple(item.identity for item in providers)
             != authority.input_scope.provider_artifact_identities
         ):
@@ -5496,10 +6580,7 @@ class LocalStandardLifecyclePorts:
             generated_tests=generated_tests,
             execution=execution,
             acceptance_policy_identity=self._record_evidence(
-                {
-                    "schema": "literate-ai/local-standard-acceptance-policy@1",
-                    "requires": ["build", "generated-tests", "execution"],
-                }
+                _local_standard_acceptance_policy()
             ),
         )
         if self._evidence_recorder is not None:
@@ -5527,6 +6608,635 @@ class LocalStandardLifecyclePorts:
         ):
             raise LocalStandardLifecycleError("ACCEPT registered stages differ")
         return build, tests, execution
+
+    def _current_library_provider(self, receipt):
+        from literate_ai.application.standard_provider_receipts import (
+            select_build_provider_receipts,
+        )
+
+        if type(receipt) is not StandardComponentAcceptanceEvidence:
+            raise LocalStandardLifecycleError(
+                "library provider requires typed acceptance"
+            )
+        plan = self._plans_by_revision.get(receipt.component_revision.uri)
+        if plan is None:
+            raise LocalStandardLifecycleError("library provider has no current plan")
+        build, tests, execution = self.acceptance_stage_evidence(
+            plan, receipt.generated_tests.identity, receipt.execution.identity
+        )
+        source = self.source_trees.evidence(plan.request.source_tree_identity)
+        expected = StandardComponentAcceptanceEvidence(
+            component_revision=plan.component_revision,
+            source_generation_identity=source.source_generation_identity,
+            generated_test_suite_identity=ContentIdentity.parse_uri(
+                source.generated_test_suite.content_identity
+            ),
+            build=build,
+            generated_tests=tests,
+            execution=execution,
+            acceptance_policy_identity=canonical_identity(
+                _local_standard_acceptance_policy()
+            ),
+        )
+        contract = self._contract(plan.component_revision)
+        if (
+            canonical_json_bytes(receipt.to_dict())
+            != canonical_json_bytes(expected.to_dict())
+            or not contract.is_library
+            or len(build.exports) != 1
+        ):
+            raise LocalStandardLifecycleError(
+                "library provider acceptance or contract differs"
+            )
+        export = build.exports[0]
+        if (
+            export.role != "library"
+            or export.component_revision != plan.component_revision
+            or export.target_identity != contract.artifact_export.target_identity
+            or export.dependency_artifact_identities
+            or self._exports_by_identity.get(export.identity.uri) != export
+            or select_build_provider_receipts((export,), (receipt,)) != (receipt,)
+        ):
+            raise LocalStandardLifecycleError(
+                "library provider export differs or has dependencies"
+            )
+        return plan, contract, export
+
+    @contextmanager
+    def accepted_library_provider(self, receipt, *, require_current):
+        """Hold one original current pure-library provider, without verifier authority.
+
+        The existing current build-grant requirement remains in force. Historical
+        renewal, original independent oracles, selected verifier execution policy
+        and generation/cache/build binding are separate consuming obligations.
+        """
+        from literate_ai.adapters.action_build_limits import (
+            MAX_BUILD_ARCHIVE_BYTES,
+            MAX_BUILD_ARCHIVE_FILES,
+        )
+        from literate_ai.adapters.directory_artifacts import (
+            capture_materialized_files,
+            read_directory_export,
+        )
+        from literate_ai.adapters.process_liveness import (
+            _close_preserving_primary_failure,
+        )
+
+        if not callable(require_current):
+            raise TypeError("library provider requires a current live owner")
+
+        def owner():
+            if require_current() is not None:
+                raise LocalStandardLifecycleError(
+                    "library provider owner must be synchronous"
+                )
+
+        owner()
+        plan, contract, export = self._current_library_provider(receipt)
+        owner()
+        receipt_bytes = canonical_json_bytes(receipt.to_dict())
+        contract_bytes = canonical_json_bytes(contract.to_dict())
+        plan_bytes = canonical_json_bytes(plan.to_dict())
+        # Stored directory exports cannot expand. Reserve before reading, with
+        # room for decoded payload/path copies and the pinned authority documents.
+        charge = (
+            3 * export.blob.size
+            + len(receipt_bytes)
+            + len(contract_bytes)
+            + len(plan_bytes)
+        )
+        with self._library_provider_scope_lock:
+            if (
+                self._library_provider_scope_count >= _MAX_LIBRARY_PROVIDER_SCOPES
+                or charge
+                > _MAX_LIBRARY_PROVIDER_SCOPE_BYTES - self._library_provider_scope_bytes
+            ):
+                raise LocalStandardLifecycleError(
+                    "library provider custody capacity exhausted"
+                )
+            self._library_provider_scope_count += 1
+            self._library_provider_scope_bytes += charge
+        scope = None
+        try:
+            blob = self.read_artifact_blob(export.blob)
+            files = read_directory_export(
+                blob,
+                export.blob,
+                max_bytes=MAX_BUILD_ARCHIVE_BYTES,
+                max_entries=MAX_BUILD_ARCHIVE_FILES,
+            )
+            registered_path = self._artifact_paths[export.identity.uri]
+            root = self.artifact_path(export)
+            if root == self.object_root or not root.is_relative_to(self.object_root):
+                raise LocalStandardLifecycleError(
+                    "library provider escapes object custody"
+                )
+            require_safe_directory(root)
+            root_stat = root.lstat()
+            root_identity = (
+                root_stat.st_dev,
+                root_stat.st_ino,
+                root_stat.st_uid,
+                root_stat.st_gid,
+                root_stat.st_mode,
+            )
+            scope = LocalLibraryProviderCustody(receipt, contract, export, root, files)
+            require_files = capture_materialized_files(root, files)
+            file_inputs = tuple((item.path, item.content, item.mode) for item in files)
+
+            def require_authority():
+                current_plan, current_contract, current_export = (
+                    self._current_library_provider(receipt)
+                )
+                if (
+                    current_plan is not plan
+                    or current_contract is not contract
+                    or canonical_json_bytes(current_plan.to_dict()) != plan_bytes
+                    or canonical_json_bytes(current_contract.to_dict())
+                    != contract_bytes
+                    or canonical_json_bytes(receipt.to_dict()) != receipt_bytes
+                    or current_export != export
+                    or scope.acceptance is not receipt
+                    or scope.contract is not contract
+                    or scope.export is not export
+                    or scope.root != root
+                    or self._artifact_paths.get(export.identity.uri) != registered_path
+                    or self.artifact_path(export) != root
+                ):
+                    raise LocalStandardLifecycleError(
+                        "library provider custody changed"
+                    )
+
+            def validate():
+                owner()
+                require_authority()
+                if (
+                    self.read_artifact_blob(export.blob) != blob
+                    or tuple(
+                        (item.path, item.content, item.mode) for item in scope.files
+                    )
+                    != file_inputs
+                ):
+                    raise LocalStandardLifecycleError(
+                        "library provider custody changed"
+                    )
+                require_safe_directory(root)
+                observed = root.lstat()
+                if (
+                    observed.st_dev,
+                    observed.st_ino,
+                    observed.st_uid,
+                    observed.st_gid,
+                    observed.st_mode,
+                ) != root_identity:
+                    raise LocalStandardLifecycleError(
+                        "library provider root identity changed"
+                    )
+                require_files()
+                owner()
+                require_authority()
+                # Closing owner/authority reads may block or run callbacks. The
+                # final finite stamp fence must follow them, not precede them.
+                require_files()
+                observed = root.lstat()
+                if (
+                    observed.st_dev,
+                    observed.st_ino,
+                    observed.st_uid,
+                    observed.st_gid,
+                    observed.st_mode,
+                ) != root_identity:
+                    raise LocalStandardLifecycleError(
+                        "library provider root identity changed"
+                    )
+
+            with self._library_provider_scope_lock:
+                self._library_provider_scopes[id(scope)] = (scope, validate)
+            self.require_library_provider_custody(scope)
+            primary = None
+            try:
+                yield scope
+            except BaseException as error:
+                primary = error
+                raise
+            finally:
+                try:
+                    _close_preserving_primary_failure(
+                        lambda: self.require_library_provider_custody(scope), primary
+                    )
+                finally:
+                    primary = None
+        finally:
+            with self._library_provider_scope_lock:
+                if scope is not None:
+                    self._library_provider_scopes.pop(id(scope), None)
+                self._library_provider_scope_count -= 1
+                self._library_provider_scope_bytes -= charge
+
+    def _require_library_provider_membership(self, scope):
+        """Check original live membership without reopening bytes or callbacks."""
+        with self._library_provider_scope_lock:
+            entry = self._library_provider_scopes.get(id(scope))
+            if entry is None or entry[0] is not scope:
+                raise LocalStandardLifecycleError(
+                    "library provider scope is not live here"
+                )
+            return entry
+
+    def require_library_provider_custody(self, scope):
+        """Require original membership; any validation failure retires that scope."""
+        entry = self._require_library_provider_membership(scope)
+        try:
+            entry[1]()
+            with self._library_provider_scope_lock:
+                if self._library_provider_scopes.get(id(scope)) is not entry:
+                    raise LocalStandardLifecycleError(
+                        "library provider scope closed during validation"
+                    )
+        except BaseException:
+            with self._library_provider_scope_lock:
+                self._library_provider_scopes.pop(id(scope), None)
+            raise
+
+    def library_provider_verifier_request(self, scope, *, revision, oracle, compiler):
+        """Validate live custody before describing request DATA; grant nothing."""
+        from literate_ai.adapters.node_library_verifier_request import (
+            require_original_verifier_request_implementation,
+        )
+
+        self.require_library_provider_custody(scope)
+        require_original_verifier_request_implementation()
+        return _node_provider_verifier_request(
+            scope, revision=revision, oracle=oracle, compiler=compiler
+        )
+
+    def library_provider_verifier_description(
+        self, scope, *, revision, oracle, compiler
+    ):
+        """Expose request DATA within original provider custody; grant nothing."""
+        from literate_ai.adapters.node_library_verifier_request import (
+            NodeLibraryVerifierRequestDescription,
+        )
+
+        request = self.library_provider_verifier_request(
+            scope, revision=revision, oracle=oracle, compiler=compiler
+        )
+        description = NodeLibraryVerifierRequestDescription.capture(
+            request,
+            owner_revision=revision.identity,
+            inputs=_node_provider_verifier_input_document(scope, oracle, compiler),
+        )
+        self.require_library_provider_custody(scope)
+        description.require_matches(
+            _node_provider_verifier_request(
+                scope, revision=revision, oracle=oracle, compiler=compiler
+            ),
+            owner_revision=revision.identity,
+        )
+        return description
+
+    def with_verified_node_library_provider(
+        self,
+        scope,
+        *,
+        revision,
+        oracle,
+        compiler,
+        authorization,
+        workspace,
+        require_current,
+        consume,
+        environment,
+        observe_process=None,
+        verifier_operation=None,
+    ):
+        """Run an explicitly granted verifier and consume DATA within live custody.
+
+        This synchronous boundary issues no acceptance or SDK admission. Its guard
+        cannot survive callback return; asynchronous generation and later build or
+        cache publication require separate fresh admission, never returned checks.
+        """
+        from literate_ai.adapters.node_sdk_tools import node_sdk_tool_environment
+
+        self._require_full_command_scope()
+        entry = self._require_library_provider_membership(scope)
+        original_values = (
+            scope.acceptance,
+            scope.contract,
+            scope.export,
+            scope.root,
+            scope.files,
+        )
+        original_root = str(scope.root)
+        original_files = tuple(
+            (item.path, item.content, item.mode) for item in scope.files
+        )
+
+        def retire_original():
+            with self._library_provider_scope_lock:
+                if self._library_provider_scopes.get(id(scope)) is entry:
+                    self._library_provider_scopes.pop(id(scope), None)
+
+        def require_original():
+            try:
+                values = (
+                    scope.acceptance,
+                    scope.contract,
+                    scope.export,
+                    scope.root,
+                    scope.files,
+                )
+                if (
+                    self._require_library_provider_membership(scope) is not entry
+                    or any(
+                        a is not b for a, b in zip(values, original_values, strict=True)
+                    )
+                    or str(scope.root) != original_root
+                    or tuple(
+                        (item.path, item.content, item.mode) for item in scope.files
+                    )
+                    != original_files
+                ):
+                    raise LocalStandardLifecycleError(
+                        "provider verifier original scope changed"
+                    )
+            except BaseException:
+                retire_original()
+                raise
+
+        def require_subject():
+            require_original()
+            self.require_library_provider_custody(scope)
+            require_original()
+
+        require_subject()
+        original_request = _node_provider_verifier_request(
+            scope, revision=revision, oracle=oracle, compiler=compiler
+        )
+
+        def describe_request():
+            try:
+                require_original()
+                request = _node_provider_verifier_request(
+                    scope, revision=revision, oracle=oracle, compiler=compiler
+                )
+                if request != original_request:
+                    raise LocalStandardLifecycleError(
+                        "provider verifier original scope changed"
+                    )
+                return request
+            except BaseException:
+                retire_original()
+                raise
+
+        def require_membership(_now):
+            # Join the final clock cut to this exact original registry entry and
+            # request metadata; never remove a replacement or reopen file reads.
+            describe_request()
+
+        # Normalize caller mappings before the shared runner can capture files.
+        # Any mapping callback must close against the same original metadata.
+        configured = node_sdk_tool_environment(dict(environment))
+        describe_request()
+        return self._with_verified_node_library_checks(
+            scope,
+            revision=revision,
+            oracle=oracle,
+            compiler=compiler,
+            authorization=authorization,
+            workspace=workspace,
+            require_current=require_current,
+            consume=consume,
+            environment=configured,
+            observe_process=observe_process,
+            provider=scope.export,
+            describe_request=describe_request,
+            inputs_identity=lambda: _node_provider_verifier_inputs(
+                scope, oracle, compiler
+            ),
+            require_subject=require_subject,
+            require_membership=require_membership,
+            verifier_operation=verifier_operation,
+        )
+
+    def _with_verified_node_library_checks(
+        self,
+        scope,
+        *,
+        revision,
+        oracle,
+        compiler,
+        authorization,
+        workspace,
+        require_current,
+        consume,
+        environment,
+        describe_request,
+        inputs_identity,
+        require_subject,
+        require_membership,
+        provider,
+        observe_process=None,
+        verifier_operation=None,
+    ):
+        """Shared synchronous verifier lifetime; subject owners supply no grants.
+
+        Provider and SDK package owners separately describe their closed request
+        and current custody. This private runner holds the original oracle and
+        explicit authorization through checks, consume, context close and ACK.
+        """
+        from literate_ai.adapters.directory_artifacts import capture_materialized_files
+        from literate_ai.adapters.node_library_acceptance import (
+            capture_loaded_node_library_verifier_inputs,
+        )
+        from literate_ai.adapters.node_library_verification import check_node_library
+        from literate_ai.adapters.node_sdk_tools import (
+            node_sdk_tool_environment,
+            require_node_sdk_process_observer,
+        )
+        from literate_ai.adapters.node_sdk_verifier_runtime import (
+            _ORIGINAL_NODE_VERIFIER_GRANT_USE,
+            require_node_verifier_grant_use,
+        )
+        from literate_ai.adapters.process_liveness import (
+            _close_preserving_primary_failure,
+            process_liveness,
+        )
+
+        if _ORIGINAL_NODE_VERIFIER_GRANT_USE is not require_node_verifier_grant_use:
+            raise ValueError("fixed SDK verifier execution seam changed")
+        self._require_full_command_scope()
+        for callback in (require_current, consume):
+            if not callable(callback):
+                raise TypeError("provider verifier callbacks must be synchronous")
+            require_node_sdk_process_observer(callback)
+        require_node_sdk_process_observer(observe_process)
+        request = describe_request()
+        if type(authorization) is not BuildAuthorization:
+            raise TypeError("provider verifier requires an explicit execution grant")
+        _ORIGINAL_NODE_VERIFIER_GRANT_USE(
+            self, verifier_operation, authorization, request
+        )
+        configured = node_sdk_tool_environment(dict(environment))
+        close_files = capture_materialized_files(scope.root, scope.files)
+        active = True
+
+        def require_owner():
+            returned = require_current()
+            if returned is not None:
+                if inspect.iscoroutine(returned):
+                    returned.close()
+                raise TypeError("provider verifier owner must return None")
+
+        def require_close():
+            # No custody context is reopened here. This also runs after the
+            # original oracle context's blocking __exit__, before DATA escapes.
+            if not active:
+                raise LocalStandardLifecycleError("provider verifier scope ended")
+            require_owner()
+            close_files()
+            self._require_full_command_scope()
+            _require_library_oracle_authority(
+                oracle, revision, scope.contract.library_import_surface
+            )
+            if (
+                authorization.profile is not SecurityProfile.CONSTRAINED
+                or authorization.privileges != request.requested_privileges
+                or revision.identity.uri != request.effective_revision_digest
+                or inputs_identity().uri != request.source_bundle_digest
+            ):
+                raise LocalStandardLifecycleError(
+                    "provider verifier inputs changed at validation close"
+                )
+            now = self.clock()
+            authorization.require_valid(request, now=now)
+            require_membership(now)
+            # Host clocks and subject closes may run callbacks. Retain the
+            # original finite cuts across oracle __exit__; never adopt a new
+            # stamp baseline after the final callback.
+            close_files()
+            oracle_stamps()
+            _ORIGINAL_NODE_VERIFIER_GRANT_USE(
+                self, verifier_operation, authorization, request
+            )
+
+        def require_live():
+            nonlocal active
+            try:
+                if not active:
+                    raise LocalStandardLifecycleError("provider verifier scope ended")
+                require_owner()
+                authorization.require_valid(request, now=self.clock())
+                if (
+                    authorization.profile is not SecurityProfile.CONSTRAINED
+                    or authorization.privileges != request.requested_privileges
+                    or describe_request() != request
+                ):
+                    raise LocalStandardLifecycleError(
+                        "provider verifier authority changed"
+                    )
+                verifier()
+                require_subject()
+                require_owner()
+                verifier()
+                require_close()
+            except BaseException:
+                active = False
+                raise
+
+        try:
+            with capture_loaded_node_library_verifier_inputs(oracle) as verifier:
+                oracle_stamps = verifier.capture_stamps()
+                require_live()
+                primary = None
+                try:
+                    checks = check_node_library(
+                        oracle,
+                        subject=scope.export.component_revision,
+                        artifact=scope.export.identity,
+                        surface=scope.contract.library_import_surface,
+                        files=scope.files,
+                        artifact_root=scope.root,
+                        workspace=workspace,
+                        node=compiler.node,
+                        compiler=compiler,
+                        environment=configured,
+                        require_current=require_live,
+                        observe_process=observe_process,
+                        provider=provider,
+                    )
+                    require_live()
+                    with process_liveness(require_live):
+                        result = consume(checks, require_live)
+                    if (
+                        inspect.isawaitable(result)
+                        or inspect.isgenerator(result)
+                        or inspect.isasyncgen(result)
+                    ):
+                        if inspect.iscoroutine(result) or inspect.isgenerator(result):
+                            result.close()
+                        raise TypeError(
+                            "provider verifier consumer must finish synchronously"
+                        )
+                except BaseException as error:
+                    primary = error
+                    raise
+                finally:
+                    try:
+                        if active:
+                            try:
+                                _close_preserving_primary_failure(
+                                    lambda: compiler.node.require_unchanged(configured),
+                                    primary,
+                                )
+                            finally:
+                                _close_preserving_primary_failure(require_live, primary)
+                    finally:
+                        primary = None
+            require_close()
+            return result
+        finally:
+            active = False
+
+    def with_node_sdk_provider_generation_data(
+        self, scope, *, consume, **verifier_inputs
+    ):
+        """Project original checks to public generation DATA inside live custody."""
+        from literate_ai.adapters.node_sdk_generation import (
+            node_sdk_provider_generation_data,
+        )
+        from literate_ai.adapters.node_sdk_tools import (
+            require_node_sdk_process_observer,
+        )
+
+        if not callable(consume):
+            raise TypeError("SDK generation consumer must be synchronous")
+        require_node_sdk_process_observer(consume)
+        compiler = verifier_inputs["compiler"]
+        request = self.library_provider_verifier_request(
+            scope,
+            revision=verifier_inputs["revision"],
+            oracle=verifier_inputs["oracle"],
+            compiler=compiler,
+        )
+
+        def project(checks, require_live):
+            require_live()
+            data = node_sdk_provider_generation_data(
+                scope,
+                checks,
+                compiler,
+                request,
+                environment=verifier_inputs["environment"],
+                require_current=require_live,
+                observe_process=verifier_inputs.get("observe_process"),
+            )
+            require_live()
+            return consume(data, require_live)
+
+        return self.with_verified_node_library_provider(
+            scope, consume=project, **verifier_inputs
+        )
 
     def admit_transferred_acceptance(
         self,
@@ -5613,6 +7323,19 @@ class LocalStandardLifecyclePorts:
         custody.require_unchanged()
         return evidence
 
+    def _project_export_destinations(self, closure, root_export, grouped_roots):
+        """Default package coordinates; specialized native layouts stay explicit."""
+        return {
+            item.identity.uri: (
+                f"root/{item.export_id}"
+                if item.identity in grouped_roots
+                else (
+                    f"components/{item.component_revision.digest[:16]}/{item.export_id}"
+                )
+            )
+            for item in closure
+        }
+
     def assemble_project_artifacts(
         self,
         component_lock: ComponentLock,
@@ -5638,6 +7361,7 @@ class LocalStandardLifecyclePorts:
                 primary_export_id=self._contract(
                     component_lock.root_revision
                 ).artifact_export.export_id,
+                **self._external_assembly_arguments(),
             )
         except ReleaseArtifactAssemblyError as exc:
             raise LocalStandardLifecycleError(str(exc)) from exc
@@ -5751,20 +7475,22 @@ class LocalStandardLifecyclePorts:
         )
         root_export = exports[link_plan.root_artifact_identity.uri]
         grouped_roots = set(link_plan.resolved_root_artifact_identities)
-        destinations = {
-            item.identity.uri: (
-                f"root/{item.export_id}"
-                if item.identity in grouped_roots
-                else (
-                    f"components/{item.component_revision.digest[:16]}/{item.export_id}"
-                )
-            )
-            for item in closure
-        }
+        destinations = self._project_export_destinations(
+            closure, root_export, grouped_roots
+        )
         root_contract = self._contract(component_lock.root_revision)
         root_plan = self._plans_by_revision.get(component_lock.root_revision.uri)
         if root_plan is None:
             raise LocalStandardLifecycleError("root build plan has no local custody")
+        node_sdk_resources = None
+        if root_plan.component_revision.uri in self.node_sdk_targets:
+            from literate_ai.adapters.node_sdk_package import (
+                LocalNodeSDKPackageResources,
+            )
+
+            node_sdk_resources = LocalNodeSDKPackageResources(
+                self, root_plan, root_export, exports=closure
+            )
         # ACCEPTANCE-SERVICE-001 (#213): carry the Component's REAL declared
         # entrypoint kind into the package plan instead of hard-coding
         # "application". A persistent-service Component must package with
@@ -5895,6 +7621,7 @@ class LocalStandardLifecyclePorts:
             resource_inputs=(
                 *python_resources,
                 *(() if sdk_resources is None else sdk_resources.inputs),
+                *(() if node_sdk_resources is None else node_sdk_resources.inputs),
             ),
             entrypoints=self._root_package_entrypoints(
                 component_lock, exports_by_id, destinations
@@ -5922,12 +7649,17 @@ class LocalStandardLifecyclePorts:
         )
 
         def read_package_blob(reference: BlobRef) -> bytes:
+            if node_sdk_resources is not None and node_sdk_resources.owns_blob(
+                reference
+            ):
+                return node_sdk_resources.read_blob(reference)
             if reference in python_resource_blobs:
                 return python_resource_blobs[reference]
             if sdk_resources is not None and sdk_resources.owns_blob(reference):
                 return sdk_resources.read_blob(reference)
             return self.read_artifact_blob(reference)
 
+        package_plan_identity = None if node_sdk_resources is None else plan.identity
         result = (
             DirectoryPackageAdapter().package(plan, read_blob=read_package_blob)
             if self.project_packager is None
@@ -5935,37 +7667,65 @@ class LocalStandardLifecyclePorts:
                 artifact_graph, plan, read_blob=read_package_blob
             )
         )
+        package_result_identity = (
+            None if node_sdk_resources is None else getattr(result, "identity", None)
+        )
         from literate_ai.application.packaging import verify_package_result
 
         verify_package_result(plan, result, read_blob=read_package_blob)
+        if node_sdk_resources is not None:
+            node_sdk_resources.bind_package_metadata(
+                plan,
+                result,
+                plan_identity=package_plan_identity,
+                result_identity=package_result_identity,
+            )
         package_parent = self.object_root / "project-packages"
-        package_parent.mkdir(parents=True, exist_ok=True)
+        if node_sdk_resources is None:
+            package_parent.mkdir(parents=True, exist_ok=True)
+        else:
+            ensure_safe_directory(package_parent)
+        package_parent_node = package_parent_stamps = None
+        if node_sdk_resources is not None:
+            require_safe_directory(package_parent)
+            package_parent_node = directory_node(package_parent)
+            package_parent_stamps = capture_directory_ancestries((package_parent,))
+            node_sdk_resources.require_current()
+            package_parent_stamps()
         staging = Path(
             tempfile.mkdtemp(prefix=f"{plan.identity.digest[:16]}-", dir=package_parent)
         )
+        if node_sdk_resources is not None:
+            node_sdk_resources.bind_staging(staging)
         artifact_paths: dict[str, Path] = {}
         try:
             for export in closure:
-                self.read_artifact_blob(export.blob)
-                source = self.artifact_path(export)
                 destination = staging.joinpath(
                     *Path(destinations[export.identity.uri]).parts
                 )
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                if source.is_symlink():
-                    raise LocalStandardLifecycleError(
-                        "package input cannot be a symbolic link"
-                    )
-                if source.is_dir():
-                    shutil.copytree(source, destination)
-                    copied = _directory_export_bytes(destination)
-                elif source.is_file():
-                    shutil.copy2(source, destination)
-                    copied = destination.read_bytes()
+                if node_sdk_resources is not None:
+                    # A previous export callback may have inserted a parent
+                    # link. Refuse before creating any redirected descendants.
+                    ensure_safe_directory(destination.parent)
+                    copied = node_sdk_resources.materialize_export(export, destination)
                 else:
-                    raise LocalStandardLifecycleError(
-                        "package input must be a regular file or directory"
-                    )
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    self.read_artifact_blob(export.blob)
+                    source = self.artifact_path(export)
+                    if source.is_symlink():
+                        raise LocalStandardLifecycleError(
+                            "package input cannot be a symbolic link"
+                        )
+                    if source.is_dir():
+                        shutil.copytree(source, destination)
+                        copied = _directory_export_bytes(destination)
+                    elif source.is_file():
+                        shutil.copy2(source, destination)
+                        copied = destination.read_bytes()
+                    else:
+                        raise LocalStandardLifecycleError(
+                            "package input must be a regular file or directory"
+                        )
                 if (
                     len(copied) != export.blob.size
                     or hashlib.sha256(copied).hexdigest() != export.blob.digest
@@ -5986,6 +7746,8 @@ class LocalStandardLifecyclePorts:
                 destination.chmod(0o755 if item.executable else 0o644)
             if sdk_resources is not None:
                 sdk_resources.materialize(staging)
+            if node_sdk_resources is not None:
+                node_sdk_resources.materialize(staging)
             if python_observer is not None:
                 staged_python_root = artifact_paths[root_export.identity.uri].parent
                 if local_tree_identity(staged_python_root) != python_artifact_tree:
@@ -5999,9 +7761,34 @@ class LocalStandardLifecyclePorts:
                     python_observer.source,
                     python_observer.toolchain,
                 )()
+            package_files = package_stamps = None
+            if node_sdk_resources is not None:
+                package_files, package_stamps = node_sdk_resources.capture_package(
+                    staging, plan, read_package_blob
+                )
             staged_identity = local_tree_identity(staging)
+            stage_node = None
+            if node_sdk_resources is not None:
+                stage_node = directory_node(staging)
+                node_sdk_resources.require_current()
+                package_stamps()
+                package_parent_stamps()
             destination_root = package_parent / plan.identity.digest
-            if destination_root.exists():
+            if node_sdk_resources is not None:
+                # Unknown existing output is not an owned cache hit. Refuse it
+                # without replacing, merging or deleting either namespace.
+                publish_directory_exclusive(
+                    staging,
+                    destination_root,
+                    expected_source=stage_node,
+                    expected_parent=package_parent_node,
+                )
+                # No callback between the owned move and the read-only rekeying
+                # of the ORIGINAL file observations.
+                node_sdk_resources.after_package_move(
+                    destination_root, expected_parent=package_parent_node
+                )
+            elif destination_root.exists():
                 if (
                     destination_root.is_symlink()
                     or not destination_root.is_dir()
@@ -6017,8 +7804,12 @@ class LocalStandardLifecyclePorts:
                 uri: destination_root / path.relative_to(staging)
                 for uri, path in artifact_paths.items()
             }
+            if node_sdk_resources is not None:
+                node_sdk_resources.bind_package(destination_root, package_files)
         except Exception:
-            if staging.exists():
+            # Failed SDK stages can contain a callback's unknown files. Retain
+            # them for diagnosis rather than recursively deleting foreign data.
+            if node_sdk_resources is None and staging.exists():
                 shutil.rmtree(staging)
             raise
         source_custody = self.source_trees.evidence(
@@ -6046,7 +7837,10 @@ class LocalStandardLifecyclePorts:
                 )
             ),
             python_artifact_tree,
+            node_sdk_resources,
         )
+        if node_sdk_resources is not None:
+            node_sdk_resources.require_packaged(destination_root)
         self._project_packages[result.identity.uri] = custody
         return plan, result
 
@@ -6059,12 +7853,16 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "project package has no local immutable custody"
             ) from exc
+        if custody.node_sdk_resources is not None:
+            custody.node_sdk_resources.require_packaged(custody.root)
         if (
             custody.package_plan != plan
             or custody.package_result != result
             or local_tree_identity(custody.root) != custody.tree_identity
         ):
             raise LocalStandardLifecycleError("project package custody changed")
+        if custody.node_sdk_resources is not None:
+            custody.node_sdk_resources.require_packaged(custody.root)
         return custody
 
     def _packaged_environment(
@@ -6072,6 +7870,13 @@ class LocalStandardLifecyclePorts:
     ) -> dict[str, str]:
         environment = dict(os.environ)
         environment.pop("PYTHONPATH", None)
+        environment.update(self._packaged_provider_environment_values(custody))
+        return environment
+
+    def _packaged_provider_environment_values(
+        self, custody: LocalProjectPackageCustody
+    ) -> dict[str, str]:
+        environment: dict[str, str] = {}
         for identity_uri, path in custody.artifact_paths.items():
             export = self._exports_by_identity[identity_uri]
             binding = self.provider_environment.get(export.export_id)
@@ -6079,13 +7884,55 @@ class LocalStandardLifecyclePorts:
                 continue
             name, relative_path = binding
             relative = Path(relative_path)
-            target = path.parent / relative
+            try:
+                export_relative = relative.relative_to(export.export_id)
+            except ValueError:
+                # Existing sibling resources retain their declared semantics.
+                target = path.parent / relative
+            else:
+                # A package may explicitly relocate or rename the exact export.
+                # Bind its suffix to the original actual materialized location.
+                target = path / export_relative
             if target.is_symlink() or not target.exists():
                 raise LocalStandardLifecycleError(
                     f"packaged provider binding is unavailable: {export.export_id}"
                 )
-            environment[name] = str(target.resolve(strict=True))
+            resolved = target.resolve(strict=True)
+            if custody.root.resolve(strict=True) not in resolved.parents:
+                raise LocalStandardLifecycleError(
+                    "packaged provider binding escaped package custody"
+                )
+            environment[name] = str(resolved)
         return environment
+
+    def _packaged_runtime_environment(
+        self,
+        environment: dict[str, str],
+        custody: LocalProjectPackageCustody,
+        phase: ComponentCommandPhase,
+        package_entrypoint: PackageEntrypoint | None = None,
+    ) -> dict[str, str]:
+        if (
+            phase is not ComponentCommandPhase.EXECUTE
+            or self._checked_runtime_execution_plan() is None
+        ):
+            return environment
+        if local_tree_identity(custody.root) != custody.tree_identity:
+            raise LocalStandardLifecycleError("runtime package custody changed")
+        consumer = (
+            custody.root_plan.component_revision
+            if package_entrypoint is None
+            else self._exports_by_identity[
+                package_entrypoint.source_identity.uri
+            ].component_revision
+        )
+        return self._declared_capability_environment(
+            environment,
+            tuple(self._exports_by_identity[key] for key in custody.artifact_paths),
+            consumer,
+            phase,
+            self._packaged_provider_environment_values(custody),
+        )
 
     def _packaged_argv(
         self,
@@ -6203,6 +8050,51 @@ class LocalStandardLifecyclePorts:
         package_entrypoint: PackageEntrypoint | None = None,
     ) -> subprocess.CompletedProcess[str]:
         self._require_command_phase(phase)
+        if custody.node_sdk_resources is not None:
+            from literate_ai.adapters.node_sdk_package import (
+                LocalNodeSDKPackageResources,
+            )
+
+            if (
+                type(custody.node_sdk_resources) is not LocalNodeSDKPackageResources
+                or self._project_packages.get(custody.package_result.identity.uri)
+                is not custody
+            ):
+                raise LocalStandardLifecycleError(
+                    "SDK commands require original registered package custody"
+                )
+            if (
+                phase not in {ComponentCommandPhase.TEST, ComponentCommandPhase.EXECUTE}
+                or extra_arguments
+                or package_entrypoint is not None
+            ):
+                raise LocalStandardLifecycleError(
+                    "SDK package commands require exact TEST or EXEC"
+                )
+            from literate_ai.adapters.process_liveness import process_liveness
+
+            resources = custody.node_sdk_resources
+            inputs = resources.command_inputs(custody)
+
+            def require_current():
+                if resources.command_inputs(custody) != inputs:
+                    raise LocalStandardLifecycleError(
+                        "SDK packaged command inputs changed"
+                    )
+
+            contract, source, export = inputs
+            with process_liveness(require_current):
+                completed = self._run_locked(
+                    contract,
+                    phase,
+                    source_root=source,
+                    object_root=custody.root,
+                    artifact_root=export.parent,
+                    export_path=export,
+                    providers=(),
+                )
+                require_current()
+                return completed
         if (
             custody.native_sdk_resources is not None
             and custody.native_sdk_resources.inputs
@@ -6219,13 +8111,16 @@ class LocalStandardLifecyclePorts:
             *extra_arguments,
         )
         environment = _child_process_environment(self._packaged_environment(custody))
+        environment = self._packaged_runtime_environment(
+            environment, custody, phase, package_entrypoint
+        )
         trace_subprocess(command, cwd=custody.root, environment=environment)
         completed = run_with_tree_kill(
             command,
             cwd=custody.root,
             env=environment,
             text=True,
-            timeout=60,
+            timeout=native_root_timeout(60),
         )
         trace_subprocess(
             command,
@@ -6397,7 +8292,8 @@ class LocalStandardLifecyclePorts:
                 )
             if library_oracle is not None:
                 from literate_ai.adapters.lifecycle.standard_runtime import (
-                    STANDARD_PYTHON_SDK_RUNTIME_DRIVER,
+                    STANDARD_PYTHON_SDK_HARNESS_DRIVER,
+                    STANDARD_PYTHON_SDK_SUPPORT,
                 )
 
                 argv = (
@@ -6405,7 +8301,8 @@ class LocalStandardLifecyclePorts:
                     "-I",
                     "-B",
                     "-c",
-                    STANDARD_PYTHON_SDK_RUNTIME_DRIVER,
+                    STANDARD_PYTHON_SDK_HARNESS_DRIVER,
+                    STANDARD_PYTHON_SDK_SUPPORT,
                     str(inputs.manifest),
                     str(custody.root),
                     str(harness),
@@ -6435,6 +8332,9 @@ class LocalStandardLifecyclePorts:
                 )
             )
             environment.update(environment_overrides)
+            environment = self._packaged_runtime_environment(
+                environment, custody, phase, package_entrypoint
+            )
             if serve or library_oracle is not None:
                 environment = _child_process_environment(environment)
             with inputs.command_scope(
@@ -6493,6 +8393,12 @@ class LocalStandardLifecyclePorts:
         )
         child_environment = self._packaged_environment(custody)
         child_environment.update(environment)
+        child_environment = self._packaged_runtime_environment(
+            child_environment,
+            custody,
+            ComponentCommandPhase.EXECUTE,
+            package_entrypoint,
+        )
         yield NativeSdkCommandScope(
             command, _child_process_environment(child_environment)
         )
@@ -6585,11 +8491,13 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "packaged root integration test did not pass every exact generated case"
             )
-        return self._process_observation(
+        identity = self._process_observation(
             completed,
             phase="packaged-root-generated-test",
             plan_identity=package_plan.identity,
         )
+        self._remember_node_sdk_project_stage(custody, identity, test=True)
+        return identity
 
     def execute_packaged_project(
         self,
@@ -6694,11 +8602,28 @@ class LocalStandardLifecyclePorts:
         self.project_execution_stdout[package_result.identity.uri] = (
             completed.stdout.strip()
         )
-        return self._process_observation(
+        identity = self._process_observation(
             completed,
             phase="packaged-project-execution",
             plan_identity=package_plan.identity,
         )
+        self._remember_node_sdk_project_stage(custody, identity, test=False)
+        return identity
+
+    def _remember_node_sdk_project_stage(self, custody, identity, *, test):
+        if custody.node_sdk_resources is None:
+            return
+        custody.node_sdk_resources.command_inputs(custody)
+        key = custody.package_result.identity.uri
+        previous = self._node_sdk_project_stages.get(key)
+        if previous is None or previous[0] is not custody:
+            previous = (custody, None, None)
+        self._node_sdk_project_stages[key] = (
+            custody,
+            identity if test else previous[1],
+            previous[2] if test else identity,
+        )
+        custody.node_sdk_resources.command_inputs(custody)
 
     def _service_acceptance_identity(self, document, scope):
         if scope.evidence_identity is None:
@@ -6747,6 +8672,7 @@ class LocalStandardLifecyclePorts:
             child_environment = dict(scope.environment)
             observations: list[dict[str, object]] = []
             started = time.monotonic()
+            process_timeout = native_root_timeout(contract.process_timeout_seconds)
             with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
                 ownership = create_process_tree_ownership()
                 try:
@@ -6787,10 +8713,7 @@ class LocalStandardLifecyclePorts:
                             monitor_error.append(
                                 "persistent-service stderr exceeded its byte budget"
                             )
-                        elif (
-                            time.monotonic() - started
-                            > contract.process_timeout_seconds
-                        ):
+                        elif time.monotonic() - started > process_timeout:
                             monitor_error.append(
                                 "persistent-service acceptance exceeded its "
                                 "process deadline"
@@ -6840,7 +8763,7 @@ class LocalStandardLifecyclePorts:
                                     "persistent-service readiness probe did not pass "
                                     "before its deadline"
                                 ) from exc
-                            time.sleep(0.05)
+                            time.sleep(native_root_timeout(0.05))
                     for request in contract.requests:
                         self._check_service_process(
                             process,
@@ -6925,6 +8848,7 @@ class LocalStandardLifecyclePorts:
         *,
         phase: str = "acceptance",
     ) -> None:
+        current_native_root_run()
         self._check_service_output(stdout, stderr, contract)
         status = process.poll()
         if status is not None:
@@ -7015,7 +8939,9 @@ class LocalStandardLifecyclePorts:
             else min(probe.timeout_seconds, timeout_seconds)
         )
         try:
-            response = open_service_request(outbound, timeout=request_timeout)
+            response = open_service_request(
+                outbound, timeout=native_root_timeout(request_timeout)
+            )
         except urllib.error.HTTPError as error:
             response = error
         with response:
@@ -7170,6 +9096,7 @@ class LocalStandardLifecyclePorts:
             child_environment = dict(scope.environment)
             viewport_evidence: list[dict[str, object]] = []
             started = time.monotonic()
+            current_native_root_run()
             with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
                 ownership = create_process_tree_ownership()
                 try:
@@ -7209,7 +9136,7 @@ class LocalStandardLifecyclePorts:
                                 "browser-frontend readiness probe did not pass before "
                                 "its deadline"
                             )
-                        time.sleep(0.05)
+                        time.sleep(native_root_timeout(0.05))
                     for viewport in contract.viewports:
                         self._check_service_process(
                             process,
@@ -7264,7 +9191,9 @@ class LocalStandardLifecyclePorts:
     @staticmethod
     def _frontend_is_ready(readiness_url: str) -> bool:
         try:
-            with open_service_request(readiness_url, timeout=2) as response:
+            with open_service_request(
+                readiness_url, timeout=native_root_timeout(2)
+            ) as response:
                 response.read(1024)
                 return response.status < 400
         except urllib.error.HTTPError as error:
@@ -7359,6 +9288,7 @@ class LocalStandardLifecyclePorts:
             command = scope.argv
             child_environment = dict(scope.environment)
             started = time.monotonic()
+            current_native_root_run()
             with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
                 ownership = create_process_tree_ownership()
                 try:
@@ -7695,6 +9625,9 @@ class LocalStandardLifecyclePorts:
                 self._packaged_environment(custody)
             )
             base_environment.update(dict(contract.environment))
+            base_environment = self._packaged_runtime_environment(
+                base_environment, custody, ComponentCommandPhase.EXECUTE, selected
+            )
 
         for case in contract.cases:
             with tempfile.TemporaryDirectory(
@@ -7754,7 +9687,7 @@ class LocalStandardLifecyclePorts:
                             stdin=stdin_file,
                             stdout=stdout_file,
                             stderr=stderr_file,
-                            timeout=case.timeout_seconds,
+                            timeout=native_root_timeout(case.timeout_seconds),
                         )
                     except subprocess.TimeoutExpired as exc:
                         raise LocalStandardLifecycleError(
@@ -7875,6 +9808,46 @@ class LocalStandardLifecyclePorts:
         _selected_oracle: object | None = None,
     ) -> ContentIdentity:
         self._require_full_command_scope()
+        from literate_ai.adapters.authored_qualification_oracles import (
+            CurrentAuthoredQualificationOracles,
+        )
+
+        if isinstance(
+            self.independent_acceptance_oracle, CurrentAuthoredQualificationOracles
+        ):
+            from literate_ai.adapters.authored_graph_acceptance import (
+                accept_authored_graph,
+            )
+
+            if _selected_entrypoint is not None or _selected_oracle is not None:
+                raise LocalStandardLifecycleError(
+                    "authored graph acceptance requires its complete original owner"
+                )
+            custody = self.project_package_custody(package_plan, package_result)
+
+            def accept_node(binding):
+                return self._accept_library(
+                    component_lock,
+                    custody,
+                    package_plan,
+                    package_result,
+                    binding.oracle,
+                    root_integration_test_identity,
+                    packaged_execution_identity,
+                    component_revision=binding.component_revision_identity,
+                )
+
+            return accept_authored_graph(
+                self.independent_acceptance_oracle,
+                component_lock,
+                execution_plan,
+                package_plan,
+                package_result,
+                root_integration_test_identity,
+                packaged_execution_identity,
+                accept_node=accept_node,
+                record=self._record_evidence,
+            )
         from literate_ai.adapters.component_acceptance import (
             INDEPENDENT_ACCEPTANCE_EXEMPT_SCHEMA,
             ComponentAcceptanceError,
@@ -7891,12 +9864,36 @@ class LocalStandardLifecyclePorts:
         ):
             from literate_ai.adapters.component_acceptance import LibraryAcceptance
 
+            if root_contract.component_revision.uri in self.node_sdk_targets:
+                from literate_ai.adapters.node_sdk_host import (
+                    current_node_sdk_project_acceptance,
+                )
+                from literate_ai.adapters.node_sdk_project_acceptance import (
+                    LocalNodeSDKProjectAcceptance,
+                )
+
+                policy = current_node_sdk_project_acceptance(self)
+                if type(policy) is not LocalNodeSDKProjectAcceptance:
+                    raise LocalStandardLifecycleError(
+                        "SDK independent acceptance requires explicit original policy"
+                    )
+                return policy.accept(
+                    self,
+                    component_lock,
+                    execution_plan,
+                    project_build_plan,
+                    package_plan,
+                    package_result,
+                    root_integration_test_identity,
+                    packaged_execution_identity,
+                )
             oracle = self.independent_acceptance_oracle
             if not isinstance(oracle, LibraryAcceptance):
                 raise LocalStandardLifecycleError(
                     "importable library acceptance requires a verifier-owned "
                     "library oracle"
                 )
+            _require_legacy_library_oracle(oracle)
             custody = self.project_package_custody(package_plan, package_result)
             return self._accept_library(
                 component_lock,
@@ -8146,9 +10143,14 @@ class LocalStandardLifecyclePorts:
                         case.arguments_document.decode("utf-8"),
                     ),
                     cwd=custody.root,
-                    env=_child_process_environment(self._packaged_environment(custody)),
+                    env=self._packaged_runtime_environment(
+                        _child_process_environment(self._packaged_environment(custody)),
+                        custody,
+                        ComponentCommandPhase.EXECUTE,
+                        _selected_entrypoint,
+                    ),
                     text=True,
-                    timeout=60,
+                    timeout=native_root_timeout(60),
                 )
             if completed.returncode != 0:
                 raise LocalStandardLifecycleError(
@@ -8211,7 +10213,138 @@ class LocalStandardLifecyclePorts:
         oracle,
         root_integration_test_identity,
         packaged_execution_identity,
+        *,
+        component_revision=None,
     ):
+        from literate_ai.adapters.native_root_continuation import (
+            NativeRootCandidateStage,
+        )
+        from literate_ai.adapters.rust_library_acceptance import RustLibraryAcceptance
+        from literate_ai.application.native_root_continuation import (
+            current_native_root_controller,
+        )
+        from literate_ai.contracts.native_root_continuation import (
+            NativeRootPackageBinding,
+        )
+
+        controller = current_native_root_controller()
+        scope = None if controller is None else controller.scope
+        selected = component_revision or component_lock.root_revision
+        eligible_controller = (
+            controller is not None
+            and scope.ports is self
+            and type(oracle) is RustLibraryAcceptance
+            and oracle is self.independent_acceptance_oracle
+            and selected
+            == component_lock.root_revision
+            == scope.run_binding.root_revision
+        )
+        if controller is not None and not eligible_controller:
+            raise LocalStandardLifecycleError(
+                "active native root controller differs from original library authority"
+            )
+        if eligible_controller:
+            original_contexts = controller.contexts
+            original_candidate = controller.prepared_candidate
+            original_node = controller.node_observation
+            original_package = controller.package_binding
+            original_package_bytes = (
+                None
+                if original_package is None
+                else canonical_json_bytes(original_package.to_dict())
+            )
+            controller.require_current()
+            if (
+                current_native_root_controller() is not controller
+                or controller.scope is not scope
+                or controller.contexts is not original_contexts
+                or controller.prepared_candidate is not original_candidate
+                or controller.node_observation is not original_node
+                or controller.package_binding is not original_package
+                or (
+                    None
+                    if controller.package_binding is None
+                    else canonical_json_bytes(controller.package_binding.to_dict())
+                )
+                != original_package_bytes
+                or component_lock
+                is not scope.prepared_authority.locked_authority_snapshot.authority.lock
+                or controller.node_observation is None
+                or controller.package_binding
+                != NativeRootPackageBinding(
+                    package_plan.artifact_graph_identity,
+                    package_plan.link_plan_identity,
+                    package_plan.identity,
+                    package_result.identity,
+                    root_integration_test_identity,
+                    packaged_execution_identity,
+                )
+            ):
+                raise LocalStandardLifecycleError("native root package binding differs")
+            generation, plan, result = controller.node_observation
+            if (
+                plan is not custody.root_plan
+                or result.source_generation is not generation
+                or result.failure_evidence is not None
+                or result.acceptance_evidence is None
+                or result.source_output is None
+                or result.source_admission_identity is not None
+                or result.source_cache_publication_identity is not None
+            ):
+                raise LocalStandardLifecycleError(
+                    "native root package has no original accepted node"
+                )
+            scope.require_candidate(
+                result.source_output,
+                plan,
+                NativeRootCandidateStage(
+                    controller.prepared_candidate,
+                    generation,
+                    result.acceptance_evidence,
+                ),
+            )
+            if (
+                controller.package_binding is not original_package
+                or canonical_json_bytes(controller.package_binding.to_dict())
+                != original_package_bytes
+            ):
+                raise LocalStandardLifecycleError("native root package binding changed")
+            try:
+                return self._accept_library_observed(
+                    component_lock,
+                    custody,
+                    package_plan,
+                    package_result,
+                    oracle,
+                    root_integration_test_identity,
+                    packaged_execution_identity,
+                    controller.contexts,
+                    component_revision=component_revision,
+                    _native_root_controller=controller,
+                )
+            finally:
+                if (
+                    current_native_root_controller() is not controller
+                    or controller.scope is not scope
+                    or controller.contexts is not original_contexts
+                    or controller.prepared_candidate is not original_candidate
+                    or controller.node_observation is not original_node
+                    or controller.package_binding is not original_package
+                    or canonical_json_bytes(controller.package_binding.to_dict())
+                    != original_package_bytes
+                ):
+                    raise LocalStandardLifecycleError(
+                        "native root package stage changed"
+                    )
+                controller.require_current()
+                if (
+                    controller.package_binding is not original_package
+                    or canonical_json_bytes(controller.package_binding.to_dict())
+                    != original_package_bytes
+                ):
+                    raise LocalStandardLifecycleError(
+                        "native root package binding changed during currentness check"
+                    )
         # The original v2 capture remains live through the actual case decision
         # and evidence publication; neither an archive nor a returned DTO owns it.
         with ExitStack() as contexts:
@@ -8224,6 +10357,7 @@ class LocalStandardLifecyclePorts:
                 root_integration_test_identity,
                 packaged_execution_identity,
                 contexts,
+                component_revision=component_revision,
             )
 
     def _accept_library_observed(
@@ -8236,13 +10370,27 @@ class LocalStandardLifecyclePorts:
         root_integration_test_identity: ContentIdentity,
         packaged_execution_identity: ContentIdentity,
         verifier_contexts: ExitStack,
+        *,
+        component_revision: ContentIdentity | None = None,
+        _native_root_controller=None,
     ) -> ContentIdentity:
         """Run one verifier-owned in-language harness against the sealed package."""
 
-        from literate_ai.adapters.component_acceptance import LibraryAcceptance
+        from literate_ai.adapters.component_acceptance import (
+            ComponentAcceptanceError,
+            LibraryAcceptance,
+        )
+        from literate_ai.adapters.rust_library_harness_execution import (
+            _observe_rust_library_harness_outcome,
+        )
+        from literate_ai.application.native_root_continuation import (
+            NativeRootPackageRejected,
+            current_native_root_controller,
+        )
 
         if not isinstance(oracle, LibraryAcceptance):
             raise TypeError("oracle must be a LibraryAcceptance")
+        _require_legacy_library_oracle(oracle)
         # Revalidate mutable product values before staging or invoking the harness.
         oracle_identity = oracle.identity
         if self._evidence_recorder is not None:
@@ -8254,12 +10402,20 @@ class LocalStandardLifecyclePorts:
                     "library acceptance harness differs from its bound identity"
                 )
             self._record_product_evidence(oracle.identity_document())
+        selected_revision = component_revision or component_lock.root_revision
         root_node = next(
-            item
-            for item in component_lock.nodes
-            if item.revision.identity == component_lock.root_revision
+            (
+                item
+                for item in component_lock.nodes
+                if item.revision.identity == selected_revision
+            ),
+            None,
         )
-        contract = self._contract(component_lock.root_revision)
+        if root_node is None:
+            raise LocalStandardLifecycleError(
+                "independent library acceptance requires a selected graph node"
+            )
+        contract = self._contract(selected_revision)
         surface = contract.library_import_surface
         assert surface is not None
         if self._evidence_recorder is not None:
@@ -8286,7 +10442,7 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "library acceptance oracle names an undeclared capability"
             )
-        root_export = self._planned_exports[component_lock.root_revision.uri]
+        root_export = self._planned_exports[selected_revision.uri]
         try:
             export = custody.artifact_paths[root_export.identity.uri].resolve(
                 strict=True
@@ -8323,9 +10479,7 @@ class LocalStandardLifecyclePorts:
         rust_target = None
         original_rust_compiler = None
         if rust_v2:
-            rust_target = getattr(self, "cargo_targets", {}).get(
-                component_lock.root_revision.uri
-            )
+            rust_target = getattr(self, "cargo_targets", {}).get(selected_revision.uri)
             original_compilers = getattr(self, "_rust_harness_compilers", None)
             if (
                 rust_target is None
@@ -8342,7 +10496,10 @@ class LocalStandardLifecyclePorts:
         acceptance_toolchain = contract.library_acceptance_toolchain_identity
         assert acceptance_toolchain is not None
         binding = self.tool_bindings[acceptance_toolchain.uri]
-        binding.require_unchanged()
+        if rust_v2 and _native_root_controller is not None:
+            binding.require_command_unchanged()
+        else:
+            binding.require_unchanged()
         environment = _child_process_environment({})
         environment.pop("PYTHONPATH", None)
         environment.pop("NODE_PATH", None)
@@ -8425,8 +10582,61 @@ class LocalStandardLifecyclePorts:
                             "Rust v2 requires its exact verifier-owned input scopes"
                         )
 
+                    original_controller = _native_root_controller
+                    original_contexts = verifier_contexts
+                    original_scope = (
+                        None
+                        if original_controller is None
+                        else original_controller.scope
+                    )
+                    original_node = (
+                        None
+                        if original_controller is None
+                        else original_controller.node_observation
+                    )
+                    original_package = (
+                        None
+                        if original_controller is None
+                        else original_controller.package_binding
+                    )
+                    original_package_bytes = (
+                        None
+                        if original_package is None
+                        else canonical_json_bytes(original_package.to_dict())
+                    )
+                    original_candidate = (
+                        None
+                        if original_controller is None
+                        else original_controller.prepared_candidate
+                    )
+
                     def require_library_current():
-                        binding.require_unchanged()
+                        if original_controller is not None:
+                            if (
+                                current_native_root_controller()
+                                is not original_controller
+                                or original_controller.scope is not original_scope
+                                or original_controller.scope.ports is not self
+                                or original_controller.node_observation
+                                is not original_node
+                                or original_controller.package_binding
+                                is not original_package
+                                or canonical_json_bytes(
+                                    original_controller.package_binding.to_dict()
+                                )
+                                != original_package_bytes
+                                or original_controller.prepared_candidate
+                                is not original_candidate
+                                or original_controller.contexts is not original_contexts
+                            ):
+                                raise LocalStandardLifecycleError(
+                                    "native root package controller changed"
+                                )
+                            original_controller.require_current()
+                        if original_controller is not None:
+                            binding.require_command_unchanged()
+                        else:
+                            binding.require_unchanged()
                         if local_tree_identity(custody.root) != custody.tree_identity:
                             raise LocalStandardLifecycleError(
                                 "Rust verifier immutable package custody changed"
@@ -8435,38 +10645,121 @@ class LocalStandardLifecyclePorts:
                             raise LocalStandardLifecycleError(
                                 "Rust verifier oracle changed"
                             )
+                        if original_controller is not None and (
+                            original_controller.package_binding is not original_package
+                            or canonical_json_bytes(
+                                original_controller.package_binding.to_dict()
+                            )
+                            != original_package_bytes
+                        ):
+                            raise LocalStandardLifecycleError(
+                                "native root package binding changed during "
+                                "currentness check"
+                            )
 
                     def record_rust_bytes(content):
+                        if original_controller is not None:
+                            return original_controller.scope.retain_bytes(content)
                         if self._evidence_recorder is not None:
                             return self._evidence_recorder.remember_bytes(content)
                         return ContentIdentity.parse_uri(
                             "sha256:" + hashlib.sha256(content).hexdigest()
                         )
 
-                    completed, rust_observation = verifier_contexts.enter_context(
-                        execute_rust_library_harness(
-                            oracle,
-                            stage=temporary,
-                            export=export,
-                            library_manifest=export.joinpath(
-                                *PurePosixPath(target.manifest).parts
-                            ),
-                            library_alias=surface.package,
-                            cargo=binding,
-                            rustc=compiler,
-                            cases_document=cases_document,
-                            surface_document=surface_document,
-                            environment=environment,
-                            require_library_current=require_library_current,
-                            record_bytes=record_rust_bytes,
-                            evidence_root=self.object_root
-                            / "rust-library-acceptance-evidence",
-                            allow_host_execution=True,
+                    if original_controller is None:
+                        completed, rust_observation = verifier_contexts.enter_context(
+                            execute_rust_library_harness(
+                                oracle,
+                                stage=temporary,
+                                export=export,
+                                library_manifest=export.joinpath(
+                                    *PurePosixPath(target.manifest).parts
+                                ),
+                                library_alias=surface.package,
+                                cargo=binding,
+                                rustc=compiler,
+                                cases_document=cases_document,
+                                surface_document=surface_document,
+                                environment=environment,
+                                require_library_current=require_library_current,
+                                record_bytes=record_rust_bytes,
+                                evidence_root=self.object_root
+                                / "rust-library-acceptance-evidence",
+                                allow_host_execution=True,
+                            )
                         )
-                    )
+                    else:
+                        scope = original_controller.scope
+                        outcome = verifier_contexts.enter_context(
+                            _observe_rust_library_harness_outcome(
+                                oracle,
+                                original_run=scope.original_run,
+                                run_binding=scope.run_binding,
+                                continuation_owner=scope.continuation_owner,
+                                approved_project_authority_identity=scope.run_binding.project_authority_identity,
+                                stage=temporary,
+                                export=export,
+                                library_manifest=export.joinpath(
+                                    *PurePosixPath(target.manifest).parts
+                                ),
+                                library_alias=surface.package,
+                                cargo=binding,
+                                rustc=compiler,
+                                cases_document=cases_document,
+                                surface_document=surface_document,
+                                environment=environment,
+                                require_library_current=require_library_current,
+                                record_bytes=record_rust_bytes,
+                                evidence_root=self.object_root
+                                / "rust-library-acceptance-evidence",
+                                allow_host_execution=True,
+                            )
+                        )
+                        completed, rust_observation = (
+                            outcome.result,
+                            outcome.observation,
+                        )
+                        generation, plan, node_result = (
+                            original_controller.node_observation
+                        )
+                        try:
+                            subject = original_controller.observe_native_outcome(
+                                outcome,
+                                plan=plan,
+                                source_generation=generation,
+                                output=node_result.source_output,
+                                acceptance_evidence=node_result.acceptance_evidence,
+                                acceptance_scope="packaged-root",
+                            )
+                            if outcome.values_differ is True:
+                                if type(subject) is not ContentIdentity:
+                                    raise LocalStandardLifecycleError(
+                                        "native package rejection has no actual "
+                                        "observation"
+                                    )
+                                error = ComponentAcceptanceError(
+                                    "component_acceptance.rust_harness_result_mismatch",
+                                    "independent native library public results differ "
+                                    "from the approved contract",
+                                )
+                                raise NativeRootPackageRejected(
+                                    original_controller, subject, original_error=error
+                                )
+                            if (
+                                outcome.values_differ is not False
+                                or subject is not None
+                            ):
+                                raise LocalStandardLifecycleError(
+                                    "ambiguous native package outcome"
+                                )
+                        finally:
+                            outcome.require_current(
+                                scope.original_run, scope.continuation_owner
+                            )
+                            require_library_current()
                 else:
                     targets = getattr(self, "cargo_targets", {})
-                    target = targets.get(component_lock.root_revision.uri)
+                    target = targets.get(selected_revision.uri)
                     if target is None or not target.library:
                         raise LocalStandardLifecycleError(
                             "Rust library acceptance requires exact Cargo authority"
@@ -8520,6 +10813,24 @@ class LocalStandardLifecyclePorts:
                     surface_document,
                     cases_document,
                 )
+            if (
+                oracle.language == "python"
+                and contract.component_revision.uri not in self.python_targets
+            ):
+                from .standard_runtime import STANDARD_PYTHON_LIBRARY_HARNESS_DRIVER
+
+                command = (
+                    *binding.command,
+                    "-I",
+                    "-S",
+                    "-B",
+                    "-c",
+                    STANDARD_PYTHON_LIBRARY_HARNESS_DRIVER,
+                    str(harness),
+                    str(export),
+                    surface_document,
+                    cases_document,
+                )
             if contract.component_revision.uri in self.python_targets:
                 from .standard_runtime import STANDARD_PYTHON_WHEEL_HARNESS_DRIVER
 
@@ -8556,21 +10867,27 @@ class LocalStandardLifecyclePorts:
                         cwd=temporary,
                         env=dict(scope.environment),
                         text=True,
-                        timeout=60,
+                        timeout=native_root_timeout(60),
                     )
                 completed.native_sdk_execution_identity = scope.evidence_identity
             else:
+                environment = self._packaged_runtime_environment(
+                    environment, custody, ComponentCommandPhase.EXECUTE
+                )
                 completed = run_with_tree_kill(
                     command,
                     cwd=temporary,
                     env=environment,
                     text=True,
-                    timeout=60,
+                    timeout=native_root_timeout(60),
                 )
         finally:
             if not rust_v2:
                 shutil.rmtree(temporary, ignore_errors=True)
-        binding.require_unchanged()
+        if rust_v2 and _native_root_controller is not None:
+            binding.require_command_unchanged()
+        else:
+            binding.require_unchanged()
         if completed.returncode != 0:
             raise LocalStandardLifecycleError(
                 "independent library acceptance harness failed: "
@@ -8580,50 +10897,21 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "independent library acceptance mutated immutable package custody"
             )
+        from literate_ai.adapters.library_harness_results import (
+            LibraryHarnessResultError,
+            validate_library_harness_results,
+        )
+
         try:
-            result = json.loads(completed.stdout)
-        except (json.JSONDecodeError, TypeError) as exc:
-            raise LocalStandardLifecycleError(
-                "independent library acceptance emitted invalid JSON"
-            ) from exc
-        raw_cases = result.get("cases") if isinstance(result, dict) else None
-        if (
-            not isinstance(result, dict)
-            or set(result) != {"schema", "cases"}
-            or result.get("schema") != "literate-ai/library-acceptance-results@1"
-            or not isinstance(raw_cases, list)
-        ):
-            raise LocalStandardLifecycleError(
-                "independent library acceptance emitted an invalid protocol"
+            observed = validate_library_harness_results(
+                oracle, completed.stdout, oracle_identity=oracle_identity
             )
-        observed = {}
-        for item in raw_cases:
-            if (
-                not isinstance(item, dict)
-                or set(item) != {"case_id", "capability", "result"}
-                or not isinstance(item.get("case_id"), str)
-                or item["case_id"] in observed
-            ):
-                raise LocalStandardLifecycleError(
-                    "independent library acceptance emitted a malformed case"
-                )
-            observed[item["case_id"]] = item
+        except LibraryHarnessResultError as exc:
+            raise LocalStandardLifecycleError(str(exc)) from exc
         expected = {item.case_id: item for item in oracle.cases}
-        if set(observed) != set(expected):
-            raise LocalStandardLifecycleError(
-                "independent library acceptance did not run every exact case"
-            )
-        if oracle.identity != oracle_identity:
-            raise LocalStandardLifecycleError("library acceptance oracle changed")
         observations = []
         for case_id, case in expected.items():
             item = observed[case_id]
-            if item["capability"] != case.capability or not product_json_values_equal(
-                item["result"], case.expected_result
-            ):
-                raise LocalStandardLifecycleError(
-                    f"independent library acceptance result differs for {case_id!r}"
-                )
             observations.append(
                 {
                     "case_id": case_id,

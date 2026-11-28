@@ -1,0 +1,521 @@
+{
+  "schema": "literate-ai/forest-canonical-topology-development@1",
+  "state": "source_reviewed_mixed_topology_and_three_generation_recovery_pass_late_mode_journal_gap_open",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "prior_checkpoint": {
+    "path": "verification/retained-layout-forest-operation-development.json",
+    "sha256": "b6402c370255105f7872dbb459260d693472bfaab8cd12ff7ee4eb8e3744b36c"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-mixed-stat-native-report.json",
+        "sha256": "afbab4cce2c0ec9b894c1b20d93282bc55ffc0ed5fa018d530aa80a815215a0e"
+      },
+      "log": {
+        "path": "_build/forest-mixed-stat-native-maintained.log",
+        "sha256": "2ff64c68f8ebdd7d356e7629eeb121ec24df22ffc62581ae63edad591e263c97"
+      },
+      "summary": {
+        "executed": 37,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 37,
+        "selected": 37,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "8311b3b4224cc7e61f7281063d8b957f1d854d4324cf0cee2ee81fadc53a9397",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_altered_schedule_refuses_before_private_effects",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_complete_namespace_requires_actual_finished_live_owner",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_completed_native_data_cannot_enroll_a_source_reader",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_controlled_destination_advances_only_original_directory_stamps",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_controlled_destination_cannot_occupy_original_absent_prefix",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_direct_native_events_cannot_consume_joined_reservation",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_final_namespace_recanonicalizes_hardlink_representative",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_final_namespace_records_new_and_retained_directory_custody",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_final_private_span_callback_cannot_end_owner_unchecked",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_host_authority_and_exact_acknowledgement_precede_private_effects",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_joined_observed_event_capacity_is_reserved_before_native_effects",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_joined_storage_reservation_refuses_before_private_effects",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_last_journal_guard_cannot_end_owner_unchecked",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_late_foreign_entry_after_intent_refuses_without_source_move",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_missing_descendant_parents_are_published_from_actual_stages",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_namespace_derivation_cannot_hide_late_public_payload_change",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_native_mkdir_under_restrictive_umask_preserves_attributes",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_nonroot_ancestor_merge_retains_empty_original_containers",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_original_ledger_exhaustion_precedes_native_factory_allocation",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_post_native_failure_retains_actual_source_and_durable_intent",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_program_bytes_cannot_be_resealed_by_mutating_instance_raw",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_directory_presence_keeps_canonical_shape",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_fixed_absence_collision_refuses_before_any_native_effect",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_missing_parent_ancestry_uses_created_native_receipts",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_retained_container_lineage_follows_its_original_inode",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_root_transfer_keeps_canonical_inputs_and_moves_source_absence",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_transfer_is_simultaneous_for_existing_source_destination",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_reader_transfer_snapshot_has_bounded_canonical_seal",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_resetting_one_use_flag_cannot_repeat_native_schedule",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_root_carriers_all_park_before_any_public_target",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_root_to_existing_source_target_preserves_its_original_inode",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_source_native_factory_debits_same_ledger_and_binds_following_event",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_substituted_descriptor_refuses_and_closes_only_original_handle",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_unissued_receipt_cannot_bless_replaced_span",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_unplanned_journal_event_revokes_native_schedule_before_source_move",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_unregistered_effect_methods_cannot_move_fixed_or_repeat_stages",
+        "tests.critical.test_retained_layout_forest_native.NativeForestBatchTests.test_whole_journal_event_budget_refuses_before_source_or_parking"
+      ],
+      "source_stage": "earlier_stat_projection_source_stage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-mixed-stat-move-report.json",
+        "sha256": "2855c9a2bbfa5a438a20be81f71fb3295d1c5e2aab9f911c2ebe10cd613d7c8c"
+      },
+      "log": {
+        "path": "_build/forest-mixed-stat-move-maintained.log",
+        "sha256": "472a94cf5915301d429070abc37012aece7cf21dcfe9acb79289509e0458fa34"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "d6ffe386f985ea43cb4da9d7d61a62eddcd32dd90cb5037a91ee57d5d3d2a320",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation_topology.MixedCanonicalMovementTests.test_actual_mixed_forest_moves_with_native_custody"
+      ],
+      "source_stage": "earlier_stat_projection_source_stage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-planning-raw-snapshot-report.json",
+        "sha256": "f7ef498f542fb3f302ee23b37589270709ce7510e51a7075b7ce5bb9823392af"
+      },
+      "log": {
+        "path": "_build/forest-planning-raw-snapshot-maintained.log",
+        "sha256": "9075597484b615c8b3c7e80f2a8419d47fcb9b385ab2ee463fb053646ef2eab4"
+      },
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "9416e34f0592ce0c4c6ebfff8b50d231cf4ea361f286be4b5462d3cfee683377",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_journal_event_snapshot.JournalEventSnapshotTests.test_actual_snapshot_returns_immutable_bytes_and_rejects_copied_rows",
+        "tests.critical.test_retained_layout_journal_event_snapshot.JournalEventSnapshotTests.test_late_native_callback_cannot_add_unfunded_json_to_snapshot"
+      ],
+      "source_stage": "approved_raw_journal_source_stage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-planning-raw-journal-legacy-report.json",
+        "sha256": "6c13bbe4d77d0e2af76099093e3ed342c0569543e5510e8dd38d32d65fba529b"
+      },
+      "log": {
+        "path": "_build/forest-planning-raw-journal-legacy-maintained.log",
+        "sha256": "48659da224cd4697b5cce7bd144d90c8b2cd2d1715f584ba12ef7c89f0e87e78"
+      },
+      "summary": {
+        "executed": 20,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 20,
+        "selected": 20,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "a5bb882992e2cce14eaf3646ed71f690cd64d47810c0766a03258f39756b3a24",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_actual_writer_mutex_refuses_competing_recovery",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_changed_parent_and_mutex_identity_refuse_live_writer",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_currentness_accepts_empty_immutable_payload",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_empty_foreign_recovery_lock_is_never_initialized",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_finite_payload_event_storage_and_stage_budgets",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_foreign_namespace_symlink_hardlink_and_missing_lock_refuse",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_grown_record_refuses_before_reading_beyond_immutable_length",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_in_place_roster_addition_cannot_introduce_an_unfunded_read",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_inherited_exception_context_cleanup_preserves_parent_native_mutex",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_inherited_normal_context_cleanup_preserves_parent_native_mutex",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_interrupted_private_stage_is_retained_and_never_an_intent",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_lock_open_race_never_initializes_a_foreign_outside_hardlink",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_membership_inserted_during_record_reads_refuses_before_return",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_noncanonical_documents_and_invalid_context_refuse_before_creation",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_partial_stage_and_fsync_failure_never_publish_an_event",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_payload_or_event_tampering_and_chain_gap_refuse_preserving_bytes",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_process_death_releases_mutex_and_retains_completed_intent",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_raw_payload_chain_reopens_only_with_explicit_identical_binding",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_state_parent_can_be_inside_the_project_framework_partition",
+        "tests.critical.test_retained_layout_journal.RetainedLayoutJournalTests.test_writer_refuses_after_exit_and_in_inherited_process"
+      ],
+      "source_stage": "approved_raw_journal_source_stage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-planning-bound-mixed-inverse-report.json",
+        "sha256": "e40e7d6fca2c0055bdec2aa620d3adb4bd87b91bde491d4094759fb4ecd8c0a6"
+      },
+      "log": {
+        "path": "_build/forest-planning-bound-mixed-inverse-maintained.log",
+        "sha256": "373d0173ce76183f3cef4ca2a4589da719904f97dd16aa71983e056dca0279c2"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "37a63cf4dfb40fe2f6c846c6e06f4121c256d7db45550e6b3fb1ca5a21debc41",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation_topology_inverse.MixedCanonicalInverseTests.test_actual_interrupted_mixed_forest_restores_complete_source_and_aliases"
+      ],
+      "source_stage": "final_production_affected"
+    },
+    {
+      "report": {
+        "path": "_build/forest-planning-bound-mixed-committed-report.json",
+        "sha256": "347996250f88c81a183ac14982ca302b50a999939ea9005456d3d168f6b5a867"
+      },
+      "log": {
+        "path": "_build/forest-planning-bound-mixed-committed-maintained.log",
+        "sha256": "5b30fa432a6b072642d07a4129a4f8532d50e23135ef90f9116554e181c0f5db"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "2abc53da4c963f9f88b8d660d24fddca5cdfa29290b0f00ad81fbe53db575c92",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation_topology_committed.MixedCanonicalCommittedTests.test_actual_committed_mixed_forest_reopens_and_releases_all_controls"
+      ],
+      "source_stage": "final_production_affected"
+    },
+    {
+      "report": {
+        "path": "_build/forest-planning-bound-capacity-report.json",
+        "sha256": "4a2502c036cb4e26ccde46125d7a8b2469ee32c739347934342141cd45d5568d"
+      },
+      "log": {
+        "path": "_build/forest-planning-bound-capacity-maintained.log",
+        "sha256": "546c92ec8e1629d68de9a60a07031532d387ec10bad196bb2dd02beddc6d2b7e"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "417de5313ed48944b50bab136e9c1f60bd668a40636b45dee40f9f8e47c49209",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation_capacity.CanonicalDispositionCapacityTests.test_declared_smaller_workspace_refuses_before_disposition_intent"
+      ],
+      "source_stage": "final_production_affected"
+    },
+    {
+      "report": {
+        "path": "_build/forest-planning-bound-legacy-disposition-report.json",
+        "sha256": "e88394c55d4b3e1aecd976cbe08ca01726636340497e53b577c029460b1c4b4a"
+      },
+      "log": {
+        "path": "_build/forest-planning-bound-legacy-disposition-maintained.log",
+        "sha256": "9a4f6226be9e5423c3206b5af943ab25a36935496976e0fa8517ed2f0ebab86a"
+      },
+      "summary": {
+        "executed": 26,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 26,
+        "selected": 26,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "44ba6dd138f348af827e6180c62564be9e74ddb52c08cc29befb023fe435b90c",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_ack_execution_and_unrestored_data_refuse_without_effects",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_actual_raw_directory_close_failure_retains_durable_outcome",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_actual_raw_fd_close_failure_retains_durable_recovery_outcome",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_actual_restoration_releases_pending_keeps_same_locked_advisories",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_canonical_roles_close_git_after_shared_retirement_observations",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_cold_data_close_follows_last_producer_directory_read",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_cold_data_verification_closes_source_after_retirement_observations",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_committed_layout_supplemental_controls_release_without_rollback",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_control_source_close_follows_last_producer_directory_read",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_control_writer_closes_source_after_last_retirement_observation",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_decision_attempt_error_reports_unknown_and_reopens_durable_facts",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_factory_key_cannot_construct_missing_actual_descriptor_coverage",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_final_private_observation_preserves_concurrent_advisory_bytes",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_foreign_private_insertion_after_intent_is_preserved_before_write",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_foreign_retired_inode_replacement_remains_unresolved",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_fresh_ordinary_source_transaction_reenters_after_recovery_exit",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_fresh_raw_acquisition_closes_journal_after_new_retirement_area",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_fresh_raw_acquisition_closes_markers_after_new_retirement_area",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_late_private_observation_closes_git_before_first_token_write",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_linked_worktree_recovery_holds_actual_registration_control",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_live_bindings_immutable_and_cached_writer_expires_before_fd_access",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_native_git_pending_is_last_after_durable_recovery_decision",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_partial_same_fd_normalization_reopens_and_completes",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_postdecision_interrupt_preserves_type_and_durable_decision_note",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_postdecision_role_exit_conflict_retains_outcome_and_foreign_source",
+        "tests.critical.test_retained_layout_recovery_disposition.RetainedLayoutRecoveryDispositionTests.test_real_native_move_before_observation_reopens_exact_private_node"
+      ],
+      "source_stage": "final_production_affected"
+    },
+    {
+      "report": {
+        "path": "_build/forest-planning-bound-forest-disposition-report.json",
+        "sha256": "4339b6a8d177e0c4febe34940752f06ed3d698b3abac6f3e180f7f5feaebc603"
+      },
+      "log": {
+        "path": "_build/forest-planning-bound-forest-disposition-maintained.log",
+        "sha256": "2095f6f86416577c93aff8ebe78497b8133f6d86dbcf3d7787b6239a3157b576"
+      },
+      "summary": {
+        "executed": 3,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 3,
+        "selected": 3,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "63d07b4f25790c39f7f64374ff5604c6842556f8c430881e7ef728a5edc66f43",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_disposition.ForestDispositionTests.test_actual_verified_data_handoff_retires_pending_and_preserves_forest",
+        "tests.critical.test_retained_layout_forest_disposition.ForestDispositionTests.test_last_native_callback_cannot_replace_successor_budget",
+        "tests.critical.test_retained_layout_forest_disposition.ForestDispositionTests.test_observed_case_alias_refuses_before_disposition_intent"
+      ],
+      "source_stage": "final_production_affected"
+    },
+    {
+      "report": {
+        "path": "_build/forest-planning-canonical-area-report.json",
+        "sha256": "d9f6b783f830a35f0a5fded6dc56dc805c751eb013bb4efb2d64cdbfe4cc2e93"
+      },
+      "log": {
+        "path": "_build/forest-planning-canonical-area-maintained.log",
+        "sha256": "264b370ca29925bf2ef7a97116c73d6336e496b19f98cddbd0864b6ac2f44e23"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "d255c741825a4070aaec95954f8bb1ca17272a653c0657219ec9f32634accec3",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_disposition_area_bound.ForestDispositionAreaBoundTests.test_foreign_private_entry_refuses_before_new_plan_or_intent"
+      ],
+      "source_stage": "final_production_affected"
+    },
+    {
+      "report": {
+        "path": "_build/forest-planning-canonical-owner-report.json",
+        "sha256": "4d75e3366870ae6dd64b54608837d8dcae56fd35ddc68cad7d0c05ae901c9f5e"
+      },
+      "log": {
+        "path": "_build/forest-planning-canonical-owner-maintained.log",
+        "sha256": "daaa66fc79eabfacd98bbc254e0304736f1a6d8eec37615d474a74f53e436b64"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "9420b89b65c30ef01dd93d40ff2b16eb112dade850dce297bc0771606964e125",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_disposition_owner_bound.ForestDispositionOwnerBoundTests.test_last_journal_callback_cannot_enlarge_owner_before_projection"
+      ],
+      "source_stage": "final_production_affected"
+    },
+    {
+      "report": {
+        "path": "_build/forest-planning-canonical-g2-report.json",
+        "sha256": "354cbcd46c3c27efb871799008b309c0f2d4f6232c714c3b6a771f3aa92880da"
+      },
+      "log": {
+        "path": "_build/forest-planning-canonical-g2-maintained.log",
+        "sha256": "78f4a8bd53f395131225f82771ddd88e3ecece985d415dc81756db82ef445153"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "a22a2e71431a291ad4451f33b7596141b39abda103f0f06b866bf6422e05ecb9",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "tests": [
+        "tests.critical.test_retained_layout_forest_operation_g2_retry.CanonicalForestG2RetryTests.test_actual_canonical_retirement_retry_preserves_three_generations"
+      ],
+      "source_stage": "final_production_affected"
+    }
+  ],
+  "scoped_maintained_methods_across_recorded_source_stages": 95,
+  "final_production_affected_methods": 35,
+  "distinct_maintained_methods_across_prior_and_current_source_lineage": 147,
+  "source_review_corrections": [
+    "New empty-root reads bound0; old area rosters boundedbefore capture; name and symlink text funded separately.",
+    "Journal JSON byte/token accounting and exact-roster producer seam; mutable decoded documents never cross native callbacks.",
+    "Trailing exact owner/marker/plan/map/Path/reference and registration close before projection; exact owner types prevent attribute-based raw promotion."
+  ],
+  "scope": [
+    "Actual canonical mixed movement, inverse recovery and committed recovery preserve unknown source files beside framework metadata/wrapper authority, executable modes, empty directory inodes/modes, complete hardlink groups and raw file/directory symlink inodes/text/resolution. Fixed shared anchors and Git index custody remain unchanged.",
+    "The completed namespace projects receipt-only node fields to the existing stat-only transaction shape. Actual native owners still retain and verify the full span and logical aliases before/after projection.",
+    "Paid planning reserves new objects/maps/seals and encoding buffers from exact already-funded documents and actual current rosters. Old area enumeration is bounded by the complete verified span and the unchanged 1024 ceiling; required-empty roots stop at the first entry. Foreign symlink name and target text are separately funded.",
+    "Exact raw-envelope byte/token bounds pay for callback-free decoding. The actual registered journal producer authenticates immutable event and payload rows across native callbacks. Only immutable bytes/strings/tuples cross callbacks; entry construction follows actual owner checks and a pure trailing owner/marker/plan/map/path-reference close.",
+    "A staged owner cannot become a raw owner by acquiring a _plan attribute; exact supported factory types select the branch. Existing canonical/raw factories, descriptors, acknowledgements, native checks, cumulative allowances, coupons and policy ceilings remain required.",
+    "A separately declared 14GiB observation reaches actual prepay, which itself refuses before effects. Actual canonical foreign-entry and late-owner enlargement injections refuse before intent or unbounded projection, preserving foreign bytes and the journal.",
+    "A genuine canonical committed operation and fresh data recovery survive interruption after the first actual native control retirement observation BEFORE release decision. All old owners end; real G2 acquisition and a second disposition complete; actual G0/G1/G2 raw owners verify terminal replay with no replay journal/publication writes. Earlier private inode/bytes, source mode/bytes/inode, Git index and public native absences are checked."
+  ],
+  "not_proven": [
+    "Late mixed-directory mode interruption remains incomplete. Actual fresh inverse returned data_verified, but subsequent control-disposition preflight refused for insufficient remaining journal events. The original 256-event ceiling and all live policies remain unchanged; no continuation or compact release protocol has been implemented.",
+    "The failed mode diagnostic did not reach final control release or its post-release full mixed-custody assertions. Do not claim complete mode-boundary recovery.",
+    "This is scoped internal canonical development evidence, not full public root/shared admission/reentry, all topologies or all native/metadata/mode/control interruption boundaries.",
+    "Initial/wrapper/renewal placement, installed/native/platform/full-program acceptance, integration/release and other pending roadmap obligations remain open. Full goal stays active; no commit or push."
+  ],
+  "diagnostics": [
+    {
+      "log": {
+        "path": "_build/forest-mixed-native-mismatch.log",
+        "sha256": "537651630393a2294e88ca77e8a330f29cdb1d7222b08fd50226e03f12437fe9"
+      },
+      "exit": 1,
+      "classification": "genuine stat-only namespace mismatch; exact only link_target difference"
+    },
+    {
+      "log": {
+        "path": "_build/forest-mixed-prepay-measurement.log",
+        "sha256": "89feb3d269e5ccd4a926c42a8ae3775e369d1a6515a73f3f0a9eb6b0f3e169d1"
+      },
+      "exit": 1,
+      "classification": "genuine16GiB quota; charged17201965952 vs17179869184 before effects"
+    },
+    {
+      "log": {
+        "path": "_build/forest-canonical-g2-retirement-diagnostic.log",
+        "sha256": "ae88f65784f8a5c50c87280b124efa5e08f52c2beaf25a7e6cd3bfa4ad671756"
+      },
+      "exit": 1,
+      "classification": "invalid harness expected postdecision outcome at real predecision interruption"
+    },
+    {
+      "log": {
+        "path": "_build/forest-canonical-g2-predecision-diagnostic.log",
+        "sha256": "7fcdf22868c55aca4155789e25988907960d86ba0edb6fe3da958e11d5f0a4f6"
+      },
+      "exit": 0,
+      "classification": "corrected genuine canonical three-generation recovery and terminal replay"
+    },
+    {
+      "log": {
+        "path": "_build/forest-canonical-mixed-mode-interruption.log",
+        "sha256": "737e67e4d2c847b1a0d20da3d95de1cabbf0a9855a18ae9a69dab35ebe7ccb1f"
+      },
+      "exit": 1,
+      "classification": "genuine late inverse completes; control release refuses immutable journal capacity"
+    }
+  ],
+  "invalid_harness_runs": [
+    {
+      "log": {
+        "path": "_build/forest-mixed-move-maintained.log",
+        "sha256": "53f8abf95496b4b950c46c11065dc87db0e407ed78a24f8ceb390f06561640d6"
+      },
+      "classification": "invalid fixture384events aboveexisting256ceiling; before journal creation/source effects"
+    },
+    {
+      "log": {
+        "path": "_build/forest-mixed-inverse-maintained.log",
+        "sha256": "f249302f0a407f435d9c0fff4573283934d60712adb89299b3b527b80721f112"
+      },
+      "classification": "invalid fixture384events aboveexisting256ceiling; before journal creation/source effects"
+    },
+    {
+      "log": {
+        "path": "_build/forest-mixed-committed-maintained.log",
+        "sha256": "0f4dd8023b8a4540ca5b8e1b368d59e2436e8d4d39e7a8433774a580fb712fb8"
+      },
+      "classification": "invalid fixture384events aboveexisting256ceiling; before journal creation/source effects"
+    },
+    {
+      "log": {
+        "path": "_build/forest-planning-bound-area-bound-maintained.log",
+        "sha256": "55a3e84909dd1a34dec729427ba3fdb7ced9e04893e5e6e043746c93b164093b"
+      },
+      "classification": "invalid unmanaged fixture had no recovery_areas; StopIteration before injection; replaced with genuine canonical base and actual root union"
+    }
+  ],
+  "review": {
+    "path": "independent-layout-forest-canonical-topology-review.json",
+    "sha256": "cd721835d81d26b667a7ff2665db6188b84b6f7f5e1c3761b3a0c9011c382bdb"
+  }
+}

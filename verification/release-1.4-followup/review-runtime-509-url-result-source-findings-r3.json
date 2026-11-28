@@ -1,0 +1,38 @@
+{
+  "created_utc": "2026-11-27T19:00:35.233163+00:00",
+  "issue": 509,
+  "status": "source review open: inherited URL result descriptor/code and mutable grammar facts not closed",
+  "files": {
+    "src/literate_ai/adapters/project_layout_framework_observation.py": "f2c98a805a74f3104ef6506018c922a0c5af2ac0c608db0d5b91372dec322831",
+    "src/literate_ai/adapters/project_layout_framework_ingress.py": "671e98dd53e3f46795f5b6d2fe7845db7c3b99666f46ad9053813fe722925344",
+    "src/literate_ai/adapters/project_layout_framework_selection.py": "7f0757642eab38bb8c909f8fa43f1182c16b1436a8ef496386e339013cd7c35a",
+    "tests/critical/test_framework_reference_targets.py": "9a048b2f61c18c6651db7ca6aa6fd1887b6ca2f06c35fa557227be774be32e29",
+    "tests/critical/test_catalog_successor_membership.py": "942bdd5de48cb715b4b8b15625fc593c2cdfd85b638e46311a7a485210591366"
+  },
+  "closed": "Actual finite URL helper pointer/code/default/kwdefault bindings now cover earlier _urlsplit/_coerce_args/_noop and percent decoder cuts; percent table initialization and exact bytes-only mapping snapshot preserves semantics without project data or target content reads. New helper-code tests and actual encoded imported target source fully inspected.",
+  "remaining_findings": [
+    {
+      "severity": "P1",
+      "path": "src/literate_ai/adapters/project_layout_framework_ingress.py",
+      "section": "reference_classes / reference_functions snapshots",
+      "finding": "Actual URL result members are inherited from an unsealed namedtuple base.",
+      "evidence": "Qualified Python3.14 urllib.parse.SplitResult at line331 derives from _SplitResultBase defined251. _SplitResultBase owns __new__, scheme/netloc/path/query/fragment descriptors. reference_classes seals only SplitResult and SplitResultBytes leaf namespaces; loop over vars(cls) does not see inherited constructor/accessors. Modifying original _SplitResultBase.path to a foreign property leaves all captured leaf class namespace/base/MRO facts and function codes unchanged, then _local_subjects accesses foreign descriptor before refusal.",
+      "repair": "Capture finite actual descriptor/constructor-owning base namespace and used Python methods, or finite used class MRO owner chain, including same-object inherited __new__ code.",
+      "control": "Temporarily replace actual SplitResult.path owner descriptor with foreign property; original _invoke(_reference_subjects,...) must refuse before getter. Add original base __new__.__code__ cut with exact restoration."
+    },
+    {
+      "severity": "P2",
+      "path": "src/literate_ai/adapters/project_layout_framework_ingress.py",
+      "section": "URL namespace dependency constants",
+      "finding": "Actual mutable URL grammar list is pointer-bound only.",
+      "evidence": "Qualified Python3.14 urllib.parse._UNSAFE_URL_BYTES_TO_REMOVE is list [tab,CR,LF]; original _urlsplit iterates it at505/509. Binding same list identity accepts in-place list contents changes and therefore changes approved parsing grammar without guard refusal.",
+      "repair": "Snapshot and type-check exact primitive contents of actual used mutable parser grammar lists, analogous percent-table closure; immutable constants remain pointer-bound.",
+      "control": "Append a plain character to original list; require original parser refusal before source parsing; restore exact original list after test."
+    }
+  ],
+  "limits": [
+    "Read-only exact source/stdlib/test review; no jobs/tests/repro executed by reviewer.",
+    "r21c pending; no additional qualification inferred.",
+    "Original177 must rerun with final new source; native Windows and actual installed historical journey remain pending."
+  ]
+}

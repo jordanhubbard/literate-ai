@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "literate-ai/retained-python-test-inventory@1",
+  "description": "Reviewed complete original Python case membership and explicit classification of every gate. Parsing grants no current coverage, execution or admission authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "importer_project_id",
+    "wrapper_component",
+    "harness_inventory",
+    "source_scope_identity",
+    "gate_policy_identity",
+    "cases",
+    "non_test_steps"
+  ],
+  "properties": {
+    "schema": {
+      "const": "literate-ai/retained-python-test-inventory@1"
+    },
+    "importer_project_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "wrapper_component": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "harness_inventory": {
+      "allOf": [
+        {
+          "$ref": "urn:literate-ai:schema:v1:blob-ref"
+        },
+        {
+          "properties": {
+            "size": {
+              "minimum": 1,
+              "maximum": 16777216
+            },
+            "media_type": {
+              "const": "application/json"
+            }
+          },
+          "required": [
+            "media_type"
+          ]
+        }
+      ]
+    },
+    "source_scope_identity": {
+      "$ref": "urn:literate-ai:schema:v1:content-identity"
+    },
+    "gate_policy_identity": {
+      "$ref": "urn:literate-ai:schema:v1:content-identity"
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "action",
+          "skip_reason"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "skip_reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "non_test_steps": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "step_id",
+          "reason"
+        ],
+        "properties": {
+          "step_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        }
+      }
+    }
+  }
+}

@@ -190,6 +190,16 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
 
 ### [ ] LIBRARY-ARTIFACT-001 — Admit an importable library-artifact Component
 
+- **Accepted sealed Node SDK composition:** Recover [ADR 0075](../decisions/0075-sealed-node-sdk-composition.md)
+  from review #453 under the directing user's recorded roadmap authorization.
+  Its original proposed number 0073 collided with native root repair; canonical
+  0075 preserves that record and existing ADR 0074. Implement the bounded v1
+  pure-CommonJS-provider / TypeScript SDK plan through one shared materializer,
+  exact declarations, dual-format exports, complete npm closure and actual
+  relocated runtime/type consumers. Ordinary npm applications retain their
+  existing contract. Design acceptance supplies no artifact, provider, retained
+  consumer, package-publication or release qualification.
+
 - **Priority:** P1 (authority transfer; not portable-application subprocess)
 - **Release target:** 1.1.0 (current tracker milestone; design accepted)
 - **Design review:** [ADR 0039](../decisions/0039-1.1-capability-boundaries.md), Accepted by explicit maintainer approval.
@@ -229,6 +239,2440 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       file-mode, byte or namespace checks; add a Windows-path regression and
       obtain full manual Windows qualification before landing the follow-up.
       Existing POSIX and PR-only green results do not close this platform gate.
+- **Follow-up issue:** [#452](https://github.com/jordanhubbard/literate-ai/issues/452)
+      tracks distributable TypeScript/npm SDK consumers. The generic JavaScript
+      tree adapter does not authorize package-npm composition: npm resolution,
+      artifact materialization and declaration packaging are separate gates.
+      The directing user accepted [ADR 0075](../decisions/0075-sealed-node-sdk-composition.md)
+      on 2026-11-16 under ADR 0006. The shared plan/materializer, bounded immutable
+      compiler snapshot and offline full-tarball readback now have local fixture
+      coverage and independent state/security review. The latest
+      local smoke run passed 658 tests with six declared skips, including actual
+      TypeScript compiler, offline npm pack, relocation and negative controls.
+      Review corrections cover Windows virtual paths, reference confinement,
+      compiler-library isolation, tar member kinds and ambient tool writers.
+      These are internal fixture results, not lifecycle qualification. The next
+      action is the opt-in SDK policy and generated/retained adapters, followed by
+      authoritative declaration acceptance and native/installed qualification.
+      Foundation commit `8c2e108f` also passed the macOS whole-wheel gate; an exact
+      installed-wheel fixture passed compilation, offline packing, relocation,
+      both runtimes and four typing combinations with complete closing custody
+      checks. A digest-representation preflight failure is retained separately.
+      The subsequent additive SDK output codec and common compile-to-plan path
+      passed 674 local smoke tests with six declared skips and independent review.
+      Their application-profile denial remains explicit; neither supplies public
+      SDK lifecycle admission. Compiler tool selection now reuses the existing
+      bounded native SDK-tree capture owner with explicit package selection and
+      closing capture checks. A small worker-compatible bootstrap binds the exact
+      helper and immutable compiler packet before code loading; the selected Node
+      launcher and flags remain part of the actual invocation. Owner revocation
+      after Node probing prevents package capture and CAS writes. These tool-level
+      checks do not grant SDK admission or vendor execution trust; the public
+      generated/retained lifecycle and authoritative declaration acceptance remain
+      the next implementation gates. This compiler-capture increment passed 684
+      macOS smoke tests with six declared skips and independent review; it has not
+      replaced the earlier installed-wheel qualification checkpoint. The opt-in
+      SDK policy codec now fixes formats, declaration checks, offline script-free
+      packing and explicit portable legal filenames. Worker observations bind the
+      captured TypeScript command to the same selected Node; the shared selector
+      count includes that closed role. Forty focused tests, the existing command/
+      schema regressions and independent review cover this infrastructure. There
+      is still no selectable SDK Flavor or public SDK builder/acceptance admission.
+      Shared compiler/packer owners also expose actual completed-process facts
+      for future lifecycle recording. Observers receive immutable data, must finish
+      synchronously and return no value, and cannot bypass the final owner/tool/
+      projection checks. Thirty-seven focused tests and independent review cover
+      this internal hook; timeouts and uncertain closure still need separate
+      failure evidence. No lifecycle receipt is inferred from the hook itself.
+      Checkpoint `2b6fb2a3` passed the macOS whole-wheel gate with 1,382 installed
+      members; the exact compiler/bootstrap/capture resources were read back from
+      that wheel. Later process hooks are outside that checkpoint. Consumer-owned
+      `.cjs`/`.d.cts` forwarding modules now preserve every original provider byte
+      while selecting explicit non-adjacent declarations through ordinary native
+      TypeScript resolution. Ambiguous `.ts`/`.tsx` shadows are denied. Forty-eight
+      focused tests and independent review cover packing, relocation, adjacent
+      decoys, both runtimes, four typing combinations and CommonJS `__esModule`
+      behavior. This still does not close the public SDK lifecycle, independent
+      declaration-acceptance, native-platform or downstream cutover gates.
+      The exact `2b6fb2a3` wheel also passed a fresh noneditable Python 3.14.7
+      shared-owner fixture with 200 owner checks, 320 installed module origins,
+      relocated runtime/types and explicit rejection of any-weakened declarations.
+      The newer internal declaration checker now tests each consumer format and
+      compiler mode independently, rejects suppression directives and unrelated
+      negative errors, and bounds aggregate process evidence before retention.
+      Fifty-nine focused tests and independent review cover this checker and its
+      shared provider projection. The original Node oracle loader now pins both
+      runtime harnesses and independent typing cases; immutable loader-owned
+      snapshots prevent transient in-memory substitution. Checkpoint `f17d92fd`
+      joins the real declaration checks with both original runtime harnesses for
+      SDK and CommonJS provider views through one shared owner. The source baseline
+      through `cf652de5` passed its complete smoke run with all 88 SDK outcomes
+      passing; 37 focused checks and independent review cover the newer combined
+      owner, including the complete CommonJS path. Public SDK admission, generated
+      and retained lifecycle integration and qualification remain unfinished.
+      Merged-source checkpoint `b57e6687` passed 795 source smoke tests with six
+      declared skips, including all 127 Node SDK outcomes. Its macOS whole-wheel
+      gate passed with 1,394 installed members. The exact noneditable wheel also
+      passed all five synthetic joined-verifier checks on Python 3.14.7,
+      Node 22.23.4 and TypeScript 6.0.3, with 388 framework module origins confined
+      to the installed prefix and unchanged selected tool identities. Wheel
+      `sha256:dd2e345ab4fde486a05d640213522b3ff6ce24558506d8bf3989520052a79400`
+      binds installed distribution
+      `sha256:25d4dfcf42e84689538c326cef6eeee875d5cce83649b8f56c342faec2d33444`.
+      The same wheel passed a fresh shared capture/compile/pack fixture with 203
+      owner checks and 320 installed framework origins, four compiled outputs,
+      both relocated runtimes, all four typing combinations and four any-weakened
+      negative controls. Its new fixture and compiler selection were captured from
+      the current checkpoint; earlier setup refusals and historical manifests stay
+      retained separately. Independent review confirms these synthetic shared-owner
+      checks establish no public SDK admission or ordinary lifecycle qualification.
+      The legacy single-harness boundary now rejects Node-oracle values, copies
+      and subclasses before custody lookup, execution or evidence writes. A real
+      Node reproduction previously issued acceptance despite unverified ESM and
+      declarations. All 28 focused oracle/result/Python lifecycle checks pass,
+      preserving the legacy actual-Node cases, with independent security review.
+      The older whole-wheel checkpoint does not cover this later boundary repair.
+      Internal original-instance, bounded live provider custody now reopens the
+      registered acceptance stages and both sealed-blob/materialized-file checks.
+      It holds current plan, contract, source and owner through validation and exit;
+      copies, closing/failing scopes and foreign lifecycle owners cannot reuse it.
+      Finite original file stamps close after callbacks, including same-size writes
+      with restored mtime; concurrent context closure retires membership. The new
+      long-lived guard requires POSIX change timestamps and refuses unsupported
+      platforms, preserving the existing immediate file-check API. The macOS suite
+      passes 48 checks with one declared skip, covering genuine
+      build/test/execute/accept, original Node runtime/import regressions and custody
+      mutations, with independent state/security review; no Windows,
+      whole-wheel or public SDK qualification follows from this checkpoint.
+      The synchronous local join now binds exact locked provider specifications and
+      interfaces, original loaded oracle and selected Node/compiler to a separate
+      explicit current verifier execution grant. Full local command scope is
+      required; a liveness callback alone grants nothing. Real declaration checks
+      and both original runtime harnesses precede guarded synchronous consumption.
+      Escaped guards retire on every exit, and returned results remain data. Final
+      publication follows the outer oracle context's closing read and a bounded
+      non-reopening current-grant/owner/input fence. Actual accepted JavaScript
+      fixtures cover permission loss, locked-oracle mismatch, copied inputs,
+      asynchronous callbacks and grant loss or provider retirement during closing
+      read. The final membership fence uses the original lifecycle owner's locked
+      registry without reopening custody. All 36 checks pass with one declared skip
+      across the actual joined lifecycle, original combined verifier, legacy
+      acceptance, local command adapter and materialized-file suites on macOS,
+      with independent state/security review. Broader qualification remains open.
+      In progress: carry that exact binding into SDK recipe construction before
+      cache lookup and through build admission. Asynchronous generation and later
+      cache/build publication require fresh lifetime-aware admission. Existing
+      generation remains interface-only for other profiles.
+      The internal versioned bound generation invocation now links the unchanged
+      static plan to exact verified provider inputs, public declaration closure,
+      a new recipe and freshly metered bounded request/cache identities. The
+      original verifier consumer delegates a separate public-root traversal to the
+      existing selected compiler. An actual oracle-positive private import is
+      observed in verification but excluded from generation metadata. This avoids
+      a second declaration resolver and preserves original verifier identities.
+      Metadata has an explicit local context classification with matching journal
+      visibility and public schemas. Existing local source/cache/resume/regenerate
+      and remote paths refuse the DATA-only preparation until live admission is
+      supplied, and SDK cache rebinding refuses a different recipe. These records
+      do not activate the public profile. All 55 selected macOS checks pass with
+      no skips across actual provider/verifier execution, bound invocation/cache
+      metadata, original Node verification, lifecycle, schemas and coding-agent
+      context/generation regressions; independent state/security review passes.
+      The next pre-source gate must retain live
+      ownership before cache selection, model reservation, repair and publication,
+      wait for exact direct provider acceptance, and carry the same binding through
+      current build admission.
+      Live-owner integration must preserve the scheduler's existing stage
+      reservations and bounded repair driver. Do not substitute a pool slot for
+      stage execution permission. Fresh publication checks must retain the exact
+      original invocation; a two-workspace, 18-child actual verifier reproduction
+      confirms current check and generation-input identities are stable. Add that
+      regression rather than silently changing the identity contract. The coding
+      agent runner now shares the bounded tool process owner. Synchronous additive
+      liveness follows original scopes through launch, process polling and final
+      cleanup; setup callbacks cannot drop entering owners or start a child after
+      revocation. Nested callbacks close with a callback-free membership sweep,
+      copied scopes retire with their originals, and caught failures cannot revive
+      them. The existing verifier consumer now carries its actual provider/oracle/
+      grant guard into child execution. Actual fixtures verify grant revocation
+      interrupts a consumer child and owned descendants; existing coding-agent
+      timeout/output error codes remain intact. The broader selection passed 80
+      checks with three Windows-native skips, followed by 40 final scope/CLI/grant
+      checks with the same skips after closing-race repairs. Independent review
+      passes; native Windows, complete lifecycle and installed qualification remain
+      open. This grants no new execution permission; SDK public generation remains
+      refused until the complete admission join.
+      An explicitly configured internal operation owner now holds original
+      accepted provider/verifier scopes and actual verifier grants while a
+      synchronous operation consumes its bound invocation. The exact selected
+      consumer command contract joins recipe identity. Fresh revalidation rejects
+      any binding difference rather than retagging accepted source. Final owner
+      checks follow blocking oracle reads, then original pinned-file stamps close
+      without another policy callback or byte read. Actual-provider regressions
+      cover post-scope-read ownership loss and same-size restored-time writes in
+      the last owner callback. This increment explicitly accepts one provider;
+      multi-provider closing cuts require actual two-provider fixtures before
+      lifting the bound. The existing complete-node repair driver now has an
+      optional synchronous owner that retains each stage's real reserve/guard/
+      release path, retries capacity without running unreserved work and stops
+      repairs after owner loss. Unsupported async, Future and non-None owners
+      fail before advancing the chain. Existing transport defaults remain intact.
+      Fifty selected local checks pass, including real accepted-provider operation
+      fixtures, closing races, pinned-input stamps, synchronous admission and
+      existing lifecycle regressions; no skips. Independent state/security review
+      passes. Consumer plans in this selection remain inert DATA, so these checks
+      do not qualify generated SDK output or an installed lifecycle.
+      Configured local SDK scheduling now uses this operation owner, waiting for
+      exact direct provider acceptance before source/cache/model selection and
+      retaining the same binding through build and publication. The explicit
+      trusted-host port selects only local SDK nodes; default/remote refusal and
+      rejection of SDK checkpoint/whole-node recovery remain. The existing guarded
+      node/repair driver runs inside that port, while ordinary nodes retain phased
+      scheduling. Post-root publication re-enters the original configured port
+      with the exact expected invocation. Regression fixtures cover provider
+      ordering, owner loss, cache/recipe drift, repair, stage reservation and
+      publication failure; deterministic consumer fixtures are not native
+      generated/packed/installed SDK qualification.
+      Review also requires original ownership at the real filesystem cache commit
+      after blocking entry construction/CAS copies, not only around the publisher
+      call. Capture the existing SDK scope and carry its guard to immutable link/
+      membership publication. Preserve any committed evidence if the closing
+      acknowledgment is withheld; never infer absence or retry an uncertain write.
+      Runtime composition must preserve explicit admission ports and defer SDK
+      cache restoration until the recipe is bound inside original provider custody;
+      skip unsupported SDK checkpoint restoration rather than reading it early.
+      These scheduler/build/publication joins are now implemented for explicitly
+      configured local admission. Runtime recompositions retain selected ports,
+      SDK cache restoration runs inside the bound invocation and fresh-source
+      requests bypass it. Existing repair authority retains the original recipe/
+      manifest with changed request and fresh workspace. A real-repair regression
+      exposed stale cache-input markers suppressing publication of a repaired head;
+      local result handling now derives reuse from the final winning generation.
+      The nine-module selection passed all 51 checks, including genuine accepted
+      provider custody and real publisher owner loss during entry construction,
+      CAS copies, pre-link staging and post-link cleanup. Only the post-link case
+      retains a discoverable membership with its acknowledgment withheld. After
+      the cache-repair correction, 21 focused scheduling/repair checks pass. These
+      are deterministic consumer fixtures and an actual-provider integration seam,
+      not generated/packed SDK or native/installed qualification.
+      Independent state/security review passes for this internal integration.
+      Next: wire the opt-in TypeScript/package-node-sdk Flavor, selected compiler,
+      current verifier grants and actual shared SDK builder into public locked
+      preparation/runtime projection. Lift the single-provider bound only with
+      actual two-provider closing-cut fixtures, then run ordinary generated SDK
+      and packed/relocated CJS/ESM/subpath/type acceptance. Do not activate defaults
+      or adopt the child SDK before that complete qualification.
+      The concrete local Node SDK target now reuses the selected TypeScript image,
+      composition and offline pack owners. Target/profile/Flavor/tool and source
+      identities bind the command contract. Actual BUILD retains the original
+      admitted SDK invocation and separately current finalized build grant through
+      child execution and artifact registration; returned provider/check data never
+      supplies either permission. The authored-source fixture exercises the real
+      local build path with an accepted sealed provider, cache readback, actual
+      packed/relocated imports and source/grant/owner denials. Original bounded
+      product inventory is checked before generic cache hashing. Dependency
+      evidence preserves exact composition, provider revision and artifact hashes.
+      The target/compiler selection passes 36 tests; 71 regression checks pass
+      with one existing macOS persistent-service skip. The actual package runs
+      after relocation with producer/source paths unavailable, and both .cts/.mts
+      consumers pass positive checks and reject invalid argument types under
+      Node16/NodeNext resolution. Oversized, linked and FIFO cached archives are
+      refused. Final owner-callback target loss withholds registration/cache-hit
+      success, and revoked build grants prevent compiler execution/publication.
+      Canonical SDK profile delivery and independent SDK acceptance remain gated;
+      this step does not complete ADR 0073.
+      Explicit locally authored SDK profiles now flow through locked command
+      projection, captured compiler selection, original toolchain-closure guards
+      and ordinary runtime assembly using the same local target. Exact SDK/library
+      shape and selected packaging Flavor are required; competing application/build
+      profiles remain refused. Existing application identities and command scopes
+      are preserved. All command pins and minimum/exclusive/required-version fields
+      are checked for the selected compiler, npm and Node. Closing target tuple
+      membership follows authority callbacks; compiler-image identities appear in
+      host dependency evidence. Nine actual-tool projection checks, nineteen
+      ordinary regression checks and six isolated local child-process/assembly
+      checks pass without skips. Next: canonical opt-in Flavors and generation
+      policy, exact cross-language recipe preparation, and original v2 independent
+      SDK acceptance before ordinary generated and retained lifecycle qualification.
+      Canonical `lang-typescript-library` and `package-node-sdk` Flavors now bind
+      SDK layout, bounded npm/compiler constraints and one versioned generation
+      skill, mirrored in initialization templates. Existing TypeScript application
+      authority stays unchanged. Real canonical lock/recipe/runtime selection,
+      exact selected skill bytes, complete template equality and application/build
+      mismatch denials pass. Required skill checks pass, and the current catalog
+      contains 89 skills. Exact legal bytes must be joined to original Component
+      authority before SDK acceptance; file presence alone is insufficient and no
+      Flavor chooses a license. Original provider/generation admission,
+      cross-language recipe preparation, v2 independent SDK acceptance, actual
+      generated/retained/native/installed qualification and downstream adoption
+      remain open. Canonical selection alone grants none of those stages.
+      Static recipe preparation now permits declaration-bearing JavaScript imports
+      only for an explicit TypeScript dual-library SDK policy. Preparation and
+      execution share content-pinned profile decoding and a language-shape check.
+      Actual canonical filesystem lock/recipe tests preserve exact public provider
+      interface/declaration identity and exclude private provider specs/oracles;
+      missing declarations, malformed SDK policy and competing builds remain
+      refused. All 27 broader checks pass. A separate actual canonical integration
+      builds/tests/executes authored provider source through normal macOS runtime assembly,
+      then joins its registered stages and original v2 verifier under a current
+      fixture-only grant to the owned SDK invocation. Escaped guards fail after
+      exit. This does not qualify model-generated SDK source, SDK BUILD or SDK
+      independent acceptance. Static preparation remains inert; exact original
+      GENERATION+BUILD binding, provider joins and separate grants stay required.
+      Qualify generic JavaScript provider EXEC against arbitrary explicit CommonJS
+      declaration layouts before full SDK delivery: the current canonical provider
+      integration uses the conventional `source/<package>` manifest/export map.
+      A passing conventional layout does not prove the generic driver honors every
+      explicit v2 runtime/declaration path.
+      The same canonical owned invocation now carries authored SDK source through
+      bound-recipe registration, separate build authorization, shared compile/pack,
+      cache reuse, actual TEST and EXEC. The original provider fixture/setup is
+      shared; no canonical plan/contract is replaced with an inert substitute.
+      Precise addition behavior and fixture-only legal text enter Component authority
+      before locking. The actual output retains that text and exact compiler/provider
+      evidence. The full-build fixture passes, as do four ownership/static regressions.
+      An earlier five-minute verifier grant expired during packing and rejected the
+      operation; the successful full-build fixture issues a fresh fifteen-minute
+      grant at entry, without changing live grants or production expiry checks.
+      An internal read-only legal comparison now joins bounded caller-captured
+      SDK files to original locked Component assets with the `node-sdk-legal` role
+      and exact selected packaging profile. It reuses the snapshot's original
+      asset pins and shared profile decoder, without selecting a license or
+      granting later custody/execution. The canonical fixture now declares a
+      separate root legal asset, clears that asset from the JavaScript provider,
+      and compares both source and built legal bytes to the original lock.
+      All 18 selected checks pass without skips: thirteen legal/canonical/Flavor/
+      cross-language checks, including actual authored BUILD/cache/TEST/EXEC and
+      original invocation ownership, plus five ordinary projection regressions.
+      Independent state/security source review passes. This does not qualify
+      production acceptance wiring or a model-generated/native/installed SDK.
+      Explicit local SDK packaging now binds its tarball as a typed resource to
+      original registered BUILD custody of the complete artifact tree. Shared
+      bounded archive readback ties it to the exact library files. Every linked
+      export materializes from validated immutable blob rows, without producer
+      traversal. Original source/export/ancestry stamps, primitive resource-input
+      fingerprints and final grant time close through package registration;
+      staged files must independently match the complete planned input inventory.
+      The actual canonical authored fixture clears the acceleration cache and
+      packages with generic copytree forbidden. It passes alongside 24 distinct
+      selected checks; one existing macOS persistent-service check remains skipped.
+      Review found and corrected late payload/provenance mutation, final-time and
+      provider-copy gaps. An actual earlier package attempt failed because the
+      plan-input record has no identity property; the guard now snapshots its real
+      fields, and unit fixtures use the real record type. Two deliberately cancelled
+      candidates and that failed run remain distinct from the successful proof.
+      These are internal package seams, not independent or installed qualification.
+      Root finalization now re-enters the exact original accepted SDK binding
+      across artifact/package assembly and finalization ports, retiring it before
+      separate source-cache publication. Original lock/execution/project-plan,
+      graph/link and package identities remain pinned across callbacks, including
+      coordinated in-place mutations. Packaged TEST/EXEC reuse the shared runner,
+      environment and liveness owners with original protected test-source custody
+      and the fixed sealed export; generated tests are not shipped as SDK contents.
+      The actual canonical authored filesystem-lock fixture passes BUILD/cache/
+      TEST/EXEC/PACKAGE plus packaged TEST/EXEC in 555 seconds with original current
+      ownership and grants. An independent inert-consumer native packaged-command
+      fixture also passes. Focused lifecycle/ownership checks pass 41/41; the broader
+      Standard-prefix make python-check exits successfully with opt-in prerequisite
+      skips retained. The initial broader launch failed before tests due to shell
+      quoting, and an earlier focused candidate had a corrected test-import error;
+      neither failed attempt counts as a pass. Independent state/security source
+      review finds no remaining blocker for this increment.
+      Explicit internal root SDK acceptance now uses the same verifier lifecycle
+      as original CommonJS providers, with separate subject/request construction
+      and no default activation. It requires the original snapshot and invocation,
+      exact registered package, complete original component plan objects and CIDs,
+      actual packaged TEST/EXEC observations, original loaded root v2 oracle and a
+      separate current constrained verifier grant. Packaged legal bytes are checked
+      against original locked assets through the final decision. Original oracle,
+      artifact and locked-input finite stamps close after the final clock and
+      context exits; the original BUILD grant shares the captured final time.
+      The canonical authored port-level fixture passes actual BUILD/cache/TEST/
+      EXEC/PACKAGE, packaged TEST/EXEC and root independent acceptance: six actual
+      TypeScript children and both CJS/ESM runtime checks. It also refuses copied
+      authority, invented stages, missing/wrong grants and a late same-byte locked
+      input rewrite. The full fixture passes in 1,344.510 seconds without extending
+      active grants; this is not ordinary model-generated or installed qualification.
+      Focused checks pass 33/33 and actual provider/admission checks pass 26/26.
+      Standard-prefix and Node-SDK-prefix Make checks pass with prerequisite skips
+      retained. An interrupted candidate and a genuine export-row selection failure
+      remain distinct; the corrected selector uses the retained registry original
+      even when the graph carries an equal value projection. Its regression also
+      rejects copied registry replacement. Earlier new-test failures were assertion/
+      cleanup expectations corrected without weakening production refusals.
+      Profiling found that one original SDK owner check takes about 0.25 seconds
+      and performs nine full lock revalidations. Root acceptance had repeated its
+      combined host/package validator in distinct shared-verifier callback roles.
+      It now separates current host ownership from package/legal validation, runs
+      both before authorization, and retains the shared helper's original ordering
+      and final finite cuts. Request description validates fixed inputs and finite
+      witnesses without establishing ownership. No currentness cache, clock change,
+      active-grant extension or shared-provider behavior change is introduced.
+      The extended authored canonical fixture passes in 979.740 seconds, including
+      actual six-type/two-runtime verification plus early host-loss, late host
+      callback package/legal drift and final-clock grant/input mutation refusals.
+      Closing-only negatives deliberately revoke a disposable verifier grant or
+      substitute prior observations before forcing a denial; they are not extra
+      native positives. The positive uses the original checker, with two additional
+      real guard calls for timing/profiling. Its larger root guard measures 2.18
+      seconds with 77 full lock revalidations; this differs from the smaller SDK
+      owner sample and does not establish a guard-to-guard speedup ratio. The
+      previous full fixture took 1,344.510 seconds with fewer refusal cases; these
+      local runs show an initial improvement, not a performance guarantee. The
+      broader Node SDK Make check passes with prerequisite skips retained.
+      Explicit Python SDK host configuration now binds runtime assembly to the
+      original snapshot, one-root/one-CommonJS-provider graph, loaded oracle
+      inventory and separate verifier authorizer. Root policy selection is scoped
+      to the actual owned invocation, without replacing the manual policy field.
+      Retired/foreign/malformed/copied contexts refuse without fallback or
+      configuration rollback. Exact graph/target inventory, source registry,
+      object root and tool binding identities remain pinned across callbacks.
+      Actual provider/scope verification passes in 142.131 seconds. The separate
+      owned intent-redirection control passes in 146.165 seconds after final
+      metadata pins: a callback-replaced delegate receives no intent operation.
+      Six context-selection fixtures and 22 existing foundations pass together;
+      broader Standard and Node SDK Make checks pass with prerequisite skips
+      retained. Source-cache/checkpoint recomposition forwards the existing
+      admissions and retains the original host field through dataclass replacement.
+      These observations do not qualify recovery or model generation. See the
+      [Python host boundary](../architecture/node-sdk-host.md).
+      The full authored assembled-runtime fixture passes in 995.361 seconds:
+      actual SDK BUILD/cache/TEST/EXEC/PACKAGE, packaged TEST/EXEC and root
+      independent acceptance through the original six-TypeScript/two-runtime
+      checker. Measured source remained frozen and no active grant was extended.
+      This proves direct owned port operations from actual runtime assembly,
+      not complete runtime.execute orchestration or ordinary model generation.
+      All four existing repair/recomposition controls pass with new original
+      host/ports/closure identity assertions; those sentinel assertions establish
+      wiring, not native admission. Independent state/security review finds no
+      remaining blocker for this scoped local-source increment.
+      Next qualify ordinary model-generated/retained lifecycle behavior and actual
+      selected-project time/grant bounds. Legacy CommonJS v2 refusal remains
+      intact. Complete public admission and generated/retained/native/installed
+      qualification remain open.
+      Full authored orchestration now passes through actual runtime.execute with
+      a deterministic authored source generator bound to the actual prepared
+      requests, recipes and allocated workspaces. The runtime creates all
+      stage receipts, verify the provider before SDK generation, re-admit original
+      invocation facts under a distinct finalization policy, retire the copied
+      generation context, and finish original packaged acceptance before source
+      membership publication. The actual native case passes in 1081.895 seconds,
+      including the original six-TypeScript/two-runtime root checker, one original
+      root acceptance and both later source membership publications. All assertions
+      pass without production changes. Observers delegate to original checker/acceptor/
+      publisher implementations. A shared write-only source metadata helper
+      preserves existing registration behavior; the Standard Make regression
+      selects 69 cases: 61 pass and eight retain prerequisite skips. Fresh fixture
+      verifier grants are explicitly bounded to 30 minutes; original BUILD grant
+      policy, real clock and closing expiry checks remain unchanged. No active
+      grant extension, live model, durable cache/recovery or installed acceptance
+      is claimed by this authored orchestration experiment.
+      Provider-count preparation reproduced an actual final-clock closing gap:
+      all three original native controls fail in 29.788 seconds because a
+      completed operation returns after post-scope same-byte/restored-mtime
+      changes to the original loaded oracle or materialized provider file, or an
+      equal-value copied oracle selection. The minimal correction samples time
+      once after the final owner callback, then closes the already captured
+      oracle/file witnesses, original membership and configuration before checking
+      every grant at that same time. No baseline is recaptured, operation replayed
+      or active grant extended. All 12 actual native operation cases pass in
+      127.354 seconds, including the three corrected refusals, original owner/
+      grant-loss controls, fresh exact renewal and publication-scope ownership.
+      The broader SDK Make gate selects 168 cases: 107 pass and 61 retain
+      prerequisite skips (103.275 seconds). Independent state/security review
+      finds no remaining blocker for this bounded repair.
+      This is actual accepted-provider custody with an inert consumer plan,
+      not a new generated SDK or installed qualification. Retain the one-provider
+      admission restriction until separate actual multi-provider closing proof.
+      Public host closing reproduces a separate gap: both original native cases
+      fail in 283.039 seconds after post-scope final-clock registry replacement
+      or same-byte/restored-mtime locked-authority writes. The lifecycle observer
+      records return before a later fixture runtime guard; that guard must not
+      conceal escaped results. The correction pins the original input-closure
+      object in host configuration, captures its validated original stamps before
+      entering the provider operation, then closes original host metadata,
+      installed binding, base/closure identity and those stamps after the lower
+      operation returns. No owner callback, byte reread, clock sample or new
+      baseline follows that return. All three actual public-host native cases
+      pass in 433.272 seconds: both corrected refusals and the unchanged-input
+      owned-scope positive. They include copied-closure refusal before grants,
+      retired copied-context refusal and preservation of the replacement registry
+      value. The broader SDK Make gate selects 168 cases: 107 pass and 61 retain
+      prerequisite skips (103.524 seconds). Source and fixture hashes remain
+      unchanged across the native run; earlier authored full-runtime evidence
+      retains its original source scope, separate from this closing-boundary proof.
+      Independent state/security review finds no remaining blocker for this
+      finite outer closing repair.
+      Declared provider runtime layouts reproduce an actual producer EXEC failure
+      in 78.167 seconds: BUILD and TEST pass for logical counter/api mapped to
+      source/counter/runtime/add.cjs, then the library driver rejects its correct
+      manifest because it infers ./api.js. The encoder also omitted the v2 schema
+      and declaration facts. The correction carries complete typed v2 facts into
+      the same import owner, chooses declared root/subpath targets without
+      convention fallback, and shares CommonJS membership/metadata policy between
+      the host and standalone driver. Original artifact custody remains required.
+      An initial combined-driver candidate correctly hit the existing 4,096-char
+      command-argument ceiling; its failed native and partial regression outcomes
+      remain separate. The corrected dispatcher and fixed JavaScript support code
+      fit that same ceiling, and the dispatcher checks the support SHA256 before
+      executing it. Four direct checks pass, including the legacy loader, aliases,
+      decoy convention path, missing/wrong/extra exports and files, conflicting ESM
+      boundaries, oversized metadata, links and support substitution refusal.
+      The Standard Make gate selects 71 cases: 63 pass and eight retain
+      prerequisite skips (14.742 seconds). The SDK Make gate selects 168 cases:
+      107 pass and 61 retain prerequisite skips (106.094 seconds). Actual public
+      host declared-path and default canonical provider/owned-scope cases both
+      pass in 261.802 seconds. The full authored public-host nested-provider
+      SDK passes in 979.867 seconds: actual BUILD/cache/TEST/EXEC/PACKAGE,
+      packaged TEST/EXEC and original relocated root acceptance with six
+      TypeScript child checks and both runtime formats. A conventional api.js
+      decoy throws if evaluated. Product source remains byte-identical throughout
+      qualification; the canonical test receives formatting only afterward, with
+      unchanged Python AST. This qualifies authored owned-port operations, not
+      current-source runtime orchestration, live model generation, durable cache
+      recovery or installed qualification. Independent source/security review
+      confirms the source and final evidence with no remaining reviewed blocker.
+      The original repository lifecycle-driver pin is still stale across the
+      accumulated SDK contribution (65 tracked TCB paths in the current report);
+      the current scoped review does not authorize repinning that whole closure.
+      Preserve this refusal as an open integration/activation gate. Documentation
+      authority is renewed separately; no default policy or installed activation
+      follows from this source-only checkpoint.
+      Provider count and independent execution grants remain unchanged.
+      No automatic verifier/build grants or v1 acceptance fallback follows from
+      tool/profile projection; generated/retained SDK admission stays separately
+      owned and downstream adoption remains gated on complete qualification.
+      Bounded multi-provider admission now has an actual two-provider canonical
+      locked graph with distinct exact revisions, interfaces, runtime/declaration
+      files, original oracles and verifier grants. The original single-provider
+      refusal remained in place for the initial red proof. Native coverage now
+      checks earlier-provider ownership through later-provider callbacks,
+      operation completion and cleanup, exact receipt inventories, expiry and
+      retired copied contexts through the same base/public-host path. The initial
+      two-provider fixture reaches context
+      preparation after native producer stages, then refuses in 80.065 seconds
+      because its cloned public interfaces have identical bytes: current context
+      attribution maps each interface identity to only one source Component.
+      Preserve that outcome as a separate interface-aliasing limitation, not the
+      admission-policy red result. The corrected distinct-interface fixture
+      reaches the unchanged admission owner after both actual producer BUILD,
+      TEST, EXEC and acceptance stages; it refuses the two-provider inventory
+      in 80.500 seconds. The candidate uses the existing composition budget of
+      at most 32 providers as one shared constant, retains exact oracle/receipt
+      sets, and keeps the same recursive original custody and closing checks.
+      The broader SDK Make gate selects 168 cases: 107 pass and 61 retain
+      prerequisite skips (102.862 seconds). The first three-case native run
+      completes in 474.705 seconds: the original single-provider control and
+      public-host two-provider positive pass; the base case errors while its
+      attempted foreign receipt is rejected by the composed-stage contract before
+      admission. Preserve this as a test construction failure, not a successful
+      foreign-receipt refusal or production defect. The corrected case changes
+      only an acceptance-policy identity in consistent typed DATA and requires
+      exact lower-owner refusal before grants; it does not claim a receipt from
+      another genuine live registry. The five-case mutation run completes in
+      1019.566 seconds: both original final-clock oracle/expiry checks pass. The
+      other three error because nested cleanup surfaces retired-scope errors
+      above the intended original pinned-oracle, file-stamp or expiry refusal.
+      Corrected assertions require both the exact surfaced fence and the exact
+      original class/message in its exception chain, no AssertionError, an actual
+      mutation and no consumer entry. Independent review accepts these corrections.
+      All production bytes and prior passing test/shared-helper ASTs remain
+      unchanged. All four corrected native cases pass: base ownership plus
+      earlier-oracle loss in 394.057 seconds, and earlier-file loss plus grant
+      expiry in 302.601 seconds. These results combine with the unchanged passing
+      public-host/control, both final-clock cases and aggregate-budget case;
+      they are scoped native evidence, not one all-green combined suite. The
+      final SDK Make gate selects 169 cases: 107 pass and 62 retain prerequisite
+      skips, including the separately qualified native budget case (100.326
+      seconds). All seven measured Python files remain byte-identical afterward;
+      lint, formatting and whitespace checks pass. The original TCB pin remains
+      unchanged/stale across 65 tracked implementation paths. Independent
+      state/security review accepts the source, corrected checks and evidence
+      scope for this local source-only checkpoint. The next action in progress
+      is actual two-provider SDK BUILD/cache/TEST/EXEC/PACKAGE and relocated
+      original root acceptance. Extend the same authored SDK fixture to compose
+      both original providers, retain every provider blob in SBOM/graph/package
+      custody, and run the existing six-TypeScript/two-runtime root checker.
+      This remains owned-port fixture qualification, not runtime orchestration,
+      model output or installed acceptance. No complete multi-provider SDK
+      lifecycle is claimed. The first full two-provider case terminates with
+      an error in 1303.920 seconds after actual BUILD/cache/TEST/EXEC, during
+      PACKAGE, before original root acceptance. A Node revalidation probe exceeds
+      its unchanged 15-second total deadline at 17.054 seconds and is wrapped as
+      a toolchain-change refusal. Preserve the failed outcome; do not call it
+      tool-byte drift or relax deadlines. Three fresh bare Node discovery and
+      revalidation samples take 0.078–0.084 seconds. The next diagnostic profiles
+      actual SDK cohort guard overhead with original scopes and a real probe;
+      no callback, catalog revalidation or grant fence may be removed to obtain
+      a pass. A diagnostic import-path setup failure is retained separately.
+      The actual two-provider diagnostic completes: an unprofiled original
+      owned-guard read takes 0.645 seconds; a profiled guarded Node probe returns
+      successfully in 19.523 seconds including final checks. The profile records
+      240 full snapshot/catalog checks and 32 public request-description calls
+      that repeat custody validation (5.392 seconds cumulative), alongside 32
+      separate full subject checks. Profiling overhead affects elapsed time; this
+      does not reproduce the full PACKAGE failure or establish a normal latency.
+      The candidate keeps the public validating request API and all catalog,
+      inherited liveness, subject, oracle/file and grant checks, but moves fixed
+      request description inside the established provider verifier to a private
+      metadata-only role. Pin original registry-entry and scope-field identities,
+      reject retargeting before initial file reads, and close that same entry and
+      request metadata after the final clock without removing replacement state.
+      Both new native boundary checks fail against the original owner in 9.271
+      seconds: retargeting after validation reaches an unowned initial file
+      capture, and replacing the final registry entry allows a result to return.
+      The candidate pins original entry, scope/path/file primitives and request
+      metadata, closes mapping callbacks before initial capture, retains full
+      subject validation, and checks that same entry after the last clock.
+      Retire only an original failed entry; preserve replacement registry state.
+      Corrected cuts pass in 8.583 seconds; all 31 actual provider/admission
+      cases pass in 228.846 seconds. Source bytes remain unchanged across those
+      runs. Matched diagnostic profiling then records an ordinary owner check of
+      0.503 seconds and a successful profiled probe of 14.328 seconds; inherited
+      guard calls remain 24, separate full subject checks remain 32 and full
+      snapshot checks fall from 240 to 176 by removing only duplicated custody
+      from request description. Profiling is diagnostic, not a general latency
+      or full PACKAGE qualification. No deadline or catalog/liveness validation
+      is relaxed. Independent source/security review accepts this role boundary.
+      The authored
+      cell selects fresh finite 45-minute constrained provider-verifier grants
+      before entering either scope; the prior one-provider cell retains 30
+      minutes. Ordinary SDK BUILD and the separate root verifier retain their
+      existing 30-minute and 15-minute bounds. Keep real clock sampling and do
+      not extend active grants. The first full attempt used unchanged product code
+      from the bounded admission checkpoint. That canonical fixture declared only
+      its root public module; provider subpaths were not public SDK subpath acceptance. Existing public root/subpath runtime
+      checks use synthetic compiled composition fixtures. Qualify an actual
+      canonical packed SDK with explicit public subpath exports separately.
+      The original current ESM harness loads the declared runtime file, while
+      CJS uses the package specifier; do not claim bare ESM package-resolution
+      coverage from this active cell. Preserve both obligations before closing
+      the broader packed root/subpath acceptance requirement. A separate small
+      native runtime check will reproduce bare ESM root/subpath resolution with
+      an original loaded oracle and the actual current runtime owner before any
+      implementation change. That real two-child check fails in 1.249 seconds:
+      CJS bare root/subpath imports pass, while ESM reports ERR_MODULE_NOT_FOUND
+      from the fresh verifier workspace, which has no SDK package binding.
+      Future namespace staging must retain complete original/package-copy bytes,
+      membership and callback/child-boundary custody; it supplies no new grant
+      or resolver and must preserve explicit platform qualification limits.
+      Product source now has the separately reviewed provider-role candidate.
+      The namespace candidate reuses the canonical declaration projection's exact
+      node_modules file image and the runtime's existing fresh writer. It snapshots
+      bounded path/bytes/mode primitives before callbacks, preserves legacy runtime
+      identities when absent, binds supplied namespace identity into runtime DATA,
+      and holds complete original POSIX namespace stamps through children,
+      observers and final oracle exit. Unsupported namespace custody refuses
+      before files; there is no weaker platform fallback or new grant/resolver.
+      The first combined runtime run selects 21 cases: 20 pass, one negative
+      fixture expects ERR_MODULE_NOT_FOUND but its own realpath preflight emits
+      ENOENT for an absent target. Preserve that outcome; refine the case to an
+      unexported subpath requiring native ERR_PACKAGE_PATH_NOT_EXPORTED, then rerun.
+      The corrected export-map case and combined runtime suite pass all 26
+      selected cases in 36.276 seconds. An added high-level unsupported-host case
+      initially fails from a missing test import; its corrected rerun passes in
+      1.141 seconds before any compiler child or runtime stage.
+      Independent review then finds two original-stamp gaps: per-file staging
+      callbacks precede the initial complete capture, and high-level callbacks
+      and outer oracle exit follow the runtime owner's close. Both deterministic
+      actual checks reproduce escaped results in 8.740 seconds. The corrected
+      candidate writes the bounded immutable batch without callbacks, captures
+      immediately, and retains the same guard through a private outer ExitStack;
+      standalone closure remains unconditional. No deadline, grant or platform
+      fallback changes. The stronger full two-provider root-plus-public-math
+      fixture is authored with separate original declaration cases (twelve actual
+      TypeScript children) and bare root/subpath CJS/ESM harnesses. Its first r2
+      attempt was interrupted by this agent for those review repairs before any
+      product edit; retain the KeyboardInterrupt outcome and source inventory.
+      All 29 final runtime/namespace/joined-verifier checks pass in 43.520 seconds,
+      including both review cuts. Independent review accepts that source slice.
+      The SDK Make gate selects 180 cases: 117 pass, 63 retain prerequisite skips,
+      zero fail (123.237 seconds). Fresh actual foreign-registry qualification on
+      the combined candidate passes in 338.819 seconds.
+      The fresh full two-provider root-plus-math attempt reaches PACKAGE, packaged
+      TEST/EXEC and the original declaration phase, then fails during root runtime
+      verification after 1904.962 seconds. The original first provider BUILD grant
+      expires at its unchanged finite 30-minute lifetime; cleanup subsequently
+      surfaces retired-scope errors while preserving authorization_expired in the
+      exception chain. Both provider-verifier grants had fresh 45-minute bounds;
+      those did not extend the independent ordinary producer BUILD grant. All nine
+      recorded Python source hashes remain unchanged. Original root acceptance
+      does not return, so this is not a full passing qualification. Never extend
+      that expired grant or suppress its validation. Further source inspection
+      confirms StandardAuthorizationInputs hardcodes the independent 30-minute
+      BUILD lifetime and exact authorization comparison. There is no current
+      fixture knob for a longer ordinary grant. Do not monkeypatch policy, alter
+      clocks or renew old grants to obtain a pass. Reduce legitimate overhead or
+      obtain separate reviewed finite-duration policy work; preserve the original
+      Node probe deadline and all expiry controls.
+      This namespace seam does not itself qualify canonical public aliases or
+      Windows custody. Complete full-root acceptance remains open.
+      The cumulative custody/binding repair batch is recorded locally at
+      `4db6cb63` before repeating the full candidate. Independent comparison reconstructs
+      the original TCB pin exactly from baseline 101315c4a699579534a06141e975439951166e1d;
+      the frozen dirty TCB is 81d1b1df9c0dcfa7f86a9d2069366c395bf457dee8e88d085dd0768e4f05af41.
+      Its 65 changed paths contain 10,850 insertions and 565 deletions. Contract,
+      schema and shipped/canonical Flavor/skill partitions have no reviewed
+      blocker (26 TCB paths plus corresponding schemas/canonical files). Compiler
+      and verifier partitions expose additional open cuts; this is no blanket
+      cumulative approval or permission to repin. Remaining joins are under review.
+      Actual isolated lower-owner reproductions establish these repair obligations:
+      projection final callbacks can rewrite equal bytes; fresh projection guards
+      can adopt an offline npm observer's replacement; a redirected ancestor can
+      retain every descendant stamp; actual compiler and declaration children can
+      be relabeled from callback-mutated caller DTOs; repeated declaration paths
+      retain 960,752 source bytes while charging 243,491 under a 524,288-byte quota;
+      cache callbacks can redirect publication or substitute staged payloads.
+      Source review additionally identifies membership-unlink and complete package
+      destination lifetime cuts, including resource/export writes, package capture
+      and binding. Add maintained red/green coverage for every claimed repair.
+      Reuse original finite guards and immutable primitive snapshots across joins;
+      hold original copy custody through children, observers and final callbacks.
+      Share ancestor identity checks without rejecting unrelated sibling writes.
+      Keep strong SDK namespace custody explicitly POSIX-only; generic cache must
+      preserve reliable Windows handle identity rather than a weaker inode guess
+      or blanket Windows refusal. No TCB repin, installation, activation or complete
+      multi-provider acceptance follows from these partial observations.
+      The first maintained four binding/quota/environment checks reproduce three
+      failed assertions and one actual-child error in 9.713 seconds; the repaired
+      snapshots, conservative source charging and environment policy v2 pass all
+      four in 9.997 seconds. Shared ancestor closure reproduces two escapes out of
+      three checks, then passes all seven ancestry/pinned-input checks in 0.038
+      seconds. Five composition/npm boundary checks reproduce four escapes and an
+      unsupported-host setup error in 24.834 seconds; the persistent original copy
+      scope and bounded callback-free writer pass all 23 composition/package
+      checks in 95.486 seconds. The former per-file callback-count assertion is
+      replaced by explicit failure-boundary checks; failed writes remain retained.
+      Cache effect repair keeps original configuration, held parent/object
+      identities, anchored POSIX effects and original-only cleanup. The first six
+      reds include a retirement fixture whose trigger missed a liveness wrapper;
+      preserve that provisional result. The corrected trigger against the exact
+      original HEAD retirement method confirms actual foreign-file deletion.
+      The corrected effect/retirement/hardening set passes 11 cases; extended cache
+      coverage passes 21 in 1.029 seconds. Nine final effect cases pass in 0.519
+      seconds, including controlled native-ID fallback for zero Python inode and
+      unavailable-identity refusal. These facade cases are POSIX-hosted, not native
+      Windows qualification. Independent source review accepts the cache delta;
+      its two facade cases are explicitly limited to their POSIX test machinery.
+      Package destinations now retain bounded original partial-file/export
+      observations through later writes, capture and binding, then close against
+      the complete original namespace before retiring those partial observations.
+      Independent review also requires exact original-root containment and a
+      reconstructed relative path/content/mode inventory; equal counts and bytes
+      cannot retire one tree's originals in favor of another tree. That correction
+      is in place. A single-use read-only move observation preserves descendant
+      stamps and
+      permits only the known exclusive rename's root-ctime change. All 26 package
+      and move-custody controls pass in 0.053 seconds, including equal-byte
+      rewrites at the capture/bind boundary, occupied destinations and foreign
+      children. The package caller uses the existing exclusive publication owner
+      and immediately transfers its retained witness without an intervening
+      callback. Original staging ancestry is bound before the first export's
+      callback. SDK parent creation uses the shared no-follow directory owner so a
+      prior-export callback's alias cannot create descendants in a foreign tree.
+      All 29 package/move checks pass in 0.090 seconds on this refinement.
+      Unknown occupied SDK destinations refuse; failed SDK stages remain
+      retained rather than recursively deleting another writer's files.
+      BUILD handoff and reserved-output repair have source review; final native
+      checks remain in progress.
+      The maintained actual compiler/packer tarball-link control against the
+      exact original HEAD BUILD function confirms an outside file is overwritten
+      (failed assertion, 43.951 seconds). Its earlier trial stops at a later
+      alias-reader error; preserve that provisional result. The SDK writer now
+      creates reserved tarball, metadata, manifest and resolved-SBOM files
+      exclusively, retaining each original witness through subsequent callbacks.
+      The original export spans packing, and the complete workspace must match
+      exactly those owned outputs before exclusive publication and observation
+      transfer. Known live compiled-plan cache reuse remains; unknown cold output
+      and checkpoint destinations refuse rather than replace existing data.
+      SDK checkpoint publication avoids the predictable legacy temporary name,
+      checks ancestors before creating children and retains its original file
+      observation through the remaining BUILD callbacks. Three focused checkpoint
+      controls and the eight pre-final BUILD cases pass as an 11-case batch in
+      342.571 seconds. Subsequent review extends the original cached-output
+      witness through final liveness close and retains the same private output
+      observations outside the entire BUILD consume operation, after its last
+      owner callbacks. The original object root is pinned before BUILD/package
+      callbacks as well. The final-source batch passes all 15 cases in 537.141
+      seconds, including cache reuse, actual compiler/packer reserved-path
+      refusals, original-copy and final-context-exit rewrites, root redirection,
+      packaged TEST/EXEC and relocated consumers. All 33 inventoried Python files
+      remain unchanged through that run. The 21 shared CycloneDX/cache effect,
+      retirement and hardening checks also pass in 0.597 seconds. These scoped
+      results are not complete multi-provider runtime approval. Independent cumulative
+      source review reconstructs the actual baseline and its 1,238-member pin,
+      matches all 67 changed paths and the current 1,277-member TCB identity
+      `sha256:5c8d35cd199fd3a194d832dc36c9e2fc557adc4c9c7d609533740ef6aec81b78`,
+      and finds no remaining source blocker after the seven partition reviews and
+      repair joins. The source pin is recorded at exactly that independently
+      reviewed TCB after the 15-case native batch passes. The broader SDK Make
+      gate selects 197 cases: 132 pass and 65 retain prerequisite skips in 116.730
+      seconds. Lint/format, repository layout, host-path policy, documentation
+      authority and project validation pass. Ordinary local-adapter and legacy
+      runtime coverage selects 18 cases: 17 pass and one retains its declared skip
+      in 10.257 seconds. This reviewed source checkpoint retains SDK cold recovery,
+      full current-candidate orchestration and downstream activation as open gates.
+      After recording the checkpoint, address shared-interface attribution and
+      profile repeated locked-snapshot planning before another expensive full
+      two-provider/root-subpath acceptance run. Preserve callback/expiry checks
+      and the ordinary 30-minute BUILD policy throughout that performance work.
+      This evidence supplies no complete-runtime,
+      installed, platform, downstream-cutover or activation acceptance.
+      Genuine foreign-registry receipt coverage is a separate native subproof
+      alongside the frozen full SDK run. Use two actual independently built and
+      accepted provider inventories with identical locked revisions/interfaces
+      but distinct authored source bytes. Keep the foreign original scopes live
+      while attempting reuse in the local owner; require registered-stage refusal
+      before a verifier grant, preserve both scope registries and finish the
+      original local invocation afterward. Existing frozen fixture helpers and
+      product source must remain unchanged. This genuine live-foreign-registry
+      native case passes in 388.722 seconds: both foreign artifacts have different
+      sealed source bytes but the same original locked graph/revisions, their
+      original scopes remain live during local registered-stage refusal before
+      verifier grants, both owners unwind their counters, and the local owned
+      invocation subsequently passes. Independent scope review covers this test;
+      final evidence review is pending. The
+      independent actual aggregate custody-byte-budget refusal passes in
+      148.722 seconds: lowering only the fixture budget to its first live charge
+      refuses the second actual provider and unwinds both accounting counters to
+      zero. This proves budget refusal/accounting, not a 32-provider performance
+      cell or an SDK lifecycle. Shared-byte interface attribution is implemented
+      and locally checked before claiming general multi-provider graph support.
+      Retain every exact selected graph edge and provider-resolution identity;
+      validate each provider's original public reference before deduplicating
+      equal interface bytes. Emit one segment per interface identity with the
+      lexicographically least selected provider revision URI as its canonical
+      source representative. Shared-byte reasons must be truthful rather than
+      claiming the representative is the only origin. The bounded context owner
+      must require that same representative independent of edge/input order and
+      preserve duplicate, foreign-source, missing-source and drift refusals. This
+      is a selected DATA projection correction, not new runtime admission or a
+      context schema that enumerates all origins. Require maintained red/green
+      controls and independent review before recording its source pin. Also
+      preserve dependency fan-in accounting from every distinct selected provider
+      in the original plan; counting only representative prompt segments can hide
+      additional origins beneath shared bytes. Diagnose that budget join before
+      recording the attribution candidate's source pin. Six maintained controls
+      reproduce five failures and one context error in 0.734 seconds after fixing
+      an initial fixture's mistaken assumption that capability providers populate
+      repository-provider resolution records. The shared selector and all-origin
+      read pass the expanded context/recipe controls. A later explicit budget
+      diagnostic exposes two selected providers accepted under fan-in one; its
+      maintained refusal fails in 0.010 seconds before correction. Fan-in now
+      counts distinct original plan providers, while display measures still count
+      the rendered bytes. All 14 focused context, canonical recipe and private
+      canary controls pass in 2.318 seconds, including the same-provider/multiple
+      requirements control, reverse-edge DATA selection and physical alteration
+      or removal of the nonrepresentative origin. One earlier native run is
+      deliberately interrupted with SIGINT after 159.317 seconds upon discovering
+      the budget cut; retain its interruption/retired-scope cause chain, with no
+      pass or product-failure claim. The final native shared-interface public-host
+      invocation passes in 243.099 seconds: both actual producers complete their
+      stages and enter the owned invocation, with one rendered public segment,
+      both exact SDK provider records/graph edges and a fan-in charge of two.
+      All five inventoried Python files remain unchanged through the run. Independent
+      review verifies the two-source-file delta and exact candidate TCB
+      `sha256:b5ac89347b3df939bed7b3f376ccd9522fdde9d1dc49efe583f73502ead90af1`;
+      this supersedes the earlier pre-budget source ACK. The broader SDK Make gate
+      selects 207 cases: 142 pass and 65 retain prerequisite skips in 112.692
+      seconds. Lint/format, layout, host-path policy, documentation authority and
+      project validation pass. The exact independently reviewed pin is recorded
+      for this local source checkpoint; no full SDK lifecycle,
+      installed or downstream-cutover acceptance follows. The next action in
+      progress after that checkpoint is profiling current repeated locked-snapshot
+      planning. Remove only proven redundant pure planning work; preserve original
+      source/catalog/audit/lock custody, callback and clock boundaries, verifier
+      grants, process cancellation and the ordinary 30-minute BUILD policy.
+      A fresh canonical two-provider/root-subpath DATA-only snapshot benchmark
+      at `41de5846` measures a 31.113 ms median over 20 unchanged validations
+      (30.310–32.590 ms), with no child, grant, model or lifecycle execution.
+      One profiled validation takes 74 ms: `plan_snapshot` accounts for 60 ms,
+      including 40 ms of catalog validation and 114 pinned-input reads. This
+      refines the earlier cumulative profile: repeated filesystem/path work,
+      not only pure planning, dominates. Keep catalog membership and source
+      discovery live; a cache keyed only by in-memory metadata could miss new
+      matching files and is rejected. The next implementation candidate is
+      bounded POSIX batching of already-pinned file validation through original
+      no-follow directory descriptors, sharing the existing safe directory opener.
+      Preserve per-file bytes/limits, final original directory/name checks and
+      source discovery, with unchanged ordinary fallback on Windows/custom readers.
+      Require alias/replacement, nonregular/oversized input, cleanup/descriptor and
+      compatibility controls plus independent source review and measured benefit
+      before using it to repeat complete SDK acceptance. A focused diagnostic
+      additionally shows the saved pinned-input stamp guard retains aliased frozen
+      entry DTOs: in-place content metadata replacement changes closure identity
+      while unchanged file stamps let the guard return. Share a primitive entry
+      value fence between the new read batch and persistent stamp guard; preserve
+      value-equivalent idempotent pinning and add maintained metadata controls.
+      This is an observation-integrity defect, not a demonstrated grant bypass.
+      The corrected maintained alias control reproduces four failed subcases in
+      0.004 seconds; its initial trial detached the entry alias through idempotent
+      pinning and is retained as a fixture-construction miss. Primitive entry-value
+      snapshots close that gap while keeping equal-value idempotent admission.
+      The per-call batch holds all original ancestors within 64 descriptors,
+      reserves one for payloads, preflights every file before any payload read and
+      closes original FD/name/directory, entry and limit observations afterward.
+      Unsupported capacity/identity falls back before payload validation; drift,
+      open and close errors fail without fallback. All 30 input/ancestry/scale
+      controls pass in 4.658 seconds; 29 shared cache/CycloneDX controls pass in
+      1.025 seconds. Controlled zero-ID facades are not native-platform evidence.
+      A balanced same-process 20-pair comparison to the exact committed original
+      read/safe-directory methods measures 48.933 versus 46.280 ms medians (5.4%
+      local reduction); an earlier pair measures 4.7%. This does not establish
+      full SDK throughput or expiry margin. A separate concrete-container
+      canonicalization probe yields only 1.8% and is rejected without source/ABI
+      changes. Independent source review reproduces the exact two-file delta and
+      `sha256:7cf942a2d296e343314b20dde27b61a6e6446cbcc3c56f2b1611953310e96e18`.
+      The broader SDK Make check selects 207 cases: 142 pass and 65 retain
+      prerequisite skips in 112.865 seconds. Lint, format, layout, path policy,
+      documentation review and project authority validation pass; the exact
+      reviewed source identity is recorded. Complete current SDK acceptance
+      remains required, preserving the ordinary 30-minute BUILD grant.
+      The fresh complete two-provider/root-subpath run at `1391004c` fails after
+      1,902.073 seconds with `security.authorization_expired`. It passes SDK
+      BUILD/cache/TEST/EXEC/PACKAGE and reaches independent packaged acceptance;
+      its first recorded expiry is in the enclosing process-liveness exit, with
+      later retired-scope exceptions retained as cleanup consequences. All 1,009
+      frozen Python inputs remain unchanged and the source tree is clean at
+      termination. This is failed full acceptance, not an authorization renewal
+      or a qualified consumer result. Local 4.7–5.4% reader benchmarks do not
+      establish a sufficient complete-lifecycle margin. Investigate the exact
+      closing validation path before another full run, retaining all original
+      callback/effect/clock/namespace boundaries and the original child matrix.
+      Independent review confirms the operation body returned before the first
+      observed expiry, without establishing that it returned before absolute
+      expiry. The terminal visit now delegates entry/successful-exit polling to
+      the existing shared process-liveness context, removing only two adjacent
+      duplicate SDK checks. Recursive provider exits, original witnesses, final
+      inputs and all grants/clocks are unchanged. The source review reproduces
+      `sha256:6a101bce2ef073462e672da393ab01a0691c4238d96164c194f3158eca9be42c`.
+      The 29 actual-provider/process-liveness controls pass in 159.705 seconds;
+      a strengthened zero-consume entry assertion separately passes in 9.866
+      seconds. Its initial assertion could be masked by cleanup and was corrected;
+      a formatting-mismatch edit trial did not apply and is not fresh coverage.
+      The broader SDK Make check selects 211 cases: 142 pass and 69 retain
+      prerequisite skips in 114.035 seconds. Lint/format pass; independent source
+      review approves this exact one-file production delta and corrected entry
+      control, and its source identity is recorded. No sufficient full-lifecycle
+      speed or complete SDK pass is established.
+      Additional DATA-only probes reject native-container canonicalization
+      (0.66% local gain), per-file anchored initial reads (21.6% slower), a shared
+      view with all-directory checks per read (21.3% slower), and a narrow
+      per-reference-group fused view (3.14% gain). A provisional catalog-local
+      fused-path/read prototype measures 14.14% over 24 alternating pairs, but
+      remains unimplemented: production must close the capture view before
+      discovery/final closure validation, reserve fallback descriptors, preserve
+      error/fallback policies and avoid remote/custom-reader overlap. Prototype
+      monkeypatches and private-cell inspection are benchmark-only DATA, not
+      source, error-path, descriptor-limit or native SDK qualification.
+      Production now implements that bounded local-reference capture: retain
+      original immutable topology while checking current descriptor/name identities
+      on every read; close the view before discovery and final closure validation.
+      The strict default POSIX path reserves two of 64 descriptors for ordinary
+      fallback, keeps local asset handling on its original owner, and retires before
+      remote/custom/unsupported metadata dispatch. An actual manifest-read injection
+      checks that a late nonstandard Flavor contribution is retired before its
+      getter executes. Capture owns the whole payload read through file close and
+      rejects swallowed reentry. Immutable tuple ownership prevents a substituted
+      cleanup projection from closing foreign handles or leaking original ones.
+      Expected identities are snapshotted before blocking I/O in both ordinary and
+      strict paths; two maintained red controls reproduced wrong-expectation
+      admission before correction. The original expectation/path also survives
+      a declined strict read into the full ordinary fallback. All 89 connected
+      input, closure, cache, planning and command-projection checks pass in 12.128
+      seconds on the final candidate. Independent read-only source review verifies
+      all 1,277 members, the exact three-path production delta and
+      `sha256:a178141cac243213311bf2ba5c9f9ba65f1811d59e9a4e1e1f21ec12b241429d`.
+      A fresh 24-pair alternating DATA-only comparison to exact committed
+      `78206040` methods measures 30.955 versus 25.972 ms medians (16.10% local
+      reduction); source hashes remain frozen. No children, grants or lifecycle
+      are exercised by that benchmark. The preceding actual implementation probe
+      measured only 1.31%; the later topology-record implementation measures
+      the larger reduction in this separate paired run.
+      One diagnostic rerun accidentally overwrote the original `41de5846`
+      benchmark's raw JSON samples and pstats. Its original text log, including
+      the historical 31.113 ms result and textual profile, survives. The new
+      outputs were renamed as current probes and an explicit artifact-loss record
+      retained. The lost raw evidence is not reconstructed or claimed available;
+      the new balanced comparisons have separate preserved outputs. The broader
+      SDK Make gate selects 211 cases: 142 pass and 69 retain prerequisite skips
+      in 116.953 seconds. All 29 actual-provider/process-liveness controls pass
+      in 153.970 seconds with the local TypeScript SDK enabled. Independent review
+      approves the source and documentation, including the artifact-loss limit;
+      the exact reviewed source pin is recorded. Complete two-provider acceptance
+      still determines qualification; neither local timing nor source review
+      establishes sufficient expiry margin.
+      The fresh full canonical two-provider/public-host/root-subpath case at clean
+      commit `e713cc8d` passes in 1,762.745 seconds. Both actual nested CommonJS
+      producers complete admission; SDK BUILD/cache/TEST/EXEC/PACKAGE, packaged
+      TEST/EXEC and independent packaged-root acceptance return successfully.
+      The original twelve-TypeScript/two-bare-CJS-ESM child matrix, original child
+      deadlines, ordinary 30-minute BUILD authorization, explicit 45-minute
+      provider verifier fixture policy and 15-minute root grant are unchanged.
+      No grant renewal/replay, reduced
+      cross-product or new mock supplies the pass. All 2,016 frozen Python files
+      match before/after inventories, with clean exact-commit source at exit zero.
+      Earlier full failures remain retained. Late CPU samples reach 95–100% busy;
+      the terminal pass supplies no paired whole-lifecycle performance claim or
+      guaranteed expiry margin. Next qualify the existing one-provider
+      authored-generator `runtime.execute` orchestration on this current
+      implementation, then close multi-provider orchestration, ordinary model,
+      durable cold-cache/recovery, platform/installed and default/cutover gates.
+      The full staged fixture alone does not establish those separate outcomes.
+      The existing one-provider authored-generator `runtime.execute` case then
+      passes in 830.255 seconds at clean `71f2c585`. It retains actual source
+      request/recipe/workspace/provenance binding, genuine runtime staging,
+      provider re-admission under a distinct finalization policy and the same
+      original invocation/binding, retired generation context, original checker
+      and root acceptance, and both source publications only after acceptance.
+      Its original matrix is six TypeScript compiler checks plus two runtime formats, with
+      the existing file-URL ESM harness; it is not the staged two-provider case's
+      bare root/subpath matrix. All four explicit verifier requests retain unique
+      IDs and their original 30-minute policy, alongside ordinary 30-minute BUILD
+      grants. All 2,016 frozen Python files match, with clean source and exit zero.
+      At that checkpoint the next obligation was extending this orchestration
+      fixture to both real producers and root/subpath consumers, preserving the
+      one-provider regression, execution/acceptance owners, budgets and deadlines.
+      No ordinary-model,
+      cold-cache/recovery, installed/platform, activation or Aviation cutover is
+      established by this authored one-provider result.
+      The subsequent authored orchestration fixture adds a two-provider/root-subpath
+      candidate sharing the original one-provider driver. Provider source follows
+      each exact declared runtime/types path, retaining throwing undeclared-path
+      decoys, and the SDK composes both independently bound provider records.
+      Inventory, original finalization/acceptance and publication ordering checks
+      cover the complete selected provider set. No production code, authorization,
+      original budget, child deadline or success delegate changes. Static independent
+      review approves the test shape. A write-only preflight compares every default
+      provider/SDK authored file byte-for-byte to the exact `d2ff252c` helper and
+      checks both nested provider layouts, distinct facade imports and loaded root
+      oracle rows: one root row/six compiler children, or two root/math rows/twelve
+      children. It creates no generation candidate, grant or runtime result and
+      executes no provider or compiler check. The fresh serial native class at
+      clean `ec465a96` then runs both cases: the revised one-provider control
+      passes, but the new two-provider/root-subpath orchestration errors. The
+      class terminates after 2,679.671 seconds with one error, exit one, zero
+      skips, all 2,016 Python files unchanged and clean exact-commit source.
+      The second case reaches original packaged-root acceptance but does not
+      return from it or publish accepted membership. Its first exception is
+      `security.authorization_expired` while rechecking an original provider
+      BUILD authorization through `acceptance_stage_evidence` /
+      `build_execution_inputs`. Scope-retirement and process-liveness exceptions
+      follow during unwinding; the final missing-provider-scope error is not
+      the initiating failure. All ordinary BUILD and explicit verifier grants
+      retain their original 30-minute policies; no clock, deadline, renewal,
+      retry or acceptance bypass supplies a pass. This is a failed stronger
+      orchestration gate, not a reversal of the separately retained staged
+      two-provider pass or the current one-provider control. Preserve the failure
+      and diagnose the original custody/authority validation cost before another
+      native attempt. Do not infer native multi-provider orchestration success,
+      sufficient expiry margin, or load causation from this result.
+      A DATA-only profile then observes repeated canonical identity serialization
+      during fresh snapshot validation. A four-expression private prototype
+      preserves the original resolution identity over 24 alternating pairs and
+      reduces that local median from 24.044 to 22.445 milliseconds (6.65%). Child
+      launches and grant construction are explicitly forbidden during the DATA
+      experiment; all 2,016 Python files remain unchanged. Independent design
+      review rejects promoting it: nested contract subclasses and patched getters
+      make a sound fallback substantially more complex than the small saving
+      warrants. No production expression, authority cut or grant policy changes.
+      The selected diagnostic observes one original package resource guard
+      during the actual two-provider packaged-root acceptance.
+      Keep its return/exception, all callbacks, filesystem checks, source closure,
+      complete compiler/runtime matrix, original clocks and deadlines unchanged;
+      retain profile data only after the owned fixture finishes. An instrumented
+      result must not replace the separate uninstrumented orchestration gate.
+      The diagnostic at clean `dbd7b034` terminates after 1,905.068 seconds
+      with one error and no skips: the original provider BUILD authorization
+      again expires during packaged-root runtime process observation. All 2,016
+      frozen Python files and Node identity remain unchanged. The first profiled
+      package guard succeeds in 1.998 seconds; it is not the failing guard.
+      Its 26 configuration-currentness traversals identify cost, but neither
+      that one sample nor 267 wrapper calls establishes total timing attribution.
+      Independent design review admits one narrow candidate: when the optional
+      process observer is exactly absent, retain both original oracle closures
+      and one full owner/authority guard, removing only its adjacent duplicate
+      across no intervening callback, filesystem operation or clock read. Keep
+      non-null observers' original before/after/finally behavior. Regressions
+      must cover the actual six declaration children and both original runtimes,
+      owner/grant/oracle loss and observer mutation/exception. No broader nested
+      guard consolidation, identity cache, deadline extension, authorization
+      renewal, sufficient expiry margin or native pass follows from this plan.
+      The independently reviewed None-only implementation and test follow-up
+      then reach clean `f4f9781c`. The original uninstrumented serial class
+      passes both the revised one-provider control and two-provider/root-subpath
+      authored-generator cases in 2,655.489 seconds total, zero skips, errors or
+      failures. All 2,016 frozen Python files, clean Git/head and selected
+      Node 22.23.4 identity match before and after; imported test/verifier origins
+      bind to the same checkout. Both original packaged-root acceptances return
+      before accepted-source publication and the actual `runtime.execute` return.
+      The full two-provider twelve-TypeScript/two-bare-runtime matrix, all ordinary
+      BUILD and explicit verifier 30-minute grants, and child deadlines remain
+      unchanged. No profiler, successful replacement delegate, grant renewal or
+      clock/deadline extension supplies the ordinary pass. Independent evidence
+      review confirms these authored orchestration cells. Preserve the earlier
+      failures; this does not quantify expiry margin or qualify 32-provider
+      performance, live-model generation, cold recovery, installed/platform,
+      default activation or downstream Aviation cutover.
+      Keep zero-provider policy separately refused.
+      Default/public profile activation, remote/recovery support and complete
+      source-cache lifecycle qualification remain open.
+      The cold cell exercises actual durable provider-source restoration into a
+      fresh host/runtime, with the original workspace/object paths unavailable.
+      Fresh acceptance binds fresh generation custody and therefore changes the
+      SDK's receipt-bound recipe: require an exact SDK cache miss and new authored
+      SDK generation, never an old receipt graft or recipe retag. Re-run native
+      BUILD/TEST/EXEC/ACCEPT and original packaged-root acceptance. This initial
+      cold cell does not enable whole-node/checkpoint recovery, cross-acceptance
+      SDK source reuse, live-model generation or downstream cutover.
+      The first native cold case at clean `109a9cb5` ends with one error after
+      1,265.063 seconds: the complete seed lifecycle/cache publication returns
+      accepted, but a contradictory authority-change/no-regeneration decision
+      stops the cold request before execution. All 2,017 Python inputs and
+      selected Node/TypeScript bytes remain unchanged. Preserve this failure;
+      construct both valid phase decisions before seed work, retaining the
+      contract rejection and using source replacement for restored-source work.
+      No cold result or deadline failure is inferred from this fixture error.
+      The corrected `67633e19` native rerun completes seed acceptance, then
+      fails cold SDK processing after 1,320.109 seconds: private cache restoration
+      correctly produces mode-0600 provider files, but SDK package projection
+      accepts only 0644/0755. All 2,017 Python inputs and selected tools remain
+      unchanged. The correction preserves original sealed provider modes and
+      artifact identity, admits exact private non-executable 0600 inputs only at
+      the provider-copy boundary, and explicitly projects consumer-owned SDK copies
+      using existing npm modes under a versioned composition policy. Generic SDK
+      inventory rules and cache privacy remain unchanged. That earlier failure
+      supplies no cold acceptance.
+      The reviewed provider-copy implementation keeps generic inventories strict
+      and binds original artifact identity plus explicit copy policy v2. Its SDK
+      Make gate passes 146 of 215 selected cases, with 69 prerequisite skips and
+      zero failures (114.328 seconds); private input/copy identity, unsafe modes,
+      callback-time mode cuts and tar mode controls pass. Independent review
+      approves the exact two-file production drift and canonical TCB repin.
+      The original native cold cell then passes at clean `91aaa4bf`: one real
+      seed/cold lifecycle case plus two planning controls, three executed passes,
+      zero skips/failures, in 2,518.249 seconds. All 2,017 Python hashes/modes,
+      Node 22.23.4 and 140 TypeScript 6.0.3 files match before/after. Independent
+      evidence review confirms fresh provider restoration/custody/acceptance,
+      changed SDK recipe/lookup key and SDK regeneration with original packaged
+      root acceptance. Original 30-minute grants, child deadlines and real
+      checker/lifecycle paths remain unchanged. Preserve both earlier failures;
+      no cold SDK hit, whole-node recovery, live-model, installed/platform,
+      default activation or downstream cutover follows.
+      Next in progress: qualify the implemented authored noneditable installed-API
+      qualification using the two original runtime controls and existing wheel
+      runner, exact wheel custody and installed-distribution observer. Freeze only
+      test helpers; source Flavors/skills and schemas from the installed wheel;
+      check exact payload/resource/helper bytes and initial/lazy module origins.
+      Use a fresh outside-checkout scope, no bundle src, explicit private config
+      and MCP off. The opt-in `WHEEL_NODE_SDK_RUNTIME=1` runner is implemented;
+      fourteen guard controls and seven existing wheel controls pass without
+      skips. Its isolated installed interpreter uses a fresh empty private
+      bytecode prefix with writes disabled. Original package/metadata/schema/
+      helper/cache custody spans execution; bounded shared regular-file reads
+      reject substituted symlinks and FIFOs before capture. The actual installed
+      runtime matrix remains pending. Preserve matrices, grants and deadlines.
+      The first opt-in wheel attempt at `886ccf14` stopped before SDK execution:
+      the existing installed public Rust rebuild rejected the assembler's shared
+      `node_sdk_targets` argument. All 2,019 frozen Python files and selected
+      tools remained unchanged. A reviewed Cargo/Bazel constructor correction
+      forwards that optional typed selection to the existing base validator;
+      Mix inherits the Cargo fix. Focused Cargo execution then reproduced the
+      specialized SBOM overrides' missing `write_evidence` keyword; all three
+      overrides now forward the original writer through fallback and selected
+      resolution, retaining shared custody. All 38 focused projection, argument/
+      writer and Cargo/Bazel/Mix checks pass without skips. Independent source
+      review approves the three-file correction. Preserve both failures; a fresh
+      complete installed-wheel attempt remains required.
+      The second attempt at `d692f0e1` reaches both installed SDK cases: one
+      passes, while the two-provider/root-subpath case first rejects original
+      provider BUILD expiry during packaged-root runtime pre-launch validation.
+      Two cases take 2,746.365 seconds; one pass, one error, zero skips, no outer
+      timeout. Independent review confirms unchanged 2,020 Python files/modes,
+      Node and all 140 TypeScript files. Observed CPU saturation is not proven
+      causation. No installed result is admitted; preserve full matrices/grants/
+      deadlines, retain the failure and await fresh resource recovery before
+      another heavy run while investigating shared freshness cost.
+      Post-run per-case elapsed diagnostics now reuse the existing unittest
+      result, preserving legacy result compatibility and every verdict. All
+      fifteen focused guard checks pass. These observations supply no grant
+      margin, new clock or qualification claim.
+      The subsequent full R3 wheel run at exact source `403386cb` passes both
+      original installed runtime cases with zero skips. Its canonical manifest
+      binds wheel `sha256:fd1508c9e9c88279637520c3c0cb9fec581ed99f1af545be92d10894f0e646d5`
+      and noneditable distribution
+      `sha256:9ca69ebb4b2139a6a05203c7e4fabe9b2fc3ae317a2e1737e558bba77497df55`.
+      Independent artifact review confirms both manifests, all 25 helpers,
+      364 resources, installed origins/namespace custody and unchanged 2,020
+      Python files/modes plus selected Node/140 TypeScript files. Original full
+      matrices, separate 30-minute grants and deadlines remain unchanged; the
+      production TCB remains `81c41225...54532d4d`. This closes the authored macOS
+      installed Python API cell only. Successful child stderr/per-case elapsed
+      observations were not retained, so no timing or grant-margin claim follows.
+      Preserve R1/R2 failures; no publication, CLI/default or downstream cutover
+      follows from this result.
+      **Local adapter routing checkpoint:** The optional original SDK host now
+      reaches the existing filesystem Standard runtime assembler unchanged.
+      Nine focused canonical routing controls pass with zero skips; exact
+      snapshot/actual-plan, oracle, retained/native-owner and explicit/configured
+      worker refusals precede generation/admission. Independent source review
+      confirms the sole production delta and candidate TCB `9c07d5d8...26db2fc`.
+      An additional 23-test direct support-fixture diagnostic remains failed with
+      14 errors; all ordered test/error signatures match the unchanged baseline.
+      See [scope and retained limits](../architecture/node-sdk-host.md#explicit-standard-rebuild-adapter-routing).
+      **Next action in progress:** Exercise actual authored generation through
+      this rebuild adapter, preserving lower binding, cache/checkpoint custody
+      and separate grants. First qualify an actual deterministic fixture CLI
+      through the unchanged source runner/cache, preserving original candidate
+      lookup and provenance. Four macOS source preflight controls now pass:
+      actual child/key/provenance and accepted-cache replay, changed-key second
+      child with exact stale-suite refusal, unsafe payload refusal and actual
+      locked SDK-provider source capture. The original runtime scenario shares
+      only its extracted writer; no candidate/receipt is adapted into a generator
+      result. These source controls qualify no SDK build, model or installation.
+      See [authored source-runner scope](../architecture/node-sdk-host.md#authored-source-runner-preflight).
+      Do not adapt completed authored candidates or fake cache bookkeeping. Then build an explicitly unqualified candidate wheel
+      and use fresh isolated installation/origin custody for the authored rebuild
+      cell. Reuse the existing installer and namespace owners, with a closed
+      separate case inventory and no qualified-wheel manifest; preserve the
+      original two-case installed SDK gate. The next authored case reuses the
+      canonical runtime assertions through explicit test-only rebuild hooks:
+      real initialized project, fresh lock/audit and public preparation, original
+      installed binding, one captured original runner call per node, and actual
+      `adapter.rebuild` receipt/finalization checks. Missing hooks refuse rather
+      than falling back to the older runtime case. Independent design review
+      accepts this route; Aviation issue #442 still requires native consumer
+      acceptance before cutover. The zero-child two-node preparation/workflow
+      probe is planning evidence only. The focused Make target now shares the
+      existing wheel/install/custody owners, with a separate one-case inventory,
+      explicit unqualified retention and no release manifest. Twenty harness
+      guards pass; full disposable-project authority validation passes after
+      preserving reusable Component taxonomy and recording the normal reviewed
+      fixture marker. The first installed authored rebuild attempt failed after
+      completing provider generation: the SDK compiler requires `src/`, while the
+      coding-CLI collector still accepts only `source/`. Frozen source/tool inputs
+      were unchanged. **Next action in progress:** admit the SDK layout only for
+      the exact explicit SDK recipe, retain ordinary application and builder-owned
+      output refusals, and repeat isolated installed acceptance after independent
+      review. The failure keeper also reported every diagnostic unavailable;
+      reproduce and correct trusted temporary-parent alias handling without
+      following case-root or diagnostic links. Preserve the failed attempt and
+      require regression coverage for both defects before retrying. Nine authored
+      CLI controls now pass, including actual SDK source collection, ordinary-app
+      and builder-output refusals, unbound recipe refusal and identity mutation
+      at child return/collection. Twenty-one diagnostic/installer guards, 25
+      coding-CLI regressions and 22 source-cache tests pass with zero skips.
+      A fresh installed retry passed source collection, then failed the checkpoint
+      contract: the attempt records the static recipe while SDK stage evidence
+      records the dynamically bound invocation recipe. All frozen inputs remained
+      unchanged. Failure retention captured all four diagnostic files. **Next
+      unchecked correction:** join checkpoint attempt ownership to the original
+      live bound SDK invocation before recording its stage; preserve immutable
+      lineage, original recipe/evidence equality and stale/reuse refusals. Add
+      deterministic checkpoint controls and repeat installed acceptance after
+      independent review. The local correction defers SDK attempts until original
+      live admission, validates captured preparation and durable predecessors,
+      reserves binding against swallowed recursion and retires failed allocations.
+      Seventeen checkpoint controls, four ordinary repair, five lifecycle and seven
+      SDK generation controls pass without skips. Historical SDK checkpoint
+      recovery remains refused. The third installed attempt generated both nodes
+      with unchanged frozen inputs, then exposed failure-checkpoint reporting
+      still using static preparation. This masks the original node failure with
+      a generation-identity rejection. **Next unchecked action:** record failed
+      stage evidence against the exact returned preparation, retain bounded
+      authored-case failure diagnostics before temporary cleanup, and expose the
+      original failure before further correction. The one-line lifecycle fix
+      and bounded private failure capture now pass 19 SDK lifecycle and 23
+      diagnostic/installer controls, including original failure/exception
+      preservation and aggregate escaped-JSON bounds. Rerun the installed case
+      to identify its original failure. All three installed attempts remain
+      failed; no installed lifecycle acceptance follows. The fourth attempt
+      exposed the original BUILD failure: Node toolchain revalidation exceeded
+      its unchanged 15-second deadline after 25.519 seconds. All frozen inputs
+      remained unchanged and bounded original diagnostics were captured. At the
+      same priority, original unguarded discovery and three revalidations took
+      about 70 milliseconds each. **Next action in progress:** measure the actual
+      BUILD cohort's guarded probe with bounded, explicitly diagnostic-only
+      phase observation; retain original calls, identities, deadlines and
+      cancellation. Distinguish nested/inclusive guard cost from outer wall
+      time. Do not infer resource or guard causation from the baseline, delete
+      polls, or widen the deadline. Keep ordinary preflight uninstrumented and
+      require a separate unprofiled acceptance run after any justified fix.
+      The explicit diagnostic mode now shares the original installer and fixed
+      case, remains default-off, and cannot claim preflight acceptance even on
+      case success. Six observer controls and 26 installer/diagnostic guards pass
+      without skips; independent review approves original-call preservation,
+      restoration, bounds and honest mode separation. The actual diagnostic at
+      `ff78ea62` failed with unchanged frozen inputs: the failing probe spent
+      41.628 of 41.632 seconds inside outer guard calls (18 calls), while process
+      creation took 0.004 seconds. Its first wait was cleanup; these instrumented
+      measurements do not establish Node execution latency or uninstrumented
+      performance. **Next unchecked correction:** remove only the authored
+      rebuild fixture's duplicate snapshot walk. Its sole caller supplies the
+      public host callback, and the production host validates that same original
+      snapshot after the callback. Retain the fixture's project-configuration
+      checks and prove post-callback snapshot mutation still fails at the original
+      host owner. The fixture-only correction has independent source approval;
+      35 focused host/installer controls pass without skips, and canonical
+      `make python-check` passes the nine host-owner controls. Fresh measurement
+      remains required before considering another optimization.
+      Production driver/runner pins, process polls and the
+      15-second deadline remain unchanged; installed acceptance remains open.
+      The diagnostic at `213b1fa1` retained unchanged inputs and successful
+      guarded probes, then failed later in BUILD on the strict portable-file
+      inventory (559.920 seconds for the case). This remains a failed,
+      instrumented run. Original authored immutable assets are deliberately
+      written as `0600`, while SDK legal inventory still requires package modes.
+      **Next unchecked correction:** project only the selected legal inputs to
+      a new byte-preserving SDK-owned `0644` copy, keeping original source modes,
+      CID and stamp guards authoritative. Bind explicit legal-projection policy
+      into composition/cache identities; preserve generic inventory refusal.
+      Verify actual private asset materialization, original-mode drift refusal
+      and packed/cache legal bytes/modes before unprofiled acceptance.
+      The repair now has independent source/evidence approval: 23 fast legal and
+      composition checks pass without skips; two actual native checks pass
+      without skips in 67.682 seconds, including compilation/cache/relocation,
+      exact packed legal bytes/mode and source-mode drift refusal before compile.
+      The reviewed three-file production closure is `618bc873` (1,277 members).
+      Fresh unprofiled installed rebuild acceptance is the next unchecked gate.
+      The unprofiled attempt at `60b686ef` then failed after 761.738 seconds:
+      npm literal-dependency revalidation exceeded its unchanged 15-second
+      deadline at 19.072 seconds. Both authored nodes were generated, frozen
+      Python/TypeScript/Node inputs stayed unchanged, and original failure
+      diagnostics were captured without enabling profiling. **Next unchecked
+      action:** extend the default-off diagnostic to distinguish the original
+      npm dependency subprocess phases from Node-version probes, preserving
+      original calls, output bounds, polls and deadlines. Measure that failing
+      operation before selecting further validation optimization. The legal
+      repair's focused evidence remains valid; installed rebuild, ordinary CLI
+      and downstream SDK qualification remain open.
+      The default-off diagnostic extension now has independent source approval:
+      four exact toolchain-probe prefixes receive fixed kind/scope labels, while
+      unknown/application calls pass through and existing whole-Node rows are
+      reused. Thirty-six observer/installer controls pass without skips,
+      preserving actual process identity, original return/failure/arguments,
+      private-input exclusion and bounded recent-failure retention. Fresh guarded
+      npm phase measurement is the next unchecked execution; no npm causation,
+      deadline change or validation optimization follows from these controls.
+      Canonical `make python-check` also passes all ten observer controls. An
+      actual local Node/npm discovery and revalidation captures all four probe
+      kinds in 13 rows with zero capture errors and unchanged helper/Node bytes;
+      unscoped npm literal subprocesses take 75–86 ms. This is instrumentation
+      evidence outside SDK custody, not attribution of the guarded timeout.
+      The fresh diagnostic at `257f03c3` failed earlier at Node revalidation
+      (471.153 seconds for the case): 22.581 of 22.590 probe seconds were outer
+      guard work, and the unchanged 15-second budget expired at 15.175 seconds.
+      Frozen inputs remained unchanged; no guarded npm attribution follows.
+      A zero-child/grant profile of the original installed authored setup locates
+      most snapshot cost in full project-lineage graph construction. Twelve
+      original snapshot checks take 1.420/1.410 seconds without parsed Flavor
+      observations versus 0.931 seconds using the existing observation context,
+      including final revalidation. Installed package/helper bytes stay unchanged.
+      **Next unchecked correction:** bound that parsed-DATA reuse to the original
+      SDK project's Flavor-root key during consumption only, closing it before
+      the existing closing guard. Keep every graph/currentness/byte/membership
+      check and all clocks/polls/deadlines. Retain original primitive metadata
+      fences, independent nested scopes and retirement against copied contexts;
+      foreign roots use ordinary fresh loading. No computed authority identity or
+      currentness result is cached. Independent design review accepts this scope;
+      source review, mutation controls and native acceptance remain required.
+      Review found replaceable metadata/index baselines. The revised candidate
+      uses immutable tuple-backed observation and frame anchors, independent
+      original entries, detached primitive metadata and the existing pinned-input
+      entry-value witnesses. Both ordinary and raw attribute replacement refuse;
+      exposed-index clearing/replacement cannot silently discard close obligations.
+      Final canonical checks pass thirty lineage and twelve SDK-host tests without
+      skips, including explicit unframed observations, coordinated file/content
+      edits, actual graph-close mutation and premature retirement refusal. Ruff
+      lint/format and whitespace checks pass. Independent state/security source
+      review approves the corrected candidate; installed native acceptance and
+      any end-to-end performance benefit remain open.
+      The unprofiled installed attempt at `9fb7ebcb` fails one case after
+      2,020.372 seconds, with two authored attempts/two generated nodes and
+      unchanged frozen inputs. It enters original packaged-root acceptance but
+      never returns from it. The first failure is expiration of the provider's
+      original BUILD authorization; later process-liveness and provider-scope
+      unwind checks mask it with retired-scope errors. Independent evidence
+      review confirms the failed checkpoint. **Next correction:** preserve the
+      exact incoming exception at those two closing boundaries while performing
+      their existing checks and unconditional retirement/reset/quota cleanup;
+      successful bodies must still be withheld on closing failure. Do not extend
+      grants or deadlines. A zero-child/grant profile of the exact installed
+      wheel confirms the scoped Flavor parsing reduction and locates remaining
+      skill-catalog reconstruction cost; this is not native acceptance.
+      The shared exception-precedence helper now has independent source approval.
+      It runs the original two closing callbacks, retains an explicitly captured
+      incoming exception on secondary callback failure, and still withholds a
+      successful body on closing failure. Primary locals are cleared after
+      unwind; retirement/reset/quota cleanup order is unchanged. This does not
+      promise precedence over failures in those separate cleanup operations.
+      Canonical checks pass all sixteen liveness cases and five standard-command
+      cases; the existing macOS persistent-service readiness skip is retained.
+      The actual registered-provider fixture expires its original BUILD grant at
+      its existing expiry, preserves that exact error through nested close, and
+      proves copied-context retirement and zero scope-quota leakage. Ruff and
+      whitespace checks pass. Native rebuild qualification remains open.
+      A separate zero-child/grant prototype measures parsed skill-metadata reuse
+      against that same installed wheel: twelve Flavor-scoped snapshot checks
+      take 0.875/0.872 seconds without the prototype and 0.838 seconds with it,
+      including close. It retains 63 metadata entries keyed by 278,998 input
+      bytes, rebuilds catalog validation and returns fresh dependency DTOs.
+      Package/helper bytes stay unchanged. This roughly four-percent diagnostic
+      difference does not justify adopting another production cache or establish
+      a lifecycle timing margin. **Next measurement:** bounded profiling of an
+      original whole SDK guard, with original authority, grants, clocks and close
+      behavior preserved, before selecting further performance changes. Retain
+      the failed installed gate and do not retry it unchanged or extend lifetimes.
+      The separately reviewed whole-guard diagnostic now completes against a
+      fresh noneditable wheel from `0afe71c7`. It admits one actual authored
+      provider, observes exactly one original guard and returns normally through
+      every original close. The instrumented guard takes 1.300663 seconds:
+      eight host-currentness calls account for 1.275987 seconds cumulatively,
+      including eight snapshot checks at 1.225771 seconds and graph reconstruction
+      at 0.751852 seconds. These nested times overlap and cannot be added.
+      Setup takes 126.972185 seconds; the full child takes 219.640422 seconds.
+      All 32 frozen inputs and 140 TypeScript bindings remain unchanged; original
+      fixture cleanup and both parent/child custody checks pass. Generator,
+      coding-CLI and model counts remain zero. Independent evidence review
+      confirms this diagnostic, retaining `qualified: false`; it establishes no
+      uninstrumented margin or native consumer lifecycle acceptance. Two earlier
+      harness failures remain retained: supported Python discovery and a missing
+      allocator parent, both before any measured guard and with clean custody.
+      The reviewed correction shares the nonempty cohort's entry check with the
+      first original provider's identical owner check; its active-state test is
+      the only intervening work. An empty cohort retains its own entry check.
+      The native cohort controls exposed a third masking boundary: closing
+      compiler validation replaced an earlier provider's original failure with
+      retired liveness. The existing explicit-primary helper now covers that
+      compiler/live closing pair, retaining the nested `try/finally`, original
+      order, single active-state decision and successful-body close refusals.
+      Original file, oracle and grant failures now surface directly. Fixture
+      cleanup releases completed ownership through original weak references,
+      and the inert application seam initializes its existing recorder default;
+      production registry limits and all grants/deadlines remain unchanged.
+      The combined canonical gate passes all 28 selected cases without skips in
+      1,237.855 seconds: original callback routing, pre-entry mutation refusal,
+      exact body/cancellation identity, both closing attempts, withheld results,
+      escaped/copied-guard retirement, actual two-provider mutations and final
+      clock refusals. Successful and refused scopes release count/byte quotas.
+      Ruff lint/format and whitespace checks pass. Independent source/evidence
+      review verifies the retained canonical raw logs and all 1,277 TCB members;
+      drift is exactly the two reviewed production files. The reviewed driver pin
+      is `20a280a1ea672dcfcb3f6fa36298343fa7fae573c1e3edee65ddece4e23aa588`;
+      the test-runner pin is unchanged. Earlier failed gates remain retained.
+      **Next measurement:** repeat the original complete guard against a fresh
+      installed wheel before selecting the next lifecycle qualification. No
+      performance benefit, uninstrumented margin, full consumer lifecycle or
+      downstream cutover is established by these source/native controls.
+      The renewed installed-wheel guard diagnostic at `1884b634` passes with
+      unchanged wheel/helper inputs, all fifteen controller bindings and 140
+      TypeScript files intact. Exactly one original guard returns and all
+      original closes/cleanup complete normally; generator, coding-CLI and model
+      counts remain zero. Its 1.2203335-second instrumented sample makes seven
+      host/snapshot checks rather than eight, confirming the structural change.
+      Independent evidence review verifies both custody cuts and results. The
+      earlier 1.3006631-second sample does not establish a robust speedup or grant
+      margin. **Next qualification:** one fresh, unprofiled canonical authored
+      installed rebuild preflight with original grants/deadlines and diagnostics
+      off. Retain the old failed gate; preflight alone cannot qualify the full
+      wheel, model-backed CLI or downstream cutover.
+      The fresh unprofiled attempt at `1313b969` fails after 1,934.834 seconds,
+      with all 5,625 frozen bindings unchanged and stderr retained. Original
+      packaged-root acceptance and runtime execution return; bound/finalized
+      receipt checks and lifecycle-success assertions pass. The subsequent test
+      observer expects two publication ACKs but counts zero: it wraps legacy
+      `ports.publish`, while the installed rebuild composes the complete durable
+      `source_cache_publisher.publish_accepted` owner. This remains a failed
+      preflight, not retrospective qualification. The test-only correction wraps
+      the actual selected owner/method, delegates its original exactly once,
+      preserves publication-after-root-acceptance ordering and two ACKs, and adds
+      exact membership-identity comparison. Three canonical publication controls
+      pass (complete typed custody, twelve-key portable roundtrip and destination
+      substitution refusal); Ruff and the unchanged driver/runner pins pass.
+      The initial local selector import failure is retained separately and fixed
+      by making that ignored selector directory importable. Fresh alignment finds
+      the selected macOS worker ready; other unreachable/low-disk workers are not
+      used. The separately reviewed follow-up at `4a68d881` fails after
+      2,045.791 seconds (one unittest errors after 2,015.766 seconds), all 5,625
+      frozen bindings unchanged. Original packaged-root acceptance returns, but
+      runtime execution does not return an accepted project: source-cache
+      publication expires its authorization. Two publication entries precede
+      delegation and do not establish two ACKs. The earlier retired-scope masking
+      is absent; the failed archive and stderr remain retained. Independent
+      evidence review confirms this failed qualification. **Current blocker and
+      next action:** reduce measured repeated graph/snapshot cost before another
+      full attempt, retaining original grants/deadlines and every currentness,
+      custody, oracle, budget and retirement check. The existing bounded original
+      guard profile attributes 0.706118 cumulative seconds to graph composition
+      within its 1.2203335-second sample; nested times are not additive. Evaluate
+      bounded reuse of parsed immutable DATA only after fresh original discovery
+      and byte checks, never cached authority or invocation results. No new
+      performance benefit, robust grant margin or full lifecycle is established.
+      The next independently reviewed source increment reuses only parsed skill-
+      manifest DATA within the original SDK consume scope. Fresh discovery,
+      bytes, catalog/reference validation and every original guard remain live.
+      Keys own exact bytes and a detached logical path; eligible parsing uses a
+      private path, values retain primitives and hits construct fresh dependency
+      objects. Entry/byte/dependency bounds skip retention rather than reject
+      valid input. Retirement clears retained data and prevents copied/in-flight
+      contexts from admitting entries after closure, before original Flavor close
+      and the original final guard. The canonical focused gate passes all 26
+      cache/host cases without skips (4.254 seconds), including caller-path
+      mutation, concurrent admission, copied-context retirement, fresh filesystem
+      changes and closure ordering. Two earlier path-mutation fixture errors stay
+      retained; their corrected effective-slot control passes with the real parser.
+      The earlier catalog/host gate passes 29 with 18 explicit compiler skips.
+      With the existing selected Node/TypeScript tools, all 18 admission controls
+      pass separately. The corrected combined canonical gate then passes all 48
+      cases without skips in 173.211 seconds; the earlier combined fixture error
+      stays retained. Final formatting, lint, driver/runner/documentation pins
+      and acyclic-roadmap checks pass. Independent source review binds exactly
+      two changed TCB members. The independently reviewed fresh noneditable-wheel
+      diagnostic at `ad3d7937` then completes in 227.102 seconds: exactly one
+      original guard returns, normal scope closure/cleanup and all frozen input,
+      TypeScript and installed namespace custody checks pass, and the sole
+      verifier grant remains original. Generator, coding CLI, model and consumer
+      lifecycle execution counts are zero. The instrumented guard takes
+      1.077431 seconds, compared with the earlier separate 1.2203335-second sample;
+      seven host/snapshot checks and 137 input-currentness calls remain. Eight
+      skill catalogs take 0.132098 cumulative seconds, compared with 0.266531
+      before; nested times are not additive. The retained top-32 profile cannot
+      establish parser-call counts. An initial wrong-interpreter controller
+      refusal precedes any child/start marker; the prepared interpreter then
+      runs the single diagnostic. This is one diagnostic sample, not a robust
+      speedup, end-to-end pass or grant-margin guarantee. A full retry requires
+      fresh sufficient resources and a separately reviewed clean-source freeze;
+      retain the earlier publication expiry and every original deadline.
+      The separately reviewed unprofiled installed-adapter retry at clean
+      `2319439f` passes in 1,767.365 seconds, with all 5,626 frozen bindings
+      unchanged. Its single canonical unittest passes without skips in
+      1,733.683 seconds. Original packaged-root acceptance returns before source
+      publication; both ACKs return from the captured original publisher and
+      match actual non-null node memberships exactly. The completed fixture
+      verifies project/lock/driver/invocation bindings and finalized-receipt
+      equality. Installed origins and original namespace custody pass through
+      471 loaded framework modules; all 364 resource bindings match. Independent
+      evidence review binds retained wheel
+      `09a8a03ddf2af11914b5151cb4ed7c5501cf596620b57a6eba7db138edd96fe3`
+      and result
+      `97d29dd3b8eca3f44f8d61aec11dd48f6716a98e9ba93c4e668d96be32c336f6`.
+      Original grants and deadlines remain unchanged. This resolves the observed
+      expiry for this authored macOS installed-adapter cell only; retain R9/R10
+      failures, `qualified:false` and `fullWheelQualified:false`. It does not
+      establish robust timing margin, live-model/ordinary CLI authorization,
+      platform/browser coverage or downstream Aviation cutover. Continue those
+      separate gates; no production grant is inferred from this fixture.
+      Independent design review accepts
+      this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
+      integration: resolve verifier-owned oracles and implement a separately
+      reviewed exact-request verifier-authorization owner before model-backed
+      CLI acceptance. Never mint production grants from fixture request hashes.
+      The reviewed request-description increment retains the existing manifest
+      preimages as bounded detached DATA, with exact schema/builder/compiler and
+      separately captured owner-revision comparisons. Preserve their canonical
+      bytes and complete request identities. This prerequisite grants nothing:
+      join original file/oracle custody, inspected source, constrained policy and
+      finite revocation witnesses before enabling a public host factory or Node
+      oracle dispatch. Keep the existing manual callback path unchanged.
+      The current serial provider gate also exposed retained test fixtures at the
+      bounded oracle limit and an observer-close path that masks its original
+      owner failure. Release completed test-owned roots through normal weak
+      retirement, without clearing or enlarging the production registry. Reuse
+      the shared primary-error-preserving close in the compiler/verifier
+      observers, clearing exception references on unwind. Direct controls verify
+      original error/cancellation identity despite closing failure and refusal
+      after successful-body owner loss; the verifier control isolates its wrapper
+      without substituting any successful acceptance result.
+      Focused canonical Make gates pass without skips: eight request-description
+      controls, four root-policy controls, 26 native provider cases (139.108s),
+      35 selected TypeScript compiler cases (75.310s) and ten shared verifier
+      cases (32.472s). Retain the two earlier provider failures as diagnostic
+      evidence; neither raising the registry cap nor changing verifier privileges
+      was required. These 83 passing controls establish the bounded DATA and
+      observer corrections, not ordinary CLI authorization or SDK qualification.
+      Independent source/evidence review accepts exactly five changed TCB files
+      and implementation identity
+      `159a5409f7d76660fafa4bed9fa762ab9331664dbcbbbefaacba38cd076561ea`.
+      Authority/documentation verification passes. The existing project test
+      receipt remains stale; locks, source intelligence and HTML checks remain
+      explicit unconfigured skips. No release or complete-project pass is claimed.
+      **Next unchecked action:** capture inspection inputs without issuing a
+      grant. Keep resource capture in the original provider/package owners:
+      provider capture stays inside accepted-provider and loaded-oracle scopes;
+      root capture follows original package/stage validation and loaded-oracle
+      custody. Retain detached bounded executable scan bytes separately from
+      identity-only references, plus original live and finite closing witnesses.
+      A request description or digest lookup cannot establish inspected custody.
+      Refuse foreign/copied/retired captures, byte/mode/membership/oracle/tool
+      drift, reentrant replacement and mutation during callbacks. Independent
+      review must accept that join before adding shared scanner/classification
+      and exact-request policy issuance. The later runtime owner binds original
+      runtime/policy/scanner/revocation semantics; an invocation aggregate holds
+      at most 32 provider grants and the reserved root slot through final close.
+      An arbitrary revocation callback returning a set supplies no finite closing
+      witness: initially support only an explicitly captured immutable-empty
+      production state unless an original versioned feed can supply both live
+      validation and callback-free close. Preserve manual callback identities and
+      explicit mutual exclusion, and never derive verifier approval from general
+      host-execution acknowledgement.
+      Provider capture now originates in the actual live ports scope and the
+      original loaded oracle. It holds detached artifact/harness/declaration and
+      actual compiler-packet source, separately pinning direct Node binary bytes
+      as identity-only input. It reuses original namespace/oracle/tool finite
+      guards through oracle close, retires on failure/exit, and rejects copied,
+      reentrant and expired handles. Sticky validation poison survives swallowed
+      reentry errors. Slot and retained-byte reservations precede callbacks and
+      tool reads; pending captures share the 33-slot/512-MiB ceiling. The first
+      capture profile explicitly refuses invocation aliases, wrappers and extra
+      Node operands without their own witnessed namespace. Shared pure compiler
+      and SDK identity preimages preserve the original constructor documents and
+      reject pre-entry bootstrap/SDK drift without loading fresh resources.
+      All 17 actual-provider capture controls pass without skips (9.692s),
+      including concurrent in-progress quota refusal, swallowed callback reentry,
+      last oracle-close mutation and cancellation/error preservation. All 35
+      selected TypeScript compiler regressions also pass without skips (74.144s).
+      Independent review accepts the two-file TCB identity
+      `082368269ac506948b80a536d1e58711db31d37de6a6488302f0fe3e6ad20d05`.
+      These 52 checks do not include the installed ordinary SDK lifecycle. Neither
+      captured DATA nor an escaped handle establishes inspection success or
+      admission. **Next:** bring the original package capture under this same
+      owner before scanner/classification, grant issuance or public activation.
+      Root preparation now uses a private frozen concrete owner over original
+      package/stage/plan/invocation data. Manual acceptance retains its original
+      host/package/stamp/describe/authorize/check sequence and request preimage.
+      Root capture reserves before callbacks and shares provider capture's rows,
+      tool checks, bounds, sticky poison and retirement. Reentry remains reserved
+      through oracle exit and a fresh final clock; original package, invocation,
+      file, tool and oracle finite witnesses close afterward.
+      Focused Make gates pass without skips: 17 shared provider-capture controls
+      (9.584s), four root-plan controls (0.306s) and 12 host-state controls (4.384s).
+      One actual authored native SDK lifecycle also passes (703.342s). Its
+      observer uses the original policy/eight root arguments, verifies capture
+      emits no grants/evidence, refuses copied/incomplete/equal-replaced inputs,
+      final-oracle stage mutation and swallowed final-clock reentry, then delegates
+      original packaged acceptance. The original fixture verifies the checker,
+      complete root acceptance and both source-membership publications. This is
+      34 passing cases. Independent evidence review accepts the exact two-file
+      TCB `7c767dc7ee58b6b75dc2b4926db59b9b35caec8257930852ae3d74bfccac37c2`.
+      This is not installed-wheel, model-backed CLI, multi-provider or
+      downstream Aviation cutover qualification. Source remained fixed; a single
+      read-only native stack sample added no retry or deadline extension.
+      The private runtime inspection anchor now explicitly threads each fresh
+      operation through original provider registration, the actual invocation
+      binder and managed root policy. This ownership-only increment
+      keeps legacy callbacks/identities unchanged and exposes no configurable
+      authorization mode. Tickets retain bounded primitive facts and weak
+      membership only, never released inspection rows, closures or tool readsets.
+      Finite metadata witnesses read only pinned original C storage descriptors
+      from a closed framework-type registry, rejecting inherited field shadows,
+      substituted mapping keys and arbitrary dataclasses before callbacks.
+      Exact datetime and path objects are reference observations only; original
+      lifecycle owners retain grant validity, expiry and physical-input checks.
+      Focused gates pass 19 state/storage/capture cases (3.626s), 12 host cases
+      (4.402s), four root cases (0.324s) and 17 shared capture cases (9.682s),
+      all without skips. The first three native two-provider attempts remain
+      failed: their closed registry refused, respectively, SDK export, CommonJS
+      declaration and existing build-grant metadata before SDK generation.
+      Exact known types and adversarial storage controls correct those omissions;
+      an actual original provider execution/accepted-build preflight now passes.
+      The fourth native two-provider/root-subpath run passes without skips in
+      1,913.588 seconds: the actual original provider and root captures enroll in
+      their explicit runtime operations, released tool readsets collect, copied
+      tickets/field substitution refuse, and all operations/tickets retire after
+      original SDK acceptance and source publication. Together these are 53
+      passing cases. The original fixture grants and deadlines are unchanged;
+      the one bounded read-only stack sample supplies no successful substitute.
+      Independent source/evidence review accepts the exact six-file TCB
+      `0e3265f6b6fe977cc28576f2e7821629d6297b0be5e257af1d46b5826f68797a`;
+      its independent 1,280-member recomputation matches the current source.
+      **Next unchecked action:** join a bounded inert scan to the original live
+      CAPTURING capture/ticket. Preserve baseline scan identities by selecting a
+      distinct six-suffix SDK rule policy, bound findings before allocation, and
+      fence scanner/input/report primitives across owner callbacks. Inventory all
+      rows with explicit source-rule coverage versus data/identity-only inputs;
+      return bounded detached metadata and retain only its CID in the operation.
+      The independently source-reviewed scan implementation is now in progress:
+      a separate SDK policy covers .js/.cjs/.mjs/.ts/.cts/.mts with 1,024 findings,
+      4 MiB inventory-metadata and 8 MiB result ceilings. It reserves scanning
+      before owner callbacks, requires the exact live capture enrollment, fences
+      original construction/serialization and scanner dependencies, and poisons
+      swallowed failures. All 72 focused cases pass without skips: four shared
+      budget controls (0.003s), 13 SDK policy/actual-capture controls (9.389s),
+      19 operation-state cases (4.121s), 17 original capture cases (10.316s),
+      three existing security cases (0.002s), 12 host cases (4.682s) and four
+      root cases (0.319s). The actual-capture controls use injected operation
+      state; they do not establish original runtime assembly. Constructor,
+      serializer and module-alias substitutions refuse with zero replacement
+      calls; late tool/rule mutation and swallowed reentry withhold results.
+      Independent source review accepts this slice and the shared native
+      controller extraction. Its original two-provider/root-subpath scan and
+      publication run fails after 1,909.193 seconds under unchanged grants and
+      deadlines at frozen TCB
+      `aaa2cbbccfe1d771641ae4cd2d361f1d1267007bb49ffd18caedaddc05ad057f`.
+      Original packaged root acceptance returns, but source-cache publication
+      refuses `security.authorization_expired`. Preserve this terminal failure;
+      elapsed time alone does not identify the expired grant or its cause.
+      Before retrying, identify the exact grant and measure original validation
+      work with bounded default-off diagnostics. Do not extend deadlines, remove
+      freshness checks or substitute a successful delegate. No native scan
+      acceptance, TCB repin or public activation is claimed.
+      A separate default-off diagnostic now samples only the original
+      test thread's package-relative function/line metadata (512 keys/64 frames),
+      retain at most 64 already-issued grant timing records with owner ordinals,
+      and bound the detached aggregate to 32 KiB. Read no frame locals, arguments,
+      source, credentials or session text; add no authorization clocks or grants.
+      Sampler/thread/wrapper overhead and GIL bias remain explicit. Persist only
+      after original lifecycle cleanup; no diagnostic pass qualifies the SDK.
+      Independent source/privacy review now accepts the opt-in original native
+      driver. Fifteen diagnostic controls pass (0.256s) and eight nested-cleanup/
+      driver controls pass (0.007s), without skips. They cover target-thread-only
+      bookkeeping, exact original exception preservation across secondary
+      BaseExceptions, false/unknown lifecycle cleanup, private bounded output,
+      and exclusive creation without replacing retained evidence. The ordinary
+      driver collects one case and skips it without the explicit output option;
+      this skip is not native evidence. The explicitly labeled original native
+      diagnostic fails after 1,908.698 seconds under unchanged grants/deadlines.
+      It identifies original provider BUILD grant ordinal 0, checked 12,150 times,
+      expiring during source-cache publication through BUILD input validation,
+      current-provider custody and process liveness. Its final recorded check is
+      83.682 milliseconds after the original expiry; this is failure attribution,
+      not a grant-margin or performance guarantee. Both fixture and observer
+      cleanup complete, with zero capture errors and no dropped grant records.
+      All six diagnostic/helper hashes and the candidate TCB remain unchanged.
+      The 9,244 target-thread samples include 39,146 dropped frame observations
+      and depth truncation; 3,246 samples show waiting for workers. This bounded
+      evidence cannot rank all worker CPU costs. Independent evidence review
+      confirms the original failure, source identities and these limits. Two
+      publication entries remain entries, not acknowledgments. Resume the
+      reviewed continuing-custody/accounting design before another qualification
+      attempt; do not retry the unchanged candidate, relax deadlines or repin.
+      No classification or grant follows from a scan. Actual native tool identity
+      preimages and continuing readset witnesses must join before provenance and
+      classification. The [reviewed continuation design](../architecture/node-sdk-host.md#planned-continuation-of-inspected-verifier-custody)
+      records the actual compiler's missing host-owned byte baseline, required
+      accounted retention, operation-local deduplication, exact weak oracle
+      membership and acquisition/release lock ordering. It is not implemented.
+      Capture admission now uses one shared resource pool with the original
+      33-slot/512-MiB ceilings; the old independent byte counter is removed.
+      A bounded ended-capture journal retains the exact lease and its charge if
+      identity removal or settlement is interrupted. Original source references
+      drop outside the capture lock before settlement, including cancellation;
+      uncertain cleanup withholds acknowledgment and resumes idempotently.
+      The pool also supplies operation-local compiler deduplication, transactional
+      handoff and deferred capture/closing-reader release, but those runtime
+      handoffs are not wired yet. Failed captures cannot become closing witnesses
+      or resize away retained charges. Independent review corrected lost release
+      queues, drainer/view publication gaps, identity-before-charge ordering and
+      final-reference destruction under locks. The final focused canonical Make
+      matrix passes all 82 cases without skips: 24 resource controls (0.281s),
+      nine actual accounting controls (0.005s), 17 original capture cases (9.519s),
+      13 scan cases (8.843s) and 19 state cases (3.707s). Independent source/evidence
+      review recomputes the exact 1,282-member TCB as
+      `4f0254494d88a02f8e2130683c07ab4281578dc6d0ec6ef50ea670be1a161639`.
+      This is accounting support, not integrated continuing-custody or native
+      qualification; the production pin remains unchanged. Next join original
+      tool/compiler/oracle witnesses, preserving the original scope and clocks.
+      Capture terminal ordering is now implemented: the same weak enrollment pair
+      is published into capture and reservation metadata, and only the outer
+      reservation owner reports CLOSED after identity removal, lease settlement,
+      draining and journal removal. Cleanup failure or uncertain terminal
+      publication fails the original ticket; recovery never replays CLOSED.
+      Independent source/test review covers publication interruptions after ticket
+      creation, between metadata writes and at lock exit, plus actual provider
+      captures that remain CAPTURING through settlement and fail on cancellation.
+      The focused regression passes 64 cases without skips: 13 accounting controls
+      (0.006s), 21 runtime controls (4.694s), 17 original capture cases (9.165s)
+      and 13 scan cases (8.720s). This supersedes the pre-ordering checkpoint for
+      these changed surfaces. Independent source/evidence review confirms all
+      four reports and the earlier 1,283-member terminal-ordering candidate
+      `252c74e0b1a6ed0c8edea289f21a97865dbc8edf4ebf08714cfa4f7706fc2024`.
+      No repin, native expiry resolution or runtime custody handoff qualification
+      follows.
+      Compiler quota facts now support bounded exact tuple structure, comparing
+      original leaves by identity without equality, hashing or user iteration.
+      Fresh equivalent snapshot containers share the existing operation-local
+      charge; a changed nested leaf refuses and poisons rather than replacing
+      the baseline. Exact tuple subclasses, excessive depth, width and aggregate
+      nodes refuse before quota locking; shared tuple containers remain valid.
+      All 29 resource cases pass (0.265s) and all 13 actual capture-accounting
+      cases pass (0.007s), without skips. Independent source/evidence review
+      confirms both reports and the earlier 1,283-member nested-facts checkpoint
+      `5434f98f48a7c263020b7b776208e64d80db232cef8e57c05d1c16b1c0e46b05`.
+      The production pin remains unchanged. Live compiler storage observation
+      is now integrated: reserve 256 MiB before capture; snapshot exact original
+      compiler/SDK/Node/file/identity fields with C descriptors and namespace
+      fences, including algorithm enum primitives; bracket it with both original
+      full `_rows` validations; and include conservative retained source/metadata
+      in the final capture charge. The unchanged 512-MiB ceiling can now refuse
+      concurrency that the incomplete earlier accounting admitted. Explicit
+      release severs snapshot/readset cells and wrapper references before outer
+      settlement, including retained exception tracebacks. A live-entry removal
+      failure keeps the exact lease charged and journal cleanup resumable;
+      registry/release errors preserve the original body error or cancellation.
+      The final focused canonical Make regression passes all 85 cases without
+      skips: 14 compiler storage controls (0.073s), 24 actual capture cases
+      (17.054s), 21 runtime cases (5.489s), 13 scan cases (10.237s) and 13 actual
+      accounting cases (0.007s). The retained-traceback control drops the external
+      compiler owner and verifies compiler/private-source collection; it retains
+      the actual traceback with explicit try/except until final test cleanup.
+      Independent source/evidence review recomputed the earlier 1,284-member
+      live-compiler candidate as
+      `9ad72a1fc0a3590e36a8430e46bcc5598f3f0a8c4ed6e2799dcf5c1317342d18`
+      with seven production deltas and confirms all five final reports. The
+      production pin remains unchanged.
+      Failed fixture attempts remain retained: the first synthetic Node path did
+      not exist, an early reference-count baseline shared prior literal bytes,
+      and an initial traceback control used assertRaises, which clears frames.
+      These were corrected in fixtures rather than relaxing production checks.
+      Live compiler observation is not runtime closing custody. The oracle
+      observation is now integrated into live captures as well: fresh weak
+      original oracle/loaded-entry/pinned-authority references, mandatory same
+      registry membership, exact C storage/closed JSON/CID observations and
+      detached original file/ancestry stamps. It retains no existing weakref
+      callback or bound loader/scope checker. Reserve 128 MiB after measured
+      compiler admission before snapshot retention; preserve both full original
+      oracle checks around capture, account source/metadata and release its cells
+      independently while still charged. The reused finite metadata observer's
+      default callable API is preserved; opt-in exact-bool release clears records
+      through retained failure tracebacks and reports a primitive estimate that
+      includes mapping keys. Oracle accounting adds its conservative metadata
+      allowance rather than treating that estimate as a complete quota measure.
+      The final focused canonical Make matrix passes 100 cases without skips:
+      six metadata-release controls (0.039s), 20 oracle controls (0.157s), 27 actual
+      capture cases (19.202s), 21 runtime cases (5.753s), 13 scan cases (10.579s)
+      and 13 actual accounting cases (0.007s). The oracle controls prove original
+      root/loaded-entry/authority collection while the guard remains live,
+      replacement/refusal, closed metadata, file/ancestry checks and retained
+      traceback release. Independent source/evidence review recomputes the
+      earlier 1,285-member live-oracle candidate as
+      `e309596771bf687728664d36691aee5c71ad979ab3f31c0b45e539940e530226`
+      with eight production deltas and confirms all six final reports/logs.
+      The production pin remains unchanged. The shared `_record_values` reader
+      now also clears its original record/dictionary, current item and partial
+      field buffer through failure. Two source-bearing RecipeDocument controls
+      retain real validation/construction tracebacks, replace the external source
+      owner and verify collection with substituted getters uncalled. The metadata
+      release suite now passes eight cases; this is field-reader cleanup coverage,
+      not general heap, phase or execution authority.
+      An earlier control expected the wrong ancestry exception;
+      a separate failed control found an actual strong authority reference in the
+      snapshot, which was removed in favor of the original weak authority check.
+      Failed reports remain retained. This is live integrity/accounting support,
+      not operation closing custody or native qualification. Next transfer the
+      original tool/compiler/oracle witnesses, their charges and release ownership
+      into the exact operation's closing phase without changing clocks or grants.
+      Fixed closing-payload cleanup support is now integrated into pool draining:
+      keep the exact payload and charge attached while its two release components
+      run outside locks; record component completion durably; resume uncertain
+      idempotent DATA cleanup without replaying completed components or CLOSED.
+      Only the exact private class uses the captured original release/helper ABI;
+      namespace/storage fences refuse substitutions without invoking getters.
+      Final payload references drop outside locks before accounting removal.
+      The frozen focused regression passes all 139 cases without skips: eight
+      metadata-release controls (0.067s), eight closing-payload controls (0.018s),
+      29 resource cases (0.260s), 21 runtime cases (5.796s), 27 actual captures
+      (18.884s), 13 scan cases (10.345s), 20 oracle cases (0.147s) and 13 actual
+      accounting cases (0.006s). Independent source/evidence review confirms all
+      eight reports/logs and recomputes that earlier 1,286-member candidate as
+      `c908b547d474e3caf5d9631e54f544628d39d30889cc5d33a7fd52491cc81ea1`
+      with nine production deltas. The production pin remains unchanged.
+      Original compiler tuple-valued fields now use immutable identity anchors;
+      fresh structural tuples may deduplicate, but equal replacement SDK-file or
+      Node-command tuples refuse immediately. Stored anchors cannot be rebased
+      through attribute or item assignment. Lazy per-operation resource ownership
+      now journals allocation before pool side effects, recovers unreturned owners,
+      retires concurrent losers outside the binding lock and retains incomplete
+      retirement on the active binding. Metadata-only recovery preserves the
+      original body failure without replaying body/closing/CLOSED. Independent
+      source review accepted these changes. The frozen canonical Make regression
+      passes 173 cases with no skips: metadata release 8 (0.047s), closing payload
+      8 (0.019s), resources 37 (0.249s), runtime 31 (5.874s), actual capture 27
+      (18.999s), scan 13 (10.543s), oracle 20 (0.158s), accounting 13 (0.006s),
+      and compiler witness 16 (0.063s). Independent source/evidence/docs review
+      confirms all nine reports/logs and recomputes the 1,286-member candidate as
+      `c31db46c21b092c911f44d078624e2d5c6e7b0fb5945668f66fe344dac84475e`;
+      the production pin is unchanged. Runtime handoff remains unwired. Before
+      joining it, account duplicate compiler observation metadata and measured
+      bounded file/path metadata, and implement PREPARED/COMMITTED joins and
+      closing-view cleanup outside binding locks.
+      A subsequent prerequisite fixes original materialized-file failure frames:
+      public capture/readback wrappers, row snapshotting, file reads and the
+      shared capture engine clear their own source-bearing locals in `finally`.
+      The explicit partial snapshot loop preserves validation order and original
+      exceptions. Independent source/evidence review accepts 13 custody controls
+      (0.026s, no skips), including retained real failure tracebacks, cancellation
+      identity, partial snapshot failure and source-free successful guards with
+      owned-move continuation. Fresh actual verifier capture passes 27 cases
+      (33.883s) and directory reader passes four (0.007s), both without skips.
+      Independent source/evidence/docs review confirms all three reports/logs
+      and recomputes the 1,286-member candidate as
+      `ac5b93e82e7691edbf7bc50e8d7a9e126676c85458d985504a4fe434d6e49bb4`
+      with ten production deltas; the production pin is unchanged.
+      The 44 passes qualify this cleanup surface only; measured file/path
+      metadata, closing transfer and native execution remain open.
+      The capture cleanup boundary now covers initial owner extraction,
+      reservations and file/tool capture. `_compiler_values` and `_rows` clear
+      their own source-bearing failure locals, with explicit snapshot loops and
+      the original field evaluation order. Both public wrappers protect entry
+      failures and keep inner cleanup before reservation settlement. Independent
+      source review accepts this bounded scope. The revised frozen Make matrix
+      passes 74 cases without skips: 30 actual captures (22.167s), 31 runtime
+      cases (6.040s) and 13 accounting cases (0.008s). New controls retain original
+      ValueError/KeyboardInterrupt tracebacks at initial reserve, file and tool
+      construction, prove compiler/source release and zero remaining charge,
+      exercise the two helper failures and inspect source release at the exact
+      reservation-settlement boundary. An intermediate revision moved wrapper
+      cleanup too late; the corrected revision preserves both inner cleanup and
+      outer entry protection. Independent source/evidence/docs review confirms
+      all three reports/logs and recomputes the 1,286-member candidate as
+      `f8746507c0794c94563ef0076d8eecfbce60d631733b8072cf595a5d6a3b390f`
+      with ten production deltas and unchanged, unrecorded production pin.
+      No arbitrary nested-frame/general-heap, preflight accounting, closing
+      transfer or native qualification follows from these controls.
+      The standalone file-metadata preflight now bounds exact root/path text,
+      inventory/depth/derived rows before parsing and conservatively measures
+      original ancestry, repeated parent prefixes, path/stamp storage and temporary
+      collections under a 32-MiB maximum reservation. File C-slot reads reuse the
+      existing compiler namespace fence, and detached rows retain the original
+      canonical alias/file-ancestor checks. Independent source review accepts the
+      model's bounded scope. Seven focused controls pass without skips (0.004s):
+      cheap refusal before parsing, repeated-parent exhaustion, retained failed
+      construction release, original getter/subclass-iteration refusal and
+      charge growth with path/root depth and repeated parents. That standalone
+      checkpoint did not qualify live reservation/capture integration. Source/evidence/docs
+      review confirms the report/log and recomputes the 1,287-member candidate as
+      `0e47ef6721e735c86e0d0b68c5126a5fb980108edf828b64ddd8a2ef8cf6cc37`
+      with eleven production deltas and unchanged, unrecorded pin.
+      Live capture now reserves the file-metadata maximum before preflight and
+      original full materialization checks, retains the measured charge through
+      all resizes/final admission and attempts explicit file release outside the
+      capture lock before quota settlement. Both materialization and ancestry
+      observers preserve default callable/move APIs and add exact-bool opt-in
+      guard/release pairs. Release clears original shared cells and iteration
+      locals; failed/retired opt-in guards refuse reuse. Opt-in owned moves refuse
+      before transfer until descendant metadata/release ownership is supported.
+      Independent source review accepts the observer and live integration scope.
+      The frozen seven-suite canonical Make regression passes 134 cases without
+      skips: custody 20 (0.030s), actual captures 32 (23.503s), runtime 31 (5.737s),
+      accounting 13 (0.008s), metadata 7 (0.003s), oracle 20 (0.148s) and retained
+      filesystem 11 (18.167s). New controls cover capacity refusal before preflight,
+      reserved/charged lifetime, release outside the lock, original body failures,
+      sticky ancestry/file failure and retained construction/guard frames.
+      Independent source/evidence review confirms all seven reports/logs and
+      recomputes the 1,287-member candidate as
+      `886a20d7936b32ec00327969ab3aa35c48549e0405c770c23af409622a304ee0`
+      with twelve production deltas and unchanged, unrecorded pin. Independent
+      docs review also accepts the corrected standalone/live-accounting boundaries.
+      This remains live DATA accounting, not general heap measurement, CLOSING
+      transfer, phase/execution authority or native qualification.
+      Runtime enrollment now binds each ticket to the original pool/opaque lease;
+      an actual capture fixture checks those exact identities. Metadata-only
+      transaction support journals PREPARING/PREPARED/COMMITTING/COMMITTED, runs
+      pool preparation/attachment/commit outside binding and refuses uncertain
+      commit replay or CLOSED on an uncommitted join. Each payload keeps another
+      2 MiB for its compiler observation even when compiler source deduplicates.
+      Fixed closing cleanup now requires all three compiler/oracle/file release
+      owners with independent durable progress. Pool closing can require the
+      exact bounded original lease set; duplicate, foreign and failed leases
+      refuse. Exact ticket checks precede weak/dict lookups; new journal maps
+      detach under binding and clear outside it. A retained-traceback control
+      found additional compiler retention in the error decorator's arguments;
+      the original pool method and decorators now clear their own references.
+      Attachment also clears its incoming payload after leaving the quota lock.
+      A direct-function fault fixture isolates original attachment frames from
+      Mock-owned argument frames. Earlier failed reports remain retained.
+      Independent source review accepts this support scope. The frozen canonical
+      Make matrix passes 138 cases with zero skips: closing payload 9 (0.019s),
+      handoff controls 16 (0.146s), resources 37 (0.209s), runtime 31 (5.719s),
+      actual captures 32 (23.777s) and accounting 13 (0.010s). Independent
+      source/evidence/docs review confirms all six reports/logs and recomputes
+      the 1,287-member candidate as
+      `1b223ec3f3f85a59532fb033fb98d3379a816de9b4fbb8d65c811527166f391c`
+      with twelve production deltas and unchanged, unrecorded production pin.
+      That checkpoint still lacked capture prepare/commit and the closing
+      consumer. The original capture engine remains unwired; its full original
+      closing checks and cleanup must precede CLOSED. This checkpoint grants no
+      phase or execution authority and proves neither scope handoff nor native
+      execution/expiry recovery.
+      The closing consumer now checks the exact joined lease set under binding,
+      borrows/observes outside it and drops every view/compiler/payload/facts
+      local before completion. A private original pool/owner/token publication
+      precedes borrowing and covers an unreturned view. Only a recorded dropped
+      proof permits idempotent cleanup of that exact token. Unknown proof keeps
+      the original owner/publication and charge; production retirement never
+      guesses that references were dropped. The controlled interrupted-proof
+      fixture inspects its original frame before explicit teardown, not automatic
+      recovery. Reused publications with an inaccurate claimed flag cannot clear
+      another live borrow. Exact owner/token/flag DATA refuses foreign hashing,
+      equality and boolean callbacks. A successful settlement rechecks active
+      identity, CLOSING, poison, joined leases and metadata witnesses after its
+      outside-lock draining; swallowed reentry cannot publish stale success.
+      Failed completion before/after its transition resumes metadata only, with
+      no guard or borrow replay. Independent source review accepts this consumer
+      scope. The frozen canonical Make regression passes 154 cases without skips:
+      payload 9 (0.018s), handoff/borrow 32 (0.198s), resources 37 (0.250s), runtime
+      31 (5.640s), actual capture 32 (22.349s), accounting 13 (0.006s). Controls
+      include publication lock-exit cancellation, unreturned views, both sides of
+      acknowledgment, live-reader retirement refusal, retained guard traceback
+      collection and final metadata drift. Independent source/evidence/docs
+      review confirms all six reports/logs and recomputes the 1,287-member
+      candidate as
+      `2d51c32347d336fc34e94122ce7e45a98afa0ed689f30af5b0921b8103cb9ce5`
+      with twelve deltas and unchanged, unrecorded production pin.
+      The following producer candidate now prepares/commits the original
+      enrolled capture's actual tool/compiler/oracle/file observations. It takes
+      detached tool metadata while the original input scope is live, preserves
+      every original closing callback, and transfers release ownership only
+      after those callbacks succeed. A pending payload journal retains source
+      and its charge across failed preparation, lost commit acknowledgment and
+      interrupted release; recovery settles metadata without replaying commit
+      or reporting an uncertain capture CLOSED. Actual provider controls use
+      an injected operation binding: detached observations survive original
+      source-scope exit and are consumed by closing, without reviving a capture.
+      These controls do not establish original native invocation provenance.
+      The validated detached row size now replaces its earlier maximum in the
+      oracle-continuation reservation, retaining all other independent charges.
+      Consecutive captures exposed a capacity blocker: the conservative compiler
+      reservation plus an earlier retained payload can exceed the unchanged
+      512-MiB shared limit. A sizing-only prototype was rejected because growth
+      before earlier serializers could escape its measured bound; it is not
+      active source. Keep the 256-MiB compiler reservation until an immutable
+      bounded view drives every snapshot/serializer, or original operation-local
+      ownership safely proves reuse. Two providers plus root remain unqualified;
+      do not start another full native run before resolving that boundary.
+      Independent source review accepts this bounded producer support. Its
+      canonical Make regression passes 192 cases without skips: payload 10,
+      handoff 32, resources 37, runtime 36, actual captures 32, accounting 13,
+      compiler storage 16 and detached tool 16. Reports/logs use ignored prefix
+      `producer-final-`, with payload retry `r2` and the other suites `r1`.
+      The retained original `__new__` substitution fixture altered CPython type
+      allocation state after teardown; the final in-process constructor refusal
+      control covers `__init__` only. The failed first report is retained.
+      Read-only TCB review computes
+      `9149b0945cfb592a4b0f83f21bae115a197d9af74b3ad01ff7a47e338237c594`
+      with twelve production deltas; the production pin remains unchanged and
+      unrecorded. Original Pin method tracebacks can retain their own readsets;
+      this producer checkpoint does not claim arbitrary nested-frame cleanup.
+      The next candidate replaces the compiler reservation barrier with a shared
+      sizing/capture walk and a capped immutable primitive view. Both serializers
+      consume that view exclusively. Fresh C-slot reads compare every reference
+      against the original baseline before retaining rows; full byte checks remain
+      separately bracketed by original guards. Node identity is recomputed from
+      fresh primitive fields, refusing sizing-boundary version replacement.
+      Original SDK packet/identity documents and command layout use shared pure
+      helpers. Explicit serializer loops clear partial results and source locals
+      even when their original failure traceback is retained.
+      View scratch remains charged through all resizes until references drop.
+      A conservative two-byte ASCII policy is limited to CPython 3.12–3.14,
+      with separate metadata/header allowance; Python 3.11's legacy wchar cache,
+      other interpreters and unreviewed versions retain the old fallback.
+      Non-ASCII and byte accounting and both absolute ceilings remain unchanged.
+      An initial quota model still refused its third capture at a 325,289,911-byte
+      stage; the revised source policy now fits all three measured reservation
+      sequences with one original compiler. Only the first capture in that model
+      is a genuine provider; the other two leases are explicit quota fixtures.
+      Separately, two actual independent operations fit without cross-operation
+      compiler deduplication. Neither result establishes native root provenance.
+      Independent source review accepts the view, accounting, serializer cleanup
+      and fresh Node guard. Nine canonical Make suites pass 243 cases without
+      skips: payload 10, handoff 32, resources 37, runtime 37, actual captures 35,
+      accounting 13, compiler storage/view 28, detached tool 16 and real
+      TypeScript 35. Retained reports use `compiler-view-` prefixes; earlier
+      failed controls are historical. Read-only TCB review computes
+      `c4f75770f860dae4ef8bfa5993def85f04a16fa0eaf8fa8ffe8cdb2ea33faf00`
+      with thirteen production deltas and the unchanged/unrecorded pin.
+      The existing full two-provider-plus-root native case completed under
+      `aviation-compiler-view-native-r1` on the aligned local macOS worker:
+      one test failed after 1,911.797 seconds with unchanged grants/deadlines.
+      Original packaged-root acceptance returned, but root source-cache
+      publication reported `security.authorization_expired`; the lifecycle was
+      unsuccessful. This does not qualify native transfer or expiry margin.
+      Retain the failed report and earlier failures. Trace the original
+      publication guard/timing before another full run; no deadline extension,
+      grant renewal, repin or readiness claim follows from the focused matrix.
+      A separate bounded original-provider diagnostic profiles five custody
+      checks; an unprofiled six-batch experiment then compares 1,500 checks per
+      variant with unchanged grants and original cleanup. Exact built-in
+      normalization shortcuts reduce aggregate time from 8.651s to 8.434s
+      (about 2.5%). This is not whole-runtime timing or qualification, and the
+      small observed benefit does not justify changing shared identity code.
+      The experiment remains ignored diagnostic evidence under
+      `provider-builtin-normalization-r1`; production normalization is unchanged.
+      A subsequent real live-capture profile identifies repeated compiler class
+      namespace checks; the isolated grouped-sweep prototype also gives only a
+      modest, variable improvement and is not integrated. The independently
+      reviewed `publication-stage-timing-native-r1` diagnostic completed through
+      the original bounded process owner with unchanged child grants/deadlines.
+      Its one original native case passed in 1,876.829s, with no skips. Before/
+      after source freezes both match `c4f75770…`. The earlier expiry failure
+      remains retained; this diagnostic pass establishes neither reliable expiry
+      margin nor release qualification.
+      Source tracing then found an upstream 4-KiB buffered evidence tee, so these
+      downstream arrivals cannot attribute phase durations. A real child
+      handshake confirms the delay and rejects a naive `read1` change that leaks
+      a fixture secret split across reads. The isolated complete-stream-redaction
+      prototype passes six controls (`live-tee-probe-r7`, no skips), including
+      live console delivery, split-secret refusal, UTF-8/CRLF fidelity, exact
+      persisted-byte hashes/counts in both tee modes, and original cancellation
+      with actual owned-child reaping. Additional persistence/close cancellation
+      controls preserve the invocation's own primary and propagate a new
+      finalization cancellation inside an unrelated outer exception handler.
+      After terminal completion, the reviewed fix and six maintained controls are
+      applied. Console tee uses available reads, while persisted streams receive
+      complete-stream redaction at finalization. Cleanup preserves this invocation's
+      primary and drains every registered closer. The maintained live-output case
+      fails against the earlier source; the actual updated evidence suite passes
+      22 cases (2.575s) and the step harness passes two (0.763s), all without skips.
+      Strict lint and formatting pass. Read-only TCB review now computes
+      `bb1651b83771a107075986b5f9b68b361099533b47fa2a7ddd8a63f580cc3df5`
+      with exactly fourteen production deltas; the additional file is
+      `src/literate_ai/evidence_ledger.py`. The pin remains unchanged/unrecorded.
+      On-disk partial transcripts remain empty until finalization; this is not a
+      native expiry fix or renewed native proof for the new whole TCB.
+      Typed permission, native execution and expiry recovery remain open.
+      The first acknowledgement membership owner is now implemented separately
+      from issuance. Its private 64-registration seam binds exact primitive
+      pre-binding facts to original authority owners, then consumes one original
+      handle for weak configuration/runtime membership. It refuses copied/forged
+      handles, bool/integer substitution, dead weak targets, changed class/slot
+      storage and repeated binding. Failure poisoning uses the original registry
+      mutex; uncertain poison updates deny further process-local use while
+      allowing retirement. Original owner references retire outside the registry
+      lock body. Independent source review accepts this support-only core.
+      Seventeen canonical controls pass without skips, including controlled
+      concurrent binding, lock-exit cancellation, restored/deleted storage,
+      normal weak retirement and an isolated process-denial/cleanup case.
+      Strict lint and formatting pass. Read-only TCB review computes
+      `b1dd8d3f9e8b146a63d62bd778b1239a5bee73145122724b5433f213db724d83`
+      with fifteen production deltas and the unchanged/unrecorded pin. There is
+      no public acknowledgement factory, classification, issuance or typed host
+      selector yet; the manual authorizer and its identities are unchanged.
+      Canonical recording of the reviewed design refreshes documentation
+      authority; `verifier-authority-post-review-verify-r1` passes authority,
+      fails the unchanged stale-receipt gate and records three unconfigured
+      skips. It is not whole-project acceptance.
+      A subsequent private integration seam attaches one opaque fixed-policy
+      owner to that existing registration before binding. The future issuer must
+      retain only a weak acknowledgement backreference; the registry neither
+      inspects policy DATA nor introduces a second authority lookup. Runtime
+      metadata now reserves classification before scanning, rejects adoption of
+      an earlier scan and changed acknowledgement identity, refuses unfinished
+      classifications at close, and drains the bounded primitive witnesses on
+      retirement. The shared runtime failure guard now includes lock entry/exit
+      cancellation as well as method failures before unlock. Independent source
+      review accepts the correction. Canonical controls pass 21 acknowledgement
+      cases (0.456s), 46 runtime cases (10.711s) and 13 real-capture scan cases
+      with injected operation state (10.585s), all without skips. The broader
+      scan run exposed existing fixtures that swallowed the initial expected
+      refusal but incorrectly expected successful handoff afterward; an isolated
+      staged-source diagnostic reproduces that failure. Corrected expectations
+      retain the inner refusal/trap assertions and verify complete registry,
+      journal and resource-charge cleanup after retirement. The failed run and
+      staged-baseline diagnostic remain retained separately. Read-only TCB review
+      computes `30ea9452e4a1d62c059892ab1200699d610657f127ede136363737ce84ed780f`
+      with the same fifteen production deltas and unchanged/unrecorded pin.
+      This adds classification lifecycle metadata only: the fixed public factory,
+      actual original-capture policy decision, issuance, typed configuration and
+      native/installed/model-backed CLI/Aviation gates remain open.
+      The following checkpoint implements the fixed explicit acknowledgement
+      factory and private original-capture classifier. Intent binds the original
+      snapshot/execution, actor/reason, policy/scanner, finite lifetime, original
+      UTC deadline and explicit identity-only-input acknowledgement. The existing
+      registry owns fixed source-witness release on explicit and weak retirement,
+      outside its mutex; a retained original guard-failure traceback no longer
+      keeps the planner alive. Original capture and provider-request construction
+      fence request/serializer dependencies after first, post-scan and nested
+      custody callbacks, before constructing or validating descriptions. Exact
+      `AuthoredLibraryImport` joins the closed finite-metadata type registry;
+      foreign types/subclasses remain unsupported. The classifier obtains its
+      own original scan and preimages, creates a truthful local-custody observation
+      (`vendor_signature_verified:false`) and existing SecurityPolicy decision,
+      then rechecks original ownership and deadline before publication.
+      Actual inventory exposed two executable extensionless TypeScript JavaScript
+      launchers. The independently reviewed version-2 scan policy recognizes only
+      their exact compiler role/path/bytes, scans them in a disjoint logical
+      namespace, retains original inventory identities/modes, binds the mapping
+      and required digests in policy, and rejects mapped-path collisions before
+      scanning. Changed launchers and other executable DATA remain unsupported.
+      All 144 canonical controls pass without skips: 16 factory/classification
+      cases (13.499s), 46 runtime (11.107s), 23 registration/retirement (0.426s),
+      16 scan/mapping (10.274s), and 43 original capture/request cases (24.430s).
+      The earlier failed controls remain retained separately. Strict lint,
+      formatting and staging checks pass. Independent source/evidence/docs review
+      recomputes the 1,289-member TCB as
+      `78938cf04aecc74c32b9c6dc877a6ca859d75b33a60f7d882a3538d07e4a5abc`,
+      with exactly eighteen production deltas and unchanged/unrecorded pin.
+      Canonical recording makes documentation review current at
+      `bd1c6caf415b2e92d78bb13f266cd79931b7d80005f45f0488fec21c2eea9fe8`.
+      `verifier-fixed-classifier-post-review-verify-r1` passes authority, fails the
+      unchanged stale-receipt gate and reports three unconfigured skips. These
+      source/injected-runtime controls issue no grant and establish no native
+      host-mode, installed, ordinary model-backed CLI or Aviation cutover proof.
+      The classification controls use actual original provider captures with
+      injected operation/binding metadata; original root classification remains
+      unqualified as well.
+      Next join exact-request issuance and immutable-empty live revocation to
+      bounded operation grants and aggregate closing, then expose typed host
+      selection together with the working producer/enforcement path.
+      The next reviewed source checkpoint implements that private issuer and
+      original operation grant custody. Each intent constructs its own original
+      immutable-empty revocation set, fixed live verifier and existing
+      PolicyBuildAuthorizer with the acknowledged lifetime/deadline and YOLO off.
+      Issuance reserves before callbacks, obtains its own original classification
+      and request, validates and registers the original grant before returning.
+      A separate bounded 64-operation journal retains original payload/witness
+      pointers and identities, preventing coordinated runtime map replacement
+      from adopting a new grant. Independent membership also prevents clearing
+      intent from disabling enforcement and survives cancellation before intent
+      publication. Closed dict/key/record/intent/flag/phase checks precede hashing,
+      equality and truthiness. Earlier grant expiry blocks later issuance without
+      changing original timestamps. Exact committed capture/CLOSED membership is
+      sealed after closing-view settlement, then actual resource retirement runs
+      the final authority/revocation preparation and shared clock cut. Expiry,
+      swallowed retirement reentry/poison and late configuration replacements
+      withhold success while completing cleanup and allowing binding recovery.
+      An in-flight token prevents nested retirement from draining ownership early;
+      original DTO witnesses and intent references release outside both mutexes.
+      Source, evidence and documentation review pass. All 171 canonical controls
+      pass without skips: 27 issuance cases (47.369s), 16 factory/classification
+      (14.049s), 46 runtime (11.575s), 16 scan (11.149s), 43 original capture/request
+      (24.807s) and 23 registration/retirement cases (0.424s). These include actual
+      provider inputs and controlled injected runtime joins; capacity/weak cleanup
+      cases are metadata controls. Earlier failed matrices remain retained.
+      Strict lint, format and staging checks pass. Independent review recomputes
+      the 1,289-member TCB as
+      `4f03755f3ad4121721a4c624c640c653010ef46fb3e74b14286f16e3f6963f68`,
+      with the same eighteen production deltas and unchanged/unrecorded pin.
+      Documentation review is canonically current at
+      `e9804b0f868513bb146f2ce40558768f03c8a7be019014cd0e57855f69595d32`.
+      `verifier-issuance-post-review-verify-r1` passes authority, retains the stale
+      receipt failure and three unconfigured skips. No host mode or build is
+      activated. Next wire typed host selection and exact original-grant use
+      alongside unchanged manual configuration identities/callback ordering, then
+      qualify original-root issuance, the full native operation, installed wheel,
+      ordinary model-backed CLI and Aviation consumer/cutover gates.
+      The following reviewed grant-use checkpoint connects the shared provider/
+      root verifier runner to an explicitly threaded operation. Execution requires
+      that operation's exact original issued grant, successfully CLOSED capture,
+      committed handoff, original ports and matching current request identity.
+      Fresh equal request DATA is allowed; copied grants and callback-bearing
+      request fields refuse. Entry and final post-clock/ownership cuts enforce the
+      same boundary. Original execution seams are captured at trusted module
+      initialization, avoiding both callback substitution and an eager-import
+      cycle. Untyped explicit operations refuse before authorization lookup.
+      Independent weak ports/state membership prevents missing-operation fallback
+      after mutable host/intent pointers are cleared or replaced and survives the
+      retirement interval after live operation lookup is removed. Synchronized
+      marker snapshots/publication/removal preserve unrelated manual execution;
+      metadata checks run after releasing the marker mutex.
+      The final canonical candidate passes 176 controls without skips: 22 exact
+      grant-use cases (53.562s), 66 issuer/factory/registration (61.630s), 46 runtime
+      (10.787s), 12 host (4.079s), four root-plan (0.300s) and 26 actual manual
+      provider cases (140.955s). Grant-use cases include actual provider verifier
+      children under original issuance with injected runtime joins, copied-grant
+      refusal before children, final-clock failure, both helper substitutions
+      before entry/during custody, cleared/replaced host pointers and untyped
+      operations. A controlled concurrent metadata case performs 100 actual
+      private registrations/retirements alongside 1,000 unrelated manual cuts;
+      it does not establish host/native concurrency acceptance. Earlier failed
+      attempts and the pre-lock passing matrix remain retained. Source, TCB and
+      documentation review pass; strict lint/format/staging checks pass.
+      The unchanged 1,289-member/18-delta TCB now computes
+      `e5e1a06968614e01f977cf4f14b1e5f45c53a605c8d200bd429ce156738e4fb9`;
+      the production pin remains unchanged and unrecorded. Documentation review
+      is current at
+      `0dcf2d39d689085aabc1cdb84718f4e979137e1c96d3fadd6f9c7729432271ad`.
+      `verifier-grant-use-post-review-verify-r1` passes authority and retains the
+      stale-receipt failure plus three unconfigured skips. Typed host selection
+      remains unavailable; no runtime/build is activated. Next implement explicit
+      mutually exclusive typed host configuration and provider/root issuance,
+      preserving original manual identities and callback ordering, then complete
+      original-root/native/installed/CLI and Aviation cutover qualification.
+      The next source-reviewed candidate implements typed host selection and
+      both original provider/root issuance routes. Host and subordinate policies
+      select exactly one manual callback or original verifier acknowledgement
+      before user mappings/callbacks; typed identities use version 2 while manual
+      identities retain version 1. Typed binding installs its original membership,
+      consumes the acknowledgement, then runs its original closure/dependency
+      validation and host-owner callback, with fresh finite checks afterward.
+      Generic toolchain projection/ordinary ports assembly stay independent and
+      grant no verifier permission. Failed/reused/reentrant binding poisons intent
+      without replay or rollback of installed membership. Original helper aliases
+      are captured/pinned and checked before use; custody-time replacements cannot
+      run before their own fences. Provider and root capture owners enroll and
+      issue in their exact operation, complete original capture settlement, then
+      check the exact grant/current request before the shared runner.
+      Source and TCB/documentation review pass. The frozen 1,289-member candidate
+      has 21 production deltas and computes
+      `048e87af4042c433fbd8bc837433831318c37a6c8206028b932de0882ab226f7`;
+      the production pin stays unchanged/unrecorded. Documentation review is
+      current at
+      `34d1849c1f138b539651a1357e650668e09527bd698cbfe006800106d83871c5`.
+      `typed-verifier-host-post-review-verify-r1` passes authority and retains the
+      stale-receipt failure and three unconfigured skips. Configuration-r3 passes
+      16 controls (3.260s); construction-order cases explicitly inject graph
+      construction. Issuer-r1 passes 66 (62.107s), grant-use-r1 22 (52.387s),
+      runtime-r1 46 (10.891s) and manual-host-r2 12 (4.273s), all without skips.
+      Combined controls-r3 has passed its two original-custody substitution cases
+      with injected operation joins and the genuine-projection/original-binding
+      dependency-guard case. The matrix is terminal: three pass and one error in
+      2008.415s, without skips. The full two-provider/root-subpath typed runtime
+      entered original packaged-root acceptance, then ordinary provider BUILD
+      authorization expired during root declaration custody validation. Root
+      acceptance did not return and publication is unqualified. Retain the failed
+      evidence; do not extend the ordinary 30-minute grant or retry unchanged.
+      The manual-provider regression passes all 26 cases (143.125s), without skips.
+      These scoped passes do not establish native success. The initial native-r1 attempt was deliberately
+      interrupted for the binding/helper review findings (terminal exit 2), with
+      failed evidence retained; controls-r3 is the replacement frozen candidate.
+      No source repin, installed build, model-backed CLI qualification, runtime
+      activation or Aviation cutover follows from these source/scoped results.
+      The following reviewed harness checkpoint adds the separate
+      `wheel-sdk-typed-host-preflight` Make target and literal controller mode.
+      It preserves the manual matrix, stages a closed one-file helper extension
+      and selects exactly the genuine bind and full typed two-provider/root-
+      subpath cases. Installed isolation, empty private cache, original namespace
+      and module-origin custody are unchanged. File/stdout protocols require the
+      distinct typed schema, exact case IDs/counts, authorization mode and declared
+      acknowledgement limits. The declared, helper-hash-bound inputs are not
+      observed timestamps or expiry-margin evidence. Manual result schemas refuse;
+      both success and failure retention keep exact candidate bytes/evidence
+      separate from whole-wheel qualification. Mixed modes, supplied wheels and
+      qualified-wheel publication refuse before tools. Source/evidence/docs review
+      passes; all 43 canonical metadata/filesystem controls pass without skips:
+      ten new (0.135s), 26 existing installed guards (0.303s), seven wheel-smoke
+      controls (0.359s). These are not installed SDK acceptance. The production
+      TCB remains `048e87af4042c433fbd8bc837433831318c37a6c8206028b932de0882ab226f7`
+      at 1,289 members/21 deltas with unchanged/unrecorded pin. Documentation is
+      current at
+      `2e356af50d2cecb3151a8f65d8152165d2794499b189f4b730d2697a4a4875e2`.
+      The installed preflight is not run. It requires passing source-native qualification,
+      fresh health and a reviewed exact clean candidate snapshot/artifact. Preserve
+      the active checkout, source-only staging and retained attempts when making
+      the separate local qualification checkout; no activation or publication is
+      implied. Ordinary model-backed CLI and Aviation cutover remain open.
+      A separately reviewed sampling-only diagnostic ran the original full
+      typed scenario under `typed-host-native-sampling-r1`. It leaves ordinary
+      BUILD and typed verifier policies, clocks and deadlines unchanged, and does
+      not replace grant validation (`observe_grants=False`). Twenty diagnostic
+      controls pass without skips (1.042s), including exact-bool selection, real
+      factory behavior and primary-failure/cleanup preservation. Sampling retains
+      bounded original-thread stack metadata without locals or arguments; it
+      cannot establish worker CPU distribution, reliable expiry margin, native
+      qualification or installed acceptance. The single diagnostic is terminal:
+      one error in 1918.561s, with the same ordinary provider BUILD expiry after
+      entering original packaged-root acceptance. Observer/lifecycle cleanup both
+      complete; the report is saved with zero capture errors, 9,293 samples,
+      46,559 dropped frame samples and depth truncation. Of the retained rows,
+      4,308 samples show the original thread waiting for lifecycle workers;
+      `canonical_identity` has 1,694 leaf samples and `ComponentLock.identity`
+      1,373 inclusive samples. These overlap and do not attribute worker CPU.
+      Use a bounded isolated snapshot-validation profile to distinguish the exact
+      lower owner before changing production overhead; do not infer an expiry
+      margin or retry unchanged. No detached qualification snapshot was created.
+      Production TCB/pin
+      remain unchanged. Reviewed documentation was recorded at
+      `1ef8eb9d669ecbc3fdefbec0a9455605ed03913e39cf5952c26829bc85521d84`.
+      `typed-host-sampling-post-review-verify-r1` passes authority, retains the
+      stale-receipt failure and skips three unconfigured gates. Analyze the
+      diagnostic evidence before choosing a performance fix or qualification retry.
+      The separately reviewed `typed-host-snapshot-profile-r1` then profiles
+      three original `snapshot.require_unchanged()` calls on a fresh three-node,
+      two-provider/root-subpath fixture, with setup outside the measured region.
+      Calls take 0.0545/0.0553/0.0550s under cProfile; owned cleanup completes.
+      Catalog replanning contributes 0.1394s of the combined 0.1648s, including
+      423 canonical-identity calls (0.0370s cumulative). These are isolated-owner
+      costs with profiler overhead and a small fixture, not full-path attribution,
+      worker CPU, native margin or acceptance. Next measure the composed original
+      owner guard/callback multiplicity before choosing an optimization. No
+      production source, grant limit or authority pin changes at this checkpoint.
+      The reviewed `typed-host-composed-guards-profile-r1` separately profiles
+      three original bound-host checks (0.0717–0.0729s each) and three original
+      base-admission checks (0.0825–0.0840s each). Setup uses genuine toolchain
+      projection/binding, a finite original acknowledgement, a no-op child-free
+      fixture host callback and no active invocation. Both groups make exactly
+      three original snapshot checks; canonical-identity counts are 573 and 621.
+      Thus these configuration-only paths do not show multiplied snapshot checks.
+      Original acknowledgement/fixture cleanup restores the resource registries
+      to baseline. Profiler overhead and omitted live grant aggregates/invocation
+      work prevent full-runtime attribution. Retain prior builtin-normalization
+      and grouped-namespace experiments; their modest results do not justify
+      repeating or integrating those changes. Active provider/invocation
+      composition remains the unmeasured path before any production optimization.
+      The current Node runtime probe launches a bounded child whose polling
+      re-enters the active liveness owners. Historical active-cohort profiling
+      identifies that amplification; it is a lead, not a current speedup claim.
+      [ADR 0076](../decisions/0076-scoped-direct-node-validation.md) was accepted
+      as written by the directing user on November 19
+      for a separate opt-in direct-native validation profile. It requires a
+      genuinely probed original owner, a qualified closed launch-input backend,
+      independent liveness/grant fences and an original closing probe. Unsupported
+      inputs retain the ordinary profile under its actual identity or refuse;
+      no unenrolled operation may claim the new profile. This is a temporal
+      validation-policy decision reviewed under ADR 0006. Planning and
+      implementation are now admitted; changed limits, profile activation and
+      unreviewed native retries remain excluded. Existing source/native,
+      installed, CLI and downstream acceptance obligations remain open.
+      - [ ] Define and independently review the explicit macOS direct-Node
+        backend's closed launch-input/trust boundary and refusal cases.
+      - [ ] Implement the original-owner entry/closing probe lifecycle with fresh
+        intermediate custody checks and every existing grant/liveness fence.
+      - [ ] Verify provenance, loader/dependency/launchability drift, lifecycle,
+        cleanup and default-profile compatibility under original limits.
+      - [ ] Measure and qualify the genuine serial two-provider/root-subpath
+        native SDK cell and separate installed distribution before activation
+        or downstream cutover; retain all earlier failed receipts.
+      A separate current-code counterexample,
+      `process-liveness-cross-owner-cut-r1`, confirms why the second captured
+      process-liveness cut cannot simply be removed when `caller_guard` is None.
+      A later synthetic liveness callback invalidates an earlier owner without
+      retiring that guard; the next original cut refuses before the process
+      factory runs. Original failure identity and both context variables are
+      preserved/restored, with zero children. This is an existing-fence diagnostic,
+      not implementation or qualification of the proposed validation profile.
+      The detached direct-Node witness helper now passes 16 synthetic POSIX
+      controls (0.044s, no skips), with independent source review. It preserves
+      both existing tool labels, brackets metadata with full byte validation and
+      retains no binary payload or pinned-input closure. These controls do not
+      qualify native execution or performance. At that earlier checkpoint,
+      runtime enrollment/closing joins were unwired. The preceding 1,282-member
+      digest describes the accounting
+      checkpoint before this additional helper, not the combined candidate.
+      Independent source/evidence review recomputed the earlier 1,283-member
+      detached-tool checkpoint as
+      `ece5dc6393e59393235cee3d2ed6a82bf6b40edf5f88dbf397fc30287552ce2d`
+      with exactly six production deltas. The production pin is unchanged.
+      Then add a separate verifier-specific acknowledgement and
+      narrowly scoped policy issuance, preserving manual callbacks/identities
+      with explicit mutual exclusion. Only constructor-owned immutable-empty
+      revocation state is initially supported; arbitrary callbacks/unsupported
+      feeds refuse. Retain bounded live/closing/terminal grant witnesses through
+      aggregate publication closure; fresh publication reentry gets a new aggregate.
+      Installed-wheel, ordinary model-backed CLI and Aviation cutover remain open.
+      After independent documentation review and canonical marker recording,
+      `compiler-view-post-review-verify-r1` passes authority and fails the receipt
+      gate with `project.test_receipt_stale`: the configured receipt does not bind
+      the current authority revision. Three unconfigured lock,
+      source-intelligence and HTML gates skip. This documentation review does not
+      qualify the native runtime, refresh the test receipt or change the TCB pin.
+      These scoped passes do not establish whole-project or release readiness.
+      Further source-cache
+      fault/recovery, model, retained, native-platform/browser and default/cutover
+      qualifications remain open.
+      Bind exact provider revision,
+      interface, import surface, artifact bytes, target and declarations; preserve
+      complete npm inventory admission and deny namespace/type collisions.
+      Acceptance must exercise an ordinary generated consumer and an actual packed,
+      relocated SDK through CJS/ESM root and subpath imports plus TypeScript,
+      with the producer checkout and ambient resolution unavailable. Preserve all
+      failed attempts and older qualification evidence. No downstream SDK cutover
+      follows from the existing JavaScript importer fixtures.
+      Implement in dependency order: versioned declaration-bearing CommonJS import
+      surfaces; one shared Node SDK plan/materializer and closed declaration reader;
+      opt-in TypeScript library and package-node-sdk policy; generated and retained
+      adapters sharing that owner; real packed/relocated CJS/ESM and compiler
+      acceptance; native-platform and installed-wheel qualification. Preserve the
+      separate registry-revision, browser and downstream cutover gates.
 - **Owner:** Standard lifecycle Component kinds and in-process library artifacts
 - **Direction:** Pure in-process library logic can be specified and accepted as
       portable-application, but consumers cannot import the qualified artifact; they must shell out
@@ -2683,62 +5127,18 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
 - **Depends on:** landed 0.8.0 catalog merges on `main` (`390cc7ec`)
 - **Historical completion:** [Preserved implementation and evidence](../history/roadmap/completed-before-sdlc-review.md#x-sample-pin-001-re-pin-sample-harness-identities-after-080-catalog-merges). Current-release qualification remains separate.
 
-### [ ] RELEASE-016 — Prepare the 0.8.0-RC1 cut from `main`
+### RELEASE-016 — Prepare the 0.8.0-RC1 cut from main
 
-- **Release target:** 1.1.0
+**Archived as superseded cut instructions.** The [unchanged historical record](../history/roadmap/release-016-obsolete-cut.md)
+retains the completed preparation work and unchecked old release-plan evidence.
+The literal 0.8.0-RC1 cut and old branch/worktree cleanup instructions are retired;
+this is archival, not a claim that the original release plan passed.
 
-- **Priority:** P0 (0.8.0 break-glass)
-- **Owner:** default-branch landing queue, `src/literate_ai/cli/` diagnostics,
-      release gates, `litai release plan/prepare`
-- **Direction:** User-directed: prepare a `0.8.0-RC1` release. The work happens
-      on `main`, but `main` is explicitly not release-ready: the local installed
-      `litai` launcher fails to import (`ImportError: cannot import name
-      'debug_diagnostics' from 'literate_ai.diagnostics'`) because
-      `cli/source_to_specification.py` imports a symbol main's `diagnostics.py`
-      does not define. All open roadmap items and branches must be landed in the
-      correct order before planning the cut.
-- **Conclusion:** Branch reconciliation (2026-08-30) found exactly one unmerged
-      branch head: `feat/cli-sdlc-debug` (34 commits ahead of `main`, 0 behind)
-      which already contains the three identical worktree branches
-      `feat/cache-005-007-leftovers`, `feat/skill-dep-workflow-leftovers`, and
-      `feat/spec-refinement-001-pi-service` (all at `d41c9f5b`) and repairs the
-      `debug_diagnostics` inconsistency. `pr-197` is stale: SAMPLE-PIN-001
-      records it closed without merge and its unique commit `78989809` is
-      already contained in `feat/cli-sdlc-debug`. Merge
-      `feat/cli-sdlc-debug` into `main` (merge-tree is conflict-free), delete the
-      contained branches and their worktrees, reinstall the local launcher from
-      source, then close remaining gates before `litai release plan`.
-- **Depends on:** landed 0.8.0 catalog merges on `main` (`390cc7ec`);
-      RELEASE-017 is explicitly deferred from the 0.9.0 gate
-- **Implementation:**
-  - [x] Record this item; merge `feat/cli-sdlc-debug` into `main`.
-  - [x] Remove worktrees and delete contained branches
-        (`feat/cache-005-007-leftovers`, `feat/skill-dep-workflow-leftovers`,
-        `feat/spec-refinement-001-pi-service`, `pr-197`).
-  - [x] Reinstall the local `litai` launcher from the merged source and verify
-        `litai verify` / `litai project tracker inspect` run clean.
-        `litai version check` and `litai project validate` both green.
-        `litai verify` passes authority; receipt remains stale until
-        the release gate produces one.
-  - [x] Fix CLI inconsistencies discovered during gate run:
-        command-reference missing `litai project guidance` and
-        `litai release merge-pr`; doc-toolchain `.venv` fallback when
-        `OBJ_DIR` is explicit; v1 wire-contract test missing
-        `repository_policy` v2-only field drop.
-  - [x] Close remaining repository gates (`python-check`, lint, format)
-        on the merged `main`. `make python-check` passes 3041 tests with
-        21 skips (2026-08-30, session `rc1-prep`). `make lint` and
-        `make format-check` pass.
-  - [ ] Run the optional RELEASE-017 upgrade smoke when that compatibility work is
-        scheduled.
-  - [ ] `litai release plan --version 0.8.0rc1` and review the plan.
-- **Evidence:**
-  - [x] Merge commit on `main` containing the full 34-commit stack (`3130bf48`).
-  - [x] `litai version check` and `litai project validate` green from the
-        installed launcher on the prepared tree (`0d75a25e`).
-  - [x] `make python-check` passes 3041 tests; `make lint` and
-        `make format-check` pass; `make skills-check` passes.
-  - [ ] Release plan produced and reviewed.
+[RELEASE-017](#release-017-optional-upgrade-path-between-consecutive-minor-releases)
+retains consecutive-minor compatibility work. Current release planning and exact
+source, CI, artifact, collateral and ancestry checks remain with
+[RELEASE-CLOSURE-001](#release-closure-001-make-release-closure-executable-and-continuous)
+and RELEASE-INTEGRATION-005; their acceptance is unchanged.
 
 ### [ ] RELEASE-017 — Optional upgrade path between consecutive minor releases
 
@@ -3463,7 +5863,72 @@ invalid. Ordinary queue items do not gain separate files merely to satisfy this 
 
 ## Open pull-request landing queue
 
-### Current consolidation inventory
+### Current 1.4 forge inventory (2026-11-22)
+
+The full current-repository inventory has 50 open reviews. Exact Git
+ancestry proves 33 review heads are contained in the private combined source
+candidate `8c4280f975319128624f185f719e5716067297c1`; seventeen are not proven
+contained. This records source inclusion only. It grants no current CI, review,
+installed qualification, merge or issue-closure claim. Main remains
+`ebf88985be10f733dd64f469b7cd4aa685ce9083` at this observation.
+RELEASE-INTEGRATION-005 owns collection and final landing; individual roadmap
+owners retain their complete acceptance. Uncollected and design-only work stays
+open. Preserve the historical inventories below.
+
+| Open review | Observed head | Source collection status |
+| --- | --- | --- |
+| [#491 — Keep Rust harness native guards within their owned execution budget](https://github.com/jordanhubbard/literate-ai/pull/491) | `551e32e47a4c96e230137ccf9ac93cae38c6fbea` | Exact head ancestral; original Rust guard recovery collected. Native/installed and main landing gates remain. |
+| [#489 — Allow native SDK builds to place outputs outside immutable source](https://github.com/jordanhubbard/literate-ai/pull/489) | `6e67c86b2ab08034bf0eae60170672890d97431e` | Exact head ancestral to the combined candidate. |
+| [#475 — Integrate 1.4 adoption, SDK custody and authored Cargo receiving work](https://github.com/jordanhubbard/literate-ai/pull/475) | `edb3cf2f94e7743f0f14a83dc64c1ee21f2f0880` | Exact head ancestral to the combined candidate. |
+| [#474 — Bump vmactions/freebsd-vm from 1.5.9 to 1.6.0](https://github.com/jordanhubbard/literate-ai/pull/474) | `c01620b358aa12065bf3d585e8f5148f85513540` | Exact head ancestral to the combined candidate. |
+| [#473 — Bump bazel-contrib/setup-bazel from 0.19.1 to 0.19.2](https://github.com/jordanhubbard/literate-ai/pull/473) | `a52878640e7f040ea14cf9b5fb93e8852fd0ff86` | Exact head ancestral to the combined candidate. |
+| [#472 — Refuse validation failures before expensive Make gates](https://github.com/jordanhubbard/literate-ai/pull/472) | `d383f294123f713f082042db4bf6044c387b83c4` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#471 — Record actual delivery qualification and skill comparison evidence](https://github.com/jordanhubbard/literate-ai/pull/471) | `9ed5a266e5d07bb720292a067d7af50954a6bbd1` | Exact head ancestral to the combined candidate. |
+| [#470 — Separate documentation dependencies and enforce both tool audits](https://github.com/jordanhubbard/literate-ai/pull/470) | `18d98aab3588b3112323ead2fdd959fd785803f4` | Exact head ancestral to the combined candidate. |
+| [#467 — Declare native FreeBSD ARM64 host prerequisite installation](https://github.com/jordanhubbard/literate-ai/pull/467) | `7ed194f729a6ab19dd6ed7ed887e3f09731fba20` | Exact head ancestral to the combined candidate. |
+| [#465 — Prove native CI coverage with an exact-head producer pilot](https://github.com/jordanhubbard/literate-ai/pull/465) | `af11434c90d58489a923114a8d8f0c7bdb1ebba0` | Exact head ancestral to the combined candidate. |
+| [#464 — Verify explicit native CI coverage for release preparation](https://github.com/jordanhubbard/literate-ai/pull/464) | `c1038afa28a8e19b51ecdc0b5cb0654ec4004592` | Exact head ancestral to the combined candidate. |
+| [#463 — Observe native repository CI and compose reviewed delivery safeguards](https://github.com/jordanhubbard/literate-ai/pull/463) | `0686ca7ed5adb1392571c9666fb06fba0c8a2cf2` | Exact head ancestral to the combined candidate. |
+| [#460 — Bind release gates to the newest exact CI run and attempt](https://github.com/jordanhubbard/literate-ai/pull/460) | `abe7ca02b60a5d4f732d9d956d88984f4ba18b70` | Exact head ancestral to the combined candidate. |
+| [#459 — Preserve HTTP refusals and synchronize scheduler repair](https://github.com/jordanhubbard/literate-ai/pull/459) | `913ad5920288af37ed0c436089531fed2c437e13` | Exact head ancestral to the combined candidate. |
+| [#458 — Validate documentation on PRs and preserve native fixture bytes](https://github.com/jordanhubbard/literate-ai/pull/458) | `48e3d1ef30fb0f11ba27cc55dcfdab9253c15a68` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#457 — Compose retained-source custody and bounded parsing improvements](https://github.com/jordanhubbard/literate-ai/pull/457) | `a5709da778b542b6adf83b70fe4d950e3b434d12` | Exact head ancestral to the combined candidate. |
+| [#456 — Retain bounded module timing across release evidence export](https://github.com/jordanhubbard/literate-ai/pull/456) | `af4ab36e03b0784d7758b5599f16fb79ff28fbb2` | Exact head ancestral to the combined candidate. |
+| [#453 — Propose ADR 0073 for sealed libraries in TypeScript Node SDKs](https://github.com/jordanhubbard/literate-ai/pull/453) | `44f73e1d0722795f179f32cd53753eb7e4da9330` | Accepted canonical [ADR 0075](../decisions/0075-sealed-node-sdk-composition.md) restored from the original ADR 0073 proposal, preserving native-root ADR 0073 and existing ADR 0074. Implementation/public qualification remain open; exact head not ancestral. |
+| [#445 — Preserve source-link custody through authored acquisition and native SDKs](https://github.com/jordanhubbard/literate-ai/pull/445) | `f23678d8a194f8cce8a2844a556f84a2d864564d` | Exact head ancestral to the combined candidate. |
+| [#444 — Preserve closed POSIX source links through snapshot and quarantine custody](https://github.com/jordanhubbard/literate-ai/pull/444) | `a731a32f1777d152f19e55ae66e03de0e30f0620` | Exact head ancestral to the combined candidate. |
+| [#442 — Accept an omitted optional contribution roadmap manifest](https://github.com/jordanhubbard/literate-ai/pull/442) | `4c102f1267e51e4b60d980b00e9516b1f43193a1` | Exact head ancestral to the combined candidate. |
+| [#440 — Preserve original authored scratch identity during retirement](https://github.com/jordanhubbard/literate-ai/pull/440) | `676d8855a1836bf579d28b7a5ce42a6c989971b7` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#439 — Isolate parse reuse within v2 Cargo input observations (depends on #434)](https://github.com/jordanhubbard/literate-ai/pull/439) | `b6a4cdf6f584a509e7669b65084d259a2910ec18` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#438 — Bound lexical parsing within retained Cargo input captures](https://github.com/jordanhubbard/literate-ai/pull/438) | `86bf37ad182e1a458e7741963a489bc6f3a774ee` | Exact head ancestral to the combined candidate. |
+| [#437 — Integrate reviewed bootstrap, retained-layout and bounded execution repairs](https://github.com/jordanhubbard/literate-ai/pull/437) | `d35a4fc1631c9a6aa6ae16d6006ded856d4ef18d` | Exact head ancestral to the combined candidate. |
+| [#435 — Reduce duplicate Cargo custody observations within each guard](https://github.com/jordanhubbard/literate-ai/pull/435) | `e6edc3614f4a98ec85b3a6ba510271464b4c30ba` | Exact head ancestral to the combined candidate. |
+| [#434 — Bound native Cargo output custody with opt-in streamed budgets](https://github.com/jordanhubbard/literate-ai/pull/434) | `ddbda1a35e1bcea95bdba428dfebbe931d5bb583` | Exact head ancestral to the combined candidate. |
+| [#431 — Preserve distinct provider and consumer tool authority and owned secondary outputs](https://github.com/jordanhubbard/literate-ai/pull/431) | `9c3ebb122c0be7f6d5f31437c869df2615b85260` | Exact head ancestral to the combined candidate. |
+| [#428 — Avoid redundant Windows cleanup and quadratic export scans](https://github.com/jordanhubbard/literate-ai/pull/428) | `6f060715206a54b45ab0eed9353cb444eed1993b` | Exact head ancestral to the combined candidate. |
+| [#425 — Support public v2 retained Cargo receiving and admitted-compiler test oracles](https://github.com/jordanhubbard/literate-ai/pull/425) | `123e50c4c69d056ed30012aaeb5c568cccfcb8ee` | Exact head ancestral to the combined candidate. |
+| [#423 — Bind locked runtime capabilities through node and packaged execution](https://github.com/jordanhubbard/literate-ai/pull/423) | `a7482175ef97724339edfd1261396e2fe89ec418` | Exact head ancestral to the combined candidate. |
+| [#416 — Build bounded telemetry with original-process native observations](https://github.com/jordanhubbard/literate-ai/pull/416) | `6e42b7ef3f4ae5a25cb4e344388dcefb8398a7b3` | Exact head ancestral to the combined candidate. |
+| [#414 — Repair native Rust result rejection within the bounded candidate loop](https://github.com/jordanhubbard/literate-ai/pull/414) | `58bc138109c5358a0c74d39fe03eacddfbb5272a` | Exact head ancestral to the combined candidate. |
+| [#413 — Own bounded Codex runtime state and isolate remote catalog access](https://github.com/jordanhubbard/literate-ai/pull/413) | `7ad91075d939162305921ab650218cd47eaeb703` | Exact head ancestral to the combined candidate. |
+| [#410 — Correct CUDA inventory signals and qualify positive coverage](https://github.com/jordanhubbard/literate-ai/pull/410) | `a5bee312c0cfd9e5561682c76cd4bea898a169c0` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#409 — Propose typed bounded repair after native root acceptance rejection](https://github.com/jordanhubbard/literate-ai/pull/409) | `4bebbf31ad1c04bd5a2cdf5fff8eb536f4815e25` | Accepted canonical [ADR 0073](../decisions/0073-native-root-acceptance-repair.md) restored. Existing reviewed PR #414 implementation is integrated; current qualification remains open. Original proposal head not ancestral. |
+| [#401 — Add acknowledged authored graph qualification and recoverable publication](https://github.com/jordanhubbard/literate-ai/pull/401) | `97362d5c5a8a7966dce649a526f7b32b354af606` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#398 — Keep vendor copyright from implying CUDA requirements](https://github.com/jordanhubbard/literate-ai/pull/398) | `4b051a9af074e4255789370922cd98bb874c70fc` | Exact head ancestral to the combined candidate. |
+| [#391 — Retain bounded original diagnostics when qualification fails](https://github.com/jordanhubbard/literate-ai/pull/391) | `2b4b883816de8145b54298f25f437d15a67c7588` | Exact head ancestral to the combined candidate. |
+| [#382 — docs: propose ADR 0070 for reviewed retained command renewal](https://github.com/jordanhubbard/literate-ai/pull/382) | `221f86af737bea7bfa7fa49ab8cf348edb39c794` | Accepted canonical [ADR 0070](../decisions/0070-reviewed-retained-command-renewal.md) restored; post-adoption renewal remains separate from completed initial selection. Original exact head not ancestral. |
+| [#381 — docs: propose ADR 0069 for independent promotion authoring](https://github.com/jordanhubbard/literate-ai/pull/381) | `9a9d2489095b49b2382e1af49b3a5a8e53af3aff` | Accepted canonical [ADR 0069](../decisions/0069-independent-promotion-authoring-selection.md) restored from this proposal under directing-user roadmap authorization. Implementation/native qualification remain open; original exact head not ancestral. |
+| [#359 — Add reviewed qualified-child membership transactions](https://github.com/jordanhubbard/literate-ai/pull/359) | `9732a114a48d19aa279654f414d278784b7e72b5` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#349 — Centralize retained-layout resolution and plan selected placement](https://github.com/jordanhubbard/literate-ai/pull/349) | `3c37247492937063604312907daae51c56b00975` | Exact head ancestral to the combined candidate. |
+| [#347 — WIP: project qualified native Rust graphs through Standard Cargo builds](https://github.com/jordanhubbard/literate-ai/pull/347) | `7ce065e3299d753a4bdd42e3f376cd5ed34ce56d` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#334 — Propose ADR 0065 for shared cross-provider work](https://github.com/jordanhubbard/literate-ai/pull/334) | `2e7fc4096905f1b9a081399149910e394e34b1f8` | Existing forge disposition defers this proposed design to 1.5.0; preserve its milestone and pending acceptance. Exact head not ancestral. |
+| [#333 — Bootstrap generated project agents before LitAI commands](https://github.com/jordanhubbard/literate-ai/pull/333) | `770140dc94731086014c4dbc58db1189424df421` | Exact head ancestral to the combined candidate. |
+| [#326 — Propose ADR 0064 for GitHub issue assignee ownership](https://github.com/jordanhubbard/literate-ai/pull/326) | `4350f552a8b82ebbf59f6514b25a473774e60b6d` | Existing forge disposition defers this proposed design to 1.5.0; preserve its milestone and pending acceptance. Exact head not ancestral. |
+| [#322 — Add shadow Git and PR custody with bounded process ownership](https://github.com/jordanhubbard/literate-ai/pull/322) | `712b99fdf1227e9ed071543896aca947d0670713` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#313 — Preserve reviewed source, child and asset promotion boundaries](https://github.com/jordanhubbard/literate-ai/pull/313) | `77be5baf68bbeaf878a5b86151dafffe623beb2e` | Exact head retrieved after this inventory; focused accepted asset/intake recovery is under qualification. Newer child and policy work remains preserved. |
+| [#312 — Integrate 1.4 retained promotion and library harness fixes](https://github.com/jordanhubbard/literate-ai/pull/312) | `eda5c4af62f6f47686e34fa94a9da300b8abd82f` | Aggregate not merged wholesale. Audit residuals and collect only focused missing work; retain superseded wheel-cache history. |
+
+### Historical consolidation inventory (2026-10-23)
 
 **Follow-up (2026-10-23):** PR #133 is merged at `d17881fa`; exact-main CI 40031696168 passes all 26 jobs. Scoped issues #91, #84, #85, #94 and #134 are closed against their retained evidence. Twenty-six issues remain open. The provided Windows renewal still times out at its unchanged 5400-second limit after 121 completed wheel spans; #121/#123/#129 remain open, and no complete native or release acceptance follows.
 
@@ -4692,118 +7157,43 @@ the reported failure.
 - **Depends on:** `INIT-DAG-001` repository-lineage contracts and reparent transaction
 - **Historical completion:** [Preserved implementation and evidence](../history/roadmap/completed-before-sdlc-review.md#x-init-dag-002-admit-canonical-pre-lineage-projects-through-explicit-reparenting). Current-release qualification remains separate.
 
-### [ ] CODEGRAPH-PROJECT-001 — Require a current project CodeGraph before build or run
+### [x] CODEGRAPH-PROJECT-001 — Retire mandatory project indexing
 
-- **Release target:** 1.1.0
-
-- **Owner:** project initialization, source-intelligence policy, and lifecycle preflight
-- **Direction:** Every Literate-AI project must carry its own generated CodeGraph index;
-  build and run operations require that project-level index before any source generation,
-  compilation, or executable launch. This is distinct from the per-generated-source-tree
-  CodeGraph sidecar already required for candidate admission.
-- **Conclusion:** Canonical initialization always provisions or discovers CodeGraph and
-  creates `.codegraph/codegraph.db`. `litai build`, `litai run`, and `litai rebuild`
-  verify the configured provider, minimum version, exact indexed project tree, and current
-  index evidence before entering an effectful lifecycle phase. Safely missing or stale
-  indexes are generated or refreshed; unsafe, corrupt, misbound, or otherwise unusable
-  indexes fail with an actionable detect/install-style prerequisite. `_build`, generated
-  outputs, dependency closures, and CodeGraph's own database remain excluded from
-  indexing. Do not silently downgrade canonical projects to
-  `source_intelligence.provider_id=none`.
-- **0.8.0 slice decision (2026-08-28):** Do not force CodeGraph as a product
-  dependency. Accepted ADR 0016/0019 keep default `provider_id: none` with every stage
-  `off`. Remaining starter-lifecycle evidence is opt-in `codegraph-cli` only.
-- **Depends on:** project source-intelligence policy and CodeGraph bootstrap
-- **Implementation:**
-  - [x] Add explicit build/run project-index stages or one shared lifecycle-preflight
-        contract without conflating project and generated-source index identities.
-  - [x] Make canonical `litai init` provision and generate the project index, remove the
-        public canonical no-provider escape hatch, and preserve injectable test adapters.
-  - [x] Gate build, run, and rebuild before any coding CLI, compiler, or executable side
-        effect; synchronize only when policy permits and otherwise fail closed.
-  - [x] Carry the invariant, exclusions, bootstrap guidance, and troubleshooting into the
-        root skill, initialized-project template, CLI help, and architecture diagrams.
-- **Evidence:**
-  - [x] Focused tests cover initialized index creation, missing tool, stale/corrupt index,
-        excluded paths, no side effects before rejection, and distinct project/source-tree
-        evidence identities.
-  - [x] A clean installed wheel proves a missing index is generated before artifact
-        lookup and build/run/rebuild reject an unsafe index before generation/build/run.
-  - [ ] One real starter lifecycle passes locally and on each private matrix host with a
-        current project index and a separately current generated-source index.
+- **Disposition:** Superseded, not implemented acceptance. Accepted ADRs
+  [0016](../decisions/0016-codegraph-not-a-product-dependency.md) and
+  [0019](../decisions/0019-opt-in-external-source-intelligence.md) prohibit a
+  universal indexer prerequisite. The old mandatory-index direction and its
+  unfinished all-host starter proof are not current release requirements.
+- **Retained obligation:** INDEX-001 owns explicit source-inventory qualification;
+  WORKER-001 retains installed lifecycle qualification for default-none and
+  explicitly required, externally provisioned providers. A required project
+  policy must still fail closed. No provider is installed by the framework.
+- **Evidence:** `project_source_index.require_lifecycle_project_index` returns
+  without provider construction for `none` or an off stage. Accepted ADR 0019
+  section 3 leaves installation and worker provisioning to the operator.
+- **Historical record:** The previous implementation claims and unfinished
+  acceptance remain in Git at `101315c4a699579534a06141e975439951166e1d`.
 
 ### [x] CODEGRAPH-DRIFT-001 — Detect a host CodeGraph CLI upgrade and recover automatically instead of failing unhealthy
 
-- **Depends on:** `CODEGRAPH-PROJECT-001`'s existing stale/missing-index handling
+- **Historical dependency:** `CODEGRAPH-PROJECT-001`'s former stale/missing-index
+  handling; current required-provider checks follow explicit policy under ADR 0019.
 - **Historical completion:** [Preserved implementation and evidence](../history/roadmap/completed-before-sdlc-review.md#x-codegraph-drift-001-detect-a-host-codegraph-cli-upgrade-and-recover-automatically-instead-of-failing-unhealthy). Current-release qualification remains separate.
 
-### [~] CODEGRAPH-WORKER-PIN-001 — Give worker CodeGraph capability version bumps a repeatable, scripted update path
+### [x] CODEGRAPH-WORKER-PIN-001 — Retire framework-owned indexer provisioning
 
-- **Release target:** 1.1.0
-
-- **Owner:** `src/literate_ai/remote_worker_bootstrap.py`
-  (`_CODEGRAPH_VERSION`/`_CODEGRAPH_PACKAGES`, `export_worker_codegraph_capability`,
-  `install_worker_codegraph_capability`)
-- **Direction:** Follow-up to `CODEGRAPH-DRIFT-001`, prompted by the same host-side
-  CodeGraph upgrade: worker nodes are, by contrast, already well-isolated from ambient
-  host drift — `install_worker_codegraph_capability` installs an exact, digest-verified
-  version (`_CODEGRAPH_VERSION = "1.1.1"`, matching `literate.project.json`'s own
-  `source_intelligence.minimum_version`) under a version-qualified path, independent of
-  whatever `codegraph` happens to be on a host's `PATH`. That's the right design — the
-  gap is maintaining it. `_CODEGRAPH_PACKAGES` hardcodes a hand-computed sha256 digest
-  and byte size per platform, for exactly two platforms (`linux/x64`, `windows/x64`;
-  `darwin`/macOS is absent — `_capability_target` fails closed with a typed
-  `worker.capability_platform_unsupported` error there today, which may be an
-  intentional scope limit for CI-only worker hosts rather than an oversight, but is
-  worth an explicit decision rather than silent absence). Bumping
-  `_CODEGRAPH_VERSION` today means manually downloading each pinned npm tarball,
-  computing its digest and size by hand, and hand-editing this table — with no test or
-  tooling to catch a stale/incorrect pin before it fails closed on a real worker.
-- **Conclusion:** Add a small maintenance script (analogous to how other pinned
-  third-party artifacts in this repository are refreshed) that, given a target
-  `_CODEGRAPH_VERSION`, fetches each supported platform's npm tarball, computes and
-  writes back its digest/size into `_CODEGRAPH_PACKAGES`, and fails closed if any
-  platform's package is unavailable at that version — replacing the hand-computation
-  step, not the deliberate per-platform pin itself. Decide explicitly whether
-  `darwin`/macOS worker support is in scope; if yes, add its pin the same way; if no,
-  document why in this file rather than leaving it silently absent.
-- **Depends on:** none; independent of `CODEGRAPH-DRIFT-001`'s local-host detection fix
-- **Implementation:**
-  - [x] Authored `scripts/refresh_codegraph_worker_pins.py`: fetches each pinned
-        platform's tarball from the exact URL
-        `export_worker_codegraph_capability` builds at runtime, computes digest/size,
-        and rewrites `_CODEGRAPH_PACKAGES`/`_CODEGRAPH_VERSION` in place; `--check`
-        reports drift without writing. Verified against every currently pinned
-        platform at the current version (byte-identical round trip) and against a
-        deliberately corrupted digest (correctly detected and repaired).
-  - [x] Decided and recorded the `darwin`/macOS scope decision: **in scope**.
-        `docs/roadmap/active-work.md`'s own `WORKER-001` history records that real
-        macOS workers already exist in this project's private fleet and already use
-        `codegraph` — discovered via ambient Homebrew PATH resolution, not the
-        digest-pinned capability path, since no `darwin` entry existed to select. That
-        made macOS workers' CodeGraph install exactly as exposed to ambient
-        version drift as the host-level gap `CODEGRAPH-DRIFT-001` just fixed, except
-        with no pinned fallback at all. Fetched and pinned both real
-        `@colbymchenry/codegraph-darwin-arm64` and `-darwin-x64` tarballs at the
-        already-declared `1.1.1` from the live npm registry (digests verified
-        directly, not guessed) rather than leaving the gap deferred.
-  - [ ] Add a lightweight CI check that the committed pins actually resolve and
-        digest-match against the live npm registry (bounded, not run on every
-        commit) — not done this pass; `--check` exists and is ready to wire into a
-        scheduled job, but the job itself is a CI-configuration decision left open.
-        **Correction 2026-08-28:** `scripts/refresh_codegraph_worker_pins.py` is not
-        in this tree. ADR 0016 removed product CodeGraph. Remaining pin-refresh work
-        waits on ADR 0019 opt-in worker capability pins, not a major version.
-- **Evidence:**
-  - [x] Bumping `_CODEGRAPH_VERSION` end to end (script run, table updated) requires
-        no hand-computed digest/size — demonstrated live for both a same-version
-        no-op and a corrected/repaired stale-digest case; regression-tested in
-        `tests/unit/test_refresh_codegraph_worker_pins.py` (parsing, no-op, `--check`
-        drift reporting, write-and-round-trip, and fetch-failure paths).
-  - [x] The `darwin` scope decision is recorded above, not merely absent from the
-        table, and is now backed by real pinned entries for both `arm64` and `x64`;
-        `tests/e2e/test_remote_worker_bootstrap.py` covers `_capability_target`
-        resolving every pinned platform including both darwin architectures.
+- **Disposition:** Superseded by accepted
+  [ADR 0019](../decisions/0019-opt-in-external-source-intelligence.md), section 3.
+  The proposed product pin-refresh script, companion package and scheduled
+  download check are retired, not claimed implemented or platform-qualified.
+- **Evidence:** `remote_worker_bootstrap.py` has no CodeGraph exporter, installer,
+  package table or version pin; the previously cited refresh script is absent.
+  Restoring these would contradict the accepted provisioning boundary.
+- **Retained obligation:** WORKER-001 verifies an operator-provided executable
+  when a consuming project explicitly requires source intelligence. Preserve
+  missing, old, stale and unsafe provider refusal; do not rewrite policy to none.
+- **Historical record:** The old pin and platform claims remain in Git at
+  `101315c4a699579534a06141e975439951166e1d`; they do not attest this source.
 
 ### [x] DOC-PUB-001 — Keep generic authoring portable and publication provider-bound
 
@@ -5385,6 +7775,29 @@ the reported failure.
 
 <a id="test-cache-001-checkpointgate-skip-logic-is-not-dependency-aware-it-only-detects-a-changed-test-file-not-a-changed-dependency"></a>
 ### [~] TEST-CACHE-001 — Complete dependency-bound qualification reuse
+
+- **Independent release review (source partial):** Real callback reproducers show
+  that membership retirement can delete a same-inode rewrite after its final
+  original-byte check, and public publication can adopt a replacement store
+  configuration after selecting the original marker lock. Fence the original
+  target/CAS/path configuration before every guarded operation callback and
+  effect without turning legacy operations into leased rollback transactions.
+  Recheck the original membership after the last callback, explicitly settling
+  only the transaction's own hardlink before that callback. Require unchanged
+  retirement/rollback behavior, foreign-byte preservation and public target-swap
+  controls before closing either finding; retain all original cache acceptance.
+  A real active native-run reproducer also shows explicit caller guards/budgets
+  bypassing the captured original owner. Compose captured native and SDK fences
+  with caller constraints after transaction registration, retain original owner
+  references across context clearing, and intersect remaining budgets with the
+  unchanged local lock ceiling. Keep operations without any lease unguarded.
+  All four cache findings now have targeted repairs: both original owners are
+  captured without callbacks, and a callback-free SDK close follows the last
+  native callback. The 61-case cache cohort, 43 native-run/bridge/admission
+  controls and 19 SDK lifecycle controls pass without skips; original retirement,
+  rollback, partial-publication and deadlines remain intact. Independent closing
+  review reproduces refusal in both initial capture directions and the final
+  callback cut. Full source, installed and platform qualification remain open.
 
 - **Priority:** P0
 - **Release target:** 1.4.0
@@ -6351,6 +8764,50 @@ the reported failure.
 
 ### [ ] WORKER-001 — Route build, test, and run through declared execution workers
 
+- **Local alignment source deadline (in progress):** [Issue #490](https://github.com/jordanhubbard/literate-ai/issues/490)
+  records a release-recovery hang before remote dispatch: a declared local file
+  open blocks every applicable alignment thread despite bounded remote probes.
+  Capture each local source with a finite process deadline and byte budget;
+  use that private capture for comparison and synchronization. Report failures
+  without contents and preserve destinations when capture fails. Qualify real
+  regular, missing, non-regular and oversized files plus a stalled reader and
+  owned cleanup, then rerun existing inspection/apply and platform controls.
+  [Source development evidence](../../verification/worker-alignment-source-observation.json)
+  records 15 passing maintained alignment controls, lint, formatting and complete
+  documentation rendering (181 diagrams and 23 renderer controls). The real
+  configured local sources now capture without exposing payloads; native Windows,
+  independent review, supported pin renewal and complete acceptance remain open.
+  Keep all worker, source-pin, native and release acceptance obligations open.
+
+Before further release-check fleet use, require repository-bound ownership of
+the exact sync destination. Preserve unmarked and foreign checkouts, including
+when two organizations use the same basename. Provide explicit controller-only
+selection. [Failure, affected paths and acceptance](existing-repository-delivery.md#preserve-existing-worker-checkouts-during-release-sync).
+
+- **Terminal managed RUN release (in progress):** [Issue 480](https://github.com/jordanhubbard/literate-ai/issues/480)
+  adds an explicit operation-scoped release opt-in for an existing managed SSH
+  allocation, after the exact acknowledgement guard in issue 479. Keep default,
+  static and BUILD/TEST reuse behavior unchanged. Fence the admitted attempt and
+  atomically retain its original outcome/custody references with the existing
+  release intent; stop health polling and finish diagnostics before releasing.
+  Reuse management idempotency and one absolute opt-in deadline through locks and
+  provider invocation. Prove failed-app preservation, lost replies, interruption,
+  cancellation and same-key recovery with allocation disabled, without rerunning
+  the application. Local logical providers grant no live allocation/stop authority
+  or full worker-lifetime, platform or release qualification.
+  This first slice retains only the current RUN evidence: the explicit disposal
+  may lose the input executable and prior worker cache. Prior artifact retention
+  remains a separate acceptance obligation; no old export becomes locally runnable.
+
+- **Cleanup acknowledgement consistency (in progress):** [Issue 479](https://github.com/jordanhubbard/literate-ai/issues/479)
+  records that the SSH coordinator currently accepts a well-formed opaque cleanup
+  digest without recomputing its request/manifest/bundle/token binding. Share the
+  existing worker identity computation and verify it before publishing custody.
+  Preserve bounded acknowledgement retries and import-before-ack ordering; prove
+  refusal of a valid-looking wrong digest and preserve the genuine native path.
+  This is consistency validation, not proof of physical cleanup by an untrusted
+  worker. Automatic managed release remains a subsequent, explicitly scoped task.
+
 - **Release target:** 1.4.0
 - **Previous release targets:** 1.1.0; 0.9.0 (re-scoped 2026-09-01).
 - **Current-release ownership:** ADR 0074 / SDLC-001 brings the remaining worker
@@ -6411,8 +8868,39 @@ the reported failure.
   automatic path still requires verified artifact/evidence import before cleanup.
   Expiry-aware dispatch, active-job drainage, provider lifetime enforcement and
   native provider pilots remain required. Static workers retain their full backend.
-- **Depends on:** current exact target/Flavor locking, artifact exports, CodeGraph build
-  prerequisite, source-cache identities, and the bounded parallel sample fan-out
+- **Native protocol evidence at `98c23928a`:** The noneditable current wheel
+  exercises the unchanged managed dispatcher over an existing Linux x86_64 SSH
+  route, using a private simulated provider and explicit fixture lifecycle handler.
+  The bounded experiment passes in 35.6 seconds: insufficient lifetime refuses
+  before launch; release drains an active job; exact cancellation survives a lost
+  reply and retries while new allocation is disabled; the actual late result
+  refuses acceptance; lost allocation recovery invokes the fake allocator once.
+  Both finite remote children finish, all three private aliases reach released,
+  and the real static catalog remains unchanged. This is protocol and transport
+  evidence, not real provider termination, canonical receiver/import/acknowledgement,
+  mid-job controller cleanup, GPU evidence or completion of this item.
+- **Post-result controller interruption at `98c23928a`:** A separate 34.4-second
+  control records an actual completed SSH command, then abruptly exits its
+  coordinator with status 23 before terminal dispatch publication. The durable
+  active attempt blocks retry before the handler; ordinary release drains, an
+  incorrect token leaves the journal unchanged, and exact cancellation/retry
+  reconciles one logical release. The private catalog ends empty and retained
+  static-catalog before/after bytes match. The first attempt stops at a private
+  floating-point serialization error before the intended exit and is retained
+  as failed, with its separate logical-lease recovery. This is not mid-job
+  controller-loss cleanup or canonical lifecycle/custody acceptance.
+- **Canonical custody progress at `98c23928a`:** Genuine installed Linux
+  source admission prepares 147 unchanged inputs in 51.4 seconds. Public SSH
+  TEST, successful RUN and failed-application RUN then pass custody import and
+  acknowledgement in 65.8 seconds; TEST transports the artifact, while RUN
+  reuses its export. A separate 49.8-second controlled post-SCP corruption
+  refuses import and retains the uncertain original attempt. Unfaulted transfer,
+  verified manual import and the existing acknowledgement owner recover that
+  same attempt without rerunning the application; exact cancellation closes only
+  its simulated lease. The failed public result remains failed. This adds no
+  real provider termination, automatic resume or Windows/GPU qualification.
+- **Depends on:** current exact target/Flavor locking, artifact exports, explicit
+  project-policy validation, source-cache identities and bounded parallel sample fan-out
 - **GitHub issue:** [#131](https://github.com/NVIDIA-dev/literate-ai/issues/131)
 - **GitHub follow-up:** [#138](https://github.com/NVIDIA-dev/literate-ai/issues/138)
 - **Next action:** Replace the issue #138 oversized inline SSH evidence manifest with a
@@ -6420,8 +8908,9 @@ the reported failure.
   bundle, verify both identities and sizes before acceptance, and prove the exact
   installed-wheel Linux/Windows 27-cell Physics Workbench sample lifecycle before completing the
   remaining worker qualification.
-        Remaining CodeGraph companion-capability work waits on ADR 0019 opt-in worker
-        pins. Do not invent worker hostnames.
+        Source-intelligence provider installation belongs to the operator under
+        ADR 0019; verify it only when project policy requires it. Do not invent
+        worker hostnames or restore product companion packages.
 - **Implementation:**
   - [x] Split the current user-owned matrix model into a private named execution-worker
         catalog plus a test-matrix selection layer. Preserve exact static SSH destinations
@@ -6432,8 +8921,8 @@ the reported failure.
         dispatch result. Requirements cover OS/version, CPU architecture, minimum cores
         and memory, and optional GPU vendor/model/count/memory without implementing a
         matcher. The request binds exact Component, action, source, specification, Flavor,
-        toolchain, project CodeGraph, and timeout; results bind artifact and evidence
-        identities without exposing external scheduler state.
+        toolchain, explicit project source-intelligence evidence and timeout; results
+        bind artifact and evidence identities without exposing external scheduler state.
   - [x] Bind every worker to one exact generation target-profile name and declarative
         environment requirements. The worker identity must cover both; local defaults to
         `host`, while SSH and command workers may name another target profile. This is an
@@ -6512,20 +9001,22 @@ the reported failure.
         because the installed framework payload omits package, policy, or schema
         authority; Windows reports `project.source_intelligence_command_unavailable`
         because the required CodeGraph 1.1.1+ command is absent from the isolated worker
-        environment. Framework authority makes CodeGraph a blocking canonical-project
-        prerequisite, so this work must supply a digest-pinned, platform-selected
-        companion capability with version and executable identity evidence rather than
-        skip or downgrade the gate. Keep the Python wheelhouse identity distinct from
-        the companion capability identity and private worker routing.
-  - [ ] Extend Standard worker bootstrap with a versioned capability manifest for the
-        mandatory CodeGraph companion: pin platform, archive/package identity, byte
-        digest, version, launcher, and installed executable identity; select only an
-        exact compatible target and expose the launcher to every remote lifecycle
-        process without ambient PATH dependence or mutable package-index resolution.
+        environment. These are historical failures in an explicitly configured
+        downstream project, not a universal framework prerequisite. ADR 0019 leaves
+        provider installation with its operator. Preserve required-policy refusal
+        and verify the configured executable and current evidence without adding a
+        framework-owned companion package or weakening the selected policy.
+  - [x] **Retired:** Framework-owned CodeGraph companion bootstrapping conflicts
+        with accepted ADR 0019 section 3. CODEGRAPH-WORKER-PIN-001 records the
+        disposition. Operator-provided dependencies remain subject to the consuming
+        project's explicit policy; this is not a native-worker qualification pass.
   - [ ] Add installed-real-wheel, worker-equivalent Linux and Windows regressions that
-        execute the lifecycle through project source-intelligence synchronization and
-        Standard distribution resolution, asserting the exact 16-cell failure classes
-        cannot recur; import/bootstrap smoke alone is insufficient.
+        execute the lifecycle through Standard distribution resolution. Cover a
+        default-none project without an indexer and an explicitly required project
+        with its operator-provided command. Required unavailable evidence and
+        check-only stale evidence must refuse; an authorized sync may establish fresh
+        current evidence. Preserve the historical 16-cell failure classes as regression
+        cases. Import/bootstrap smoke alone is insufficient.
   - [ ] Qualify the dynamic-provisioning handoff with a synthetic provider and one
         authorized live disposable worker. Contract tests must reject mismatched worker,
         request, lease, artifact, evidence, and custody identities; prove retry does not
@@ -8285,7 +10776,7 @@ the reported failure.
   than selecting a winner silently.
 - **Depends on:** repository-lineage and reparent contracts, inherited initialization and
   update provenance, Component locking, effective Flavor/skill selection, and current
-  CodeGraph/project-validation prerequisites
+  project validation and explicitly selected source-intelligence policy
 - **Next action:** Extend rebalancing beyond exact duplicates with explicit compatibility
   and context-cost evidence; lifecycle preparation and initialization now use portable,
   graph-bound lock/audit authority.
@@ -8703,48 +11194,56 @@ slice here before implementation so this file always names the resumable frontie
 
 ### [~] RELEASE-CLOSURE-001 — Make release closure executable and continuous
 
+- **Optional-policy PR history reconciliation:** PR [#442](https://github.com/jordanhubbard/literate-ai/pull/442) has the same optional contribution-manifest parser syntax tree and byte-identical regression module as this candidate. Its [original branch evidence](../history/roadmap/pr-442-optional-policy.md) is retained. This merge changes no production/test source, lifecycle pin or current release goal; full combined qualification remains required.
+
+- **Visible goal custody (in progress):** [Issue 486](https://github.com/jordanhubbard/literate-ai/issues/486)
+  binds release readiness and `work close` to the existing visible typed queue
+  headings. Fenced examples, HTML comments, prefix-sharing IDs and prose
+  subheadings must not change goal status or conceal unchecked acceptance.
+  Compare all current manifest dispositions and run the public close and sweep
+  controls before independent review and composed qualification.
+
 - **Priority:** P0
-- **Release target:** 1.1.0
-- **Previous release target:** 0.10.0
-- **Owner:** release-project skills, release policy, release CLI, publication adapters, and release gates
-- **Direction:** For 0.10.0, turn the 0.9.0 omissions into executable release policy: every major or minor release must regenerate, validate, preflight, publish, export back, and verify its terminal document pair; every release cycle must repeatedly inventory and disposition current tracker work, reviews, unmerged branches, worktrees, and external contributions before publication.
-- **Conclusion:** The 0.9.0 failure was a split contract: prose required terminal collateral and broad peer review, but release plans, receipts, gates, and published verification bound neither. The release engineer must consume deterministic Python inventory and publication helpers, make semantic scope decisions, leave machine-readable milestone plus audit-comment dispositions, and repeat the sweep until no current-release blocker or unclassified contribution remains.
+- **Release target:** 1.4.0
+- **Historical scope:** The obsolete 0.10 recovery/candidate/publication instructions
+  are [archived with their original checkboxes](../history/roadmap/release-closure-0.10.md).
+  This reconciliation does not assert publication of the later operator-adoption
+  document pair or qualify the current release.
+- **Owner:** Existing release policy, release CLI, provider observation and publication adapters
+- **Direction:** Carry the framework review's current release-safety recommendations
+  into this existing owner, preserving exact source, policy, artifact and remote
+  identities while removing obsolete historical execution instructions.
+- **Conclusion:** Recovered implementations and the portable fixture are present in
+  original 0.10.1 history. Keep the later document-publication proof gap historical.
+  The active work is current CI selection, explicit coverage authority and exact
+  candidate closure; RELEASE-INTEGRATION-005 owns the current contribution sweep.
 - **Depends on:** RELEASE-015
-- **Next action:** Preserve the published `v0.10.0` tag, land the portable preflight-test fixture on `main`, and complete a versioned recovery containing the three intended 0.10 operator-adoption commits that the stale release line omitted. This late CI correction was applied before queue recording as reversible emergency containment after the exact-head matrix exposed the invalid fixture.
+- **Completion prerequisites:** none
+- **Next action:** Qualify the strict promotion path on the combined candidate.
+  A real local Git receiver and a simulated publication provider exercised the
+  tested file, exact attempt and annotated tag. Carry the authorized tag object
+  through retry and independent readback. Retain preparation-only behavior for
+  coverage evidence that lacks tested artifact bytes. Renew the current
+  contribution, collateral, hosted CI and security checks before release.
+  [Controlled promotion evidence](existing-repository-delivery.md#consolidated-release-work-packages)
 - **Implementation:**
-  - [x] Add an accepted ADR and release policy for release-class derivation, required collateral, authenticated publication preflight, exact publication receipts, and continuous contribution disposition.
-  - [x] Add Python-owned release contribution inventory and validation covering open issues, open reviews, remote branches, attached worktrees, milestones, durable release-disposition comments, and exact-head branch-lifecycle markers for GitHub and GitLab tracker contracts.
-  - [x] Bind the current contribution sweep and required major/minor collateral receipt into release planning, prepared-candidate checking, publication, and post-publication verification without requiring live credentials on verification workers.
-  - [x] Make the document-pair publisher preflight both stable resources and the explicit active account before either mutation, support idempotent recovery, export accepted remote state back to local authority, and emit release-bound hashes and resource identities.
-  - [x] Update release-project, evidence, verification, presentation, tracking, and user-work skills plus Make targets and generated template copies so the virtual release engineer follows one executable loop.
-  - [~] Repair 0.10.0 packaging metadata drift and continuously triage newly discovered regressions or blocking contributions into 0.10.0, deferring the rest with explicit next-cycle annotations until the release closes.
-  - [~] Recover the premature stable cut without rewriting `v0.10.0`: the published tag is rooted at `03d3257e`, while intended 0.10 commits `ce88a6d8`, `2f4a34a1`, and `4b739a92` remained on `main`.
-  - [x] Replace the project-index preflight tests' fabricated `/project` root with a real platform-native temporary directory while retaining strict production path resolution.
-  - [x] Enforce in Python that a first stable initial, major, or minor candidate contains the live remote default branch throughout plan, prepare, check, and publish; keep patch selection independent of unrelated later trunk work.
-  - [x] Derive checked-in Homebrew metadata from one Ruby version constant, declare it as a release version mirror, and restore its 0.11.0 value after the automatic default-branch version advance so patch preparation can update it atomically.
-  - [x] Persist repair-gate completion in global execution order, invalidate anything other than the exact current fail-fast prefix, and require a clean follow-up pass after repaired completion before accepting release evidence.
-  - [x] Treat an attached clean default-branch checkout as release authority when a
-        patch is planned from a linked `release/*` worktree, rather than requiring a
-        contribution disposition for `main` that branch enumeration intentionally
-        excludes.
-  - [x] Use a platform-native absolute synthetic executable in the Codex
-        unauthenticated-status regression so Windows exercises the authentication
-        probe and no-model-request invariant instead of failing fixture construction.
+  - [x] Archive obsolete historical execution with source/fixture comparison and
+        the document-publication proof gap explicitly preserved.
+  - [~] Bind release decisions to the newest exact workflow/run/attempt; refuse
+        pending, failed, ambiguous or drifting observations and recheck before tagging.
+  - [ ] Bind delegated CI coverage to the actual required job/cell contract without
+        adding another matrix scheduler or silently changing legacy policy semantics.
+  - [ ] Preserve exact artifact, current contribution, required collateral,
+        branch ancestry and remote-state checks through the combined candidate.
 - **Evidence:**
-  - [x] Contract, parser, policy, tracker-adapter, contribution-inventory, publication-preflight, partial-failure, receipt, release-plan, prepare/check/publish/verify, and generated-template parity tests pass in focused suites.
-  - [~] A no-write dry run inventories this repository current issues, reviews, unmerged branches, and worktrees; unresolved items fail closed. Tracker dispositions and exact-head lifecycle markers are being bound before the final repeated sweep.
-  - [x] Remote tag, release, wheel, ancestry, and changelog inspection proves that stable `v0.10.0` omitted the final operator-adoption commits; the tag remains immutable.
-  - [ ] The focused project-index preflight regression, full Python gate, and fresh exact-head cross-platform CI pass with the portable fixture.
-  - [x] Release-plan contract tests reject a stale first stable line at plan, prepare, check, and publish while accepting a selective patch line; historical verification remains valid after the default branch advances, and release preparation atomically renders an indented quoted-constant package mirror while skill/template parity plus the Homebrew renderer test pass.
-  - [x] Inserted prerequisites and cross-pin gate reordering force a restart; a successful repaired run exits with rerun-required status 2, and only the subsequent gate-one pass exits 0.
-  - [x] The linked-release-worktree regression reproduces the false unresolved `main`
-        result before the classifier correction and passes afterward; the live 0.10.1
-        sweep now classifies `main` only by its actual worktree state. The Windows CI
-        traceback identifies the POSIX-only `/tools/codex` fixture before the
-        authentication call, and the focused operator-adoption suite passes with a
-        host-native absolute path.
-  - [ ] The 0.10.0 document pair validates locally, publication preflight reports the active account and both resource capabilities before mutation, authenticated publication and export-back produce an exact receipt, and post-publication verification proves the bound artifacts.
-  - [ ] Focused checks pass first, then release-relevant gates and exact-head CI pass for the 0.10.0 candidate.
+  - [x] [Historical reconciliation](../../verification/historical-release-closure-reconciliation.json)
+        distinguishes original source history from imported historical marker tags.
+  - [ ] Complete combined source, installed and affected native CI qualification;
+        no stale run or weaker head policy may satisfy a release gate.
+  - [ ] Missing/skipped platform jobs remain unqualified; native CI handoff records
+        distinguish associated source, actual tested tree and promoted artifacts.
+  - [ ] The current release sweep, collateral policy and publication readback bind
+        the same exact candidate; live publication still requires authorization.
 
 ### [x] STANDARD-CACHE-PUBLICATION-001 — Publish source only after project acceptance
 
@@ -8843,10 +11342,28 @@ slice here before implementation so this file always names the resumable frontie
 - **Conclusion:** The earlier proposal to make `litai adopt` a synonym for relocating `init --convert` is obsolete. Reuse `onboard adopt` and original-source admission for a contained, in-place native bootstrap. Preserve explicit conversion as an optional compatible operation; do not add a second converter or deprecate working tooling merely to change vocabulary.
 - **Depends on:** ORIGINAL-ADOPT-001, PROJECT-LAYOUT-001
 - **Implementation:**
-  - [ ] Route the primary public adoption plan/apply path through native bootstrap and show every external integration file before acknowledgement.
-  - [ ] Preserve explicit legacy conversion and document its source-layout effects.
-  - [ ] Update maintained documentation and skills to distinguish native adoption from optional conversion.
+  - [x] Route the primary public adoption plan/apply path through native bootstrap and show every external integration file before acknowledgement.
+  - [x] Preserve explicit legacy conversion and document its source-layout effects.
+  - [x] Update maintained documentation and skills to distinguish native adoption from optional conversion.
 - **Evidence:**
+  - On the same ToolScheme v0.3.0 input, the default public plan declared
+    zero external files. Native application created 15 contained files and
+    preserved the original native suite, CI and roadmap. Explicit conversion
+    completed on source tree `c548bc608` and moved the source, host roadmap and
+    CI configuration under the retained implementation. Eight native-bootstrap
+    tests passed on that source. The root skill, conversion skill and getting
+    started guide name both public paths. The changed-version upgrade remains
+    outstanding. [Pilot and acceptance](existing-repository-delivery.md)
+  - A private draft PR exercised strict Linux and Windows checks on GitHub.
+    The installed observer rejected the seeded CSV failure, verified the repair,
+    followed an actual failed-job retry and refused an older green checkout.
+    The four PR observations covered seven distinct native executions,
+    excluding two base-branch setup jobs. Observation added zero jobs. The changed-version upgrade remains outstanding.
+    [Hosted acceptance evidence](../../verification/native-ci-hosted-governed-pr.json)
+  - On a native macOS ARM64 C++ project, removal restored the original Git tree.
+    A retained lifecycle lock blocked a second adoption in both the cold and
+    updated checkout. Preserve host files and live lock owners while restoring
+    the complete cycle. [Evidence and acceptance](existing-repository-delivery.md#make-native-removal-followed-by-adoption-work-in-the-same-checkout)
   - [ ] Public CLI pilots preserve native source, build, tests and CI locations and prove repeat, failure, upgrade and removal behavior.
   - [ ] Legacy explicit conversion remains compatible; guidance and skill checks agree with actual defaults.
 
@@ -13384,6 +15901,12 @@ dispatch or independent product acceptance.
 
 ### [ ] ADOPT-READMIT-001 — Readmit corrected retained harnesses after conversion
 
+- **Takeover reconciliation of #496:** Port authored-content preservation from recovered head `1044bc65e` onto current namespace-aware, journaled publication. Preserve all authored shim bytes except one recognized generated baseline summary; fence referenced inputs and the complete stable review inventory through publication. Keep late owner edits, deletions and nonregular replacements for explicit recovery. The current module passes all 18 managed source cases (301.909s), including actual contained readmission and preserved refined-source membership refusal; seven source-input controls pass (4.205s), and nineteen publication-owner controls pass (6.002s). Historical empty-history assertions now require exact retained reviewed-plan bytes when publication has started, while preserving every owner-byte/type assertion. Broader initialization, project-CLI and refined-command modules expose pre-existing root-path assumptions reproduced on the canonical takeover checkout; none is reported passed. Changed files pass lint/format; repository lint exposes nineteen existing long lines in the installed-parent helper. Exact-commit installed-wheel qualification remains pending. Driver/review/receipt authority is not renewed.
+
+- **Historical authored-authority follow-up (recovered head `1044bc65e`; the following counts are its original source-development evidence):** [#496](https://github.com/jordanhubbard/literate-ai/issues/496). Preserve existing Component requirements, metadata and all other authored shim files during harness reconciliation. Change only one unambiguously recognized generated baseline-summary paragraph; expose its before/after facts in the reviewed plan and reject missing/ambiguous ownership before baseline or parity. Local managed `make python-check` qualification passes all 26 methods across readmission, receipts and remote execution, including authored requirements/metadata, an explicitly pinned public interface, CRLF/Unicode, summary changes, missing/duplicate/quoted ownership refusal, three reference-drift windows and rollback. A downstream read-only plan preserves the existing nine-requirement Component byte-for-byte and leaves all sixteen authority documents unchanged. The original invalid new fixture (requirement without a scenario) is retained as a failed preparation; it was corrected without weakening validation. Independent review, installed-wheel/hosted qualification and delivery remain open. Framework `verify` still reports stale documentation authority and receipt; no review marker or receipt was manufactured.
+
+- **Historical late-publication follow-up for #496 (recovered head `1044bc65e`; not current takeover qualification):** Preserve late owner edits, deletion and nonregular replacements while restoring only remaining owned writes. Complete authority-inventory comparison excludes only approved outputs; review recording binds expected authority and document bytes. Disposable counterchecks retain the silent Component-edit, review-recapture and unwritten-onboarding witnesses. The original branch reported 61 distinct managed methods (31 retained, 10 initialization, eight project CLI, nine wheel/custody, three orchestration initialization), and full repository lint/format pass. Documentation self-review is recorded separately from independent review. The lifecycle-driver pin remains stale for the three modified adapters and is not self-approved; runner review is current. The original branch reported whole installed-wheel checks on its initial local commit. The new six-case installed probe includes real console preservation/phase updates and in-process race hooks; current exact-revision installed qualification, independent review and platform/CI delivery remain open.
+
 - **Selection-accounting follow-up:** [#40](https://github.com/jordanhubbard/literate-ai/issues/40). Cargo `ignored` cases are excluded from its default run, not runtime-skipped selected cases. Preserve their count as explicit excluded evidence; only passed/failed selected cases contribute to the selected total. A failed selected case, ignored-only suite, zero collection, Python runtime skip or known failure still cannot qualify. Verify actual Cargo default/include-ignored behavior and public retained receipt admission/refusal without changing source custody or receipt authentication.
 
 - **GitHub follow-up:** [#488](https://github.com/NVIDIA-dev/literate-ai/issues/488). Restore explicit retained-stage selection from the archived implementation onto current main. Fresh inspection currently drops admitted test/package stages; preserve exact reviewed records and selection identity through plan/apply, then prove the installed-wheel command retains all required evidence. This restores a missing acceptance gate without changing release authority. The retained-harness/readmission/remote suite passes 44 tests, and the added two-stage regression passes separately. Lint and formatting pass. A read-only wrapped-project plan retains build/test/package, minimum test count one and required package evidence; installed-wheel validation and hosted CI remain pending.
@@ -13586,6 +16109,26 @@ dispatch or independent product acceptance.
 - **Historical completion:** [Preserved implementation and evidence](../history/roadmap/completed-before-sdlc-review.md#x-refresh-windows-node-001-canonicalize-unsigned-filesystem-identifiers). Current-release qualification remains separate.
 
 ### [ ] WORKTREE-002 — Own project-scoped worktree placement and audited retirement
+
+- **Recovered historical observation:** [Original wf14 snapshot](https://github.com/jordanhubbard/literate-ai/commit/8a166306bef87fb905fead2224524c546b70481d) retains the following prior result. Its three test files have identical current ASTs. This observation does not qualify the current composed candidate.
+- **Windows qualification repair, 2026-11-01:** Exact-main CI run `41361838494`
+  completed with four worktree fixture failures in Windows/Python 3.12 shard 2.
+  In-place Git control-file mutations now use an existing read/write descriptor
+  and explicit truncation, preserving Git for Windows hidden attributes and the
+  inode required by custody-drift tests. Symlink audit expectations use actual
+  native link text, including Windows extended-path prefixes, without reading
+  the target. Both real-Git fixture runners disable automatic maintenance/GC;
+  failures remain visible without retries or missing-file masking. All 39 focused
+  worktree checks pass on macOS (46.403 seconds). Independent reviewer
+  `review_pr239` approved the three-file fixture manifest
+  `74ec8b968055813942f0b21df834573788e71b68c9593480472ac931da24bbbf`.
+  The fresh complete local gate failed after 369 tests (29 skips, 1091.416
+  seconds): the isolated second-generation self-host replay exceeded its unchanged
+  300-second process deadline. The failure log and report remain retained; this
+  is not a full-suite pass. Contemporaneous host contention is being investigated,
+  without attributing causality or extending the deadline. Native Windows evidence,
+  a complete successful local gate and exact-head CI remain required. This repairs
+  qualification fixtures and grants no retirement authority.
 
 - **Design review:** [ADR 0046](../decisions/0046-project-scoped-worktree-lifecycle.md), Accepted 2026-09-25.
 - **Priority:** P1 (partial placement slice in 1.2; remaining migration contract deferred to 1.3)
@@ -16411,21 +18954,7 @@ Upstream: [issue #22](https://github.com/jordanhubbard/literate-ai/issues/22), r
       host PATH. Preserve default profile identities; reject undeclared,
       redirected or non-directory selections and qualify actual subprocess lookup.
   - [ ] Bind package and release custody to retained origin without conversion advancement
-    - [ ] Expose the existing exact ZIP provider through the public package CLI,
-      consuming the live complete Standard retained admission in its existing
-      callback. The selected provider must belong to a current Component lock;
-      read-only intent grants no package admission. Preserve original authority,
-      full original tests/docs, stale-input rejection and separate release consent.
-      Qualify real deterministic archives plus public dispatch and failure controls
-      before claiming this missing composition under accepted ADR 0048 / issue #22.
-      The public noneditable fixture now passes the full authored profile and exact
-      ZIP at `d768237c`, using its existing seven-kind policy. Read-only source
-      identity, complete Component specifications and stale-source refusal are
-      covered without mocking discovery or admission. Eight handler boundary
-      checks and five real archive checks also pass. See
-      [the scoped evidence](../../verification/retained-zip-public-cli-20261128.json).
-      Real adopted-project compiler/SDK producers, stronger initialized receipt
-      policy consumption and full program repeat/relocation acceptance stay open.
+    - [ ] Integrate [PR #513](https://github.com/jordanhubbard/literate-ai/pull/513) through the current guarded public retained lifecycle and exact ZIP provider. Preserve newer promotion handling, read-only planning and separate project receipt/release authority. Qualify source controls and the noneditable installed command; genuine adopted native compiler/SDK and stronger configured-policy acceptance remain required.
 - **Evidence:**
   - [ ] Public installed CLI mixed source and binary fixture passes complete build, test, docs and deterministic package lifecycle with repeat, invalidation and relocation checks
   - [ ] Adversarial stale inputs, unsafe custody, missing stages, substituted artifacts, worker identity drift and authority transfer fail closed; existing modes remain green
@@ -16764,6 +19293,14 @@ independent acceptance and retained-origin receipts. Input observation alone
 does not establish those boundaries; public retained execution remains closed.
 
 ### [ ] PACKAGE-ZIP-001 — Expose deterministic ZIP packaging through the standard lifecycle
+
+- **Native Cargo qualification dependency:** **GitHub issue:** [#515](https://github.com/jordanhubbard/literate-ai/issues/515)
+  reports an affected current compiler placing valid test artifacts outside the
+  assumed `debug/deps` layout. Retain original Cargo JSON, complete declared
+  targets, current native bytes/namespace custody and all existing limits; qualify
+  affected actual tools before claiming native compatibility. Coordinate ownership
+  with public packaging work before entering any peer checkout. This remains
+  included in 1.4.0 and is not closed by earlier source ZIP controls.
 
 Upstream: [issue #17](https://github.com/jordanhubbard/literate-ai/issues/17).
 
@@ -18391,6 +20928,59 @@ unchanged revision 2.0 s (ubuntu-24.04) and 8.5 s (windows-11); one new commit
 
 ### [ ] FREEBSD-001 — Add first-class FreeBSD native workers and targets
 
+- **Source renewal remains open:** Exact `f83936626` native full-source run
+  `45049225430` stops at 242 passes, 32 skips and one fixture setup error:
+  the original stdlib monorepo command binds the controller's `venv` path.
+  Negative native probes also leave two core files, so source cleanliness fails.
+  Preserve the environment-bound-command refusal; select the base interpreter
+  for that stdlib-only fixture and suppress core files only in suite children,
+  retaining failing exit status and strict Git cleanliness. Local native renewal
+  passes five monorepo cases, nine authored completion cases and 15 portable
+  controller controls. The [scoped development evidence](../../verification/sdk-historical-context-source-portability-development.json)
+  preserves both failures and makes no native FreeBSD full-source claim.
+
+- **Current full-source defect (in progress):** Native run
+  [45028053630](https://github.com/jordanhubbard/literate-ai/actions/runs/45028053630)
+  at `edb3cf2f9` passes the installed SDK microfixture, 48 owner controls and five
+  publication preflights. The separate complete source gate stops after ten
+  passes and 24 skips: snapshot replication cannot declare the optional gRPC
+  import aliases when those distributions are absent from the verification
+  environment. Declare exact optional import mappings in the original project
+  manifest, validate that each maps to a declared optional requirement, and carry
+  them through existing SOURCE-only dependency evidence. Do not install optional
+  runtimes merely to discover their names or treat declaration as installed
+  payload evidence. Add an offline complete replication control with the four
+  distributions unavailable. Preserve the native failure and renew full native
+  qualification. Also retain bounded source-status diagnostics when the guest's
+  unchanged-source check refuses; the current run reports source drift without
+  identifying its paths, so that separate finding remains unresolved.
+  Local renewal passes all four complete self-hosting controls (312.560 seconds),
+  including actual two-generation offline replication with gRPC metadata absent;
+  three declaration/refusal controls and all 15 native-controller harness tests
+  also pass without skips. Native renewal remains required.
+  [Scoped record](../../verification/freebsd-optional-source-declarations-development.json).
+
+- **Explicit full-source renewal mode (development):** The installed public SDK
+  microfixture at `0ddbc6cae` passes on FreeBSD 15.1 with 48 owner controls and
+  five publication preflights in run
+  [44990991918](https://github.com/jordanhubbard/literate-ai/actions/runs/44990991918).
+  That slice does not qualify the complete source suite or compiler SDK. The
+  existing workflow now has an opt-in `full_source` cell: preserve the installed
+  SDK scenario, then run canonical `gmake python-check` in an exact detached Git
+  worktree under the guest's `~/.worktrees/literate-ai`. Its independent terminal
+  record binds the source commit/tree, installed controller, complete report,
+  unchanged source and actual status. Two workers retain the existing finite
+  6,600-second worker bound inside a 14,400-second owned process-tree deadline;
+  the selected guest has four CPUs, 8 GiB RAM and a 32 GiB UFS temporary workspace.
+  Check real memory/disk before execution and retain bounded job health samples.
+  A host-requested full suite refuses missing, failed, incomplete, all-skipped,
+  foreign-revision/platform/controller or mismatched source reports even when the
+  SDK-only result passes. Fifteen controller harness checks, source syntax,
+  workflow YAML and lint pass. These are harness controls; the new native full
+  mode, exact integrated source and installed/native release gates remain open.
+  [Scoped development evidence](../../verification/freebsd-full-source-harness-development.json).
+
+
 Native full-suite renewal at `33f1e62` with the accepted-ADR documentation union
 stopped after 874 passes, 36 skips and one process-tree timeout test failure;
 2,658 tests were selected and the remaining cases were not executed. The outer
@@ -19223,20 +21813,23 @@ subsequent Make-environment correction is not part of that wheel's evidence.
 ### [ ] TEST-PARALLEL-001 — Run release-gate tests in parallel (checkpointed, fail-fast)
 
 - **GitHub issue:** [#56](https://github.com/jordanhubbard/literate-ai/issues/56)
-- **Current release target:** 1.3.0 (2026-10-18 reconciliation)
+- **Current release target:** 1.4.0 (2026-11-16 remaining measurement reconciliation)
 
 - **Priority:** P1
 - **Owner:** framework authority and qualification named by the linked issue
 - **Direction:** Run release-gate tests in parallel (checkpointed, fail-fast)
-- **Conclusion:** The current installed checkpoint runner executes the entire suite in one process. Add bounded process-level module scheduling while preserving one controller-owned marker ledger and source/context binding. Keep the existing serial API for in-memory suites; make CLI/Make worker count explicit, defaulting to the available CPU count. The Windows gate retains pytest/JUnit and uses isolated file-group workers with fail-fast.
+- **Conclusion:** Bounded process-level module scheduling is implemented with one controller-owned marker ledger and source/context binding. The remaining work is measured performance and final platform qualification. Preserve the serial API for in-memory suites and explicit CLI/Make worker counts. The Windows gate retains its separate pytest/JUnit execution path.
 - **Depends on:** existing pin dispatch, known-failure contracts and owned-process-tree cleanup
-- **Next action (in progress):** Collect final-source native timing comparisons and require the full exact-head CI matrix before landing. The complete local suite, installed wheel and newly current lifecycle receipt have passed; eight-core Windows performance acceptance remains pending capacity.
+- **Next action (in progress):** Use the completed module trace to test an opt-in priority for the measured long native-Cargo module, preserving whole-module/case order and serial barriers. Verify default compatibility, real worker dispatch, cancellation and exact outcomes, then measure the composed full run. Native serial/parallel three-host and eight-core Windows acceptance remain open; simulation does not qualify them.
 - **Implementation:**
   - [x] Execute importable module groups in private process/temp/object environments with explicit serial barriers and configurable worker count.
   - [x] Record validated per-case outcomes only in the parent; retain exact failure/skip/subtest/fixture counts and bounded diagnostics.
   - [x] Stop dispatch on failure, terminate only owned worker/descendant processes, and preserve completed repair markers.
   - [x] Keep known-failure/context/release-evidence behavior and required repaired-exit-2 followed by a clean from-zero pass.
   - [x] Integrate Make and Windows pytest worker configuration, audit fixed shared state, and document limits and wheel-check timing findings.
+  - [ ] Admit a bounded module-level scheduling priority only within existing
+        nonserial segments; default order, serial barriers, module identities,
+        complete tests and all outcome/timeout/recovery gates remain unchanged.
 - **Evidence:**
   - [x] Real processes prove overlap, isolation, serial barriers, deterministic failure order, fail-fast child cleanup, crash/protocol refusal and out-of-order resume.
   - [ ] Serial and parallel runs produce identical ordered case outcomes and receipt summaries, including duplicates, class/module fixtures and subtests.
@@ -19248,6 +21841,20 @@ subsequent Make-environment correction is not part of that wheel's evidence.
 - **Review follow-up:** Eighteen focused checkpoint tests pass. A deterministic 100-case stream reproduced failure starvation before bounded polling; the controller now observes the other module's reported failure after at most eight passing-case callbacks, stops execution, and retains all 100 already-flushed passes. Class/module teardown skips preserve completed body outcomes, and subtest diagnostics retain their parameter labels. The earlier `9ce03a77` and `58849d2d` candidates each passed the complete 1,547-test macOS suite with 35 declared skips, plus installed-wheel qualification; final source adds the fairness regression and requires fresh complete qualification.
 
 - **Final local qualification:** Frozen implementation `7652c2ed` passed the complete macOS suite: 1,548 selected, 1,513 passed, 35 declared skips and zero failures in 879.384 seconds. All 18 focused checkpoint cases, repository/export checks, lint/format, OpenSpec, 121 documentation diagrams, 21 Node tests and current driver/runner reviews pass. Installed wheel `sha256:c4dc5f2f1e8161554727af03bd792177b9bd37a368d9829c345f9a5ff8ba2df4` passes its full qualification and installed two-process probe (four selected, two passed, two skipped). A fresh finalized host lifecycle passes 230 tests; supported receipt promotion, candidate comparison, require-current and `litai verify` pass. This does not establish native eight-core Windows timing or the full serial/parallel three-host acceptance.
+
+- **Observed late-module tail:** The completed four-worker source trace at
+  `18d98aab3` selects 644 module groups and 3,182 cases. The intact native-Cargo
+  receiving group starts at 1,692.170s and finishes at 2,683.586s; every other
+  module has finished by 1,789.753s, leaving a measured 893.833s single-module
+  tail. A fixed-duration FIFO replay gives 2,683.561s versus 2,683.589s observed;
+  moving only that group first gives 2,018.330s in simulation. This assumes fixed
+  module durations and no changed contention/caches, and is not a measured
+  speedup. The [replay inputs](../../verification/module-priority-replay.json)
+  retain all module durations and explicit limits. Use one opt-in
+  `LITAI_TEST_PRIORITY` integer from 0 through 100 (default 0), stable ordering
+  within nonserial segments, and preserve serial modules at their original
+  barriers. Mark only the measured long module. This is existing orchestration
+  policy, not a new release gate, duration database or consuming-repo file.
 
 - **Wheel timing investigation:** The initial macOS candidate recorded 552.19 seconds in subprocess spans; installed HTML observability accounted for 289.41 seconds. Those HTML scenarios mutate the same golden project and cannot safely be fanned out without separate fixture custody. Independent environment setup offers a smaller opportunity. These observations came from a busy macOS host and do not establish a Windows wheel speedup. Native gate timings and the requested performance target remain open.
 
@@ -19264,6 +21871,19 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   rebuilds the entire ledger index. Qualify overlap, serial barriers, crash and
   cancellation through real public-runner processes before changing scheduling.
   One-worker and native Windows pytest coverage remain explicit measurement gaps.
+
+- **Timing implementation checkpoint:** The parent now writes one finite diagnostic
+  artifact and registers it once with the existing evidence owner. A real-process
+  control covers overlap, a serial barrier, worker crash, peer cancellation and
+  never-dispatched work. Forcing timing writes to fail preserves the same ordered
+  outcome report and exit status. Reader controls retain unknown interrupted
+  endings, reject invalid clocks and duplicate phases, and refuse missing or
+  nonregular files. These focused checks do not establish a complete-suite speedup
+  or native Windows performance acceptance; the parent goal remains open.
+  Independent review found omitted scratch-deletion time and incomplete phase
+  validation. Maintained delayed/failed-deletion controls now require scratch
+  work in total cleanup and preserve unknown completion on failure. Missing/late
+  exit observations and malformed dispositions remain artifact diagnostics.
 
 ### [x] MERMAID-SCOPE-001 — Mermaid documentation check scans gitignored build output (generated/)
 
@@ -19335,6 +21955,101 @@ subsequent Make-environment correction is not part of that wheel's evidence.
 - **Historical completion:** [Preserved implementation and evidence](../history/roadmap/completed-before-sdlc-review.md#x-worker-gpu-memory-001-preserve-unavailable-nvidia-gpu-memory-in-posix-worker-observations). Current-release qualification remains separate.
 
 ### [ ] HOST-WINARM-001 — Add native Windows ARM64 host-install realization
+
+- **Hosted prerequisite refusal (in progress):** Native run
+  [45040175335](https://github.com/jordanhubbard/literate-ai/actions/runs/45040175335)
+  at exact source `294cbc6de` confirms an ARM64 Python process/kernel and source
+  binding, then stops before installation: the supported installer requires
+  explicit authorization to install the composed native and managed prerequisites.
+  No host tools were changed. Set `LITAI_INSTALL_DEPENDENCIES=yes` on only the
+  ephemeral runner's supported installer step. Keep the declared requirements,
+  actual-platform gate, exact noneditable installation and native MSVC assertions.
+  The actual missing prerequisites remain the installer's decision; the refusal
+  lists the complete composed requirements, not an independently measured missing
+  subset. Renew the native run before any host qualification claim.
+  Five portable harness controls pass without runtime or harness changes;
+  [scoped renewal evidence](../../verification/windows-arm64-prerequisite-renewal.json)
+  records the refusal, step authorization and outstanding native renewal.
+  The renewed native run `45049243709` passes ARM64 preflight and stops
+  because the runner lacks `winget.exe`. Bootstrap the OS package manager with
+  Microsoft's documented WinGet client module before the supported installer;
+  keep prerequisite selection and installation inside that original installer.
+  Record the real resolved package-manager version and retain native renewal
+  as pending until installation and all host controls actually pass.
+  Run `45049961476` stops in the floating WinGet repair module with
+  `Not Found`; the terse error does not identify the upstream request. Use the
+  vendor's versioned MSIX, license and ARM64 dependency archive instead, each
+  SHA-256 pinned and independently downloaded/checked before this change.
+  Provision with the documented Windows Appx commands, then register the
+  native package and run the unchanged supported Litai installer and controls.
+  Run `45052684397` now completes the pinned bootstrap (WinGet 1.29.380),
+  then the interpreter launch resolves the WindowsApps Store alias. Append
+  WindowsApps only within the needed steps, preserve setup-python precedence,
+  and invoke its selected native interpreter by absolute path. No framework
+  installation or host acceptance is claimed from that failed launch.
+  Run `45054678670` passes bootstrap and starts the actual installer. WinGet
+  installs Python and the ARM64 VC runtime; a later managed-artifact download
+  fails with `LookupError: unknown encoding: idna`. Modification of the running
+  controller's Python installation is a working hypothesis, not a proven cause.
+  Provision only the Python package selected by the same ARM64 SBOM before
+  starting the controller, in an external package-manager process. Require a
+  fresh native interpreter, IDNA codec, SSL, venv and ensurepip probe afterward.
+  The unchanged supported installer still verifies the full composed contract,
+  installs remaining prerequisites and builds the exact noneditable candidate;
+  every installed-host acceptance assertion remains required.
+  Run `45057642552` confirms that provisioning succeeds but the former
+  `hostedtoolcache` Python executable is removed. Resolve the fresh CPython
+  registration using the [Windows registry contract](https://peps.python.org/pep-0514/),
+  preferring the current user's ARM64 tag. Check actual native execution and
+  required standard-library imports before passing that exact executable to the
+  supported installer. A registration string alone is never architecture proof.
+  Run `45058980253` passes fresh registered native-Python selection and the
+  required standard-library probe, then builds the exact framework wheel.
+  Private-runtime installation stops because `cryptography==50.0.1` falls back
+  to a native ARM64 source build and cannot find OpenSSL. Upstream 50.0.1 and
+  50.0.2 wheel inventories contain no Windows ARM64 distribution. Complete the
+  native source-build prerequisite closure while retaining the exact dependency
+  pin, ARM64 target and full installed-host acceptance; the host goal stays open.
+
+- **Native Python build closure (in progress):** The ARM64 tuple now names the
+  physical OpenSSL development SDK and the existing C++/Rust/Cargo contracts
+  required to build pinned `cryptography==50.0.1`. The universal base and selected
+  Flavor contracts stay unchanged; the finite physical build closure strengthens
+  Rust/Cargo to the source dependency's required minimum. The current 4.0.3 ARM64
+  MSI matches both the vendor hash feed and WinGet manifest. CRC-checked installer
+  metadata confirms the native DLL, header and static-library destinations;
+  no Windows installer was executed on the coordinator. Use the observed SDK
+  root for child-only OpenSSL build variables, including explicit static library
+  selection, and reject conflicting ordinary or native target-prefixed settings.
+  Six protocol controls, nine existing host-install controls and 21 FreeBSD
+  controls pass with no skips. The host fixtures are counterexamples, not native
+  execution proof. The earlier missing-compiler fixture failed because it omitted
+  the newly declared SDK; extend only that controlled fixture, preserving its
+  original no-replacement, explicit selection and exact installation assertions.
+  The fresh full-source run remains failed at Git setup: 559 tests passed and 29
+  skipped before a local `git submodule status --recursive` launch exceeded the
+  original 30-second limit. Keep this failed result and renew complete source and
+  actual native Windows installation before any host or release qualification.
+
+- **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
+  remains unreachable with SSH exit 255 after its retained local transport was
+  restored. Prepare a source-bound `windows-11-arm` job for the platform cell that
+  the aligned supplied workers cannot cover. It uses native ARM64 Python, checks
+  the actual process/kernel tuple, installs the exact source through the supported
+  noneditable installer and observes installed framework members and native
+  extension images. Public readiness must preserve ready tools; explicit missing
+  and actually foreign MSVC selections must refuse, and unsupported Make must
+  close selection. Compile and execute a separately signed, acknowledged C++ host
+  fixture through the ordinary guarded builder. Its fresh fixture trust root
+  grants no reusable project trust. Keep SDK, provider, full-goal and release
+  flags false until the source-bound native job passes.
+  The [official image manifest](https://github.com/actions/runner-images/blob/main/images/windows/Windows11-VS2026-Arm64-Readme.md)
+  places VS 2026 in `Microsoft Visual Studio/18/Enterprise`. Extend finite native
+  discovery with that standard directory after 2022 and 2019, retaining original
+  selection priority, bounded default-toolset reads and actual PE inspection.
+  [Development controls](../../verification/windows-arm64-host-development.json)
+  distinguish real portable compiler/signature work and PE-format fixtures from
+  required native Windows execution. No acceptance checkbox closes here.
 
 - **Current alignment repair:** Native Windows inventory finds the declared
   OpenCode executable outside `PATH`, and its explicit version command succeeds.
@@ -20311,49 +23026,37 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 
 ### [ ] RETAINED-SDK-PUBLIC-001 — Connect public retained execution to live native SDK producers
 
-- **Public retained ZIP review follow-up:** Independent source review finds the
-  package planner omitted from the actual CLI's deferred read-only dispatch and
-  typed current-lock errors escaping JSON handling. The corrected frontdoor
-  defers host side effects until canonical parsing identifies full or abbreviated
-  planning flags, refuses discovery/debug-file options in that scope, and
-  preserves typed lock-owner error codes. Eleven focused frontend checks, full
-  formatting and lint pass. Renew exact-source review, complete CI and installed
-  CLI qualification; prior package journey evidence does not cover these fixes.
+- **Upstream integration follow-up:** PR #513 landed at `307b0f0b7`. Its
+  read-only package dispatch, typed current-lock errors and bounded advertised
+  Cargo-artifact checks are integrated with the newer shared native owners,
+  streamed custody and original runtime-root ordering preserved. The upstream
+  [scoped Cargo evidence](../../verification/retained-cargo-layout-compatibility.json)
+  describes its own source identities; it does not qualify this integration.
+  Current combined-source native, installed and complete release qualification
+  remain pending. No parent goal or original acceptance requirement is closed
+  by this integration.
 
-- **Cargo layout follow-up:** [GitHub issue #515](https://github.com/jordanhubbard/literate-ai/issues/515).
-  The unchanged native standard-harness fixture fails on Cargo 1.100.1 after
-  successful no-run compilation because `debug/deps` no longer exists. A separate
-  read-only observation confirms Cargo reports each actual intermediate artifact
-  beneath package-specific build directories. The official Cargo contract marks
-  that layout internal; infer no runtime directory from its historical spelling.
-  - [x] Reproduce the original CI failure with unchanged source/assertions and
-        retain successful compiler JSON plus the failed directory observation.
-  - [x] Derive bounded loader directories from validated compiler artifact paths,
-        retaining explicit build-script link paths and all ownership/currentness checks.
-  - [x] Qualify old/current layouts, malformed/escaping/missing output and mutation
-        refusals and the unchanged native standard harness: fresh canonical 12-case
-        runs pass on Rust/Cargo 1.100.1 (74.842 seconds) and 1.99.0 (74.637 seconds).
-        Preserve the initial jobserver-environment refusal and repaired checkpoint;
-        neither supplies fresh-suite evidence. Only task-local inherited jobserver
-        hints were reconciled; original assertions, compiler commands and budgets
-        are unchanged. See the [scoped evidence](../../verification/retained-cargo-layout-compatibility.json).
-  - [ ] Complete full canonical regression, installed and exact-commit CI qualification.
-        The first full run completes 2,708 tests with 110 existing skips and one
-        error in the native incremental-cache fixture's historical library lookup.
-        Its corrected lookup requires exactly one actual fixture library beneath
-        its dedicated target. All 28 Cargo cases pass on 1.100.1 (83.969 seconds)
-        and 1.99.0 (142.544 seconds), retaining every existing no-op/relevant-edit
-        byte and timestamp assertion. Renew the complete regression at the next
-        exact source identity. Installed wheel qualification separately stops
-        during repository refresh; its control environment's Git 2.34 explicitly
-        rejects the required `worktree list --porcelain -z` operation. Preserve
-        that failed qualification and use a capable declared environment.
-        At `daa0de2f`, the full unit suite passes 2,867 tests with 113 reported
-        skips in 1,398.314 seconds; CI then refuses its stale lifecycle-driver
-        review pin. An independent reviewer accepts the exact adapter hash before
-        the supported re-pin. The fresh non-editable exact-source wheel also
-        passes the seven-kind retained ZIP journey; this is scoped package
-        admission, with full wheel smoke, KSE eleven-kind and release gates pending.
+- **Exact-candidate FreeBSD evidence:** [Retained readback](../../verification/freebsd-sdk-aa191c4f-observation.json)
+  binds `aa191c4f9` to hosted run `44968092203`, its immutable artifact and a native
+  FreeBSD 15.1 amd64 guest. The installed public SDK microfixture reaches its real
+  local runtime without CLI test doubles; all 48 installed owner controls and five
+  publication-preflight controls pass with zero skips. Owner controls may use
+  protocol fixtures. Independent readback rehashes all 44 guest evidence members,
+  1,519 wheel RECORD members and all 611 observed production imports against that
+  wheel. The missing-loader counterexample still fails as expected. This proves
+  the named SDK runtime slice only; compiler SDK admission, a product receipt,
+  whole FreeBSD lifecycle, ISO creation and final release acceptance remain open.
+
+- **Current SDK composition (in progress):** Compose the complete PR #444 / #445 /
+  #467 / #489 dependency closure onto `cd9934394`, preserving the newer shared
+  owners. This includes closed POSIX snapshot/quarantine custody, authored link
+  selection through SDK locks and inspection, bounded pinned-input reads, both
+  FreeBSD ARM64 host-install catalogs and live external output workspaces. Keep
+  default identities, source/tool/grant checks, foreign-state refusal and the
+  original complete source corpus. Contributor tests retain their original
+  revisions; this join still requires independent exact-source review and fresh
+  source, installed, native FreeBSD/UFS and original OS-SDK/consumer acceptance.
+  The existing fleet inspection/alignment and publication holds remain in force.
 
 - **GitHub issue:** [#22](https://github.com/jordanhubbard/literate-ai/issues/22)
 
@@ -20786,6 +23489,12 @@ complete; final 1.3.1 candidate and broader FreeBSD qualification remain separat
   - [x] Measure native import startup: one baseline/deferred pair took 7.48/2.91 seconds;
         installed bytes stayed unchanged. See [the diagnostic record](../../verification/optional-project-import-development.json).
   - [ ] Run both maintained startup/MAC controls from the noneditable installed wheel with verified module origins and no checkout imports, then renew exact-candidate native wheel/full qualification.
+- **Installed intermediate evidence:** Both maintained controls passed with wheel
+  `1082a4b24a116eeb01d6cd5f301595f951957671bcf3051abb3e33c50a62fbd2`
+  from `96c404e18c0235fb4903587f45b6324e01b6715a` on macOS ARM64.
+  Its embedded revision and 504 imported framework modules matched the wheel.
+  The isolated child loaded the installed project CLI. Repeat both controls on
+  the exact release wheel before closing this item.
 - **Next action:** Resulting-main CI `42887279572` at exact merge `8f01fc77d` is verified terminal with all 27 jobs successful. Complete final configured lifecycle/receipt renewal and preserve the original gate evidence. The current root receipt remains stale; native installed startup/MAC controls and exact source/main matrices do not replace that final renewal.
 - **Original focused development:** Two import controls and seven CycloneDX tests
   pass through `make python-check`; the fresh-process regression fails against the
@@ -20887,6 +23596,29 @@ The dependency correction passed all three unchanged self-hosting checks (0 skip
 **Current bounded repair:** A retained complete native wheel passed in 5,073 seconds, including 2,562 seconds in installed HTML qualification, before the unchanged 5,400-second full-gate budget expired during the serial live test. A read-only baseline profile observes four fresh authority graphs and six Flavor-catalog parses; four parses come from those graphs. Extend the existing exact-input graph-metadata observation across one read-only verification, retaining every fresh graph and final source revalidation. Keep the live dependency case isolated, then run independent wheel and remaining-test ladders together as hosted CI does. Separate durable phase streams and cancellation must retain both JUnit paths and clean up only owned process trees. All acceptance and deadline requirements remain open until exact qualification succeeds; no wall-time improvement is claimed by the profile.
 
 ### [ ] RETAINED-OBSERVATION-PERF-001 — Bound retained authority and native observation cost
+
+- **Installed materialization profile (in progress):** The current installed
+  authored consumer check passes in 1,211.404 seconds without changing consumer
+  bytes or modes. Initial materialization then reaches its original 2,100-second
+  outer bound with `release.real_receiving_timeout`; preexisting consumer files,
+  legacy source and all seven original acceptance inputs remain unchanged.
+  No source retirement or consumer admission follows that failure. A separate
+  read-only installed profile observes 79 resolution-plan snapshots during initial
+  planning and 21 in one independent currentness guard (35.259 and 8.527 profiled
+  seconds). These include complete collision/cycle validation and must not be
+  replaced by a narrower lineage-only check. Profile timings include instrumentation
+  overhead and are not qualification. [Exact-source development evidence](../../verification/authored-receiving-observation-profile-development.json)
+  retains the failed scope and required native/callback/budget boundaries. Trace
+  bounded pure-computation reuse through the actual plan/native owners next,
+  then rerun unchanged public materialization and admission requirements.
+  A native regression also reproduces continued initial publication after the
+  existing operation deadline expires. Propagate that same deadline through the
+  private input owner and check it before further scratch/publication effects;
+  preserve every unexpired native observation. This refusal repair does not
+  qualify receiving latency or the failed installed materialization.
+  Both native expiry regressions and all six existing input-owner controls pass;
+  [deadline and catalog development evidence](../../verification/provisioning-deadline-current-catalog-development.json)
+  retains the original failures and exact source/report identities.
 
 Current next action (in progress): independently review and qualify one-call
 canonical planning inside a genuine execution guard. The exact integrated
@@ -21569,7 +24301,15 @@ No software release or native success is claimed.
 - **Release target:** 1.4.0
 - **Curriculum scope:** The same development curriculum scope as DOCS-LABS-001.
 - **Release-manifest reconciliation:** Preserve this existing included requirement in the 1.4 manifest. Issue #159 is open in milestone 1.4.0; the parent remains unchecked. The earlier inline target annotation did not establish a deferral or remove the canonical curriculum acceptance below.
-- **Next action:** Convert every lab to independently resolvable canonical Components and explicit Flavor selections, then qualify actual locks, generation and browser lifecycle evidence in increasing complexity.
+- **Next action:** Qualify progressively richer independently buildable Component
+  graphs on the required published framework. The reviewed preview repair
+  checks raw source references against locked bytes and preserves structured
+  Flavor revision identity. All six Component locks retained their original
+  bytes. The supported 1.3.1 lock command renewed all six companion audits,
+  and fresh checks passed after each project moved to a different directory.
+  A genuine two-Component lock exposed a wrong edge field in the renderer.
+  The reviewed correction draws the provider-to-consumer edge from the stored
+  revision identities. Public application build and run acceptance remain open.
 - **User clarification:** Self-contained means no dependency on earlier labs or external repositories; all labs must use Literate AI. Start small, progressively add real Components/Flavors and other harness dimensions, and finish with a visually substantial composed capstone. A labels-only correction is not completion.
 - **Implementation:**
   - [x] Distinguish lesson roles from resolved Components across the shared lab shell; expose exact bundled sources and provenance.
@@ -21579,6 +24319,16 @@ No software release or native success is claimed.
 - **Evidence:**
   - [ ] Rebuild and structurally verify all six offline artifacts; reject changed embedded source or false graph/custody claims.
   - [ ] Actual desktop/mobile browser checks verify Grumpy Counter default, bounds, keyboard/pointer input, source parity, graph selection and offline behavior; authority and required repository checks pass.
+
+On the 18 November composed source, all six regenerated previews matched their
+tracked bytes. Offline Chromium at 1440 and 390 CSS pixels checked 15 source
+records and 239 arithmetic dots, with zero requests or page errors.
+A changed selected skill exposed a separate custody failure. The preview builder
+and verifier both passed while the page displayed the old locked digest and
+embedded different source bytes. The published framework rejected the stale
+skill pin. Require this counterexample to fail preview verification before
+closing the structural evidence criterion. All six current graphs contain one
+Component, no inter-Component edges and the same three selected Flavors.
 
 LAB-AUTHORITY-001 development checkpoint: six offline bundles and five tamper/refusal
 checks pass. Actual offline Chromium at 1440 and 390 pixels verifies pointer/keyboard
@@ -21696,10 +24446,1315 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Public retained ZIP composition (included; qualification open):** [PR #513](https://github.com/jordanhubbard/literate-ai/pull/513) implements part of included [issue #22](https://github.com/jordanhubbard/literate-ai/issues/22) and accepted ADR 0048. The command is integrated locally through the candidate’s guarded retained owner without replacing newer promotion handling. Independent production and installed-roster reviews find no blocking issue; five frontend controls pass through `make python-check` with no skips. The [source qualification](../../verification/retained-zip-public-source-development.json) now passes the actual public ZIP journey and package regressions: 22 selected, 21 passes, one original native-FreeBSD skip and no failures across the three focused suites. The source fixture supplies explicit framework-binding observations and exports its original binary; fresh noneditable installed execution, genuine adopted compiler/SDK producers and stronger configured receipt-policy acceptance remain open. RETAINED-PROJECT-001 retains its broader acceptance checklist; this subtask preserves all original 83 release goals and grants no deferral or release acceptance.
+
+- **Canonical ancestry retention (open qualification repair):**
+  [GitHub issue #512](https://github.com/jordanhubbard/literate-ai/issues/512).
+  The original parallel metadata-preflight control leaves only 74 entries before
+  its intentional reservation; its unchanged assertion requires more than 512.
+  Read-only profiling reproduces that failure and accounts for the entire
+  3,796-record difference from the serial case, primarily through repeated
+  ancestry retention under deeper worker paths. Serial success is not acceptance.
+  Share genuinely identical immutable lineage DATA within the original owner,
+  fund new references and temporary storage, and retain every fresh native
+  traversal, comparison, closure and controlled namespace transition. Do not
+  shorten worker paths or change the original 131,072-entry/8 GiB policies,
+  assertions or deadlines. Require the unchanged parallel control, complete
+  source cohort and installed/native acceptance. This included 1.4.0 subtask
+  preserves all original 83 goals with no deferral.
+  Sharing now passes six representation/native-probe controls and all 58
+  bounded-reader controls; the unchanged profiled parallel preflight case gains
+  exactly 15,920 retained records and passes. A fresh source cohort exposes a
+  lower-budget refusal that reaches a derived per-file ceiling before mandatory
+  destination storage is funded. Prepay that existing, unchanged reservation
+  before initializer discovery; preserve its one charge, all quotas and original
+  error assertions, then qualify both refusal and funded paths again.
+  The original small 69,632-entry discovery workload now fits honestly at
+  67,416 records, 3,112 files, 25,241,671 payload bytes and 4,612,828,224 metadata
+  bytes. Its 4,817 lineage-row references share 422 immutable native rows.
+  Preserve that workload as a preparation-only positive with no effects; keep
+  every original rejection assertion and numeric limit while adding real native
+  inputs before either producer so the negative workload remains underfunded.
+  Do not add product charges or invent a minimum budget to restore an obsolete
+  footprint assumption.
+  The separate 65,536-entry source-movement fixture also now fits before the
+  native move: 61,491 records, 950 files, 14,446,414 payload bytes and
+  3,175,714,624 metadata bytes, within its original four-GiB policy. Fifty real
+  source files restore a genuinely underfunded negative without changing any
+  original assertion, limit or deadline; the complete original rejection and
+  durable-state checks pass, including preservation of the added files. A
+  separate positive retains the original small workload and actually moves its
+  source with the same directory inode and complete file bytes. It returns
+  `source-moved-metadata-pending` with `relocation_complete: false`, retains the
+  pending control, and leaves metadata publication and retirement untouched.
+  Its success does not claim that this policy funds later metadata publication
+  or complete relocation. Both movement-boundary controls pass locally.
+  Tests that formerly replaced sealed reader or loader methods now observe the
+  original call or successful return instead, preserving the original timing
+  and equal-byte namespace-replacement assertions. Their focused suites pass;
+  production integrity guards remain unchanged. Related local regressions total
+  297 passes and four skips requiring an actual case-insensitive filesystem.
+  The fresh 199-case retained-source cohort completes with 197 passes and two
+  further case-insensitive-filesystem skips, with all original budgets and
+  deadlines retained. Earlier failures remain preserved. These development
+  checks do not establish complete source, immutable installed-candidate or
+  supported-platform qualification, which remain open.
+
+- **Provider scratch accounting (source-qualified repair; integration open):**
+  [GitHub issue #511](https://github.com/jordanhubbard/literate-ai/issues/511).
+  The original eight-GiB source-provider composition stopped during metadata
+  publication before commit. Cached failure facts prove metadata is the limiting
+  allowance: a 196,601-byte cached object is reduced to an 11,593-byte stdout
+  ceiling, with 8,588,930,496 metadata bytes charged against 8,589,934,592.
+  File and total-input capacity remain available. The ledger already prepays a
+  maximum-file reread buffer; repeated provider verification accumulated
+  its stdout as newly retained input instead. The repair uses that reserved
+  scratch only for an exact original bound-cache request, freshly reads native
+  bytes, compares them exactly, separately funds stderr/work, and returns the
+  same original bytes object. New/unbound and smaller-ceiling requests retain
+  the original funded path. Original budgets, deadlines, guards, poisoning,
+  publication and acceptance assertions are unchanged.
+  Thirteen focused controls pass, covering genuine owned-reader success,
+  low metadata headroom, native faults, cache replacement and callback-bearing
+  output refusal. Independent source review closed that repair. All 20 original
+  provider tests then passed in 870.861 seconds, including the eight-GiB outcome
+  and real update/catalog composition (local report
+  `provider-cached-buffer-original-r25y-report.json`). These source checks do not
+  qualify an installed wheel or complete the platform matrix. The repaired
+  metadata constructor separately passes 47 controls. Helper graph, complete
+  source/platform and installed qualification remain open.
+  This is an included 1.4.0 integration subtask; all original 83 goals
+  remain, with no deferral or release-completion claim.
+
+- **Verified integration follow-ups (open; original 83-goal scope retained):**
+  [#503](https://github.com/jordanhubbard/literate-ai/issues/503) owns catalog
+  finalization with an explicitly proved framework successor's exact directory
+  membership; the actual historical catalog finalize refused legitimate new
+  framework siblings. Preserve strict unknown-content refusal and recovery order.
+  The source repair derives finite membership from the original successor owner
+  and preserves complete rollback through exact shared metadata handback and
+  native coordination/directory anchors. Native/source/API review is closed;
+  177 original framework, catalog, mixed-owner, public CLI and initialized
+  controls pass with zero skips. A focused cohort also demonstrates complete
+  recovery and cold CLI recovery twice with no catalog renewal history.
+  The new moved-reference journey exposed
+  [#509](https://github.com/jordanhubbard/literate-ai/issues/509): the existing
+  contained imported peer target is omitted from semantic reference observation.
+  The source repair adds the original ingress's finite read-only target observation,
+  derived from proved Markdown and typed import membership, without reading
+  private target contents or issuing source ownership/write grants. Original
+  native identities and ancestors are revalidated across callbacks. The 12-case
+  composition module now passes with zero skips, retaining its original
+  applicability/native-refusal/full-restoration assertions. All 177 original
+  regressions also pass on this observation implementation. Independent review
+  identified a remaining parser export-slot guard, now repaired with a dedicated
+  zero-call negative control. Final source review is closed; all 12 reference-target
+  controls and all 12 composition/recovery controls pass on the final source,
+  with zero skips. These remain scoped development results.
+  The immutable installed `e0ed42469` candidate now completes the preserved
+  historical catalog finalization within the original 1800-second deadline.
+  Independent readback verifies eight exact source archives, all 249 catalog
+  joins, 37 framework outputs and 613 original files, including native source,
+  Git, receipt and policy preservation. At that checkpoint, lifecycle renewal
+  remained open: the next normal documentation review reached the mixed-root
+  wrapper lookup defect tracked in
+  [#510](https://github.com/jordanhubbard/literate-ai/issues/510).
+  All 83 goals remain;
+  #509 is included in the existing 1.4.0 integration scope, with no deferral.
+  [#504](https://github.com/jordanhubbard/literate-ai/issues/504) owns the missing
+  Codex runtime owner during accepted-cache metadata replay. The source repair
+  scopes the original private runtime owner around prospective command metadata
+  construction only. Three portable controls pass with a real cache, original
+  delegate and the existing process fixture: unchanged cache/recipe/request/tree
+  joins, one generation call, live private state during reconstruction, retirement
+  after success or the identical metadata exception, and non-Codex compatibility.
+  Independent source review closes with no findings; 29 original generation,
+  cache-runner and runtime-state controls also pass, zero skips. Actual native
+  macOS child/platform and full release acceptance remain open.
+  [#505](https://github.com/jordanhubbard/literate-ai/issues/505) owns pure forest
+  prerequisite refusal before native context inspection.
+  The source fix checks exact acknowledgement/host authority and plain planning
+  coordinates/live-pool references before native witnesses, preserving every
+  later original seal and guard. Independent source review is closed; all 21
+  control-publication cases and all four unchanged original forest-operation cases
+  pass with zero skips. Cross-platform and full release acceptance remain open.
+  [#506](https://github.com/jordanhubbard/literate-ai/issues/506) owns absent
+  Windows `O_NONBLOCK`: both reader expressions are repaired, with 13 focused
+  controls passing and independent review closed; native Windows remains open.
+  [#507](https://github.com/jordanhubbard/literate-ai/issues/507) owns lossless
+  wide native-ID serialization across proof, plan, codec and comparison joins.
+  Its recorded-wrapper proof preimage now encodes only device/inode fields using
+  the existing lossless representation; original live native facts remain integers.
+  All 37 original wrapper controls pass with zero skips. New wire-data controls
+  cover seven leaf stamps, unchanged ordinary identity bytes, wide-ID roundtrips,
+  changed-ID hashes and helper tampering. All six new controls pass with zero
+  skips; independent wrapper source review is closed with no findings.
+  Catalog plans, private journals, renewal, pair publication, source closure and
+  public receipt identities now use explicit wire projections, with separate
+  native integer copies and the original live comparisons and move boundaries.
+  Independent source/schema reviews are closed. All 196 original layout/recovery
+  controls and 12 final wire/provenance controls pass with zero skips. The latter
+  include three-part Windows control IDs as modeled data, not native Windows
+  qualification. Actual Windows readback and full release acceptance remain open.
+  [#508](https://github.com/jordanhubbard/literate-ai/issues/508) owns native
+  Windows control observations; actual mismatched fields remain unproven.
+  Bounded notes now use only native IDs and signatures already observed by
+  the initial-open refusal. All 42 cleanup controls pass locally without skips,
+  including nine diagnostic controls for original success/refusal counts,
+  primary error identity, descriptor closure, file preservation, bounded exact
+  integers and rejected formatting/metaclass callbacks. See the
+  [development qualification](../../verification/remote-cleanup-open-diagnostics-development.json).
+  Windows-handle controls here use modeled data; actual Windows observations
+  remain required before diagnosing or repairing its native mismatch. No clock,
+  identity guard or cleanup authority is relaxed. Full release acceptance remains open.
+  [#510](https://github.com/jordanhubbard/literate-ai/issues/510) records the next
+  genuine historical upgrade failure: normal documentation review could not find
+  the placed wrapper when both original and contained catalog roots remain
+  declared. The tree was preserved after successful finalization. The repair
+  uses the existing paired initialization provenance for finite wrapper
+  metadata selection, preserving original transitional behavior and implementation
+  coordinates. The reviewed repair carries the original loader's exact snapshot
+  into the metadata adapter, which retains a fresh manifest comparison
+  and immutable bindings. The finite loader publication boundary authenticates
+  the existing Store/schema front doors, isolates the ambient parsed-definition
+  cache for this acquisition, and restores its frame on success or failure.
+  Fifty-eight bounded-reader controls pass, including joint forged loader DATA,
+  callback-time substitution, immutable binding/reinitialization refusal and
+  cache restoration. This does not claim new transitive sealing of existing
+  Store, schema, JSON or filesystem internals. The original role identity format
+  is retained. The completed helper and source repairs are committed at
+  `52775ae754ce713a58242772b8165cca7c43a3a7`. The
+  [installed historical continuation](../../verification/retained-layout-installed-development.json)
+  retains its [finalized candidate](../../verification/retained-layout-installed-candidate.json)
+  and [phase observations](../../verification/retained-layout-installed-observation.json).
+  It now passes through a fresh isolated wheel: normal documentation review,
+  reviewed Standard rebind with unchanged receipt policy, original native
+  build/two tests/package, receipt publication and currentness readback.
+  Advancing to `retained` preserves original-source release authority, and a
+  subsequent public readback confirms the same receipt remains current. Original
+  native files, Git controls and installed wheel bytes remain exact. This is
+  retained-harness parity, not generated Component acceptance or a direct clean
+  final-wheel upgrade certification. Full source, other installed journeys,
+  supported-platform, SDK and release acceptance remain open.
+  Next: preserve original guards and deadlines while integrating remaining
+  contributions and qualifying other native/platform paths, then repeat final
+  exact-candidate qualification. Full `df6` CI is terminal
+  (33 success, 22 failure, one cancellation). All failed jobs and 1,751 original
+  Windows skip events are inventoried in the r17 source-review evidence; neither
+  passing printed cases inside failed modules nor historical host passes qualify
+  those failed modules. The whole installed-wheel r14 remains failed; the repaired
+  HTML fixture separately passes all 31 expected installed command exits.
+- **Standalone bootstrap custody (source qualified; integration open):**
+  [GitHub issue #502](https://github.com/jordanhubbard/literate-ai/issues/502).
+  Exact `df6` Linux/Python 3.14 CI fails before the original process-timeout
+  assertions because the bundled shared helper imports a release-only sibling
+  that is not shipped with the standalone bootstrap. The reviewed repair uses
+  a stdlib-only observer installed by the original release-worktree owner for
+  its full lifetime, including cleanup. Nested replacement is refused. Exact
+  canonical-copy/digest parity, original timeout/partial-stream/ownership
+  assertions and original release custody remain intact. Three new controls
+  prove real isolated synthetic loading with no framework import, active owner
+  admission and expired-context refusal. Original process controls pass nine
+  cases with four original native FreeBSD skips; seven release-custody and 17
+  bootstrap-loader cases pass with zero skips. Fresh installed/platform and
+  resulting-main acceptance remain open. The failed CI evidence is retained;
+  this adds no release goal or deferral.
+- **Resident release-policy reference (open integration subtask):**
+  [GitHub issue #501](https://github.com/jordanhubbard/literate-ai/issues/501).
+  Actual installed `bf6551038` framework plans from the historical application
+  root and implementation descendant now agree exactly, advancing past the
+  recorded-producer and imported-candidate defects. They remain inapplicable:
+  the resident policy's roadmap-goal manifest points to the original document
+  that the plan would place under `litai/`. The reviewed source owner now binds
+  an explicit canonical policy approval to one typed ledger-path change, fresh
+  replanning and original native recovery. Escaped, unsupported and indeterminate
+  consumers remain blocked independently of rewrite approval. Thirteen targeted
+  controls pass, including real publication, interrupted recovery and changed-
+  policy refusal; the original framework cohort passes 122 cases and release
+  regression passes 17, with zero skips. Independent source and native review
+  are closed. Frozen `2d10c8a9d` passes all 152 relevant cases with zero skips.
+  Its actual installed root/descendant plans agree and are applicable. Reviewed
+  public framework placement passes in 49.098 seconds under the original
+  1800-second bound. Independent review verifies all 36 saved originals, 37
+  published outputs and 577 other original files, preserving native application,
+  receipt, Git and prior catalog archives. Original wrapper `host` renewal is
+  current with no writes. Framework finalization succeeds and independent review
+  verifies the exact three archived source-control inodes. That initial catalog
+  finalization failed at #503. The subsequent installed `e0ed42469` repair completes
+  it with independent readback closed. Normal downstream documentation/Standard/
+  receipt acceptance remains blocked by #510 and is still open.
+  Optional external policy-parser shapes remain unsupported as documented;
+  source closure does not complete their admission or the full release goal.
+  Independent review verifies the provisional wheel's 1,637 package members,
+  all 35 existing action preimages, absent destinations, and unchanged 613 files,
+  471 directories and three Git facts. This does not qualify the whole wheel or
+  authorize bypassing its sole reference-consumer blocker.
+- **Mounted-storage Git discovery (source qualified; landing/platform open):**
+  [GitHub issue #500](https://github.com/jordanhubbard/literate-ai/issues/500).
+  A native Git
+  probe stops at the mounted filesystem boundary, while layout's preliminary
+  marker walk crosses it and wrongly borrows an unrelated home repository.
+  Implicit ancestor discovery now stops before inspecting a different-device
+  directory. Four controls and native mounted-storage readback pass; same-
+  filesystem ancestors, unsafe-marker refusals and local regular worktree `.git`
+  files retain their original behavior. Independent source review is closed;
+  clean installed qualification and resulting-main acceptance remain open.
+- **Provider launcher correction (open integration subtask):**
+  [GitHub issue #498](https://github.com/jordanhubbard/literate-ai/issues/498).
+  Actual compiled multicall execution proves that resolving a coding CLI alias
+  and then invoking the pinned image as argv[0] loses the selected interface.
+  Keep the original canonical executable, digest and drift guards; retain the
+  logical invocation name while explicitly executing that pinned image. The
+  existing bounded runner's process factory supports this separation without
+  changing process ownership, deadlines or stream limits.
+  - [x] Repair task/source generation, authentication and provider-interface
+    launch sites, with truthful invocation and image provenance. Independent
+    source review closes all seven provider process boundaries while preserving
+    canonical image/digest/currentness and Windows batch handling.
+  - [x] Pass compiled native multicall and original drift/refusal, profile,
+    authentication and bounded-process controls on this host. The seven native/
+    routing cases, generation, OpenCode, Codex runtime and telemetry cohorts pass;
+    this does not qualify native Windows/macOS execution.
+  - [ ] Verify the actual configured model and installed receiving workflow;
+    local-only worker alignment alone does not prove model readiness. The actual
+    configured OpenCode task now reaches the model request, then returns an API
+    stream error with no retained HTTP/auth/quota/service diagnosis. Preserve that
+    failure and existing operator configuration; no successful inference claimed.
+- **Historical imported-catalog placement (partial):** The reviewed public
+  transaction passes in 712.675 seconds under its original 1800-second bound.
+  Independent review verifies all 245 placed payloads, four exact producing
+  record transformations and 249 saved originals. Native source, Git, original
+  policy/driver and receipt bytes remain preserved. Twelve held blockers and
+  later framework/source finalization remain open; no missing historical
+  Component target is invented for renewal. Earlier framework placement plans
+  refused inspection from both root and implementation descendant
+  ([GitHub issue #499](https://github.com/jordanhubbard/literate-ai/issues/499)): six original
+  converter files match, while the genuine 1.3.1 Make wrapper uses the older
+  quoting format. Exact supported-producer recognition now passes 21 projection
+  and 59 source/custody controls; the current default identity and all seven
+  original/prospective bytes remain preserved. Independent review closes the
+  transitive callback-code and lexical-default boundaries. New installed public
+  plans now advance past this comparison. Their original initialized-item
+  fallback also wrongly requested a proof for an imported contained manifest;
+  the source-coordinate exclusion now passes 11 selection and 19 proof controls
+  with zero skips. The actual installed plans agree but retain the policy
+  reference blocker above. Apply and downstream renewal remain open.
+- **Qualification fixture follow-up:** The real 65,536-entry negative now uses
+  deliberate decoded-entry pressure through its original issued reader, keeping
+  the original allowance, metadata ceiling and every refusal/source/journal
+  assertion. Eighteen cases pass and one original filesystem case skips. This
+  tests an exhausted allowance, not the unpressured workload's natural cost.
+  Frozen 866 wheel qualification reaches committed refined renewal with a
+  successful native build and both tests, then fails the strict stdout hash on
+  inherited Make banners. The maintained driver isolates four Make recursion
+  controls and retains all original commands and assertions. A fresh hostile-
+  environment case passes that strict native result, then exposes its final
+  archive observer's stale Component key. That observer now uses the captured
+  actual Component receipt coordinate; implicit baseline archive keys remain
+  logical. The committed archive matches the pre-apply plan identity. Complete
+  fresh installed qualification remains required.
+- **Installed starter fixture closure (partial, 2026-11-27):** The JavaScript
+  import fixture now supplies the original hash-bound driver support argument;
+  all four existing controls pass. Maintained wheel fixtures capture canonical
+  initialized/scoped metadata and physical lock paths while preserving logical
+  catalog references and root application bridges. Independent review retains
+  every original refusal, assertion and deadline. Fresh installed version and
+  bootstrap controls pass, including forged-pin refusal and exact restoration;
+  the original selected-provider/lock/validation/plan statement block also passes.
+  These scoped checks use the immutable a3 wheel; current full-wheel acceptance
+  remains separate. A second genuine published 1.3.1 starter now initializes,
+  validates and retains its original lock with committed README and Git facts
+  preserved. Generated lifecycle and fresh receipt acceptance remain open.
+- **Qualification continuation (partial, 2026-11-27):** All three original native
+  completion controls now pass in 2394.692 seconds with their original 900-second
+  inner and 3600-second worker limits. Exact a3 Windows isolated scaffold and
+  following native boundary controls pass; complete platform acceptance remains
+  open. Full source qualification stops at the unconditional contained Swift
+  case because the host has no Swift compiler. A signature-verified task-local
+  toolchain is prepared but awaits explicit installation authorization.
+  The full installed wheel gate remains failed. Focused installed catalog and
+  HTML drivers pass after canonical-coordinate repairs; refined command renewal
+  exposed a production planner/receiver coordinate defect now independently
+  reviewed, with fresh installed acceptance still required. The actual published
+  1.3.1 retained project has completed public metadata/release-policy migration,
+  Standard rebind, original native build/two tests/package, fresh receipt update,
+  currentness and validation. Independent review preserves the original receipt
+  policy, native source and Git state. Catalog/framework placement and the full
+  historical journey remain open. All 83 release goals remain in scope.
+- **Release execution on the development host (2026-11-26):** The directing user
+  requests the next release from this host after custody consolidation. Current
+  policy selects 1.4.0 after published 1.3.1; retain all 83 release goals and
+  existing approved future-release deferrals. Audit current contributions and
+  qualification, repair integration failures, complete the original source/native/
+  installed and collateral requirements, then prepare, check, publish and verify
+  through the release owner. No recovered snapshot or narrow passing cohort
+  establishes release acceptance.
+- **Windows lifecycle-lock observation repair (source partial):** Exact-head
+  diagnostics reproduce a lifecycle-lock read through a second handle while its
+  original owner holds the Windows byte range. Read all three held-lock sites
+  through that original descriptor, retaining bounded bytes, native identity,
+  separate named/held metadata and observer expiry. Independently close the last
+  native callback with fresh bytes, preserve foreign archived data and primary
+  cancellation, and distinguish ambient exceptions from this read's failure.
+  Eight focused source controls pass; actual Windows CI and complete installed
+  qualification remain required. The maintained installed inventory now includes
+  all 224 methods in actual discovery order, without relaxing equality or skips.
+- **Reviewed qualification follow-up (source partial, 2026-11-27):** Strict
+  library-import wire projections, finite initializer helper transitions and eager
+  import AST portability, optional Git-include ancestor witnesses, canonical SDK
+  policy/oracle coordinates and three owned macOS temporary-root fixtures have
+  independent closing reviews. Ten affected cohorts pass with their original
+  assertions. The bounded manifest declaration DATA frame retains full parsing on
+  misses and fresh guarded bytes on every lookup. Three complete native input
+  guards measure 6.74–6.80 seconds versus the prior 9.39-second diagnostic, with
+  one schema parse and 32,861 exact-byte hits across those three calls. This is
+  diagnostic evidence only: frozen b087 still failed the original 900-second
+  native control and the installed wheel's conventional oracle lookup. Require
+  fresh exact-candidate native/source/wheel gates. Latest b087 CI additionally
+  exposes separate Windows staged-file publication, macOS release-writer alias
+  and modeled wrapper-view lifetime failures under investigation; all original
+  platform and release acceptance remains open. Exact source hashes, review
+  closures and scoped evidence are in
+  [the release source review](../../verification/release-1.4-source-review.json).
+- **Additional fixture closure (source partial):** The modeled contained scratch
+  view now enters its original issuance scope inside the live core/lifecycle;
+  seven controls pass. Two release-writer owned temporary roots use physical
+  paths; eleven controls pass. Independent review verifies all 82 original
+  assertions unchanged. Windows publication still needs native diagnosis: an
+  unchanged positive create/replace/rollback control now runs separately before
+  the full Windows shard, with its JUnit retained in the always-upload artifact.
+  Twelve scaffold source controls pass on Linux; no Windows success is inferred.
+- **Windows directory publication repair (source partial):** The unchanged
+  isolated Windows scaffold control reproduces WinError32 on its first native
+  replacement. Native rename opens its destination directory for FILE_ADD_FILE;
+  our directory pins denied write sharing. Only held/probe directory opens now
+  share writes, retaining deny-delete, original native name/type/identity,
+  strict leaf readers and fresh membership closures. Independent full consumer
+  review and 17 cleanup-model, 12 scaffold and 24 evidence controls pass. Actual
+  fixed Windows execution remains required; the distinct archive verifier's leaf
+  sharing concern is not changed or closed by this repair.
+- **Current qualification limits:** The first frozen-fef original native
+  completion case passes its unchanged 900-second deadline and graph-mutation
+  assertions; two cases remain. Its Python 3.15 installed run failed binary
+  worker export because pinned PyYAML 6.0.3 has no observed compatible binary on
+  that target. The identical pin resolves on native Python 3.14/aarch64; a fresh
+  full wheel gate uses 3.14.7 with the original binary-only contract. Full source
+  continues separately. The independent scope audit retains all 83 goals and
+  maps all 48 open/partial goals to their actual remaining acceptance work;
+  historical migration and real provider-to-consumer qualification remain open.
+- **Native retirement and historical producer follow-up (source partial):**
+  Fixed-directory Windows execution now passes both original scaffold writes and
+  byte/mode assertions, then exposes a post-delete owner callback requiring the
+  retired leaf. Its owner now permits absence while preserving live root/ledger
+  checks and refusing any present foreign node; the generic native primitive and
+  original ledger retirement order remain. Nineteen Windows API-model and twelve
+  scaffold controls pass, including equal-byte foreign reinsertion preservation;
+  changed-code Windows execution is still required. Native 3.14 installed-wheel
+  qualification reaches a separate supplemental golden-adoption root-path error;
+  only its three normative contained coordinates change. Genuine published 1.3.1
+  conversion now passes original direct/wrapper/lift-shift build, two tests and
+  package, preserving all six original payload bytes/native identities. Its
+  recorded eleven-role/minimum-one policy remains unchanged. Candidate migration,
+  lifecycle and fresh receipt are still open. Two frozen-fef native completion
+  cases pass; the third and the complete-source gate continue separately.
+- **Native Cargo deadline investigation (in progress):** The actual authored
+  native completion control now reaches execution but retains a genuine original
+  900-second deadline failure (1,039.733s including setup/closing). Live sampling
+  identifies multiplied complete tool/authority validation, including repeated
+  compiler probes and fresh image hashes. Preserve every guard, fresh byte read,
+  native probe, isolated observation frame and deadline. First reuse the existing
+  private bounded Skill-syntax DATA frame for one actual execution invocation;
+  it retains no membership/currentness/admission and retires copied contexts.
+  Require original frame controls, independent review and the same real native
+  control within its original deadline before claiming this repair sufficient.
+  That first bounded syntax-frame attempt still fails the original 900-second
+  deadline at the final guard after metadata (1,031.043s including setup/closing).
+  It does not establish a performance repair; retain the failure and investigate
+  further measured syntax-only work without caching currentness or native probes.
+  Direct executable hashing is about 29% of sampled time. A reviewed bounded
+  private DATA frame now compares every freshly read byte before reusing SHA
+  data; original reads through EOF, close, probes, guards and deadline remain.
+  Constructor-owned closure state closes the prototype's association-poisoning
+  defect. Ten focused controls pass and repeated local hash checks measure a
+  2.33x median speedup after population; actual native completion within the
+  original deadline is still required before claiming a performance repair.
+- **Whole-gate fixture reconciliation (source partial):** Frozen 40d source
+  qualification retains 525 passes, 26 skips and a manifest-reconstruction
+  fixture failure. Only its two intentional legacy-to-contained reconstruction
+  cases now select legacy input explicitly; all six controls pass unchanged.
+  Frozen 7128 installed qualification reaches a separate cache-continuation
+  fixture path error. Its reviewed scenario now selects the actual component
+  and declared receipt, while preserving distinct default/external and explicit
+  project-relative cache owners and all original refusal/acceptance assertions.
+  Fresh whole source and actual installed continuation remain required.
+- **Flavor-add placement reconciliation (in progress):** The corrected Elixir
+  fixture reaches a real product failure: adding a shipped Flavor to a contained
+  project writes root catalogs despite declared contained roots. Preflight the
+  original declared Flavor/Skill locations, preserve a unique existing mixed
+  location, refuse duplicate or unsafe authority before writes, and report actual
+  application-relative created paths. Keep default/conflict and no-reinit/lock
+  assertions; add contained, mixed, idempotence and ambiguity controls, followed
+  by independent source review and installed/target-host qualification.
+- **Exact-head CI reconciliation (in progress):** Exact fe8a85293 logs retain
+  cross-platform fixture placement omissions, a real Git optional-include
+  observation refusal, a Windows bootstrap native-stat/raw-byte mismatch and an
+  inode-reuse false positive in the cleanup privacy control. Repair canonical
+  coordinates and channel-specific observations; keep missing Git-prefix absence
+  witnessed and pin original private-file identities in the privacy fixture.
+  Preserve original assertions, native/refusal deadlines and failed receipts;
+  require affected cohorts, independent review and actual target-platform CI.
+  The FreeBSD SDK artifact identifies the public qualifier's root-manifest lookup
+  as its first real failure; all later consumer catalog/policy coordinates need
+  actual canonical selection before renewed native qualification.
+- **Authored monorepo observation placement repair (in progress):** The frozen
+  fe8a85293 source gate retains 378 passes, 26 skips and one real observation
+  failure: the installed-monorepo checker selects contained metadata correctly,
+  while its supplemental authored observer still opens root metadata/Components.
+  Capture the producer's canonical metadata and Component coordinates before the
+  checker callback and use those originals throughout supplemental reads; retain
+  source coordinates, native closure, callback mutation and gate-absence refusals.
+  Require complete affected source controls and independent closing review before
+  renewing driver/documentation authority and whole-source/installed gates.
+- **Maintained packaged-process fixture reconciliation (source partial):** The fresh
+  0918c2fe8 wheel clears the library-qualification failures and reaches one
+  packaged-process recorder error in the 32-control installed batch. Its explicit
+  modeled custody omits the newly required optional SDK resource field. Declare
+  that original non-SDK scope with `node_sdk_resources=None`; preserve production
+  SDK resource fencing, recorded test/execution identities, post-cleanup reopening
+  and all original assertions. All five affected source controls pass without
+  skips; independent review passes the original recorder control. A fresh
+  installed gate remains required.
+- **Maintained library fixture reconciliation (source partial):** The fresh exact
+  fe8a85293 installed wheel passes the repaired bootstrap setup and reaches 13
+  maintained library-qualification errors. Explicit modeled promotion/root
+  authoring fixtures omit newly required authored-asset fields. Declare their
+  original empty asset rosters and legacy framework placement, retaining actual
+  production asset validation and all original qualification/rebind assertions.
+  All 19 source controls pass without skips. Require independent review and a
+  fresh noneditable-wheel run; prior wheel receipts remain failed.
+- **Contained qualification audit repair (source partial):** The actual contained
+  CLI promotion passes, but qualification's literal root Flavor prefix selects no
+  files from its verified audit and masks the required intake trust refusals.
+  Resolve the selected exact catalog placement against that original audit; keep
+  nonempty/identity checks and every existing trust assertion, then require the
+  full CLI cohort and independent review. All six original CLI controls now pass
+  without skips; independent review also passes the actual trust-boundary control
+  and exact root/contained audit subsets. No trust guard is waived.
+- **Bundle preallocation repair (source partial):** Review reproduces an oversized
+  reviewed-intake read before its 16 MiB guard; valid larger legacy bundles have
+  no such fixed cap. Discriminate only finite envelope fields with bounded memory
+  on the original no-follow descriptor before payload allocation, then decode and
+  close those same original bytes under the selected schema policy. Preserve
+  reordered/escaped/wrapped/duplicate-last legacy dispatch and strict reviewed
+  JSON. All five source controls and independent exact-boundary, descriptor,
+  encoding and parent-substitution controls pass. The existing CLI promotion
+  fixture now follows actual contained component/provenance paths and exposes a
+  separate qualification audit-prefix refusal before original trust checks.
+  Preserve those checks and repair their canonical placement join before broader
+  CLI or release acceptance.
+- **Forest metadata placement repair (source partial):** A real contained initializer
+  and saved source-to-root plan reproduce legacy-path lookup failure in replay.
+  Derive finite metadata coordinates from the saved original manifest and its
+  native/blob commitments, retaining the producer's wrapper/lift/layout order.
+  Refuse contradictory placement and malformed target rosters without consulting
+  current relocated paths. Require contained and legacy source controls plus
+  independent review. All nine affected source controls pass without skips and
+  independent review closes this finding; canonical root/shared execution remains
+  separately blocked.
+- **Original Python gate disposal repair (source partial):** A failed copy can
+  replace a temporary pathname before unconditional recursive cleanup. Reuse
+  native execution custody and its original copier/producer postimage hooks,
+  preserve foreign or unfinished residue, and restore any outer execution token.
+  Keep original observer/input closing and primary failures. Require actual gate,
+  hostile replacement, callback-residue and nested-scope controls plus independent
+  closing review. Three new actual controls pass independent review (491.220s),
+  including nested successful execution and foreign-state preservation. The full
+  15-control canonical cohort remains running with unchanged deadlines; provider
+  and receiving-workspace acceptance remain separate.
+- **Product callback closing repairs (source partial):** Independent review reproduces
+  changes to Python and neutral authored product fields inside legitimate guards.
+  Retain exact original fields and checker before and after callbacks and invoke
+  the captured checker directly at factory closure. Preserve the established
+  modeled data constructors and Cargo session owners; these data scopes do not
+  grant materialization or admission authority. Require targeted mutation/closing
+  controls and independent closing review before renewing any review authority.
+- **Initial release audit:** The fresh contribution sweep reports 48 of 83
+  immutable goals open. Exact-head CI exposes documentation lifecycle findings
+  and stale driver review; the driver report names 461 changed TCB files, so no
+  review pin is renewed from test results alone. The two recovered historical
+  roadmap notes now carry their required archival lifecycle headers. Complete
+  source discovery selects 8,398 instances; its first conformance case refuses
+  the installed compiler cache version before compiling. The exact official
+  0.18.0 ARM64 artifact is digest-verified in the isolated build workspace. A
+  further preflight correctly refuses the shell's empty loader-path entry;
+  qualification selects explicit absolute library paths without that implicit
+  current-directory lookup. Original admission and version guards stay intact.
+  With that explicit tool and loader selection, all three real compiler-cache
+  conformance cases pass (2.884s), including cold/warm object identity.
+  The full suite separately reproduces a broken system Bazel launcher before
+  its read-only-cache control. Select the repository-pinned 9.2.0 official
+  ARM64 binary with its published digest, retaining fleet-volume startup/cache
+  defaults and every explicitly selected test cache mode.
+  Its real read-only-cache conformance passes (15.588s): cold and warm output
+  hashes match, the warm build is a disk hit, and the shared cache inventory
+  remains unchanged. The isolated launcher forwards standalone version probes
+  without startup flags, as required by the native Bazel argument parser.
+  Parallel worker nesting made the task-specific temporary root exceed Unix
+  socket address bounds. Selecting the shorter temporary base on the same
+  mounted filesystem preserves all four workers, original assertions and
+  deadlines; the three real compiler-cache cases then pass in parallel
+  (3.336s). No cache availability assertion or product admission is relaxed.
+- **Sample slot binding repair (source partial):** Independent resolver-backed review
+  finds that grouping selected Flavors by axis/value loses distinct root slot
+  revisions sharing one target and can substitute dependency-only selections.
+  Bind recipes to the original root lock's exact selected slot/revision pairs;
+  require real resolver controls and unchanged host recipe assertions, followed
+  by independent review. Four actual resolver controls pass independently; the
+  original sample ladder passes six source controls with six declared live/native
+  skips. Native generation and release acceptance remain open.
+- **Sample catalog integration:** Full source qualification now
+  reaches recipe planning and exposes a global one-target-per-Flavor assumption.
+  The application and SDK TypeScript profiles legitimately share a target while
+  retaining distinct coordinates and packaging constraints. Admit distinct catalog
+  coordinates, preserve duplicate-coordinate refusal and required target coverage,
+  and leave selection to the existing lock resolver. Require focused coexistence
+  and duplicate-identity controls and unchanged all-host recipe assertions pass
+  through `make python-check` (six passes, six explicit live/native opt-in skips).
+  Complete source qualification remains the next action before release acceptance.
+- **Current release intake:** Include context-bound roadmap validation
+  [#492](https://github.com/jordanhubbard/literate-ai/issues/492) /
+  [#493](https://github.com/jordanhubbard/literate-ai/pull/493) under
+  PROJECT-LAYOUT-001, and authored wrapper preservation
+  [#496](https://github.com/jordanhubbard/literate-ai/issues/496) under the
+  existing readmission/authority requirements. Include integration review
+  [#497](https://github.com/jordanhubbard/literate-ai/pull/497) and routine CI
+  dependency reviews [#494](https://github.com/jordanhubbard/literate-ai/pull/494)
+  and [#495](https://github.com/jordanhubbard/literate-ai/pull/495).
+  Each remains open until its actual integrated controls and required review/CI
+  pass; these dispositions neither close goals nor move release scope.
+  Integrate the two included action updates into the candidate, preserving their
+  histories. Their pinned commit identities match the respective official
+  `v7.1.0` and `v10.4.0` tag references. Keep Go/uv tool versions and all workflow
+  permissions, conditions and deadlines unchanged; current candidate CI must
+  qualify the composed workflow before landing.
+- **Independent source review (repairs in progress):** The directing user authorizes
+  independent reviewers for the concrete integration. The frozen 462-file
+  review subject, all confirmed findings, required outcomes and repair limits
+  are retained in [the source review record](../../verification/release-1.4-source-review.json).
+  Every open finding remains a release blocker. Complete source inspection and
+  closing review of repairs before renewing any pin; targeted tests alone do not
+  provide review, native/installed qualification or complete-goal acceptance.
+  All 462 frozen source diffs are now independently inspected across disjoint
+  runtime, authority and contracts partitions. Fifteen confirmed findings are
+  recorded; five bootstrap/cache findings have targeted repairs and independent
+  closing review. Remaining findings, every original release goal and native/
+  installed acceptance remain open; no review pin is renewed from these results.
+  The isolated, integrity-verified TypeScript 6.0.3 SDK retains all 140 published
+  files and passes all 35 real compiler controls (134.758s, zero skips). The
+  installed authored-SDK preflight separately refuses this non-macOS host before
+  construction; preserve that prerequisite and obtain its native cell elsewhere.
+- **Roadmap fixture portability:** Current macOS qualification
+  reports seven dependency-fixture errors because temporary roots retain the
+  system directory alias. Reproduce under an aliased temporary parent locally,
+  canonicalize fixture-owned roots before establishing project authority, and
+  retain all cycle, rejected-write and path-redirection refusal assertions.
+  The aliased-parent reproduction fails at the same direct-directory guard before
+  the repair. After fixture-root canonicalization, all 23 roadmap-dependency tests
+  pass under that parent (3.272s), retaining original assertions. Repository
+  formatting and lint pass. Native macOS qualification remains independently
+  required; the latest lab, documentation and sample CI cells separately stop on
+  stale documentation-authority review.
+- **Next release action:** Continue complete local source qualification with
+  admitted build tools, resolve the original authority/driver review drift and
+  exact-head CI failures, and complete the remaining contribution dispositions
+  and platform/action cells. Preserve every original guard, timeout and acceptance
+  requirement; the two historical lifecycle-header defects are repaired.
+- **Interpreter preflight:** The next complete source run reaches
+  117 cases before the self-hosting proof rejects a linked base-interpreter
+  prefix. The reused environment records a package-manager alias as its home;
+  invoking the same Python 3.15.2 executable through its concrete installation
+  reports direct base prefixes. Create an isolated environment from that exact
+  executable on the build volume. Isolated, no-site environment creation avoids
+  startup customization rewriting that home to the alias. All four self-hosting
+  conformance cases pass in 202.024s without skips, retaining the linked-prefix
+  refusal, offline optional-dependency case, descendant timeout, complete file
+  identity and repeated two-generation assertions. This is host selection, not a
+  product guard exception. Repeat complete source qualification in that environment.
+- **Refreshed intake and collateral inventory:** The post-integration sweep has
+  no unclassified open issues or reviews; branch/worktree dispositions and all
+  48 unfinished goals remain open. An initial candidate inventory covers 336
+  tracked documentation/media candidates. Front-door copy truthfully identifies
+  published 1.3.1 and development 1.4 with historical conference labels; every
+  final-candidate, rendered and publication-dependent review remains pending.
+
+- **Operator-guide source review:** The [33-guide ledger](../../verification/current-user-guide-source-inventory.json)
+  records 27 guides reviewed against current source and six earlier-reviewed
+  narratives with unchanged bytes. Three additional bounded audits closed 22
+  findings, including the [first ten-guide group](../../verification/user-guide-source-review-development.json).
+  Corrections cover contained paths, finalized receipts, onboarding, SSH sample
+  overrides, matching wheels, actual Standard/Bazel dispatch, diagnostic output,
+  sample selection, typed candidate replacement and the unavailable live inverse
+  route. The reviewed commands have not been executed as part of these audits.
+  Final-candidate source and command checks, rendered documentation, media, links
+  and the full collateral inventory remain required; no goal checkbox changes.
+
+- **Recovered design execution owners:** The directing user's release-resumption
+  instruction accepts the already-recorded designs in reviews #381, #382, #409
+  and #453. Their canonical records and original source hashes are retained in
+  [the design recovery record](../../verification/recovered-design-authority-development.json).
+  Preserve existing 1.5 deferrals for #321/#323 and #326/#334. Keep the 83-goal
+  manifest, completed initial-selection scope and every existing acceptance
+  prerequisite. The following work remains under the existing owning programs:
+  - [ ] RUST-HARNESS-DEPS-001 / #379: implement and qualify ADR 0069 authoring
+    selection before sealing a new promotion audit, preserving lineage, signed
+    intent, original acceptance and every execution/resource boundary.
+  - **Command renewal current development:** The existing readmission owner
+    exposes bounded complete v3 read-back and acknowledged public command selection,
+    preserving saved v1 and planning-only v2 meanings and every unselected admitted
+    phase. Revalidate current source, selection, ownership, metadata and execution
+    bounds before commands and publication; keep original source custody open until
+    publication inputs close. Neither detected nor explicit command spelling grants
+    compilation coverage. The source CLI's real Clang fixture distinguishes a
+    help-only default from explicit compilation and native result `42`, retaining
+    both original real unit tests in direct and wrapper runs and leaving source
+    unchanged. Existing readmission publication retains original/staged native
+    nodes, durable bounded intent and failed evidence; foreign replacements survive
+    rollback. Pending project metadata requires explicit current-plan recovery under
+    the existing lifecycle lock, including after real subprocess exits or an invalid
+    manifest. [Publication controls](../../verification/readmission-publication-development.json)
+    retain their exact subject and scope. A fresh noneditable macOS wheel at
+    `2b6f5f388bc01baa8f5f6b87466ea3b7ff6c433f` passes the separate initial-selection
+    and post-adoption renewal journeys in 773.755 seconds: actual native result
+    `42`, both original real tests, complete installed request read-back, stale
+    receipt refusal, fresh receipt renewal and unchanged original archive bytes.
+    The first failed fixture attempt remains retained. See
+    [installed development evidence](../../verification/retained-command-renewal-installed-development.json).
+    Refined preparation now reuses the complete adoption validator to compose
+    actual installed owners, retaining unselected owners/phases and shared-source
+    assignments without writing a temporary plan. Complete bounded planning
+    read-back binds original metadata/receipts and current source; nine new
+    controls and 52 existing monorepo/command controls pass. This internal record
+    remains planning-only; its original public refusal is preserved. A distinct
+    v4 outer executable form now composes current project bounds, complete
+    refined-owner read-back and actual scoped journal publication. One public
+    source-CLI attempt against a private copy of the genuine installed initial
+    refinement passes in 1,499.183 seconds within the unchanged 1,800-second
+    deadline: the selected Component executes real compilation and both original
+    tests, and the transaction preserves prior evidence. This is source development,
+    not a fresh v4 installed-wheel acceptance. A separate short, exclusively created
+    artifact directory retains failed staging without adopting occupied names.
+    Fresh installed, contained-layout and independent native acceptance remain
+    required. See
+    [refined preparation evidence](../../verification/retained-component-command-planning-development.json).
+    Current execution controls and their exact scope are recorded in
+    [refined execution evidence](../../verification/retained-component-command-execution-development.json).
+    The `cbf4804e8` source checkpoint has 98 distinct passes without skips or failures.
+    Independent source review identified a missing original root-receipt byte
+    charge in refined preflight. Its valid Make-comment regression reproduces
+    the omission; including the receipt in the complete original input union
+    refuses before commands. Streamed receipt binding and archival now retain
+    every bounded callback chunk without changing the receipt owner's size limit.
+    A separate live journal-guard follow-up rejects Boolean/integer aliasing
+    without omitting any native disk read, namespace check or malformed-record
+    diagnostic. Seven new controls and 28 existing publication controls pass;
+    independent source review finds no further defect in the delta. Its native
+    guard microbenchmark proves no wall-time speedup, so observation-performance
+    completion remains open. See
+    [typed record development evidence](../../verification/readmission-typed-record-development.json).
+    Refined-Component and modern contained renewal, independent acceptance/review,
+    combined source and full native release
+    qualification remain open; keep #366 and all acceptance prerequisites open.
+  - [ ] #366 integration intake: implement and qualify ADR 0070 post-adoption
+    command renewal through the existing readmission owner. Preserve completed
+    ADOPT-BASELINE-COMMANDS-001 / #207 initial selection and all unselected phases.
+  - [ ] NATIVE-ACCEPTANCE-REPAIR-001 / #405: retain the integrated reviewed PR #414
+    implementation and earn every current ADR 0073 source/installed/platform gate.
+  - [ ] LIBRARY-ARTIFACT-001 / #452: implement and qualify ADR 0075 Node SDK
+    composition with exact sealed providers and actual relocated CJS/ESM/type
+    consumers, preserving the ordinary application/npm contracts.
+
+- **Initializer publication compatibility recovery:** The unchanged `1218584d`
+  complete source attempt fails after 1,933 passes and 39 skips because the
+  original exact five-helper transition control detects the newly added finite
+  publication dispatch in `_atomic_replace`. The original failure reproduces on
+  the command-renewal branch. Preserve every earlier helper pair; add only the
+  exact prior-to-publication helper edge and its single direct import, retaining
+  comparison of all other module syntax, source rosters and template mappings.
+  The original six AST controls, five new mutation/refusal controls, all 19
+  historical-provider controls and 43 publication controls pass without skips.
+  The historical Git producer now explicitly predates the publication port and
+  retains every original ownership and real-move assertion. See
+  [scoped compatibility evidence](../../verification/initializer-publication-compatibility-development.json).
+  Independent review and a new complete integrated source/installed/platform gate
+  remain required; no driver or receipt pin is advanced by this recovery.
+
+- **Current-layout allowance compatibility recovery:** The frozen affected-layout
+  attempt ends unchanged with 246 passes, one failure and no skips out of 891
+  selected. The original allowance regression's blanket `os.open` sentinel
+  intercepted journal revalidation, and an endpoint-only probe showed the fixed
+  smaller ceiling was not exhausted before the native reader. A separate actual
+  complete native observation now passes under that exact original ceiling.
+  Preserve it as a positive control; retain the original negative test name,
+  ceiling and before-endpoint refusal by applying explicit unit pressure to its
+  actual shared ledger and proving preparation still fits. All eight existing
+  metadata-replay methods pass in 366.892 seconds; the complete smaller-ceiling
+  control passes in 54.144 seconds. Production accounting, deadlines and G2 caps
+  are unchanged. See [allowance compatibility](../../verification/layout-current-allowance-compatibility-development.json).
+  A fresh consolidated full source/installed run remains required.
+
+- **Whole-source layout control reconciliation:** The frozen 8c428 source attempt fails after 1,944 passes and 39 skips because an older authored-role control requires all canonical storage inside logical source to refuse during preparation. The same failure reproduces locally; all 27 newer source-forest controls pass, explicitly keeping canonical native ancestors fixed while refusing the legacy executor and actual source/destination collisions. Preserve those production guards. Update the older control to observe the fixed forest and require legacy execution refusal before source or metadata effects, retaining native inode/content/absence assertions. The correction passes all 19 authored-role controls and all 27 current source-forest controls without skips, preserving the original control name and production guards. [Exact failures and results](../../verification/layout-canonical-source-forest-compatibility-development.json) retain native inode/content/absence and zero-effect checks. The full failed receipt stays failed; a new complete source gate and installed/native qualification remain required.
+
+- **Promotion audit closure recovery:** Explicitly selecting the legacy locked-promotion fixture exposes a pre-existing missing ordinary-constructor refusal. Current evidence validates generation-closure audit/tree correspondence only inside the Standard-rebind branch. Restore this invariant at the shared typed evidence boundary, preserve all rebind checks and actual qualification gates, and add the original mismatch control to maintained discovery. Retain the initial two-pass/one-failure report; it is not a green compatibility result. The maintained six-case cohort and explicit 24-case legacy/helper cohort pass after repair. This recovery neither changes source/asset admission policy nor grants qualification.
+
+- **Current tracker-link reconciliation (2026-11-22):** The complete forge
+  inventory contains 93 open issues. Twenty-four lacked a current-repository
+  issue link in this roadmap. Record their intake below under this existing
+  release-integration owner; the named narrower owners guide implementation and
+  evidence reconciliation. The issue bodies remain the complete request, including
+  their original refusal and native acceptance cases. This table establishes no
+  completion, design acceptance, scope deferral or replacement of an existing
+  goal. Preserve every current release-goal manifest entry and checkbox. All
+  listed issues remain open pending exact source, independent review, installed
+  qualification and the repository landing workflow where required.
+
+| Current issue | Owning work and next acceptance |
+| --- | --- |
+| [#485 — Source-test child CLIs can exercise a different checkout when an editable interpreter is reused](https://github.com/jordanhubbard/literate-ai/issues/485) | TEST-CACHE-001 / SDLC-001: qualify child CLI origin in matched, mismatched and installed environments. |
+| [#483 — Expose a read-only containment plan for legacy canonical projects](https://github.com/jordanhubbard/literate-ai/issues/483) | PROJECT-LAYOUT-001: qualify the read-only containment plan and retain the complete migration obligations. |
+| [#476 — Recognize in-progress roadmap goals in release contribution sweeps](https://github.com/jordanhubbard/literate-ai/issues/476) | RELEASE-CLOSURE-001: renew in-progress heading coverage without changing the manifest or unfinished goals. |
+| [#469 — Exclude foreign dependency component.json descriptors from migration discovery](https://github.com/jordanhubbard/literate-ai/issues/469) | Integration catalog discovery: exclude foreign dependency descriptors while preserving genuine authored migration refusal. |
+| [#468 — Qualified conversion stage blocks multi-boundary rewrite programs (no child integration, no parent-component qualification)](https://github.com/jordanhubbard/literate-ai/issues/468) | QUALIFIED-CHILD-ADD-001 / AUTHORED-GRAPH-QUALIFICATION-001: resolve both qualified-stage child addition and genuinely authored qualification. |
+| [#466 — Allow native SDK source producers to own build and staging outputs outside source](https://github.com/jordanhubbard/literate-ai/issues/466) | RETAINED-SDK-PUBLIC-001: qualify separately owned native build/output placement, unchanged source custody and real relocated consumption. |
+| [#462 — Avoid ceiling-sized allocations when pinning small input files](https://github.com/jordanhubbard/literate-ai/issues/462) | RETAINED-SCALE-LIMITS-001 / FREEBSD-001: qualify bounded allocation with the complete original corpus and unchanged ceilings/deadlines. |
+| [#461 — Qualify stable metadata across orchestration initialization and refresh on UFS](https://github.com/jordanhubbard/literate-ai/issues/461) | FREEBSD-001 / release integration: resolve initializer publication metadata before current installed refresh acceptance. |
+| [#455 — pip wheel METADATA omits Requires-Python from the locked language toolchain floor](https://github.com/jordanhubbard/literate-ai/issues/455) | Integration Python packaging: project the locked interpreter floor into actual wheel metadata and qualify resolver behavior. |
+| [#454 — pip wheel for portable-application Components ships no importable module surface declared by the specification](https://github.com/jordanhubbard/literate-ai/issues/454) | Integration Python packaging/library authority: resolve the declared import surface and qualify installed consumption. |
+| [#452 — Compose sealed Component libraries into TypeScript npm SDK packages](https://github.com/jordanhubbard/literate-ai/issues/452) | Integration JavaScript/npm composition: qualify sealed provider, package/type closure and relocated CommonJS/ESM/TypeScript consumption. |
+| [#446 — Provide a public configuration surface for privately configured BUILD/TEST tool workers on command receivers](https://github.com/jordanhubbard/literate-ai/issues/446) | WORKER-001 / COMMAND-WORKER-001: qualify private BUILD/TEST receiver configuration through the public surface. |
+| [#443 — How can retained source membership be revised after qualification?](https://github.com/jordanhubbard/literate-ai/issues/443) | Integration retained membership: establish reviewed renewal under specification authority, preserving current receipt requirements. |
+| [#379 — Select reviewed native-child authoring independently of inherited repository lineage](https://github.com/jordanhubbard/literate-ai/issues/379) | Integration native promotion: bind reviewed child authoring independently of inherited repository lineage. |
+| [#368 — Support reviewed local static intake for conservatively excluded credential-free source](https://github.com/jordanhubbard/literate-ai/issues/368) | SOURCE-STATIC-INTAKE-001: preserve credential refusal while qualifying explicit static review. AUTHORED-GRAPH-QUALIFICATION-001 separately owns genuine authored origin. |
+| [#366 — Retained Make build detection can select a help-only default without explicit command admission](https://github.com/jordanhubbard/literate-ai/issues/366) | Integration retained command admission: qualify explicit build selection and supported command renewal. |
+| [#363 — Bind reviewed immutable assets through source promotion](https://github.com/jordanhubbard/literate-ai/issues/363) | SOURCE-ASSET-PROMOTION-001: recover reviewed immutable assets through graph parsing, review, acceptance and lock authority. |
+| [#345 — Native Rust library edges lack supported Cargo provider dependency projection](https://github.com/jordanhubbard/literate-ai/issues/345) | CARGO-COMPAT-001 and native library integration: qualify exact provider dependency projection and nominal shared Rust types. |
+| [#323 — Use GitHub assignees as durable issue work ownership](https://github.com/jordanhubbard/literate-ai/issues/323) | Existing forge disposition: deferred from 1.4.0 to 1.5.0 with proposed ADR 0064 / review #326. Preserve that recorded design/ownership scope and milestone. |
+| [#321 — Support multi-member, cross-provider collaboration with versioned context and per-run receipts](https://github.com/jordanhubbard/literate-ai/issues/321) | Existing forge disposition: deferred from 1.4.0 to 1.5.0 with proposed ADR 0065 / review #334. Preserve the complete collaboration request and its recorded milestone. |
+| [#216 — No path to replace a retained Cargo binary crate with a native Component](https://github.com/jordanhubbard/literate-ai/issues/216) | Integration retained process boundaries: retain the executable replacement and process-protocol requirements; library-only receiving does not close this request. |
+| [#146 — Allow explicit on-demand source-intelligence indexing when automatic provider is none](https://github.com/jordanhubbard/literate-ai/issues/146) | Integration explicit source intelligence: preserve disabled automatic indexing while assessing the separately requested on-demand path. |
+| [#138 — Native Mix intent cannot declare OTP application dependencies](https://github.com/jordanhubbard/literate-ai/issues/138) | ELIXIR-002: qualify exact OTP application declarations and selected-installation include/runtime custody. |
+| [#137 — Native Mix custody rejects Rebar3 Hex dependencies required by Broadway](https://github.com/jordanhubbard/literate-ai/issues/137) | ELIXIR-002: qualify exact Mix/Rebar3 manager, tool, archive and offline runtime closure. |
+
+- **Probe timeout versus UTC freshness control (in progress):** Native Windows
+  shard one correctly reports a timed-out storage probe but completes two UTC
+  milliseconds before its separate observation expiry. The live test incorrectly
+  requires monotonic probe timeout to imply UTC expiry. Preserve the real stalled
+  subprocess, prompt return, timed-out status, observation round trip and
+  fail-closed capacity decision. Use the existing test clock seam to exercise a
+  fresh timed-out observation explicitly and then its exact UTC expiry; verify
+  both timed-out and stale refusal reasons plus the exact TTL binding. Change
+  neither production timestamps nor deadline, expiry or admission policy.
+  A deterministic 1098/1100 UTC counterexample reproduces the invalid assertion
+  while the actual subprocess still times out. All three complete storage E2E
+  controls pass after verifying fresh timed-out and exact-expiry stale refusal.
+  The UTC seam is test data, not a measured explanation for the native clock delta.
+
+- **Windows redundant-termination race (in progress):** Exact `22b0cec23` native
+  job observations capture root PID 6584 with the same creation identity still
+  nonsignaled at cleanup, despite Python's cached exit code being one. The job
+  termination succeeds, then the shared helper nevertheless falls through to
+  another root kill. CPython 3.12's already-terminating permission-error path can
+  cache an exit code without waiting; its later wait then skips the kernel wait.
+  Return after confirmed job termination so the existing bounded caller wait can
+  observe actual root completion. Retain all missing/failed/pending-job fallbacks,
+  unchanged deadlines and descendant controls. First reproduce the cached-exit
+  mismatch in a deterministic model of the documented CPython path; verify both
+  runtime and bootstrap helpers, synchronize their bytes and loader digest, then
+  require independent exact-source review and native unobserved-root confirmation.
+  This root race does not establish complete descendant retirement or explain
+  every earlier cleanup failure.
+  The model reproduces the cached-exit/kernel-signal mismatch before repair.
+  After repair 95 scoped cases pass with eight explicit platform skips: 42 Windows
+  observation/gate/model/fallback cases (four native Windows skips), thirteen
+  bootstrap cases, nine process cases (four native FreeBSD skips), three storage
+  E2E cases and 28 CI-policy cases. Runtime/bootstrap helper bytes are identical
+  and the loader digest matches. Schema, formatting and lint checks pass. Source
+  review and supported authority renewal precede publication of this increment;
+  current-head native confirmation remains required, including an independent
+  uninstrumented root-handle signal check and unchanged descendant controls.
+
+- **Observation-note compatibility repair (in progress):** The early native
+  Windows probe at `04eb81ee6` passes 50 cases with two skips and 27 passing
+  subtests, but its existing diagnostic-failure control rejects the new first
+  exception note. Preserve the original cleanup note ordering: capture the job
+  snapshot before the file-user diagnostic, then append the job note after the
+  original file-user note or its diagnostic failure. Exercise the enabled job
+  collector on portable hosts so the existing original-error and first-note
+  assertions cover this branch without requiring Windows. Native teardown
+  behavior, deadlines and all original assertions remain unchanged.
+  The enabled portable control reproduces the same first-note failure before
+  repair. After repair all 21 observation controls pass without skips, including
+  original exception identity, first-note compatibility and sampling order.
+  Driver/runner, schema, formatting and lint checks pass. Native confirmation
+  of this compatibility repair and the underlying cleanup diagnosis remain open.
+
+- **Windows owned-job lifetime observations (in progress):** Current review CI
+  also fails the descendant-timeout conformance fixture's directory cleanup
+  after its expected timeout (986 passes, 202 skips, one failure in shard one).
+  Preserve every timeout, cleanup and exit assertion. Observe only the exact
+  test-owned jobs at assignment, termination and close, with fixed event/member
+  caps and zero-time process waits. Recheck captured PID/creation identities on
+  failure without retaining process handles across the original lifetime boundary.
+  Job accounting is diagnostic: positive active counts can include references
+  to terminated processes, and root exit does not prove descendant retirement.
+  Do not introduce a cleanup retry, sleep, global process scan or production
+  teardown change without causal evidence. Extend the existing early probe with
+  the unchanged descendant-timeout control; full shards remain mandatory.
+  All 66 local cases pass without skips: 21 observation-interface/lifetime,
+  fourteen gate-isolation, three complete self-hosting conformance and 28 CI-policy
+  controls. The native interfaces are emulated locally; actual Windows snapshots
+  and their causal interpretation remain required. Job hooks are restored before
+  the failure-boundary identity recheck and the separate file-user diagnostic.
+  Every temporary process handle closes within its observation; weak job keys
+  retain no additional job objects. Sampling is capped and cannot prove complete
+  retirement when a member, query, event or identity is unavailable. Observation
+  can perturb timing: a later passing instrumented case alone does not establish
+  the cleanup cause or qualify an unobserved production teardown path.
+
+- **Native fixture Git maintenance race (in progress):** Current review CI
+  `44676240540`, macOS Python 3.11 shard two, fails while copying the shared
+  native repository seed because `.git/objects/maintenance.lock` disappears.
+  Disable automatic maintenance and GC on owned fixture Git commands and bind
+  the same repository-local policy immediately after initialization, before
+  commits or raw product Git calls. Preserve global/project Git configuration
+  outside these disposable fixtures, complete copy checks and all native oracles.
+  Require effective-policy controls against contrary external configuration and
+  fresh native CI confirmation. This evidence does not establish the cause of
+  the earlier missing-loose-object failure.
+  Both real-Git effective-policy controls pass, including unchanged external
+  configuration and copied-repository integrity. The complete removal module
+  passes all 24 cases and native-CI module passes all eleven cases, with no skips
+  or failures. Driver/runner, schema, formatting and lint checks pass. These are
+  local scoped controls; fresh native platform CI remains required.
+
+- **Current Windows CI repair (in progress):** At `f125a89819406c88899229a663e7e9a381e700f1`,
+  shard two reports 933 passes, 239 skips and four subtest errors at deliberate
+  deletion of private Git objects. Make those copied objects owner-writable for
+  the fixture's deletion, then restore original bytes and mode; preserve every
+  missing-object and no-fetch assertion. Shard three reports 819 passes, 145
+  skips and two gate-fixture cleanup errors after child-exit assertions pass.
+  Their serial probe passes. Retain bounded failure-only observations of users
+  of the exact remaining regular log files, preserving the original error and
+  every teardown assertion. Directory-only and unreported holders remain unknown;
+  observer-list retention has not established the locking cause. Run portable
+  interface/lifetime controls and the complete affected modules before review
+  and integration. Include the actual missing-object control in the existing
+  early native probe as well. The original full shards and separate receiver
+  remain required.
+  Final local controls pass all 63 cases: ten diagnostic-interface/lifetime,
+  fourteen gate-isolation, eleven native-CI and twenty-eight workflow-policy
+  cases. The Windows API is emulated locally; subsequent native file-user
+  observations are recorded below. An earlier native-CI setup attempt failed
+  before deletion because a loose object was missing. Preserve that unexplained failure and
+  report bounded storage-layout hints on recurrence; later passes do not establish
+  its cause. The complete `f125a8981` matrix also retains an Ubuntu Python 3.14
+  receiving-admission deadline failure. Inspect its phase observations before
+  changing behavior; keep the existing 900-second allowance and all guards.
+  Its uploaded evidence lacks the existing worker-stderr timing lines. Attach
+  those bounded measurements to the original exception so parallel case reporting
+  retains them. Add aggregate and maximum input-check wall time with fixed-size
+  counters; input guards can overlap subprocess spans, so these timings are not
+  additive. Preserve every admission, timeout and expected-outcome assertion.
+  The command rows describe completed calls only. The local native telemetry
+  attempt fails in the first case's prerequisite `cargo --version` probe before
+  reaching this instrumentation: zero passes and one failure of eight selected.
+  It provides no runtime validation of the telemetry change; preserve its original
+  ten-second deadline and the controller-overload evidence.
+  At `cf3faf39c`, the expanded Windows serial probe passes 39 cases and 23 subtests,
+  with two platform skips. The full parallel shard still reports 825 passes,
+  146 skips and the same two cleanup failures. Failure-only native observations
+  find no reported users of the surviving logs; the directory-only holder remains
+  unknown. Neither result establishes a locking cause or cleanup qualification.
+
+- **Current Windows object-fixture confirmation (scoped):** At exact
+  `cf3faf39c3e511891ecc5b2a7a4f1c504bf83345`, shard two completes with 937 passes,
+  238 skips and no failures. Its retained JUnit record confirms the actual
+  missing-promised-object case passes without a skip, error or failure. JUnit's
+  aggregate includes subtest records and has different counts. This confirms the
+  copied-object mode repair on native Windows; it does not qualify the separate
+  failed cleanup shards or the receiver step skipped after shard-three failure.
+
+- **Exact-head package checkpoint (scoped):** Clean native macOS revision
+  `f125a89819406c88899229a663e7e9a381e700f1` passes offline installed E2E,
+  whole-wheel and install checks. The last two consume the same qualified wheel,
+  SHA-256 `a2462c2716da7003dd604108ed4850c8677e84ec16fcc17dced3e8e3e1a4a4d4`.
+  Actual installed identity migration and optional-parser import controls pass.
+  Closing source revision, tree and clean status match. Live generation and full
+  release qualification remain pending; later changes retain separate bindings.
+
+- **Native boundary fixture controls (in progress):** The early Windows probe at
+  `b43f89fe60590e42a1e12b2b685c919507311373` reports 26 passes, two failures and
+  two platform skips, plus 13 passing subtests. Actual restored-write currentness
+  and all gate teardown controls pass serially; this does not establish parallel
+  shard qualification. The two late Git-boundary fixtures still fail around held
+  lock files. Stage their explicitly known placeholder bytes through Git's index
+  and create a fresh root commit through object plumbing without refreshing the
+  index or reading a Windows-locked byte. Require the released files to equal the
+  committed bytes, retaining owner diagnostics, clean Git state and rollback.
+  Separately, Ubuntu Python 3.14 times out in the no-waitid signal fixture. Its
+  child now establishes an unblocked default SIGINT disposition before readiness,
+  and the test asserts the real group signal call. Parent reaping guards remain;
+  the original CI cause is unproven. Final local update and removal modules pass
+  all 33 cases; serial and parallel process modules each pass nine cases with
+  four native platform skips. These changes require fresh native confirmation
+  and do not qualify a release.
+
+- **Cargo reuse fixture layout (in progress):** Native Windows reached the reuse
+  regression but could not find its library in the obsolete `debug/deps` path.
+  The same failure reproduces locally with installed Cargo 1.100 nightly. Find
+  exactly one fixture library beneath the owned fresh target instead; retain the
+  executable reuse, edited-source rebuild and unchanged-library timestamp checks.
+  All 10 module cases pass on both installed Cargo 1.95 and 1.100 nightly. This is
+  fixture evidence; current-head native and release qualification remain pending.
+
+- **Early native Windows boundary evidence (in progress):** Run the existing
+  currentness, gate-teardown and late Git-boundary controls serially before the
+  third full Windows shard. Preserve pytest isolation, original test bodies and
+  assertions, use a separate short temporary base and retain the probe's reports.
+  The complete shard and separate receiver remain required after the probe;
+  these early controls supply focused native evidence rather than replacement
+  qualification. Diagnose process-observer retention and held-lock Git reads from
+  those actual outcomes before changing production teardown behavior.
+  The final workflow passes 28 local CI-policy controls; native probe and full
+  qualification outcomes remain pending.
+
+- **Windows retained-input change time (in progress):** The native write/restore
+  census case passes modified bytes through an unchanged final payload because
+  Windows path `ctime` records creation time. Capture the native handle change
+  time for regular input files in each opening/closing census and the final
+  physical check. Bind each handle to the no-follow path, preserve every existing
+  stream/topology/budget check, and refuse unavailable or redirected metadata.
+  Require restored-write regressions after both censuses, native API refusal
+  controls and actual Windows confirmation; do not skip or weaken the original
+  native requirement. The deterministic restored-write regression fails the old
+  source. Fourteen currentness/native-interface controls, twelve lexical controls
+  and four retained-input controls pass locally, with one explicit platform skip.
+  The native API is emulated in local interface controls; actual Windows execution
+  remains required before claiming native qualification.
+
+- **Windows CI fixture path budget (in progress):** The actual native Cargo
+  linker reports LNK1104 for a 261-character output path under pytest's default
+  user-cache temporary root. Give each Windows shard a short explicit pytest
+  base under the runner-provisioned temporary directory, and give the separate
+  receiver control a different base so it cannot remove earlier evidence. Keep
+  all native compilation, isolation, test selection and deadlines intact; require
+  workflow-policy checks and actual Windows compilation confirmation. All 28 local
+  CI workflow/profile controls pass; actual native Windows confirmation remains
+  pending.
+
+- **Cargo 1.100 runtime output custody (in progress):** Actual Ubuntu 3.14 CI and
+  Windows native test execution refuse the obsolete `debug/deps` search path.
+  The installed Cargo 1.100 nightly reproduces this locally; the new layout puts
+  artifacts in per-unit output directories. Derive loader roots from the checked
+  compiler-artifact filenames and build-script reports within the owned fresh
+  output, retain compiler-runtime capture, budgets and full closing custody, and
+  refuse reported paths outside that output. Require actual old/new-layout native
+  tests plus the receiving and mutation/refusal controls before qualification.
+  Three native execution controls pass on each installed Cargo 1.95 and 1.100
+  nightly toolchain, including the reported external-artifact refusal. A broader
+  nightly receiving attempt refuses an actual fixture toolchain-environment
+  mismatch before runtime; preserve that refusal and the stable toolchain parser.
+  All eight complete receiving controls pass on installed stable Cargo 1.95,
+  including explicit output custody, native binary mutation and final admission.
+  Stable Cargo 1.100 receiving confirmation remains required from fresh hosted CI.
+
+- **Native removal checkout conversion (in progress):** Hosted Windows linked
+  worktrees refuse unchanged owned files as customized content. Reproduce a
+  fresh Git CRLF checkout, preserve the exact raw working-state binding and
+  actual custom metadata/content, and admit only the committed representation
+  under a finite Git text/EOL policy. Keep transform, index, nested-repository and
+  recovery checks intact; require focused real-Git controls and native Windows
+  confirmation. Independent review caught a filter-execution race in a proposed
+  Git conversion command; the fixture reproduced it. Remove that command and
+  compare only exact normalized LF bytes under recognized text attributes or
+  automatic conversion settings. A configured or raced content filter must
+  never run during planning; raw newline drift after review must still refuse.
+  All 24 local removal controls pass, including fresh CRLF linked checkouts,
+  explicit text/EOL policy, binary-file refusal, static/raced filter non-execution
+  and exact raw-plan drift. Native Windows confirmation remains pending.
+
+- **Catalog provenance timestamp custody (in progress):** CPython 3.12 Windows
+  returns creation time from path `lstat` but change time from descriptor
+  `fstat`. Comparing those timestamps directly rejects unchanged contained
+  provenance. Compare creation time across path/descriptor observations while
+  retaining complete before/after path and descriptor stamps, bounded reads,
+  regular-file identity and redirection refusal. Require a differing-time
+  regression, in-read mutation/refusal controls and actual Windows confirmation.
+  All 22 local catalog controls pass, including the reproduced timestamp
+  difference, changed-descriptor refusal and a real other-file descriptor
+  refusal. Actual native Windows confirmation remains pending.
+
+- **macOS nested interruption (in progress):** Python 3.11 on macOS has no
+  `os.waitid`, so cooperative interruption refuses before notifying nested
+  owners. Use a nonblocking `waitpid` fallback under the existing CPython
+  child-reaping lock; retain an already-exited child's status without signaling
+  its process group. Require live-child, exited-child and lock-custody controls
+  plus the unchanged nested evidence/owned-leaf teardown acceptance. Nine local
+  process controls pass with four platform skips; five ledger controls pass,
+  including direct and bounded nested cancellation with `waitid` removed from
+  the controlling process. Actual hosted macOS Python 3.11 confirmation remains
+  required.
+
+- **Native CI policy line endings (in progress):** Seven Windows journeys refuse
+  a clean committed policy before observing provider jobs. Reproduce Git's
+  automatic LF/CRLF checkout conversion with a real repository, compare policy
+  bytes with only CRLF normalized, and retain refusal of substantive uncommitted
+  changes plus exact closing-snapshot drift checks. Require focused positive and
+  negative controls and actual Windows confirmation before claiming qualification.
+  The real-Git regression reproduces the original refusal; the corrected cohort
+  passes all 11 local controls. Native Windows confirmation remains required.
+
+- **Windows repository backing metadata (in progress):** Native onboarding and
+  cached-parent reads reject private Git objects because Windows directory-entry
+  stat hints report a zero link count. Obtain complete no-follow file metadata
+  before checking the existing single-link invariant; retain rejection of real
+  hard links, redirected objects and non-regular backing files. Require a
+  zero-link-hint regression and actual Windows confirmation. The complete
+  repository-lineage cohort passes nine local controls, including real hard-link
+  refusal and recovery; native Windows confirmation remains pending.
+
+- **Windows release-checkout exit status (in progress):** The native hosted
+  reservation case completes prepare/apply but refuses custody after a gate
+  that should return 11. The gate's local `LASTEXITCODE` sentinel shadows the
+  global automatic variable updated by native commands. Use the global status
+  for initialization and capture, retain every ownership check and terminal
+  receipt, and require actual Windows nonzero-exit/reuse confirmation. Nine
+  local controls pass; the two Windows-native cases remain explicitly skipped
+  on macOS, including the strengthened nonzero-exit/successful-reuse case.
+
+- **Remaining functional CI qualification:** The bootstrap loader's expected
+  digest was not advanced with its reviewed helper. Rebind it to those exact
+  reviewed bytes without weakening tamper checks; all 13 bootstrap controls now
+  pass locally. Fresh Windows and macOS installed checks remain required.
+  Native Linux receiving also refuses a missing target-specific runtime search
+  directory; investigate the actual compile/output layout before changing its
+  custody checks. Windows full shards expose additional repository, native
+  removal and process-lifecycle failures. These are functional qualification
+  work, independent of the non-blocking source-hash false positives.
+
+- **Release-owner false-positive disposition:** The owner directed: "Do not make
+  git guardian's false positives release blockers." The [reproduced provenance](../../verification/release-security-finding-provenance.json)
+  classifies incidents 40026323, 40026324 and 40026325 as source-module SHA-256
+  digests. These verified false positives are informational for release 1.4.0,
+  even while the provider reports failure; provider dismissal is not a release
+  prerequisite. Keep actual security findings, functional CI and platform
+  qualification requirements in force.
+
+- **Windows timeout diagnostic retention (in progress):** [installed-wheel CI](https://github.com/jordanhubbard/literate-ai/actions/runs/44596004648/job/135814808144)
+  exposes missing partial stream identities after a real qualification timeout.
+  The process-tree wrapper drains output after termination but discards that
+  result; Windows supplies its captured streams during this final communication.
+  Retain those streams on the original timeout exception, preserve bounded tree
+  cleanup and synchronize the bootstrap helper. Independent source review admits
+  the correction; focused process and qualification controls give 28 passes and
+  four platform skips. Actual Windows installed diagnostics remain required
+  before closing this correction.
+
+- **Hosted Cargo fixture portability (in progress):** [macOS CI](https://github.com/jordanhubbard/literate-ai/actions/runs/44596004648/job/135814807194)
+  fails before the consumer-launcher drift assertion because `copy2` preserves a
+  package manager's read-only executable mode. The controlled read-only launcher
+  reproduces the same failure locally. Make only the test-owned copy writable
+  before pinning it; preserve the installed tool and both real drift-refusal
+  assertions. Both the read-only-source and ordinary focused cohorts pass five
+  cases; the source launcher remains unchanged. Fresh current-head CI is still
+  required before closure.
+
+- **Current pre-release authority reconciliation (in progress):** [Issue 478](https://github.com/jordanhubbard/literate-ai/issues/478)
+  records that the project/roadmap target 1.4 while executable repository policy
+  still targets 1.3. The public read-only 1.4 release plan refuses with
+  `release.state_mismatch`, and the peer survey classifies the 1.4 review as
+  another release. Use the existing authenticated release-state owner to align
+  the local policy with 1.4; verify before/after public behavior and classification.
+  Retain strict actor, source, contribution, collateral, CI and security gates.
+  This correction grants no merge, release-line creation, tag or publication.
+
+- **Repaired bootstrap evidence admitted:** Independent non-author [admission](../../verification/bootstrap-successor-independent-admission.json)
+  verifies the original source/wheel evidence-owner states and retained hashes,
+  all 3,032 unique source outcomes, 202 macOS and 213 Linux installed controls,
+  37 selected source/installed/archive module comparisons and 880 test inputs.
+  Source proof stays at `50a06b692`; wheel/native proof stays at `59b7ee828`.
+  Publish the reviewed successor through PR437 using normal history and require
+  current-head/resulting-main checks. Native Windows, security dispositions,
+  complete public telemetry/retained transactions and all remaining goals stay open.
+
+- **Bootstrap/inventory successor installed proof:** At exact `59b7ee828`, the
+  complete macOS wheel gate passes all 202 applicable maintained installed cases
+  without skips. Its identical artifact passes all 213 native Linux maintained
+  cases, including the repaired bootstrap and AppArmor inventory, with backed
+  job-local temporary files. [Artifact/source-bound evidence](../../verification/bootstrap-successor-wheel-linux-development.json)
+  verifies all 37 unique selected source/installed/archive module identities and
+  exact fixed cases/fixtures/test inputs. The original `50a06b692` [source gate](../../verification/bootstrap-repair-source-macos.json)
+  now passes all 3,032 unique outcomes: 2,929 passed, 103 declared skips and no
+  failed/known-failed cases, with original step and evidence owner terminal passed.
+  Runtime/schema/test subtrees match the successor; the one installed-case literal
+  change has separate exact-artifact acceptance. Source proof retains its original
+  revision. Windows, public-feed and release acceptance remain open, as do current
+  security finding dispositions.
+- **Contribution-policy intake (pending integration):**
+  [issue #441](https://github.com/jordanhubbard/literate-ai/issues/441) and
+  [PR #442](https://github.com/jordanhubbard/literate-ai/pull/442) cover the optional
+  contribution roadmap-manifest parser rejecting its serialized default. Exact
+  contributor head `4c102f1267e51e4b60d980b00e9516b1f43193a1` has twelve successful
+  reported checks and two platform/profile skips, including the separately named
+  secret scan; this is contributor evidence, not resulting-main qualification.
+  Preserve required milestones, unknown-key refusal and relative-path validation.
+  Integrate the reviewed parser/regressions during consolidation, renew the combined
+  authority through supported commands, then qualify the exact integrated result.
+
+- **Complete maintained inventory successor reviewed:** Independent review
+  approves the [single-case literal correction](../../verification/bootstrap-installed-inventory-successor-review.json).
+  All 24 class/list pairs match exactly, every earlier subject and case remains,
+  and all 27 coding CLI controls pass without skips. Runtime, schema, fixture and
+  validator code remains unchanged. Require fresh exact successor wheel/source
+  and native/integration evidence; the original failed gate remains retained.
+
+- **Complete installed fixture-inventory repair (in progress):** The actual
+  noneditable gate at `50a06b692` rejects the coding-CLI class inventory because
+  its new AppArmor missing-policy control was not added to the literal maintained
+  list. Preserve that failed run and the still-live original source gate. Add
+  the exact missing case, audit every class/list pair, and require independent
+  review plus fresh whole-wheel acceptance. No validator is relaxed and all
+  existing bootstrap/layout cases remain required. Applicable installed totals
+  become 202 macOS, 213 Linux and 172 Windows; prior counts retain their revisions.
+
+- **Current review security findings classified, still pending disposition:**
+  PR437 at `6f807b2a0` reports six GitGuardian occurrences. Independent review
+  recomputes each referenced source module from the exact commit and confirms
+  all six values are three repeated source-byte SHA-256 digests in verification
+  metadata. The [classification](../../verification/reviewed-guard-scanner-digest-classification.json)
+  retains exact occurrence/source references. No credential role is found in
+  these fields. The scanner remains failed pending its supported disposition;
+  no detector exclusion, check override or published-history rewrite is made.
+  This does not resolve the separate historical PR421 findings.
+
+- **Qualification fixture repairs (in progress):** The frozen layout candidate's
+  complete source gate stops at the legacy-evidence migration fixture: its macOS
+  temporary path includes the operating system's `/var` link, which the physical
+  retained-layout resolver correctly refuses. Canonicalize the fixture's owned
+  root before invoking migration; preserve redirected-ancestor refusal in source.
+  PR437's Linux Python 3.11 gate separately reaches the host AppArmor guard during
+  a mocked provider-state journey. Give that fixture explicit owned prerequisite
+  files, exercise the real guard, and retain a separate missing-policy refusal.
+  Reproduce both failures before changing the fixtures, then rerun their complete
+  affected cohorts. No production guard or platform prerequisite is relaxed.
+
+- **Resolved layout composition and harness source review:** Actual merge
+  `add6b0a62` preserves all reviewed runtime, schema, fixture and prior harness
+  bytes from the preview. The new literal installed-layout scope has independent
+  [source approval](../../verification/layout-installed-harness-independent-review.json),
+  with missing-case, byte-mismatch and skip validator controls refusing. All 18
+  maintained layout/update methods pass against the composed source with no skips.
+  Renew supported pins, freeze this candidate, and require fresh installed/full
+  source and exact platform/integration evidence; prior F1 proof keeps its scope.
+
+- **Installed retained-layout acceptance refinement (in progress):** Add all
+  18 maintained declaration/layout/update methods as one fixed required installed
+  scope, preserving the existing 170 applicable macOS controls and 181 Linux
+  controls. Verify all nine composed runtime modules against source and archive,
+  keep exact case inventory and unchanged fixture/Python-input checks, and reject
+  skips in an applicable scope. Native alias fixtures require the target's actual
+  link facilities; do not relabel missing platform proof as a positive. Require
+  review of the extended harness before supported pin renewal.
+
+- **Earlier guard acceptance recorded:** At exact `d2dfad220`, the complete macOS
+  [whole-wheel gate](../../verification/reviewed-guard-whole-wheel-macos.json)
+  passed with 170 maintained installed controls. The identical artifact passed
+  all 181 [native Linux installed controls](../../verification/reviewed-guard-installed-linux.json)
+  with zero skips, including eleven real-process observations. The first Linux
+  attempt retained one storage-accounting assertion on tmpfs; a real-filesystem
+  control measured zero accounted bytes there and 4 MiB on the backed job volume.
+  The full unchanged cohort passed with job-scoped backed temporary files. No
+  runtime, test or metric semantics changed. [Documentation and static skill admission](../../verification/reviewed-guard-documentation-skills.json)
+  passed four OpenSpec items, 181 diagrams across 1,953 Markdown files and 164 skills.
+  These are exact earlier-candidate results and do not qualify this larger union,
+  a complete Linux wheel gate, native Windows, the public feed or the release.
+
+- **Layout and reviewed guard composition (in progress):** Preserve the frozen
+  `d2dfad220` source gate and exact wheel/native development evidence. Compose
+  independently reviewed retained-layout structural resolution and read-only
+  planning at `e6dfaa4f0`, including complete-read and ancestry custody repairs,
+  through ordinary history in a separate candidate. Independent runtime preview
+  review approves tree `8f09a0ed8`; revalidate actual resolved runtime hashes before
+  supported pin renewal. Preserve all current goals and three metadata-conflict
+  inputs. Add the 18 maintained layout/update controls to installed qualification,
+  then require fresh complete combined source/wheel/native/exact integration.
+  This includes a partial foundation, not completed placement apply or relocation.
+- **Reviewed guard batch qualification:** Exact source `d2dfad220` accounts for
+  all 3,001 unique outcomes: 2,898 passed, 103 declared skips, no failures or known
+  failures, with original wrapper and evidence owner terminal passed. Its complete
+  noneditable macOS wheel gate passes with 170 maintained installed controls; the
+  identical wheel passes all 181 native Linux installed controls, including eleven
+  original-process observations. All applicable scopes have zero skips. Source,
+  installed and archived bytes match across 26 unique selected modules; the three
+  telemetry schema resources match source and archive. The initial Linux tmpfs
+  storage-assertion failure remains retained; the full unchanged cohort passes
+  with backed job-local temporary files after a real filesystem counter control.
+  Four OpenSpec items, 181 diagrams over 1,953 Markdown files and 164 static skill
+  admissions pass. [Source](../../verification/reviewed-guard-source-macos.json),
+  [wheel](../../verification/reviewed-guard-whole-wheel-macos.json),
+  [Linux controls](../../verification/reviewed-guard-installed-linux.json) and
+  [documentation/skills](../../verification/reviewed-guard-documentation-skills.json)
+  retain exact scope. Publish this independently reviewed batch through PR437 and
+  require exact-head/resulting-main checks. Larger retained-layout composition,
+  complete public telemetry, real selected-model/native Windows and all remaining
+  release/feature requirements stay open; no release attestation is claimed.
+
+- **Installed harness source review:** [Independent review](../../verification/installed-guard-harness-independent-review.json)
+  approves the exact fixed-inventory extension. Missing-case, installed/source
+  byte-mismatch and injected-skip reports refuse; synthetic report controls prove
+  validator behavior only. Actual editable invocation refuses before cases.
+  All 24 reviewed runtime/schema/test entries stay unchanged. Renew supported
+  pins, freeze this combined candidate, and run complete source and whole-wheel
+  qualification; actual installed and platform results remain pending.
+
+- **Installed guard acceptance refinement (in progress):** Extend the existing
+  fixed maintained-control harness to cover all 15 CUDA inventory controls, the
+  26 reviewed POSIX coding-CLI/state controls, and the 89 telemetry controller
+  controls from this union. Linux process controls run separately on Linux;
+  POSIX process/file-limit fixtures stay explicitly unavailable on Windows.
+  Require noneditable isolated imports, exact production/source/archive bytes,
+  fixed full case inventories and unchanged maintained Python inputs, with no
+  silent skips inside an applicable scope. Schema tests exercise maintained
+  schema inputs; they do not alone qualify installed schema resources. Retain
+  complete whole-wheel resource checks and all remaining native platform gates.
+
+- **Frozen source gate completed:** Original revision `79af4dfce` accounts for
+  all 2,893 unique outcomes: 2,801 passed, 92 declared skips, no failures or known
+  failures. Its original wrapper step and evidence owner both closed passed;
+  no suite restart was needed after disk recovery. [Terminal source proof](../../verification/pre-guard-combined-source-pass.json)
+  preserves its exact scope. [Independent composition review](../../verification/reviewed-guard-composition.json)
+  separately approves the later guard union at `146a8ca46` with 24 matching
+  reviewed path entries and no unreviewed production/schema changes. This does
+  not yet qualify the new union or its expanded installed harness.
+
+- **Reviewed guard composition (in progress):** Compose the independently reviewed
+  CUDA attribution repair at `09a7bc7c0`, Codex owned-process cleanup at
+  `ad2550a30`, and telemetry deadline/publication repair at `cb866f11c` through
+  ordinary histories. Preserve the original frozen `79af4dfce` qualification and
+  its exact evidence scope; it does not qualify this larger union. Require exact
+  runtime/schema hash preservation, deliberate union of roadmap and changelog
+  conflicts, renewed supported pins, then complete source and noneditable-wheel
+  acceptance with maintained installed controls before exact-head/main gates.
+  All partial-feature and native platform requirements remain open. The fresh
+  survey retains 68 open issues and 26 open reviews; no scope is deferred. The
+  worktree-location helper refuses the large registered listing; use the explicit
+  user-directed worktree root without relaxing its guard or collecting state.
+
 - **Transport/error integration in progress:** Preserve reviewed PR400 and PR406 runtime bytes and PR407 installed continuation fixture through ordinary histories in [PR #411](https://github.com/jordanhubbard/literate-ai/pull/411) on `integrate/14-transport-errors`, based on landed root-promotion main `274b35f9d`. [Independent composition review](../../verification/transport-error-integration-review.json) confirms only the contributed remote runner and typed error mapping differ from main, both byte-identical to their reviewed historical source. Require fresh complete source/noneditable wheel, installed controls and exact-head/resulting-main gates. CUDA attribution repair remains required separately in draft PR410 with independent source review pending; no release goal is deferred.
 
 - **Current Linux batch qualification:** [Sanitized source/installed proof](../../verification/transport-error-integration-linux.json) binds source `c7a8d308b`, 2,780 selected cases (2,680 passed, 100 declared skips, no failed/known-failed), all raw worker terminal events, the complete noneditable wheel gate and 26 maintained installed controls with zero skips. All 568 imported framework origins are noneditable; checked runtime module bytes match source and archive, distribution identity stays unchanged, and both continuation scenarios preserve historical cache bytes across four admissions, builds and runs. Strict fast gates, 22 documentation tooling methods, four OpenSpec items and 181 rendered diagrams pass. Exact-head CI and resulting-main qualification remain open.
 
+
+- **Current representative round-trip gap:** A fresh noneditable installed-wheel Python attempt accepts actual Codex generation, builds with the canonical digest-addressed Bazel tool, passes generated tests and the independent original domain oracles, then refuses standalone `spec derive --translator coding-cli` with `model_translation.source_intelligence_disabled`. `_derive_standalone` refuses that path unconditionally; changing the project indexing policy cannot enable it. Preserve the exact failed attempt and its native baseline evidence rather than treating a static translation as a passing model-backed inverse gate. Reconcile this representative command against the existing bidirectional qualification authority; no roadmap acceptance or release scope is removed. A separately signed static library fixture exercises only the supported genuine model-forward/parity diagnostic path for QUALIFICATION-DIAGNOSTICS-001.
 
 - **2026-11-07 reviewed fix integration:** The combined Go runtime-test, bounded library-import, module-source inventory and Git 2.43 staging repairs are retained at runtime source `308f98efd7ec9a04075f0907415ab49ce0055725`. A fresh managed full run independently accounts for all 2,739 selected cases: 2,621 passed, 118 explicit skips and zero missing outcomes. The canonical noneditable wheel journey passes, and all 15 focused controls pass against the exact installed wheel outside the checkout with no skips. The accepted ADR 0062/0066 main integration changes only documentation and roadmap authority; runtime, tests, Flavors, skills and template bytes remain identical. See [the bounded source/artifact review](../../verification/1.4-fix-integration-review.json). Exact combined-head platform CI, main verification, remaining milestone features/native gates and publication remain open.
 
@@ -21747,16 +25802,30 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 - **Accepted designs:** The directing user explicitly accepted [ADR 0054](../decisions/0054-reviewed-retained-cargo-compatibility.md) and [ADR 0055](../decisions/0055-command-addressed-worker-reachability.md) for 1.4 on 2026-11-02. CARGO-COMPAT-001 owns #222–#226; COMMAND-WORKER-001 owns command-addressed reachability. ADRs 0056–0059 were also explicitly accepted for 1.4 on 2026-11-03 ("Accept all four ADRs"); #217, ADOPT-RELOCATE-001, RETAINED-TREE-EXPLORER-001 and WORKER-TELEMETRY-001 retain their recorded implementation and evidence scope. Their implementation and qualification remain open. FreeBSD SDK qualification and the Daemonarchy unblock take priority in execution order; neither accepted design is deferred from 1.4.
 
+
+- **Current dev composition (in progress):** [Source-union audit](../../verification/roadmap-batch1-source-union.json) retains the exact contributors for bootstrap PR333, optional A2A guidance, Windows/export PR428, Cargo observation PR435 and CUDA PR398. Production source merges without content conflicts; changelog and newer roadmap records are retained, and the original bootstrap 1.5 preparation target and unassigned A2A target are unchanged. Canonical review identities bind the combined source. The standalone bootstrap precursor `770140dc9` passes 2,788 selected source cases (2,699 passed, 89 declared skips, no failures; exit0) and the complete noneditable wheel, but those passes do not qualify this later combined tree. Next: complete the combined focused/source/wheel and exact integrated gates. No existing release requirement is deferred or parent goal closed.
+
+
+- **Qualification environment correction:** The first combined full gate stops after247 cases on an exact action-receiver identity refusal (Make exit2). The controller used the bootstrap checkout's editable interpreter while its source path selected the batch; a sanitized child correctly observed different installed source. With unchanged `ff1c5c4e2` source, the named receiver test fails in the other-checkout environment and passes in the new batch-owned Make environment. No production identity or custody guard changed. Preserve the first report and start a new, clean checkpoint/report rather than treating resumed execution as final qualification. Separately, optional A2A precursor `ddc70ac5b` passes the complete noneditable wheel (`1bff32f1fa6ef72c90901f68da35b31e3c653a26e30de00c19e531e10e281243`); its canonical skill and initializer module rehash exactly from the retained artifact. This does not qualify the combined batch or claim live A2A execution.
+
 ### [ ] OPENCODE-COMPAT-001 — Support both OpenCode v1 and v2 command-line interfaces
 
 - **Priority:** P1
 - **Owner:** Framework core coding-CLI adapter, host-install Flavors, and setup documentation; PROJECT Goals 1, 3, and 4
 - **Direction:** Support both v1 and v2 of the OpenCode command line without requiring existing v1 users to migrate.
-- **Conclusion:** Select a compatible invocation and isolation profile from the exact executable capabilities. Current generation and preflight require the v1 --pure and --dir help surface; published v2.2.5 help omits both and defaults to a shared background service. Preserve supported v1 behavior and qualify v2 with a private server, explicit workspace custody, provider credentials, bounded diagnostics, and deny-by-default tools. Supported legacy configuration translation alone does not establish equivalent isolation. The adapter implementation and macOS native checks now cover both interfaces; v2 uses fresh provider state and process environment credentials, while v1 retains saved logins. Broader installed/native qualification remains open; no release target is assigned.
+- **Conclusion:** Select a compatible invocation and isolation profile from the exact executable capabilities. Current generation and preflight require the v1 --pure and --dir help surface; published v2.2.5 help omits both and defaults to a shared background service. Preserve supported v1 behavior and qualify v2 with a private server, explicit workspace custody, provider credentials, bounded diagnostics, and deny-by-default tools. Supported legacy configuration translation alone does not establish equivalent isolation. The earlier adapter and macOS native checks cover both command interfaces; V2 uses fresh provider state and process credentials. A later controlled V1 run found ambient global instructions and an enabled MCP could load before tool restrictions. The current repair narrows import to supported selected API profiles; stored refresh and SDK compatibility still require native ownership or typed refusal. Broader installed/native qualification remains open; the existing SDLC-001 release goal owns this security slice, without closing the broader compatibility item.
 - **Depends on:** none
 - **Completion prerequisites:** none
-- **Next action:** Qualify installed/native v1 and v2 generation on the remaining supported platforms, then renew fresh release evidence; local development repair coverage is complete.
+- **Next action:** Qualify the reviewed composition and installed V1/V2 profile,
+  then renew the remaining native platform and release evidence. The local
+  security repair at `57d31db17` passes the complete source gate and maintained
+  real V1/V2 loopback controls; it does not close refreshing-login/SDK compatibility
+  or another platform. SDLC-001 retains this current-release security slice.
 - **Implementation:**
+  - [x] Isolate V1 discovery/state before its first child, project only the selected
+        provider and supported API authentication, and preserve the V2 private profile.
+        Keep unsupported stored refresh/integration cases explicit and user state
+        unchanged; do not introduce a parallel OAuth manager or silent fallback.
   - [x] Resolve PR #228 conflicts with current `main`, preserving both branches' changelog entries and implementation changes. Recompute reviewed lifecycle-driver and documentation identities for the integrated tree; run focused OpenCode regression and authority checks before pushing.
   - [x] First capture pinned v1 and v2 CLI help/configuration contracts and define capability detection, version-specific command construction, and fail-closed diagnostics for unsupported executables.
   - [x] Preserve the v1 invocation and add a qualified v2 invocation with --standalone, supported working-directory and logging controls, and version-appropriate configuration/environment handling; preserve executable identity, detached workspace, permission, and credential boundaries.
@@ -21824,6 +25893,16 @@ Windows OpenCode qualification and fresh release evidence remain open. Review:
 
 PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471fec3a8121185` and preserved both changelog entries. No implementation conflict required editing; all three independently reviewed OpenCode source hashes remain unchanged. Recomputed the combined lifecycle-driver pin and documentation marker; both review checks pass. Managed `make python-check` passes five OpenCode regression tests (two native tests skipped because explicit binaries were not selected) and all eight project CLI tests. Host path policy and diff whitespace checks pass. `litai verify` passes authority, skips the three unselected gates, and retains the existing stale project receipt without claiming new lifecycle qualification. Configured start/end peer surveys still fail through the GitHub alias; direct read-only PR inspection succeeds. Unrelated worktrees remain untouched.
 
+- **Local private-profile qualification:** [Sanitized source/native proof](../../verification/opencode-private-profile-local-source.json)
+  records `57d31db17`: all 3,183 selected cases finish with 3,082 passes, 101
+  declared skips and no failures in 2,694.916s Python time. All 13 reviewed
+  subjects stay exact and supported driver/documentation reviews are current.
+  Real V1.19.5 and V2.2.5 CLIs pass the maintained owned-loopback write and
+  outside-read refusal controls; both exact binary hashes bind before/after the
+  receipted run. These are local development results, not paid model, installed,
+  other-platform or release qualification. Broader acceptance remains open.
+
+
 ### [ ] A2A-001 — Guide agents to use connected A2A peers without adding framework orchestration
 
 - **Priority:** P2
@@ -21832,16 +25911,20 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
 - **Conclusion:** Extend PROJECT.md Goals 1, 2, and 4 through optional agent guidance. The host owns A2A connections, authentication, discovery, conversations, and remote task management; the coordinating agent delegates bounded work and records consequential decisions in the configured tracker. Literate AI retains locked derivation authority, execution authorization, artifact custody, and independent acceptance. No native A2A client/server, discovery service, second scheduler, required A2A dependency, or release commitment is introduced by this item. A future headless dispatch requirement needs a separate proposal through existing provider/dispatch boundaries.
 - **Depends on:** none
 - **Completion prerequisites:** none
+- **Next action (in progress):** Complete public noneditable distribution and integrated qualification of the authored guidance, preserving the original editable-origin refusal. No live A2A capability is claimed.
 - **Implementation:**
-  - [ ] Define the optional A2A policy in docs/architecture/agent-ledger-boundary.md, preserving ADR 0050: forge issues remain the default durable coordination record unless explicitly overridden.
-  - [ ] Add a compact nested agent skill, catalog routing, and canonical initialized-project guidance for host-exposed A2A peers. Use only available, authorized connections; honor delegation restrictions and task/data scope; leave connection setup and protocol operations to the host. The first action is to author this boundary and skill guidance.
-  - [ ] Document bounded delegation inputs and expected deliverables, peer suitability, host-managed timeout/cancellation, and a local continuation path when no suitable peer is available; do not silently broaden scope or duplicate completed remote work.
-  - [ ] Treat peer responses as candidate inputs. Promote requirement/interface/instruction changes only through reviewed, pinned authority; do not introduce hidden generation dependencies, expose dependency-private context, or treat an Agent Card capability claim or completed A2A task as execution permission or passing evidence.
-  - [ ] Preserve exact artifact verification and normal lifecycle gates for returned work. Correlate remote tasks/results in operational records without making conversation or task IDs semantic generation/cache inputs.
+  - [x] Define the optional A2A policy in docs/architecture/agent-ledger-boundary.md, preserving ADR 0050: forge issues remain the default durable coordination record unless explicitly overridden.
+  - [x] Add a compact nested agent skill, catalog routing, and canonical initialized-project guidance for host-exposed A2A peers. Use only available, authorized connections; honor delegation restrictions and task/data scope; leave connection setup and protocol operations to the host. The first action is to author this boundary and skill guidance.
+  - [x] Document bounded delegation inputs and expected deliverables, peer suitability, host-managed timeout/cancellation, and a local continuation path when no suitable peer is available; do not silently broaden scope or duplicate completed remote work.
+  - [x] Treat peer responses as candidate inputs. Promote requirement/interface/instruction changes only through reviewed, pinned authority; do not introduce hidden generation dependencies, expose dependency-private context, or treat an Agent Card capability claim or completed A2A task as execution permission or passing evidence.
+  - [x] Preserve exact artifact verification and normal lifecycle gates for returned work. Correlate remote tasks/results in operational records without making conversation or task IDs semantic generation/cache inputs.
 - **Evidence:**
   - [ ] make skills-check passes and canonical/template guidance remains consistent, with no required A2A SDK, service, credential, endpoint, or project-local connection configuration.
   - [ ] Review or exercise guidance scenarios for suitable connected peers, no A2A support, unavailable/unsuitable peers, prohibited delegation, and timeout/cancellation; absence of A2A does not prevent ordinary local work.
   - [ ] Boundary review confirms bounded context sharing, durable tracker handoffs, reviewed authority changes, unchanged generation/cache identity rules, and independent validation of returned artifacts; A2A completion alone never satisfies litai acceptance.
+
+
+- **Development evidence (2026-11-12):** [Guidance and initialization record](../../verification/a2a-guidance-development.json) binds the identical canonical/template skill, actual initialized-project filesystem and root/parent routes. All 28 maintained agent-entrypoint/reparenting tests pass on macOS/Python 3.14, including the new actual distribution regression. Configured canonical skill admission, changed-Python Ruff checks and project validation pass. The documented scenario review covers suitable, absent, unsuitable and prohibited peers, unresolved cancellation and candidate-only completion. The direct editable public CLI probe refuses ambiguous Git origins; no guard or remote configuration was changed, and no public installed or live-peer acceptance is claimed. An unconfigured direct evaluator attempt was incomplete because Gitleaks is absent; the separate canonical admission gate passes its configured checks. Complete source/installed and integrated acceptance remain open.
 
 ### [x] IGNORE-LIFECYCLE-001 — Keep lifecycle lock state out of initialized and updated Git projects
 
@@ -21932,7 +26015,14 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
   - [x] Reconcile pinned generation guidance with independently selected overlapping inputs while keeping verifier-owned expected answers private.
   - [ ] Complete the fresh installed registered-child journey and original refusal/recovery controls with its unchanged independent oracle.
 - **Evidence:**
-  - [ ] Pass singleton positive, invented/duplicate/missing input, false exemption, stale authority and private-oracle controls plus unchanged v1/default-domain coverage.
+  - [x] Pass singleton positive, invented/duplicate/missing input, false exemption, stale authority and private-oracle controls plus unchanged v1/default-domain coverage.
+    The 16 maintained generated-test and evidence controls passed against the
+    noneditable intermediate wheel from `96c404e18` with no skips. All 242
+    imported framework modules resolved inside its installed package. The
+    committed [installed journey](../../verification/zero-argument-installed-development.json)
+    separately records an actual generated library, one valid empty invocation,
+    the unchanged independent oracle, stale-registry refusal and recovery.
+    Renew the integrated candidate and required native/CI cells before closure.
   - [ ] Pass full regression, installed-wheel qualification and exact review/main CI before claiming issue 132 or dependent issue 48 complete.
 
 ### [x] RUST-ADOPTION-DETECT-001 — Detect Cargo workspaces ahead of incidental helper languages
@@ -22085,7 +26175,7 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
   - [x] Define strict integer limits and finite hard caps, preserve absent-policy serialization, and document the policy and compatibility trade-off.
   - [x] Propagate project limits through catalog traversal, revalidation, lock-input capture and project validation with observed/allowed diagnostics.
 - **Evidence:**
-  - [ ] Prove unchanged default refusals, opt-in loading beyond legacy ceilings, exact-bound refusal and policy drift; run affected schema/lock/validation regressions.
+  - [x] Prove unchanged default refusals, opt-in loading beyond legacy ceilings, exact-bound refusal and policy drift; run affected schema/lock/validation regressions.
   - [ ] Measure real retained FreeBSD catalogs: load time, memory, lock resolution, litai verify and project validation before declaring issue 234 complete.
 
 - **Development evidence:** The repaired 32-case lock/project/schema regression
@@ -22106,11 +26196,28 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
   verified. These measurements use the exact older installed framework
   distribution `sha256:c406baabf26004043ebc68bedf1beae473c7f57b62cc3396cc5d2b8ee184548a`;
   they are not qualification of the latest integrated commit.
-  The original public verify attempt hit its 900-second deadline and remains
-  failed evidence. A fresh independently reviewed native public verify attempt
-  now uses the directing user's 10,800-second bound and was confirmed live under
-  its kernel supervisor. Its result, native dependency evaluation, live retained
-  input admission and exact integrated release qualification remain pending.
+  The original public verify attempt timed out at 900 seconds. The retry
+  finished in 1,727.836 seconds with peak RSS of 948,920 KiB. Project and
+  documentation authority and both committed locks passed. The missing project
+  test receipt correctly failed verification. The terminal output SHA-256 is
+  `bc38e5e6dd652cb0c08e5158ce7c0e6624651ed17d88ec7f6e63166dd5037a8c`.
+  [Terminal ports measurement](https://github.com/jordanhubbard/literate-ai/issues/234#issuecomment-6606638264).
+
+- **Source-tree measurement and remaining acceptance.** The downstream
+  installed-wheel probe captured 115,250 regular source files in 75.96 seconds
+  and revalidated them in 19.09 seconds. It refused 40 oversized files and
+  excluded 138 tracked symlinks from generation authority. Its default-policy
+  control refused file 1,025. The consumer still needs an authored source
+  Component catalog for the full public lock, validate and verify journey.
+  Reuse the ports measurement and reproduce on the exact release candidate
+  when the consumer catalog and lifecycle evidence are available.
+  [Downstream receipt at its introducing commit](https://github.com/jordanhubbard/daemonarchy/blob/ecf6e7b0ae9d6561cdc90d8ccb2bd35e16ca4ebe/verification/framework-v2-scale-20261111.json).
+
+- **Bounded framework evidence.** On 18 November, all 21 cases passed across
+  `test_project_scale_limits`, `test_pinned_input_closure`,
+  `test_component_lock_planning`, `test_schema_catalog`, `test_project_verify`
+  and `test_schema_catalog_check_scope`. This closes the default and opt-in
+  framework evidence criterion. Complete source-catalog qualification remains open.
 
 ### [ ] HTTP-CACHE-REFERENCE-001 — Provide a bounded reference HTTP shared-cache service
 
@@ -23076,6 +27183,1304 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Recovered current composition (in progress):** Preserve all 171 inventoried
+  recovered files and their complete history while composing with the current
+  native candidate. The shared adoption, catalog and receiving owners retain both
+  contained framework coordinates and bounded original publication/custody guards.
+  Seven focused cells pass 128 tests without skips, including actual native update,
+  catalog staging, source currentness and contained wrapper drift refusals.
+  [Composition evidence](../../verification/retained-layout-current-composition-development.json)
+  records the original merge failures and exact source/report identities.
+  The combined source ladder then reaches an obsolete provenance-reader call
+  in the original catalog finalization case (634 passes, 34 skips, one error).
+  Port that writer to the current bounded source-record and ancestry readers;
+  retain its original ledger, publication and finalization refusals.
+  All 32 original native finalization, source-lease and provenance-publication
+  controls pass without skips; [scoped repair evidence](../../verification/provisioning-deadline-current-catalog-development.json)
+  does not close combined source, contained-layout or release qualification.
+  The renewed exact source ladder then reaches 707 passes before an original
+  negative fixture fails under the controller's private `077` umask: requesting
+  a `0755` directory creates a valid `0700` directory. Set and assert the actual
+  requested fixture permissions explicitly; keep the production private-mode
+  refusal and occupied-directory preservation requirements unchanged.
+  Renew the complete combined source and three-generation native journey before
+  any whole-feature, installed, platform or release claim. Current independent
+  implementation review and normal exact-head delivery remain outstanding.
+
+- **Structural renewal and qualified admission (in progress):** Genuine nonroot
+  readmission now feeds qualified retained receipts and operation-local Cargo
+  contexts. Match the actual declaration, fresh complete baseline/parity phase
+  source observations, inventory/wrapper bytes and current selected wrapper lock.
+  Bind declaration identity into admission, preserve prior lift evidence, refuse
+  old candidates and pending authority, and keep the live declaration pinned.
+  Close actual bound directories, complete selected pinned inputs, declared source
+  paths and known onboarding/document/skill inputs after all catalog and project
+  authority reads. Independent review approves the exact local POSIX declared-source
+  scope and all fourteen maintained admission methods; the complete affected run
+  is recorded in [development evidence](../../verification/retained-layout-qualified-admission-development.json).
+  The configured full-source receipt remains stale. Candidate files remain
+  historical observations whose promotion separately requires current authority.
+  Source-scope refresh and schema-only migration now locate the actual declared
+  nonroot source before readmission. Their shared read-only observation binds
+  lift/declaration/wrapper inputs and ancestry without admission. Refresh retains
+  exact acknowledgement and historical reports; migration backfills scope without
+  fresh report bindings. Original parsed/native inputs and final source/metadata
+  facts close after payload reads. Nested policy/review guards run after private
+  output fsync immediately before replacement, preserving foreign edits. Independent
+  review approves this local structural-consumer scope and all seventeen maintained
+  methods, including actual nested publication refusals; the final 114-method
+  affected run is recorded in [development evidence](../../verification/retained-layout-structural-consumers-development.json).
+  Native rewrite planning now uses genuinely readmitted declared nonroot source
+  and its current selected wrapper, preserving custom progress while reconciling
+  recognized generated locations. Its complete actual selected pinned inputs close
+  after final lock/layout reads. Monorepo inspection refuses old installation/layout
+  bindings; acknowledged refresh runs every retained Component at the current source
+  after a layout change and publishes a new declaration-bound installation. Legacy
+  projects keep schema @1 and reuse current Component evidence. Complete original
+  installed file and parent facts remain bound across final reads and writer handoff;
+  pending and foreign changes refuse while preserving unresolved state. Independent
+  review approves the exact local consumer scope and eighteen maintained methods.
+  The final 163-method affected run and reviewed subjects are recorded in
+  [development evidence](../../verification/retained-layout-program-consumers-development.json).
+  The live source phase now composes current-provider initializer roles, held
+  canonical project/Git controls and registered independent children with a complete
+  explicitly bounded namespace. Unknown entries and shared ancestors remain visible;
+  cross-role links refuse. The immutable live owner closes original project and
+  external private facts after payload reads, journals its observation and is spent
+  before a normal source move. Original retained manifest bytes select initializer
+  templates; inactive endpoints, unproduced starters and foreign audit targets refuse.
+  Provider-origin changes revoke the current-provider join; saved labels grant no
+  rights. Supported historical producers can now borrow an actual local provenance
+  checkout and prove their original path roster through exact bounded Git objects.
+  Their original Flavor resources select endpoints, independently of checkout HEAD
+  and today's catalog; unsupported producer shapes and missing objects refuse.
+  Project/provider payload and path budgets are shared, and currentness streams
+  through a separately reserved buffer. The original provider configuration and
+  interpreter facts close after final project inventory. Original-provider
+  [development evidence](../../verification/retained-layout-provider-development.json)
+  retains the exact supported producer scope. Versioned structural helper
+  fingerprints now preserve those same five reviewed transitions across native
+  Python 3.11/3.12/3.13/3.14 syntax probes; this does not qualify the full framework
+  on those runtimes. Exact [portable-profile evidence](../../verification/retained-layout-ast-development.json)
+  retains the source checks and unchanged transition set. Original initializer
+  ownership now decodes its bound checkpoint through the canonical update parser
+  and charges checkpoint records into shared metadata and entry budgets. The local
+  75-method update/ownership/provider run and six-method scoped Make run pass;
+  [checkpoint observation evidence](../../verification/retained-layout-checkpoint-observation-development.json)
+  retains the exact scope. Saved checkpoint rows remain data, not adoption or
+  ownership authority. Actual source-backed framework updates now issue a bounded
+  live handoff for selected and verified unchanged/current roles, adopted additions
+  and reviewed overlays. Fresh source plans bind the exact post-update checkpoint
+  and nonce, and consume the same actual participant once. Strict removals retain
+  original nodes and durable intents in an explicit private directory; changed or
+  foreign state refuses without blind rollback. Ownership ends before actual
+  descriptor teardown, including exceptional exits. Independent source review
+  closes all three findings; all 142 affected methods and the scoped Make run's
+  28 maintained methods pass without skips. Exact reviewed subjects are retained in
+  [update-handoff development evidence](../../verification/retained-layout-update-handoff-development.json).
+  This remains the internal normal nonroot POSIX source-provider profile; complete
+  framework alias-group mutation ownership and durable restart/history are open.
+  Actual catalog-copy planning is now source reviewed: it binds complete bounded
+  destination/selected-source namespaces, canonical selector/DAG inputs and their
+  final native facts before any effect. All 37 affected methods and the scoped
+  Make runner's 20 planning methods pass without skips. Independent review closes
+  the late-traversal finding; all traversals precede final original native closure.
+  Exact subjects and failed/closing controls are retained in
+  [catalog-copy planning evidence](../../verification/retained-layout-catalog-copy-plan-development.json).
+  Private catalog materialization is now source reviewed. It expands internal
+  aliases under shared limits, streams actual canonical copy outputs into exclusive
+  private nodes, and retains intent, completion and partial stages in the durable
+  journal. Actual journal/factory admission binds the original plan, private scope
+  and ledger; journal reads intersect the original file ceiling. Final eligibility
+  checks follow guard callbacks. All 167 affected methods and the scoped Make
+  runner's 28 stage methods pass without skips. Final source-only review closes
+  the journal lifetime finding; earlier independent runs retain their old subjects.
+  [Private materialization evidence](../../verification/retained-layout-catalog-copy-staging-development.json)
+  binds current source, author checks and the immutable review/failure chain.
+  Canonical publication-role inputs now have an explicit operation-local shared
+  read allowance. Actual project/conversion/migration, registered-child and Git
+  readers retain their canonical parsers and default behavior while bounded
+  observation holds original file bytes, absence, ancestry and native facts.
+  Git output and decoded records share the same ledger; ended/inherited contexts
+  and changed inputs refuse. All 171 author regression methods and 19 scoped
+  Make methods pass without skips. Independent execution passes the same 19 new
+  methods and 13 maintained parser/Git-refresh/migration regressions. Independent
+  review approves the exact read-budget prerequisite. Exact source
+  and validation limits are retained in
+  [role-input development evidence](../../verification/retained-layout-role-inputs-development.json).
+  This read-only scope is a prerequisite to actual protected-role publication
+  preflight and grants no effect or source-exclusion rights.
+  Catalog protection preflight now joins the actual stage factory and held normal
+  project/Git control acquisition to canonical retained-source, wrapper and
+  registered-child inputs under that original shared ledger. External private
+  control namespaces bind their held descriptors. Protected overlap, ambiguous
+  nested projects, cross-role aliases/hardlinks and alternate target spellings
+  refuse before any publication. Initial review found a case-insensitive coordinate
+  gap and a linked-Git read after stage closure; repaired source checks each target
+  prefix against original names/native nodes and closes stages after dependent
+  linked-Git reads. Further audit found portable manifest spellings and alias
+  leaves missing from nested-project checks. One shared bounded iterator now
+  covers physical files and aliases in preflight, full partitioning, source
+  planning and prepared-plan validation. Whole-project checks exclude their actual
+  own-root parent and preserve registered children; selected-source checks exclude
+  no source-root sentinel. Independent execution passes all 76 maintained methods
+  without skips and final review approves the exact nine subjects. All 251 affected
+  author methods and the scoped Make runner's 21 methods pass without skips.
+  The guarantee ends at the final
+  active preflight check, before revoked-context read-scope teardown; future effects
+  require explicit ownership transfer or revalidation. Exact subjects, immutable
+  failed/closing reviews and this limit are retained in
+  [protection development evidence](../../verification/retained-layout-catalog-protection-development.json).
+  Actual entry publication now transfers genuine stages to one live receiver.
+  Durable intent precedes native retirement of old directories and exclusive
+  publication of verified items. Missing parent chains are prepared privately with
+  ordinary modes and promoted with the actual item. Complete expected project and
+  private views advance only from known effects under the original shared budget;
+  ambiguous outcomes retain all nodes. Actual registration, original nonce and
+  frozen policy/item bindings govern custody, while registry-backed touched state
+  keeps published exit explicitly incomplete. All 144 affected author methods and
+  17 scoped Make methods pass without skips; independent rereview approves the
+  exact three subjects and passes all 17 maintained methods. An earlier unrelated
+  containing-Git guard conflict and its passing replays remain recorded without a
+  claimed cause or weakened guard in
+  [entry-effect evidence](../../verification/retained-layout-catalog-entry-development.json).
+  The live entry receiver can now prepare and exclusively publish canonical
+  provenance from actual staged file receipts, preserving old metadata nodes,
+  unrelated imports and inheritance decisions under the original shared budget.
+  Only verified metadata moves advance the expected canonical input; durable
+  intent and all ambiguous outcomes remain retained. Local provenance uses the
+  canonical resolver; genuine Git source-lease admission remains required.
+  Verification is retained in
+  [provenance evidence](../../verification/retained-layout-catalog-provenance-development.json).
+  Actual internal control finalization now keeps original descriptors while
+  normalizing only new advisory markers and retaining native controls, pending
+  last after a durable decision. Known project/private journal views advance only
+  from verified effects. Canonical Git reads retain actual channel usage under
+  unchanged ceilings; global view reservation uses sealed action bounds.
+  The failed native-Git/multi-item runs and repaired evidence are retained in
+  [control-finalization evidence](../../verification/retained-layout-catalog-finalization-development.json).
+  The live imported-role join now has an independently reviewed internal normal
+  nonroot implementation. A genuine enclosing producer transfers only actual published
+  paths, empty directories and exact provenance after successful teardown; fresh
+  source planning and complete partitioning consume it once before movement.
+  Initial canonical setup and all later catalog phases share one original ledger.
+  A genuine framework predecessor can join that ledger and accept its actual
+  catalog successor's exact metadata transition. Saved plans/imports remain
+  descriptive. Expired, changed or spent producers grant no roles.
+  All 336 affected author methods and fourteen scoped Make methods pass without
+  skips. Independent rereview approves the exact twelve subjects and passes
+  fourteen maintained methods without skips, closing both initial source findings.
+  The original review and failing composition runs remain attributed in
+  [handoff evidence](../../verification/retained-layout-catalog-handoff-development.json).
+  Authentic Git source-checkout admission now has an independently reviewed
+  internal implementation. Its enclosing canonical acquisition binds the actual resolved
+  commit, pinned checkout and original selected censuses to the same copy ledger;
+  native checks close the stored source lifetime after dependent copy callbacks.
+  Nested teardown ends copy/source admission before canonical clone cleanup.
+  Canonical cloning retains its existing provider policy, separately from the
+  bounded copy observations. Acquiring-PID cleanup preserves a parent's checkout
+  on child unwind, and fresh plans require exact original selector/census roots.
+  All 360 affected author methods and thirteen scoped Make methods pass without
+  skips. Final independent rereview approves the exact six subjects and its
+  unchanged twenty-four-case replay passes. Both repaired source findings and
+  their causal maintained failures remain retained; one earlier independent native
+  entry-change refusal remains unexplained despite passing unchanged replays.
+  Complete source/review limits are retained in
+  [source-lease evidence](../../verification/retained-layout-catalog-source-development.json).
+  Internal selected-source topology now uses one bounded forest across actual
+  canonical selected directories, permitting complete cross-item hardlinks and
+  aliases while refusing escapes, partial-ancestor targets and incomplete groups.
+  The original forest feeds actual local/Git planning, copying, provenance and
+  one-use source handoff. Native closing rejects unknown nodes before retention
+  or descent in both selected and whole-tree paths. Independent Linux runs pass
+  fifty source/topology/reader methods and a separate twenty-method planner
+  cohort without skips. The author catalog Make gate passes 146 methods with
+  one case-insensitive-filesystem skip. The companion replay records 292 passes
+  and four filesystem skips; canonical retrieval confirms its complete unit
+  result and unchanged subjects after transport loss, with command-exit
+  acknowledgement explicitly unknown. A separate six-case macOS run passes
+  without skips and covers all five Linux filesystem skips plus the portable
+  original-host ownership positive. Independent portability checks pass the
+  changed positive and two producer-negative controls. Original failed source review, causal
+  native-close failures and author qualification failures remain retained in
+  [topology evidence](../../verification/retained-layout-catalog-topology-development.json).
+  Source discovery now routes structural declaration/Component reads through an
+  already active bounded reader, preserves canonical first-read ceilings and
+  separates decoded JSON accounting by project. The scoped Make gate passes
+  32 controls and the final affected neighborhood passes 139 methods without
+  skips. Independent source rereview closes both findings at this prerequisite
+  scope; [read-path evidence](../../verification/retained-layout-source-metadata-read-development.json)
+  retains exact subjects and limits. The persistent planning core now funds
+  initial discovery and source capture through one registered read owner and
+  ledger, imports genuine predecessor usage once and closes late source,
+  metadata, pending and destination-membership changes. Its 23-case scoped Make
+  gate and separate 241-method regression cohort pass without skips;
+  independent source review is limited to planning.
+  [Preparation evidence](../../verification/retained-layout-source-preparation-development.json)
+  retains the original failed controls, corrections and open acceptance. Funded
+  descriptions remain refused by the legacy effect entry. The actual preparation
+  now participates in canonical control acquisition and complete partition
+  observation under its original ledger. Control expectations advance from held
+  native publication receipts; private-resource native ancestry is checked before
+  acquisition. Original producer currentness and bounded installed-origin reads
+  remain active through observation. Next retain this same ledger through actual
+  partition consumption and verified source/control/metadata effects, which remain
+  guarded until their transitions participate in the original operation.
+  Fourteen scoped Make controls and a separate 357-method affected regression
+  cohort pass without skips. Independent source rereview approves this observation
+  scope after four findings; see
+  [observation-admission evidence](../../verification/retained-layout-source-admission-development.json).
+  The first effect join now consumes the actual complete partition during nonroot
+  source movement, retaining spent predecessor observation and original shared
+  accounting. Derive the resulting complete graph from verified native movement,
+  advance funded destination absences and close all namespace scans before final
+  external facts. That movement milestone left metadata/finalization and terminal
+  preparation disposition unfinished.
+  The movement increment passed twenty-three scoped Make controls and a
+  separate 357-method affected regression cohort without skips, including a
+  genuine framework/catalog join, link topology, unchanged
+  original reader identity and five causal closing/quota controls. Independent
+  source review approves this limited increment; original failures and open
+  acceptance remain in
+  [source-movement evidence](../../verification/retained-layout-source-movement-development.json).
+  The actual metadata successor now joins that original operation: fund
+  prospective/staged/retained observations before writes, advance only verified
+  native rename receipts, retain original producer witnesses at their backups
+  and close resulting public/private graphs after payload and membership reads.
+  Metadata-only qualification passed thirty-six scoped Make controls and a
+  separate 389-method affected regression cohort without skips on that revision. Independent source
+  review closes permission and private-membership findings. Original allowance
+  refusal and positive initially declared policy remain distinct; see
+  [metadata-successor evidence](../../verification/retained-layout-source-metadata-development.json).
+  Original producer private/source roots, recursive object stores and the whole
+  collected canonical acquisition now remain outside metadata effects. Native
+  acquisition controls prove both refusal and backup survival through cleanup.
+  The finalization successor now joins the exact original control effects,
+  verified Git handoff and a read-only terminal observation through actual
+  descriptor teardown. It retains original producer witnesses and private written
+  receipts, uses the creating restricted resource registrar, refuses foreign
+  private names immediately, and closes original lifetimes after final native
+  callbacks. Independent source review approves this internal normal nonroot
+  transaction ending `committed-unqualified`. The final scoped Make gate passes
+  seventy-two methods and a separate 366-method affected cohort passes without
+  failures or skips: 438 distinct methods on the exact reviewed subjects.
+  Seven causal refusal controls preserve the predecessor failures. Exact subjects,
+  qualification and open acceptance remain in
+  [source-finalization evidence](../../verification/retained-layout-source-finalization-development.json).
+  Actual parsed source discovery now retains an immutable canonical authored
+  participant for the selected project/conversion, lift/layout, harness-wrapper,
+  Component and optional lock endpoints. Partition ownership reconciles actual
+  initializer, framework-update and catalog witnesses, preserves original optional
+  absence and leaves unknown same-named files unclaimed. Store selection is frozen
+  during funded discovery; pure lifetime closure does not reconstruct a store or
+  reread the environment. External storage refuses before probes, and original
+  native ancestry plus portable names separate absent lock storage from movement.
+  The actual authored participant survives verified metadata effects and read-only
+  terminal observation through descriptor teardown. Independent source review
+  approves the exact eleven subjects. Seventeen authored-role and seventy-two
+  source-operation Make controls plus a separate 370-method affected regression
+  pass without skips: 459 distinct methods. Original failures and final results remain in
+  [authored-role evidence](../../verification/retained-layout-source-authored-development.json).
+  External original-provider joining now has a source-reviewed participant that
+  funds actual native Git/filesystem reads from the same source allowance, retains
+  original object/template witnesses and revalidates the same observer through
+  descriptor teardown and readonly terminal observation. Immutable construction
+  provenance blocks cleared-field legacy fallback, reinitialization and expired
+  or copied participants before I/O. Actual provider/private/source overlap refuses.
+  Real historical-provider/update/canonical-Git-catalog composition and corrected
+  native teardown controls pass at local fixture scope. The final maintained
+  source gate passes all eighty-eight methods with four isolated local workers;
+  seventeen authored-role controls and 370 separate affected regressions also
+  pass without skips: 475 distinct methods. Exact subjects and failed/intermediate
+  profiles remain in
+  [provider-join evidence](../../verification/retained-layout-source-provider-development.json).
+  Original relative, parent-segment and prospective in-project canonical cell
+  selectors now join the creating reader, preserving absence/ancestry witnesses
+  and the frozen endpoint through terminal closure. Source-crossing, redirected
+  and changed paths refuse. Native ancestor checks now observe exact directory
+  identity while preserving held-FD/name correspondence and strict source/output
+  snapshots; unrelated sibling activity no longer causes a conservative refusal.
+  Independent source review approves all four final subjects. Fresh maintained
+  source and authored-role gates pass all 98 and 17 methods; the separate
+  387-method affected regression includes the native move suite: 502 distinct
+  passing methods without skips. Earlier failed cohorts and actual native
+  reproductions remain separate in [selector and ancestor evidence](../../verification/retained-layout-source-selectors-development.json).
+  Shared external canonical storage now has an actual original store-selection
+  participant under the creating reader and ledger. Its native/content identity
+  binds the acknowledged source plan; external observations stay outside project
+  authored roles and survive readonly terminal checks. Existing and absent lock
+  evidence remains unchanged. Replaced/copied/ended records, changed original
+  fields, foreign active readers and overlapping private effects refuse before
+  further reads or effects. Independent source review approves all ten final
+  subjects. The maintained 112-method source gate, eighteen authored-role controls
+  and 387 separate affected regressions pass without skips: 517 distinct methods.
+  Original guard failures, the stored-record integrity reproduction and its
+  zero-probe repair, finite positive/negative policies and final checks remain in
+  [shared storage evidence](../../verification/retained-layout-source-storage-development.json).
+  A descriptive graph now derives exact source carriers, fixed/shared ancestors,
+  target containers and privately retained empty source directories from the
+  complete actual partition. It preflights final namespace collisions, unchanged
+  alias referents and protected Git/independent-project boundaries, binds to the
+  live partition and durable intent, and constrains the production executor to
+  its exact existing nonroot single-rename profile. An empty logical source root
+  still requires its selected destination while the physical repository stays
+  fixed. Independent source review approves all seven final subjects. The fresh
+  maintained source and remaining retained-layout gates pass all 116 and 402
+  methods without skips: 518 distinct methods, including twenty-two graph cases
+  and fixture-only native carrier replay. Original smaller policies remain
+  unchanged; separate metadata and committed pending-barrier receipt controls
+  reserve from that same original ledger without enlarging its allowance.
+  Earlier guard/fixture failures and exact final checks remain in
+  [graph development evidence](../../verification/retained-layout-effect-graph-development.json).
+  Next action in progress: implement complete receipt-backed root/shared
+  multi-entry execution and original-observation projections, including original
+  root census/partition acknowledgement and logical custody during parking.
+  The complete original project namespace is now observed under its creating
+  reader before acknowledgement and bound into the plan identity. Only actual
+  canonical control publications advance that observation: sealed live-pool
+  history retains staged nodes and exact before/after parent facts, joined to
+  acquired descriptors and the canonical target roster. Unknown additions,
+  replacements and metadata changes refuse. Complete namespace closure follows
+  payload callbacks, and partition/movement admission uses that same original
+  controlled view. Independent source review approves ten production/test
+  subjects after two causally reproduced defects were fixed: arbitrary witness
+  resealing and a trailing nested-witness mutation. Original smaller policies
+  remain unchanged; finite positive policies are declared before their actual
+  producers. The fresh maintained source cohort passes all 131 methods; the
+  disjoint retained-layout and framework cohorts pass 408 and 28 methods:
+  567 distinct passes without failures or skips. Preserve the original failure
+  history and scoped results in
+  [namespace development evidence](../../verification/retained-layout-source-namespace-development.json).
+  Next, bind the actual canonical role partition before acknowledgement and
+  persist complete bounded namespace/partition data for restart recovery, then
+  implement the complete root/shared receipt-backed schedule and projections.
+  Canonical initializer-role calculation and complete namespace classification
+  now feed their acquired-phase adapter without requiring a synthetic phase.
+  The bounded installed-origin observer also accepts its actual active reader
+  before phase creation, rejects missing/foreign readers before probing and
+  debits the same original ledger. Independent source review covers five
+  subjects; the maintained ownership, graph and preparation cohorts pass all
+  30, 24 and 26 methods, respectively, without failures or skips. Two native
+  prospective-control cases reproduce the earlier classifier's missing fixed
+  ancestor and pass after repair. The actual preparation now owns original
+  initializer/provider/authored role observations before plan construction,
+  shares its original reader and ledger, and binds the complete role graph and
+  original plan field references once. Admission retains that same provider and
+  projects only verified canonical control publications. Independent source
+  review approves this guarded nonroot integration; all sixteen original-role
+  methods pass. The maintained preparation and framework cohorts each pass all
+  twenty-eight methods, and the disjoint remaining retained-layout cohort passes
+  all 411 methods. Namespace, selector, storage, finalization and admission
+  modules also pass all fourteen, ten, fourteen, fourteen and forty-one methods,
+  respectively. The fresh provider module passes all nineteen methods after
+  permanent-revocation test corrections: 595 distinct maintained methods pass
+  without failures, known failures or skips. This is scoped local author
+  evidence; installed/platform/integration/release qualification stays open. The
+  [original-role development evidence](../../verification/retained-layout-source-roles-development.json)
+  retains the approved subjects and native failure history without claiming
+  complete affected-source or release qualification.
+  Original immutable payload witnesses remain funded with their reader; added
+  role descriptions use byte commitments instead of repeated payload bodies.
+  Earlier inflated capacity results came from duplicate payload accounting and
+  remain superseded defect evidence. The combined producer fixture's original
+  65536-entry policy refuses at 68393 entries while below its metadata limit;
+  preserve that no-effect refusal and declare the positive lifecycle's complete
+  finite policy before either original producer. Next, finish qualification and
+  persist complete bounded original namespace/partition data for recovery.
+  Development persistence now retains the acknowledged plan, complete original
+  namespace/native/role/graph descriptions and raw metadata before canonical
+  publication. Actual private journal registration funds persistence while the
+  creating preparation's sealed role observations remain unbound; the complete
+  post-write payload/native close must pass before role admission. Saved data
+  grants no rights. Packed byte witnesses preserve the journal's original limits;
+  the census physical table is reconstructed losslessly from the once-retained
+  native roster and checked against both acknowledged identities. Encoding funds
+  new containers and buffers without recounting existing immutable scalars;
+  fresh decoding keeps its separate full observation allowance. Journal rereads
+  enforce exact immutable lengths and the funded record roster, including empty
+  payloads. Twelve maintained persistence/reopening methods pass, including an
+  actual source mutation after the last durable private append that refuses
+  binding/publication while preserving both changed source and original records.
+  Independent source review approves the exact internal scope in the
+  [state development evidence](../../verification/retained-layout-source-state-development.json),
+  which retains the causal failures and measured budget history.
+  Preserve original 65536-entry refusals and their primary capacity causes,
+  including the authored-lock-absent fixture: the added original-state work now
+  refuses that fixture before source intent instead of reaching its older
+  metadata-stage assumption. Require unchanged source inode/bytes, retained
+  authored originals, unchanged journal and no source/metadata/control receipt
+  effects. Movement positives declare 131072 entries before preparation. Keep
+  ordinary provider defaults and reservation negatives unchanged. The coupled
+  provider operation completes through all teardown in a 16GiB diagnostic
+  envelope. Its updater reserves half its declared policy; retaining the original
+  2GiB updater predicts 8752484416 bytes of complete source metadata use. The
+  actual full maintained operation now passes under separately predeclared 9GiB
+  catalog/source policies with the original 2GiB updater and at least 512MiB of
+  actual source headroom after every enclosing teardown. The original coupled
+  8GiB profile also passes its bounded committed-unqualified outcome and exact
+  source/metadata/control custody checks. The complete provider module selects
+  and passes twenty methods. All 611 distinct maintained affected methods pass
+  across six disjoint cohorts, including the twelve state methods, without
+  failures or skips. Exact reviewed subjects, reports and their disjoint audit
+  are retained in the state development evidence. Static, OpenSpec and
+  documentation checks pass. The supported documentation review is current;
+  full `litai verify` passes authority but refuses the stale project test receipt.
+  Keep that full-source qualification boundary explicit. Retain this local
+  development checkpoint and complete the original logical source forest and
+  root/shared executor below. Source/test edits wait until
+  every author native job and reviewer is terminal; all six cohorts are now
+  terminal. Scoped internal evidence does not qualify full source,
+  root/shared/public recovery, installed/native or release acceptance.
+  Source review additionally found that valid metadata with long repeated bytes
+  can produce repeated ordered chunk references. Persistence deduplicates those
+  physical payloads; reopening now accepts those ordered references while
+  enforcing original logical storage and fixed-width packing bounds before
+  assembly. Every expanded occurrence remains funded. A real canonical lock
+  padded within unchanged fixture budgets reproduces the old refusal and now
+  reopens byte-for-byte. A separate valid reopened journal with repeated existing
+  references but an oversized logical claim refuses the exact packing policy
+  without allocating that body. Independent source review approves both checks.
+  The interrupted broader cohorts remain partial development evidence.
+  Root source needs a logical forest over the complete original
+  partition, not a synthetic phase or a raw whole-project source tree. Bind that
+  original forest and graph into the acknowledged, durably retained plan before
+  enabling the root/shared executor; keep every existing legacy effect guard.
+  Preparation must first validate coordinates and canonical inputs, then derive
+  actual initializer/provider/authored/catalog/control ownership, and only then
+  validate root ownership claims and construct its logical forest. Unknown
+  metadata neighbors remain source; declaration labels cannot promote them to
+  framework ownership. Exercise this through a genuinely initialized project's
+  explicitly disclosed fixture-only root arrangement, with no fabricated phase
+  or patched ownership result. Root/shared phase admission must still refuse
+  before canonical public control publication until execution and recovery join.
+  The internal root-out preparation prerequisite now derives a distinct source
+  forest from those actual participants and validates declaration claims against
+  canonical ownership. Ordinary metadata and lock-looking neighbors stay source;
+  the actual lineage writers and observer share their canonical lock endpoint.
+  Logical shared directories retain their fixed native counterparts. The plan
+  binds the forest, original namespace/roles/graph and exact native observations;
+  copied descriptor substitution and later additions refuse. Actual private
+  persistence/reopening reconstructs the forest under a fresh explicit allowance.
+  Its restrictive logical-forest profile rejects generic/canonical legacy recovery
+  before acquisition while data-only decoding remains available. Expired roles
+  still refuse before borrowed FD probes; bounded exact-string header-key
+  iteration prevents foreign equality callbacks before mandatory validation.
+  At that root-out checkpoint, independent source review covered twelve subjects,
+  and six disjoint scoped
+  maintained cohorts pass 177 methods without failures or skips. The
+  [forest development evidence](../../verification/retained-layout-source-forest-development.json)
+  preserves source hashes, causal failures, fixture limits and reports. This
+  prerequisite does not qualify production root placement or relocation.
+  Actual root-destination planning now generates prospective metadata only after
+  canonical role discovery, retains its exact tuple with immutable role facts,
+  and binds the plan to that tuple. Canonical root ownership excludes unknown
+  ordinary files and Git administration. The complete original namespace and
+  native observations retain custody of the existing fixed root. Private state
+  reopens under fresh bounded data observation; source phase admission still
+  refuses before public controls. Seven current source subjects are independently
+  reviewed, and six disjoint maintained cohorts pass 231 methods without failures
+  or skips, including ordinary preparation/transaction/admission and recovery.
+  [Root-destination development evidence](../../verification/retained-layout-root-destination-development.json)
+  retains exact review hashes, author reports and diagnostic limitations.
+  A subsequent reviewed increment admits an existing root-source destination
+  only from its actual original source contribution before graph construction.
+  Its own source carrier projects into the destination, while foreign occupancy,
+  portable aliases and changed original bytes refuse without cleanup. The
+  [existing-source overlap evidence](../../verification/retained-layout-source-overlap-development.json)
+  records three reviewed subjects and 83 passing scoped methods at that checkpoint.
+  General destination planning now binds exact original prefixes and absences,
+  the nearest observed directory and its native ancestry through the creating
+  participant. Missing actual parents remain `None`/empty observations; an anchor
+  is not a future executor parent. The validated graph selects the forest profile;
+  ordinary exact single-rename documents retain their previous shape. Complete
+  namespace closure follows known destination facts. Fresh bounded data decoding
+  reconstructs the same destination/path/parent/lineage observations. Seven source
+  subjects are reviewed and five scoped cohorts pass 114 distinct methods,
+  including the 23-method forest replay after preserving the original alias
+  diagnostic. The
+  [destination-prefix evidence](../../verification/retained-layout-destination-prefix-development.json)
+  preserves exact hashes, the diagnostic correction and fixture-only ancestor
+  arrangement limits. No source effect or recovery admission is enabled.
+  The actual selected canonical store may also share nonroot source ancestors.
+  Its real producer endpoint now fixes those ancestors before graph construction;
+  neither an absent lock nor a lock-looking source neighbor grants directory
+  ownership by name. Present selected evidence stays fixed, unknown neighbors
+  remain source, late insertion revokes preparation without cleanup, and source
+  projection cannot create canonical storage. Two subjects are independently
+  reviewed and three scoped cohorts pass 69 methods without failures or skips;
+  [shared-storage evidence](../../verification/retained-layout-shared-storage-development.json)
+  records the actual selected-store fixtures and all limits.
+  The runtime data verifier now closes complete project/parking namespace spans
+  without following temporarily dangling original aliases. It streams each
+  regular hardlink payload once per native group, checks exact original symbolic
+  text, and closes all known native nodes after the last payload read. Genuine
+  original preparation funds its complete description; copied descriptions grant
+  no movement or control authority. Review found oversized post-inventory read
+  ceilings; committed-size regular/link limits and aggregate preflight now refuse
+  both growth races before larger native reads. Thirteen maintained verifier
+  methods pass, alongside 27 unchanged forest methods, with two exact subjects
+  independently reviewed. The
+  [runtime span evidence](../../verification/retained-layout-forest-span-development.json)
+  distinguishes the unmanaged scratch primitive fixture from project execution.
+  This is per-call data verification. The live movement controller must fund
+  newly retained views through the original ledger and advance spans only from
+  actual verified native effects; no forest admission guard is removed.
+  The separately authorized native dependency now parks every source carrier
+  before target publication, stages exact directory attributes, retains empty
+  original containers and preserves interrupted endpoints under the actual held
+  journal. Its registry admits only the exact next acknowledged native step;
+  opaque one-use receipts follow actual effects, and original program/lifetime
+  bindings close after the last native callback. Independent source review
+  covers both new subjects. Seventeen native, thirteen span and 27 planning
+  methods pass through the maintained runner without skips or failures; the
+  [native dependency evidence](../../verification/retained-layout-forest-native-development.json)
+  preserves the unmanaged-fixture scope and earlier umask fixture failures.
+  These ceilings bound retained views and individual checks, rather than lifetime
+  file-open or reread counts. High-level integration must precharge all additional
+  retained representations to the same original ledger. The dependency grants
+  no canonical project authority and enables no admission or recovery guard.
+  The actual completed native owner now returns the complete resulting project
+  namespace for metadata, derived from its verified receipt span. Fixed controls,
+  created-directory identities, canonical hardlink representatives and raw
+  symbolic text remain explicit; this uses no fresh inventory as a baseline.
+  Twenty-one maintained native methods pass, including actual SDK unchanged-tree
+  comparison, retained-container custody and late payload rewrite refusal. Three
+  exact subjects are independently reviewed in
+  [namespace-output evidence](../../verification/retained-layout-forest-namespace-development.json).
+  A dormant original-owner branch now funds its native program and reader
+  transfer in the same ledger, consumes the real partition, keeps the actual
+  native parking owner registered, and joins
+  its result to metadata prerequisites. Reader transfers are simultaneous across
+  overlapping coordinates; canonical observations stay fixed, moved payloads
+  retain inode/byte commitments, and retained-container lineage follows its
+  original private inode. Controlled destination stamps advance only through
+  authenticated publication receipts. The exact native program reserves its
+  following source event; registered journal substeps reject direct event calls.
+  Nine exact subjects are independently reviewed. Scoped maintained checks pass
+  37 native/transfer, 41 existing admission and 14 existing finalization methods;
+  [reader-join evidence](../../verification/retained-layout-forest-reader-join-development.json)
+  separates unmanaged native data tests from existing single-rename regression.
+  The complete positive catalog/metadata fixture declares its measured entry
+  allowance before its first producer; production limits and the original
+  low-budget refusal remain unchanged. Earlier failures are retained.
+  Forest movement now binds both future private effect paths before source
+  effects. Original pins, mode0700 emptiness, physical separation and filesystem
+  compatibility are checked before movement. Metadata and finalization graph/
+  backup representations are prepaid through the same ledger and consumed once;
+  original native/JSON policy is never enlarged. The native program reserves the
+  complete remaining event, payload and storage tail. Known mandatory records
+  are encoded and bounded before effects, then checked against their original
+  previews at publication. Compact versioned forest decisions retain the original
+  plan and chained receipt proof; legacy records keep their fields. Authenticated
+  forest metadata validates exact prospective receipts and bounded coordinates
+  while the public root-ownership guard stays strict. Eight subjects are
+  independently reviewed; ten private pin/budget/document, 37 native/transfer
+  and 14 ordinary canonical finalization methods pass without skips or failures.
+  [Bound-effects evidence](../../verification/retained-layout-forest-effects-development.json)
+  records the low-level fixture scope, corrected teardown and encoding review.
+  Forest finalization now checks actual carrier and created-directory footprints
+  against exact Git administration, allowing root publication beside fixed Git
+  metadata. Before teardown, the actual completed native owner freezes parking
+  and retained empty-container facts; an independent original-preparation binding
+  carries them through the actual resource-exit receipt. Terminal observation uses
+  fresh read-only descriptors and exact bounded membership/native checks without
+  calling the ended native owner. Independent review found an ordering gap:
+  mutation into an earlier container during a later scan escaped closure. An
+  actual two-container regression reproduces that failure; all membership reads
+  now precede complete known-child, ancestry and root checks. Foreign entries are
+  preserved. Four subjects are independently reviewed; nine terminal, 37 native,
+  ten future-effect and 14 ordinary canonical finalization methods pass without
+  failures or skips. [Terminal parking evidence](../../verification/retained-layout-forest-terminal-development.json)
+  retains the causal failure and exact reviewed subjects. This branch is not
+  canonical forest execution proof. Public forest admission remains guarded.
+  Fresh native recovery now has a descriptive prefix interpreter and an actual
+  freshly opened journal reader. The executor and interpreter share the exact
+  native step/event schedule. Original program/payload identities, receipt
+  predecessors, raw symbolic text, hardlink transitions and staged modes are
+  checked under a fresh explicit allowance. Unfinished intents remain unresolved;
+  stage receipts that omit new parent stamps retain an explicit fresh-classification
+  requirement. Both native journal traversals debit fresh file, byte, per-file and
+  peak limits before I/O; exact native event selection leaves surrounding source
+  join markers separate. New parking receipts cannot borrow an original directory
+  inode. Independent review closes all three findings; eleven fresh-reader, ten
+  prefix-replay, 37 native, nine terminal and ten future-effect methods pass:
+  77 distinct maintained methods without failures/skips. Tests replay every real
+  recorded prefix for root movement, nested creation/modes and ancestor merges;
+  an actual move interrupted before its observation record remains pending after
+  journal reopen. [Replay/read evidence](../../verification/retained-layout-forest-replay-development.json)
+  preserves original failures and fixture boundaries. This is read-only descriptive
+  recovery infrastructure; source admission and recovery-profile guards remain.
+  Fresh loading now reconstructs the exact typed deterministic native program
+  from retained start bytes and the actual journal phase, without a surviving old
+  Python object. A separate-process test reopens the real native journal and
+  matches actual program/final-span identities. Complete durable original data
+  and native journal reads share one fresh cumulative ledger. The runtime snapshot
+  must retain original bytes, aliases, native entries and source schedule; only
+  paired canonical-control publications at original coordinates may add entries.
+  Publication and native start must follow the durable original event. The full
+  saved DTO, including packed byte witnesses, is funded and sealed before later
+  native callbacks, then closed after reads and binding. Review controls reproduce
+  the original ordering and decoded-data mutation gaps. Six subjects are
+  independently reviewed; fourteen new loading/binding, 58 native reader/replay/
+  movement and forty original-state/forest methods pass: 112 distinct maintained
+  methods without failures or skips. [Program/original evidence](../../verification/retained-layout-forest-program-development.json)
+  retains the actual unmanaged fixture scope, new-process proof and setup failures.
+  These descriptions restore no canonical role or effect rights. A genuine fresh
+  observation now binds one current pool/journal, explicit cumulative read ledger
+  and actual canonical store-selection participant. Existing acquisition factories
+  reacquire the complete current project/Git descriptor and OS mutex roster.
+  Independent raw/canonical creation registries reject copied/key-built owners;
+  pure final closure checks role, descriptor, parent and store bindings after the
+  last native callback. Journal policy and original event prefix stay sealed;
+  physical private separation is checked through actual lineages. Source review
+  covers six exact subjects; nine new observation, 111 control/role/data/disposition
+  and 41 storage/forest methods pass: 161 distinct maintained methods without
+  failures or skips. [Fresh-observation evidence](../../verification/retained-layout-forest-observation-development.json)
+  preserves causal failures, the corrected callback harness and established ended-
+  context diagnostics. The fixture genuinely exercises canonical forest refusal,
+  then separately acknowledges unmanaged native execution under real normal
+  locks; it fabricates no successful source phase or partition. Actual incoming
+  canonical acquisition now advances the fresh reader's absent marker payloads,
+  native presence and nearest-directory anchors solely from its own authenticated
+  publication/held-descriptor receipts. A one-use factory invocation follows real
+  incoming acquisition and independent role enrollment. The same cumulative ledger
+  funds simultaneous retained views; all unrelated observations remain exact.
+  Native closing precedes pure original role/reader/parent/store closure and
+  installation. An actual newly created Git repository with a nested unborn branch
+  proves missing-parent acquisition, unchanged absent loose ref, native writer
+  exclusion and normal reader-scope exit. Late parent revocation or foreign input
+  insertion refuses before installing observations and preserves foreign bytes.
+  Review closed a missing-registration/None-token sentinel collision; both missing
+  token forms refuse before borrowed FD access. Three subjects are independently
+  reviewed; twelve observation and 29 canonical-role methods pass: 41 distinct
+  current-subject maintained methods without failures/skips. The earlier 161-method
+  checkpoint retains its own exact source scope.
+  [Incoming-control evidence](../../verification/retained-layout-forest-incoming-development.json)
+  preserves the stale-anchor baseline, acquisition-order correction and diagnostic
+  regex correction. An actual current native-prefix observer now joins that fresh
+  read participant with the real canonical recovery lease. One cumulative ledger
+  funds complete current/candidate views and exact bounded physical reads. Known
+  entry/mode intents classify original-before or exact original-inode after;
+  observed stage receipts refresh only their explicitly dirty parents after
+  complete no-follow namespace/payload verification. Occupied unrecorded creations
+  retain explicit unresolved status and grant no inode ownership. All preliminary
+  and closing endpoint probes use retained original-root no-follow descriptors;
+  role factory validation precedes replaceable seed fields. Actual canonical,
+  store and reader callbacks precede the final known-native close. Pure original
+  registrations close after access teardown; exceptional cleanup closes FDs without
+  running success-only reads after revocation. The same real fixtures reproduce
+  both predecessor review holes. Final late-change controls identify the intended
+  after-payload callback and assert it was reached; earlier mistargeted injections
+  remain invalid causal evidence. Three subjects are independently reviewed; six
+  current-observer methods (including nine real prefix subcases), thirteen span
+  methods and 37 native methods pass: 56 distinct maintained methods without
+  failures/skips. [Current-native evidence](../../verification/retained-layout-forest-current-development.json)
+  records actual unmanaged dependency scope and all corrections. These are current
+  native data observations, not recovery effects or canonical forest execution.
+  Actual metadata receipt replay now projects exact old/prospective target bytes
+  and native quarantine/publication transitions through the same fresh reader.
+  Recorded future pins bind private metadata/retirement coordinates; current
+  access holds original-root no-follow descriptors. Dirty parents refresh only
+  after recognized receipts and close against complete current membership and
+  payloads; derived projections stay sealed through callbacks. Occupied staged
+  names without native witnesses remain unresolved even with matching bytes.
+  Current observation proves preserved old inodes and new public bytes, pending
+  last-publication before/after, replaced-root refusal and bounded-input rejection.
+  Source review found a producer mismatch: acquired partition observations differ
+  from original role identity documents. Shared source-intent@2 now separates
+  those fields; actual production supplies its real acquired payload, while the
+  unmanaged fixture explicitly claims none. A real ordinary canonical partition
+  supplies the wire test; no forest phase or partition is fabricated. The full
+  positive declares its measured fresh10GiB metadata allowance before creation;
+  original preparation stays8GiB, and a smaller refusal keeps the same guards.
+  Four subjects are independently reviewed; eight metadata, six current-state,
+  ten future-effect, 37 native and 27 source-forest methods pass: 88 distinct
+  maintained methods without failures/skips. [Metadata projection evidence](../../verification/retained-layout-forest-metadata-development.json)
+  retains the actual unmanaged scope, setup correction, budget measurement and
+  producer/reader distinction. This restores no recovery effects or canonical
+  execution qualification. Current control projection now joins actual fresh raw
+  and canonical descriptor inventories to original in-project marker identities.
+  Actual normalization bytes remain on the original advisory inode; retired native
+  controls remain represented under their complete private roster, while incoming
+  public controls require actual acquisition/publication receipts. The original
+  bound retirement pin, current canonical storage and no-follow private access
+  constrain the view. Complete source membership, payloads and native closure
+  preserve unrelated and foreign entries. Real normal canonical finalization is
+  interrupted after unmanaged metadata effects, then fresh factories reacquire
+  original/private and incoming descriptors; no forest phase is fabricated.
+  Four subjects are independently source-reviewed. Four control, eight metadata
+  and six native-current methods pass: 18 distinct maintained methods without
+  failures/skips. [Control projection evidence](../../verification/retained-layout-forest-controls-development.json)
+  retains the original causal failure and accounting regression: unchanged genuine
+  controls reuse the already funded exact view; actual successor views consume the
+  same fresh ledger. No budgets were enlarged. This proves initial-finalization
+  observations only; general retry generations and all recovery effects remain
+  open. An actual fresh-controller restoration dependency now executes exact
+  acknowledged, exclusive, fsynced inverse source/metadata moves under real roles.
+  It restores original bytes and native link custody while retaining prospective
+  metadata, created directories and old/new controls. Registered one-use actions,
+  journal/native receipts, a bounded non-reentrant workspace and last-boundary
+  lifetime checks protect effects; incompatible named facts refuse before intent.
+  Four subjects are independently reviewed. Eight restoration and eighteen native
+  move methods pass: 26 maintained methods, including actual hardlinks, a raw
+  symlink and an empty directory. [Restoration evidence](../../verification/retained-layout-forest-restoration-development.json)
+  records scope and failures. Bound source-intent prefixes now retain the original
+  metadata and retirement reservations before native completion; unused retirement
+  remains verified after native completion until actual control projection supplies
+  its complete roster. Original pins, native/portable separation and actual fresh
+  producer domains close before source access. Original parking coordinates remain
+  reserved even before any parking inode exists. Native area indices stay fixed
+  through pending classification; an actual retired-control roster supersedes only
+  its original empty fallback and consumes same-ledger successor funding.
+  Independent source review and 33 maintained methods pass without failures/skips:
+  eleven bound-prefix, eight metadata, six current-state and eight restoration.
+  [Bound-prefix evidence](../../verification/retained-layout-forest-bound-prefix-development.json)
+  retains three actual causal omissions and their fixes. Original native execution
+  remains an explicitly unmanaged dependency under real normal roles; genuine fresh
+  recovery effects use actual factories and acknowledgement. No canonical forest
+  phase or partition is manufactured. Fresh recovery observation now composes a
+  strict original native prefix with actual raw/canonical reacquisition and inverse
+  recovery records. Typed original interruption evidence is bound in the actual
+  recovery intent; inverse records can move only the deterministic original known
+  nodes. Fresh roles and complete native/payload closure verify recorded or pending
+  inverse state without a new occupied-source baseline. A pure derived-view seal
+  closes after actual descriptor teardown; its reached-callback regression fails
+  the predecessor. A separate OS process begins with empty registries and reopens
+  one completed inverse under actual fresh factories. Eight subjects are reviewed;
+  74 maintained methods pass without failures/skips, including thirteen retry
+  observation methods. [Retry observation evidence](../../verification/retained-layout-forest-retry-observation-development.json)
+  retains both causal failures, honest unmanaged-original scope and precise process
+  coverage. Actual fresh retry effects now acknowledge only the remaining inverse
+  schedule and retain the already-bound, complete nonempty quarantine. Intent@3
+  binds the exact preceding attempt and typed pending native witness; replay joins
+  multiple attempts before current source probing. New post-load forest events and
+  unknown records refuse. Strict acquisition-only tails bind exact actual canonical
+  and raw identities plus the live proposal history; copied canonical pairs and
+  forged raw pairs cannot replace it. Canonical JSON comparisons close the actual
+  bool/integer confusion. A genuine public-observation handoff now decodes against
+  its completed raw acquisition and exact published incoming lease, without gaining
+  canonical rights. New OS processes resume before/after/observed inverse prefixes;
+  one child exits after a real fsynced inverse, and a third process completes the
+  exact remaining moves. Actual metadata retry retains prospective-file inode/bytes
+  in a nonempty quarantine. Seven subjects are source-reviewed; 86 maintained
+  methods pass without failures/skips, including ten retry-effect and two actual
+  transcript-type methods. [Resume evidence](../../verification/retained-layout-forest-resume-development.json)
+  retains valid causal failures, the corrected invalid fixture and precise actual
+  process/effect scope. Existing supplemental public generations now have bounded
+  descriptive discovery under actual canonical mutexes, followed by independently
+  acknowledged raw acquisition and exact private/public projection. One genuine
+  supplemental generation reenters through fresh factories in a separate OS
+  process; both retained original-private and newer-public inodes/bytes survive.
+  Derived request/target references and catalogue lifetime close after final
+  callbacks. Five subjects are source-reviewed and 49 maintained methods pass
+  without failures/skips, including seven reached closure-mutation subcases.
+  [Generation evidence](../../verification/retained-layout-forest-generations-development.json)
+  preserves the causal request mutation and corrected child-harness failure.
+  A registered actual zero-action forest data witness now hands off to the exact
+  shared canonical control-disposition owner. Native normalization and exclusive
+  retirement advance both complete source/private custody and exact owned reader
+  facts, with pending released last after the durable decision. Original area
+  indices stay fixed. Finite prepaid non-reentrant reads and consumed native-entry
+  tokens close before effects; derived successor references/content close after
+  final native callbacks. Unsupported observed control aliases refuse before
+  intent. Four subjects are source-reviewed; 29 maintained methods pass without
+  failures/skips, including three actual forest handoff methods and all 26 shared
+  legacy disposition methods. [Forest disposition evidence](../../verification/retained-layout-forest-disposition-development.json)
+  retains both causal failures and the development failures before actual receipt
+  transfer. A separate actual diagnostic reacquires ordinary canonical roles
+  under a new real journal after descriptor teardown and preserves both retired
+  namespaces. The former old-journal disposition-suffix refusal is now resolved
+  by strict typed disposition transcript/current-span replay and a distinct
+  read-only owner made from actual fresh raw descriptors. A genuine separate
+  process starts with empty registries and observes the completed disposition
+  without recreating public native controls or canonical writer roles. An actual
+  interruption after the first native retirement observation now ends all owners,
+  reacquires a real missing replacement generation under a fresh canonical owner,
+  completes a separately acknowledged second disposition, and reopens all three
+  generations while preserving every earlier private inode and byte. Distinct old
+  groups may hand off the same incoming coordinate; repeated group/path or raw
+  identity/path and inconsistent identity/group bindings still refuse. Eight
+  affected maintained methods pass on final source; 47 distinct methods pass
+  across the recorded source lineage. Nine subjects are independently source
+  reviewed. [Terminal replay evidence](../../verification/retained-layout-forest-terminal-replay-development.json)
+  retains the causal failures, scoped checks, and exact restoration of accidentally
+  overwritten preexisting parking-terminal files and historical log. This is not
+  full public project reentry qualification. Actual advisory pwrite before truncate,
+  normalization before its observation, and retirement before its observation now
+  have maintained regressions with reached native-state assertions, actual fresh
+  canonical retry, terminal replay and private-custody closure. These three cases
+  and the prior observed-retirement retry pass as four independently reviewed
+  maintained methods; the combined checkpoint covers 50 distinct methods across
+  its recorded lineage. [Interruption evidence](../../verification/retained-layout-forest-interruption-development.json)
+  distinguishes initial incorrect advisory exception expectations from corrected
+  genuine predecision recovery runs; production needed no change for these cases.
+  Next close the genuine original canonical forest SourcePhase/acquired-partition
+  execution gap, including complete movement/metadata/finalization and original
+  budget continuity; public root/shared admission stays guarded until that
+  integration is qualified. Implement a distinct internal complete forest-operation
+  plan/factory binding the actual preparation, plan, pool/journal and private effect
+  coordinates. It must enter the existing genuine canonical source phase and
+  complete partition, drive movement/metadata/finalization, and close actual
+  resource/control teardown before returning. No boolean admission override,
+  manufactured owner or guard mock is permitted; ordinary `source_phase()` remains
+  guarded. Actual native diagnostics now complete root-out and plain-to-root
+  canonical transactions, including real acquired partitions and all original
+  teardown. A real interrupted canonical source effect also restores through
+  independently acknowledged inverse recovery and separately reopened control
+  disposition. Five maintained operation/admission methods and 37 native reader
+  methods pass; fourteen nonroot finalization methods pass. These are development
+  results pending consolidated evidence/gates. Complete committed-operation
+  recovery exposed a discovery cycle: an already published supplemental Git writer
+  marker blocks ordinary Git observation before its actual raw descriptor can be
+  discovered. Bounded descriptive bootstrap requests now use strictly decoded
+  generation receipts and actual prior producer targets under held project mutexes.
+  Normal exact raw acquisition still precedes fresh canonical Git derivation;
+  ordinary Git refusals remain intact and unknown anchors cannot be guessed.
+  Maintained actual canonical inverse, Git-bootstrap and plain-to-root cases each
+  pass. A full committed-operation diagnostic now completes fresh data recovery
+  and separately reopened canonical control disposition within the unchanged
+  16 GiB fresh metadata policy. Its independently reviewed workspace calculation
+  separates already-funded immutable observations, retained journal records and
+  simultaneous serialization scratch while preserving verifier-map funding,
+  cumulative reads, finite coupons and native checks. Three existing disposition
+  methods, actual committed and inverse recovery, and a causal insufficient-capacity
+  refusal pass as six affected methods at that operation checkpoint. Its 15 GiB
+  refusal originates in actual preflight before disposition intent or control
+  effects. Sixteen subjects are independently source-reviewed; 93 distinct
+  maintained methods pass across the precisely recorded source lineage.
+  [Operation evidence](../../verification/retained-layout-forest-operation-development.json)
+  separates earlier compatibility profiles, final affected checks, genuine causal
+  failures, corrected harness errors and the quota-test review correction.
+  Actual canonical mixed movement, interrupted inverse and committed recovery now
+  preserve unknown application files beside framework metadata/wrapper authority,
+  executable modes, empty directories, complete hardlinks and internal file/directory
+  symlinks, including original native custody, fixed shared anchors and Git index.
+  Receipt-only node fields project to the transaction's existing stat-only view;
+  the actual native owner retains and verifies the full span and link commitments.
+  A derived planning-allocation bound fits complete mixed committed control release
+  within the unchanged 16 GiB policy. Required-empty roots stop at the first entry;
+  old private-area scans use their complete verified current roster. Actual immutable
+  journal bytes cross callbacks; funded decoding follows native checks and a pure
+  trailing owner/marker/plan/map/path-reference close. Real canonical foreign-entry
+  and late-marker enlargement regressions refuse before intent or projection.
+  A 14 GiB declared observation causally refuses inside actual preflight before
+  effects. Actual interrupted predecision control retirement after a genuine
+  canonical transaction now retries through real G2 acquisition and a second
+  disposition, then verifies G0/G1/G2 terminal replay without replay writes and
+  preserves previous private nodes and source/Git custody. Fifteen subjects are
+  independently source-reviewed. The scoped record covers 95 maintained methods
+  across its source stages, including 35 affected final-production methods and
+  147 distinct methods when combined with the prior operation record.
+  [Canonical topology evidence](../../verification/retained-layout-forest-canonical-topology-development.json)
+  preserves the real stat-projection and quota failures, review corrections and
+  invalid fixture attempts. A later actual mixed directory-mode interruption
+  completes fresh inverse data recovery but cannot release controls: too few
+  events remain in the immutable 256-event journal. Final release and the diagnostic's
+  post-release mixed-custody assertions were not reached. Next implement supported
+  bounded recovery journal continuation or compact disposition recording, preserving
+  durable pre-effect intent, actual fresh descriptor provenance and complete source
+  custody; do not raise live policies/ceilings or reduce the topology. Then retain
+  the following compact representation: a versioned manifest binds the complete
+  ordered held-control roster and initial namespace before effects; actual intent
+  and observation subrecords remain individually durable in hash-linked immutable
+  journal payloads. Three top-level records commit batch intent, the exact
+  pre-pending release decision, and final completion. Replay must bind exact
+  subrecord indices, predecessor digests, declared actions and decision/completion
+  heads; forks, gaps, extra actions and orphan completion claims refuse. Existing
+  per-entry native dispatch/receipts, raw descriptor factories, legacy formats and
+  root/quarantine indices remain required. Preflight event and payload slots,
+  individual/aggregate bytes, stages, decoding/workspace and finite read coupons
+  before intent; immutable payload capacity is not an alternate unbounded log.
+  Implement writer, suffix/control replay and terminal observation together before
+  enabling this representation. A disabled pure codec now has independent source
+  review and ten focused maintained tests for manifest binding, immutable receipts,
+  forks/gaps, prefix freezing and finite payload/expansion limits. Expansion decodes
+  the raw manifest again; altered cached projections cannot borrow its digest.
+  [Codec evidence](../../verification/retained-layout-disposition-compact-codec-development.json)
+  records the corrected duplicate-source fixture and review corrections. Actual
+  writer, full held-roster/provenance binding, resource funding, suffix/control/
+  terminal replay and durable reacquisition prefix anchoring remain unimplemented.
+  Normalization explicitly restricts this format to the public named coordinate;
+  the actual planner must prove that restriction or refuse before effects.
+  No compact protocol is qualified yet. Retain
+  actual late-mode recovery and the remaining boundary evidence before public
+  integration. Qualify ordinary public reentry and
+  larger/multiple-generation topologies,
+  qualify all remaining native/metadata/mode/control interruption boundaries, then qualify
+  genuine integrated forest execution before enabling admission. Full public placement/renewal,
+  installed/platform, integration/release and all other roadmap obligations remain
+  open. Existing foreign destinations still
+  refuse: a collision-free graph alone grants no occupancy authority. Bind exact
+  original destination/prefix states and nearest observed directory anchors
+  through actual participants; execution must advance parent custody with effects.
+  Full-source qualification remains pending. Preserve public/legacy guards.
+  Root-destination metadata must be generated only after actual canonical role
+  discovery. Retain its prospective bytes with those original role facts before
+  acknowledgement; never accept a caller's ownership list as movement authority.
+  Preserve genuine framework/source collision refusals and all original nodes.
+  Account for absent canonical control targets in the original partition:
+  existing ancestors become fixed shared directories while their original
+  source contents and empty logical directories still project to the destination.
+  These prospective contributions must come from the actual canonical producer
+  roster; descriptive control-path labels alone grant no effect rights.
+  Keep root effects guarded until those participants, metadata and recovery are
+  complete. Preserve the recorded transport limitation until complete execution
+  qualification, and finish root/shared/initial/wrapper placement, full public
+  recovery and installed/native/full-program acceptance. Earlier ownership checks
+  remain in [development evidence](../../verification/retained-layout-ownership-development.json).
+
+- **Recovery control disposition (source reviewed; internal nonroot scope verified):** Join fresh verified data with
+  the actual original/supplemental descriptor owners. Preflight a complete bounded
+  disposition plan, require its exact acknowledgement, journal handoff and revoke
+  ordinary canonical writers before any marker mutation. Keep the same advisory
+  FDs locked while normalizing only owned reservation tokens; preserve existing
+  unrelated advisory bytes and retired private nodes. Journal exact exclusive
+  native quarantine moves and release pending last after a durable recovery
+  decision. Track only observed owned effects and retain all ambiguous/foreign
+  state. Reopen interrupted normalization and retirement from actual facts, then
+  prove fresh ordinary project reentry after descriptor teardown. This does not
+  complete public/root/shared/installed/native/full-program acceptance.
+  Approved [control-disposition evidence](../../verification/retained-layout-recovery-disposition-development.json)
+  binds the final independent source review and native outcome/currentness controls.
+  All 307 affected methods pass without skips, including all 26 disposition
+  methods. Next join the actual role-owned source partition and complete genuine
+  structural renewal and qualified admission before public/root/custom placement.
+
+- **Source/metadata recovery effects (source reviewed; public recovery unfinished):** Under the real canonical
+  recovery owner, join the validated original plan/raw payloads with complete
+  current source bytes/topology/native custody and exact public/private metadata
+  endpoints. Require a fresh acknowledgement before journaled exclusive moves.
+  Restore only still-owned pre-commit metadata/source nodes; retain published new
+  files privately instead of deleting them. A durable commit decision forbids
+  rollback and must close over the actual committed outputs. Preserve concurrent
+  or unsupported state with explicit unresolved diagnostics. Native data recovery
+  alone leaves public recovery and full-program acceptance pending; control
+  disposition is qualified separately above. Do not manufacture receipts or qualification.
+  Approved [data-recovery evidence](../../verification/retained-layout-data-recovery-development.json)
+  binds exact source and independent native closing, post-move cleanup and fresh
+  retry controls. Five causal methods fail the frozen initial source; final
+  Git/project and descriptor/producer closure repairs their pre-effect gap. All
+  two hundred eighty-one affected methods pass without skips, including all
+  twenty-eight data-recovery methods. The subsequent control-disposition step
+  above adds actual handoff, normalization, native retirement and fresh ordinary
+  project reentry under its separately reviewed scope.
+
+- **Recovery canonical-role composition (source reviewed; endpoint recovery unfinished):** Bind the actual current
+  project/conversion roles and registered Git inputs under the recovered real
+  descriptors. Require a fresh acknowledged proposal before publishing absent
+  canonical controls through the existing known-node staging owner. Preserve
+  retired tokens and relinquish only their exact former public observations when
+  a separate real staged descriptor owner takes those coordinates. Distinguish
+  completed reservation generations so subsequent interruptions remain inspectable.
+  Hold one descriptor per canonical advisory mutex, reject foreign controls and
+  changed roles, and revoke the combined lease before descriptor teardown. Complete
+  exact source/metadata endpoint recovery afterward; this step grants neither
+  source effects nor public/full-feature acceptance.
+  Initial type, post-read native closure, direct-construction and live-reference
+  regressions fail their preserved source lineages. Share normal role validation,
+  independently require complete canonical path/type coverage and keep the actual
+  Git/catalog references immutable through the context. Approved [canonical-role
+  evidence](../../verification/retained-layout-recovery-roles-development.json)
+  binds exact source and independent native closing/lifetime controls. All
+  two hundred fifty-three affected methods pass without skips, including all
+  twenty-nine current role methods. The separate data-recovery evidence above
+  now covers acknowledged source/metadata effects; control disposition remains open.
+
+- **Fresh recovery control ownership (source reviewed; transaction recovery unfinished):** Reopen the bounded journal
+  with explicit recovery, classify actual retained marker endpoints and bind that
+  read-only proposal to a fresh acknowledgement and host-execution authority.
+  Acquire new no-follow descriptors and advisory OS mutexes without initializing,
+  rewriting or deleting any marker. Recognize exact durable native-retirement
+  intents and bounded in-place normalization states, but never turn history or a
+  saved success flag into current canonical roles. Preserve private namespaces,
+  foreign public occupants and ambiguous outcomes. This prerequisite must compose
+  with actual project/Git roles and complete source/metadata recovery before public
+  recovery or feature acceptance; those full obligations remain open.
+  Independent review reproduces three native late journal/private-stage changes
+  crossing yield. Final dependency closure after marker observations repairs them;
+  all three causal methods fail the preserved initial review source. Approved
+  [descriptor evidence](../../verification/retained-layout-recovery-controls-development.json)
+  binds exact source and twenty-eight independently passing methods plus four
+  supplementary lifetime/retirement controls. All two hundred twenty-four affected
+  methods pass without skips. Next compose actual canonical roles, absent-control
+  staging and full
+  source/metadata endpoint recovery under these fresh descriptors.
+
+- **Normal control finalization (source reviewed; recovery unfinished):** Keep one actual canonical pending
+  transaction control under `litai/` until every other control is finalized, so
+  partial advisory normalization cannot admit another apply. Bind its absence in
+  read-only preparation; acquire it through the existing known-node/descriptor
+  producer, with no directory-prefix ownership grant. After exact source/metadata
+  closure and durable release intent, normalize only newly created advisory files
+  in place under their existing OS locks, preserve prior advisory files, quarantine
+  exact native controls and retire pending last. Successful internal nonroot
+  completion remains unqualified; fresh recovery and all other layout/acceptance
+  cells stay required before public apply.
+  Initial independent review requests device preflight before token normalization
+  in both live finalization layers. Both layers now refuse projected foreign devices
+  before token changes. Record the durable unqualified commit decision before
+  pending retirement; classify later errors as committed and commit-append errors
+  as unknown, preserving causes and interrupts. Approved [finalization evidence](../../verification/retained-layout-control-finalization-development.json)
+  binds all exact reviewed source subjects, nineteen independently passing methods
+  and three supplementary native release/interrupt controls. The affected scope
+  passes one hundred ninety-six methods without skips. Seven causal methods
+  reproduce seven failures and one error against frozen initial bytes. Next
+  complete fresh acknowledged recovery under actual new descriptors and current
+  endpoint classification; no broader layout, public or feature acceptance follows.
+
+- **Metadata publication (source reviewed; transaction unfinished):** Extend the committed
+  real source phase with exact old/prospective metadata publication under its same
+  project/Git descriptors. Stage known replacement files in caller-selected private
+  framework state, persist native intents before quarantining exact old nodes or
+  publishing replacements, synchronize held original parent descriptors and close
+  every source/control/private/authored input afterward. Retain old nodes and all
+  ambiguous endpoints; publish an explicitly unqualified structural layout only.
+  Seventeen metadata and twenty-four source controls initially pass. Independent
+  review reproduces foreign same-byte inode/current-map adoption and a cached
+  private writer creating a file after phase end through reused descriptor slots.
+  Three causal maintained controls fail old bytes; exact observed native binding,
+  explicit quarantine absence and phase-bound writer lifetime repair them. Twenty
+  metadata plus twenty-four source methods pass. Approved [metadata evidence](../../verification/retained-layout-metadata-publication-development.json)
+  reproduces all three initial regressions and passes forty-four methods plus eight
+  supplementary native/lifetime/closing controls. The hundred-and-seventy-seven-case
+  neighborhood passes without skips. Next implement normal journaled control
+  finalization/release and fresh acknowledged recovery in this same owner. All
+  root/shared/custom/L2/L4-L6 acceptance stays required before public apply.
+
+- **Source-effect owner (source reviewed; transaction unfinished):** Join actual project/Git descriptor controls
+  to the loaded selected wrapper, structural layout, initialization origin/baseline,
+  exact old/prospective metadata and a complete no-exclusion source capture.
+  An exact acknowledged source phase must durably bind these inputs before native
+  movement, preserve every node/topology and leave an explicit metadata-pending
+  result rather than claim relocation success. Start the nonroot directory phase
+  within the complete owner; root/shared-prefix and wrapper transitions, coherent
+  metadata publication, normal finalization and fresh acknowledged recovery remain
+  mandatory. Sixteen initial methods pass, but independent review reproduces
+  three replaced-plan effect/metadata gaps, a physical staging alias into source
+  and checkout-specific authored lineage. Five causal controls fail reviewed
+  bytes; actual-role/prospective rederivation, descriptor identity overlap and
+  portable content lineage repair them. Second review reproduces changed higher
+  destination ancestry returning metadata-pending; native case aliases also evade
+  lexical Git/source overlap checks. Three further causal controls fail intermediate
+  bytes. Actual directory identity checks and original parent descriptor/ancestry
+  custody through movement, descriptor synchronization and final closure repair
+  these gaps. Approved [source-phase evidence](../../verification/retained-layout-source-phase-development.json)
+  reproduces the three intermediate failures and passes twenty-four methods plus
+  four actual descriptor-lifetime/failure controls. The hundred-and-fifty-seven-case
+  neighborhood passes without skips. Next complete coherent metadata publication,
+  normal journaled control finalization and fresh acknowledged recovery in this
+  same owner. Keep all public apply guards and L2/L4-L6 acceptance open.
+
+- **Actual control-role composition (source reviewed):** Derive lifecycle, manifest and
+  conversion writer paths from a loaded original-source project, and Git roles
+  from actual registered administration, HEAD/ref/index and effective configuration
+  origins. Compose those derived targets with the staged descriptor owner. Cover
+  absent Git, unborn/absent-index, detached/packed HEAD, linked and containing
+  repositories and included configuration files. Independent review reproduces
+  actual native writers bypassing empty/missing include targets. Five causal
+  writer controls fail the reviewed source; native declared-path discovery binds
+  these targets and conservatively reserves inactive conditional targets. A sixth
+  causal control repairs canceled-prefix symlink traversal without refusing safe
+  parent-relative includes. Approved [source evidence](../../verification/retained-layout-control-roles-development.json)
+  independently reproduces all six include/redirect failures, passes twenty-two
+  maintained methods and three supplementary native controls. The hundred-and-thirty-three-case
+  neighborhood passes without skips. Next compose these actual controls with
+  selected-wrapper/current-layout/initialization, full source custody and exact
+  acknowledged effects under one transaction owner. Complete
+  source/selected-wrapper/execution custody, journaled effects/finalization/recovery
+  and every L2/L4-L6 qualification cell remain required before public apply.
+
+- **Staged reservation acquisition (source reviewed):** Join journaled publication to a
+  real descriptor-backed owner. Preflight complete target occupancy, aliases,
+  ancestry, one filesystem and bounded stage/journal resources; publish missing
+  parents and tokens, reopen without creation and verify exact native nodes/bytes
+  before real advisory locking. Existing advisory controls remain unchanged;
+  partial and complete sets retain controls while attempting every descriptor close. Thirteen
+  native methods block actual lifecycle and Git writers and test partial failures,
+  identity drift, process lifetime and release. Independent review identifies a
+  closing dependency gap: final marker observations can admit a changed private
+  stage namespace or journal before later context exit refuses. Close both actual
+  dependencies after the last blocking marker reads, then native/namespace/ancestry
+  facts. Two maintained acquisition-yield controls fail the original bytes; fifteen
+  methods pass with the repair. Independent owner re-review approves its exact
+  source scope, then actual composition probing finds inherited journal cleanup
+  releases the parent's shared native mutex. Two further causal journal controls
+  fail the original; acquiring-PID-bound unlock preserves the parent mutex through
+  both child cleanup paths. All thirty-two journal/owner controls pass after repair.
+  Approved [composition evidence](../../verification/retained-layout-staged-reservations-development.json)
+  reproduces both original fork failures and passes thirty-two methods plus three
+  supplementary native cleanup/ancestry controls; the hundred-and-eleven-case
+  neighborhood passes without skips. Typed targets still grant no
+  actual project/conversion/Git roles, source effects, recovery or qualification;
+  compose those owners and every remaining full-program acceptance cell.
+
+- **Journaled control publication (source reviewed):** Privately stage known marker
+  files and empty directories, persist exact native source/destination/parent and
+  raw payload intent, then publish with exclusive rename and directory synchronization.
+  Hold original ancestry and journal writer custody, reject token replay, protect
+  the journal namespace by descriptor identity and retain all ambiguous outcomes.
+  Three maintained closing regressions fail the original bytes; the final private
+  namespace/native-fact snapshot repairs success across final-read mutations. The
+  approved [publication dependency](../../verification/retained-layout-control-publication-development.json)
+  passes fifteen methods and five independent supplementary mutations; ninety-four
+  neighborhood cases pass without skips. Returned facts are point-in-time data,
+  not actual project/Git roles, live reservations or recovery authorization. Bind
+  those actual owners and complete every retained-layout acceptance cell before
+  public apply or feature closure.
+
+- **Live reservation retention (source reviewed):** The existing descriptor-backed
+  owner has a one-way request to retain every marker and created parent on both normal
+  and failed context exit, while closing descriptors and invalidating the live
+  owner. Select retention before currentness checks so conflicts also preserve the
+  other controls; retain both body and release errors. Existing callers keep their
+  cleanup contract. This does not journal acquisition or grant recovery ownership:
+  complete layout preparation still requires privately staged known nodes and
+  durable intents before any public control creation, actual project/Git/control
+  role binding and fresh endpoint classification. Seven maintained native source
+  controls and the seventy-one-case neighborhood pass. Independent review found
+  release stopped on an interruption before attempting later descriptors. Two
+  maintained causal controls fail that exact source. Bounded per-descriptor error
+  collection attempts every remaining close once and preserves interruption/body/
+  release diagnostics. Nine retention controls and the three existing critical
+  marker controls pass after repair. The approved [retention dependency](../../verification/retained-layout-reservation-retention-development.json)
+  independently reproduces both original failures and passes twelve methods plus
+  six supplementary controls. The seventy-nine-case neighborhood passes without
+  skips, including actual Git reservations/object installation and retained Cargo
+  materialization. Staged durable acquisition, the full transaction/recovery owner
+  and all complete-program acceptance remain required.
+
+- **Durable journal dependency (source reviewed):** The journal stores bounded
+  private raw payloads and hash-linked present events under actual writer mutexes,
+  original ancestry/descriptor/process custody, exclusive native publication and
+  file/directory synchronization. Explicit reopening requires the same project/plan
+  binding and budget, retains incomplete stages as diagnostics and grants no
+  project/Git/control/move/deletion authority. Caller-selected framework state may
+  be inside the project; preserve PROJECT goal 8 and the pending containment ADR.
+  Fifteen actual macOS controls pass. Initial independent review identified that
+  cache-lock initialization mutated an empty foreign recovery lock before
+  refusing, and currentness missed foreign insertion during record reads. Three
+  maintained causal controls fail the original bytes; existing-only acquisition
+  and closing membership checks repair both defects. The approved [journal dependency](../../verification/retained-layout-journal-development.json)
+  independently reproduces all three original failures, passes all fifteen repaired
+  methods and seven additional quota/acquisition/closing controls. The seventy-case
+  affected neighborhood passes without skips; the shared helpers remain unchanged.
+  Windows durability, the actual owner, complete placement/relocation/recovery/
+  renewal and release acceptance stay open.
+
+- **Native entry source dependency reviewed:** The separate [entry dependency](../../verification/retained-layout-native-entry-development.json)
+  preserves file/directory/link nodes through actual macOS moves, retains foreign
+  conflicts, and closes held parents after all endpoint observations. The new
+  causal closing-parent test fails old bytes and passes the repair. Controlled
+  wide physical-ID values retain exact custody hashes instead of exceeding the
+  canonical signed-64-bit domain. Independent review passes 24 focused methods
+  and two closing controls; the full 55-method neighborhood passes without skips.
+  Existing directory-only APIs and reused helpers stay unchanged. The actual
+  project/Git/control owner, durable journal/recovery, public apply and all other
+  complete-program acceptance remain required before this dependency is consumed.
+
+- **Native integer identity refinement (source reviewed):** Physical node facts
+  beyond the canonical JSON signed-64-bit integer domain retain their exact values
+  through tagged decimal local custody hashing, following repository-refresh.
+  The controlled wide-ID regression is included in the reviewed entry dependency;
+  actual wider-ID host and Windows qualification remain open.
+
+- **Native entry movement dependency (source reviewed):** The separate exclusive
+  move primitive supports regular files, directories and symbolic links while
+  preserving existing directory-only APIs. Expected source facts and pinned
+  source/destination parent ancestry refuse occupied/portable-alias or
+  cross-device destinations and unsupported native operations before fallback can
+  copy or overwrite anything. Actual native exclusive rename and Windows
+  file-identity/parent-handle adapters preserve link text and inode/topology and
+  report ambiguous post-effect conflicts without deleting or rolling back foreign
+  state. The future transaction caller must own full source hashes/topology,
+  lifecycle/reservations and durable journal intent before using the primitive;
+  this dependency does not expose public apply or grant those missing authorities.
+  Independent review reproduced a destination-parent replacement during the final
+  endpoint observation that reported success. The closing parent guard and causal
+  native regression repair that defect; the approved re-review and supported pin
+  renewal are recorded in the entry dependency above. Actual Windows execution and
+  the complete transaction owner remain required.
+
+
+- **Complete partition census source evidence:** The new [read-only census](../../verification/retained-layout-partition-census-development.json)
+  captures complete raw namespace facts and exact proposed file labels without
+  exclusions. It rejects cross-partition and mixed-target links, preserves complete
+  hardlink groups, and binds original ancestry plus physical nodes into its identity.
+  Both new custody controls fail the prior primitive; all eleven census controls,
+  four independent closing controls and the 37-method neighborhood pass without
+  skips. Independent review approves exact source and unchanged reused helpers.
+  Observations confer no live descriptor or movement authority; actual control/Git
+  ownership, L2-L6 transactions/renewal and all integrated acceptance stay open.
+
+- **Full transaction continuation (in progress):** Follow the
+  [execution contract](retained-layout-transactions.md), retaining every accepted placement,
+  relocation/recovery and renewal cell. The read-only complete census and separate
+  native entry dependency are reviewed; their evidence does not grant live source
+  or control ownership. Continue the durable journal, then bind actual current
+  project/Git/control authority and descriptor-backed canonical reservations before
+  any source effect. Recovery must freshly classify real endpoints, preserve every
+  foreign node and refuse unknown state. Complete structural renewal, initial
+  plain/root/custom placement, every relocation cell and genuine evidence renewal;
+  keep unsupported public apply cells guarded until that owner is complete.
+
+
+- **Declaration ancestry source evidence:** Both new methods produce 12 failing
+  subtests against predecessor `6fc67588e`, covering redirect and direct replacement
+  at metadata, project and higher ancestors during open and encoding. The repaired
+  reader captures original ancestry identities and rechecks them after canonical
+  encoding, then closes final-file custody. All 18 layout/update controls pass
+  without skips. [Development proof](../../verification/retained-layout-ancestry-development.json)
+  preserves exact bytes and controlled scheduling scope. [Independent source review](../../verification/retained-layout-independent-review.json)
+  approves the repaired reader and all nine peer-context production files; all
+  18 focused methods and five supplementary controls pass independently. Renew
+  supported pins after this review; installed/native and relocation acceptance
+  remain open.
+
+- **Declaration ancestry refinement:** Independent peer-context
+  review approves the complete-read fence but reproduces accepted declaration
+  reads through redirected or replaced metadata parents. The original file inode
+  and bytes stay unchanged, so closing file checks alone cannot bind structural
+  authority. Retain the full original directory ancestry identities and recheck
+  direct safe ancestry through read, parse and canonical encoding before return.
+  Require deterministic symlink and direct-directory replacement controls at
+  metadata, project and higher ancestors, including changes during encoding;
+  preserve complete-read, absent-legacy, canonical positive and no-write behavior.
+  Trusted-driver renewal stays held until this broader context is approved.
+  Correct the retained original-source fixture count from one to two errors;
+  all 16 repaired compatibility controls remain independently passing.
+
+- **Complete declaration read development evidence:** The maintained causal
+  method fails in both suffix subtests against unchanged PR349 reader bytes.
+  After the two-line length fence and temporary-root fixture correction, all
+  16 declaration/layout/update methods pass with no skips. Full reads preserve
+  canonical positives and refuse noncanonical suffixes; short-read refusals leave
+  file bytes and physical identity/mode/size/mtime unchanged. [Development proof](../../verification/retained-layout-complete-read-development.json)
+  retains the controlled-port scope and separate pre-existing fixture failure.
+  Independent peer-context review, trusted-driver renewal and full source,
+  installed/native and relocation acceptance remain open.
+
+- **Selected-wrapper fixture refinement:** The adjacent update compatibility
+  selection exposes another unresolved temporary-root fixture: the selected
+  wrapper positive follows the host temporary-parent alias and refuses before
+  declaration reading. The same test fails against unchanged PR349 production
+  bytes. Canonicalize these fixtures' temporary roots, retaining the original
+  invalid-coordinate and redirected-root refusals. This is test portability,
+  separate from declaration completeness; requalify both modules together.
+
+- **Complete declaration read refinement:** Controlled inspection
+  of PR349 `3c3724749` reproduces acceptance of a canonical JSON prefix from an
+  actual longer, unchanged file when the descriptor read returns short. Matching
+  before/open/after metadata alone does not prove all declaration bytes were read.
+  Refuse any bounded read whose length differs from the descriptor's measured
+  file size before parsing, preserving the existing finite byte ceiling, direct
+  no-follow path guards and canonical encoding. Add causal real-descriptor short
+  read controls with noncanonical whitespace and invalid suffixes, preserving
+  exact input bytes and normal complete canonical reads. Keep the trusted driver
+  pin held pending independent review and full source/installed integration;
+  this reader repair does not implement relocation or qualify PR349 as a whole.
+
+- **Portable fixture repair (2026-11-07):** PR #349's exact Windows/macOS fixture failures used an unresolved temporary directory before the intended roadmap-cycle assertion. The same refusal reproduces on Linux with a symbolic TMPDIR parent. Canonicalize the positive fixture roots before creating retained authority; keep redirected-root and descendant refusal intact. Requalify the corrected source on all supported platforms; this does not complete selected-placement apply, relocation or receipt renewal.
+
 - **Priority:** P1
 - **Owner:** Framework core: adopted-project layout, inventory, updates, retained receipts and readmission
 - **Release target:** 1.4.0
@@ -23094,7 +28499,55 @@ independent review and the complete combined gate from test one.
   - [ ] Prove stale plans, destination collisions, escaping aliases, changed source and interrupted moves refuse without data loss; rollback restores exact original custody and prior evidence.
   - [ ] Verify legacy adopted projects keep their default layout and that changed placement cannot reuse an old receipt or manufacture live source authority.
 
+- **Current finite native-read reservation (in progress):** Complete body reuse
+  passes all 26 native journal controls and five native disposition methods. The
+  original three-generation retry still refuses within its unchanged file and
+  metadata policies: marker-only reservations lower its charged file reads from
+  70,374 to 67,000, still above 65,536. All five marker-aware disposition methods
+  pass. Audit the actual registered dispatch: each action performs six full
+  native verifications (five writer checks plus its successor closure), alongside
+  two independently funded marker reads. Reserve those actual action checks,
+  existing fixed planning/refusal allowance and original descriptor-exit allowance
+  before effects, instead of multiplying every intent/observation schedule row by
+  eight. Preserve all full native reads, journal storage, caller limits and G2
+  test bytes. Make the real complete native journey assert the observed full-read
+  count, then renew the unchanged G2 and five-method disposition gates.
+  The complete actual G2 scenario now passes in 2,108.113 seconds, and all five
+  affected native disposition methods pass in 2,613.186 seconds, without skips.
+  Their unchanged scenario, budgets and deadline retain real G0/G1/G2 acquisition,
+  interruption, native retirement and terminal replay. The full journey's exact
+  action-count assertion passes. This is internal recovery evidence; current
+  independent review, the complete cohort/integration and public/platform/release
+  gates remain required. [Scoped development record](../../verification/retained-layout-disposition-budget-development.json).
+
+- **SDLC journal publication checkpoint:** The two-pass byte observation now has independent narrow source approval and 23 passing native journal controls. The fixture reads 1,022 bytes rather than 2,044; full standalone/reopen checks, exact roster ownership, named ancestry and late file/directory closure remain. The genuine G2 retry advances beyond its earlier 69,170/65,536 file-read refusal but fails after 531.879 seconds while funding repeated event decoding in fresh supplemental-control discovery. Next action in progress: measure that actual replay demand and share only immutable authenticated descriptions within the creating observation, preserving fresh native validation and unchanged limits. The separate mixed-mode prepay failure and complete public/platform/release qualification remain open. [Publication development evidence](../../verification/retained-layout-journal-publication-development.json) retains the causal and failed-run history.
+
 ### [ ] CARGO-COMPAT-001 — Qualify reviewed retained Cargo workspace compatibility
+
+- **Windows fixture renewal (in progress):** Exact-candidate CI job
+  `137225393211` reaches the real packaged Cargo journey, then refuses the test's
+  generated TOML because native relative paths contain unescaped backslashes.
+  Spell this fixture's dependency paths with forward slashes before inserting
+  them into TOML. Preserve both actual shared-sibling execution and embedded
+  package-collision assertions; renew native Windows CI before qualification.
+
+- **Current combined integration (in progress):** Normal history composes PR425 `123e50c4c`, PR431 `9c3ebb122` and PR434 `ddbda1a35` with current main and the bootstrap/diagnostic/Cargo-currentness batch. Independent review covers original live owners, version-specific metadata/protocol checks, explicit retirement, provider/consumer tool separation, output ownership and bounded streaming custody. Only the native-provider import conflict needs composition: retain the contributed public observation parameters and the previously reviewed PR435 read-only parse scopes, with every fresh/closing guard preserved. `verification/retained-cargo-stack-integration-review.json` binds all changed production files; all except that explicit union match PR434 exactly. The reviewed composition passes strict lint/format, repository layout, public export, driver/runner and documentation-authority checks. Canonical trusted-driver renewal follows the independent contributor review. The canonical Cargo critical subset passes all 43 selected methods with zero skips, including the 12 output-budget/streamed-custody controls. The provider critical subset also passes all selected methods without skips. These bounded controls retain file replacement, write/restore, aliases, complete membership, legacy wire/default identity and independent observation guards; they do not qualify a genuine provider or full application. The complete native macOS receiving module then passes all eight cases with zero skips on combined source `94036ab84`, using actual Cargo/Rust processes. Its reopened v2 receipt binds 16 successful commands and seven targets: five libtest, one custom harness and one permitted exclusion; 59 complete input checks remain exercised. Original-source retirement/refusal and post-process input/permission/binary mutation controls pass. The producer remains the declared synthetic contract fixture; genuine producer/full-application admission is separate. Complete final combined source/installed and exact-head/resulting-main gates remain required. Prior contributor evidence remains scoped to its original revisions; no whole-application or genuine-producer acceptance is inferred.
+
+- **Bounded native output custody:** [#433](https://github.com/jordanhubbard/literate-ai/issues/433) records that selected executables, immediate loader-directory files and recursive build-script outputs are still pooled in fixed payload-retaining closures. Add opt-in independently reviewed v2 output byte budgets and bounded streaming custody, retaining complete byte/membership/alias/ancestor/currentness checks and all declared targets. Preserve v1 behavior, existing defaults and unchanged v2 identities when the option is absent. A policy allowance grants no materialization, execution, source-retirement or admission rights. First qualify codec/default/limit controls and real large-file mutation/lineage/memory fixtures, then native full-workspace receiving and installed qualification. Historical size observations and a source patch do not qualify application admission or performance; no parent merge, release or default SDK change is authorized by this continuation.
+
+- **Independent provider/consumer observations:** [#430](https://github.com/jordanhubbard/literate-ai/issues/430) records that the public native-provider reader hides the existing guarded observation parameters and the v2 convenience composition incorrectly uses provider Cargo/Rust identities as consumer execution authority. Expose the existing custody-only observation route without private native construction, and accept a separately measured, paired consumer Cargo/Rust observation. Preserve the original provider command/oracle/promotion guards, local defaults and independent importing policy. Five new consumer composition cases and seven unchanged archive-fixture regressions pass through the maintained Python gate (12 passed, no skips, 54.443 seconds), including actual owned-launcher byte drift and complete original archive reopening. The producer evidence in these tests is an explicitly synthetic contract fixture, not model-generation or cross-host application acceptance. Three public-reader custody cases also pass (1.140 seconds), including real dependency-file drift and missing-guard refusal. Mutual independent source review covers both production changes. [Combined Linux qualification](../../verification/retained-cargo-v2-provider-consumer-linux.json) on `44acdf2d9616de4ea1ed8d19c941ac931a0a9ab9` now passes all 11 source/build/wheel/private-install gates: 2,821 canonical methods selected, 2,707 passed, 114 existing skips and zero failures. All 5,345 source members, eight tools, four prior input namespaces and the managed runtime remain unchanged; the unit and every owned phase root/group are independently closed. The noneditable 4,272,061-byte wheel retains `sha256:d85f853613f445ff6602d2ca78762fa9f7a3c42d29347d24de3305acba63fb58` and its original `44acdf2d` source identity. These source and installed-SDK results do not qualify complete application receiving, genuine cross-host/model acceptance or the provider/consumer handshake; those remain pending. No historical observation or copied identity becomes live authority.
+
+- **Secondary retained build-output intent:** [#429](https://github.com/jordanhubbard/literate-ai/issues/429) records an unchanged full retained gate producing WASM assets beneath an existing package source parent, outside the disjoint Cargo target root. Add only an explicit v2 build-output scratch role under the same reviewed ignored/absent path, exclusive inode publication, live reservation and complete original-source custody as existing scratch. Refuse manifest/target-source overlap and preserve foreign/pre-existing/replaced output. Keep all original gates, full workspace/patch closure, actual source retirement and v1 behavior; neither Git ignore nor a saved plan/receipt grants output or exclusion authority. Qualify exact role codec/overlap refusals, real filesystem ownership/currentness and a real complete native consumer gate that writes the secondary output before any downstream use. Portable provider observations, artifact transport/cache publication and whole downstream admission remain separate. Eight focused contract/filesystem controls plus nine unchanged receiving/materialization/runtime regressions pass through the maintained Python gate (17 cases, 193.157 seconds). The causal prepatch role refusal and corrected roundtrip are retained. The same [combined `44acdf2d` Linux source/wheel qualification](../../verification/retained-cargo-v2-provider-consumer-linux.json) now passes all 11 maintained gates, including the full canonical suite and actual noneditable wheel/private-prefix installation, with original inputs and actors independently closed. This qualifies the SDK implementation and packaging, not a complete application consumer gate producing secondary output. Actual full application receiving, secondary-output execution and the provider/consumer handshake remain pending; no model or cross-host acceptance is claimed.
+
+- **Native fixture deadline qualification:** The Python 3.11 CI cell completed six native refusal cases but exceeded the positive case's caller-selected 480-second deadline. The same positive case took 428.569 seconds on a three-CPU worker. Use the existing finite 900-second public API default in this integration fixture and qualify the unchanged real source/runtime checks on a two-CPU worker before updating the PR. Production bounds, deadline enforcement, input observations, source retirement requirements and refusal cases remain unchanged. Preserve the earlier CI failure and local measurements; this test allowance is not evidence of downstream application admission.
+
+- **Implicit Rustup fixture repair:** The current native receiver fixture replaces HOME before probing an actual Rustup shim, losing the caller's implicit toolchain root when RUSTUP_HOME is absent. A real Python 3.11 shim control reproduces the same Cargo-version failure as PR #425; the identical shim succeeds with the original root explicitly preserved. Capture the original default root before HOME isolation, preserve every explicit RUSTUP_HOME value including empty or invalid values, and retain actual compiler/hash and fail-closed discovery checks. Qualify default/explicit/empty/invalid controls, the genuine failed native case and all seven affected native receiving cases before pushing this fixture-only repair. Existing producer identities, public APIs, tool defaults and execution ceilings remain unchanged; earlier source-qualified results remain historical.
+
+- **Mixed-interpreter qualification repair:** [#424](https://github.com/jordanhubbard/literate-ai/issues/424) records the unchanged accepted-source export fixture compiling expected bytecode with its Python 3.14 test process while the correctly admitted Standard compiler selects supported Python 3.12. Keep merged [PR #407](https://github.com/jordanhubbard/literate-ai/pull/407)'s narrower installed-fixture evidence intact. The test now observes the actually accepted command-contract compiler binding, independently reopens its exact native identity, and compiles expected bytes through that same guarded command. Exact-history inputs are snapshotted before rebuild and remain independent of builder mutation. Genuine unchanged upstream main reproduces the bytecode mismatch; one corrected case passes under the same actual Python 3.12.10 compiler and 3.14.4 test runtime in 57.928 seconds. The first observer's wheel-only-target failure and every earlier result remain preserved in [the development observations](retained-cargo-receiving-development.json). Full maintained coverage, including successive revisions, installed/wheel and cross-SDK qualification remain pending; no interpreter switch, byte normalization, skip, producer change or downstream admission is claimed.
+
+- **Receiving implementation intent:** Complete a supported public Python v2 transaction from current reviewed wrapper/scratch and exact native library archives through collision-safe package publication, patch-aware metadata, versioned test protocols/input custody and a receipt requiring genuine source retirement. Preserve every v1 path and refusal; no v2-to-v1 authority cast, implicit scratch adoption, edited native package or empty retirement record is permitted. Existing [#222](https://github.com/jordanhubbard/literate-ai/issues/222), [#223](https://github.com/jordanhubbard/literate-ai/issues/223), [#224](https://github.com/jordanhubbard/literate-ai/issues/224), [#225](https://github.com/jordanhubbard/literate-ai/issues/225) and [#226](https://github.com/jordanhubbard/literate-ai/issues/226) own this continuation. Source/native fixtures must prove a complete retained workspace with registry path patches, current authority around each effect, strict private-source retirement, honest libtest/custom/excluded coverage, foreign mutation preservation and unchanged v1 regressions before installed/public admission claims. Implementation and qualification remain in progress.
+
+- **Receiving development checkpoint:** Public Python v2 composition and strict original-source admission now pass a real generic native fixture: all sixteen consumer commands return zero, with fifty-nine complete input checks, five libtest targets, one measured custom target, one explicitly excluded target and four reviewed ignored cases. Five callback-boundary controls and three actual post-process input/permission/binary mutation refusals pass; all earlier failures remain preserved in [the development observations](retained-cargo-receiving-development.json). Independent closure confirms the exact source and tools unchanged and every owned test actor retired. This proves generic originally inventoried source retirement, not a downstream application import. Full maintained regression, installed non-editable and genuine cross-SDK composition remain pending; no issue completion or downstream admission is claimed.
 
 - **Release target:** 1.4.0
 - **Accepted decision:** [ADR 0054](../decisions/0054-reviewed-retained-cargo-compatibility.md); explicit directing-user acceptance on 2026-11-02.
@@ -23124,6 +28577,8 @@ independent review and the complete combined gate from test one.
   - [ ] Preserve v1 positives/refusals and require installed non-editable and integrated exact-head qualification before completion.
 
 ### [ ] COMMAND-WORKER-001 — Address workers through reviewed reachability commands
+
+- **Deadline-control acceptance:** [Resulting-main original-child cleanup record](../../verification/command-worker-deadline-main.json) binds `638845ec00272776ae4644944d6e1dec4b1c4ff6`. The corrected #420 control passes the complete review and resulting-main 27-job matrices and the current native Python 3.15 source suite. The actual original Popen owner is observed even when expiry precedes the receiver's PID-file write; caller budgets and production cleanup are unchanged, and the original failed macOS run remains preserved. This completes #420 only; the broader command-worker goal remains open.
 
 - **Release target:** 1.4.0
 - **Accepted decision:** [ADR 0055](../decisions/0055-command-addressed-worker-reachability.md); explicit directing-user acceptance on 2026-11-02.
@@ -23198,12 +28653,148 @@ independent review and the complete combined gate from test one.
 
 ### [ ] WORKER-TELEMETRY-001 — Expose bounded authenticated read-only worker telemetry
 
+- **Reservation publication source evidence:** Both added owner-transition controls
+  fail against predecessor `0a8f7a885`; after serialization, all 16 reservation
+  methods pass. The complete telemetry selection passes 89 methods with 11
+  declared Linux-only skips on macOS. Slow observation-clock sampling does not
+  delay the original operation's result or capacity release, and readers succeed
+  while publication ownership is held. [Source evidence](../../verification/worker-telemetry-publication-currentness.json)
+  retains these scopes. [Independent review](../../verification/worker-telemetry-independent-review.json)
+  approves the exact repaired source and unchanged peer context; all 16 reservation
+  methods pass independently. Renew the driver pin through the supported command;
+  full source/installed/native/public-feed acceptance stays open.
+
+- **Reservation publication refinement:** Independent review of the
+  PR416 context deterministically reproduced binding overwriting concurrent
+  quarantine through the actual capacity owner. The old snapshot restored a
+  readable view while the original request remained unresolved. Serialize all
+  immutable reservation publications under a short dedicated owner lock; construct
+  identities outside it and revalidate live flags before publishing. Retirement
+  and quarantine stay sticky, stale completion cannot clear a successor, and
+  observation readers must remain independent of publication and capacity locks.
+  Require deterministic bind/quarantine and bind/retire predecessor failures,
+  preserved original operation results and capacity lifetime, then renewed review
+  before advancing the driver pin. This repairs an implemented primitive and
+  leaves the public feed and full native/installed acceptance open.
+
+- **Currentness repair evidence:** The original 18 polling methods pass before repair, while all three added closing-boundary regressions fail against that same source. After the two-line closing clock check, all 22 polling methods pass with no skips, and the complete telemetry selection passes 86 methods with 11 declared Linux-only skips on macOS. [Source evidence](../../verification/worker-telemetry-polling-currentness.json) retains the expired-ticket/coalesced-deadline/regressed-clock refusals and collector-slot/leader preservation. Independent review approved this narrow polling guard; the broader reservation-publication repair and peer context also have independent source approval. Full source, installed/native/public-feed and exact integration requirements remain open.
+
+- **Ticket currentness refinement:** Independent source inspection and a controlled correlated-clock reproduction at PR416 head `6e42b7ef3` show that `require_current` can enter before its monotonic ticket deadline, reload current policy, and return after that deadline while the separate wall expiry is still valid. Recheck the original monotonic clock after policy validation, refuse expired/regressed observations, and preserve the original collector slot until its finally hook retires it. Add causal regression controls for slow policy reads, coalesced participant deadlines and deadline regression; this pure admission repair does not establish native transport or complete the feed.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#280](https://github.com/jordanhubbard/literate-ai/issues/280)
 - **Accepted decision:** [ADR 0059](../decisions/0059-authenticated-read-only-worker-telemetry.md); explicit directing-user acceptance on 2026-11-03.
-- **Next action:** Implement the accepted bounded authenticated telemetry feed and its job/source attribution controls. Implementation and installed/native qualification remain open.
+- **Next action:** Qualify and independently review the versioned live-owner
+  feed integrated at `82fe2dc69` through actual registered worker routes. Preserve
+  the existing v1 admission, polling and reservation-publication repairs; the
+  separate v2 request/response/authentication retains their original contracts.
+  Current Linux source and scoped fresh-wheel results are recorded under
+  HANDOFF-001; they do not complete native provider, actual remote-action
+  attribution or installed SSH/command-route acceptance. Retain the existing
+  pressure command for host health. In earlier retained capacity observations,
+  an aligned Linux worker reported GPU capacity in two consecutive samples.
+  The earlier controller labeled those samples `gpu-busy-progressing` with
+  no action identity. The reviewed classifier returned `gpu-idle` in a later
+  observation on that worker. Controlled samples also cover a disappearing
+  GPU. These observations leave live action progress and I/O unqualified.
 
-- **Planning verification:** Proposed ADR 0059 and this intake have independent source/design approval. The previous two-design, pre-integration checkpoint and passing fresh consolidated gate are recorded under [RETAINED-TREE-EXPLORER-001](#retained-tree-explorer-001-publish-hierarchical-retained-tree-html-information-cards). The current source audit distinguishes pressure probes and discrete action attestations from the missing telemetry feed; it claims no live telemetry or job-attribution qualification. The directing user explicitly accepted ADR 0059 on 2026-11-03; every implementation/evidence item remains open.
+- **Planning verification:** The accepted ADR and its intake have independent
+  design review. The earlier consolidated gate is recorded under
+  [RETAINED-TREE-EXPLORER-001](#retained-tree-explorer-001-publish-hierarchical-retained-tree-html-information-cards).
+  The outstanding implementation and evidence are listed below.
+
+- **Contract foundation in progress:** `contracts/worker_telemetry.py` adds a closed
+  data-only request binding controller/catalog/registration/worker/observation-scope
+  identities, a 32-byte nonce, a finite 30-second window and at most 64 uniquely
+  sorted action identities; aggregate scope is distinct. No arbitrary PID, path,
+  command, environment, output or display-text selector is admitted. Metrics retain
+  explicit measurement scope, closed status, fixed units and counter/gauge meaning;
+  unmeasured values are null. Progress requires actual completed/total work or a
+  closed indeterminate reason. Ninety-three focused contract/wire/schema/authentication/authorization/polling/native-process/controller-reservation controls pass, plus the existing catalog
+  structure and schema-check-scope controls. Additive request/observation/response
+  header schemas resolve in the current runtime catalog. The codec checks the
+  aggregate 1 MiB bound and newline count before allocating a frame list, then
+  enforces 16 KiB per record including framing before parsing. It refuses duplicate
+  fields, nonfinite values, missing/duplicate/substituted action samples and changed
+  request/worker/scope/expiry bindings. Unsupported, denied and unavailable responses
+  remain explicit. Owner/process-start/reservation/counter epochs and observer
+  epoch/sequence remain untrusted data; terminal references do not authenticate a
+  result. Telemetry-only HMAC-SHA256 envelopes now use explicit private observation
+  credentials, bind principal/key identity and exact framed body, separate
+  request/response domains, and reject expired/future messages. The bounded reader
+  caps each read before retaining bytes and keeps framing inside the aggregate
+  budget. These are message authentication primitives, not observation scope
+  authorization, a live action owner or an implemented route. Message verification
+  now yields an immutable, nonserializable in-process proof. A private current-policy
+  port checks controller/catalog/registration/worker/key/action or explicit aggregate
+  permission under an original scope epoch; authorization claims a bounded nonce
+  atomically. Changed policy closes the owner, retained permits revalidate, clock
+  regression refuses, and full replay windows refuse without evicting live claims.
+  Reconstructing identical policy creates a fresh scope and cannot restore prior
+  permits. These authorization controls use real message MACs with injected policy
+  and clock ports; they do not prove native configuration custody or process ownership.
+  The original scope now binds exactly one finite polling admission owner: a one-second
+  minimum between new collections, at most four collectors by default (hard ceiling
+  sixteen), and at most 64 participants per collection. Equivalent active selectors
+  coalesce without another collector or extension of the first deadline; shorter
+  participant expiries remain independent. Nonces are authenticated and claimed before
+  admission, busy/rate/capacity excess refuses without a queue, and no samples/history
+  are retained. Cancelled or expired collectors keep their slots until their original
+  finally hook retires them, preventing uncooperative collection from creating capacity.
+  Clock regression closes this observation owner; slow policy checks cannot backdate
+  a collection start or return an expired ticket. These are process-local admission
+  controls with real MACs and injected policy/clocks, not running native collectors,
+  transport cancellation or verified job isolation. Freshness/replay enforcement, live
+  epoch/sequence custody, production wiring of rate/coalescing/concurrency and deadlines,
+  native collection and every installed/independent/integrated acceptance requirement
+  remain open. The bounded process launcher now has an opt-in original-launch hook.
+  Its finite process-local registry captures Linux pidfd/proc directory guards before
+  the original child is published to waiters; it reads no counter files on the launch
+  thread. Collectors read only bounded `stat`/`io` records through that original
+  descriptor, bind native start ticks and a fresh launch epoch, and expose typed
+  single-process CPU time, RSS estimate and storage accounting. Task names, PID/path
+  selectors and command/environment data are excluded. Descriptor-only observation
+  close is nonblocking and defers release during a read; actual slow-collector and
+  registration/close-race controls preserve original job completion and output.
+  Eleven Linux process/launcher controls pass, including positive CPU/RSS and
+  4 MiB storage-write accounting. Existing launcher regressions pass (two builder
+  controls and two process-tree controls; four native platform cases explicitly skip).
+  Storage accounting retains cancelled writes separately and does not claim completed
+  physical writeout; RSS remains an estimate. These direct-launch process values are
+  not subtree/action/worker aggregates. Original action/reservation joins, complete
+  native tree attribution, Windows/macOS collectors, public transport, installed
+  qualification and independent/integrated acceptance remain required. No lifecycle
+  driver pin or release acceptance is advanced by this foundation. The
+  [native Linux development record](../../verification/worker-telemetry-native-linux.json)
+  binds source `77353a8d6`, the successful Python3.12 whole-wheel gate and all eleven
+  maintained native controls from a fresh noneditable installation outside the
+  checkout. All 241 imported framework modules match both archive and source; the
+  installed distribution identity is unchanged before/after. Both Python3.12 and
+  Python3.15 pass the 80 focused source controls. The earlier Python3.15 whole-wheel
+  dependency-download failure remains recorded separately, not upgraded to a pass.
+  A later opt-in controller handoff now publishes immutable liveness from the actual
+  `CommandActionSlots` reservation after its real slot claim. Both `run` and `acquire`
+  join that original owner, and the configured dispatcher binds its exact current
+  request before input transfer. Exchange cleanup retires the observation binding
+  without releasing held capacity; quarantine, release, changed binding and expired
+  observation clocks cannot restore an old view. Consumers never take the slot's
+  mutation Condition or receive execution/cancel/release controls. Thirteen additional
+  controls include a real scripted command receiver and a concurrent observation
+  while the control Condition is held; five dispatch-wire and five unknown-ownership
+  regressions pass. These are controller provenance checks, not a remote reservation
+  attestation or public telemetry feed. The earlier wheel/native record remains
+  bound to source `77353a8d6`. A [separate current handoff record](../../verification/worker-telemetry-controller-linux.json)
+  binds software `7078bc96b`, the complete fresh source gate (2,873 selected,
+  2,773 passed, 100 declared skips, no failed or known-failed cases), all 606
+  reconciled worker groups and its whole noneditable Python 3.12 wheel. All thirteen
+  maintained controller controls and all eleven native process controls pass without
+  skips from that exact artifact outside the checkout, with respectively 248 and 241
+  installed framework origins matching source/archive and unchanged distribution
+  identity. These installed controls use a real scripted command receiver for
+  controller provenance; they do not establish a negotiated telemetry session or
+  actual remote action/subtree ownership. Independent review and exact integrated
+  acceptance remain open, along with the full ADR 0059 feed. Issue #418 retains
+  the separate Python 3.15 dependency-closure failure.
 
 - **Priority:** P1
 - **Owner:** Worker process/action observations, shared transport and versioned telemetry contracts
@@ -23212,7 +28803,15 @@ independent review and the complete combined gate from test one.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Document current confirmed live progress and I/O surfaces and narrow actual gaps.
+  - [x] Document current confirmed live progress and I/O surfaces and narrow actual gaps.
+    The public health command sampled an aligned Linux worker three times.
+    It reported host CPU load, available memory, GPU memory and storage capacity.
+    Progress and queue depth are unavailable in the pressure collector. The
+    Linux installed controls separately measured counters for one originally
+    launched process. Neither surface supplies an authenticated remote action's
+    progress or network/disk totals. Two further classifier controls belong
+    to this owner: idle GPU samples with unavailable progress must avoid a
+    progress claim, and a disappearing GPU must return an explicit status.
   - [ ] Review necessary versioned telemetry contract/rate/authentication design under ADR 0006 before implementation, then compose existing transport with bounded safe observations.
 - **Evidence:**
   - [ ] Real live-worker action/stage/state and network/disk/cpu/memory observations with declared unsupported values, not invented measurements.
@@ -23290,24 +28889,156 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RETAINED-PYTHON-BRIDGE-001 — Consume qualified native library children from retained Python projects
 
+- **Original wrapper/source observation development:** A distinct expiring Python
+  observation reuses the actual original-source conversion, qualified parity and
+  current catalog/lock owners. Bind the reviewed plan to a complete bounded native
+  source census without exclusions, exact current harness bytes and wrapper,
+  original stage identity/order and prospective original file bytes/absences.
+  A path-list descriptor cannot replace current source content; coherent gate
+  subsets, same-byte inode replacement, new files and late source mutation refuse.
+  Actual observation starts no process, opens no writer, acquires no lifecycle
+  lock and cannot enter Cargo scratch. Eight new controls use real converted
+  Python source whose two unittest cases execute during conversion/parity;
+  provider/export/review declarations and bridge commands remain explicit fixtures.
+  The current 45-method Python cohort, original Cargo-wrapper nine, no-bridge
+  receipt eleven and harness-inventory twelve pass: 77 distinct methods, no
+  failures or skips. The no-bridge contained-layout error mismatch reproduces on
+  unchanged baseline; its renewed assertion requires the existing earlier
+  `layout_unqualified` refusal, zero harness execution and receipt preservation.
+  See [original-wrapper development](../../verification/python-original-wrapper-development.json).
+  Native command equivalence, actual complete test coverage, provider reopening,
+  source/wheel materialization and public admission remain required.
+
+- **Reviewed-file and original-case inventory development:** Reopen independently
+  reviewed binding, plan, gate, harness and test documents under exact byte,
+  native file-identity, ancestry and project-context custody. Close the original
+  inputs on success and candidate rejection; same-byte inode replacement refuses.
+  Preserve contained project authority and the existing harness terminal-newline
+  form without changing its reviewed digest. The versioned Python inventory
+  reuses original case/report contracts, requires explicit classification of
+  every reviewed gate and refuses missing/extra cases, failures, undeclared skips
+  and zero execution. Twelve new controls plus the original 25 interpreter,
+  plan and preflight controls pass without skips: 37 methods in 5.449 seconds.
+  Filesystem custody is real; source inventories, review and export declarations
+  remain explicit synthetic fixtures. These records do not establish current
+  wrapper parity, actual source/test coverage, provider trust or a consumer run.
+  See [reviewed-file development](../../verification/python-reviewed-files-development.json).
+  Every ADR 0061 acceptance requirement remains open.
+
+- **Current consumer preflight development:** Reopen exact bounded canonical plan
+  bytes and require its full export graph and destinations to match the reviewed
+  binding. Join independently supplied current wrapper, source/harness/test
+  inventories, complete gates, target/environment and the original live running
+  interpreter observation; general tool objects and expired observations refuse.
+  Original consumer file custody closes on success and candidate refusal. Ten
+  new methods plus the original eight interpreter and seven plan methods pass
+  without skips: 25 methods in 5.290 seconds. Review/export/selection facts remain
+  explicit synthetic fixtures; native file custody and the independent runtime
+  baseline are real. This is internal preflight, not current file resolution,
+  provider qualification, package execution or admission. See
+  [consumer input development](../../verification/python-consumer-inputs-development.json).
+  Every ADR 0061 acceptance requirement remains open.
+
+- **Read-only interpreter development:** A private live observation compares a
+  separately pinned running interpreter against bounded original executable
+  bytes, current process metadata and freshly resolved command names, without
+  starting a tool. Eight native controls pass in 0.414 seconds, including an
+  independently executed baseline probe, real same-byte alias replacement,
+  finite limits, substitution, expiry, non-copyability, reentry and late registry
+  or input replacement. This is file continuity under a separate expected pin,
+  not a native version-probe or execution grant. Foreign runtimes and command
+  flags refuse. The current provider/consumer join must independently supply
+  that pin; no public bridge, provider, workspace or receipt acceptance is claimed.
+  [Interpreter development record](../../verification/python-interpreter-observation-development.json)
+  retains the exact scope. Every bridge acceptance requirement remains open.
+
+- **Inert workspace-plan development:** Add an explicit Python versioned codec
+  for the exact wrapper/harness/source/test inventories, interpreter/target and
+  environment projection, unchanged full gate policy, complete typed export graph
+  including non-library dependencies, source/wheel import mounts, prospective
+  source-removal delta and finite allowances. Private package destinations are
+  disjoint from the disposable retained implementation. Seven focused structural
+  controls and the production schema-catalog gate pass. Foreign/missing graph
+  members, package aliases and startup shadowing, unsafe destinations, unbound
+  removals, absent wheel runtime metadata, unknown fields and unreviewed
+  interpreter identities refuse. These are inert intent controls, not a current
+  provider, isolated execution or consumer proof. Current-provider joining,
+  exact source/wheel materialization, origin checks, prospective full consumer,
+  public receipt and installed qualification remain open. No acceptance box closes.
+  [Plan development record](../../verification/python-workspace-plan-development.json)
+  retains the exact scope and earlier harness/catalog failures.
+
+- **Original artifact capture development:** Wheel-backed library builds now retain
+  the complete artifact's raw bytes while the original dependency observer remains
+  live. Match its existing build/custody tree, preflight remaining shared recorder
+  limits before allocating payload buffers, use the existing bounded native reader,
+  then close the real interpreter/lock/runtime observer and full original tree.
+  Existing export shapes stay unchanged; no new sidecar grants admission. Seven
+  focused controls pass, including a real offline library build, cache reuse,
+  complete byte reopening after original-root retirement, late native mutations
+  and record/byte exhaustion before capture allocation. All eight existing Python
+  lifecycle controls also pass. These controls use explicit source/dependency
+  fixtures and do not qualify a provider or consumer. The first two failed runs
+  retain the fixture's noncanonical macOS ancestor refusal; the corrected fixture
+  matches the production lifecycle's canonical root without relaxing that guard.
+  [Capture development record](../../verification/python-artifact-capture-development.json)
+  retains this scope. The current provider join, both complete packaging profiles,
+  prospective consumer, public receipt and installed qualification remain
+  required; no bridge acceptance item closes here.
+
+- **Internal dependency-record evidence:** [Development observation](../../verification/python-dependency-record-reopening-development.json)
+  records eight new maintained methods and 17 explicitly selected existing
+  compatibility methods passing on native macOS without skips. Eleven of those
+  compatibility methods are fixture helpers selected explicitly, not default
+  canonical test discovery. Real offline installation supplies the record bytes;
+  build/provider custody remains an explicit fixture. The projection performs no
+  filesystem or process access. Current build/source/interpreter/target and locked
+  graph mismatches, malformed/rehashed metadata, aliases and complete directory
+  budgets refuse; the actual empty offline closure still passes. Late payload
+  and metadata mutations retain the filesystem owner's final refusals. The
+  initial helper's failed long-path control remains recorded. Static, layout,
+  public-export and unchanged runner checks pass; the driver stays stale pending
+  independent review. This does not implement or qualify the public bridge.
+
+- **Implementation in progress:** Extracted the existing Standard Python
+  dependency record join as an inert byte/inventory verifier, preserving the
+  filesystem owner's live root, full payload, mode and final currency checks.
+  Wheel runtime inputs occupy `python-runtime` and `python-dependencies.json`
+  beside the library export; the export blob alone is insufficient. Reuse these
+  exact qualified sidecars and current source/target/build binding in the Python
+  bridge's later closed plan and read-only current-authority join. This internal
+  foundation grants no importer admission and does not expose public bridge
+  success. Both complete packaging profiles, prospective full consumer gates,
+  retirement, receipt reopening and every ADR 0061 validation remain open.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#307](https://github.com/jordanhubbard/literate-ai/issues/307)
-- **Next action:** Independently review and publish [proposed ADR 0061](../decisions/0061-retained-python-library-bridge.md), then obtain the required explicit design acceptance before implementation. FreeBSD SDK qualification remains first priority.
+- **Current next action (in progress):** Join the current original stage identities to independently observed native command/tool semantics and actual complete original test coverage; matching stage IDs and a reviewed case list cannot prove those facts. Then compose current source-derived and authored provider archive reopening under read-only native custody. The internal consumer preflight, reviewed-file snapshot and original-wrapper observation grant no provider or consumer admission; package materialization and every public execution/receipt validation remain required.
+
+- **Next action:** Implement [accepted ADR 0061](../decisions/0061-retained-python-library-bridge.md) through the current retained provider, sealed workspace and receipt owners, then qualify its complete public native and installed journeys. FreeBSD SDK qualification remains first priority. The directing user's 2026-11-21 release-resumption instruction confirms all recorded roadmap items are already reviewed; no further manual design approval is pending. Independent implementation review and all evidence gates remain required.
 
 - **Priority:** high
 - **Owner:** framework retained library bridge and sealed Python test workspace
 - **Direction:** Include newly filed issue #307 in 1.4 under the directing user authorization for new issues.
-- **Conclusion:** A retained Python consumer must import verified qualified committed-cache packages within its sealed workspace through an explicit custody-bound bridge. Inspect existing retained Cargo authority and Python receipt construction, publish a narrow proposed design, and implement after required design acceptance; FreeBSD SDK execution remains first priority.
+- **Conclusion:** A retained Python consumer must import verified qualified committed-cache packages within its sealed workspace through the explicit custody-bound bridge in accepted ADR 0061. Preserve complete consumer/provider/source-retirement custody and receipt reopening; acceptance of the design does not establish implementation or qualification. FreeBSD SDK execution remains first priority.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Trace the existing retained Cargo bridge and Python sealed workspace contracts; publish a proposed Python adapter design with exact admitted source and consumer custody.
+  - [x] Trace the existing retained Cargo bridge and Python sealed workspace contracts; publish the exact current-owner map and ordered adapter integration in accepted ADR 0061. This completes design tracing only; no Python bridge implementation or consumer acceptance is claimed.
   - [ ] Implement the accepted bridge without copying generated source into authored implementation or admitting arbitrary ambient paths.
 - **Evidence:**
   - [ ] Exercise a real retained Python consumer with an admitted committed-cache library through full public lifecycle and exact installed qualification.
   - [ ] Refuse cache, receipt, source, package-origin and consumer-scope drift while preserving existing Cargo and retained Python behavior.
 
 ### [ ] RUST-HARNESS-DEPS-001 — Execute reviewed offline Rust library verifier dependencies
+
+- **Accepted independent-authoring gate:** [ADR 0069](../decisions/0069-independent-promotion-authoring-selection.md)
+  restores review #381 / issue #379 under the directing user's recorded roadmap
+  authorization. Preserve the native-child preparation failure, exact signed
+  intent, host lineage and current qualification profile. Implement a separately
+  acknowledged, bounded new-promotion authoring selection before sealing its
+  audit; requalify actual native behavior. An accepted design or successful plan
+  supplies no model, provider, retirement or release grant.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#217](https://github.com/jordanhubbard/literate-ai/issues/217)
@@ -23335,7 +29066,71 @@ independent review and the complete combined gate from test one.
 
 - **Fixture correction development evidence:** The same maintained public rebuild control first failed through the actual synthetic operator wrapper (exit 91 and marker; three passes, one failure, two remaining selected cases unexecuted). After preserving the provisioned Cargo home, all six native Rust controls pass with zero skips, including the public rebuild and existing source, checksum, feature, graph and boundary refusals. No operator files, production source or TCB pin changed. The first fresh canonical Python 3.12 source gate completes with root exit zero: 2,655 passed, 119 skipped, zero failures out of 2,774 selected cases, reconciled against every indexed event in all 597 completed groups. Lint, formatting, project/documentation authority, current unchanged driver pin and 181 rendered diagrams pass. See [the development record](../../verification/rust-fixture-cargo-home-development.json). Final review then corrected JSON surrogate escaping in the new Cargo configuration and gave the actual wrapper a path containing a space, accented letter and non-BMP character; the final-byte fresh whole-source gate also passes with the same 2,655 passes, 119 skips and zero failures, including all six native controls using the real Unicode wrapper path. Every indexed outcome matches the report across all 597 completed groups and the root exits zero. Exact PR/integrated CI remains pending; the original reported failed whole gate remains failed.
 
+- **Focused guard recovery from PR #312:** Recover only the Rust verifier's pure
+  command-custody check and explicitly bounded native-owner observations. Reading
+  `toolchain_identity` or using the ordinary binding guard currently performs
+  ambient native observations outside the child environment and original
+  deadline. Preserve the newer finally-based closure on semantic rejection,
+  ordinary binding guards, actual launcher/source drift refusal and the complete
+  native observer sequence. The ongoing release integration retains the SDK
+  promotion, schema and strict-readonly work separately.
+  - [x] Reproduce the implicit native observations with the original five protocol
+    controls, then recover the correction against the current integration base.
+  - [x] Verify the complete protocol cohort and affected existing harness controls
+    through the maintained Make runner; retain scope separately from native,
+    installed, platform and release qualification.
+  - **Development evidence:** On the published integration base, the original
+    cohort selects five cases and fails its first executed case before reaching
+    the controlled native command. With the focused correction, all five protocol
+    cases pass, all six maintained local command-adapter cases pass, and all six
+    maintained native Rust driver/dependency cases pass (219.504 seconds), with
+    zero failures or skips. The native cases retain actual Cargo execution,
+    public rebuild and source/checksum/feature/output refusals. Repository-wide
+    lint and formatting pass for 2,206 files. `litai verify` passes authority and
+    refuses the stale project test receipt; no receipt or driver pin is renewed.
+    Independent integration review, complete source/installed/platform gates and
+    final release qualification remain with the ongoing release integration.
+
 ### [ ] RETAINED-RECEIPT-PROMOTE-001 — Promote a verified retained-project run into the project test receipt
+
+- **Current wire registration (in progress):** Register the exact current
+  promotion-evidence and admission-assertion documents, preserving their existing
+  `@1` identifiers and all false admission/release flags. Validate original live
+  runtime captures against the installed catalog and reject added grants or
+  changed context. Public receipt promotion release qualification remains open.
+  Current SDK metadata already retains the launch context. An actual native
+  CMake SDK capture reopens without command execution, SDK acquisition or CAS
+  writes. The original reader accepted coherent command-environment identity
+  forgery; the corrected reader joins every ordinary observation's environment
+  and dependency identity to that launch context and the original dependency
+  graph through the bounded reader. Both coherent forgery controls now refuse
+  while valid reopening passes (151.086 seconds). Acceptance dependency capture,
+  installed promotion and complete release qualification remain separate work.
+  The [scoped development evidence](../../verification/sdk-historical-context-source-portability-development.json)
+  retains the original failing regression and 45 passing native checks across
+  SDK reopening, original promotion and source-portability controls.
+
+- **SDK acceptance dependency capture (in progress):** The actual native
+  capture/reopen regression first reproduces coherent acceptance dependency
+  forgery acceptance (190.677 seconds). Retain the original bounded base and
+  private-case export-dependency documents through additive SDK acceptance
+  execution metadata `@6`, keeping ordinary `@5` and frozen receipt/acceptance
+  wires unchanged. The read-only inspector follows the explicit references
+  through the existing bounded metadata owner and joins plan, stage manifest,
+  native graph and actual action/case environments. Missing old SDK facts require
+  fresh capture. The original valid capture and three forgery checks pass in
+  254.325 seconds without CAS writes, command execution or SDK acquisition.
+  The extended two-case native capture/reopen cohort passes in 482.293 seconds,
+  including coherent dependency-document and private filesystem environment
+  forgeries. Its initial fixture collapsed two documents into the same forged
+  identity and hit the existing uniqueness guard; preserve that failed run and
+  correct only the forgery fixture to keep its original contexts distinct.
+  The thirteen original SDK, eleven public SDK, seven captured-runtime, fourteen
+  acceptance and eleven private filesystem controls pass with no skips. The
+  acceptance drift control now checks both actual native observations around the
+  original program. The [58-case development record](../../verification/sdk-acceptance-dependency-context-development.json)
+  retains exact report/source hashes and both original failures. Complete combined
+  source, installed promotion, independent review and release remain required.
 
 - **Release target:** 1.4.0
 - **Release scope:** The current included dispositions on issue #295 and PR #297 govern this framework work; the consumer release number is separate.
@@ -23368,6 +29163,13 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Combined source preparation (pending independent review and gate):** The current integration retains qualified HCI `f146a2d69da2cc3d6e96194ee8a98c6b7f905f69`, GPI `d597f77ad0bba0ab5aa2e18680da1c726bdd0bf0`, root Python/Git-readiness commit `dcd33ba4a31518c4508ef352770072d1869f9976`, current main `70cf6b20a152953fa01764086ef90b12e3147d94`, the complete published receipt-promotion base `09bb4ff9c59798b43360c162d1e98329a4934be0` plus its independently reviewed correction, and the exact reviewed Rust-harness delta from ancestor `072d66e81eff85f58515a09d93d19528499a5ec1`. Both installed tree and Rust journeys remain in the wheel driver. The root branch's source gate passed 2,559 tests with 131 declared skips and no failures; the direct Rust profile passed six native development cases; receipt promotion passed its real public planning and critical journey with complete source custody unchanged. These are separate exact-snapshot results, not qualification of this new union. Preserve all 47 current release-goal IDs, including the existing receipt-promotion queue item missing from its previous manifest. Canonical pin renewal, one fresh complete source gate, exact-head full platform CI, fresh installed qualification and all remaining native/consumer/browser acceptance remain required. Proposed ADR 0061 still requires directing-user design acceptance before implementation.
 
 ### [x] ADOPT-BASELINE-COMMANDS-001 — Select reviewed baseline commands for a single adoption root
+
+- **Separate accepted renewal scope:** [ADR 0070](../decisions/0070-reviewed-retained-command-renewal.md)
+  restores review #382 / issue #366 under the directing user's recorded roadmap
+  authorization. Completed initial #207 selection stays complete. Post-adoption
+  command renewal remains an explicit unchecked RELEASE-INTEGRATION-005 task:
+  preserve unselected phases, historical receipts, exact plan acknowledgement,
+  real baseline/parity and the distinction between command success and compilation.
 
 - **Priority:** P1
 - **Release target:** 1.4.0
@@ -23488,6 +29290,16 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] QUALIFIED-CHILD-ADD-001 — Add a qualified native child to a qualified retained parent atomically
 
+- **Current composition (in progress):** Recover PR #359 at
+  `9732a114a48d19aa279654f414d278784b7e72b5` onto current delivery source. Preserve
+  shadow routes, native process/bootstrap identity, qualified-parent readers and
+  migrated project placement. Before source-pin renewal, repair the independent
+  findings: Windows path/descriptor timestamp compatibility, exact acknowledgement
+  at mutating public APIs, retained migration identity and context-owned metadata,
+  component and publication locations. Require stale-input/interruption controls,
+  exact composed-source review and fresh installed/native qualification. Historical
+  PR evidence does not qualify this join or close either accepted child goal.
+
 - **Priority:** P1
 - **Release target:** 1.4.0
 - **GitHub issue:** [#315](https://github.com/jordanhubbard/literate-ai/issues/315)
@@ -23503,6 +29315,32 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Qualify two dependency-free children through public APIs; reject unqualified, stale, changed, unsafe and duplicate inputs; verify rollback, installed/native behavior, independent review and exact-head CI.
 
 ### [ ] SHADOW-001 — Continuously qualify upstream branches through a separate shadow repository
+
+- **Current composition (in progress):** Recover PR #322 at
+  `712b99fdf1227e9ed071543896aca947d0670713` onto delivery base
+  `8fb9b192ee6a7626608e2be5d771fb0be7d3ae32`, preserving the reviewed Windows
+  kernel-wait repair, bootstrap identity and failure diagnostics. Shadow custody
+  and planning remain explicitly unqualified; the parent goal stays open.
+  Source repairs bind bounded no-follow metadata and bundle reads, isolate
+  network inspection in a neutral bare repository, and bind PR API inspection
+  to the validated forge host. Actual Git controls expose upstream-local SSH
+  execution, clean-filter execution, ignored staged gitlinks and redirected ref
+  writes. Creation and status use raw blobs and exact mode/stage/path/object
+  inventories; configured content filters and fsmonitor helpers remain disabled.
+  Sync materializes raw objects with retained no-replace payload/index moves,
+  an OS reservation for framework resumptions and Git's native index reservation
+  for ordinary writers. Controls inject failure after completed publication
+  moves and exit a separate process after index retention, then resume from
+  disk. Foreign payloads, metadata aliases, hardlinks and index changes refuse
+  without deletion; uncertain preparations and partial records require inspection.
+  Full no-follow metadata supplies Windows link counts and retains shared-file
+  refusal. External manifest parent aliases
+  are canonicalized while leaf links refuse, and malformed later journal events
+  return structured custody errors.
+  Require the exact composed-source review and supported authority renewal before
+  source pins. Existing historical CI and local controls do not qualify this
+  composition; fresh platform/installed/forge evidence and the mapped execution,
+  repair/export and upstream-outcome criteria below remain unchecked.
 
 - **Priority:** P1
 - **Release target:** 1.4.0
@@ -23734,10 +29572,11 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [x] Add a typed read-only rename plan and acknowledged compare-and-swap apply with durable rename lineage.
   - [x] Expose the operation through the project CLI and document retained-source renewal and interruption behavior.
 - **Evidence:**
-  - [ ] Resolve the original exact PR421-head GitGuardian finding (two reported secrets) and retain accepted security evidence; successful main CI alone does not resolve that check.
+  - [x] Apply the release owner's non-blocking disposition to the original PR 421 check on two occurrences of incident 39939690. Both flagged values reproduce as the SHA-256 of PyYAML 6.0.3's published `yaml/tokens.py`; a fresh comparison verifies the published archive digest and both original fields. Provider dismissal is not required. [Exact public-source comparisons and owner disposition](../../verification/release-security-finding-provenance.json).
   - [x] Exercise normal migration, stale plan, changed conversion/source, metadata path and concurrent change refusals.
   - [x] Verify historical bytes remain unchanged, old receipts refuse, and fresh renamed retained qualification succeeds.
   - [x] Run current framework Python, formatting, lint and required review gates.
+  - [ ] Verify the current integrated contained-layout migration through the maintained installed native journeys and exact-head gates; the earlier source/artifact audit below does not qualify later changes to migration, project-context and wheel-gate owners.
 
 - **Local qualification:** The complete current framework gate selects 2,773 tests: 2,685 pass and 88 retain their declared skips (four-worker run, 1,883.191 seconds). All 15 focused identity-migration E2E controls pass, as do the 603-test smoke gate (600 pass, three skips), lint/format and repository/documentation/driver/runner/skill checks. Earlier documentation-inventory refusals and an eight-worker ancestor-device identity refusal remain retained; the unchanged 24-case retained-runtime module and the complete fresh four-worker gate both pass afterward. No admission guard was relaxed. Installed-wheel/exported-HEAD proof, protected exact-head CI and main landing remain pending.
 
@@ -23748,9 +29587,17 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Installed migration qualification in progress:** A separate noneditable wheel journey now authors a real five-file Python application with two unit tests and actual Make build/package artifacts. Through the public installed console and genuine Standard binding, the first native Linux alpha→beta→gamma run preserves all three adoption records, both rename records and source bytes, refuses missing acknowledgement and old receipts, and publishes fresh retained-parity receipts after each rename. The new maintained `tests/support/installed_identity_migration_journey.py` is wired into the complete wheel gate, including native Windows/macOS cells. Exact software `ebd97fc2f` now passes the complete native Linux ARM64/Python 3.12 source suite (2,783 selected, 2,683 passed, 100 declared skips; all 599 raw worker groups reconciled) and whole noneditable wheel gate. The maintained journey verifies unchanged authority on read-only planning, missing acknowledgement and changed-source refusal, then refuses the old receipt after scope renewal and earns two-test fresh receipts under both renamed subjects. Wheel `sha256:2ef9e48c887ae184d4f3090c33437efcd0bdb1791b64cd58295a4e6fa196f79c` and installed distribution `sha256:2107ccb4a42a34cf14343538981bcdc9255197194c5f045392e8cf607afda231` bind this result in `verification/project-identity-installed-linux.json`. Native cross-platform execution, independent evidence review and exact review/resulting-main verification remain pending. No regenerated Component acceptance or completed parent goal is claimed.
 
 
-- **Independent integration audit (2026-11-12):** [Retained audit](../../verification/project-identity-integration-audit.json) confirms all 27 jobs in exact resulting-main run `43038760305` succeeded at `638845ec00272776ae4644944d6e1dec4b1c4ff6`; `src/`, `scripts/`, `tests/` and `schemas/` are byte-identical to qualified candidate `ebd97fc2f`. Actual macOS wheel output qualifies both public renames with immutable history, preserved source and fresh two-test retained receipts. The native Windows wheel step succeeded and its retained artifact rehashes to `2fdf66422c7cc68f98fc60bf715c5f96c3b95d5b12c7473541726c7905d20556`; its migration module matches main, and the exact mandatory gate rejects absent or synthetic rename results. Windows terminal journey JSON is absent from the fetched log, so this is recorded as gate/artifact evidence, not an invented transcript. Independent source review found no blocker in the migration owner and installed journey. The original PR421 review head `de035d6ea` has a failed GitGuardian check titled `2 secrets uncovered!`, with no annotations exposed by the API. Its findings remain unresolved and this parent stays open. No consuming release acceptance is claimed.
+- **Independent integration audit (2026-11-12):** [Retained audit](../../verification/project-identity-integration-audit.json) confirms all 27 jobs in exact resulting-main run `43038760305` succeeded at `638845ec00272776ae4644944d6e1dec4b1c4ff6`; `src/`, `scripts/`, `tests/` and `schemas/` are byte-identical to qualified candidate `ebd97fc2f`. Actual macOS wheel output qualifies both public renames with immutable history, preserved source and fresh two-test retained receipts. The native Windows wheel step succeeded and its retained artifact rehashes to `2fdf66422c7cc68f98fc60bf715c5f96c3b95d5b12c7473541726c7905d20556`; its migration module matches main, and the exact mandatory gate rejects absent or synthetic rename results. Windows terminal journey JSON is absent from the fetched log, so this is recorded as gate/artifact evidence, not an invented transcript. Independent source review found no blocker in the migration owner and installed journey. The original PR421 review head `de035d6ea` has a failed GitGuardian check titled `2 secrets uncovered!`, with no annotations exposed by the API. That historical provider failure remains unchanged. The release owner's later instruction makes the verified public-source digest false positives non-blocking; no provider dismissal is required. This parent remains open for current integrated native qualification. The verified false positives are non-blocking. No consuming release acceptance is claimed.
 
 ### [ ] CODEX-STATE-001 — Own per-invocation Codex SQLite and log state under finite limits
+
+- **Independent closing-guard review:** A separate authorized non-author reviewer approves exact source at `dd260929e`, reviews original process ownership and private-state context, passes all 26 selected generation/runtime/helper methods, and independently exercises native POSIX overflow and wait-exception cleanup. [Review evidence](../../verification/codex-state-independent-review.json) binds exact source/test hashes and preserves the explicit lack of native Windows or actual Codex model acceptance. Supported driver renewal follows this approval; complete combined source, installed/native and exact integration remain open.
+
+- **Integrated lifetime repair evidence:** The normal PR413 merge is `bd7da80d9`; its private-state production module initially matches the contributor byte-for-byte. A separate actual POSIX/SQLite helper reproduces private-state retirement while the helper survives for both launcher exit zero and exit seven. The closing process-tree cleanup in the original bounded runner now passes that same control, preserving original exit/stdout/stderr; all 25 coding CLI methods and three private-state methods pass without skips. [Integration source evidence](../../verification/codex-state-integration-review.json) retains both failed native subtests and the exact current source/report identities. Lint, format, layout, public export, runner review and project validation pass after supported documentation-authority renewal. The new closing guard is authored by the integrator, so its independent review and driver renewal remain pending; complete source, installed/native and exact integration acceptance stay open.
+
+- **Process-lifetime finding under investigation:** The existing coding CLI bounded runner releases process ownership after a successful launcher exit without terminating surviving POSIX descendants. A native SQLite-helper control must establish whether private invocation state is removed while a helper remains active. Require successful-parent descendant cleanup before private-state retirement, preserving original exit/output observations, finite ceilings and timeout behavior. Keep the driver review pending until this lifetime boundary is resolved and independently reviewed.
+
+- **Independent integration review in progress:** Compose contributor PR413 head `7ad91075d` with the qualified bootstrap/native-custody/diagnostics/runtime-capability stack through normal history. The non-author source inspection covers all three Codex invocation paths, private state lifetime through bounded process cleanup, TOML-safe path arguments, untouched HOME/authentication/provider/model selection and resource ceilings, and per-call optional remote-catalog isolation. Preserve non-Codex behavior and state/workspace separation. Recheck focused controls and all production bytes before supported driver renewal; full combined source, installed/native and exact integration evidence remain required.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#365](https://github.com/jordanhubbard/literate-ai/issues/365)
@@ -23758,15 +29605,32 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Priority:** P0
 - **Owner:** Framework coding CLI process lifetime and provider command projection
 - **Direction:** Repair issue #365 without changing HOME, authentication, selected provider/model or finite resource limits.
-- **Conclusion:** Own provider-local SQLite and log state for each bounded Codex invocation. Preserve authentication, exact provider/model selection, caller resource ceilings and generated-output custody. Pending implementation and qualification remain in the existing worktree.
+- **Conclusion:** Own provider-local SQLite and log state for each bounded Codex invocation. Preserve authentication, exact provider/model selection, caller resource ceilings and generated-output custody. Command/lifetime repair and historical source controls are retained; actual provider generation, independent source review and final integration remain open.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Own private Codex runtime-state directories across command, generation and diagnostic child lifetime.
-  - [ ] Bind supported sqlite_home and log_dir settings; preserve provider isolation, finite limits and cleanup.
+  - [x] Own private Codex runtime-state directories across command, generation and diagnostic child lifetime.
+  - [x] Bind supported sqlite_home and log_dir settings; preserve provider isolation, finite limits and cleanup.
 - **Evidence:**
   - [ ] Retain the original finite-file-limit failure and prove supported CLI configuration, native private state routing, process lifetime and unchanged parent environment.
   - [ ] Pass focused and full source gates, independent review before driver repin, installed/native finite-profile generation with an explicit operator model, and current-head integration gates.
+
+- **Focused development evidence:** All 22 existing coding CLI generation controls and three new runtime-state controls pass without skips. The native SQLite transport fixture fails when private settings are omitted under an actual 64 KiB file ceiling, then succeeds under the same ceiling using private state; caller limits and the ambient database remain unchanged by the fixed invocation. Other controls cover task/generation/status success and failure cleanup, retry isolation, unchanged HOME/provider/model routing, spaces and non-ASCII paths, workspace-overlap refusal and unaffected provider allocation. These maintained tests exercise command/lifetime behavior; their provider transport is a fixture, not actual Codex model-backed generation. Exact digest-pinned Codex 0.153.0 was staged by the canonical native installer and recognizes both documented path settings; no model call or global installation change was made. See [the development record](../../verification/codex-private-runtime-development.json). The fresh Python 3.12 whole-source gate passes 2,658 cases with 119 declared skips and no failures: all 598 worker groups and 2,777 indexed outcomes match, preserving repeated imported test names as distinct executions. Actual model-backed native, installed/platform and independent review gates remain open. Live qualification requires an explicit model pin. The configure-test-workers skill permits an agent-selected resolvable CLI/model; use a private one-shot selection and the canonical verify-model preflight before native generation. No durable user default is changed.
+
+
+- **GitHub issue:** [#412](https://github.com/jordanhubbard/literate-ai/issues/412) (finite remote-catalog prerequisite).
+
+- **Native remote-catalog blocker:** [Issue #412](https://github.com/jordanhubbard/literate-ai/issues/412) records a separate actual SIGXFSZ during Codex 0.166.0 generation under the unchanged 64 MiB ceiling. All observed writable SQLite descriptors use private invocation state and all six runtime allocations clean up, but syscall tracing identifies an oversized atomic remote-plugin-catalog download. The explicit Codex/model preflight passes under that same limit.
+- **Additional implementation:**
+  - [x] Exclude the unrequested optional remote plugin catalog through supported per-call configuration on task, generation and diagnostic paths; preserve the managed minimum CLI, HOME/authentication, model/provider selection, sandbox and limits.
+- **Additional evidence:**
+  - [ ] Retain the failed native generation and syscall cause, prove the current and managed minimum provider accept the setting, pass maintained command/lifetime controls, and complete actual finite-profile source generation before independent review and final integration.
+
+
+- **Current native correction:** [Native catalog/state evidence](../../verification/codex-catalog-native-development.json) retains the original three-attempt generation failure and a single-attempt EFBIG trace, plus three passing maintained state controls and 22 unchanged generation controls. With the documented per-call remote catalog flag, actual Codex 0.166.0 and the explicit validated model generate four adapter-validated files in 95.523 seconds under unchanged 64 MiB soft/hard limits; all 22 observed writable SQLite descriptors are private and the runtime directory is removed. Codex 0.153.0 accepts the setting (`remote_plugin stable false`, exit zero), but rejects the chosen model for this account; no minimum-version generation is claimed. The earlier complete source gate belongs to its original source hashes and does not qualify this repaired subject. Next action: obtain independent source review before driver renewal and fresh whole-source/noneditable installed/platform integration.
+
+
+- **Open pull-request landing queue:** Draft [PR #413](https://github.com/jordanhubbard/literate-ai/pull/413) retains the complete correction and source-review request. [Exact Linux development qualification](../../verification/codex-state-integration-linux.json) binds `70faed868`, all 2,780 selected source cases (2,680 passed, 100 declared skips, no failed/known-failed), 598 completed worker groups, the complete noneditable wheel gate and all 25 maintained installed controls without skips. The installed native generation also succeeds: all 241 framework imports are noneditable, adapter bytes match current source, private SQLite descriptors retain the 64 MiB ceiling and runtime state is removed. The separate 25-method installed check verifies 282 module origins, exact archive/source/module bytes and unchanged distribution identity. Documentation/fast gates pass. The TCB pin remains unchanged pending independent source review; this is development evidence, not root Standard lifecycle or release acceptance.
 
 ### [x] REMOTE-FILE-CEILING-001 — Preserve inherited file-size ceilings in remote evidence transport
 
@@ -23801,6 +29665,14 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] QUALIFICATION-DIAGNOSTICS-001 — Retain original bounded observations when native qualification fails
 
+- **Installed and portability checkpoint:** The complete noneditable macOS wheel gate at `17cabcd2d` passes all 31 diagnostic and 9 runtime-capability controls without skips. The retained archive rehashes to `sha256:2caf9c35923559cc5cdae51af763644386dfabad850d2eb4034329f11026411c`; all eight selected production modules match the archive and source. See [installed evidence](../../verification/installed-maintained-controls-positive.json). The subsequent fixture-only binary marker repair passes both controlled CRLF-writer methods (previously four assertion failures) and all eight ordinary diagnostic methods; see [portability evidence](../../verification/qualification-diagnostic-marker-portability.json). Final combined source, renewed installed fixtures and exact integration remain open.
+
+- **Fixture portability follow-up (in progress):** A controlled CRLF text-writer comparison reaches four exact-byte assertion failures across the existing timeout and parity-failure methods. The adapter correctly retains the original bytes; the authored marker fixture assumes a text newline encoding. Write those two markers through the child binary stderr stream, retain the exact-byte assertions and production capture behavior, and rerun the same controlled writer plus ordinary source/installed controls. This simulation does not establish native Windows acceptance.
+
+- **Installed control coverage (in progress):** Add the maintained capture, failure-diagnostic and public CLI controls to the complete wheel gate through an isolated installed interpreter. Require their closed case inventories, zero skips, unchanged test Python inputs, every framework module to originate inside the installation and selected production bytes to match the candidate. Qualify the actual installed run and a managed-editable counterexample. These injected-boundary controls do not replace genuine generated/native acceptance or exact integration.
+
+- **Implementation review:** [PR #391](https://github.com/jordanhubbard/literate-ai/pull/391), draft pending independent source review before driver repin, native model-backed qualification and updated exact-head integration. Installed adapter/CLI controls pass.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#389](https://github.com/jordanhubbard/literate-ai/issues/389)
 
@@ -23810,19 +29682,1448 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Conclusion:** Add a separate bounded provenance-bound diagnostic result/store for failed qualification. Preserve nonzero refusal, empty qualified product captures, private custody, stream limits and timeout cleanup; a replay cannot replace the original observation.
 - **Depends on:** none
 - **Completion prerequisites:** none
+- **Current action:** Retain the original per-case process observations through a
+  distinct diagnostic archive and immutable local store under the explicitly
+  selected retained-evidence root. Bind the exact plan, run and case alongside
+  process/stream identities, preserve the failing CLI code, and expose only the
+  diagnostic reference in its error. Keep failed qualified-product captures empty;
+  diagnostic archives must refuse the qualified-product archive reader. Preserve
+  all current byte/record limits and name diagnostic-publication failures without
+  replacing the original qualification error.
+
+- **Development evidence:** Real parity subprocess controls retain nonzero exit 7,
+  invalid JSON, and a later clean-run failure after an earlier passing case. The
+  separate archive rejects the qualified archive reader and rehashed success or
+  cross-plan labels. Public CLI controls preserve the original failure code,
+  expose only the archive reference and preserve a foreign diagnostic path. An
+  isolated counterfactual executes the old qualification module at `a42e27392`
+  with actual subprocesses: original stream/process facts exist before cleanup
+  but become unavailable afterward. This is an adapter-boundary source control,
+  not full native generation. The first complete prototype source gate passes
+  2,662 cases with 120 explicit skips across 2,782 selected; all 598 worker groups
+  finish and case events match the report with unchanged source. Later helper-
+  import and interrupted-command refinements remain separate from that result.
+  The refined Python 3.12 source selects 68 related cases: 50 pass and 18 retain
+  existing platform/tool skips. Actual timeout controls retain within-bound stdout
+  and stderr plus the active run/case and verify process cleanup; absent executables,
+  rehashed partial context, output/retention limits and an unavailable diagnostic
+  helper retain the original refusal. The refined complete source gate passes
+  2,666 cases with 120 explicit skips across 2,786 selected; all 598 worker groups
+  match the report and every frozen candidate file retains its exact bytes and
+  mode. See the [source development record](../../verification/qualification-failure-diagnostics-source-development.json).
+  The author continuation rechecked all four changed production modules; this
+  is not independent review. Its mistaken repin in `cb474af1a` is corrected by
+  restoring the prior pin pending an independent reviewer. Thirty focused cases pass both from source
+  and from a noneditable wheel in a fresh venv with isolated Python, copied test
+  fixtures and verified installed module origins/hashes. The installed cases use
+  real parity subprocesses but mocked Standard generation/lifecycle fixtures;
+  they do not prove native model-backed qualification. See the
+  [installed review record](../../verification/qualification-failure-diagnostics-installed-review.json).
+  A separate actual noneditable-wheel Linux ARM64 run now accepts a signed static-review library fixture, generates with Codex, passes native build, all five generated tests and independent library acceptance, then reaches the deliberate real parity failure. All sixteen case/run bindings reopen with baseline exit zero, generated exit seven and the exact original stderr marker. The qualified-archive reader rejects the diagnostic, and no qualified output exists. Four installed production-module hashes match this source. See the [native negative-path record](../../verification/qualification-failure-diagnostics-native.json). This is author evidence for the diagnostic path; standalone model-backed inverse and cross-platform release qualification remain unresolved.
+  Next actions: obtain independent review before driver repin, then require updated exact candidate and resulting-main integration gates.
+
 - **Implementation:**
-  - [ ] Retain plan/run/case/process identities and available bounded stdout/stderr blobs on failed qualification through a diagnostic-only path.
-  - [ ] Keep failed diagnostic evidence separate from qualified library products and clear stale success across later failed clean runs.
+  - [x] Retain plan/run/case/process identities and available bounded stdout/stderr blobs on failed qualification through a diagnostic-only path.
+  - [x] Keep failed diagnostic evidence separate from qualified library products and clear stale success across later failed clean runs.
+  - [x] Exercise the actual installed/native diagnostic path with a supported signed static-review Python library: actual Codex generation, Standard native build, five generated tests and independent library acceptance pass before deliberate parity failure; read back all 16 original case/process bindings and reject the diagnostic as a qualified archive. The repaired representative application harness reaches its separate unconditional standalone model-inverse refusal; preserve that unresolved release-integration gate.
 - **Evidence:**
-  - [ ] Reproduce nonzero parity exit and invalid JSON, verify original marker/exit identities and private durable diagnostics, and reject diagnostic evidence as qualified products.
+  - [x] Reproduce nonzero parity exit and invalid JSON, verify original marker/exit identities and private durable diagnostics, and reject diagnostic evidence as qualified products.
   - [ ] Exercise a later failure after an earlier success; renew independent review, full source, installed/native and exact-head integration gates.
 
+- **Current integration review:** Independent review of contributor `2b4b88381` covers diagnostic archive separation, canonical plan/run/case/process custody, byte/record limits, partial timeout retention, stale-success clearing and original failure preservation. The normal merge with current main and the qualified bootstrap/Cargo/Windows batch preserves current-main typed library-acceptance errors as a separate preceding catch: their exact code/message and absence of retained publication remain covered by the existing regression. Production recorder/adapter/diagnostic modules remain byte-identical to the contributor. See `verification/qualification-diagnostics-integration-review.json`. Combined canonical qualification controls pass 51 methods with 18 declared skips and no failures. After that independent review, the canonical driver command renews exactly the four reviewed diagnostic/integration modules; documentation authority, strict lint/format, layout, public export and runner review remain required before the frozen combined gate. The frozen diagnostic union `43de0e963` passes its complete canonical macOS source gate: 2,732 passed, 92 declared skips and no failures (2,824 selected). Its complete noneditable wheel gate passes with archive `sha256:9094644d402298fffd8c08b26b36385bc0464705fe8e3cb7de5e93dad5b224db`; all four changed production modules rehash to source. Four OpenSpec items, 22 document-tool controls, all 181 diagrams across 1,953 Markdown files and base-relative skill admission pass. These development results do not replace the still-required maintained installed diagnostic controls and exact-head/resulting-main integration; no release qualification is claimed.
+
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
+
+- **Independent finite-reader repairs (source partial):** The source-review record
+  retains real counterexamples for blocked FIFO catalog reads, uncapped metadata
+  witness hashing and finite-creation sibling allocation, and inert Windows/UNC
+  result decoding with host path semantics. Reuse original no-follow readers and
+  canonical metadata/census limits before allocation, keep all native identity,
+  growth, alias and mutation refusals, and decode recorded paths without host I/O.
+  All 88 affected source controls pass with no skips; independent reviewers close
+  these four findings. No placement, move, native or release acceptance follows
+  from these repairs alone.
+
+- **Maintained bootstrap fixtures (source partial):** The fresh installed-wheel gate
+  reaches all ten original maintained bootstrap controls, which fail during setup
+  because their legacy-root fixtures now use the contained default. Select the
+  internal legacy fixture layout explicitly, retaining every original path,
+  bootstrap, timeout, checksum and custom-rule assertion. Add an actual default
+  contained bootstrap invocation from both application and framework directories
+  to the installed maintained cohort; require fresh source and noneditable-wheel
+  controls before treating either layout as qualified.
+  Explicit legacy layout restores fixture setup and exposes the original exact
+  helper-parity refusal: the shared owner acquired eager optional telemetry
+  dependencies while the standalone copy stayed stale. Defer those imports to
+  actual observer opt-in, retain the original Job and cleanup controls, and
+  refresh the exact helper copy/digest. Require original standalone subprocess
+  controls, numeric-observer controls and independent runtime review; no bundled
+  framework installation or weakened helper check is permitted.
+  Independent review also reproduces a stale ready result after a successful
+  child probe followed by a same-size, restored-mtime pin rewrite. Retain the
+  original selected manifest's bounded bytes/native facts and revalidate exact
+  project selection after every result; preserve callback-written state on
+  refusal. Require legacy and contained closing controls without relaxing any
+  existing bootstrap or process assertion.
+  All 15 source bootstrap controls pass without skips, including default contained
+  invocation and both-layout post-probe mutation/refusal controls. Independent
+  closing review passes 36 controlled-probe cases across four probe outcomes,
+  including framework-directory invocation. All three original Windows observer
+  protocol controls pass locally; this is not native Windows qualification.
+  Fresh noneditable maintained controls and complete release gates remain open.
+
+- **Lock capture placement parity (source partial):** Fresh full source qualification
+  stops during actual retained Cargo fixture adoption: ordinary Component reads
+  resolve recorded contained catalog coordinates, but the descriptor-capture
+  optimization reconstructs an old-root skill path. Route capture through the
+  same typed catalog-placement owner before opening descriptors. Preserve URI,
+  digest, quotas, directory custody and custom-reader fallback. Require real
+  contained project capture/ordinary parity, original mutation and path-refusal
+  controls and the unchanged authored-input fixture. All 21 native POSIX capture
+  controls pass (2.817s), including real contained workflow/routing/skill bytes,
+  closure identity and quota parity, and matching rejection of equal-byte foreign
+  symlinks at mapped paths. Both original authored-input-session controls pass
+  (38.312s); repository lint/format pass. Complete source, installed and platform
+  regression remain open; this does not qualify a move or retire source authority.
+
+- **Installed maintenance corrections (macOS partial):** A fresh noneditable
+  07f28edc7 wheel passes all 13 commands against the exact finalized original
+  b45a48ac4 fixture that rejected both maintenance operations. Root/descendant
+  reparent and update plans now succeed with matching per-operation identities.
+  Every call preserves the original project/baseline/origin/checkpoint/lineage
+  files, root delegates and migration intent, including bytes and native file
+  metadata; retained application source and Git HEAD/raw index remain unchanged.
+  A cross-receipt check also matches all four source entries and the index digest
+  to the original initial metadata journey. The clean source checkout and
+  independently observed installed distribution remain unchanged. Distribution:
+  sha256:a49f66c6b6264123ae96f19e05a646a2b1b49d672acdc5d061fc1d1431bed165.
+  Managed installed and static checks pass without skips or source drift. The
+  fixture is resumed, not reconstructed or rebaselined. Actual update/reparent
+  application, changed-parent and supported-platform journeys, complete
+  containment and every original source/review/release acceptance remain open.
+  No driver, receipt or real documentation review is renewed.
+
+- **Contained initialized-root updates (source partial):** Generated-profile
+  contained projects with no parent chain now use the ordinary three-way template
+  updater; minimal native profiles retain their existing policy and response.
+  Parent-follow/unpin requests on an explicit root refuse. Planning and application
+  now share the original scaffold placement calculation, and application refuses
+  a changed project definition before writing. This corrects the independently
+  reproduced native-only dispatch and the subsequent real rendering mismatch
+  between contained plans and root-coordinate application. Human summaries show
+  actual framework movement. Source controls exercise real apply, checkpoint
+  interruption/rollback, stale definition/upstream refusal, equal root/descendant
+  plans, selector refusal, source/index preservation and custom extension state.
+  All seven new controls, nine native template and eight native bootstrap
+  controls pass (24 total, no skips), along with all static gates and no source drift. Actual installed verification on the retained finalized
+  fixture, changed-parent/apply/platform journeys and every original full
+  containment/source/review/release acceptance remain open. No driver, receipt or
+  real documentation review is renewed.
+
+- **Reparent history/origin correction (source partial):** The actual installed
+  maintenance baseline rejects root and descendant reparent planning after normal
+  Component finalization. Eligibility now uses the current contained agent and
+  recorded parent lineage, with an explicit baseline/origin identity join.
+  Historical baseline filenames no longer masquerade as current placement
+  requirements; no historical record is rewritten by planning. Four source
+  controls exercise preserved historical metadata, root/descendant plan identity,
+  origin mismatch, native-profile refusal and unplaced-agent refusal. Existing
+  reparent and native-bootstrap regressions also pass (14 total, no skips).
+  All static checks pass
+  without source drift. Actual installed qualification of this correction and
+  the independently reproduced native-only update dispatch remain outstanding;
+  every original containment/platform/source/review/release acceptance remains open.
+
+- **Installed maintenance refusals (confirmed):** The b45a48ac4 wheel completes real framework placement, normal Component renewal and two finalizations, then both root and descendant reparent plans reject with `repository_reparent.native_profile_unsupported`, and update plans reject with `project.native_profile_required`. Application source and Git index remain unchanged after each independent command. Retain the exact finalized fixture and journals; fix current eligibility/dispatch without rewriting historical records or weakening native-profile checks. No new authority marker, driver or receipt is recorded.
+
+
+- **Installed Component producer continuation (macOS partial):** The unchanged
+  noneditable b45a48ac4 wheel executes public renewal for the original converted
+  wrapper Component and repeated source finalization from a descendant directory.
+  Renewal publishes through the normal producer; both finalizations recreate
+  normal preparations and report the destination lock and resolution audit as
+  current. The original source Component manifest is absent while its retained
+  native implementation remains present. The same journey then recovers twice
+  and checks exact application source bytes/native metadata, original framework
+  files, Git HEAD/raw index and installed distribution identity. The managed
+  installed cell passes all 27 commands; static checks also pass without skips or source drift. This is
+  actual installed CLI/native-file evidence on an explicit legacy-layout fixture,
+  not a historical released-wheel upgrade, fresh documentation review, native
+  application rebuild, full containment, supported-platform or release acceptance.
+  Update/reparent qualification and all seven original acceptance boxes remain open.
+
+- **Installed framework placement/recovery (macOS partial):** The clean noneditable
+  b45a48ac4 wheel passes the 29-command real legacy-initializer journey through
+  metadata migration/recovery/reapplication, identical root and descendant
+  framework plans, framework application and two recoveries. Both plans are
+  applicable with no missing ownership proofs. Retained application source keeps
+  exact bytes, native identities, modes, ownership and modification times; Git
+  HEAD/raw index and installed distribution identity remain unchanged. The exact
+  distribution is sha256:31b409ca9088a43ba596de2310c776ecec2646893fc5f25fcccee011c794728f.
+  Application takes 819.572 seconds within the original 900-second command
+  deadline; recovery calls take 141.419 and 291.814 seconds. The managed test
+  passes without skips or source drift; lint, formatting (2744 files),
+  repository-layout and public-export checks also pass. Normal Component producer renewal/source
+  finalization, fresh documentation review, complete containment, update/reparent,
+  supported platforms and all original source/review/release acceptance remain
+  required. This fixture uses real current initializer producers in explicit
+  legacy-layout mode; it is not an upgrade from a historical released wheel.
+
+Source partial: converted framework-resource observation now includes the original native rewrite program rendered with the validated implementation coordinate. Original producer identity and code are pinned; resource availability alone cannot establish historical file ownership. Resource and source-proof cohorts pass 30 tests, and final static checks pass. Installed placement, full containment, and the original acceptance checklist remain outstanding.
+
+- **Reviewed-document source transition (source partial):** The finite original
+  initializer inventory now includes the default authority-review document.
+  Existing framework/base or initialization ownership remains mandatory. A legacy
+  identity-only preimage must match the independent template outside its marker;
+  a later marker-only change must match a known original preimage outside that
+  marker. Changed bodies, unknown history, duplicate markers and substituted
+  invalidation delegates/inputs refuse. The original observer now sends only a
+  known default review candidate through this strict proof when its marker hash
+  differs. Authority relocation proposes a pending marker and explicitly requires
+  fresh review; planning preserves the live original bytes and historical token.
+  No new review, driver or receipt is recorded. Fifty-two focused/integration
+  controls pass without skips or source drift, with matching source hashes and
+  all static checks green. Existing authority-file assertions now run against
+  contained fixtures through canonical context/store paths, preserving the
+  distinction between read-only file authority and full public validation.
+  Actual installed publication/recovery of this document, the native-program
+  producer, and all original full containment/platform/source/review/release
+  acceptance remain open.
+
+- **Owned reference base transitions (source partial):** Approved metadata
+  reference rewrites now advance the original framework update base only when
+  its prior base or joined initialization origin/baseline binds the exact before
+  bytes. The new checkpoint is staged in the same acknowledged migration journal
+  with its reviewed digest. Historical initialization rows and existing blobs
+  remain; recovery restores the original checkpoint exactly. Custom documents,
+  locally edited framework files, active imports, and effective/shadowed/withheld
+  inheritance history cannot gain framework ownership through this transition.
+  Eight metadata controls and all eleven retained-harness regressions pass on
+  identical frozen source, together with lint, formatting, repository layout and
+  public export checks without drift. The original public migration case also
+  passes independently. A prior fixture Git commit timed out before migration;
+  fixture Git now isolates host signing/hooks/configuration with its original
+  deadline, without claiming that configuration caused the timeout. No authority
+  marker, driver or receipt is renewed. Reviewed-document and native-program
+  producer transitions, new immutable installed qualification, and every original
+  full containment/platform/source/review/release acceptance remain open.
+
+- **Original mixed-catalog publication (source partial):** The existing writer
+  now joins mixed roots only for original baseline-recorded catalog files and
+  original typed Component payloads. Unselected application files and inherited
+  Skills keep their original coordinates; original item closure and private-file
+  refusals remain. Before the placed marker, the writer checks the actual normal
+  catalog resolver against moved initialized coordinates. Original resolver
+  identity/code is checked at observer entry and publication; a regression found
+  and corrected a late guard that had already invoked a foreign replacement.
+  Nine composition and eight ingress controls pass, with all static checks and
+  no source drift. Actual Git-backed apply, normal typed Component load and
+  rollback preserve the distinct inherited Skill and original captured bytes.
+  Historical execution records are explicitly modeled; this is source API/native
+  file evidence, not installed CLI, full containment or platform qualification.
+  Documentation producer/base transitions and all original broader acceptance
+  remain open. The Component writer's original Git/index-boundary requirement
+  and stale-observation refusals remain unchanged.
+
+- **Imported initialization snapshots (source partial):** A new regression
+  reproduced false duplicate ownership when an inherited file also appeared in
+  the initialization snapshot. The normal resolver now reads current import
+  provenance first and excludes those destinations from initialized ownership,
+  including historical initialization bytes preceding an inherited update.
+  Nine resolver controls and six existing declared-skill catalog controls pass,
+  together with lint, formatting, repository layout and public export checks
+  without source drift. Mixed-root migration publication and its normal-consumer
+  readback remain open, as do documentation producer transitions, installed/full
+  containment/platform/source/review and release qualification.
+
+- **Initialized mixed-catalog resolver (source partial):** The normal catalog
+  resolver reads relocated initialization-baseline coordinates joined to their
+  original origin, alongside the existing import channel. Seven controls qualify
+  original typed-URI resolution, absent imports without fabrication, preserved
+  root neighbors, unrecorded-file exclusion, origin mismatch, equal-byte shadows
+  and redirected old/new parents. Five existing catalog successor/recovery
+  controls pass, together with lint, formatting, repository layout and public
+  export checks without source drift. The original framework migration writer
+  still refuses mixed roots. Verify import-record/baseline overlap, then connect
+  that writer to the resolver and complete original documentation producer
+  transitions before rerunning the installed framework journey. This checkpoint
+  does not qualify installed migration, full containment or the release; all
+  original acceptance boxes remain open.
+
+- **Original initialized workflow/routing items (source partial):** The real
+  installed f1d84cfe7 fixture passes metadata rollback/reapplication but its
+  framework-authority plan safely refuses missing workflow/routing item proofs,
+  a mixed Component root and documentation reference transitions. The original
+  managed-item inventory now recognizes directory and flat single-file workflow
+  and routing items through independently issued initialized-file proofs. Flat
+  items do not acquire their catalog root; unknown nested payload prevents whole
+  item placement and application neighbors retain the mixed-root refusal. Six
+  original-item controls and ten existing Component-capture controls pass, with
+  lint, formatting, repository layout and public export checks passing without
+  source drift. The installed framework regression remains open; this source
+  increment does not qualify full containment, producer renewal, supported
+  platforms, full source, independent review or release publication. All original
+  acceptance boxes remain open.
+
+- **Next action — runtime child retention and native platform custody (in progress):**
+  Complete supported-platform native execution custody and the original remaining
+  project-layout producer/lifecycle acceptance inventory. Preserve
+  strict source/output separation and exact original conversion-failure recovery,
+  including private/foreign-state refusal. Trace actual plan/Git/source-policy
+  continuity before changing ordering; do not fabricate a future initialized project
+  or infer disposal from names, paths or content identities. Complete every original
+  source/cache/runtime/whole-project/source-parent, migration/history and installed/
+  platform/native/full-source/independent-review/protected release requirement.
+
+- **Original external-driver diagnostic retention (source partial):** The
+  actual loaded receiving project, original framework/manifest and persistent build
+  parent are bound before driver launch. No lifecycle mutex crosses the external
+  driver. A fresh exclusive creator retains the complete selected diagnostic under
+  the contained build parent, outside disposable runtime output; actual descriptor
+  readback closes exact size/digest and native postimages before reporting. Existing
+  ledger metadata points to that original file using its observed size/digest
+  instead of creating another log copy. Unknown neighbors, competing exclusive
+  creators and substituted files/parents are preserved. Changed project authority,
+  partial writes and metadata/reporting failures remain best effort and keep the
+  original driver rejection and excerpt; unavailable contained custody never gains
+  a global-temp fallback. Capture handles are scope/process/thread bound; copied
+  or expired handles cannot supply another writer. The original real failing-driver
+  baseline consumed its complete log beyond runtime cleanup but reproduced host
+  scratch placement. Thirteen local configured-driver/file controls exercise
+  retention, physical faults, native substitutions, source drift, timeout, standalone
+  lock compatibility and ledger continuity. Fixture project/driver setup and local
+  process execution provide no installed/public full-lifecycle or supported-platform
+  qualification. Opaque/framework legacy routes remain explicit and unqualified.
+  Complete native Windows and every original producer/lifecycle/source-parent/
+  whole-project/migration/history/interruption/recovery/concurrency/installed/
+  supported-platform/full-source/independent-review and protected release acceptance
+  remain open. Existing rebuild CLI fixtures now select the actual framework
+  manifest/sample coordinates through the shared project context, assert contained
+  default authority without a duplicate root manifest, and keep application driver,
+  runtime and declared receipt paths rooted in the application. Their accepted
+  lifecycle/product results retain explicit supplied native/Standard fixture facts;
+  this compatibility cohort is not installed or full native lifecycle acceptance.
+
+- **Original source-admission verifier custody (source partial):** Admission
+  now carries its actual receiving LoadedProject into the verifier before workspace
+  allocation. On the contained POSIX path the original inspection/native owner
+  creates the source copy and tracks actual exclusive copy descriptors, preserving
+  empty directories, file modes, exact bytes and original-source postimages.
+  Original bounded test processes close native output postimages before returning
+  to caller callbacks, enforce byte limits during reads, and terminate their owned
+  descendants. Test-created outputs are admitted by original production; later
+  private entries and equal-byte source/output replacements refuse disposal and
+  retain their original bytes/inodes beyond runtime cleanup. Original command and
+  callback failures keep priority. Original allocator parents are checked against
+  inspected read-only source before staging or standalone lock-control creation;
+  overlapping source cannot supply implicit scratch ownership. Actual baseline
+  commands reproduced ambient
+  placement and deletion of post-process private state. Fifteen local process/file
+  controls cover those failures, normal outputs, candidate drift, source/output
+  substitution, original errors, bounds, timeout, standalone declared receivers
+  and foreign runtime refusal, preserved missing/aliased-source CLI refusals,
+  plus refusal of source/scratch overlap before any
+  original allocator/control call. A real background counter stops before the
+  original successful test returns to its consumer. Candidate/model preparation remains supplied fixture
+  data; this is no installed/public admission or supported-platform qualification.
+  Framework/standalone-without-receiver and unsupported-native legacy routes remain
+  explicit and unqualified. Complete native Windows and supported-platform execution,
+  every original producer/lifecycle/source-parent/whole-project/migration/history/
+  interruption/recovery/concurrency/installed/full-source/independent-review and
+  protected release obligation remain open.
+
+- **Original README asset verification stream (source partial):** The active
+  published-README verifier now hashes original API stdout through the existing
+  bounded process sink instead of allocating an ambient download workspace. It
+  retains exact provider asset-ID selection and byte-count acceptance, including
+  empty assets, with bounded stdout/diagnostics and the original five-minute
+  deadline. Truncation, excess bytes, nonzero exit, diagnostic overflow, sink
+  failure and timeout refuse a digest. The original owned process-tree runner
+  stops a successful child's background writer before returning. Nine actual local
+  process controls include multi-chunk bytes, physical timeout and descendant
+  counter observations; existing README/release fixtures preserve caller behavior.
+  Provider transport is supplied locally, with no HTTP/configured-worker action,
+  installed or native-platform qualification. This removes one actual temporary
+  producer; complete producer/lifecycle/source-parent/whole-project/migration/
+  history/interruption/recovery/concurrency/installed/native-platform/full-source/
+  independent-review and protected release acceptance remain open.
+
+- **Original retained publisher-file staging (source partial):** The active
+  strict tested-file publisher's `staged_release_file` capture now uses its actual
+  contained receiving project's inspection/evidence stage. Original exclusive
+  copy descriptors close read-only postimages before sealing and handoff. Bounded
+  source reads retain exact size/digest checks and close original source identity/
+  metadata observations before consumption. Unknown private state, equal-byte
+  replacement and original consumer rejection retain exact state and prevent
+  enclosing runtime cleanup; original copy failures preserve their exception and
+  retire only owned partial data. Standalone use freshly loads its actual receiver;
+  a foreign active runtime cannot supply the stage. The real baseline consumed
+  matching bytes but reproduced ambient upload-copy placement. Eight actual
+  file/native-reader controls cover the original copy, failures and retirement.
+  Existing artifact/release and local CI-selection/promotion fixtures preserve
+  caller contracts; provider and foreign-job facts remain explicit supplied data,
+  with no actual worker/provider action or platform qualification. Framework/
+  legacy host-scratch routes remain explicit and unqualified. Complete canonical
+  contained-publication/installed/native-platform/full-source/independent-review
+  and every original producer/lifecycle/source-parent/whole-project/migration/
+  history/interruption/recovery/concurrency/protected release requirement remain
+  open. Standalone SDK validators without a receiving context remain separately
+  classified; inspected read-only source never supplies implicit write ownership.
+
+- **Original atomic writer/default helper custody (source partial):** Actual
+  release file replacement now pins the original exclusive creator through write
+  closure, bounded full-payload verification, exact rename and postimage checks.
+  Original destination identity remains current before publication; cleanup only
+  unlinks the exact controlled temp postimage. Foreign temp/destination replacements
+  and unverified changed payloads remain intact, with original physical errors and
+  cleanup notes preserved. A live worktree accepts only the actual created file
+  at its original descriptor boundary; a whole-tree snapshot never adopts unknown
+  entries. Real transaction rollback remains usable inside that owner. The retained
+  isolated default-advancement helper now uses the same original detached Git
+  checkout/admin owner for version/documentation writes and normal cleanup. Real
+  local bare-repository controls advance version/mirrors, skip an ahead branch,
+  preserve the caller checkout and refuse push/cleanup after private state.
+  Strict Git read-safety prefixes remain in actual argv. The baseline reproduced
+  deletion of a foreign temp replacement on original publication failure.
+  Eleven controls exercise actual atomic faults, file consumption and Git effects;
+  source/policy fixture ports are explicit, with no installed or platform claim.
+  Source inspection found no in-repository publication call to the isolated helper,
+  despite older comments claiming automatic advancement. Those comments are corrected.
+  Publisher/default-advance integration and its protected ordering remain open;
+  the public explicit branch-advance command remains a separate actual consumer.
+  Full canonical documentation-authority, original interruption/recovery/concurrency,
+  migration/history/source-parent/whole-project/producer/installed/native-platform/
+  full-source/independent-review and protected release acceptance remain open.
+
+- **Original backport worktree cleanup custody (source partial):** Backports
+  now allocate fresh short checkout namespaces below their original framework
+  build root. The original Git Popen/process-tree owner closes both the actual
+  checkout namespace and its finite newly created common-Git administration
+  entry before caller callbacks. Original source/framework/Git parent bindings
+  and native postimages remain current before subsequent commands or disposal.
+  Unknown ordinary/ignored private files, equal-byte checkout/admin replacements
+  and private administration entries refuse cleanup and retain exact state plus
+  registration. Git status and saved location/reservation records grant no
+  deletion authority. Original native output ownership precedes forced Git
+  retirement; the wrapper has no recursive temporary-directory fallback. Normal
+  successful backports retire checkout and administration state. The exact Git
+  remove can retire its otherwise empty shared worktrees parent only when the
+  original entry was its sole child; a replacement parent remains foreign.
+  A successful Git parent with an active original group refuses admission and
+  is stopped through its actual process-tree owner. Original cherry-pick errors
+  retain priority when abort/disposal is refused. The real baseline deleted an
+  ignored private file after an actual cherry-pick. Local native controls now
+  cover clean retirement, ordinary/ignored state, equal-byte/admin state,
+  original errors and a real background descendant launched by a Git hook.
+  Project discovery is an explicit authoring-profile fixture port, while native
+  Git/source/files/process ownership execute. No canonical converted-project,
+  installed/Linux/Windows/full-source/current-review/release qualification is
+  claimed. Windows Job observation is implemented but requires native proof.
+  The isolated default helper now joins original Python file creators through
+  this actor; publisher integration and complete acceptance remain open. Original
+  producer/lifecycle/source-parent/whole-project/migration/history/concurrency/
+  recovery/installed/native-platform/independent review and protected release
+  acceptance remain open.
+
+- **Original release Git process ownership (source prerequisite partial):**
+  The original temporary-checkout Git caller now uses the established process-tree
+  timeout owner already used by the main release Git caller. Preserve its 60-second
+  deadline, inherited stdin, text stdout/stderr, unchecked status and original
+  typed Git/timeout error contracts. The actual baseline started a descendant
+  that kept writing after the direct child timed out; the fixture retained only
+  its actual original process owner for cleanup. The fixed caller stops that
+  actual group, while direct native Git controls cover successful captured output
+  and checked/unchecked failures. Existing local release/backport controls remain
+  required. This does not establish successful-command group quiescence, native
+  workspace/output ownership, safe force removal or Git-registration cleanup.
+  Complete worktree placement, common-Git/source custody, private/foreign-state
+  preservation and all original platform/lifecycle/release acceptance remain
+  open. Canonical project-worktree reservation observations do not issue output
+  or recursive disposal ownership.
+
+- **Original release-asset readback (source partial):** Asset downloads and
+  wheel builds now share actual original contained native workspace admission,
+  with separate typed staging failures and unchanged wheel entry points. The
+  original bounded downloader process closes native output postimages and its
+  owned process group before caller callbacks. Verify original native namespace
+  before and after the retained size/SHA-256 readback checks; links/reparse or
+  non-file outputs refuse. Unknown private state and equal-byte replacements
+  survive closing refusal and parent runtime cleanup. Original process/mismatch
+  errors retain priority over conflicting disposal; deadline errors keep the
+  actual bounded-runner cause. Standalone use freshly loads the actual project;
+  foreign active runtimes refuse before launching any downloader. The baseline
+  ran a local downloader and verified its bytes but reproduced ambient scratch.
+  Native fixture controls now execute real local downloader children with real
+  files, failures, timeout, digest mismatch and private/replacement controls.
+  Only the transport is a supplied fixture; no HTTP, credentials or actual GitHub
+  service is involved. Shared wheel and existing local Git release controls stay
+  required. Framework/legacy/Windows native scratch routes remain explicit and
+  unqualified. Complete installed/provider/native-platform/producer/lifecycle/
+  migration/history/concurrency/full-source/independent review and protected
+  release acceptance remain open.
+
+- **Original release-note materialization (source partial):** Both original
+  GitHub publication paths now materialize their actual UTF-8 notes through the
+  original contained project's inspection/evidence stage. Exclusive native file
+  writers close postimages before provider consumption; stage verification spans
+  the consumer and refuses private additions or equal-byte foreign replacements.
+  A foreign runtime cannot issue a stage, while standalone use freshly loads its
+  actual declared project. Refused retirement retains exact state and prevents
+  enclosing runtime cleanup. Original typed provider and physical-consumer errors
+  keep their identity and disposal notes, including framework-root compatibility.
+  The baseline consumed real notes but reproduced ambient placement. Actual UTF-8
+  files/local isolated-process readers now prove contained placement and normal
+  retirement. The original tested-provider caller executes with external provider
+  observation/write and note-content fixture seams. Direct stage controls exercise
+  real private/replaced state, standalone use and original errors. Existing local
+  Git release controls remain required. Framework-root scratch remains explicitly
+  unqualified; full original public/installed/native-platform/lifecycle producer
+  acceptance, independent review and protected release remain open.
+
+- **Original release wheel publication (source partial):** Fresh wheel artifacts
+  now publish in independently created short directories beneath the original
+  framework build root. Native parent custody spans exclusive creator-FD copy,
+  bounded source reads, original source postimages, fsync and full copied-byte
+  verification. The final wheel name appears through an atomic no-replace
+  same-filesystem link; only the exact original partial is retired on success.
+  Existing ordinary wheel files, prior successful artifacts, failed partials and
+  foreign collision/replacement state remain intact. Unsupported atomic links
+  refuse with the partial retained; a fresh retry needs no manual deletion.
+  The real pip baseline reproduced an ordinary-file overwrite. Native PEP517
+  controls now preserve that file and its inode, build repeatedly, retain real
+  partial writes and final-name collisions, and preserve completed artifacts on
+  closing project drift. Focused publisher controls exercise actual native copy,
+  replacement and link operations with explicit opaque input, not a qualified
+  wheel. Original publisher recovery, concurrent lifecycle/platform/installed
+  acceptance, full source review and protected release requirements remain open.
+
+- **Original release wheel staging (source partial):** Contained POSIX wheel
+  packaging now uses its actual project's original inspection/native workspace,
+  with a real bounded pip process and original process-group closure before
+  subsequent Python callbacks. A foreign active project cannot supply that
+  workspace. Native backend temporary directories, pip cache and Python bytecode
+  prefix stay under the actual private object root, outside a disposable parent
+  runtime. Closing native postimages are checked before selecting/copying a wheel;
+  replacement links and unknown private state refuse before publication. Original
+  pip failures remain typed release failures and survive disposal conflicts.
+  Original project/framework context and completed-copy refusal behavior remain
+  guarded. The actual baseline built a valid wheel and imported its payload but
+  reproduced ambient backend staging. Eight controls run a real dependency-free
+  PEP517 backend/pip, full ZIP CRC/metadata and payload consumption, actual failed
+  builds, private/replaced state and wrong-project/context refusals. Their pip
+  environment disables index/version checks and user pip configuration; no
+  package dependency install or network is required. Existing consumer-default tests retain explicit
+  modeled packaging/workspace ports and are not native wheel qualification.
+  Framework/legacy and native Windows scratch routes remain explicit/unqualified.
+  Final destination publication now has the separate original-publisher source
+  controls above; complete recovery and platform acceptance remain open.
+  No release, installed-platform or generated-
+  product qualification follows from this source fixture. Complete original
+  producer/source-parent/whole-project/migration/history/concurrency/full-source/
+  independent review and protected release acceptance remain open.
+
+- **Original local-adapter build inputs (source partial):** All six original
+  Python/C++/Rust/Swift/JavaScript/composite local adapter build sites now issue
+  fresh input creation through the actual contained project's inspection stage.
+  Original validated file mappings write through exclusive native stage creators,
+  closing exact postimages before the real guarded builder consumes them. Current
+  runtime/project selection is shared with compiler output custody; a standalone
+  call freshly loads its actual declared project. Nested compiler staging borrows
+  the original held lock without polluting the input namespace with execution
+  controls. Unknown private input or equal-byte foreign replacement refuses
+  retirement, preserves exact native state and prevents enclosing runtime cleanup.
+  Source disposition conflicts receive the typed input-custody error; original
+  compiler or physical materializer failures retain their original exception and
+  disposal notes. Existing non-build materialization and explicit external/root-
+  authoring paths retain their original producer. The actual Rust adapter baseline
+  built and executed successfully but reproduced host-scratch input placement.
+  Eleven controls now use real guarded Python, C++, Rust, Swift, JavaScript and
+  composite builders with runnable outputs, original error/partial/private/native-
+  replacement controls and fresh standalone admission. These small authored
+  fixtures have explicit policy/project/origin seams; no model-generated product,
+  installed three-platform or complete lifecycle acceptance follows from them.
+  Remaining producers, source-parent/whole-project, migration/history, concurrency,
+  full-source, independent review and all protected release gates remain open.
+
+- **Original contained compiler output custody (source partial):** Guarded
+  Rust, Go and Rust/JavaScript backend compilation now obtains its fresh native
+  output workspace through the actual contained project inspection/execution
+  owner. A live runtime supplies its original project and held lock; standalone
+  admission freshly loads the actual declared contained project. Neither saved
+  runtime metadata nor output facts restore an old cleanup actor. Native output
+  lives beneath the original object root outside a disposable parent runtime.
+  The actual bounded Popen creator/owner closes compiler output postimages after
+  process/stream completion and original POSIX group checks, before post-process
+  trace or caller callbacks. Toolchain version probes outside the bound source coordinate
+  do not gain output-admission authority. Compiler TMPDIR/TEMP/TMP and Go's
+  explicit temporary/cache destinations stay in that actual native workspace.
+  An unquiesced owned descendant or rejection is stopped through the original
+  process-tree owner before release. Refused native cleanup retains private or
+  equal-byte replaced outputs and preserves original compiler/deadline errors.
+  The original dependency file now retires with its owner rather than an early
+  pathname unlink. Closing facts are projected once and entries retired together;
+  no native observation or guard is removed to avoid repeated pure projection.
+  Eleven controls execute actual authorized host compilers and runnable Rust,
+  Go and composite-backend artifacts, fresh standalone admission, private and
+  replacement refusal, post-process trace isolation, real launch/timeout failure
+  and a real live descendant group. Inputs are small authored fixtures with
+  explicit test policy/project seams, not model-generated product qualification.
+  Existing native-workspace and host-authorization controls remain required.
+  Telemetry's actual Linux pidfd cases remain declared skips on this macOS host;
+  unrelated observer work is excluded from this increment. Native Windows and
+  legacy/framework-authoring scratch paths remain explicit and unqualified.
+  Complete original source-parent/whole-project, producer inventory, migration/
+  history, concurrency, installed/native-platform/full-source/independent review
+  and every protected release requirement remain open.
+
+- **Locked remote asset stream staging (source partial):** Original locked
+  asset admission now stages its bounded download below the actual receiving CAS,
+  selected under the contained candidate build root by ordinary generation. The
+  fresh native stage joins the actual exclusive stream creator through flush,
+  fsync and descriptor closure before ordinary CAS admission. Pathname-only unlink
+  no longer retires a replaced file. Partial response, size-limit and unsafe-
+  redirect failures keep their original typed diagnostics and retire only actual
+  original temporary state. Unknown private files and equal-byte replacements
+  refuse disposal and retain their exact native state; cleanup conflict preserves
+  an original download rejection. The source baseline reproduced ambient host
+  scratch placement. The existing binary-asset public promotion also exposed a
+  legacy-only physical binding validator. Bindings now retain their exact legacy
+  coordinate or the finite contained `litai/components/...` form; one relation
+  cannot mix layouts or duplicate a Component/asset owner. Existing source/audit/
+  byte/digest/declaration checks remain required. The public fixture discovers its
+  actual declared framework root for Component and provenance reads. Five value
+  controls cover both wire forms and reject aliases, wrong owners, duplicate or
+  mixed layouts and malformed fields. Six streaming controls use inert HTTP
+  responses with real file/CAS/cleanup producers; they do not establish remote
+  HTTP or installed/native Windows acceptance. Full producer inventory, supported-platform native custody, installed
+  lifecycle, whole-project/source-parent and all release requirements remain open.
+
+- **Original runtime inspection-child retirement (source partial):** The
+  original runtime registers each actual inspection child before allocation and
+  clears its slot only after that original stage reports completed retirement.
+  Nested stages inherit the actual runtime owner. Child admission and close share
+  a lock; closing prevents later admission. Refused or unfinished child retirement
+  prevents recursive parent cleanup while original runtime handles still expire.
+  Explicit retention preserves private state without leaving a usable handle.
+  The regression reproduced actual deletion of a refused child's private inode on
+  the previous code. Current controls cover that preservation, nested refusal,
+  explicit retention and close during an active original child, alongside normal
+  cleanup. This is scoped source evidence; native Windows, installed-platform,
+  general concurrency, whole-project/source-parent and release gates remain open.
+
+- **Original POSIX retained execution workspace (source partial):** Actual
+  contained Component execution now allocates its fresh private run through the
+  live inspection execution marker and held object-cache owner, under the real
+  `litai/_build/`. Copied regular source files join exclusive creator descriptors,
+  original input descriptors and closing native postimages. Original synchronous
+  sanitized Git and native command producers close their own mutable output
+  postimages at their original boundaries, before returning to unrelated callers.
+  Anonymous stdout/stderr files use that same actual native workspace. Native
+  command completion checks the original Popen and owned POSIX process group;
+  releasing a process handle or merely seeing a missing path cannot prove cleanup.
+  Closing native namespaces reject unfinished groups, foreign/private additions
+  after producer closure, replaced equal-byte copies and changed native postimages.
+  Exact original entries retire through native parent handles and original empty-
+  directory deletion observations. Only an original recorded output-directory FD
+  can acquire owner write/execute bits for cleanup. Actual partial copy failures
+  retire their original creations and restore exact original source. Failure plus
+  a group-closing refusal preserves the original bounded gate rejection. Native
+  runs bind the original object root outside an enclosing disposable runtime, so
+  closing that runtime cannot remove refused native output or its private file.
+  Closed/thread/PID inspection markers cannot issue a fresh native run from saved
+  metadata. The original full default refined namespace journey now passes for
+  both bundle and real execution-copy placement. Nine native namespace/diagnostic/
+  rejection/partial/readonly controls, five actual metadata/selection controls, five
+  source/Git rollback cases, fourteen monorepo metadata/execution controls, ten
+  runtime-owner controls, twelve original harness cases and twelve creator/control
+  cases pass 67 source checks without skips/failures plus static gates. Two native
+  group-refusal cases explicitly model the OS liveness result; ordinary native
+  commands use the real process-group probe. This is cooperative private-run
+  custody, not hostile host-code or same-UID isolation. Root-parent/Standard-binding
+  fixture seams and unrelated native harness/Windows assertion WIP stay explicit.
+  Native Windows and legacy external execution keep their historical host scratch
+  route and remain unqualified; this does not close supported-platform or installed
+  acceptance. Generic refused inspection-metadata children still need original
+  retirement-conflict propagation through enclosing runtime cleanup. Complete
+  original source-parent/whole-project, migration/history, alias/link/concurrency,
+  full-source, independent-review and protected release requirements remain open.
+
+- **Refined conversion metadata staging (source partial):** Contained refined
+  conversion keeps original observation-only preflight, then stages its actual
+  Component bundle and receipts only after original source transfer and real
+  contained manifest publication. The original planner reconsumes the actual
+  relocated source/selection under the existing reviewed identity and strict
+  source/output separation. It uses the original initialized-project inspection
+  owner beneath `litai/_build/`, not a prospective project or an adopted directory.
+  The original scaffold creator joins inspection control-directory births and the
+  actual placeholder inode before the ordinary canonical cache mutex opens it;
+  equal-byte foreign locks cannot be adopted. The original stage's process-bound
+  retirement observation is required before source rollback. Foreign staging state
+  retains original source/scaffold/runtime and the rejecting error rather than
+  entering broad cleanup. Successful metadata staging retires its exact original
+  outputs; ordinary late installation, changed-selection and actual native
+  Component-command failures restore exact original source/Git custody. A source-
+  local selection retains original bytes and inode at its transferred coordinate;
+  an external selection is re-read rather than silently replaced by cached data.
+  The native failure regression ran a real selected failing Make command after the
+  aggregate baseline/parity passed, exposed the missing typed failure branch and
+  now proves exact restoration. Five actual metadata/selection/failure journeys,
+  five original refined rollback cases, twelve creator/control cases, thirteen
+  original monorepo staging controls, ten runtime-owner cases and twelve original
+  harness cases pass 57 checks without skips/failures plus static gates. Original
+  root-parent/Standard-binding fixture seams remain explicit; pre-existing native
+  harness/Windows assertion WIP stays outside this commit. This is dirty-candidate
+  source evidence, not exact clean commit, installed wheel or native three-platform
+  qualification. Native Component execution copies/diagnostics still require their
+  actual execution owner and contained placement; the full original namespace test
+  stays pending. All original whole-project/source-parent, migration/history,
+  full-source, independent-review and release requirements remain open.
+
+- **Original scaffold rollback and contained scope refresh (source partial):**
+  The original initializer now joins its actual directory births, exclusive file
+  creators and physical canonical publications in one process-bound finite owner.
+  Direct template/lift/rewrite producers and verified monorepo installation retain
+  their own planning and input checks while joining that actual creation custody.
+  Source/Git movement stays with its original owner. Rollback preflights exact
+  native postimages and owned-directory membership, removes only original owned
+  entries and uses native empty-directory retirement. Unknown/private entries,
+  equal-byte foreign replacements and changed parents refuse without recursive
+  tree deletion. Closed/copied/foreign-process writers cannot be replayed; writer
+  closure failures preserve the original rejection. Ordinary rejection before or
+  after real installation restores exact original bytes, modes, native inodes and
+  ignored-but-tracked Git index entries. Foreign framework or retained-source
+  recovery notes keep their original bytes/inodes and the original install error;
+  source stays in its known original quarantine when recovery is incomplete.
+  A completed scaffold cannot be adopted for later deletion from its saved paths.
+  The original retained-scope refresh reader now resolves the actual declared
+  wrapper and monorepo installation coordinates. Its real default refined journey
+  executes only the stale Component, reuses the other Component and becomes current
+  without rewriting historical conversion evidence. Existing default conversion,
+  native wrapper execution, source-scope policy/review/receipt renewal and Git
+  custody checks now use the declared contained metadata paths. Nine new creator
+  controls, five actual refined rollback controls, 16 Git custody controls, three
+  source-scope refresh controls, 12 original harness controls and ten original
+  stage-completion controls pass 55 checks without skips/failures plus static gates.
+  The harness cohort runs alongside pre-existing native-harness and Windows
+  recipe-assertion changes, preserved outside this commit. This is dirty-candidate
+  source evidence, not exact clean
+  commit, installed wheel or native three-platform release qualification. Refined
+  pre-bootstrap bundle/native execution scratch containment remains an explicit
+  pending test, and all original whole-project/source-parent/migration/history,
+  full-source, independent review and release requirements remain open.
+
+- **Original stage retirement observation (source partial):** The allocating
+  stage now exposes process-bound completion only after its actual tracked native
+  disposal and all handle-release stacks finish successfully. The observation
+  survives closure without reopening writes or supplying deletion authority.
+  Original body rejection can coexist with completed retirement; unknown/private
+  entries, equal-byte foreign replacements, partial disposal and failed teardown
+  remain incomplete. Copied/forged or foreign-process observers refuse. Ten new
+  controls, nine original stage-owner controls and 13 actual contained-monorepo
+  controls pass 32 checks without skips/failures plus static gates. The Windows
+  handle model is explicit and is not native Windows qualification. This closes
+  the missing original completion-observation port; conversion rollback has not
+  yet consumed it. The actual foreign-scaffold deletion regression, creator-owned
+  scaffold rollback, contained pre-bootstrap/native execution scratch and all
+  original installed/platform/full-source/review/release requirements remain open.
+
+- **Default conversion and installed monorepo renewal (source partial):** Ordinary
+  actual default conversion followed by the original real refined-Component install
+  API now has a composed source journey through original source movement, stale
+  installed-binding refusal, actual fresh Component execution/receipt renewal,
+  current-layout checking and reuse of that current receipt on the next refresh.
+  The source bytes stay unchanged. The Component and installed receipt are beneath
+  the declared framework directory; no application-root Component metadata or root
+  metadata directory is added. Eight default converted-project journeys, 13 original
+  contained metadata/execution-scope controls and 18 direct legacy program-consumer
+  cases pass 39 checks without skips/failures plus static gates. This composes
+  the actual default converter and original v1 install API; it is not refined
+  pre-bootstrap initialization or a hand-authored project/installation fixture.
+  Original root-parent/Standard-binding fixture seams stay explicit. Commands are
+  real stdlib retained execution, not generated product/compiler/model acceptance.
+  Native execution copies still use host scratch, and pre-bootstrap source/staging,
+  installed three-platform, source-parent/whole-project, review and full release
+  qualification remain open.
+
+- **Contained recovery and compatibility (source partial):** Pending recovery
+  considers only direct native producer coordinates. An indirect application-owned
+  root metadata lookalike cannot redirect or hide the actual contained transaction;
+  its target stays unread and preserved. The real interrupted-manifest case restores
+  the exact original inode under its ordinary lock while preserving that application
+  link and payload. Registered independent children now prove their actual default
+  contained manifest and nonmoving independent role, without forcing a legacy root.
+  177 distinct current-production checks pass without skips/failures across
+  default source transaction/readmission, native publication ownership, layout,
+  original ownership/preparation/finalization/transaction/renewal, configuration/
+  no-follow and end-to-end readmission/publication cohorts, plus static gates.
+  The runs share exact production bytes; only the independent-child test expectation
+  changed between them. Original source/fixture seams and full installed/native/
+  platform/review/release limitations remain explicit and unqualified.
+
+- **Default contained source movement and renewal (source partial):** Actual
+  retained-layout planning, ordered prospective metadata and canonical publication
+  now share physical framework coordinates. Original metadata readers distinguish
+  those implicit names from declared application-relative Component/source paths.
+  Source movement keeps original bytes, executable mode, hardlink inode topology
+  and symlink text. The full bounded original source owner joins its original
+  authored witnesses, native framework roles, journal allowance, movement,
+  publication, finalization and descriptor teardown without replacing its ledger.
+  Initializer ownership uses the real finite placement projection and original
+  manifest/checkpoint profile; it cannot adopt arbitrary directory contents.
+  The actual canonical contained manifest is the same authored project, while other
+  nested project candidates still require their registered owner. Shim rendering
+  uses original logical templates projected through that same finite producer.
+  Ordinary readmission executes real baseline/parity commands, publishes fresh
+  receipts, renews the current Component lock and becomes current at the new path;
+  no historical positive is rewritten. Native publication/history/active state and
+  manifest writer permissions use the selected framework directory. An interrupted
+  invalid contained manifest can be reopened without parsing it and rolled back
+  under its ordinary mutex to the exact original inode. Seven new default-converter
+  journeys, 18 original publication-owner controls and 15 layout controls pass
+  40 checks without failures/skips plus static gates. Initializer fixtures
+  retain their explicit root-parent/Standard-binding seams; commands are real
+  stdlib retained-harness execution, not generated product/compiler/model proof.
+  Broader current compatibility cohorts and application-alias recovery are next.
+  Public whole-project migration, pre-bootstrap/native execution scratch, installed
+  Linux/macOS/Windows, inherited/source-parent histories, independent review and
+  all original release acceptance remain open.
+
+- **Default contained control roles (source partial):** Actual default conversion
+  now acquires retained-layout roles from its selected contained manifest, conversion
+  state and canonical writer mutexes. Native framework ancestry is retained through
+  discovery, reacquisition and final input closure; replacing the framework with an
+  equal-byte copy cannot stand in for that original namespace. Separately authorized
+  manifest replacement stays compatible with current roles while initial-input
+  validation still rejects changed manifest bytes. Legacy role identity version 1
+  keeps its original wire fields; contained roles use version 2. Eight new actual
+  default-conversion controls and the direct legacy role/transaction/finalization/
+  renewal cohorts pass 84 checks without skips/failures plus static checks.
+  Initialization test seams remain explicit; this is source control-role evidence,
+  not installed-wheel/native three-platform qualification. Default contained
+  transaction/publication/renewal is still open, as are all original layout and
+  release acceptance requirements.
+
+- **Original monorepo metadata staging (source partial):** Contained installed
+  refresh now places its actual selection, source-free bundle and reused/executed
+  receipt files under the current project's object state. The native stage owns
+  exclusive creator descriptors and durable flushes through final postimages;
+  partial writes remain with that owner, and the legacy path/ID cleanup cannot
+  adopt them. Current registered postimages are checked before publication.
+  Native component runs borrow only the allocating scope's actual held project
+  cache mutex, with a single active execution and a real creator-descriptor marker
+  spanning the call. This avoids unregistered per-bundle mutex files in the stage.
+  Saved runtime paths cannot start unbound execution; nested scopes borrow the
+  original live lease, and closed/copy-context or foreign-receiver claims refuse.
+  Scope records are allocator-owned and process-bound, not reissued from data.
+  Unknown/private or equal-byte foreign entries retain their state and original
+  publication failures. Legacy external behavior stays explicit.
+  Thirteen new current metadata/execution controls, including actual original
+  stdlib harness execution and one modeled foreign-PID refusal, and existing stage,
+  runtime, index, audit and direct legacy role/transaction/finalization/renewal
+  cohorts pass 128 distinct checks without skips/failures, plus static gates.
+  The preceding subject passed 74 checks, including 18 legacy program-consumer and
+  five original monorepo cases; that is historical composition context rather than
+  current-subject requalification. Fixture initialization/distribution seams remain
+  explicit. New contained refresh controls use the ordinary store-created project
+  and original v1 installed-Component API; they do not qualify genuine default
+  conversion/current-layout movement. The actual default contained reader failure
+  is preserved as required follow-up, not converted into an accepted negative.
+  Pre-bootstrap staging, retained native execution copies and full installed/native/
+  platform/independent-review/release acceptance remain open.
+
+- **Native audit retention diagnostics (source partial):** The contained audit
+  owner now prefixes a closing-conflict notice and original project-relative
+  scratch coordinate into the existing error message. The original exception
+  object, code and verifier message are preserved; normal verification rejection
+  with successful cleanup remains byte-for-byte unchanged. The notice comes before
+  a long original failure so the existing bounded CLI output cannot truncate it
+  away. Raw causes/exception notes are not copied into public text. A coordinate
+  is diagnostic only: it neither asserts current existence after a namespace move
+  or successful stage disposal nor restores cleanup authority. The baseline actual
+  private scratch refusal reached CLI JSON with only its original verifier message.
+  Five corrected actual CLI serialization controls and eleven existing physical
+  audit/custody/history controls pass 16 distinct source checks without skips or
+  failures, plus static gates. Host self-update, MCP discovery, performance writers
+  and external event publication are excluded; handler and verifier fixture ports
+  are explicit. This reporting-only correction does not rerun or requalify the
+  preceding signed public journey at `5515449ad`, installed/platform acceptance or
+  the complete release. All original producer/runtime/source-parent/migration and
+  release requirements remain open.
+
+- **Native-child historical audit scratch (source partial):** The original
+  contained replacement planner now places inert historical child views under
+  the parent's `litai/_build/` through the shared original project inspection
+  owner. The owner reuses an actual live runtime or holds the standalone canonical
+  lifecycle lock, and checks original manifest bytes/native identity and project
+  context through disposal. Source-index status uses the same allocator. Each
+  historical manifest candidate is written once into a fresh view; retained rebind
+  records do not authorize rewriting or adopting a scratch file. Empty directories
+  and actual exclusive file creator postimages are recorded by the native stage
+  owner. Inspection files/directories use private `0600`/`0700` modes; the live
+  child's original bytes and modes remain untouched. Unknown/private or equal-byte
+  foreign entries refuse cleanup and preserve the original verifier rejection;
+  a disposal conflict cannot select another historical fallback. The scoped CLI
+  message relay above exposes the original coordinate; raw cleanup notes remain
+  internal. Legacy audit placement/behavior is unchanged. The baseline actual registry/copy control
+  reproduced the host-temporary view. Eleven new registry/history/physical scratch
+  controls and existing status, runtime-owner, stage, contained-index and signed
+  public replacement/history cohorts pass 59 distinct checks without skips or
+  failures, plus static gates. The new narrow verifier port is explicit; the
+  original signed journey uses the real promotion verifier with its original
+  distribution/origin observers and tiny retained Make fixture commands. No real
+  product compiler/model, installed or supported-platform release qualification is
+  claimed. Complete original source-parent/whole-project/migrated history,
+  remaining producer inventory and all original release requirements remain open.
+
+- **Source-index status scratch (source partial):** The original contained
+  command engine now creates its actual source and SQLite status snapshots under
+  the selected project's default `litai/_build/`, ignoring ambient cache overrides.
+  It reuses the original live project runtime when present, without reacquiring
+  that runtime's held lifecycle lock. Standalone status owns the canonical cache
+  lock through observation and disposal. Original project context checks surround
+  the work. The existing native evidence-stage owner records actual source writes
+  and exclusive SQLite destination creator descriptors through connection close;
+  only those original postimages may be disposed. Unknown provider/private files
+  and equal-byte foreign replacements cause retention, and disposal conflicts do
+  not hide an original status rejection. Legacy/framework-authoring status keeps
+  its original temporary workspace. The baseline real source/SQLite capture
+  reproduced an out-of-project snapshot. Corrected contained/runtime reuse,
+  original error, foreign/private preservation, unsafe ancestry, legacy and
+  existing source-index/staging/retained-runtime cohorts pass 50 distinct source
+  checks without skips/failures, plus static gates. The status command/version is
+  an explicit fixture port; no actual CodeGraph index or installed/native-platform
+  qualification is claimed. Complete producer/runtime and source-parent ownership,
+  migrated history and every original release requirement remain open.
+
+- **Source-cache/index context (source partial):** Original project-aware cache
+  protection now includes the declared intelligence artifact. CodeGraph's finite
+  database, SQLite sidecars, lock/log and daemon-control names are reserved in the
+  selected directory; unrelated generated destinations remain usable. Both actual
+  target resolution and source materialization check every declared portable path
+  overlap before physical probes. Ancestor observation walks names without
+  following links or reparse nodes and compares captured native IDs for physical
+  overlaps, rather than issuing later target-following `samefile` probes. The
+  original materializer regression accepted `litai/codegraph.db` as a source
+  directory. Corrected real cache materialization/configuration controls, alias
+  preservation, one explicit reparse-metadata model and existing cache/index
+  cohorts pass 63 distinct source checks without skips/failures, plus static
+  gates. The ordinary contained generated destination still materializes while
+  cache output remains untrusted for current acceptance. Intelligence verifier and
+  command-engine fixture ports are explicit; no actual CodeGraph executable/index,
+  compiler/model, configured-worker, installed or native-platform qualification is
+  claimed. Complete producer inventory, original temporary/runtime disposal,
+  whole-project/source-parent and every original release gate remain open.
+
+- **Native-child update/replacement context (source partial):** The original
+  promotion caller selects the contained native-child destination, and original
+  registration, rebind, retained-history and replacement/recovery consumers use
+  their selected framework context. Declared framework coordinates preserve
+  application-relative child/source meanings. Original parent/child native
+  framework observations are rechecked across actual capture, rebind and creation
+  callbacks; original/new child directory identities are checked across intended
+  replacement moves and rollback. Contained review plans use version 2 and include
+  a local native-namespace observation identity; legacy version 1 behavior remains.
+  Saved observations do not reconstruct actors or grant cleanup permission.
+  Root application metadata/aliases and original signed promotion/history remain
+  intact. The original public journey reproduced a mismatched root destination
+  before registration; the contained rebind control reproduced a root registry
+  read. Corrected legacy/contained rebind, signed-public replacement/history,
+  rollback, source/review/qualification refusal, namespace replacement and existing
+  registration/publication cohorts pass 136 distinct source checks without
+  skips/failures, plus static gates. Rebind distribution/origin observers and the
+  tiny retained Make commands are fixture ports; these are source development
+  controls, not genuine compiler/model, installed or native-platform qualification.
+  Metadata temporary/partial cleanup, complete producer inventory, whole-project/
+  source-parent and migrated historical ownership, and all original release gates
+  remain open.
+
+- **Repository lock context (source partial):** The original lock store now
+  follows the selected shared project context. Contained locks and writer markers
+  remain under `litai/.literate/`; application-root metadata and its aliases remain
+  untouched. Application and declared framework coordinates select the same
+  repository. A live store rejects a changed layout, equal-byte replacement of the
+  framework directory and new dual authority before lock observation or writes.
+  Original preparation binds the same native framework context locally, without
+  changing portable lock/plan content; equal-byte replacement cannot reuse an old
+  prepared observation through a fresh store. Existing exact-byte publication,
+  concurrent-writer and
+  no-clobber checks remain in force. Contained lock checks use version 2 with the
+  exact contained path; legacy checks retain version 1 and their original path.
+  The schema rejects mixed version/path pairs. Repository refresh also protects
+  the contained lock and writer control. The original public CLI regression first
+  reproduced contained initialization followed by `orchestration.lock_path_unsafe`.
+  The corrected public lock/plan/check journey and scoped store/planning/refresh
+  controls pass 29 distinct source checks without skips/failures, with schema
+  and static gates. This is source execution with declared side-effect exclusions,
+  not installed or supported-platform acceptance. Full producer inventory,
+  native-child updates, original source/cache creator and disposal custody,
+  project/source-parent ownership and all original release gates remain open.
+
+- **Short-cache destination preservation (source partial):** Remote restoration
+  now requires a fresh accepted-source-cache destination. Existing directories,
+  regular files and live/dangling aliases refuse before archive extraction, with
+  exact private bytes/inodes retained. Native safe-directory creation rejects an
+  aliased build parent before writing through it. A real archive still restores
+  into an absent destination; invalid archives keep their scoped diagnostic. The
+  original regression reproduced silent replacement of a pre-existing directory.
+  Six new controls and existing remote, receiver and terminal-lease cohorts pass
+  52 distinct source checks without skips/failures, plus static gates. This is
+  destination preservation, not complete accepted-cache creator/disposal custody,
+  containment or installed/native/full release qualification.
+
+- **Original evidence staging custody (source/API-model partial):** The actual
+  stage creator retains native parent/root custody and records files through their
+  original creator descriptors. Writer closure hands off to read-only postimages;
+  actual copy/archive consumers join this live owner. Names-first metadata checks
+  reject unknown entries, native substitutions and equal-byte replacements before
+  payload reads or disposal. Disposal removes only original recorded nodes and
+  observes native root retirement; disposal and final read-handle close refusals
+  preserve the primary error and retain state for inspection.
+  Contained default receivers stage beneath their original reserved `litai/_build`
+  parent, outside copied runtime/object trees. The original receiver regression
+  reproduced the previous broad cleanup deleting a newly added private entry.
+  The corrected local source/API-model cohort passes 109 distinct checks with no
+  skips/failures, plus repository lint/format/layout/export gates. This includes
+  actual copy/archive/import/ACK joins and a POSIX-backed Windows API model, not
+  native Windows execution. Legacy/opaque, RUN and explicit short-cache placement,
+  immediate cleanup, complete project/source-parent ownership and all original
+  installed/native/exact-clean/release gates remain open.
+
+- **Live Windows producer metadata (source/API-model partial):** The cleanup
+  census now uses only READ_ATTRIBUTES handles compatible with still-live writable
+  cache/runtime controls. Original ancestor pins, before/after metadata signatures,
+  a second named native-identity probe, checked metadata-handle closure and closing
+  census remain required. Payload readers and DELETE handles retain restrictive
+  sharing; the actual runtime owner still spans evidence publication. The existing
+  full contained receiver/archive/import/ACK journey now runs under a sharing-aware
+  Windows API model that observes its real writable descriptors. Its original
+  deny-write metadata reader reproduced the conflict during intent capture; the new
+  cursor admits stable metadata while actual mutation, native-name replacement and
+  close failure refuse. Producer capture failures retain original workspaces and a
+  structured diagnostic. These source/API-model controls use POSIX execution,
+  rename/locking and declared rebuild/probe ports; they supply no actual Windows
+  acceptance. Native Windows, installed supported-platform and complete transfer
+  qualification remain required with staging disposal, remaining containment,
+  complete project/source-parent ownership and every original release gate.
+
+- **Windows handle disposal (source/API-model partial):** Captured regular files,
+  empty directories and the exact original cleanup ticket now retire through a
+  reparse-aware native DELETE/READ_ATTRIBUTES handle under original parent custody.
+  Captured volume/file identity, type, size, native timestamp and readonly metadata
+  are checked before extended disposition; the actual handle close and named
+  postcondition must succeed. Readonly hardlink peers retain their attributes and
+  bytes. Unsupported APIs/filesystems, mapped-image refusal, substitutions, changed
+  controls and failed closes report a retained recovery state with no pathname or
+  attribute-changing deletion fallback. An explicit POSIX-backed Windows API model
+  exercises the original producer/journal/ACK join, native ABI/flags, exact handle
+  balance, readonly hardlinks, native metadata refusal and resumed original cleanup
+  after a close failure. It uses POSIX rename/lock substrate and supplies no native
+  Windows acceptance. Existing local receiver/import/ACK, POSIX recovery, archive
+  and terminal lease controls remain green: 84 distinct source checks plus static
+  gates, with no skips/failures. The producer-metadata increment above now covers
+  the live-writer join in its explicit API model. Actual Windows and installed
+  qualification remain required with staging disposal, remaining containment and
+  the full original release acceptance.
+
+- **Producer-bound native cleanup (POSIX source partial):** Deferred attempts now
+  retain their actual creation observations in original live native root owners
+  through evidence publication. A bounded closing metadata census, exact original
+  root/parent identities and a private journal anchor are sealed in the existing
+  evidence file ledger; the portable manifest schema stays unchanged. New v2 tickets
+  carry that original manifest and intent. Acknowledgement validates their exact
+  coordinator identities, original native journal anchor and every root before
+  effects. Original no-replace movement places each root into its captured private
+  retirement slot; only captured entries can retire through native parent custody.
+  Empty original directories remain native recovery anchors. Actual process exits
+  after movement and partial deletion resume from those anchors; repeated ACKs
+  validate original emptiness and preserve new private data. Added/replaced entries,
+  copied/retired producer objects, replaced controls and path-only legacy tickets
+  refuse. Control reads are bounded/nonblocking; lock contention remains a scoped
+  cleanup refusal. Local contained runtime/archive/import/ACK and terminal lease
+  controls exercise the original flow, including current custody corruption gates.
+  This is cooperative POSIX source custody, not hostile same-user isolation or full
+  installed transfer qualification. The Windows handle-disposal increment above
+  still requires producer integration and native qualification. Existing
+  evidence-staging disposal, immediate/short-cache cleanup,
+  complete project/source ownership and all original release gates remain open.
+
+- **Producer native archive stream/publication (partial):** The original tar/gzip
+  producer now consumes bounded native source descriptors inside a closing namespace
+  census. The original evidence manifest's exact path/size/hash/executable ledger
+  also constrains actual streamed bytes, including the manifest payload. Stable
+  archive order and deterministic headers remain; source quotas allow only the
+  separately bounded manifest envelope. Each output starts in an exclusively
+  created, unique temporary file under original native parent custody. Its actual
+  compressed bytes and identity are verified before atomic no-replace hardlink
+  publication; an existing or concurrent final destination refuses. Successful
+  temporary retirement checks the original native identity; failures preserve
+  partials and foreign replacements. Unsupported native link operations fail
+  closed. Local controls reproduce the original fixed-partial loss and exercise
+  source/output substitution, byte integrity, deterministic real consumer reads,
+  budgets and native descriptor closure, alongside the existing receiver/import
+  path. These are local source controls, not installed/native Windows or complete
+  transfer qualification. Deferred cleanup ticket/ACK native recovery, staging
+  disposal, whole-project ownership and full release acceptance remain open.
+
+- **Producer evidence native reads (partial):** Evidence copying now performs
+  a no-follow metadata census before payload IO and streams verified regular file
+  descriptors in bounded chunks. Original POSIX directory custody and existing
+  Windows reparse-aware handles protect native names; aliases and nonportable
+  names refuse before target-following probes. Source identities are closed after
+  streaming, copied bytes are verified, hardlink paths retain regular-file
+  semantics and each path is charged. File/byte ceilings remain; a separate finite
+  metadata-node bound prevents an unbounded directory census. Local controls cover
+  alias roots/children, leaf substitution, source replacement, corrupted output,
+  resource ceilings, descriptor closure and Windows API composition through an
+  explicit POSIX-backed model. Actual receiver archive/evidence import controls
+  remain green. The model is not native Windows qualification. Archive-writer IO,
+  cleanup/ACK ownership and full native/installed transfer acceptance remain open.
+
+- **Receiver live runtime/candidate join (partial):** The default contained
+  build/test receiver allocates its nested runtime after exact source verification.
+  The original native owner spans the worker-local CLI scope, exact runtime and
+  candidate admission, publication and evidence collection. Per-attempt object,
+  runtime and candidate scopes are separate; native controls and unrelated retained
+  attempts are not object evidence. Descriptor retirement preserves original
+  failures and a conflicting runtime keeps the private extraction workspace.
+  A local actual archive/evidence import round trip and real worker-local callback
+  exercise these joins with explicit rebuild and hardware-probe fixture ports.
+  Absent nested scopes clear inherited admission; copied claims and wrong slots
+  refuse. No configured worker, model/compiler, installed or platform qualification
+  is inferred. Explicit short accepted-cache staging, general external-driver
+  containment, full cleanup/transfer recovery and native lifecycle acceptance
+  remain open with complete project/source ownership.
+
+- **Contained Standard runtime owner (partial):** The contained profile's
+  implicit Standard runtime is now freshly allocated under canonical object
+  state. The actual current manifest, direct directory identity and live native
+  write reservation remain bound to the original owner. The object-cache lock
+  excludes concurrent cleanup until retirement; cleanup preserves replacement
+  directories and unrelated session state. Only that original live owner admits
+  its exact generated-source coordinate to the original Standard adapter. Saved
+  data, copied handles, stale authority and wrong source paths refuse. Retained
+  runtimes retire live custody without deleting output, and cleanup conflicts
+  preserve the original rebuild rejection. Local physical/CLI/adapter controls
+  use explicit preparation, planning and execution fixture ports; they do not
+  establish actual generation, installed or supported-platform qualification.
+  Arbitrary project-internal runtime paths remain refused. External-driver and
+  receiver runtime/candidate containment, complete source ownership and full
+  lifecycle acceptance remain open.
+
+- **Receiver default cache context (partial):** Both worker-receiver entry
+  points now select default generated/object custody through the existing shared
+  context-aware resolver with an empty environment. Contained transported projects
+  bind `litai/generated` and `litai/_build`; explicit supplied custody and restored
+  accepted-source-cache short attempts retain their separate original ownership.
+  Local controls exercise direct build/test admission, actual archive capture and
+  extraction, environment isolation, explicit staging, legacy-root behavior and
+  dual-authority refusal. Rebuild ports are test seams, not native execution or
+  qualification. Full receiver runtime/candidate containment remains open: the
+  existing CLI explicitly requires those paths outside the project, so replacing
+  their literals without their original owner would break execution. Installed
+  platform lifecycle acceptance and configured dispatch remain separate.
+
+- **Retained-child runtime containment (partial):** Repository lifecycle logs,
+  execution lock and receipts now use the declared framework directory, while
+  actual child commands and native products retain application coordinates.
+  Reviewed plans bind the selected manifest path and exact bytes; a layout move
+  invalidates the old plan, and a manifest change after the first actual child
+  stops execution before its dependent child. Real Git/subprocess source controls
+  cover contained build/resume, application output preservation, direct output
+  ancestry and dual-authority refusal, alongside the conventional root profile.
+  This scoped runtime owner does not establish remote dispatch, full framework
+  state containment or installed supported-platform lifecycle qualification.
+
+- **Public composed Component flow (partial):** Acknowledged catalog renewal now
+  selects an original placed Component and recorded target before normal
+  preparation, using `--place-imported-catalogs` and an explicit original
+  `--successor-plan-identity` when framework metadata has advanced. The new
+  `layout finalize` operation delegates either catalog or framework source
+  retirement to its actual current Root/native/normal owner. Scope combinations,
+  missing acknowledgement and unsupported selections refuse before effects.
+  Cold source CLI processes exercise real changes to both producer pairs,
+  repeated source finalization and ordered public recovery from Root and
+  descendant requests while preserving original bytes/inodes and new policy.
+  Versioned registered inert results retain false full-containment and release
+  qualification flags. Original framework producer result compatibility remains.
+  POSIX source coverage does not establish Windows finalization, whole-project
+  ownership/conformance or installed supported-platform lifecycle acceptance;
+  those remain open with the complete original requirement.
+
+- **Fresh inherited source namespace closure (partial):** The current Root lease,
+  original catalog journal and freshly prepared ordinary destination producers
+  now issue source retirement after process restart. An explicitly selected
+  successor retains its separate native metadata proof; no retired inherited
+  transition is restored from data. The closer holds original source control
+  descriptors, validates their native identities and records bounded durable
+  recovery intent before archiving the original directory. Existing original
+  recovery restores that directory before normal source fences and then restores
+  the exact original producer and payload inodes. Cold processes repeat framework
+  and inherited source closure after real changed producer pairs, preserving
+  original intent/history, application files and newly authored local policy.
+  Old logical stores refuse before a creating writer-lock open. Unknown residual
+  names are rejected before payload reads; a closing census also catches late
+  changes. Actual process exits before and after the native source-directory move
+  remain recoverable, and private data added to an archive is preserved unopened
+  while recovery refuses. Historical origin declarations remain fixture data.
+  These are POSIX source controls. Qualified Windows handles, whole-project and
+  source-parent ownership, public finalization, complete authority/state placement
+  and installed supported-platform lifecycle acceptance remain open.
+
+- **Explicit successor metadata ownership (partial):** The fresh inherited-catalog
+  producer can join an explicitly selected original framework placement journal.
+  A successor must hold the catalog's exact metadata postimage inode, bytes and
+  mode in its native before slot, with both original Root identities and current
+  native journal states checked. The original catalog owner still refuses the
+  changed metadata without this join. A versioned private renewal record retains
+  the two original intent identities; original v1 pair journals remain readable.
+  A genuine mixed initialized/inherited fixture uses a newly authored local
+  Flavor to force both real normal producer pairs to change in separate Python
+  processes. Original intents and copied history stay immutable; ordered reverse
+  recovery restores original bytes and inodes and preserves the new local policy.
+  Wrong rollback order refuses before pair restoration, an equal-byte foreign
+  successor beforeimage stays intact, and a replaced successor guard is never
+  invoked. An actual child exit after the catalog's native producer backup remains
+  recoverable after framework rollback. Historical origin declarations are fixture
+  data, while normal preparations and native effects are real. Public catalog
+  renewal, source namespace finalization across these owners, general normal
+  accumulation and complete project/installed-platform qualification remain open.
+
+- **Inherited catalog normal producer renewal (partial):** A fresh destination
+  owner joins the actual Root lease, genuine normal preparation and original
+  catalog journal. Unchanged pairs retain their native inodes without a renewal
+  journal. A changed local Flavor uses the same finite normal atomic publisher
+  as framework-owned producers, with separate catalog native before/after
+  custody. Original catalog intent and copied producer history remain immutable.
+  Recovery restores the exact placed pair before undoing catalog placement;
+  equal-byte foreign inodes refuse and ordinary replacement modes stay separate
+  from original modes. Fresh-process publication and recovery interruptions
+  retain recoverable ownership rather than reconstructing a retired source actor.
+  Historical origin declarations remain fixture data. This internal catalog
+  path does not yet provide public renewal, composed successor metadata ownership,
+  source namespace finalization, installed supported-platform or release
+  qualification. Those requirements and complete project containment remain open.
+
+- **Generated-project and mixed Component placement (partial):** The original
+  catalog continuation now accepts an exact generated baseline with or without
+  a converted application, while the native-adoption profile stays excluded.
+  Its existing source/import/native/Git/alias checks remain. Real typed producer
+  pairs can finish byte placement using a distinct original placement guard;
+  strict destination currentness still rejects an old catalog audit and requires
+  ordinary renewal. Both original guard methods remain pinned around callbacks.
+  A two-Component source journey joins a genuine initialized factory owner and
+  a separately inherited factory owner, each with real normal lock/audit data.
+  It applies the existing catalog channel before the framework channel and
+  reverses both, restoring every captured original file byte and inode while
+  preserving application data. Neither channel adopts the other's provenance.
+  Historical origin declarations remain fixture data. Existing transition,
+  catalog, native journal and converted-project public controls pass. Composed
+  normal renewal/finalization across channels, complete project containment and
+  installed supported-platform lifecycle qualification remain open.
+
+- **Public normal producer renewal (partial):** The acknowledged
+  `project layout renew --place-framework-authority` command joins an explicit
+  original plan, contained Component and recorded target to the fresh native
+  destination owner. Root and descendant requests use current canonical discovery;
+  project-relative Flavor roots and ordinary normal preparation supply selection.
+  Unsupported coordinates and targets refuse before normal preparation, alongside
+  missing acknowledgement/scope and a new Git boundary. Real cold Python CLI
+  processes preserve an already-current pair without a journal, or renew an
+  explicitly changed local Flavor selection and recover original history through
+  repeated public rollback. Implicit host updates/user configuration stay outside
+  the command. The inert versioned result/schema distinguishes writes and retains
+  false finalization, containment and qualification claims. Historical origin
+  fixture seams remain explicit; this is source public-CLI evidence, with composed
+  multi-owner, full containment and installed supported-platform qualification
+  still open.
+
+- **Fresh destination producer owner (partial):** Renewal can now issue a new
+  call-local guard from the actual current Root lease, normal prepared producer,
+  destination project/catalog and original native framework journal. It neither
+  restores nor deserializes the retired source actor. Both live-transition and
+  fresh-destination entry points share the original finite atomic pair publisher
+  and native before/after custody. Separate Python processes exercise an already
+  current initialized pair without inode changes or a renewal journal, and a
+  genuinely changed wrapper selection followed by finalization and exact original
+  rollback. Original framework intent and source history remain unchanged; newly
+  authored policy remains intact. Copied preparation, replaced project read and
+  late Git boundaries refuse. Existing four-move process-exit, mode, foreign-inode,
+  callback and Root-binding controls pass with the shared publisher. Historical
+  conversion/initialization origin seams remain explicit. A further fresh
+  Python process renews after the original initialized Component directory is
+  physically archived: a newly authored local Flavor changes the real normal
+  selection, the old source stays absent, finalization reproduces currentness,
+  and repeated rollback restores original control inodes while preserving the
+  new policy. Public command wiring, multi-owner composition and installed
+  supported-platform qualification remain open.
+
+- **Recorded wrapper source controls (partial):** Finalization archives only the
+  original control files in a separate versioned native journal. The application
+  directory and retained implementation stay in place, including private files
+  that the closer never opens. Original framework intent remains immutable;
+  recovery restores exact control inodes before normal Component fences. Separate
+  Root leases revalidate actual destination owners and original data custody.
+  Local POSIX source controls cover repeated finalization/recovery, old-store
+  refusal before a creating open, equal-byte foreign-inode refusal and a new
+  source Git boundary. Actual child exits after partial archive and partial
+  restore leave exact original inodes recoverable under a fresh Root lease.
+  A genuinely renewed typed target remains current through repeated closure and
+  fresh normal preparation; original rollback preserves the newly authored local
+  Flavor. Existing initialized-Component current/renewed-pair, legacy-v1,
+  no-target, private-residual and callback-boundary controls also pass.
+  Supported-platform qualification, full project containment and release
+  qualification remain open.
+
+- **Recorded wrapper normal producers (partial):** Destination admission now
+  accepts the genuine recorded-wrapper transition through the same original
+  factory, prepared-target, catalog and native-history checks. A real normal
+  producer creates the wrapper's `legacy-shim` lock/audit pair before migration;
+  its actual target inventory and typed records then move with the seven outputs.
+  A deliberately authored alternate local Flavor drives ordinary pair renewal
+  through the existing publisher and private journal. Repeated original rollback
+  restores exact source bytes while preserving the newly authored policy files.
+  The old store refuses mutation before a creating lock open even though the
+  original directory remains for application implementation. The import-free
+  fixture now selects its real wrapper Skill rather than the removed sample
+  imported Skill. Historical execution/origin seams remain explicit. Fresh-process
+  public renewal, appropriate control-only source closure and installed/platform
+  qualification remain open; no original transition is reconstructed from data.
+
+- **Public framework-authority migration (partial):** The source CLI now routes
+  `layout plan --migration --place-framework-authority` and matching acknowledged
+  apply/recover commands to the original framework owners and journal. This scope
+  stays separate from the existing metadata, imported-catalog, forward-Skill,
+  release-policy and explicit reference-edit scopes. Source controls exercise the
+  actual parser and JSON envelopes, Root and descendant plan identity, native
+  placement/repeated rollback, stale source and missing acknowledgement refusal,
+  and fresh journal recovery after the actual manifest backup interrupts apply.
+  Implicit host update/configuration writers remain outside the scoped command.
+  These fixtures model historical conversion execution; installed-wheel and
+  supported-platform lifecycle qualification remain open.
+
+- **Recorded converter composition (partial):** The default framework observer
+  now joins the genuine same-observation seven-output wrapper owner and its
+  actual Component producer readers. Strict public plan/schema rows retain
+  separate converter provenance; all seven original-byte placements compose
+  the existing recoverable framework journal. A Git-backed source journey
+  applies placement and repeats original rollback while preserving the retained
+  implementation inode. Fresh destination catalog and retained-layout readers
+  select the contained wrapper and unchanged native implementation. A distinct
+  inherited Skill keeps its mixed-catalog blocker. Historical execution data in
+  these source fixtures remain modeled. Recorded target renewal, appropriate
+  source finalization, full project containment and installed
+  supported-platform qualification remain open.
+
+- **Authority placement progress:** Original initialized-file and Component
+  producer planning now has a separate recoverable framework-action journal.
+  Local controls exercise transformed bootstrap/helper publication, finite
+  creations, every payload-move interruption and exact rollback. A real
+  initialized Component and its normal typed lock/audit pair round-trip through
+  placement and recovery. Destination classification uses that exact journal,
+  preserves an already-current pair without writing, and requires ordinary
+  renewal for an explicitly changed local Flavor selection; original beforebytes
+  remain retained. Normal producer renewal uses the existing scoped atomic
+  publication port with durable native before/after custody for its lock/audit
+  pair. Local child-process exits at all four publication moves recover through
+  the original framework rollback without rebasing source history. Actual child
+  exits at all four reverse pair-recovery moves also resume exact rollback. The
+  renewal owner joins its original recorded Component namespace to the same
+  project Root before physical probes. The framework journal now has an explicit
+  second version with native source-directory archives; original first-version
+  rollback remains supported. Local current-pair and renewed-pair journeys close
+  original Component control namespaces, rederive actual normal destination
+  currentness after restart, and restore exact original files/control inodes.
+  The no-target case creates no invented target evidence. Private residuals
+  remain unopened and block closure. Full project finalization and installed
+  supported-platform qualification remain open. Equal-byte
+  foreign producer inodes remain protected and original permission modes restore
+  exactly. These checks exercise the real normal producer and filesystem writer.
+  A contained root Skill keeps its logical ownership when the
+  declared Skill catalog remains at its original location. Current distribution
+  lookup and initialization lineage in these fixtures remain modeled; these are
+  scoped source controls, not installed release qualification. Finalization,
+  remaining source retirement, genuine legacy root profiles, public CLI
+  integration and supported-platform lifecycle
+  qualification remain open below.
+
+- **Discovery progress:** Direct framework ancestry is checked before target
+  probes. Nine new no-follow controls and 22 existing configuration, readmission,
+  publication and public migration controls pass locally. Contained selection
+  leaves application-owned root metadata untouched; independent child projects
+  and the original pending-readmission writer boundary remain distinct. These
+  source checks do not close full containment or installed platform acceptance.
+
+- **Execution order:** The directing user prioritizes this requirement before the
+  remaining 1.4.0 release work. Preserve unrelated release changes while completing
+  the whole containment and migration acceptance contract below.
+
+- **Native update and removal custody (in progress):** [Issue 484](https://github.com/jordanhubbard/literate-ai/issues/484)
+  reproduces a previously reviewed removal deleting unchanged working files of a
+  newly independent Git checkout under `litai/`. Native update similarly replaces
+  child working files and update metadata. Check direct `.git` markers in the
+  ancestors of selected files and writer-owned metadata below the application
+  root during planning, apply and forward recovery. Recheck before Git refresh,
+  deletion, update publication and rollback. Exercise ordinary and linked nested
+  repositories, unsafe markers, late boundary changes, recovery and unrelated
+  repositories while preserving checkout registration and accepting the outer
+  worktree's own Git marker.
+
+- **Contained work queue custody (in progress):** [Issue 487](https://github.com/jordanhubbard/literate-ai/issues/487)
+  reproduces `work close` mutating a committed application backlog even when
+  a distinct existing framework backlog contains the selected item. Bind the
+  existing work writer and reported path to the declared framework location.
+  Exercise distinct queues, missing or redirected queues, independent nested
+  Git and both public callers while preserving the conventional root profile.
+  The native bootstrap continues to omit a framework work queue.
+
+- **Ownership prerequisite (in progress):** [Issue 481](https://github.com/jordanhubbard/literate-ai/issues/481)
+  records the shared provenance needed by future layout planning. Initialization
+  baselines, framework/catalog update bases, imported authority, current topology,
+  local generation inputs and retained application boundaries remain distinct
+  signals. The read-only inventory must combine them without treating a baseline
+  entry, exclusion or directory name as permission to relocate content. A standalone
+  production extraction was held after review because its sole caller flattened
+  the labels back into the existing set; introduce that shared view with its actual
+  layout consumer. Existing update protections remain intact. This implementation
+  ordering changes no release target or migration acceptance requirement.
 
 - **Release target:** 1.4.0
 - **Completion prerequisites:** none
 - **Accepted implementation direction:** [ADR 0071](../decisions/0071-derived-project-litai-directory.md) specifies the shared project context, finite root integrations and recoverable migration. [ADR 0074](../decisions/0074-existing-repository-delivery.md) records the subsequent explicit user delegation to implement the review recommendations in this release.
-- **Next action:** Complete the owned-path inventory and shared resolver before migration implementation, coordinated through SDLC-001 and the retained-layout owner.
+- **Installed consumer repair (partial):** The existing installed-project smoke harness now resolves framework manifests, catalogs, Component selectors, lineage metadata, release staging and Git manifest selections through the actual contained project context. Application `CHANGELOG.md`, README and the required root agent delegate stay at the application root. Fixtures no longer share the outer Make runner's cache roots. The original root-scaffold oracle failed against real contained initializer output; five source regressions now cover that oracle, missing contained authority, ambiguous/root authority, application exceptions and the actual source-CLI model-scope plan. Those controls plus the existing release cohort total 22 distinct passes with zero skips/failures; lint, formatting, repository-layout and export checks pass. This is a source consumer correction, not installed-wheel or supported-platform qualification. The original seven acceptance items remain unchecked. Fresh immutable installed/public creation, adoption, migration, update/reparent, discovery and native lifecycle qualification remain required.
+- **Installed public layout journey (partial):** The actual noneditable 144a28af3 wheel passes contained inherited creation, identical root/subdirectory validation and current lock results, and root planning. Component-directory planning reaches the declared 900-second command deadline; preserve that failed evidence. The earlier missing committed context provider was corrected before this run. Neither this partial installed result nor the source fixes below qualify the dirty integration candidate, complete supported-platform lifecycle or release.
+- **Planning parse reuse (partial):** A bounded profile of the failing installed path identifies repeated catalog-provenance parsing during preparation. Read-only planning now shares bounded private templates keyed by exact encoded bytes and strict/legacy mode, with independent caller copies, dictionary-inclusive storage accounting and original-parser fallback if copying cannot complete. Native reads, aliases, source currentness and path selection remain live. Thirteen controls plus 22 catalog, six declared-skill and five CLI-consumer regressions pass (46 distinct, no skips/failures), with lint, formatting, repository-layout and export checks. A source-reader diagnostic over the actual retained 147-item catalog performs all eight native provenance reads across four accesses and parses once, retaining 773931 bytes. This proves parsing behavior and admission, not installed timing or complete qualification. Repeat the unchanged public installed scenario on the next clean committed wheel, then continue native adoption, migration, update/reparent and all original platform/release acceptance.
+- **Installed macOS creation/discovery (partial):** The actual noneditable 4885a8abd wheel passes all 13 commands of the unchanged retained public-CLI cell: fresh inherited creation, identical root/subdirectory validation, current locks and plans, ready agent entrypoints and a clean closing source checkout. Root planning takes 510.107 seconds; Component-directory planning takes 287.980 seconds versus the earlier 900-second timeout. This is one local committed subject, not the dirty integration candidate or full platform/native/release qualification. The separate minimal native adoption cell below also passes; every original migration/update/reparent and platform obligation remains required.
+- **Installed macOS native adoption (partial):** The same noneditable 4885a8abd wheel passes all 11 commands on a new clean native Git fixture. Read-only planning and acknowledged minimal-profile application preserve the complete ten-entry application tree outside litai/: exact file bytes, directory/file identities, modes, owner/group and modification times, including custom AGENTS.md/SKILL.md and application-owned .literate metadata. The observer refuses redirects before traversal and compares the entire tree after planning, application and both root/subdirectory validation calls. Git HEAD/index and independently observed installed distribution identity remain unchanged. The canonical managed Make test passes with zero skips/failures; lint, formatting (2736 files), repository-layout and export checks pass without source drift. Native application code remains unexecuted. This is local installed adoption evidence, not conversion, migration, update/reparent, native build, supported-platform or release acceptance.
+- **Installed macOS metadata migration (partial):** A clean noneditable f1d84cfe7 wheel passes all 18 commands: source identity/cleanliness, installation and observed distribution identity, five actual migration-module imports, real legacy fixture initialization with baseline execution, clean Git setup, public migration planning, explicit acknowledgement of the one generated document-link rewrite, metadata application and rollback, original four-file retained source tree and Git HEAD/index preservation, unchanged installed distribution and clean closing source checkout. The distribution identity is sha256:6439b163b6125ca53c5fc6732288cc3800acc6588c378afe68eb17c5b1fe234f. Lint, formatting (2740 files), repository-layout and export checks pass without source drift. The exact installed initializer uses its explicit internal legacy-layout fixture selector; this is not a historical released-wheel upgrade or complete framework-authority migration. The original failed 49ec42d05 journal has now been recovered and archived unchanged through the separate exact-state check below. Supported-platform, full authority/producer migration, custom-state/adversarial/interruption, update/reparent, native lifecycle and release acceptance remain open; none of the seven original boxes closes.
+- **Root conversion without imports (source partial):** The actual installed 4885a8abd initializer produced valid root-parent conversion records with no imports.json and empty catalog update history; its public migration rejected that output. Metadata migration now preserves that absence for root parents with no catalog history, while catalog-placement requests, malformed present provenance and missing required producer records still refuse. Publication and archived recovery bind the exact present producer set without creating import records. Five new source controls and eleven existing retained-harness regressions pass with zero skips/failures; lint, formatting (2738 files), repository-layout and export checks pass without source drift. Explicit document-link acknowledgement and archived-journal repeat refusal remain intact. The installed baseline remains retained failed evidence; qualification on a fresh immutable fixed wheel is next. Full migration, Windows custody, update/reparent, lifecycle, platform and release acceptance remain open.
+- **Installed recovery import closure (source partial):** The actual noneditable 49ec42d05 wheel passed legacy fixture initialization and public metadata plan/apply, then recovery failed importing recorded-wrapper custody because the committed harness provider omitted _make_path_value. Collect only the original existing helper into the committed provider; preserve all other native harness WIP and the original applied fixture/journal. Sixteen wrapper-source controls pass. The focused original public descendant-plan/apply/repeated-recovery case also passes in 2517.589 seconds without source drift. All 80 SDK source files recorded by the prior passing static subject remain byte-identical, with no new dirty/untracked SDK path; test-only diagnostic changes pass targeted lint/format checks. This is scoped source evidence, not clean-wheel import/recovery or full CLI-cohort qualification. Two prior four-case cohort attempts failed with a sanitized inspection error at different plan positions; the cause remains unresolved. The clean f1d84cfe7 wheel now passes actual import closure and metadata recovery as recorded above. Exact original failed-journal recovery now also passes below; the complete public cohort and every original layout/release acceptance remain required.
+- **Public framework planning diagnosis (in progress):** The existing CLI cohort has failed with the sanitized inspection error at different read-only planning positions. A later run passed the initially failing case, then failed descendant planning after a successful root plan; its cause is unresolved. Test-only capture now preserves the original exception during CLI failure construction without repeating the operation or altering its public wire response. The focused diagnostic passes the same descendant-plan/apply/recovery case; the original failure has not reproduced there and all four original public cases remain required. Retain both failures and source/Git custody, and distinguish observed host contention from an established cause.
+- **Original installed journal recovery (macOS partial):** The verified noneditable f1d84cfe7 distribution recovers the exact original applied 49ec42d05 fixture whose earlier recovery failed at import. The original receipt and unchanged intent bytes are hash-bound before acknowledgement. All six commands pass; the four-entry application source tree retains exact bytes, native identities, modes, owner/group and modification times. Git HEAD/raw index remain unchanged, a no-optional-locks status shows a clean tracked tree, the archived intent is byte-identical and installed distribution identity is unchanged. The managed test passes in 26.299 seconds with no skips/failures or source drift; its identical source was included in the previous passing full static wrapper. Recovery restores original legacy state without rebuilding the fixture, renewing historical authority or repinning a driver/receipt. The earlier failed evidence and original archived journal remain retained. This does not close complete framework-authority migration, mid-publication interruption/alias/concurrency/custom-state controls, update/reparent, supported-platform/native/full-source/review or release qualification.
+- **Next action:** Complete framework-owned root authority/reference placement,
+  original Component producer transitions and fresh canonical creation under
+  `litai/`. Continue through update/reparent and installed supported-platform
+  qualification. Existing contained projects now have a per-entry catalog
+  continuation through the original acknowledged public migration, with retained
+  journals and exact rollback rather than replacement of the framework tree.
+  Source controls cover interrupted placement/recovery and a real inherited
+  converted-project Skill journey; these do not close full containment or native
+  platform acceptance. Preserve host integrations, custom files, application
+  source and Git boundaries throughout. Contained release defaults and converted
+  release discovery have focused regression coverage; the earlier
+  [paired public CLI observation](../../verification/contained-converted-release-observation.json)
+  remains historical failed evidence rather than a renewed qualification.
+- **Current implementation boundary:** The reviewed writer moved 13 identified
+  metadata files in a disposable project converted by the published 1.3.1
+  framework, including the declared test receipt. It preserved seven
+  application files, host integrations, Git HEAD and index. An ordinary
+  retained receipt and lock renewal restored verification after a real
+  inherited Flavor update through a private parent mirror. Recovery refused
+  a new independent Git directory, separate Gitfile and nested Git directory
+  at the placed destination. The remaining inventory includes 147 authority
+  paths needing reference transitions, 145 unclassified paths, six shared
+  integrations, three path-bound evidence transitions and two lock placements.
+  These counts belong to this fixture and stage of the migration.
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework core: derived-project layout, onboarding, lifecycle, templates and documentation; PROJECT Goals 1, 4 and 6
 - **Direction:** Require all Literate AI files in every derived project to live beneath a project-local litai/ subdirectory; include this requirement in the release currently in progress (1.4.0).
@@ -23846,21 +31147,411 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework qualification derivation and captured evidence; PROJECT Goals 1 and 4
 - **Direction:** Include issue #392 in 1.4.0: identical valid raw generated cases across distinct Components must not reject a complete all-node run.
-- **Conclusion:** Retain unique content-addressed raw case membership while preserving all node suites, execution observations and actual test counts. The reporter is preparing this bounded fix alongside #345; do not duplicate that contribution.
+- **Conclusion:** Retain unique content-addressed raw case membership while preserving all node suites, execution observations and actual test counts. Shawn Edwards implemented the derivation and capture changes and a nine-execution regression on the contributor checkpoint.
+  [Original contribution](https://github.com/NVShawn/literate-ai/commit/7fab630a760c8ecd7175b5f856603bd209d7ae9e)
+  contains the two membership changes alongside independent native Rust work.
+  Reconcile those changes and the maintained case-inventory tests on the release
+  candidate, and preserve the contribution’s attribution.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Reconcile the contributor fix in derivation and capture membership without weakening per-suite uniqueness, node completeness, failed-suite refusal or existing unique-run identities.
+  - [x] Reconcile the contributor fix in derivation and capture membership without weakening per-suite uniqueness, node completeness, failed-suite refusal or existing unique-run identities.
+    The composed candidate includes the two contributor changes and their
+    regression. An independent run passed 11 cases. An installed candidate
+    retained nine executions across three suites and three raw definitions;
+    the four-node replay retained twelve executions and three definitions.
+    The integrated release gate and native qualification remain open.
 - **Evidence:**
   - [ ] Reproduce the nine-execution/three-raw-case diamond and qualify capture/replay, missing or failed provider refusal, per-suite duplicate refusal, installed/native and integrated gates.
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Real receiving run-observer defect (source repaired):** The installed public
+  retained-Cargo check reaches complete provider replay, then its shared run
+  observer rejects the authenticated read-only receiving owner with `TypeError`.
+  The observer still accepts only the generation owner even though its caller
+  supports the separately issued receiving owner. Extend this semantic read seam
+  through the existing authenticated read ports; retain complete run membership,
+  original requests, Standard/cache/receipt checks and both oracle/currentness
+  fences. Require live, expired and unissued owner regressions, unchanged producer
+  controls, independent source review and fresh installed receiving proof. Preserve
+  both refused public checks and the isolated exception diagnostic; no package
+  placement or admission has occurred. This does not close the broader goal.
+  The [bounded source record](../../verification/authored-run-observer-development.json)
+  retains the failing regression, then 20 receiving controls and 22 unchanged
+  producer controls passing without skips. Independent review verifies all
+  original test bodies and substantive run checks remain unchanged. Fresh
+  installed receiving remains open; historical framework evidence is preserved.
+
+- **Managed Python provider import intent (source partial):** **GitHub issue:** [#516](https://github.com/jordanhubbard/literate-ai/issues/516).
+  Canonical source aliases now derive only from selected typed capability modules
+  and bind the original direct managed provider revisions. Resolved metadata
+  preserves those exact declarations. Alias-bearing portable validation has an
+  explicit third-schema checkpoint; current alias-bearing transfers also retain
+  a fourth-schema original recipe preimage bound to its candidate hash for replay.
+  No-alias first/second encodings remain unchanged. Earlier checkpoints passed
+  thirty-five source controls without skips, including original installed
+  Python payload refusal fixtures. Four additional actual worker source controls
+  pass, preserving exact custody, bytes, original action digest and fetch-time
+  revocation; the original legacy revocation control also passes after canonical
+  fixture projection. Independent source review found no remaining finding.
+  The later generic Python source/archive proof appears below. Actual nonempty
+  worker/wheel helper and installed release acceptance remain open; this is a
+  consolidated development checkpoint.
+
+- **Native Python provider materialization:** **GitHub issue:** [#517](https://github.com/jordanhubbard/literate-ai/issues/517).
+  The initial full-publication fixture passed managed BOM admission, then
+  could not import its provider. Source review separated an underdeclared fixture
+  from the native implementation defect: generation/public-interface authority
+  does not supply a build artifact. The fixture now declares both edge kinds
+  before planning, retaining its original oracle, assertions and deadlines.
+  Independently, the Python import hook missed the canonical Python Make route;
+  the isolated repair now selects the original typed Python contract instead.
+  Materialize exact held provider artifacts from current typed consumer bindings
+  through generated tests, import execution, independent acceptance and replay;
+  retain isolated startup, target/interface/blob custody, relocation and original
+  receipts. This is separate from retained Python bridge and wheel-dependency
+  work. The [bounded development record](../../verification/python-library-materialization-development.json)
+  now binds a passing original publication/archive-reopening exercise: two clean
+  two-library runs, four generated nodes and coding-fixture children, native
+  lifecycle and private oracles, publication and canonical scratch retirement.
+  The coding child and distribution observation are explicit fixture data; this
+  does not qualify genuine models, SDK or installed consumers, all platforms or
+  the release. Preserve earlier failed attempts. Combined pip closures, file
+  companions, Windows path budgets, proof-record capacity and complete integrated
+  acceptance remain open; the reviewed repair is now in the integration checkout.
+
+- **Shared public-context defect:** **GitHub issue:** [#514](https://github.com/jordanhubbard/literate-ai/issues/514).
+  Original node preparation rejects an admitted graph when its local public
+  interface bytes equal a direct provider's interface. The new coherent source
+  control fails at the unchanged manifest uniqueness guard before generation.
+  Validate every selected role, byte identity, source and completeness condition,
+  then present these shared public bytes once using the direct representative so
+  dependency visibility and direct-interface budgets remain charged. Keep the
+  complete plan and all edges, same-role/unselected/drift refusals, original
+  journal guard and all numeric limits. The [narrow source correction](../../verification/shared-public-context-development.json)
+  now passes 17 controls without skips, including the unchanged physical
+  preparation assertion that originally failed and 12 maintained shared-interface,
+  scaling and scheduling cases. The original failed report is preserved; no
+  fixture contract or manifest uniqueness guard was weakened. Broader shared-provider journal
+  qualification, complete run records/archive and receiving acceptance stay open.
+
+- **Model-free receiving (implementation in progress):** Accepted ADR 0072 and
+  issues #345/#393 require ordinary authored Cargo receiving without a coding
+  provider selection, probe or execution. Pin the importing maintainer's
+  independently reviewed producer intent as a sixth document in the original
+  reviewed-input owner, retaining the exact five-document identity when absent.
+  Bind the importer, complete binding, logical evidence store, exact published
+  reference and historical plan/provider/model/profile. Then issue a separate
+  read-only current owner using actual SDK/tool/oracle/driver/review facts and
+  extend only the finite receiving/replay read paths. Preserve all original
+  generation, execution and writable publication owners, native projection
+  formats, absolute deadlines, all clean runs and importer gates. The current
+  owner map includes both product-session type checks and original projection
+  completion fields; no pretend coding executable or archive-only authority is
+  permitted. The [passive review foundation](../../verification/authored-producer-review-development.json)
+  now passes all eight new and six unchanged original controls without skips.
+  Its five-file preimage remains exact when review is omitted; sixth-file DATA
+  retains the original fresh safe-reopen semantics and shared byte budgets.
+  The initial new inode-retirement expectation was incorrect and remains in
+  preserved failed-run evidence; only that new test changed, and no original
+  assertion or pin guard was weakened. The [current read-input scope](../../verification/authored-receiving-owner-development.json)
+  now performs its own original reviewed-file acquisition and retains the exact
+  review owner, parsed pointer and captured identity. All 20 source controls pass
+  without skips. Independent review repaired stored-callback, late-framework
+  and same-function code substitution gaps; authenticated dispatch and finite
+  method seals now precede eligibility checks and final closing. A later
+  callback-retirement control reproduced an expired scope returning from an
+  already in-flight check; its failed evidence is preserved. The final pure
+  fence now rechecks original active issuance without new native queries,
+  callbacks or clocks. The unchanged in-flight refusal assertion and a separate
+  exact primary-exception control pass; all original 18 controls remain unchanged.
+  A parsed or
+  replaced passive record is not issuance. The positive fixture has no native
+  SDK, and this owner does not reopen published metadata or all clean runs.
+  The [finite receiving read seams](../../verification/authored-model-free-receiving-development.json)
+  now connect through authenticated private dispatch and join the complete
+  original reviewed identity to fresh consumer reads and receipts. All 19 new
+  source controls pass without skips. Actual authored CLI ingress requires
+  independent producer review before provider, SDK or transport discovery and
+  has no coding-planner fallback. The positive CLI backend remains mocked;
+  projection uses actual controller Python tools with a modeled platform.
+  All 99 unique original compatibility cases across thirteen cohorts now pass
+  without failures or skips, including original native Cargo completion, execution
+  and forwarding fixtures. The nineteen new controls remain a separate cohort.
+  Keep complete
+  public receiving and genuine SDK/provider/archive acceptance open. Existing genuine
+  installed, native, source-retirement and release evidence remains required.
+
+- **Observation-frame fixtures (source partial):** Full source qualification now
+  reaches 375 discovered executions before an ambient-frame assertion compares
+  the constructor-owned Flavor frame to its former dictionary representation.
+  Check the frame's actual observation index for the original empty-cache
+  invariant, require exact frame restoration and lifetime across real success
+  and callback failure, and retain outside-scope cleanup, mutation refusals and
+  parse-reduction assertions. Apply the same representation correction to the
+  existing Cargo isolation control. No production frame or guard change follows
+  from this fixture failure; require both complete modules and full regression.
+  The three authored controls pass (14.280s), and all 14 original Cargo isolation
+  controls pass (917.840s), with no skips or deadline changes. The original
+  empty-index, exact frame-restoration, active/retired lifetime, mutation and
+  parse-reduction assertions remain enforced. Complete current-candidate source
+  and installed/native qualification remain separate and open.
+
+- **Read-only publication development:** Bound each complete read with fresh full
+  provider checks, while original namespace owners validate directory traversal.
+  Keep bounded native leaf reads, descriptor/name comparisons and writer checks.
+  Three native controls pass, including actual private-oracle and directory
+  replacement during a read; all 15 publication regressions also pass. A paired
+  in-memory comparison on a real predecessor provider measures this read only,
+  without changing that provider's source or its seven acceptance inputs. This
+  is development evidence, not installed candidate or receiving acceptance.
+  [Read-boundary record](../../verification/authored-publication-read-development.json)
+  retains the exact scope; all remaining goal requirements stay open.
+
+- **Current-plan parse development:** The actual installed public receiving check
+  on `0ddbc6cae` reaches its 2,100-second outer deadline without admission or
+  package materialization; the original consumer source remains present. A real
+  current-provider diagnostic retains all twelve authority guard invocations
+  while existing isolated read-only parse scopes reduce one guard from 6.979
+  seconds to 4.948/5.056 seconds. Development now applies those maintained scopes
+  inside each plan guard. Three focused controls retain the native guard sequence,
+  refuse actual component/oracle mutation, restore ambient state on callback
+  failure and prove independent repeats start cold. All seven ordinary planning
+  cases and four SDK planning cases pass. Fixture review/provider ports are
+  explicit; these controls do not qualify the provider or receiving transaction.
+  [Parse development record](../../verification/authored-plan-parse-development.json)
+  retains the scope. Fresh combined source, exact independent review, installed
+  qualification and the ordinary public receiving journey remain required.
+
+- **Recovery source consolidation (not qualified):** The current development join
+  combines the Cargo replay, shared-layout and packaged-provider fixes from
+  `0ddbc6cae`, alignment capture from `8a45727ad`, and the inert Python dependency
+  record foundation from `ae2c84c97`. The finite CI worker-budget correction
+  `6948bc2ff` is already an ancestor. Preserve every predecessor observation below
+  with its original revision and scope. The complete controller source check
+  still belongs to frozen `0ddbc6cae`. Its genuine installed provider now passes
+  both clean runs and independent transported/current-authority replay; the
+  original seven oracle/profile files remain unchanged. The same consumer's
+  disposable prospective workspace passes its original build, test, package and
+  run commands with all three unchanged qualified libraries. Native inventory
+  covers six dependency edges, ten targets and thirteen named tests; public
+  receiving and actual consumer source retirement remain unfinished.
+  The exact `0ddbc6cae` FreeBSD 15.1 installed SDK microfixture also passes all
+  48 owner controls and five publication preflights. This does not establish
+  full FreeBSD, compiler SDK, Daemonarchy, product or ISO qualification.
+  The union's first complete Linux attempt stops after 584 passes, 34 skips and
+  one failure: its copied-launcher tamper fixture encounters native `ETXTBSY`
+  after the real version probe. The isolated unchanged module reproduces it.
+  Stage changed bytes and replace only that disposable pathname, retaining the
+  real probe, exact refusal and tampered bytes. Four controller controls pass;
+  all four corrected native Linux controls also pass. The next exact full Linux
+  run reaches 719 passes and 34 skips before a second copied-launcher fixture
+  encounters the same write exclusion inside its last independent gate callback.
+  Apply the same owned-path replacement to the completion fixture; all seven
+  controller completion controls pass with actual native probes. Both failed
+  source runs remain preserved; corrected completion native focus and complete
+  renewal remain required.
+  [Scoped renewal evidence](../../verification/recovery-native-renewal-development.json)
+  preserves that failed full run. Source review,
+  canonical pins, full combined source/platform/installed qualification and the
+  complete consumer journey remain open. Python record reopening alone does not
+  implement the retained Python bridge, and this join includes no uncommitted
+  retained-layout journal work.
+
+- **Shared-layout installed predecessor (preserved failure):** The fresh actual
+  noneditable `337cd075f3` nominal run stops after 417.243 seconds with
+  `standard_rebuild.independent_acceptance_failed`: packaged provider binding is
+  unavailable. All seven original private acceptance/profile files stay unchanged.
+  Native builds retain three artifact manifests, but no qualification reference is
+  published. Whole-project package destinations now use revision directories,
+  while the generic packaged environment still resolves a declared
+  `export-id/...` binding from the renamed export's parent. Extend the maintained
+  real-package control with unique export IDs and declared provider bindings to
+  reproduce this lookup failure, then resolve the binding beneath its actual exact
+  export location. Preserve missing, escaping and stale-custody refusals, legacy
+  package behavior and the complete genuine qualification scope.
+  The maintained native package now reproduces the same error against unchanged
+  production code in 3.509 seconds. The correction binds the declared suffix to
+  its actual materialized export, preserving legacy and sibling resource behavior.
+  [Development evidence](../../verification/packaged-provider-binding-development.json)
+  records 82 passes and one unchanged macOS service skip: all 53 native controls,
+  five applicable Standard-local controls and all 24 retained runtime controls.
+  Both package layouts resolve declared providers; missing and escaping paths
+  refuse. The first negative assertion's wrong exception class is preserved as
+  test-development history. Fresh genuine qualification and every full receiver
+  acceptance action remain open; the author does not renew the driver pin.
+
+- **Genuine nominal provider result:** The actual noneditable `39b1af3c67` public
+  apply completes two clean all-node runs in 1,823.503 seconds and publishes
+  reference `sha256:0988406ed52c9a14d9ee922af61f3fbfd375eff09e1ff993b96fc92c4c8d1549`.
+  All seven original private acceptance/profile files remain byte-identical.
+  Manual inspection of both runs' actual exported Rust sources confirms Beta owns
+  `Event`, Alpha reexports it and calls Beta, and Gamma reexports it and calls
+  both Alpha and Beta with the same reference. No fixture provider or review port
+  supplies this qualification. [Scoped observation](../../verification/genuine-authored-nominal-development.json)
+  retains the archive identity and the consumer's actual three-test current
+  retained receipt. A separate installed process reopens both runs from the
+  transported archive against actual current authority in 413.168 seconds,
+  without generation, after confirming original scratch retirement and unchanged
+  oracles. Public receiving, independent source review and complete release gates
+  remain open.
+
+- **Ordinary export layout (in progress):** Native Cargo resolution of the three
+  unchanged qualified exports placed in separate consumer package directories
+  fails with exit 101: Alpha and Gamma's embedded Alpha have the same package
+  name/version but different paths, so Cargo cannot write an unambiguous lock.
+  This is an actual native compatibility diagnostic, not public receiving
+  acceptance. The consumer's original implementation remains authoritative and
+  no provider is admitted. Add an explicitly versioned producer layout which
+  seals ordinary relative paths to shared sibling exports and builds that exact
+  shared forest. Preserve existing target/profile wire formats and identities,
+  closed replay, immutable qualified package checks and every current-authority
+  refusal. Qualify a causal native shared-type consumer before another genuine
+  attempt; never repair qualified manifests during receiver materialization.
+  The development correction now adds explicit Cargo profile v3, target v2 and
+  projection-record v2 selection, preserving legacy formats and identities.
+  Provider files and modes are copied unchanged into one full-revision sibling
+  forest; native builds, local immutable test custody and whole-project package
+  coordinates agree. Closed replay recomputes the complete root transformation
+  and exact provider file membership without I/O or execution. Actual native
+  fixture controls preserve the legacy lock collision and compile independent
+  exact new-layout exports, including a nominal shared-type three-library forest
+  and a complete framework-created package. New genuine qualification and public
+  retained admission remain the next acceptance actions.
+  [Development evidence](../../verification/native-cargo-shared-layout-development.json)
+  records 89 passing maintained methods without skips, including native Cargo,
+  complete package consumption, exact source/provider replay, finite bounds and
+  unchanged legacy/profile/capture/command controls. The first packaging test's
+  temporary-root alias setup failure is retained separately. No driver pin is
+  renewed by the author and no genuine or receiving completion box is advanced.
+
+- **Regenerated provider-material development evidence:** [Native observation](../../verification/provider-material-intent-development.json)
+  records the causal second-source build failure against `27f598c0e`: its
+  artifact metadata contains two identical bindings instead of the exact current
+  intent's one binding. The corrected four builder owners select that current
+  plan/intent, preserve prior sealed artifact bytes, refuse a stale plan and
+  replay the real new native build with fixture generation authority. All 109
+  selected methods pass without skips, including unchanged strict Cargo capture,
+  native-provider, language-builder, JavaScript-import and Mix controls. No
+  archive duplicate refusal is relaxed. Independent source review, driver
+  renewal and full release gates remain required; the fresh genuine provider
+  result below succeeds, while ordinary retained receiving exposes a separate
+  export-layout defect. The original failed genuine attempt is preserved.
+
+- **Regenerated build material predecessor (preserved failure):** The genuine
+  noneditable `27f598c0e` shared-Event diamond stops after 1,866.976 seconds with
+  `qualification.capture.build-process-invalid`; all seven original oracle files
+  remain unchanged and no qualification reference is published. Retained native
+  artifacts show a consumer's repeated generated-source attempts accumulating
+  identical library bindings in later provider-material records. Reproduce this
+  through actual native build intents, then bind material projection to the
+  current exact intent rather than collect every historical intent for the same
+  Component revision. Preserve strict archive duplicate/current-interface
+  refusals, all original evidence and the complete genuine qualification scope.
+
+- **Native Cargo archive reopening failure (in progress):** The actual installed
+  `aa191c4f9` public apply runs real model generation in two clean roots and
+  retains six native artifact manifests, then refuses with
+  `qualification.capture.cargo-build-mismatch`; all seven original oracle/profile
+  inputs remain unchanged and no qualification is published. [Failure and actual
+  evidence layout](../../verification/native-cargo-capture-failure.json) show the
+  native provider graph member that the old leaf-only Cargo reopener rejects.
+  Extend the closed replay join to independently derived current provider
+  exports/contracts, original source, complete shared graph, native metadata and
+  exact locks. Preserve the leaf format, live build-root ownership, production
+  deadlines and no-execution/no-recorded-path-I/O replay boundary. Require a
+  causal actual native-builder regression, tamper/refusal controls and fresh
+  complete installed public generation/replay/receiving before closure.
+  The original actual-native reproducer fails at the same closed member guard.
+  The correction passes four new methods (including thirteen rehashed/orphan
+  refusals and no-I/O/no-execution replay checks), fifteen maintained capture
+  controls, forty-two native provider controls and eleven authored reopening
+  controls with zero skips or failures. Both origin-specific replay routes carry
+  independently projected current recipes through the shared join; archive
+  interface assertions cannot replace current generation dependencies.
+  Source capture retains the already-verified canonical source-tree coordinate
+  under its existing identity to bind the original manifest. These are declared
+  native-builder/record fixtures; independent source review, supported pin renewal,
+  fresh noneditable genuine nominal-type generation and full replay/receiving
+  remain open. Preserve the actual failed public attempt and unchanged oracles.
+
+- **Additional exact-candidate native wheel readback:** [Three hosted wheel records](../../verification/native-ci-wheels-aa191c4f-observation.json)
+  bind successful Windows/Python 3.12 and Linux/Python 3.11/3.14 jobs from actual
+  run `44968003486` to their uploaded artifact digests, terminal gate JSON and
+  exact qualified wheel manifests. All 1,519 hashed RECORD entries reverify in
+  each wheel; all 1,362 framework payload members match the separately qualified
+  native macOS wheel. Windows CPU observation passes through the actual Windows
+  API with installed origins verified, and both native retained-command modes
+  pass their applicable cases with explicit POSIX-only skips. Keep native skips
+  and every wheel/archive identity separate. The rest of the workflow remains
+  unfinished at collection; these results do not certify the whole matrix,
+  authored graph, retained consumer or release.
+
+- **Native wheel and real consumer progress:** The exact `aa191c4f9` native
+  macOS/Python 3.14 [complete wheel gate](../../verification/wheel-aa191c4f-observation.json)
+  exits zero. Independent readback rehashes all 1,519 wheel RECORD entries and
+  compares all 1,362 framework members with the separate actual installed prefix
+  used by the genuine model journey. Archive ZIP digests differ; their framework
+  payloads match. Maintained installed CUDA controls, public Rust harness,
+  retained identity migration and cache continuation pass at their recorded scope;
+  native Windows-only skips remain explicit. A separate [real Cargo consumer](../../verification/real-consumer-aa191c4f-observation.json)
+  passes its initial build, three actual tests and packaging, actual conversion
+  baseline/parity, installed bootstrap and entrypoint checks, then earns a current
+  three-test retained-harness receipt and advances through the supported command
+  to `retained`. Original source remains authority. No authored provider is yet
+  admitted and no source is retired. Complete genuine provider qualification,
+  independent closed replay, same-consumer repeated public receiving/admission and
+  negative controls remain open alongside the fresh complete source/matrix gates.
+
+- **Recovery qualification in progress:** [Retained attempt record](../../verification/release-recovery-aa191c4f-observation.json)
+  binds exact candidate `aa191c4f9` to an actual noneditable installation, genuine
+  model generation and public authored plan/apply. The first apply fails in Cargo:
+  the operator authored generation interface edges but omitted the corresponding
+  build artifact edges. Preserve that failure and all seven unchanged original
+  oracle/profile inputs. A separately initialized corrected attempt keeps the
+  same mathematical contracts and expected answers, adds build edges and passes
+  public validation and planning before generation. Its two-clean-run apply is
+  live; complete all-node qualification, shared-provider custody, closed replay
+  and actual retained Cargo consumption remain unproven. No fixture result or
+  failed attempt closes this goal.
+
+- **Full-source gate remains open:** The same candidate's complete source run
+  stops with 2,058 passes, one receiver-composition deadline failure and 80 skips
+  out of 4,065 selected cases. The unchanged 24-method receiver module then passes
+  at its original deadlines with reduced contention. A fresh complete run uses
+  four workers; neither that diagnostic pass nor the successful FreeBSD SDK slice
+  replaces the required complete source, installed, platform and release gates.
+
+- **Authored qualification composition (in progress):** Compose PR #401's
+  origin-specific authority, reviewed profile/oracle, public plan/apply,
+  Standard execution, closed products and replay with PR #440's original-owner
+  retirement and recoverable publication. Actual regressions reproduced the
+  contained-manifest and default temporary-directory alias defects. The repaired
+  authority module passes ten cases. Retirement and publication pass 26 controls
+  on APFS and 26 on HFS+, including original-descriptor deletion observation
+  where directory link counts cannot prove retirement. These controls use the
+  documented execution/admission fixtures; they do not claim genuine model
+  generation or installed/native qualification. Ordinary authored retained
+  Cargo receiving, importer trust and consumer admission still require source
+  implementation. Keep the complete genuine diamond and release evidence open.
+
+- **Native Cargo dependency composition (in progress):** Compose PR #347's full
+  provider graph, immutable byte projection, current export binder and lock/SBOM
+  join as a prerequisite to the accepted genuine authored diamond. See the
+  [native Cargo provider contract](native-cargo-provider-projection.md). A real
+  provider-free leaf reproduced acceptance of generator-supplied framework
+  projection records; reserve that namespace before cache reuse and native
+  execution, refuse impossible empty projection records, and retain genuine
+  nested reprojection. Contributor qualification remains bound to its named
+  source; current source/installed/native, complete authored all-node runs,
+  closed replay and retained consumer admission remain required.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#393](https://github.com/jordanhubbard/literate-ai/issues/393)
 
 - **Accepted design:** [ADR 0072](../decisions/0072-authored-native-graph-qualification.md) defines public authored admission, truthful versioned origin, unchanged oracle custody, complete regeneration and closed retained consumption. The directing user explicitly accepted ADR 0072 on 2026-11-10; implementation and qualification remain open.
-- **Next action:** Implement the origin-specific authored authority owner and versioned qualification contracts, then compose the public plan/apply route with the shared Standard runner and retained receiving validation. Preserve the source-derived front door and coordinate provider/inventory contributions without duplicating them.
+- **Next action:** Finish exact joined-source and compatibility verification of the authored plan/apply stack, implement ordinary authored retained receiving and importer admission, then qualify complete genuine all-node regeneration, closed replay and real consumption. Preserve the source-derived front door and coordinate provider/inventory contributions without duplicating them.
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework authored authority and qualification admission; PROJECT Goals 1, 2, 4 and 6
 - **Direction:** Include issue #393 in 1.4.0: provide a supported public qualification route for genuinely authored native dependency graphs.
@@ -23876,9 +31567,28 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] CUDA-SIGNAL-001 — Keep vendor-only source attribution out of CUDA requirements
 
+- **Installed candidate observation:** The actual noneditable `aa191c4f9`
+  distribution passes [22 inert inventory controls](../../verification/cuda-installed-aa191c4f-observation.json)
+  against original real source bytes: seven attribution, lookalike and bounded
+  indentation negatives plus fifteen source/compiler/header/runtime/driver positives.
+  Every source digest remains unchanged and the installed detector matches the
+  candidate source bytes. Preserve the first probe's incorrect negative expectation:
+  `cudaError_type()` matches the existing broad CUDA-style function-call heuristic;
+  the successor uses the maintained identifier controls. No detector was weakened
+  and no failed probe is relabeled. Complete source, exact integration, driver
+  review and release acceptance remain open; no GPU execution or source promotion
+  is claimed.
+
+- **Independent metadata review:** A separate authorized non-author reviewer approves exact source at `7a3658da5`, checks original byte/prompt/classification preservation, and passes all six inventory methods plus six additional C/XML close, attribution, unrelated-platform and bounded-input controls. [Review evidence](../../verification/cuda-metadata-independent-review.json) binds the exact attribution-correction source and test hashes. That correction passed its focused and complete source gates. Positive-signal follow-up and noneditable installed and exact integration acceptance remain open.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#396](https://github.com/jordanhubbard/literate-ai/issues/396)
-- **Next action:** Reconcile the corrected contributor PR [#398](https://github.com/jordanhubbard/literate-ai/pull/398), its source/test inventories and both intake records before integrated noneditable/exact-head/main qualification. Preserve the retained development variant and original failed controls.
+- **Next action:** Run installed and integrated qualification of the reviewed
+  CUDA detector. The composed source includes the five toolkit, runtime-type and
+  driver-call cases from [PR 410](https://github.com/jordanhubbard/literate-ai/pull/410).
+  The source and tests match the independently reviewed bytes. The seven
+  inventory tests passed on the composed source, and the independent public
+  inventory check exercised five attribution, lookalike and real-code controls.
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework inert source inventory and proposed Flavor evidence; PROJECT Goals 1, 2, 4 and 5
 - **Direction:** Include newly filed issue396 in 1.4.0: NVIDIA copyright/license attribution alone must not propose a CUDA accelerator requirement for portable source.
@@ -23886,11 +31596,30 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Remove vendor-only CUDA inference and exclude source attribution metadata from CUDA evidence; retain explicit CUDA source suffix, compiler/toolchain, runtime and driver evidence through bounded inert analysis.
-  - [ ] Add original portable-source and genuine-CUDA regressions with exact byte/digest preservation and unchanged sensitive, generated, binary and test classification precedence.
+  - [x] Remove vendor-only CUDA inference and exclude source attribution metadata from CUDA evidence; retain explicit CUDA source suffix, compiler/toolchain, runtime and driver evidence through bounded inert analysis.
+  - [x] Add original portable-source and genuine-CUDA regressions with exact byte/digest preservation and unchanged sensitive, generated, binary and test classification precedence.
 - **Evidence:**
-  - [ ] Reconcile the retained predecessor failure and source-preserving negative/positive inventory controls with the actual corrected PR398 candidate. A locally qualified development variant remains on `fix/cuda-source-signals`; its passing suite is not contributor-head acceptance.
+  - [x] Reconcile the retained predecessor failure and source-preserving negative/positive inventory controls with the actual corrected PR398 candidate. A locally qualified development variant remains on `fix/cuda-source-signals`; its passing suite is not contributor-head acceptance.
   - [ ] Run focused and complete qualification, independent review before driver repin, noneditable installed controls and exact-head/main integration; keep source promotion and source-intelligence authority unchanged.
+
+- **Contributor reconciliation:** Preserve the original SOURCE-TARGET-SIGNALS-001 intake as this canonical CUDA-SIGNAL-001 goal. PR398 removes vendor-only inference, adds `.cu`/`.cuh`, runtime-header and runtime/driver-call signals, and retains inert byte-preserving input observation. Its original source regression observes ten failing predecessor subcases and thirteen passing corrected input subcases; its retained related source checks record 161 method successes and eight tool-dependent skips. Confirming contributor CI at `68049ea1b` passes all executed jobs, with only the declared FreeBSD ACL and unused matrix cells skipped. The contributor reports a complete noneditable wheel pass at `68049ea1b`; integrated installed acceptance remains separate. A normal merge of current main resolves only the duplicate roadmap intake, preserving the exact detector and test bytes. No GPU or generated-provider qualification is inferred.
+
+
+
+- **Integrated source checks:** On the normal current-main merge, both maintained inventory methods and their thirteen input subcases pass through `make python-check`, with zero skips. Detector and regression files are byte-identical to contributor `68049ea1b`; driver, runner and documentation reviews remain current, and strict lint plus formatting pass across all 1,890 files. No new driver repin was needed for the roadmap-only conflict resolution. Confirming integrated CI, installed acceptance and resulting-main qualification remain open.
+
+- **Historical metadata-gap reproduction:** Public inert inventory on the earlier frozen combined candidate proposed CUDA for a portable Rust identity function when only `SPDX-FileCopyrightText` names a CUDA team or `SPDX-License-Identifier` names a CUDA license. Both original byte digests remain unchanged. Vendor-name removal is implemented, but the metadata-exclusion part of the first implementation checkbox is not yet complete. Add a bounded attribution-only evidence view for CUDA detection, preserving exact original bytes, all other signal/classification behavior and genuine source/compiler/header/API evidence, including code after an inline block-comment close. The correction is now included in this reviewed union; its original frozen batch remains unchanged.
+
+- **Metadata correction development evidence:** The separate correction filters recognized SPDX/copyright lines only in the bounded CUDA evidence view, including wrapped C/XML attribution blocks and code following their closing delimiter. Other detectors, classification, prompt-injection observation and source hashes retain original input. New predecessor controls record nine failing metadata assertions before the correction. The final canonical inventory subset passes all 15 selected methods with no failures or skips, including static Rust/Python Flavor derivation, genuine CUDA evidence after attribution, unchanged digests and a bounded long-indentation control. Strict lint and formatting pass for both changed Python files. `verification/cuda-attribution-metadata-development.json` records exact source/report digests. The complete canonical source gate at correction `7f3486fd5` then passes 2,725 methods with 92 declared skips, no failures and no known failures (2,817 selected); it is development evidence, not release attestation. Subsequent independent review approved these exact bytes and renewed the narrow branch pin; noneditable/native and exact integration qualification remain open. No implementation or completion checkbox is advanced by this focused development result.
+
+- **Positive-signal follow-up under review:** The exact `8ba81d598` inventory
+  misses `CUDAToolkit`, `cudaError_t`, `cudaStream_t`, `cuModuleLoadData()` and
+  `cuModuleLoadDataEx()`. The candidate recognizes those explicit names and
+  keeps the existing attribution and classification paths. Sixteen focused
+  inventory methods pass, including exact source hashes, attribution containing
+  the newly recognized names, similar portable identifiers and the existing
+  evidence-window limit. Independent review, supported driver renewal and
+  complete composed qualification remain open.
 
 ### [x] SOURCE-PROMOTION-ROOT-001 — Expose explicit root lineage for standalone source promotion
 
@@ -23958,7 +31687,132 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Resulting-main closure (2026-11-11):** PR411 lands the reviewed composition at `25bf154778bb163e7447a1191acffe92e08acbe4`. All 27 full CI jobs pass both at exact review head `d4a49c22955288037fb0c0ba5ae6d6c62c00cbe2` and resulting main. Source, scripts, tests and schemas are byte-identical from the fully source/wheel-qualified runtime `c7a8d308bb7b1eff9eb3900c202a265b50a563d9`; production modules match their reviewed/installed bytes, and the repository-side continuation fixture matches its qualified source. [Terminal integration evidence](../../verification/transport-error-resulting-main.json) binds the native source and whole-wheel gates, 26 installed controls and actual terminal job records. Earlier pending statements above are historical checkpoints superseded by this closure. This completes only this functional goal; native-result repair, FreeBSD product evidence, the consuming release lifecycle and every other remaining 1.4 goal stay required.
 
+<a id="candidate-native-repair-001"></a>
+<a id="candidate-native-repair-001-bind-native-library-rejection-to-existing-bounded-candidate-repair"></a>
+
 ### [ ] NATIVE-ACCEPTANCE-REPAIR-001 — Bind generated native-library acceptance rejection to bounded candidate repair
+
+- **Accepted canonical design:** [ADR 0073](../decisions/0073-native-root-acceptance-repair.md)
+  restores review #409 under the directing user's recorded roadmap authorization.
+  The reviewed PR #414 early-check subset remains integrated. Preserve its shared
+  candidate budget, private-oracle boundary and rejection closure. Actual packaged
+  root continuation still needs implementation as well as current qualification.
+
+- **Historical combined-integration checkpoint:** Normal history composed independently reviewed PR414 `58bc1381` with the bootstrap/diagnostic/Cargo/runtime batch. Its eight non-assembly native-repair production files matched the contributor; Standard project assembly retained both the held runtime execution plan and the native candidate verifier, while runtime environment port bytes were unchanged. Independent review covered the original three-candidate budget, fresh single-root Rust-v2 custody, fixed-category feedback, private oracle boundaries, sealed export hashes and executable/tool closure after rejection. `verification/native-candidate-repair-integration-review.json` retains those exact source comparisons. This checkpoint and the contributor qualification below remain evidence for their original subjects.
+
+- **Historical baseline implementation audit:** PR414 checks native results during per-node
+  acceptance, before project artifact assembly, packaging and independent root
+  acceptance. Its bounded node loop has already returned when actual packaged
+  acceptance runs; no late rejection continues that same counter. The internal
+  rejection record does not bind a rejected root package. The new closed schema
+  foundation below still lacks its actual packaged continuation and replay joins.
+  The existing v2 diagnostic was broadened to accept native ACCEPT rejection;
+  restoring ADR 0073 requires preserving frozen v2 meanings through the new
+  versioned route. Early-check source correctness is therefore a subset of this
+  goal, not completion of its implementation.
+
+- **Early-check safety correction:** The historical public mismatch
+  code also covers substituted case IDs and capabilities. Only a complete exact
+  result inventory with differing values may create a retryable native rejection.
+  Keep one attempt's actual verifier-return origin separate from decoded failure
+  data, so a generic error with the same public code stays terminal. Retain all
+  original seven native source controls, three controlled result-transport
+  corruption controls and three actual native protocol adversaries. The
+  [development record](../../verification/native-result-classification-development.json)
+  binds 48 distinct passing source controls, including all thirteen native cases.
+  The external source provider and framework-distribution observation remain
+  controlled fixtures; these are not installed-framework qualification.
+
+- **Original failing late-package counterexample:** A separate isolated source journey
+  passes real early native acceptance with answer 42, then returns answer 41 in
+  real final packaged acceptance. The original run fails after one source request
+  with no replacement or current receipt. Both native processes exit zero;
+  streams and oracle remain unchanged. This failing development counterexample
+  confirms the packaged continuation requirement below remains implementation-open.
+
+- **Continuation foundation (development only):** New closed domain records in
+  the current v2 catalog preserve accepted node history, exact original project
+  authority and a single three-candidate ledger, including preparation stops and
+  root-stage failures before complete package evidence exists. An optional explicit
+  project run policy preserves old identities when absent. The live lifetime
+  constraint seals its original clocks, policy and project/framework bindings;
+  copying, replay, mutation, expiry and closure cannot renew it. The
+  [foundation record](../../verification/native-root-continuation-foundation-development.json)
+  binds 38 passing source controls and the separately failing actual native
+  late-package regression. The original foundation did not connect these records
+  to runtime orchestration; it remains historical evidence for that subject.
+
+- **Original command wiring (development only):** Admit one explicit policy before
+  source indexing, retain original manifest bytes and native file identity, and
+  forward the same live owner across aggregate Components and runtime preparation.
+  Intersect model, build, native and source-index process waits with its remaining
+  lifetime; preserve finite cleanup allowances. Candidate and tracked receipt
+  publication rechecks closure after serialization and before committing a file.
+  Separate source controls cover same-byte manifest replacement, aggregate expiry,
+  real owned process termination, candidate cleanup and original receipt
+  preservation. A new allocation constraint claims each root once per original
+  run and accounts for pending candidates and preparation stops without buying a
+  new counter. The separate root repair preparation port retains original budgets
+  and uses changed requests and fresh workspaces without casting native rejection
+  into frozen v2 diagnostics. These parts still require connection to the shared
+  root controller and actual late packaged acceptance.
+
+- **Verifier custody development:** An internal executor context can retain an
+  original native outcome after strict complete inventory validation, while the
+  public strict executor continues to reject wrong values. Its process-local
+  holder requires current native, input, tool and original-run ownership and
+  one-shot consumption. The frozen strict-wrapper source snapshot passes all
+  thirteen existing actual native controls in 456.387 seconds; its source hashes
+  remain unchanged. Later explicit profile/decision guards have separate passing
+  source controls. The live factory, shared controller, actual late continuation,
+  dependency support, installed qualification and closed replay remain open.
+
+- **Runtime continuation integration (development in progress):** The shared
+  controller is connected to the original local runtime and both native stages.
+  Three source controls preserve the exact measured execution plan after current
+  replanning and refuse drift. The actual source journey passes that former
+  preparation refusal and reaches generated source and successful node execution;
+  its interrupted run does not establish native acceptance or continuation.
+  Review identified full verifier/source traversal nested inside each export-entry
+  callback. Four actual filesystem controls pass after moving complete fresh
+  checks to capture boundaries while retaining the original per-entry deadline:
+  a 32-file capture retains identical payloads with two full guards rather than
+  33. Source/verifier mutation, original expiry and later physical export mutation
+  still refuse. The legacy verifier method remains unchanged. The
+  [scoped development record](../../verification/native-root-live-controller-development.json)
+  leaves terminal-history handling, actual packaged replacement, commit-boundary
+  deadlines, qualified dependencies, installed runs and strict replay open.
+
+- **Integrated source controls:** All 153 native-root cases across eighteen
+  modules pass with no skips in 144.869 seconds. Seven terminal-history controls
+  retain completed node observations, distinguish newly allocated checkpoint
+  failure from prior history and preserve original errors during cleanup. Three
+  scheduler controls bound occupied BUILD/LINK capacity and polling by the same
+  original owner; three completion controls refuse success after callbacks close
+  it. Original policy/deadline records are retained for later closed replay.
+  These modeled and filesystem controls do not prove arbitrary running-future
+  cancellation or filesystem-cache commit atomicity. The separate actual source
+  journey reaches early native result 42 and packaged result 41, then fails with
+  `native_root_run.closed` after one request in 651.838 seconds. The first refusal
+  remains undiagnosed; neither deadline expiry nor successful replacement is
+  inferred. Retained source, finalizer/dependency eligibility, cache transaction
+  boundaries and the existing installed/replay/platform goals remain open.
+
+- **Retained-mode and operation-bound integration:** The current native-root
+  source cohort passes 160 cases without skips in 78.231 seconds. An explicit
+  original retained-source identity now reaches initial eligibility selection;
+  retained inputs remain outside generated repair, with existing authorization
+  and absent-marker behavior preserved. A later actual attempt records
+  `native_root_run.timeout_invalid` as the first refusal hidden by `closed`.
+  A maintained control reproduces the exhausted verifier remainder being clamped
+  before expiry checking. Correcting that ordering preserves a longer original
+  budget while refusing the expired operation before any probe or command.
+  All nineteen Rust-harness controls pass in 26.607 seconds. The new continuation
+  fixture explicitly selects the already-supported 300-second verifier limit
+  before admission; legacy fixture defaults remain 180 seconds, production
+  limits are unchanged and the single whole-run bound remains 1,800 seconds.
+  These 179 distinct source cases do not establish an actual successful late
+  replacement, cache transaction atomicity, installed qualification or release.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#405](https://github.com/jordanhubbard/literate-ai/issues/405)
@@ -23966,14 +31820,65 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Priority:** P1
 - **Owner:** Standard generated-candidate attempt chain and packaged independent acceptance; PROJECT Goals 1 and 4
 - **Direction:** Include issue 405: a generated native-library root result mismatch occurs outside the existing bounded candidate-repair loop.
-- **Conclusion:** Review the minimal typed boundary joining exact rejected-package custody to its generated root candidate and existing attempt chain before enabling repair. Reuse the shared finite budget and changed-request/fresh-workspace rules; keep private oracle material, arbitrary native stderr, authority/custody/deadline failures and retained/original source outside repair eligibility. New capability design requires ADR review under ADR0006 if the existing accepted repair authority does not cover that boundary.
+- **Resumed cleanup and guard integration:** The canonical serial native-root
+  cohort passes 182 controls without skips in 153.441 seconds. Initial custom
+  finalizers remain outside continuation eligibility; a later injection refuses
+  before delegation. Original callback/scope pairing removes a duplicate full
+  scan while retaining fresh guards. A closed original run now retires its exact
+  backend scope without another scan, preserving the original pipeline error.
+  The public context-stack reference is read-only so cleanup keeps its owned
+  stack. Independent source review found no concrete issue. The preceding real
+  native journey reached early 42 and packaged 41, then correctly refused the
+  verifier deadline after 843.528 seconds; a successful replacement is still
+  unproven. These are source development results, not installed or release gates.
+
+- **Complete controlled-provider source journey (2026-11-24):** The maintained
+  real Rust/Cargo counterexample now passes in 317.312 seconds: early result 42,
+  packaged result 41, a fresh request/workspace, early result 42 and final packaged
+  result 42, followed by the fixture's current receipt. Oracle bytes and native
+  streams remain unchanged. Original verifier closure now precedes diagnostic
+  bookkeeping; each actual replacement begins a fresh context-journal projection
+  while earlier CAS records remain durable. The selected original 1,800-second
+  run and 300-second verifier limits are unchanged. The
+  [exact scoped source record](../../verification/native-root-late-source-journey-development.json)
+  also binds 295 passing controller/history-reader controls and current static
+  gates. The provider and framework-distribution observation are controlled;
+  this supersedes the earlier source failure checkpoints, not installed identity,
+  full temporal qualification, held qualified inputs, strict closed replay,
+  two independent installed runs or platform/release acceptance. The parent goal
+  and its remaining acceptance boxes stay open.
+
+- **Mixed actual source budget controls (2026-11-24):** All three maintained
+  Rust/Cargo journeys pass in 1,154.766 seconds with no skips or failures: late
+  replacement; compiler rejection, packaged rejection and acceptance on the third
+  candidate; and build/test/package exhaustion without a fourth allocation or
+  publication. Actual compiler attribution and the complete zero-exit failed-test
+  protocol drive original-owner diagnostics without broadening ordinary repair
+  classification. The [historical exact-source record](../../verification/native-root-mixed-source-journeys-development.json)
+  retains its source hashes and controlled provider/distribution boundary. Later
+  replay/receiving changes have separate focused checks; complete closed replay,
+  actual public held-provider qualification, two clean installed runs and all
+  platform/release gates remain open. No parent or acceptance box is closed.
+
+- **Contributor alias and history:** `CANDIDATE-NATIVE-REPAIR-001` was the contributor's original work ID in [PR #414](https://github.com/jordanhubbard/literate-ai/pull/414). It is an alias of this current release-goal owner, not a second issue or independently scheduled deliverable. Both IDs retain the same issue #405 scope; the release-goal manifest continues to include NATIVE-ACCEPTANCE-REPAIR-001.
+- **Conclusion:** Implement the accepted connection from actual rejected root-package custody to the existing attempt chain. Reuse the shared three-total-candidate budget and changed-request/fresh-workspace rules; keep private oracle material, arbitrary native stderr, authority/custody/deadline failures and retained/original source outside repair eligibility. Preserve the existing rule that source-cache publication follows successful independent root acceptance. The early check, full packaged continuation, candidate qualification and resulting-main delivery are separate states; this goal remains open.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Audit existing accepted repair authority and specify/review exact root package-to-attempt custody before implementation.
-  - [ ] Implement only the reviewed generated native-library root route with sanitized feedback, preserved rejected evidence and the existing shared finite retry budget.
+  - [x] Record the accepted ADR 0073 fresh generated root package-to-attempt custody design; design acceptance grants no execution or qualification evidence.
+  - [x] Retain PR414's early per-node native check, sanitized feedback, rejected source/export observations and shared finite node retry budget, including sealed build-blob and original native executable/tool checks.
+  - [x] Complete values-only classification and attempt-local verifier origin controls without accepting a generic or decoded mismatch as retry authority; retain exact source-development evidence separately from installed and full packaged-root qualification.
+  - [ ] Complete and integrate the separately versioned acceptance-repair contracts, codecs and schema with actual original attempt/request, root build, artifact graph, package plan/result, target/profile, approved authority, native custody and original run owner/deadline; preserve frozen v2 meanings and refuse mixed versions.
+  - [ ] Continue the same original candidate counter after actual packaged-root rejection, preserving completed node observations and the rejected package without rewriting an accepted v2 attempt. Repeat every required fresh candidate stage through packaging and independent root acceptance.
+  - [ ] Revalidate the original live continuation owner, deadline, source, verifier, tools and package at each boundary; retain immutable qualified dependencies without regenerating them, and preserve original failures for unsupported graph shapes.
 - **Evidence:**
-  - [ ] Prove same-authority fresh-request/workspace repair, complete validation/build/test/execution/acceptance replay, retry exhaustion, terminal custody/original-source failures and no admission on failure through installed public qualification.
+  - [x] Preserve the historical seven public-CLI source controls for early native rejection: real native commands with a controlled external generator and synthetic source-framework observer cover fresh repair, the shared generated-test/native budget, exhaustion, command refusal and physical export-before/export-during/native-executable mutation refusal. The original checkpoint records twelve focused contract/lifecycle controls and a 2,640-pass, 144-declared-skip source gate; its source review and prompt-privacy evidence retain their original scope.
+  - [ ] Prove an actual packaged-root rejection after the early check succeeds, then a fresh same-authority replacement and complete packaged acceptance within the original shared budget; retain exact rejected package/request/workspace/source/observation history.
+  - [ ] Preserve terminal behavior for wrong IDs/capabilities, malformed results, expired or changed authority/custody, retained/admitted source, changed dependencies and unsupported graphs; inspect bounded feedback for private-oracle and native-output exclusion.
+  - [ ] Capture two independently allocated qualification runs and reopen each final candidate with its complete rejection/replacement/package lineage, refusing missing or substituted evidence without restoring authority from records.
+  - [ ] Complete exact final integration source/noneditable-wheel qualification, required Linux/macOS/Windows installed/native cells, independent review and normal exact-head/resulting-main delivery before this release-goal owner closes. Controlled source-generator fixtures must remain explicit; synthetic framework observers cannot establish installed-wheel identity.
+
+- **Historical candidate qualification:** The exact reviewed integration `88fd979250a5257bc265aa3cf05fc628315cb986` retains unchanged native repair implementation/test bodies plus the earlier inventory and typed-diagnostic fixes. Its full noneditable-wheel gate and genuine installed Rust acceptance pass; an additional isolated installation passes all sixteen typed-diagnostic boundary controls separately from the actual native-result repair journey. That journey executes two actual fresh source requests/workspaces, observes one native ACCEPT result rejection, repairs within the original budget and commits the final packaged receipt. Original runtime, source authority, custody and private verifier data remain unchanged. The normal merge of newer main's qualified transport/diagnostic cohort is a separate source composition awaiting its overlap checks and supported authority renewal; these candidate results do not claim that resulting-main integration is complete. This records early node rejection followed by a successful final package, not rejection of an already constructed root package or the full versioned continuation required above.
 
 ### [ ] PYTHON-BINARY-CLOSURE-001 — Qualify binary framework dependency closure for every supported Python runtime
 
@@ -23983,7 +31888,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Priority:** P1
 - **Owner:** Framework Python support policy and remote worker bootstrap
 - **Direction:** Reconcile the documented Python 3.11-or-newer runtime with the actual native Python 3.15 pinned binary closure failure before 1.4 publication.
-- **Conclusion:** The native Python 3.15 whole-wheel gate fails obtaining pinned PyYAML 6.0.3 while Python 3.12 succeeds separately. Preserve both exact results and determine the supported policy; source controls alone cannot establish a usable offline installed-worker closure. No dependency pin, binary-only custody or supported runtime boundary may be silently weakened.
+- **Conclusion:** The explicit reviewed wheel-input boundary closes the native Python 3.15 dependency gap while preserving the documented Python floor, exact pins, binary-only custody and failed unconfigured result. Complete affected-runtime and minimum-runtime installed/worker evidence now binds qualified main; source controls alone were not used to establish installed-worker support.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
@@ -23993,21 +31898,141 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Retained failure:** The actual canonical whole-wheel run at software `77353a8d6` under native Linux ARM64/Python 3.15.2 fails with `worker.wheelhouse_download_failed`; the isolated binary download exits1 with `No matching distribution found for PyYAML==6.0.3`. All 80 focused source controls pass on that interpreter. The separately selected Python 3.12.3 whole-wheel gate succeeds with archive `eb39d3f57b828a729e758fd22eaf4453a0a9c4b1c262dfd5e16dea9b5a9c3551`. Neither the source controls nor the other interpreter qualify the failed Python 3.15 closure.
 - **Selected repair:** Preserve the documented Python floor and exact dependency pins. Use the existing reviewed local-wheel export boundary for targets without published binaries; expose that same complete offline input in `make wheel-check` for all dependency installations and both ordinary/uv worker export/bootstrap paths. Snapshot and validate before installation and retain exact input identities. No worker source build, automatic interpreter fallback or source-build fallback is added.
-- **Current development proof:** The unchanged official PyYAML 6.0.3 sdist rehashes to `d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f`. Two fresh upstream pure Python builds with pinned setuptools 83.0.0 are byte-identical; all 1,283 upstream legacy pure Python tests pass from its noneditable wheel on Python 3.15.2. Its source modules, RECORD and license match the reviewed source. Existing canonical offline export and bootstrap succeed with all 37 distributions and unchanged framework identity. These are dependency construction/bootstrap observations, not the still-required complete current wheel gate or release acceptance.
-- **Next action:** Qualify the new complete-wheel input projection, negative custody checks, complete source/wheel and exact integrated gates. Preserve the original unconfigured Python 3.15 failure.
+- **Initial dependency development proof:** The unchanged official PyYAML 6.0.3 sdist rehashes to `d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f`. Two fresh upstream pure Python builds with pinned setuptools 83.0.0 are byte-identical; all 1,283 upstream legacy pure Python tests pass from its noneditable wheel on Python 3.15.2. Its source modules, RECORD and license match the reviewed source. Existing canonical offline export and bootstrap succeed with all 37 distributions and unchanged framework identity. Those initial dependency construction/bootstrap observations did not qualify the then-pending complete wheel gate.
+- **Resulting-main acceptance:** [Current-main native binary-closure record](../../verification/python-worker-wheel-inputs-main.json) binds `638845ec00272776ae4644944d6e1dec4b1c4ff6`. Review run `43016945880` and resulting-main run `43038760305` each pass all 27 jobs. Native Linux ARM64/Python 3.15.2 passes the complete current source suite (2,683 passed, 100 declared skips, 599 reconciled raw groups), whole noneditable wheel gate and both ordinary/uv offline worker paths with 37 installed distributions. Minimum Python 3.11 compatibility passes the native CI whole-wheel/ordinary path and a separate actual ARM64/3.11.14 uv tool/export/bootstrap path using the same current-main framework identity. Actual canonical empty/redirected input refusals precede installer/runtime launch, and all three native CI wheel artifacts rehash. Python support, dependency pins, binary-only custody and source-build/interpreter refusal policy are unchanged; existing driver/runner review pins remain current without renewal. This contributor record proposes closure of the affected input-boundary defect. Independent integration review must still reopen the cited native Python 3.15 and minimum-runtime raw evidence before accepting that proposal; neither the current source union nor the complete release is qualified by this record alone. The original unconfigured Python 3.15 failure remains preserved.
 
 - **Dependency development evidence:** [Source/build/installed and canonical offline bootstrap record](../../verification/python315-worker-dependency-development.json) retains exact artifact identities. Its existing framework artifact is bound to `7078bc96b`; it does not qualify the later new wheel-gate projection or a final release candidate.
 
 - **Current complete local qualification:** [Minimum/current Python source and whole-wheel record](../../verification/python-worker-wheel-inputs-linux.json) binds software `c733d96f80cd80b802e7aa4387cab2d7740e219a`. Both native Python 3.11.14 and 3.15.2 select 2,783 source cases: 2,683 pass, 100 retain declared skips, and all 599 raw groups reconcile with no failed or known-failed cases. Both complete noneditable wheel gates pass with the same framework distribution identity and exact reviewed pure PyYAML bytes; ordinary and uv worker paths install respectively 38 and 37 distributions with matching framework identities. Real empty/redirected input refusals precede installation. The earlier source-prefix failure and unconfigured binary-export failure remain preserved separately. Parent completion and issue closure await independent/exact integrated acceptance; no release acceptance is claimed.
 
+- **Fresh integrated candidate evidence at `98c23928a`:** The exact framework wheel
+  `44b2c088b3b55433b6e783cff2b25d9cc5da5b937bef3d60a70876b147394ba0`
+  passes independently reviewed native Linux ARM64 whole-wheel qualification on
+  Python 3.15.2 and 3.11.18. Both runs retain 183 successful spans; ordinary and uv
+  worker paths each install 37 distributions on Python 3.15 and 38 on Python 3.11,
+  with matching framework identity. Actual empty/redirected inputs refuse before
+  observed Python subprocess launch and leave no output. The Python 3.15 source gate passes 2,969 cases with
+  216 declared skips, and a separate explicit-pip fixture supplement passes 20 of
+  those skipped cases. Earlier input, image-loader and historical missing-evidence
+  failures remain separate; this fresh proof does not recreate absent historical
+  raw records or establish resulting-main/release acceptance.
+
 ### [ ] SDLC-001 — Make existing repository delivery the primary 1.4 adoption path
 
+- **Complete native test-worker budget (in progress):** Exact candidate
+  `aa191c4f9` fails both Linux Python 3.11/3.14 authored-owning cells in actual
+  run `44968003486`. [Raw evidence readback](../../verification/native-module-budget-observation.json)
+  verifies that the entire four-case serial module reaches its 3,600-second
+  worker deadline after three terminal cases, then completes owned cleanup.
+  Preserve the original failures and unchanged per-operation 3,600-second
+  production/test deadlines. Give only cells owning this complete module an
+  explicit finite 6,600-second worker budget, preserving every test, partition,
+  step/job limit and raw report. Validate maintained CI coverage/budget controls
+  and actual native successor execution before claiming the budget sufficient.
+  All 35 maintained CI-policy controls, lint/format, unchanged driver/runner and
+  documentation-authority reviews, repository layout/public export and complete
+  documentation rendering (181 diagrams, 23 controls) pass locally. Every
+  739-module Linux version inventory remains complete and disjoint. Actual
+  Linux/macOS successor execution remains pending.
+
+- **Resumed CI correction (in progress):** Exact candidate `fa39ddfe2` CI
+  [44941002442](https://github.com/jordanhubbard/literate-ai/actions/runs/44941002442)
+  times out its Ubuntu Python 3.11 source gate after 180 minutes. The retained
+  checkpoint records 4,064 selected, 3,906 passed, 153 skipped and five unfinished
+  cases with no recorded failures. Original timing places the eight-case native
+  retained Cargo receiving module's start at 10,469.647 seconds after invocation.
+  Partition Python 3.11 using the existing Python 3.14 whole-module selection,
+  retaining every original case, PR coverage, base validation/installed/wheel
+  ownership, finite deadlines and distinct raw evidence. Require exact-once module
+  coverage and selection tests locally, then actual exact-head CI before claiming
+  runtime fit. [Diagnostic and coverage evidence](../../verification/linux311-partition-observation.json)
+  records all 739 modules exactly once per Linux version and 34 passing policy
+  cases. This repair completes no release goal or platform qualification.
+
+- **GitHub issue:** [#488](https://github.com/jordanhubbard/literate-ai/issues/488)
+  tracks static release-checkout ownership admission before worker synchronization. The retained real-Git,
+  local-transport reproduction overwrites foreign work at the old basename path;
+  prior live-worker contents remain unknown. The recovered successor guard passes
+  nine local controls, including SSH-account separation, password-syntax refusal
+  before worker access and a PowerShell command-shape check, while both
+  native Windows cases are skipped on macOS. Exact combined source, installed and
+  native-platform qualification remain open. The earlier fleet-access stop remains
+  in force pending the operator's separate read-only inspection authorization.
+- **Goal-state reconciliation:** Release work package G uses the shared visible
+  queue parser tracked under RELEASE-CLOSURE-001 and
+  [issue 486](https://github.com/jordanhubbard/literate-ai/issues/486). The current
+  81 manifest obligations and dispositions remain authority.
 - **Release target:** 1.4.0
 - **Detailed roadmap:** [Existing repository delivery](existing-repository-delivery.md)
 - **Decision:** [ADR 0074](../decisions/0074-existing-repository-delivery.md)
 - **Tracker reconciliation:** [Current issue/PR ownership and dispositions](existing-repository-delivery.md#current-tracker-reconciliation) maps the previously unlinked current-forge requests to existing owners; historical forge numbers remain distinct.
-- **Next action:** Qualify the consolidated timing, checkpoint, artifact and lease
-  changes; complete contained native adoption through the shared layout owner.
+- **Next action.** Qualify the composed native writers, isolated child
+  interpreter, release promotion and visible-goal checks on the exact source
+  and installed wheel. The shared parser and contained queue writer have
+  focused coverage for [issue 486](https://github.com/jordanhubbard/literate-ai/issues/486)
+  and [issue 487](https://github.com/jordanhubbard/literate-ai/issues/487).
+  The [release work packages](existing-repository-delivery.md#consolidated-release-work-packages)
+  retain changed-version adoption, provider expiry and final candidate qualification.
+
+- **Current batch at `96c404e18`:** The fresh macOS source gate passes 3,096
+  tests with 101 declared skips; the exact committed wheel passes 182 whole-wheel
+  spans and separate canonical installation. Independent closing review binds
+  those results to the same clean source and artifact. A genuine published 1.3.1
+  runtime then upgrades to that 1.4 wheel without changing the older converted
+  project. Its public Standard rebind refuses missing authorization, applies the
+  exact acknowledged plan, preserves the custom retained-parity receipt policy
+  and all other project entries, and converges to a no-change rebind plan. No new
+  lifecycle receipt is created. These are local installed and controlled upgrade
+  milestones; current native-worker, foreign-platform and release acceptance
+  remain open.
+- **Upgrade cache follow-up:** **GitHub issue:** [#482](https://github.com/jordanhubbard/literate-ai/issues/482)
+  records redundant immutable-parent fetching in the existing repository provider.
+  The subsequent cold-cache public update plan stops at its explicit 90-second
+  fetch deadline; it does not apply templates or complete the project upgrade.
+  In that installed version, resolve and catalog both fetch, while separate object
+  directories create separate caches. A separate fresh plan using a verified copy of the
+  earlier exact-commit bare cache also stops at the 90-second fetch deadline;
+  the project, input cache and runtime remain unchanged. The source candidate now
+  shares exact-commit handling across resolution and catalog reads. A paired
+  source-mode public CLI control denies Git transport: old code fails its fetch,
+  while the candidate produces a read-only plan with no transport and unchanged
+  project/cache bytes. The plan preserves all 259 inherited files and reports one
+  framework roadmap conflict. The repository cohort passes 79 tests; seven Git
+  cases also pass with an actual private Git 2.43 build using local-file transport.
+  Keep these scoped source controls separate from installed qualification, a
+  successful latency comparison, conflict resolution and containment migration.
+  Older-Git transport fallback evidence and final source/authority review are now
+  complete. The actual private Git 2.43 control refuses implicit promisor transport
+  with an empty protocol whitelist and succeeds when only local-file transport is
+  permitted. Final composed-candidate source, installed-wheel and native consumer
+  qualification remain required; these scoped controls grant no release admission.
+- **Installed qualification follow-up:** [#477](https://github.com/jordanhubbard/literate-ai/issues/477)
+  records the original harness-owned macOS temporary-path alias rejected by the
+  verified-wheel input guard. The reviewed harness now canonicalizes its newly
+  created runtime directory while retaining redirected-user-input refusal. The
+  exact `96c404e18` source, whole-wheel and separate canonical installation
+  gates pass. The earlier causal installed-CLI probe keeps all 36 dependency wheel
+  bytes unchanged; original network and aliased-input failures remain failed
+  attempts. These results do not qualify the later composed candidate.
+
+- **Qualification progress at `98c23928a`:** The harness-owned path correction
+  passes the fresh full macOS source gate (3,084 passed, 101 declared skips),
+  all 182 whole-wheel spans, and a separate model-free installation using the
+  same qualified wheel. Original network and aliased-input attempts stay failed.
+  A real Linux x86_64/Python 3.14 installed adoption journey separately passes
+  failure/repair, contained unchanged/no-op updates and removal with native files,
+  HEAD, existing
+  application staging and custom content preserved; only owned removals are staged.
+  It is not a hosted governed PR. CI run `44312804737` for that earlier head finishes with 14 passing jobs, one skip and a mandatory
+  OpenSpec advisory failure before Python; GitGuardian also fails without a
+  disposition. No security, platform, goal or release obligation is waived.
+
+- **Canonical worker acceptance progress:** The installed `98c23928a` wheel
+  now has actual Linux public SSH execution/import/acknowledgement evidence and
+  controlled corrupted-download recovery of the original attempt without rerun.
+  The [delivery review](existing-repository-delivery.md) records successful,
+  application-failed and manually recovered cases with their separate limits.
+  Platform, provider, security and release obligations remain open.
 
 - **Priority:** P0
 - **Owner:** Original adoption, project context, release observation and worker provisioning owners
@@ -24015,6 +32040,23 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Conclusion:** Use ADR 0074 and the existing-repository-delivery program to extend existing owners. Preserve current acceptance obligations and exact source, artifact and trust gates. Live provider allocation, publication and deployment are outside this implementation authorization.
 - **Depends on:** none
 - **Completion prerequisites:** none
+- **Review refinement:** Work packages A–H in the linked handoff refine the
+  existing checklist below. They add finite authority-scope controls, pure Cargo
+  identity projection, frozen-candidate qualification and tested-artifact custody
+  through existing owners. Retain the completed 45-attempt supplied-guidance
+  evidence; actual host activation remains separate. Reconcile review ancestry
+  before replaying open work. This is one execution contract, not another queue.
+- **Evidence reconciliation, 18 November.** An independent count matched all
+  81 manifest IDs to exactly one visible current goal and all 184 outstanding
+  checkboxes to the operator report before the three evidence criteria below
+  were checked. The standalone lease suite passed all 36 tests on this
+  composition, including lost allocation/release replies, concurrent releases,
+  different lease replies, expiry and retained cleanup intent. The system review
+  records native and simulated platform evidence separately and reports the
+  45-attempt supplied-guidance comparison, including one aborted trial.
+  These three evidence checks leave the integrated worker, skill activation
+  and final candidate qualifications open.
+
 - **Implementation:**
   - [ ] Reconcile duplicate IDs and obsolete execution guidance with explicit historical dispositions.
   - [ ] Deliver contained native onboarding, safe upgrade and removal through existing project owners.
@@ -24022,8 +32064,924 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Complete command worker reconciliation, release and expiry while retaining static workers.
   - [ ] Qualify platform cells and skill activation, optional generation and deployment recovery boundaries.
 - **Evidence:**
-  - [ ] A unique-ID roadmap and current release manifest retain every unfinished acceptance obligation.
+  - [x] A unique-ID roadmap and current release manifest retain every unfinished acceptance obligation.
   - [ ] Public native adoption pilots preserve application files and CI and prove repeat, failure, upgrade and removal behavior.
-  - [ ] Deterministic timing controls reject double counting and stale qualification; compare measured native jobs and wall time.
-  - [ ] Stub worker lifecycle tests prove lost replies, duplicates, expiry and cleanup failure behavior.
-  - [ ] Record platform-specific and skill behavioral evidence separately from source inspection and simulation.
+  - [x] Deterministic timing controls reject double counting and stale qualification; compare measured native jobs and wall time.
+    On tree `d96fb0fa5`, 12 timing cases, two exact run/attempt cases and
+    four checkpoint-reuse cases passed. The same ToolScheme defect took
+    29.29 seconds with the host's existing Make test and 29.16 seconds after
+    adoption. In the separate installed observer pilot, four native PR and
+    retry jobs ran, with zero extra native jobs from observation. The later
+    hosted pilot confirmed configured protection and partial retry. Overall
+    release-time improvement still requires measurement.
+  - [x] Stub worker lifecycle tests prove lost replies, duplicates, expiry and cleanup failure behavior.
+  - [x] Record platform-specific and skill behavioral evidence separately from source inspection and simulation.
+
+### [ ] CARGO-CUSTODY-PERF-001 — Bound redundant native Cargo input custody work
+
+- **Private plan projection follow-up:** Capture the exact original current-plan,
+  plan, oracle and authority fields for a single call. Use pure oracle identity
+  projection at its formerly redundant public-property access points and close
+  those original references and identities after the final native callback.
+  Every explicit native authority, source, selector, reviewer, Standard and SDK
+  guard remains; public properties retain their fresh validation. Four native
+  controls cover cold repeated guards, real changed files, late plan mutation
+  and mutation from the final Flavor closer. All 58 qualification regressions
+  and four SDK planning regressions pass. The
+  [development record](../../verification/authored-plan-projection-development.json)
+  separates these fixture controls from a paired diagnostic on actual generated
+  provider inputs: four alternating calls average 4.101s with public-property
+  validation and 3.286s with private projections, with 4,896 versus 3,578 reads.
+  That diagnostic temporarily attaches candidate methods in memory to the prior
+  installed distribution; it does not qualify a candidate installation, a full
+  receiving operation or a release. Installed receiving, independent review and
+  complete composed qualification remain required.
+
+- **GitHub issue:** [#432](https://github.com/jordanhubbard/literate-ai/issues/432)
+- **Related program:** [#117](https://github.com/jordanhubbard/literate-ai/issues/117); completed traversal prior art [#86](https://github.com/jordanhubbard/literate-ai/issues/86).
+- **Current source evidence:** Eight actual filesystem controls give five passes
+  and three expected failures on unchanged main, then eight passes on the
+  candidate. A deterministic 1,024-file/64-directory corpus retains every fresh
+  payload hash and identical semantic identity while reducing anchored metadata
+  calls from 7,552 to 6,464 per capture. Alternating capture times improve from
+  0.438–0.469 seconds to 0.382–0.389; guard times overlap (baseline 0.454–0.488,
+  candidate 0.401–0.495), so no broad currentness or consumer-budget improvement
+  is inferred. Relevant input/materialization controls give fifteen passes and
+  one declared Windows-only skip. Whole-provider performance, full regression,
+  installed and native receiving/admission qualification remain pending.
+- **Native scope controls:** Five counted orchestration cases use real project and
+  Flavor files: unchanged main gives one pass/four expected failures, candidate
+  five passes. Two calls still invoke all four provider, four toolchain and four
+  input guards and produce four independent graphs; Flavor parsing drops from
+  four loads to two operation-local loads. Late Flavor/project-discovery changes,
+  next-call drift and exception cleanup refuse correctly. Twenty-seven combined
+  parsing/Flavor/native-scope controls pass; an initial test expected the wrong
+  existing membership-refusal exception and was corrected without changing
+  production behavior. A separate installed historical-reader comparison with
+  these two runtime changes measured 15.706 seconds before and 16.064 seconds
+  after, so no full-guard speedup was demonstrated. That diagnostic does not
+  qualify this maintained source checkpoint. The first full local run passed
+  layout, lint and formatting, then correctly refused a stale lifecycle-driver
+  review marker before the full Python, wheel or installed gates ran. Independent
+  review of the two changed adapters permits refreshing that marker; complete
+  maintained qualification remains pending.
+- **Qualification prerequisite:** The next full run reached 1,705 tests and failed the already tracked mixed-interpreter oracle defect [#424](https://github.com/jordanhubbard/literate-ai/issues/424), with 84 declared skips. Reuse the exact reviewed test correction from `5895a62ad6b97a8d3288324cf68348f728e441b5` / PR #425; preserve full byte equality and actual admitted compiler identity. This is a test-only prerequisite, not a new production optimization. The previously failing accepted-source case and the successive-revision control now both pass on the same mixed-interpreter host in 117.259 seconds; the source remains unchanged and the owned test unit has exited. Full maintained qualification remains pending.
+- **Current Linux qualification:** [Source and installed proof](../../verification/retained-cargo-observation-linux.json) binds `8dd7ff04524bc0c2a1c99102f61d669b470ed56b`: 2,682 Python cases pass, 114 retain declared skips, and none fail. Layout, lint, formatting, driver/runner review, installed/offline, wheel, private-prefix installation, specification/documentation/skills and public-export checks pass. The independently collected wheel is SHA256 `7c706eb65964b8b5fc2257ea2dbf588ff8ab40a2aa765f932ce43cf3b8109f13`; all 5,330 source members and eight tools remain unchanged and owned processes have exited. This supersedes the pending source/installed gate status above; complete native receiving, downstream consumer acceptance and whole-guard speedup remain unproven. The original two failed attempts remain historical evidence.
+- **Current 1.4 review refinement (SDLC-001):** Execute [work package B](existing-repository-delivery.md#consolidated-release-work-packages)
+  before another broad optimization: measure the implicit validation in
+  `current_identity -> scope.identity -> scratch.context.identity`, then test
+  private pure projection within the existing live owner. Keep public validating
+  accessors, process/callback guards and all refusal semantics; require paired
+  complete-admission evidence rather than extrapolating one-call timings.
+- **Priority:** P1
+- **Owner:** Framework core; native retained Cargo input observation
+- **Direction:** Keep genuine per-process currentness feasible for complete native inventories without stale observations or relaxed coverage.
+- **Conclusion:** Track issue #432 as the Cargo receiving/verifier facet of existing retained-observation performance work (#117); preserve completed ancestor-traversal contract #86. Optimize only redundant semantic serialization and metadata already freshly observed in the same bounded census, retaining every fresh content hash and closing custody check.
+- **Lexical PR history reconciliation:** PR [#438](https://github.com/jordanhubbard/literate-ai/pull/438) retains this goal's lexical follow-up and its [historical branch record](../history/roadmap/pr-438-lexical.md). The current retained-input reader and two focused test modules match that branch byte for byte; newer native Windows custody checks remain in place. Its earlier Linux source/comparison evidence is retained without replacing current native receiving or release qualification. The current 81-goal manifest and original lifecycle pin remain unchanged.
+- **Read-only receiving repair:** The genuine installed authored check timed out
+  after writing lifecycle lock ownership metadata. Its failed unchanged-snapshot
+  verdict remains retained. The source repair gives `check` a separate nominal
+  observation view, preserves exact writable-only scratch and execution gates,
+  and performs no lifecycle lock mutation. Actual native wrapper controls pass
+  9/9, lock-observation regressions 7/7, and the complete same-consumer provisioning
+  fixture 8/8 in 525.368 seconds. Held-peer OS locks and their original owner bytes
+  remain unchanged during both fixture checks. Provider semantics in that fixture
+  remain explicit test ports; this is not genuine installed receiving admission,
+  a timeout speedup, independent authority review, or release qualification.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Link #432 and establish exact profiled/current-source projection before source edits.
+  - [x] Reuse initial inventory metadata within one capture; compare complete fresh semantic tree fields without redundant canonical serialization.
+  - [x] Use existing bounded read-only project/Flavor parsing scopes within one native guard, retaining all callbacks and fresh/closing input checks.
+  - [ ] Retain changed-then-restored, path/mode/namespace/descriptor and process-boundary refusals; do not skip target protocols or cache guard success.
+- **Evidence:**
+  - [ ] Portable actual filesystem mutation/refusal controls and deterministic before/after stat/hash/identity counts.
+  - [ ] Measured genuine currentness comparison, complete affected regression and installed/native source qualification before downstream use.
+
+- **Combined macOS fixture refusal:** The first 57-case combined focused run exits1 with six errors and three declared native Windows skips. The new Cargo fixture supplies the platform temporary directory through macOS's redirected `/var` spelling, so the unchanged production no-redirection guard refuses before intended positive captures and can make mutation-only negative cases refuse too early. Next: canonicalize only the freshly owned test root before creating its payloads, then rerun the real capture/mutation cases. Do not change production path admission or claim the failed run as acceptance.
+
+
+- **Fixture correction verified:** Canonicalizing only the owned temporary root with `Path.resolve()` makes all eight actual Cargo capture/currentness controls run on their intended payloads. The complete combined focused gate selects57, passes54 and retains three native-Windows-only skips, with no failures and exit0 in15.959seconds. Production source and no-redirection admission remain byte-identical to the reviewed contributors; the first six-error fixture run remains retained. Complete combined qualification is still required.
+
+- **Integrated local baseline:** The native-adoption composition at
+  `8839ffc915604e72f13cfc19e8639807ffbb8059` passes its fresh complete local source
+  gate: 3,026 passes, 103 declared skips and no failures out of 3,129 selected
+  cases in 2,657.514s. Its actual default native-receiving fixture completes 59
+  full-input checks in 262.197s, compared with 16 subprocesses totaling 2.059s;
+  admission takes 359.566s. These are distinct observed scopes, not CPU use or a
+  release speedup. Native platform and installed composed-candidate obligations
+  remain open; this supersedes only the pending local combined source gate above.
+- **Parsing follow-up under this owner:** Reuse [PR439](https://github.com/jordanhubbard/literate-ai/pull/439)
+  commit `7ef2ad0b5ee71bf5cf02d86821dadd561e091d36` for isolated project/catalog
+  parse frames within each v2 Cargo input observation. Every fresh read and all 17
+  wrapper guards remain; each observation starts with empty parsing state and
+  restores ambient state on exit. Seven maintained controls pass in 97.860s on
+  the composition, including identity/guard equivalence, source mutation refusal,
+  exception cleanup and ended-scratch refusal. A [paired local measurement](../../verification/isolated-parse-composition-measurement.json)
+  runs two ABBA blocks on one real retained fixture. Disabling only the new parse
+  scopes gives four baseline observations with median 4.234s; enabled scopes give
+  median 3.760s. Each observation retains all 17 wrapper guards and the same
+  identity; parsing calls fall from 17 to one. This controlled original-body
+  comparison is not two released distributions or a full admission/release timing.
+  Shared receiving setup is subsequently extracted into `tests/support`, keeping
+  every original setup/receive operation and receiving-test assertion unchanged.
+  All 11 combined receiving/parsing controls pass in 143.219s. The timing record
+  retains its original fixture hashes; the three production files are unchanged,
+  and no post-extraction timing is claimed. Independent review and complete
+  candidate qualification remain pending.
+  This is one implementation step of CARGO-CUSTODY-PERF-001, not another release
+  gate or completion claim.
+- **Next composition:** Combine the published PR438 source
+  `56fb5310fe2b67fb1a00d6533d951a5197001888` in this same owner before the next full
+  qualification. Its bounded, access-local lexical cache reuses only path parsing,
+  with its storage charged against the existing graph metadata allowance. Retain
+  PR435's initial census, all filesystem and payload observations, the uncached
+  fallback and every closing custody check. Establish current composed identity,
+  operation counts, budget/refusal controls and independent review before claiming
+  an improvement. The contributor's large-tree timing is historical evidence,
+  not a measurement of this composition or its release critical path.
+- **Composed lexical control:** The 12 maintained lexical/custody controls pass
+  in 0.539s. A [current paired measurement](../../verification/lexical-composition-measurement.json)
+  captures one real 1,024-file, 64-directory corpus in two ABBA blocks. Median
+  capture time is 0.258s with only the lexical cache disabled and 0.222s enabled.
+  Separately counted path parses fall from 6,592 to 1,088; all native filesystem
+  call counts and 1,024 payload streams remain equal, as do semantic identity and
+  physical observations. Four samples per arm on a shared, non-isolated host do
+  not establish release or full-admission speedup. Windows retains its uncached
+  fallback. Independent composition review and full qualification remain pending.
+
+
+- **Measured skill-metadata follow-up (in progress):** A bounded native-fixture
+  profile of one live v2 input-currentness call observes 17 project authority
+  validations, 68 catalog constructions and 4,352 skill-metadata parses. Metadata
+  parsing consumes 1.243 of 7.550 instrumented seconds; cumulative scopes nest.
+  Extend the existing operation-local project parsing frame with a bounded cache
+  of immutable metadata keyed by exact manifest bytes and logical source. Keep
+  all fresh directory/file reads, content hashes, name/dependency/reference
+  validation and closing custody checks. Do not cache currentness or failures.
+  Verify changed bytes, namespaces and caller-owned catalog state through the
+  public discovery surface, then compare alternating enabled/disabled live calls
+  on one fixture with equal identities and guard/read counts before independent
+  review and full composed qualification. This remains CARGO-CUSTODY-PERF-001;
+  no new gate or release-goal completion is implied.
+  A [paired native-fixture measurement](../../verification/skill-metadata-parsing-measurement.json)
+  now retains all 17 wrapper guards, 6,630 document reads and 4,352 manifest hashes
+  per call. Metadata parses fall from 4,352 to 667, including first observations
+  and uncached oversized manifests. Two ABBA blocks give four samples per arm: medians 3.795s
+  disabled and 3.472s enabled (8.5% observed reduction). This is one fixture on a
+  shared host, not a complete admission/release speedup. The first prototype's
+  copied-context race was independently reproduced, then repaired with a per-frame
+  lock. Public filesystem/concurrent-catalog controls pass; final lock/cap/lifetime
+  review and complete composed source/installed qualification remain open.
+
+### [ ] WINDOWS-JOB-FALLBACK-001 — Avoid redundant Windows tree fallback after successful Job termination
+
+- **Priority:** P1
+- **Owner:** framework core process ownership
+- **GitHub issue:** [#426](https://github.com/jordanhubbard/literate-ai/issues/426)
+- **Direction:** Fix confirmed redundant taskkill in native bounded Windows dependency inspection.
+- **Conclusion:** Propagate only confirmed native Job termination success; preserve missing/failed ownership fallback, root cleanup, descendants and budgets.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Propagate native Job success with a synchronized completed result; pending
+        claims never grant success. Repeated cleanup avoids fallback only after
+        confirmed termination; missing, failed or released ownership and the final
+        root kill remain unchanged.
+- **Evidence:**
+  - [x] The named old-source regression fails on redundant `taskkill`; four corrected
+        pure ownership controls pass. Shared process checks pass 22 cases with four
+        declared FreeBSD skips; targeted lint/format and host-path checks pass.
+  - [x] Native Windows cleanup passes seven cases without skips in 12.422 seconds.
+        The unchanged original focused case passes in 353.062 seconds under its
+        unchanged 360-second cap. Qualification `28a55320` changes only the
+        process helper on original `53724d2e`; its fixed production bytes and
+        direct builder/observer callers match candidate `7e3b8e5c`.
+        [Source-bound native proof](../../verification/windows-job-fallback-native.json)
+        records five zero-taskkill samples and independent source/tool/actor
+        closure. The earlier timeout and unattributed diagnostic access violation
+        remain preserved; the complete 17-case selection remains separate.
+  - [x] The first PR CI attempt ran 2,759 Python cases with zero failures and
+        113 declared skips, passed the documentation gate, then correctly refused
+        a stale lifecycle-driver TCB pin for the process helper. The independently
+        reviewed pin is recorded through the maintained workflow; contributor
+        instructions
+        now explicitly name driver/documentation review and lint/format gates
+        instead of incorrectly attributing them to `make python-check`.
+  - [ ] Final local gates, independent review and the required PR CI pass.
+
+### [ ] PUBLIC-EXPORT-SCAN-001 — Bound suffix-free public-export reference matching
+
+- **Priority:** P1
+- **Owner:** framework public-export guard
+- **GitHub issue:** [#427](https://github.com/jordanhubbard/literate-ai/issues/427)
+- **Direction:** Repair measured quadratic deny-reference scan exposed by normal source qualification.
+- **Conclusion:** A single preceding class character preserves boolean existence language of the unanchored fixed-suffix matcher; retain every scanned byte and denied label.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Replace only the greedy unanchored prefix with its last character;
+        every previously matching prefix still contains that match. Preserve
+        every denied label, fixed suffix and scanned input.
+- **Evidence:**
+  - [x] The old actual 65,536-byte negative times out at five seconds; the
+        corrected four tests pass in 0.159 seconds, including 116 boundary/parity
+        inputs. The unchanged complete audit passes in 34.50 seconds. The earlier
+        complete audit passed after an observed 215 CPU seconds; its exact total
+        duration was not captured and is not inferred.
+  - [ ] Final independent review and required PR CI pass.
+
+### [ ] RUNTIME-CAPABILITY-ENV-001 — Bind declared runtime capability variables to accepted provider artifacts
+
+- **Installed control coverage:** The canonical wheel at `96c404e18` passed
+  all nine maintained runtime capability controls with verified installed
+  module origins. The four runtime owners and test module in the current
+  candidate match those proven files byte for byte. All nine source controls
+  passed again. Final release wheel, generated-graph and native platform
+  qualification remain open.
+
+- **Release target:** 1.4.0
+- **GitHub issue:** [#422](https://github.com/jordanhubbard/literate-ai/issues/422)
+- **Next action (in progress):** Qualify the final combined source and installed candidate, then finish native Windows/macOS and exact published-head/resulting-main qualification. Independent non-author review, nine focused runtime controls and strict static gates pass; the canonical driver pin is renewed after that review. Preserve the completed native Linux development evidence and full curriculum scope.
+
+
+- **Combined integration evidence:** The earlier source union retained all four production files byte-identically to PR423 `a7482175e`. Independent review covers held-plan/currentness and input scope, EXECUTE-only direct-consumer aliases, portable names/collisions, late projection after overrides, admitted provider paths, package relocation/escape refusal and unchanged serialized toolchain identity. All nine maintained runtime controls pass without skips on native macOS; they execute real fixture provider processes, including after original build roots are removed, but do not claim model generation or a complete generated graph. Canonical driver/documentation renewal follows that review; lint/format, layout, public export and runner checks pass. See `verification/runtime-capability-integration-review.json`. Complete combined source/installed and exact integration gates remain open.
+
+- **Priority:** P0
+- **Owner:** Framework Standard runtime provider environment; issue #422; LAB-AUTHORITY-001
+- **Direction:** Restore the existing LITAI_CAPABILITY process contract for genuine generated multi-Component consumers on every supported native platform.
+- **Conclusion:** The actual installed two-node JavaScript run accepts the provider and builds/tests the consumer, then execution refuses its missing declared money capability variable. Derive runtime aliases from the exact held execution plan and current accepted provider artifacts, retain generic bindings and closed wire contracts, and reject stale or ambiguous bindings. Do not change the consumer to search arbitrary environment variables or widen retained-source admission.
+- **Additional installed counterexample:** [Packaged execution record](../../verification/runtime-capability-packaged-counterexample.json) binds software `a0a17eca5d43e50e14866db2c0fa71b5509b51c1`. Genuine force-regeneration now reaches accepted checkpoints for both nodes, but final packaged execution still lacks the declared variable; all three original private oracles remain unchanged. The repair must also project aliases from immutable package custody for packaged execution and independent acceptance. This failed development observation does not qualify the final graph or renew the driver review pin.
+- **Complete native Linux development qualification:** [Installed graph and Python 3.12/3.15 evidence](../../verification/runtime-capability-installed-linux.json) binds software `c41d9985b7a418a5ddd7cd6350a6aa01c9c16f8f`. Python 3.12 and 3.15 each reconcile all 2,792 selected source cases: 2,692 passed, 100 declared skips and no failures across 600 raw groups. Both complete noneditable wheel gates pass for the same exact artifact. Its actual configured-Codex two-node generation reaches both original acceptance checkpoints, final packaged execution/independent acceptance and source-cache publication; nine generated tests pass without skips, the committed receipt is current and all three original oracles are unchanged. Independent review, other native platforms, exact integration and the full LAB curriculum remain open; the driver pin is unchanged.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Project late runtime capability aliases from exact locked runtime edges while preserving original source, artifact and execution authority.
+  - [x] Preserve existing generic bindings, phase separation, portable names and collision/currentness refusals without adding permissions or changing closed wire records.
+- **Evidence:**
+  - [ ] Retain the real installed force-regeneration counterexample and unchanged verifier oracles; generated consumer uses the exact declared variable.
+  - [ ] Pass focused collision, ambient-variable, phase/consumer scoping and stale-authority controls, complete source gates, independent non-author review before driver repin, and an actual corrected installed generated graph journey plus native/exact-head/main verification.
+
+## 1.5 preparation
+
+### [ ] AGENT-BOOTSTRAP-001 — Bootstrap generated agent instructions before requiring LitAI
+
+- **Installed harness correction reviewed:** The exact [harness/class/package
+  revision](../../verification/bootstrap-installed-harness-source-review.json)
+  is independently approved. Complete class inventories now contain ten portable
+  methods and three POSIX methods with unchanged bodies/decorators; bundled scripts
+  have a direct package origin. Thirteen methods pass without skips and all six
+  missing-case, byte-mismatch and skip controls refuse. Ordinary merge `ffff7fe40`
+  retains published PR437 metadata without any runtime/test/harness changes. Renew
+  supported pins and qualify this exact integrated candidate; no earlier artifact
+  is relabeled as repaired bootstrap or final release evidence.
+
+- **Bounded probe source repair reviewed:** The independent non-author review
+  approves the exact [bootstrap and adjacent fixture repair](../../verification/bootstrap-bounded-process-source-review.json).
+  All 24 focused methods pass without skips, including thirteen bootstrap methods.
+  Original output/descendant counterexamples fail five subtests; a separate setup
+  error control reproduces unreleased ownership before the fix. Both paths now
+  refuse or retire under bounded cleanup. Controlled Linux policy ports pass four
+  state methods, without claiming actual Linux/AppArmor execution. Final installed
+  harness review, supported pin renewal and integrated platform gates remain open.
+
+- **Bounded version-probe refinement (in progress):** Independent source audit
+  reproduces `ready` with valid small stdout and stderr exceeding the intended
+  1 MiB cap. Full capture before checking also leaves retained output unbounded.
+  Replace that probe with standard-library streaming, enforce each stream's byte
+  cap before retaining its next chunk, and retire the original process group/Job
+  on success, timeout, overflow and exceptions before joining readers. Preserve
+  the 30-second command deadline, original status interpretation, read-only pins,
+  manual-install policy and operation before framework installation. Reuse the
+  reviewed standard-library process-ownership implementation as a pinned generated
+  helper; refuse unavailable ownership instead of reporting readiness. Require
+  real child-process overflow/timeout/helper-retirement counterexamples and an
+  exact helper-content control, then independent review before pin renewal.
+  Independent review additionally reproduces an unreleased created owner when
+  deadline setup raises before entering the cleanup boundary. Keep that setup
+  inside the owner lifetime and add a maintained causal refusal control.
+  Carry all 13 maintained bootstrap methods into the noneditable wheel gate as
+  ten portable cases and three actual POSIX process-group cases. Bind the core
+  helper, generated helper, generated bootstrap and initializer bytes to source
+  and installed distribution; retain fixed inventories and zero applicable skips.
+  The unchanged earlier installed controls remain required. Harness review found
+  that splitting one test class violates its complete-class inventory and that
+  importing scripts resources creates an origin-less namespace. Split the fixture
+  into portable and POSIX classes sharing only setup helpers, and give the bundled
+  scripts package a direct initializer; preserve all inventory/origin validators.
+
+  PR437 stays draft while this source-admission blocker remains unresolved.
+
+- **Priority:** P1
+- **Release target:** 1.5.0; new work, with no change to recorded 1.4.0 goals
+- **GitHub issue:** [#332](https://github.com/jordanhubbard/literate-ai/issues/332)
+- **Owner:** generated AGENTS.md, CLAUDE.md and SKILL.md entry points, and the project-owned setup route
+- **Direction:** A contributor opening a generated project on a fresh machine must reach a maintained setup path before the first `litai` command. The route must work without LitAI, identify the project's pinned framework requirement, and preserve downstream instructions and lifecycle pins.
+- **Conclusion:** The generated SKILL.md currently starts at `litai doctor`; the existing framework getting-started guide explains installation but is not reachable before that command. Add a small provider-neutral bootstrap route to the generated entry points and carry it through initialization, adoption and update without silently changing an installed runtime or Standard binding.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Next action:** Qualify the reconciled current-main composition, review its source and installed-wheel evidence, then pass exact-head/resulting-main CI before closing #332.
+- **Current integration:** The contributor head `a35983bb912d6dd0ca0dd2a04dfd77f8fd401420` is composed with main `638845ec00272776ae4644944d6e1dec4b1c4ff6`. All newer roadmap entries are retained. The already-qualified main continuation interpreter binding supersedes the contributor's duplicate fixture change. Combined-source qualification remains open.
+- **Current local evidence:** The combined tree passes 41 bootstrap, agent-entrypoint, project-index, source-materialization, OVA and update controls on macOS/Python 3.14, plus Ruff lint/format and skill admission. The contributor source changes were independently reviewed during composition before renewing the lifecycle-driver pin. Full regression, noneditable wheel qualification and exact-head/resulting-main integration remain required.
+- **Implementation:**
+  - [x] Route generated agent entry points to bootstrap before invoking LitAI, while preserving custom downstream instructions. PR #333 at `1ec47f356` adds the route to generated SKILL.md and starter documentation; installed initialization and adoption retain authored AGENTS.md bytes.
+  - [x] Provide an isolated installation and current-runtime check that reads the project's pinned framework identity without LitAI and reports unavailable wheel, checksum and access failures clearly. The standard-library script checks the manifest pin and selected runtime without mutating either and verifies an explicitly supplied wheel SHA-256 before installation.
+  - [x] Keep the recommended `.litai-venv/` outside project source authority. A no-Git project previously inventoried `.litai-venv/bin/litai` as retained source; generated Git ignore rules and the retained, source-to-specification, source-index, materialization and OVA inventories now exclude this local tooling directory. The no-Git regression verifies the application file remains included.
+- **Evidence:**
+  - [x] Installed generated-project journeys cover missing CLI and incompatible existing runtime on POSIX and native Windows without mutating project pins. The exact-head `1ec47f356` Linux ARM64 wheel check and full-platform run 42206249606 report route, ready, missing and forged-pin incompatible states; the Windows installed-wheel log reports all four true and verifies unchanged manifest and AGENTS.md bytes.
+  - [x] Initialization, adoption and update retain the bootstrap route and preserve custom agent instructions. Focused generated-project and update tests pass at `1ec47f356`, with the installed-wheel adoption check preserving the original AGENTS.md.
+  - [x] Bootstrap-environment custody controls pass locally: 26 bootstrap/source-inventory/conversion tests and six project-index/materialization/OVA tests, including the no-Git source exclusion. This source change still needs exact-head installed and platform qualification.
+  - [ ] Independent review, exact-head CI and noneditable installed distribution checks pass before closure.
+
+
+<a id="source-asset-promotion-001"></a>
+### [ ] SOURCE-ASSET-PROMOTION-001 — Preserve reviewed immutable assets through source promotion
+
+- **Integrated development evidence:** The focused original asset/intake source, original archive-ordering correction and shared audit-closure repair now pass 121 distinct maintained and explicitly selected helper methods without skips. Real local signatures, promotion, source custody and archive reads are exercised; qualification/ledger fixture facts remain explicit. [Recovery evidence](../../verification/source-asset-static-intake-recovery-development.json) retains exact subjects, failures and each cohort. All original genuine provider/consumer generation, installed, admission and application acceptance remains open.
+
+- **Recovery scope (2026-11-22):** Restore the accepted original PR #313 work from `77be5baf68bbeaf878a5b86151dafffe623beb2e`. Its contributor development results below remain evidence for that subject only. Implementation and evidence checkboxes here require renewal against the integrated candidate; no source or goal is retired. The original record remains [available in the retained review](https://github.com/jordanhubbard/literate-ai/blob/77be5baf68bbeaf878a5b86151dafffe623beb2e/docs/roadmap/active-work.md#source-asset-promotion-001). Collect focused asset/intake changes while preserving newer child transactions and policy review.
+
+- **GitHub issue:** [#363](https://github.com/jordanhubbard/literate-ai/issues/363)
+- **ADR:** [0067](../decisions/0067-reviewed-source-assets.md), accepted before implementation.
+- **Release target:** 1.4.0
+- **Current next action (in progress):** Collect the original accepted asset contract, exact source custody, public promotion and regressions onto current source without changing current policy review or native child transactions. Renew focused and complete source gates, then prove the clean installed data-backed generation/overlay/qualification route.
+
+- **Priority:** P1
+- **Owner:** source review, promotion materialization and existing immutable asset lifecycle
+- **Direction:** Carry explicitly reviewed source-backed assets through signed graph identity, normal promotion and the existing immutable overlay.
+- **Conclusion:** Issue #363 reproduces normal review and promotion losing an asset declaration and its changed pin. Follow accepted ADR 0067 without broadening source admission or release authority.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [ ] Add canonical optional reviewed asset selectors and strict compatible graph wire handling.
+  - [ ] Validate exact admitted source membership, pin, size and safe collision-free paths before promotion.
+  - [ ] Promote immutable bytes through typed provenance into authored Component assets and normal locks.
+  - [ ] Preserve metadata-only generation and existing overlay, qualification, admission and cache ownership.
+- **Evidence:**
+  - [ ] Normal CLI reviews bind asset changes and preserve asset-free identities; malformed declarations and unknown fields fail closed.
+  - [ ] Missing, changed, symbolic, unsafe or colliding assets fail before project writes; normal promotion retains exact data and lock metadata.
+  - [ ] Actual generation-request metadata excludes asset payload; ordinary overlay, independent acceptance and cache reuse preserve exact bytes.
+  - [ ] Managed source, promotion and existing compatibility checks pass; a clean non-editable wheel proves the public data-backed library route.
+
+Managed source checks pass seven new asset tests, eight source-translation tests,
+13 existing promotion controls and three existing public CLI journeys. Large JSON
+and binary assets retain exact bytes and lock metadata. The four-language graph
+merge preserves the reviewed selector. Normal installed generation, independent
+qualification, admission and cache reuse remain open.
+
+
+<a id="source-static-intake-001"></a>
+### [ ] SOURCE-STATIC-INTAKE-001 — Review exact credential-free source for local static intake
+
+- **Integrated development evidence:** The focused original asset/intake source, original archive-ordering correction and shared audit-closure repair now pass 121 distinct maintained and explicitly selected helper methods without skips. Real local signatures, promotion, source custody and archive reads are exercised; qualification/ledger fixture facts remain explicit. [Recovery evidence](../../verification/source-asset-static-intake-recovery-development.json) retains exact subjects, failures and each cohort. All original genuine provider/consumer generation, installed, admission and application acceptance remains open.
+
+- **Recovery scope (2026-11-22):** Restore the accepted original PR #313 work from `77be5baf68bbeaf878a5b86151dafffe623beb2e`. Its contributor development results below remain evidence for that subject only. Implementation and evidence checkboxes here require renewal against the integrated candidate; no source or goal is retired. The original record remains [available in the retained review](https://github.com/jordanhubbard/literate-ai/blob/77be5baf68bbeaf878a5b86151dafffe623beb2e/docs/roadmap/active-work.md#source-static-intake-001). Collect focused asset/intake changes while preserving newer child transactions and policy review.
+
+- **GitHub issue:** [#368](https://github.com/jordanhubbard/literate-ai/issues/368)
+- **ADR:** [0068](../decisions/0068-reviewed-static-source-intake.md), accepted under directing-operator delegation before implementation.
+- **Release target:** 1.4.0
+- **Next action:** After the focused asset collection, recover signed static-intake contracts, current source/promotion integration and the original retained-record ordering correction. Renew all controls and complete clean installed qualification and admitted consumption.
+
+
+- **Priority:** P1
+- **Owner:** Local source review, static translation and source promotion; PROJECT goals 1, 2, 4 and 6
+- **Direction:** Issue368 requires exact reviewed static intake while preserving the original sensitive inventory and no-egress policy.
+- **Conclusion:** Follow accepted ADR0068. Scope the permission to signed exact paths, preserve ordinary writers and asset readers, and require full regenerative qualification before authority transfer.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [ ] Add typed signed review, read-only planning and fresh approval with bounded direct-file reads and independent hard exclusions.
+  - [ ] Integrate reviewed static analysis, signed acceptance, versioned private provenance and measured qualification validation without changing original source identities.
+  - [ ] Preserve ordinary bundle5/provenance3 and asset provenance4 writers and all existing qualified-provider identities.
+  - [ ] Order the deduplicated retained-record union before archive encoding; retain strict reader and identity-conflict refusal.
+- **Evidence:**
+  - [ ] Managed positive and adversarial source, signature, scope, custody, policy-opt-in, no-egress and compatibility tests pass.
+  - [ ] A clean non-editable wheel proves public planning, approval, derive, accept, qualification and key-free admitted consumption with swapped-record refusal.
+  - [ ] Real filesystem publication/reopening accepts reverse-ordered intake additions and identical duplicates, preserves ordinary archive bytes and refuses conflicting identities before store creation.
+  - Seventy-one distinct affected tests pass in the canonical Make-managed session
+    environment, including all 23 focused intake tests and ordinary source/asset,
+    qualification archive, schema and wire-version regressions. Lint, formatting,
+    layout and public-export checks pass. Clean installed and actual application
+    qualification remain open.
+
+### [ ] HANDOFF-001 — Consolidate active framework work into one checkout and continue layout qualification
+
+- **Priority:** P1
+- **Owner:** Framework integration and repository custody
+- **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
+- **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
+- **Depends on:** none
+- **Next action:** Continue original retained-source role publication, changed-parent provenance and native/installed SDK acceptance from the reconciled source; retain the canonical source-role publication failure for repair. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Implementation:**
+  - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
+  - [x] Reconcile every saved source state deliberately. All 91 recovery snapshots and 12 additional clean heads join the integration history; the obsolete layout prototype has an explicit replayable archival disposition, without a functional-port claim.
+  - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
+  - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
+  - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
+- **Evidence:**
+  - [x] Verify every inventoried revision/recovery snapshot is reachable and transferred artifacts match their original hashes.
+  - [x] Record narrow source and installed outcomes with their immutable subjects; preserve every earlier failure and scope limitation.
+  - [x] Complete custody reconciliation, source-head ancestry checks and source-host synchronization. Original feature/platform/installed/review qualification remains open.
+
+**Custody and cleanup.** The [transfer observation](../../verification/work-custody-transfer.json)
+binds 269 original worktree revisions, 90 published dirty recovery commits, 11
+stashes, 1,488 reflog revisions and 270 hash-matched original index/staged/unstaged
+files. Seven otherwise unpushed heads are published too. After independent transfer
+acceptance, 268 redundant worktrees and one legacy clone were removed. The sole
+source checkout retains 695 ignored/untracked paths and the legacy Git database;
+no separate framework sibling checkout or alias remains. Its clean registration
+and fast-forward synchronization were rechecked through `bdf384b3f`; synchronize
+again after subsequent checkpoints. New large outputs use the mounted shared
+workspace volume, preserving existing checkout paths and failed-fixture nodes.
+
+**Integration.** The resulting source integration joins at `d93b31944`; the earlier telemetry merge is `82fe2dc69`.
+Reviewed history merges retain newer runtime code, original 1.4.0 goals, terminal
+failures, native qualification gates and source custody. The current snapshot
+counts above are established by actual ancestry. Six original proposed designs
+remain in the [historical proposal index](../history/decisions/recovered-proposals.md),
+with current accepted ADRs and approval boundaries preserved. Generated crash
+output remains an artifact. The custody record retains each snapshot disposition,
+original Windows observation and the detailed equivalence/resolution proofs.
+
+**Installed migrated-project maintenance.** Subject `65ef424f2` (distribution
+`sha256:6fc486124715d7ee33fcfcb09d00b88ffad0fbe1a7542f8856ee431a91183e9a`)
+passes ten public-command observations in 16.137 seconds against the exact original
+failed fixture after genuine migration, producer renewal and finalization. Update
+and unchanged-parent reparent apply successfully; root/descendant plans agree.
+Original source, raw Git index/HEAD, migration intent, original failed receipt and
+installed distribution remain exact. The typed queue review preserves the active
+ADOPT-002 owner. No fixture reconstruction, producer rerun or authority repin is
+used. Read-only parent README and agent-entrypoint audits pass; lifecycle admission
+is not claimed. Earlier reference, queue-owner, retained-shim and selector-retirement
+failures remain separate evidence in the custody observation.
+
+**Changed-parent frontier.** The untouched recovered parent journey first fails
+at immutable Git parent discovery (14 commands, 30.119 seconds). The shared
+resolve/catalog reader now selects one declared root or contained authority,
+preserves raw manifest identities and catalog coordinates, and refuses duplicate,
+misplaced, linked or submodule authority without a checkout. Six new and nine
+existing real-Git tests pass (15.817/8.559 seconds). Installed subject `93c6766fb`
+(distribution `sha256:5eddc7f4df376a26777f7e34b6f71ac4f83a3ac673047bcfddd72c11c3be8eff`)
+then resumes the retained parent/child fixture: root/descendant plans agree and
+changed-parent application succeeds, with source/index/HEAD preserved and authority
+review explicitly required. The following inherited-update plan refuses missing
+catalog provenance (seven observations, 26.143 seconds). The successful parent
+transition remains in place and is independently bound to its typed identities;
+that refusal is the current frontier. This is a canonical producer fixture,
+separate from migrated-parent, native, other-platform and release acceptance.
+
+**Other retained verification.** The pre-updater native-root repair cohort passes
+631 cases without failures/skips in 2,248.970 seconds; it does not qualify later
+updater code. Shared-wrapper controls pass 50 cases. The eight retained-update
+controls pass after current catalog/selector protection; 12 namespace, four
+queue-owner and 23 composed dependency controls also pass at their recorded
+subjects. An earlier immutable noneditable producer journey passes 32 commands.
+The custody observation keeps exact subjects, times and limitations. No earlier
+source/installed result qualifies a later composed candidate automatically.
+
+**Remaining acceptance and holds.** Reconcile all remaining snapshot and committed
+branch differences; complete inherited/migrated parent transitions, full containment,
+independent review, original platform/source/installed gates and exact-head/
+resulting-main CI. Complete release acceptance remains separate. The stale
+documentation authority review, prior source-timeout hold and storage-cutover hold
+remain intact; no driver, authority marker or release receipt is silently repinned.
+[Earlier detailed handoff checkpoints](https://github.com/jordanhubbard/literate-ai/blob/93c6766fb4e49e41072a510c629abf0ffa6ad074/docs/roadmap/active-work.md)
+remain immutable history alongside the individual failed receipts.
+
+**CI reconciliation.** Three predecessor action/schema histories reconcile with
+unchanged trees, preserving the final fail-closed routing and native gates. The
+actual policy suite then exposes two transferred neutral retained-product modules
+without shard ownership. Their family now belongs to the existing non-native
+retained partitions on Linux/macOS 3.11 and 3.14. All 35 policy methods pass in
+4.837 seconds; exactly-once coverage assertions, shard counts and deadlines are
+unchanged. The original 13-method failing run remains retained.
+
+**Further source integration.** Recovered Cathedral work now includes its authored
+score provider and real two-Component dependency graph. The canonical lock/audit
+check, six source-integrity controls, three provider queries, desktop/mobile offline
+browser checks and ten actual audio/recording cases pass. The preview uses current
+source pins. Captures show cramped graph labels, so readability remains an explicit
+finding; native lifecycle receipts are not renewed by these source/browser checks.
+Current interrupt cleanup passes five methods (23.884 seconds), including direct,
+bounded and no-waitid ownership controls. Host-install/ARM source controls pass nine
+methods (2.860 seconds), without native Windows acceptance. Additional unchanged-tree
+history reconciliations retain current wheel startup isolation, descriptor/Windows
+identity guards and staged catalog/portable provenance behavior.
+
+**Release Git compatibility.** On Sparky's Git 2.43 the release/coverage path
+refused an unsupported `--no-lazy-fetch` option before its artifact checks. The
+release owner and both native coverage producers now enforce the equivalent
+`GIT_NO_LAZY_FETCH=1` environment guard, preserving optional-lock and replacement
+object controls. A real partial-clone probe refuses a missing blob without a
+fetch, then retrieves it with fetching explicitly allowed. The original release
+control also refuses a promised missing commit when the ambient environment tries
+to allow fetching, preserving object/ref inventories and output absence. All 20
+release CI selection/artifact controls pass (86.537 seconds). Earlier native and
+exporter startup failures remain retained; Native CI's separate Git requirement
+is unchanged. These local controls do not establish hosted release acceptance.
+
+**Reconciled checkpoint, lock and release histories.** Five more normal merges
+retain identical source trees after deliberate conflict resolution. Original
+current-lock controls pass eight methods (5.839 seconds), checkpoint controls
+pass seven (5.844 seconds), and qualified-wheel installation passes three
+(6.325 seconds). Release artifact proof/custody/publication histories retain
+current receiving-owner staging, policy-base binding, exact annotated-tag identity
+and independent fresh-checkout recovery. Original blanket publication refusal is
+superseded by the tested stable-file publisher; unsupported promotion paths retain
+their refusals. These checks do not renew native or release acceptance.
+
+**Cargo source qualification remains open.** The original 14-case isolated-parse
+run at `c0bd6aaf8` completed in 1116.340 seconds: 13 passed and one errored before
+its first mutation. The test still selected the old root wrapper manifest while
+the actual fixture now contains that manifest under `litai/`. The layout-aware
+coordinate repair uses the original reviewed binding; its focused continuation
+passes in 78.564 seconds. Full composed qualification remains open. All original mutation,
+refusal-stage, independent recapture and closing-fence assertions are preserved.
+
+**Reviewed single-root baseline history.** The recovered helper is byte-identical
+and its real Cargo control retains all assertions while explicitly selecting the
+current conversion profile. The normal merge changes no source bytes. Current
+onboarding qualification passes eight cases and fails the ninth (21.540 seconds):
+a real Cargo selected baseline reaches native execution, whose cleanup mistakes
+its own hardlink unlink for foreign mutation. Two focused reproductions preserve
+the actual failed fixtures. The `.rmeta` peer keeps its device/inode, mode, owner,
+size and mtime while its link count changes from two to one and its change time
+advances. Repair must account only for original owned retirement, preserve exact
+byte/metadata guards and refuse external peers; do not adopt post-failure state.
+The original rollback refusal and source/quarantine state remain preserved.
+
+**Original native hardlink repair.** Actual native groups now retire through a
+held original descriptor. Exact bytes and unchanged identity/mode/ownership/size/
+mtime bracket the cleanup's own link-count/change-time updates; named peers must
+retain that exact postimage, and external links refuse. The new real producer case
+first reproduces the custody failure (2.023 seconds). All 12 original/new custody
+controls then pass (69.898 seconds), including same-size peer tampering with
+restored mtime and preservation of external peers. The actual reviewed Cargo
+baseline now completes. Its old root metadata assertions follow declared project
+context while exact retained source bytes and selected commands remain asserted;
+all nine onboarding controls pass (22.182 seconds). Earlier failed fixtures and
+their 978-entry byte/native inventories remain preserved. No saved runtime is
+readmitted and no platform, parent-transition or release gate is renewed.
+
+**Guarded receiver, SDK, cache and unit histories.** Four more normal merges
+retain identical trees. Local controls pass five package-worker cases (11.688s),
+thirteen SDK cases (67.876s), ten cache cases (1.025s), seventeen native tree
+cases (26.520s) and ten tree-package cases (1.378s). The full 14-case Cargo
+isolated-parse module passes at stable `f0a5da8eb` in 960.386 seconds, with its
+original mutation/refusal/isolation assertions and deadline intact. That run
+predates the later receiver repair and does not qualify the latest full release.
+
+**Contained retained release owner.** The canonical receiver fixture now uses
+default containment and actual acknowledged original-source adoption. That
+exposes a root-only retained policy reader. It now follows the existing release
+owner's exact declared coordinate, raw byte identity, ambiguity and conversion
+eligibility checks. The receiver module passes eight cases with its original
+macOS-only case skipped on Linux (318.297s); eleven release-policy cases pass
+(35.538s), including actual converted projects. The exact historical adapter
+still refuses that actual converted fixture (12.269s); its failed probe remains
+retained. Earlier fixture-path and missing-conversion diagnostic failures also
+remain recorded. No source or platform acceptance is inferred from skipped work.
+
+**Committed-head custody.** Four of seven clean heads are now ancestors. The
+command-renewal receipt remains historical, explicitly bound to `cbf4804e8` with
+`qualified=false` and `release_evidence=false`. The forest capacity recovery keeps
+the original 14 GiB policy and adds real shared-ledger pressure and positive
+exact-ceiling controls. A temporary-checkout attempt discovers no cases because
+its installed origin differs. The canonical run reaches actual source metadata
+publication and refuses changed original role input (39.921s), followed by the
+poisoned closing-scope refusal. Capacity assertions are not reached; preserve the
+guard, original bounds and failed logs while diagnosing the actual source owner.
+
+**Authored-authority head reconciled.** Recovered head `1044bc65e` is reconciled
+at `645c19f75`, bringing five of seven committed clean heads into ancestry.
+Authored shim bytes remain unchanged except one recognized generated baseline
+summary. The implementation retains declared namespace/layout/source guards,
+complete stable review input identity and current journaled publication custody.
+Live rollback now preserves another owner's deletion, while explicit acknowledged
+recovery can restore the retained original. All 18 source cases pass (301.909s),
+including actual contained readmission, CRLF/Unicode, changed phase facts, quoted
+or ambiguous ownership refusal, reference drift and late metadata replacements.
+Seven source-input cases pass (4.205s), nineteen publication-owner cases pass
+(6.002s), and the earlier source review/authority-file controls remain bounded
+supporting evidence. The exact clean `645c19f75` wheel passes all six installed cases (185.370s outer probe; 184.531s unittest), including four real console invocations and isolated installed module-origin checks.
+
+The original regression's empty-history assertions have been reconciled with the
+modern publication protocol: after publication starts, assert exact retained
+reviewed-plan bytes while preserving every original owner-byte/type check;
+before publication, keep the no-history assertion. Broader initialization,
+project-CLI and refined-command checks expose existing root-path assumptions,
+reproduced on canonical `cfe9ec185`. Changed files pass lint/format; repository lint
+exposes nineteen prior long lines in the installed-parent helper. No broad suite,
+platform, independent review or release pass is inferred. Original failure logs
+and pending provenance/role-input investigations remain preserved.
+
+
+**Native removal history and composed guards.** Snapshot `rmguard1` is reconciled
+by normal merge `5c6dbc6de` with an unchanged tree: current native Git/lifecycle
+checks, original role observations and CRLF policy supersede its earlier forms.
+The merge's duplicate legacy Git helper definitions were rejected so they cannot
+shadow current foreground maintenance and Windows lock handling. Twenty-four
+actual removal cases and nine update cases pass. Fifty-four of ninety preserved
+dirty snapshots and five of seven clean heads are now ancestors; thirty-six
+snapshots and two clean heads remain. The separate installed-native readoption
+head contains additional idle runtime retirement behavior and remains pending.
+
+Composed authored-readmission publication passes all twenty owner controls and
+six public cases. AST-identical formatting of the old installed-parent helper
+repairs the existing style failure; full lint and formatting pass (2,759 Python
+files). This does not repair the separately reproduced old root-path fixtures,
+renew the historical driver/review/receipt pins or complete release acceptance.
+
+
+**Installed authored-readmission checkpoint.** A freshly built non-editable wheel
+at exact `645c19f75` passes the maintained six-case probe with four real console
+invocations. Wheel SHA-256 is
+`36187a62b0f4ef7da9be9079d571dafd81cd582eabf17b3111555417677d8766`;
+installed distribution identity is
+`sha256:cdff8ac05956c290fa790b33079278247830fbce1973718263296e347d7345f3`.
+All framework module origins remain inside the isolated installation and original
+fixture bytes are unchanged. This is the scoped probe, not the entire wheel smoke
+matrix or native Component/release acceptance. The temporary hand49 checkout is
+removed only after proving clean state and ancestry and archiving all 390 generated
+files (archive SHA-256
+`12535b4aa61c63e29ce108ffdaa75771e78a9a84448e9865c369f00f1f599504`).
+
+
+**Native readoption recovered and installed.** Clean head `6fe9f65e` and same-tree
+snapshot `nativereadopt1` are reconciled through `8bc0c20fa` and `7eb417e58` after
+porting unique runtime retirement at `a5343bb7b`. Retire only the exact idle lock;
+preserve foreign contents and interrupted resources; fence native namespace
+selection against active and already-open contenders. Thirty removal cases pass
+(81.750s), nine update cases pass (20.011s), and the cache/lifecycle controls pass.
+The current CRLF, nested Git, original index and source ownership guards remain.
+An initial unpublished merge duplicated helpers; it was corrected before pushing,
+and both final normal merges match the tested implementation tree exactly.
+
+A fresh noneditable wheel at exact `7eb417e58` passes six maintained readoption
+controls through 34 actual console invocations (33.770s outer probe), preserving
+all original mutation/refusal assertions and deadlines. Wheel SHA-256:
+`191e0e190c8a38f620bf3acaad31ac21873ead1678272a9ec05f073ac61c2576`.
+Installed distribution identity:
+`sha256:2a9dc74253000d24b55809f467aac4cf31f461e20077bf14ada76d929b72ecad`.
+All framework modules resolve inside the isolated installation. This is scoped
+Linux evidence, not full wheel, platform, native Component or release acceptance.
+
+**Native-run and installed-inventory histories.** Normal merges of `nv14` and
+`wheelinv2` preserve identical current trees. Forty-three focused native-run,
+bridge, admission and runtime-plan controls pass (0.412s). The broader 631-case
+selection stops after nine passes and one original verifier refusal of the host's
+ancestor Cargo configuration (1.540s); the remaining 621 cases did not run and
+the configuration/guard remain unchanged. Sixteen installed CUDA inventory
+cases pass. Both recovered installed selectors, including shared diamond case
+inventory, explicitly pass in logs; the broader 32-method diagnostics scope
+reports twelve errors because old mock promotion objects lack current required
+`authored_asset_bindings`. No broad pass or fabricated mock authority is inferred.
+Full repository lint and formatting pass (2,759 Python files).
+
+Fifty-seven of ninety dirty snapshots and six of seven clean heads are now
+ancestors. Thirty-three snapshots and `head-batch17` remain, including unique
+promotion/runner code and bounded Cargo metadata controls. Original changed-parent
+provenance, source role-input and release qualification holds remain open.
+
+
+**All committed clean heads reconciled.** `head-batch17` brings complete canonical
+retained promotion capture and historical verification, strict nonexecuting
+project authority reads, pure runner identity and three complete wire contracts.
+Historical facts never restore a live SDK/workspace grant. Current declared
+namespace/source/journal/receiver controls and paired native tool owners remain;
+no old command-only guard replaces their complete currentness requirements.
+The smaller conflicting composite schema was an unreleased takeover draft, absent
+from upstream main; replace its registration with the complete canonical schemas,
+reject stale incompatible shapes and preserve original CAS evidence rather than
+manufacturing contexts or migrating old assertions into authority.
+
+All thirty capture/contract/read-only/schema controls pass, six receipt controls
+pass, three document-object controls pass, and fifteen acceptance controls pass,
+including both native observation drift and exact before/after document seams.
+The full actual public run/promotion/separate-update journey passes in 137.863s
+with default contained metadata, bounded refusals, forged-grant/schema controls
+and exact metadata/native ownership preservation. The two preserved actual SDK
+forgery/private-filesystem cases pass (61.504s), with command, CAS write and SDK
+acquisition denied during historical reading. The recovered SDK batch journey
+also passed in the initial combined run; that run failed overall on the obsolete
+second module import, which is retained as a failure. Full lint/format pass for
+2,769 Python files; complete catalog validation resolves 147 v2 schemas and 648
+resources. Exact-commit installed qualification is still pending.
+
+Initial failures exposed the missing captured dependency-document method, old
+root-only fixture paths, and removed callback/reader entry points. Port the actual
+fixtures to declared context and canonical runtime-issued capture references;
+keep all original mutation/refusal and metadata assertions, not synthetic data.
+All seven additional clean heads are now integrated. Thirty-three of ninety
+preserved dirty snapshots remain; source, platform, review and release holds are
+not closed by these bounded source checks.
+
+
+**Canonical promotion installed and phase checks reconciled.** Fresh noneditable
+wheel `2ec59a540` passes all 36 original capture/contract/read-only/schema/receipt
+controls in 173.190s, with all 623 loaded framework module origins and the complete
+packaged catalog inside the isolated installation. Wheel SHA-256:
+`992e4203b15805e1433d3ee78f343284cc0b3b483c2409372b39df1b98d4dbf8`;
+distribution identity:
+`sha256:cff9457c3c00d253f4cfc583fc2ab1b7f11cd576f0a43e64a58752bf23e544ed`.
+These controls retain explicit modeled framework observations and in-process
+CLI checks; they do not establish the full wheel/native/platform release matrix.
+
+Recovered snapshot `pr312-profile` retains per-record deadline polling while
+reopening full original project/SDK authority at historical phase edges and
+closing. The original 300-second limit and all byte/memory/payload bounds remain.
+All three real SDK cases pass (71.376s), including the recovered 2..8 full-check
+bound, unchanged producers/CAS and both original forgery/private-filesystem
+controls. All thirty contract/read-only cases pass (32.683s); the full public
+journey passes again (133.188s). These local timings are not a controlled speed
+benchmark. Fifty-eight of ninety dirty snapshots are integrated, with thirty-two
+remaining; all seven additional clean heads are ancestors. Source, review,
+provenance, original role-input and full release holds remain explicit.
+
+
+**Rust verifier history reconciled.** `rh14` is joined by normal merge
+`881644cf2` with the current tree unchanged. Its original declaration, typed
+contracts, provisioned input closure, offline native acceptance and installed
+journey remain present. Current paired command/native observers, original run
+and deadline owners, namespace and evidence custody supersede the older forms.
+The wheel still requires actual matching framework identity, committed receipt
+and no synthetic framework observer before reporting that native cell qualified.
+This merge does not renew native acceptance: the original broad binding run's
+ancestor Cargo configuration refusal and all existing release holds remain.
+
+Fifty-nine of ninety dirty snapshots and all seven clean heads are integrated;
+thirty-one dirty snapshots remain. The next `execview1` is genuine missing work:
+current code lacks its execution-view entry point, typed prerequisite projection
+and shared release-goal authority reader. Port the original feature through the
+current declared namespace owners. The six existing summary smoke cases pass
+(0.768s), but do not cover that missing feature or authorize discarding it.
+
+
+**Recovered release execution view restored.** `execview1` adds the missing
+`--execution-view` entry point, shared duplicate-rejecting release-goal reader
+and typed prerequisite projection through the existing validated roadmap graph.
+It reads the configured ledger/queue and declares external inputs and release
+phases unverified. Nine summary/view cases pass (14.555s), including actual
+initialized/converted contained authority, a separate root application queue,
+policy-shadow refusal and exact byte/inode/mtime preservation. Twenty-three
+dependency cases pass (1.538s) and twenty contribution cases pass (1.379s).
+The initial fixture merely moved root metadata and correctly failed discovery;
+final qualification uses actual conversion and leaves eligibility checks intact.
+
+The actual current 1.4.0 queue projects 83 included goals, 35 closed and 48 open
+with 198 unchecked criteria. These are observed planning counts, not a readiness
+or evidence attestation. Sixty of ninety dirty snapshots and all seven clean
+heads are integrated; thirty dirty snapshots and existing acceptance holds remain.
+
+
+**Authored graph recovery preserves current ownership.** `authoredgraph2` joins
+with the stronger current original-directory deletion witness, paired native tool
+and opaque projection/lifetime/deadline owners, metadata namespace and journal
+controls intact. The older Darwin F_GETPATH heuristic is superseded by prearmed
+original-vnode NOTE_DELETE evidence. Fifteen original development documents are
+retained byte for byte with their recorded subjects and classifications; their
+historical passes, source/wheel statuses and Windows observations are not current
+consolidated-source or release acceptance.
+
+Eight Linux retirement controls pass, with three original Darwin-only cases
+skipped (0.155s). Twelve projection controls pass (92.994s), including actual
+selected-interpreter byte drift and borrowed-closure refusal. The copied test
+interpreter initially inherited nonwritable source permissions, so mutation
+failed before the drift assertion. The fixture now proves the copy is a separate
+file and enables its own write bit before binding; no source guard or original
+interpreter changes. These controls model framework/provider/macOS selection and
+run no generated/native application. Full lint/format pass; existing promotion
+profile line wrapping is verified AST-identical. Sixty-one snapshots and all seven
+clean heads are reconciled; twenty-nine snapshots and acceptance holds remain.
+
+
+**Earlier authored graph snapshot joined.** `authoredgraph1` is now ancestral via
+`03553009c`. Its tree differs from the recovered second snapshot only in the
+three already-reviewed namespace/projection/retirement files; all development
+records match exactly. The merge preserves the current production, tests,
+scripts and schemas and retains its original Unreleased feature documentation.
+Sixty-two snapshots and all seven clean heads are integrated; twenty-eight
+snapshots and explicit acceptance holds remain.
+
+**Recovered Cargo ownership and layout histories.** The actual original owner
+probe confirmed that resolved membership admitted an unowned external alias to a
+captured file. Five bounded metadata controls pass after porting captured-owner
+membership and allocation bounds. Nineteen wrapper controls pass after a separate
+retired-wrapper rearming counterexample; exact original object/process/thread
+custody now spans source Cargo, authored Cargo and read-only Python. Six archive
+receiving controls pass, including corrupt-archive and provider-revocation
+refusals with original reserved roots preserved.
+
+A real final-callback ancestor-config counterexample is repaired, keeping current
+independently pinned configuration and all lifetime/environment/native fences.
+All nine execution-input controls pass (1,030.642s), including the original
+identity map and both late configuration cases; `cg14b` and `fp14` now join. Obsolete constructible prototype owners are not restored.
+Eight earlier layout stages join with unchanged trees after source/test and
+generalized catalog-owner review. Eighty-eight snapshots and all seven clean heads
+are integrated; two snapshots remain. These history joins renew no platform
+or installed acceptance. Original failures and native/release holds remain in
+the custody observation.
+
+**Overlapping stages reconciled.** Sixteen further snapshots retain the current
+shared input/wrapper identity owners, contained update helper, typed package return,
+canonical promotion, native readoption and CI controls. Their merge previews would
+duplicate existing Git fixture/runtime helpers or already-present goal prose;
+those additions are refused and each merge retains the exact current tree.
+Seventeen factual failure controls pass (6.482s). Fourteen package-return controls
+pass, with one native FreeBSD case skipped (5.878s). Nonzero exits alone remain
+terminal; no native platform or release qualification is inferred. At that checkpoint four
+snapshots remained. The Cargo/promotion prototypes have since joined; `wt14` has since joined; only `layout14` remained for source reconciliation; it is now explicitly archived below.
+
+**Cargo prototype reconciliation complete.** Thirty-nine focused original-owner
+controls pass across metadata, configuration, wrapper lifetime and receiving.
+Both prototype histories retain current opaque-owner APIs after the three causal
+repairs. The [original Cargo prototype notes](../history/roadmap/recovered-cargo-prototypes.md)
+retain historical source reviews, macOS observations, old API behavior and open
+qualification requirements. No current native/generated-product, installed,
+independent-review or release acceptance is inferred from these controls.
+
+**Telemetry source port preserves both protocol families.** `wt14` joins through
+`82fe2dc69`. Its incompatible request/response and authenticated frames use `@2`
+with separate contracts/codecs/schema. Existing telemetry v1 contract, HMAC,
+codec, schema, fixture and legacy action-test bytes remain exact. Thirteen new
+contracts register beside the original five; all 149 v2 schema files and 663
+resources validate. Current confirmed Job termination/fallback, native ownership,
+absolute deadlines, interrupt relay and cleanup remain intact.
+
+The telemetry cohort passes 109 methods with four native FreeBSD cases skipped
+(164.405s). Process-tree, guarded-builder, legacy-action and existing Job cohorts
+pass 9/6/5/15 methods with seven additional native-platform skips; three new real
+thread/feed controls use modeled Jobs and pass. All 35 CI policy controls pass.
+The [original telemetry notes](../history/roadmap/recovered-telemetry-prototype.md)
+retain the historical FreeBSD observations separately from this integrated tree.
+
+A fresh noneditable `82fe2dc69` wheel passes 35 scoped methods, a v2 signed-data
+roundtrip and three corruption/cross-version refusals, packaged C/schema checks,
+and three actual console help/unconfigured-refusal invocations (6.129s). All 272
+loaded framework module origins lie in that installed prefix. The original wheel
+and prefix were reused across three corrected external-probe API/expectation
+errors, with no product-code or wheel changes; earlier failures remain recorded. No worker contact, native C
+execution/provisioning, native metrics, installed live-worker/SSH/command journey
+or complete-feature/release acceptance is inferred. Eighty-nine dirty snapshots
+and all seven clean heads were integrated at that telemetry checkpoint; the later layout and embedded-SDK resolutions follow below.
+
+
+**Final original-layout reconciliation.** All fourteen modern admission controls
+pass without skips (513.718s). Their fixture now follows contained metadata and
+the actual selected Component, including late workflow/source mutation cuts.
+The older unregistered layout prototype is retained as an
+[exact replayable historical patch](../history/implementation/retained-layout-prototype.md).
+Its original tree is reproduced byte-for-byte in an alternate Git index; this is
+an archival integration decision, not a functional port or completed relocation.
+All original native/source/public/installed/review requirements remain open.
+
+**Late independent Git directory discovered.** A complete filesystem scan also
+found active framework SDK work in a consuming project's embedded parent and five
+clean detached worktrees attached to that independent Git directory. The exact
+61-path staged tree is published as recovery `1cb1ef461`; its original index bytes
+match independently, with no unstaged/untracked source. All five detached heads
+are ancestors of that snapshot. Transfer of ignored evidence, deliberate source
+integration and verified removal of redundant worktrees remain in progress.
+Clean pinned dependencies of other consuming projects retain their own authority.
+
+
+**Embedded SDK continuation reconciled.** Normal source merge `d93b31944` joins the
+late snapshot and all five detached heads. All 91 saved source states and twelve
+additional clean heads are now ancestors of the integration branch. Current
+native root continuation, external-library assembly, absolute deadlines,
+interrupts, telemetry and cooperative cache publication remain authoritative.
+Recovered live file/parent custody closes actual equal-byte replacement and
+foreign-membership retirement counterexamples; an added late native callback
+control retains the original earlier-read owner. Guarded SDK publication rolls
+back its own membership when ownership ends before commit. Ordinary unguarded
+legacy publication keeps its existing partial-publication policy.
+
+Focused source cohorts pass 671 executions and skip 255 explicit platform/tool
+cases across 926 selected discovery instances (including imported/reused cases).
+The explicit existing system Node/npm selection passes original admission;
+Homebrew's symlinked npm inventory remains refused. Original Cargo assertions pass
+with the existing host-selected cache wrapper using a task-owned short socket on
+the mounted volume; that server was stopped afterward. Existing source models
+and native skips do not qualify the complete SDK, scoped-validation backend,
+retained consumer, macOS/Windows cells or release.
+
+A fresh noneditable `d93b31944` wheel passes 133 scoped methods without skips,
+verifies 546 loaded framework module origins in its prefix, preserves exact CJS,
+new Flavor/skill and existing native-C package assets, and passes two real console
+help/version/catalog calls (44.063s). All 150 v2 schema files/669 resources, lint,
+formatting, layout and public export checks pass. The pinned SkillEvaluator passes
+all six static checks for four canonical/template views with advisories, using
+no LLM or dedup. Original failures and the narrow evidence limit for one reused
+early Rust log are recorded in the custody observation. Full source/native/
+installed-consumer, independent review and exact-head/resulting-main CI remain open.
+
+**Late cleanup accepted.** Independent full transfer comparison preserves the
+embedded Git database, original staged entries and every sibling source/evidence
+file. Cross-filesystem symlink modes differ; fifteen independently written loose
+Git objects have identical logical content despite different compression bytes.
+Five more development worktrees and seven artifact directories are removed: 273
+development worktrees and one legacy clone removed in total. The source host has
+one active standalone framework checkout. Frozen embedded Aviation and Kit inputs
+remain dependencies of their consuming projects; destination-host peer work stays
+preserved. No feature, authority review or release receipt is repinned by cleanup.

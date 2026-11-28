@@ -242,7 +242,7 @@ class CurrentEvidenceTests(unittest.TestCase):
         )
         from literate_ai.cli.evidence_verification import verify_evidence_from_args
 
-        definition_path = self.root / "literate.project.json"
+        definition_path = self.project.context.manifest_path
         definition_bytes = definition_path.read_bytes()
         for change in ("path", "policy"):
 

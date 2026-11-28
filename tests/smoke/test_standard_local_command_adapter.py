@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import stat
 import subprocess
@@ -1102,6 +1103,7 @@ class StandardLocalCommandAdapterTests(unittest.TestCase):
                 package_result,
             )
 
+            self.exercise_library_provider_custody(ports, accepted, built.exports[0])
             self.assertTrue(ports.artifact_path(built.exports[0]).is_dir())
             self.assertEqual(len(tests.cases), 3)
             self.assertEqual(accepted.build.identity, built.evidence.identity)
@@ -1111,6 +1113,371 @@ class StandardLocalCommandAdapterTests(unittest.TestCase):
             self.assertEqual(package_plan.runtime_requirements, ())
             with self.assertRaises(ContractValidationError):
                 contract.entrypoint_command_contracts()
+
+    def exercise_library_provider_custody(self, ports, accepted, export):
+        from literate_ai.adapters.lifecycle import standard_local as local
+
+        if os.name != "posix":
+            with self.assertRaisesRegex(ValueError, "POSIX change timestamps"):
+                with ports.accepted_library_provider(
+                    accepted, require_current=lambda: None
+                ):
+                    self.fail("unsupported live custody was admitted")
+            self.assertEqual(ports._library_provider_scope_count, 0)
+            self.assertEqual(ports._library_provider_scope_bytes, 0)
+            return
+
+        alive = True
+
+        def owner():
+            if not alive:
+                raise RuntimeError("provider owner ended")
+
+        # Actual registered build/test/execute/accept above; no manufactured stage
+        # membership, callback verifier result or copied artifact grants custody.
+        with ports.accepted_library_provider(accepted, require_current=owner) as scope:
+            ports.require_library_provider_custody(scope)
+            self.assertEqual(scope.export, export)
+            self.assertEqual(scope.acceptance, accepted)
+            self.assertTrue(
+                any(f.path.endswith("sample_library.py") for f in scope.files)
+            )
+            with self.assertRaisesRegex(LocalStandardLifecycleError, "not live"):
+                ports.require_library_provider_custody(replace(scope))
+            other = LocalStandardLifecyclePorts(
+                source_trees=ports.source_trees,
+                object_root=ports.object_root / "foreign-owner",
+                contracts=tuple(ports.contracts.values()),
+                tool_bindings=tuple(ports.tool_bindings.values()),
+            )
+            with self.assertRaisesRegex(LocalStandardLifecycleError, "not live"):
+                other.require_library_provider_custody(scope)
+            with mock.patch.object(
+                ports, "read_artifact_blob", wraps=ports.read_artifact_blob
+            ) as read:
+                with mock.patch.object(local, "_MAX_LIBRARY_PROVIDER_SCOPES", 1):
+                    with self.assertRaisesRegex(
+                        LocalStandardLifecycleError, "capacity"
+                    ):
+                        with ports.accepted_library_provider(
+                            accepted, require_current=owner
+                        ):
+                            self.fail("count limit admitted another scope")
+                read.assert_not_called()
+            with mock.patch.object(
+                local,
+                "_MAX_LIBRARY_PROVIDER_SCOPE_BYTES",
+                ports._library_provider_scope_bytes,
+            ):
+                with self.assertRaisesRegex(LocalStandardLifecycleError, "capacity"):
+                    with ports.accepted_library_provider(
+                        accepted, require_current=owner
+                    ):
+                        self.fail("byte limit admitted another scope")
+            ports.require_library_provider_custody(scope)
+        with self.assertRaisesRegex(LocalStandardLifecycleError, "not live"):
+            ports.require_library_provider_custody(scope)
+        self.assertEqual(ports._library_provider_scope_count, 0)
+        self.assertEqual(ports._library_provider_scope_bytes, 0)
+
+        # Reproduce the installed SDK failure with the actual original BUILD
+        # grant and registered provider, without sleeping or extending lifetime.
+        from contextvars import copy_context
+
+        from literate_ai.adapters.process_liveness import (
+            ProcessLivenessError,
+            process_liveness,
+            require_process_liveness,
+        )
+
+        expires = ports._plan_inputs_by_revision[
+            accepted.component_revision.uri
+        ].authorization.grant.expires_at
+        original_failure = []
+        with self.assertRaises(AuthorizationError) as caught:
+            with ports.accepted_library_provider(
+                accepted, require_current=owner
+            ) as expired:
+                with process_liveness(
+                    lambda: ports.require_library_provider_custody(expired)
+                ):
+                    copied = copy_context()
+                    with mock.patch.object(ports, "clock", return_value=expires):
+                        try:
+                            ports.require_library_provider_custody(expired)
+                        except AuthorizationError as error:
+                            original_failure.append(error)
+                            raise
+        self.assertEqual(len(original_failure), 1)
+        self.assertIs(caught.exception, original_failure[0])
+        self.assertEqual(str(caught.exception), "security.authorization_expired")
+        self.assertEqual(ports._library_provider_scope_count, 0)
+        self.assertEqual(ports._library_provider_scope_bytes, 0)
+        self.assertNotIn(id(expired), ports._library_provider_scopes)
+        with self.assertRaisesRegex(LocalStandardLifecycleError, "not live"):
+            ports.require_library_provider_custody(expired)
+        with self.assertRaises(ProcessLivenessError):
+            copied.run(require_process_liveness)
+        require_process_liveness()
+        traceback = caught.exception.__traceback__
+        while traceback is not None:
+            if traceback.tb_frame.f_code.co_name in {
+                "accepted_library_provider",
+                "process_liveness",
+            }:
+                self.assertIsNone(traceback.tb_frame.f_locals.get("primary"))
+            traceback = traceback.tb_next
+
+        fake_suite = canonical_identity("foreign suite")
+        fake_tests = replace(
+            accepted.generated_tests, generated_test_suite_identity=fake_suite
+        )
+        for field, receipt in (
+            (
+                "policy",
+                replace(
+                    accepted,
+                    acceptance_policy_identity=canonical_identity("fake policy"),
+                ),
+            ),
+            (
+                "source",
+                replace(
+                    accepted,
+                    source_generation_identity=canonical_identity("fake generation"),
+                ),
+            ),
+            (
+                "suite",
+                replace(
+                    accepted,
+                    generated_test_suite_identity=fake_suite,
+                    generated_tests=fake_tests,
+                ),
+            ),
+        ):
+            with self.subTest(forged=field):
+                with self.assertRaises(LocalStandardLifecycleError):
+                    with ports.accepted_library_provider(
+                        receipt, require_current=owner
+                    ):
+                        self.fail("foreign acceptance admitted")
+
+        alive = False
+        with self.assertRaisesRegex(RuntimeError, "owner ended"):
+            with ports.accepted_library_provider(accepted, require_current=owner):
+                self.fail("ended entry owner admitted")
+        alive = True
+        with self.assertRaisesRegex(RuntimeError, "owner ended"):
+            with ports.accepted_library_provider(accepted, require_current=owner):
+                alive = False
+        alive = True
+        read_blob = ports.read_artifact_blob
+
+        def lose_owner_after_read(reference):
+            nonlocal alive
+            value = read_blob(reference)
+            alive = False
+            return value
+
+        with mock.patch.object(
+            ports, "read_artifact_blob", side_effect=lose_owner_after_read
+        ):
+            with self.assertRaisesRegex(RuntimeError, "owner ended"):
+                with ports.accepted_library_provider(accepted, require_current=owner):
+                    self.fail("owner lost during blocking read reached caller")
+        alive = True
+        self.assertEqual(ports._library_provider_scope_count, 0)
+        self.assertEqual(ports._library_provider_scope_bytes, 0)
+
+        # A failed scope stays retired even after the exact artifact is restored.
+        with self.assertRaisesRegex(LocalStandardLifecycleError, "not live"):
+            with ports.accepted_library_provider(
+                accepted, require_current=owner
+            ) as failed:
+                target = failed.root / next(
+                    f.path for f in failed.files if f.path.endswith("sample_library.py")
+                )
+                original = target.read_bytes()
+                target.write_bytes(b"tampered provider")
+                try:
+                    with self.assertRaises(ValueError):
+                        ports.require_library_provider_custody(failed)
+                finally:
+                    target.write_bytes(original)
+                with self.assertRaisesRegex(LocalStandardLifecycleError, "not live"):
+                    ports.require_library_provider_custody(failed)
+
+        # The sealed archive remains independent of the materialized file tree.
+        with self.assertRaisesRegex(LocalStandardLifecycleError, "not live"):
+            with ports.accepted_library_provider(
+                accepted, require_current=owner
+            ) as changed_blob:
+                missing = object()
+                previous = ports._artifact_blob_bytes.get(export.blob.identity, missing)
+                ports._artifact_blob_bytes[export.blob.identity] = b"foreign archive"
+                try:
+                    with self.assertRaisesRegex(
+                        LocalStandardLifecycleError, "blob changed"
+                    ):
+                        ports.require_library_provider_custody(changed_blob)
+                finally:
+                    if previous is missing:
+                        ports._artifact_blob_bytes.pop(export.blob.identity)
+                    else:
+                        ports._artifact_blob_bytes[export.blob.identity] = previous
+
+        for name in ("contract", "plan"):
+            with self.subTest(replaced=name):
+                with self.assertRaisesRegex(LocalStandardLifecycleError, "not live"):
+                    with ports.accepted_library_provider(
+                        accepted, require_current=owner
+                    ) as changed_owner:
+                        mapping = (
+                            ports.contracts
+                            if name == "contract"
+                            else ports._plans_by_revision
+                        )
+                        key = accepted.component_revision.uri
+                        original = mapping[key]
+                        mapping[key] = replace(original)
+                        try:
+                            with self.assertRaisesRegex(
+                                LocalStandardLifecycleError, "custody changed"
+                            ):
+                                ports.require_library_provider_custody(changed_owner)
+                        finally:
+                            mapping[key] = original
+
+        plan = ports._plans_by_revision[accepted.component_revision.uri]
+        source_root = ports.source_trees.resolve(plan.request.source_tree_identity)
+        source_path = source_root / "sample_library.py"
+        source_bytes = source_path.read_bytes()
+        source_path.write_bytes(source_bytes + b"\n# changed source\n")
+        try:
+            with self.assertRaisesRegex(LocalStandardLifecycleError, "source changed"):
+                with ports.accepted_library_provider(accepted, require_current=owner):
+                    self.fail("changed accepted source admitted")
+        finally:
+            source_path.write_bytes(source_bytes)
+
+        # Replacing the root by an identical copy is still a custody change.
+        with self.assertRaisesRegex(LocalStandardLifecycleError, "not live"):
+            with ports.accepted_library_provider(
+                accepted, require_current=owner
+            ) as changed:
+                backup = changed.root.with_name(changed.root.name + "-original")
+                changed.root.rename(backup)
+                shutil.copytree(backup, changed.root)
+                try:
+                    with self.assertRaisesRegex(
+                        LocalStandardLifecycleError, "root identity"
+                    ):
+                        ports.require_library_provider_custody(changed)
+                finally:
+                    shutil.rmtree(changed.root)
+                    backup.rename(changed.root)
+        # A closing owner callback runs after artifact readback. It must not
+        # publish replacement roots or changed bytes through the final fence.
+        from literate_ai.adapters import directory_artifacts
+
+        capture_files = directory_artifacts.capture_materialized_files
+
+        def exercise_late_owner(cut):
+            readback_done = False
+            injected = False
+            artifact_root = ports.artifact_path(export)
+            target = artifact_root / "sample_library.py"
+            original_bytes = target.read_bytes()
+            backup = artifact_root.with_name(artifact_root.name + "-late-original")
+
+            def observe_capture(*args):
+                require_files = capture_files(*args)
+
+                def observed_guard():
+                    nonlocal readback_done
+                    require_files()
+                    readback_done = True
+
+                return observed_guard
+
+            def late_owner():
+                nonlocal injected
+                owner()
+                if readback_done and not injected:
+                    injected = True
+                    if cut == "file":
+                        target.write_bytes(b"late changed bytes")
+                    else:
+                        artifact_root.rename(backup)
+                        shutil.copytree(backup, artifact_root)
+
+            try:
+                with mock.patch.object(
+                    directory_artifacts,
+                    "capture_materialized_files",
+                    side_effect=observe_capture,
+                ):
+                    with self.assertRaises(ValueError):
+                        with ports.accepted_library_provider(
+                            accepted, require_current=late_owner
+                        ):
+                            self.fail("late owner mutation reached caller")
+                self.assertTrue(injected)
+            finally:
+                if cut == "file":
+                    target.write_bytes(original_bytes)
+                elif injected:
+                    shutil.rmtree(artifact_root)
+                    backup.rename(artifact_root)
+            self.assertEqual(ports._library_provider_scope_count, 0)
+            self.assertEqual(ports._library_provider_scope_bytes, 0)
+
+        for cut in ("file", "root"):
+            with self.subTest(late_owner_cut=cut):
+                exercise_late_owner(cut)
+
+        # Validation already in flight cannot return authority after scope exit.
+        import threading
+        from concurrent.futures import ThreadPoolExecutor
+
+        waiting, release = threading.Event(), threading.Event()
+        main_thread = threading.get_ident()
+
+        def concurrent_owner():
+            owner()
+            if threading.get_ident() != main_thread:
+                waiting.set()
+                if not release.wait(5):
+                    raise RuntimeError("controlled owner wait expired")
+
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            manager = ports.accepted_library_provider(
+                accepted, require_current=concurrent_owner
+            )
+            concurrent_scope = manager.__enter__()
+            future = pool.submit(
+                ports.require_library_provider_custody, concurrent_scope
+            )
+            try:
+                self.assertTrue(waiting.wait(5))
+                manager.__exit__(None, None, None)
+            finally:
+                release.set()
+            with self.assertRaisesRegex(
+                LocalStandardLifecycleError, "closed during validation"
+            ):
+                future.result(timeout=5)
+
+        with mock.patch.object(ports, "_record_evidence") as recorded:
+            with ports.accepted_library_provider(
+                accepted, require_current=owner
+            ) as final:
+                ports.require_library_provider_custody(final)
+            recorded.assert_not_called()
+        self.assertEqual(ports._library_provider_scopes, {})
+        self.assertEqual(ports._library_provider_scope_count, 0)
+        self.assertEqual(ports._library_provider_scope_bytes, 0)
 
     @unittest.skipIf(
         sys.platform == "darwin",

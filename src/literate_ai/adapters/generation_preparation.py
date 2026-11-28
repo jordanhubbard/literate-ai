@@ -32,7 +32,14 @@ from literate_ai.adapters.models import (
     portable_source_entrypoint,
     validate_portable_application,
 )
-from literate_ai.application.component_generation_context import PromptSegmentInput
+from literate_ai.adapters.standard_command_profiles import (
+    is_node_sdk_language_profile,
+    read_standard_profile_contribution,
+)
+from literate_ai.application.component_generation_context import (
+    PromptSegmentInput,
+    canonical_direct_interface_sources,
+)
 from literate_ai.application.component_generation_preparation import (
     ComponentGenerationWorkspaceDescriptor,
     LockedNodeGenerationProjection,
@@ -77,6 +84,7 @@ from literate_ai.contracts import (
     RepositorySourceDependency,
     StandardBuildSystemCommandProfile,
     StandardLanguageCommandProfile,
+    StandardNodeSDKCommandProfile,
     StandardPlatformCommandProfile,
     ToolchainConstraint,
     merge_toolchain_constraints,
@@ -103,7 +111,11 @@ from literate_ai.contracts.native_sdks import (
     NativeSdkBuildRecipe,
 )
 from literate_ai.models import Locality, ModelEndpoint
-from literate_ai.projects import PinnedInputClosure, project_boundary
+from literate_ai.projects import (
+    PinnedInputClosure,
+    configured_catalog_path,
+    project_boundary,
+)
 from literate_ai.spec_map import (
     with_debug_skill_identities,
 )
@@ -155,6 +167,7 @@ class PreparedLockedGeneration:
     flavor_catalog_audit_identity: ContentIdentity
     locked_authority_snapshot: LockedGenerationAuthoritySnapshot
     native_sdk_inputs: object | None = None
+    qualified_library_inputs: object | None = None
 
 
 def _error(code: str, message: str) -> None:
@@ -168,7 +181,9 @@ def _read_reference(
     boundary: Path,
     label: str,
 ) -> bytes:
-    configured = root / reference.uri
+    configured = configured_catalog_path(
+        boundary, root, reference.uri, kind=reference.kind
+    )
     try:
         path = configured.resolve(strict=True)
     except OSError as exc:
@@ -970,15 +985,8 @@ def _contributed_language_entrypoints(
             ):
                 continue
             try:
-                content = snapshot.flavor_content(
-                    revision.identity, contribution.content
-                )
-                profile = parse_standard_command_profile(
-                    json.loads(content.decode("utf-8")),
-                    path=(
-                        f"Flavor {revision.definition.coordinate.uri} contribution "
-                        f"{contribution.contribution_id}"
-                    ),
+                profile = read_standard_profile_contribution(
+                    snapshot, revision, contribution
                 )
             except (
                 ContractValidationError,
@@ -1184,6 +1192,70 @@ def _cpp_library_build_for_recipe(snapshot, authoring, definition, node, selecte
     )
 
 
+def _explicit_node_sdk_recipe(snapshot, node, authoring, flavors):
+    """Only static policy recognition; original live admission remains separate."""
+    if authoring.resolved_kind != "library" or authoring.entrypoints:
+        return False
+    if any(
+        f.axis in {FlavorAxis.BUILD_SYSTEM.value, FlavorAxis.ACCELERATOR.value}
+        for f in flavors
+    ):
+        return False
+    selected_profiles = []
+    for axis, target in (
+        (FlavorAxis.IMPLEMENTATION_LANGUAGE_ECOSYSTEM.value, "typescript"),
+        (FlavorAxis.PACKAGING.value, "node-sdk"),
+    ):
+        selected = {f.revision_identity for f in flavors if f.axis == axis}
+        revisions = [
+            f for f in snapshot.authority.selected_flavors if f.identity.uri in selected
+        ]
+        if len(revisions) != 1 or revisions[0].definition.supported_targets != (
+            target,
+        ):
+            return False
+        revision = revisions[0]
+        profiles = []
+        for contribution in revision.definition.contributions:
+            if (
+                contribution.kind is ContributionKind.BUILDER
+                and contribution.content.kind == STANDARD_COMMAND_PROFILE_CONTENT_KIND
+            ):
+                try:
+                    profiles.append(
+                        read_standard_profile_contribution(
+                            snapshot, revision, contribution
+                        )
+                    )
+                except (
+                    ContractValidationError,
+                    OSError,
+                    TypeError,
+                    UnicodeError,
+                    ValueError,
+                ) as exc:
+                    raise GenerationPreparationError(
+                        "generate.node_sdk_profile_invalid",
+                        "explicit SDK recipe requires valid content-pinned "
+                        "command profiles",
+                    ) from exc
+        if len(profiles) != 1:
+            return False
+        selected_profiles.append(profiles[0])
+    if (
+        not is_node_sdk_language_profile(selected_profiles[0])
+        or type(selected_profiles[1]) is not StandardNodeSDKCommandProfile
+    ):
+        return False
+    definition = _component_definition(authoring, node.revision)
+    surface = _library_import_surface_for_recipe(authoring, definition, node, flavors)
+    return (
+        surface is not None
+        and surface.language == "typescript"
+        and bool(surface.node_sdk_exports)
+    )
+
+
 def _library_dependencies_for_recipe(
     snapshot: LockedGenerationAuthoritySnapshot,
     plan: ComponentGenerationPlan,
@@ -1191,9 +1263,10 @@ def _library_dependencies_for_recipe(
 ) -> tuple[RecipeLibraryDependency, ...]:
     nodes = {item.revision.identity.uri: item for item in snapshot.authority.lock.nodes}
     authorings = {item.identity.uri: item for item in snapshot.authority.authorings}
+    consumer_flavors = _flavors_for_node(snapshot, plan.component_revision)
     consumer_languages = tuple(
         item.value
-        for item in _flavors_for_node(snapshot, plan.component_revision)
+        for item in consumer_flavors
         if item.axis == FlavorAxis.IMPLEMENTATION_LANGUAGE_ECOSYSTEM.value
     )
     dependencies = []
@@ -1221,7 +1294,20 @@ def _library_dependencies_for_recipe(
             _flavors_for_node(snapshot, provider.revision.identity),
         )
         assert surface is not None
-        if consumer_languages != (surface.language,):
+        sdk_cross_language = (
+            consumer_languages == ("typescript",)
+            and surface.language == "javascript"
+            and bool(surface.declarations)
+            and _explicit_node_sdk_recipe(
+                snapshot,
+                nodes[plan.component_revision.uri],
+                authorings[
+                    nodes[plan.component_revision.uri].revision.authoring_identity.uri
+                ],
+                consumer_flavors,
+            )
+        )
+        if consumer_languages != (surface.language,) and not sdk_cross_language:
             _error(
                 "generate.library_cross_language_unsupported",
                 "a direct library dependency must use the consumer's exact "
@@ -1474,6 +1560,8 @@ def _node_authority_segments(
             )
         )
     nodes = {item.revision.identity.uri: item for item in snapshot.authority.lock.nodes}
+    sources = canonical_direct_interface_sources(plan)
+    interfaces: dict[str, tuple[ContentIdentity, bytes, int, str]] = {}
     for edge in plan.direct_generation_edges:
         provider = nodes[edge.provider_revision.uri]
         references = tuple(
@@ -1487,15 +1575,46 @@ def _node_authority_segments(
                 "direct dependency does not expose its exact planned public interface",
             )
         reference = references[0]
+        # Read EVERY selected origin before deduplicating shared public bytes.
+        # The original snapshot owns reference/file custody independently.
+        content = snapshot.component_content(
+            provider.revision.authoring_identity, reference
+        )
+        prior = interfaces.get(reference.identity.uri)
+        if prior is None:
+            interfaces[reference.identity.uri] = (
+                reference.identity,
+                content,
+                1,
+                edge.requirement_id,
+            )
+        else:
+            if content != prior[1]:
+                _error(
+                    "component_preparation.direct_interface_drift",
+                    "selected origins disagree on exact shared public-interface bytes",
+                )
+            interfaces[reference.identity.uri] = (
+                prior[0],
+                prior[1],
+                prior[2] + 1,
+                prior[3],
+            )
+    for identity, content, count, requirement in interfaces.values():
         segments.append(
             PromptSegmentInput(
                 ContextAuthorityKind.DIRECT_PUBLIC_INTERFACE,
-                provider.revision.identity,
-                f"direct public interface for requirement {edge.requirement_id}",
-                reference.identity,
-                snapshot.component_content(
-                    provider.revision.authoring_identity, reference
+                sources[identity.uri],
+                (
+                    f"direct public interface for requirement {requirement}"
+                    if count == 1
+                    else (
+                        f"direct public interface shared by {count} selected "
+                        "dependency requirements; canonical source representative"
+                    )
                 ),
+                identity,
+                content,
             )
         )
     return tuple(segments)
@@ -1511,6 +1630,7 @@ class LockedComponentNodePreparationAdapter:
         coding_cli: str | None = None,
         execution_documents: tuple[RecipeDocument, ...] = (),
         native_sdk_inputs=None,
+        qualified_library_inputs=None,
     ) -> None:
         if (model_selector is None) != (coding_cli is None):
             raise ValueError("model selector and coding CLI must be supplied together")
@@ -1523,6 +1643,7 @@ class LockedComponentNodePreparationAdapter:
             raise ValueError("execution document paths must be uniquely sorted")
         self.execution_documents = execution_documents
         self.native_sdk_inputs = native_sdk_inputs
+        self.qualified_library_inputs = qualified_library_inputs
 
     @staticmethod
     def authority_lock_identity(
@@ -1537,6 +1658,11 @@ class LockedComponentNodePreparationAdapter:
 
         snapshot.require_unchanged()
         native_sdk_generation_identities(self.native_sdk_inputs, snapshot)
+        from literate_ai.adapters.native_root_external_runtime import (
+            require_qualified_library_inputs,
+        )
+
+        require_qualified_library_inputs(self.qualified_library_inputs, snapshot)
 
     def project(
         self,
@@ -1686,6 +1812,13 @@ class LockedComponentNodePreparationAdapter:
                 ),
             )
             self.guard(snapshot)
+        from literate_ai.adapters.native_root_external_runtime import (
+            bind_qualified_library_recipe,
+        )
+
+        recipe = bind_qualified_library_recipe(
+            recipe, self.qualified_library_inputs, snapshot, revision.identity
+        )
         return LockedNodeGenerationProjection(
             revision.identity,
             definition,
@@ -1745,20 +1878,49 @@ class FilesystemLockedGenerationPreparationAdapter:
         reader: FilesystemLockedGenerationAuthorityReader | None = None,
         *,
         native_sdk_inputs=None,
+        qualified_library_inputs=None,
         native_sdk_builder=None,
+        qualified_library_builder=None,
     ) -> None:
         self.reader = reader or FilesystemLockedGenerationAuthorityReader()
         self.native_sdk_inputs = native_sdk_inputs
+        if (
+            qualified_library_inputs is not None
+            and qualified_library_builder is not None
+        ):
+            raise ValueError(
+                "select completed qualified libraries or a receiving builder"
+            )
+        self.qualified_library_inputs = qualified_library_inputs
+        self._original_qualified_library_inputs = qualified_library_inputs
+        self.qualified_library_builder = qualified_library_builder
+        self._original_qualified_library_builder = qualified_library_builder
+        self._qualified_library_built = False
+        self._qualified_library_building = False
         if native_sdk_inputs is not None and native_sdk_builder is not None:
             raise ValueError("select completed SDK inputs or an SDK builder")
         self.native_sdk_builder = native_sdk_builder
 
+    def _require_qualified_owner(self):
+        if (
+            self.qualified_library_builder
+            is not self._original_qualified_library_builder
+            or self.qualified_library_inputs
+            is not self._original_qualified_library_inputs
+        ):
+            raise ValueError("qualified library preparation owner changed")
+
     def load_catalog(self, request: GenerationPreparationRequest):
+        self._require_qualified_owner()
         return self.reader.load_catalog(
             request.component_root, flavor_roots=request.flavor_roots
         )
 
     def resolve_lock(self, catalog, request: GenerationPreparationRequest):
+        self._require_qualified_owner()
+        if self._qualified_library_building:
+            raise ValueError("recursive qualified library receiving builder")
+        builder = self._original_qualified_library_builder
         snapshot = self.reader.resolve(
             catalog,
             target_name=request.target_name,
@@ -1766,6 +1928,37 @@ class FilesystemLockedGenerationPreparationAdapter:
         )
         if self.native_sdk_builder is not None:
             self.native_sdk_inputs = self.native_sdk_builder(snapshot)
+        self._require_qualified_owner()
+        if builder is not None:
+            if self._qualified_library_built:
+                from literate_ai.adapters.native_root_external_runtime import (
+                    require_qualified_library_inputs,
+                )
+
+                require_qualified_library_inputs(
+                    self._original_qualified_library_inputs, snapshot
+                )
+            else:
+                # The operation's original receiving scope owns all opened
+                # wrappers/scratch/holders. It is never adopted from bytes.
+                if self._qualified_library_building:
+                    raise ValueError("recursive qualified library receiving builder")
+                self._qualified_library_building = True
+                try:
+                    inputs = builder(snapshot)
+                finally:
+                    self._qualified_library_building = False
+                self._require_qualified_owner()
+                from literate_ai.adapters.native_root_external_runtime import (
+                    require_qualified_library_inputs,
+                )
+
+                require_qualified_library_inputs(inputs, snapshot)
+                self._require_qualified_owner()
+                self.qualified_library_inputs = inputs
+                self._original_qualified_library_inputs = inputs
+                self._qualified_library_built = True
+        self._require_qualified_owner()
         return snapshot
 
     def create_recipe(
@@ -1773,6 +1966,7 @@ class FilesystemLockedGenerationPreparationAdapter:
         snapshot: LockedGenerationAuthoritySnapshot,
         request: GenerationPreparationRequest,
     ) -> PreparedLockedGeneration:
+        self._require_qualified_owner()
         authority = snapshot.authority
         lock = authority.lock
         root = request.component_root.resolve(strict=True)
@@ -1884,6 +2078,13 @@ class FilesystemLockedGenerationPreparationAdapter:
                 recipe, self.native_sdk_inputs, base.identity
             )
             self.guard(snapshot)
+        from literate_ai.adapters.native_root_external_runtime import (
+            bind_qualified_library_recipe,
+        )
+
+        recipe = bind_qualified_library_recipe(
+            recipe, self.qualified_library_inputs, snapshot, base.identity
+        )
         return PreparedLockedGeneration(
             root,
             project_boundary(root, legacy=root),
@@ -1896,15 +2097,23 @@ class FilesystemLockedGenerationPreparationAdapter:
             snapshot.catalog_audit_identity,
             snapshot,
             self.native_sdk_inputs,
+            self.qualified_library_inputs,
         )
 
     def guard(self, snapshot: LockedGenerationAuthoritySnapshot) -> None:
+        self._require_qualified_owner()
         from literate_ai.adapters.native_sdk_generation import (
             native_sdk_generation_identities,
         )
 
         snapshot.require_unchanged()
         native_sdk_generation_identities(self.native_sdk_inputs, snapshot)
+        from literate_ai.adapters.native_root_external_runtime import (
+            require_qualified_library_inputs,
+        )
+
+        require_qualified_library_inputs(self.qualified_library_inputs, snapshot)
+        self._require_qualified_owner()
 
 
 class GenerationPlanningInput(Protocol):
@@ -1956,6 +2165,7 @@ class GenerationExecutionPlanningAdapter:
         *,
         selection: CodingCliSelection | None = None,
         model: str | None = None,
+        approved_project_root: Path | None = None,
     ) -> GenerationExecutionPlan:
         """Compile one prepared node against that node's exact locked authority."""
 
@@ -1986,6 +2196,11 @@ class GenerationExecutionPlanningAdapter:
             ),
             selection=selection,
             model=model,
+            **(
+                {"approved_project_root": approved_project_root}
+                if approved_project_root is not None
+                else {}
+            ),
         )
 
     def plan_unlocked(
@@ -2018,6 +2233,7 @@ class GenerationExecutionPlanningAdapter:
         routing: bytes,
         selection: CodingCliSelection | None,
         model: str | None,
+        approved_project_root: Path | None = None,
     ) -> GenerationExecutionPlan:
         endpoint_name = selection.name if selection is not None else "validation"
         # Bind only the portable tool identity. The executable digest is already
@@ -2058,7 +2274,11 @@ class GenerationExecutionPlanningAdapter:
             routing_content=routing,
             endpoint=endpoint,
             generation_prompt=prepared.recipe.prompt(),
-            project_root=_nearest_project_root(),
+            project_root=(
+                _nearest_project_root()
+                if approved_project_root is None
+                else approved_project_root
+            ),
         )
         stage_ids = {item.stage_id for item in plan.model_stages}
         if any(
@@ -2173,6 +2393,13 @@ class FilesystemLockedGenerationApplicationAdapter:
             raise TypeError("prepared must be a PreparedLockedGeneration")
         prepared.locked_authority_snapshot.require_unchanged()
         prepared.input_closure.require_unchanged()
+        from literate_ai.adapters.native_root_external_runtime import (
+            require_qualified_library_inputs,
+        )
+
+        require_qualified_library_inputs(
+            prepared.qualified_library_inputs, prepared.locked_authority_snapshot
+        )
         if prepared.native_sdk_inputs is not None:
             from literate_ai.adapters.native_sdk_generation import (
                 native_sdk_generation_identities,

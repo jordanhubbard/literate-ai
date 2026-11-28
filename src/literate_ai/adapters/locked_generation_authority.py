@@ -45,14 +45,17 @@ _catalog_observations: ContextVar[
 
 
 @contextmanager
-def read_only_component_catalog_observations() -> Iterator[None]:
+def read_only_component_catalog_observations(
+    *, isolated: bool = False
+) -> Iterator[None]:
     """Share parsing within one request; every load still fully revalidates.
 
     These are parsed observations, not cached currentness decisions or grants.
     Owning execution boundaries retain their existing final authority checks.
+    An isolated frame restores its ambient frame without adding observations to it.
     """
 
-    if _catalog_observations.get() is not None:
+    if not isolated and _catalog_observations.get() is not None:
         yield
         return
     token = _catalog_observations.set({})
@@ -93,6 +96,8 @@ class LockedGenerationAuthoritySnapshot:
         default=None, repr=False, compare=False
     )
 
+    _replay_repository_sources: bool = field(default=False, repr=False, compare=False)
+
     def __post_init__(self) -> None:
         if (self._lock_store is None) != (self._component_lock is None):
             raise TypeError("lock store and Component lock must be supplied together")
@@ -111,6 +116,18 @@ class LockedGenerationAuthoritySnapshot:
 
     def component_authoring_content(self, authoring_identity: ContentIdentity) -> bytes:
         return self._read(self._catalog.component_authoring_content, authoring_identity)
+
+    def component_root(self, authoring_identity: ContentIdentity) -> Path:
+        """Resolve a selected Component location without trusting caller paths."""
+
+        if authoring_identity not in {
+            node.revision.authoring_identity for node in self.authority.lock.nodes
+        }:
+            raise LockedGenerationAuthorityReaderError(
+                "component_lock.component_unselected",
+                "Component location requires membership in the current lock",
+            )
+        return self._read(self._catalog.component_root, authoring_identity)
 
     def component_content(
         self, authoring_identity: ContentIdentity, reference: ContentReference
@@ -157,7 +174,11 @@ class LockedGenerationAuthoritySnapshot:
                 self._catalog,
                 target_name=self._target_name,
                 flavor_selectors=self._flavor_selectors,
-                **({"locked_repository_sources": sources} if sources else {}),
+                **(
+                    {"locked_repository_sources": sources}
+                    if sources or self._replay_repository_sources
+                    else {}
+                ),
             )
             if current.identity != self._resolution_plan_identity:
                 raise LockedGenerationAuthorityReaderError(
@@ -185,8 +206,14 @@ class LockedGenerationAuthoritySnapshot:
 class FilesystemLockedGenerationAuthorityReader:
     """Read one canonical lock against a safely snapshotted current catalog."""
 
-    def __init__(self, planner: FilesystemComponentLockPlanner | None = None) -> None:
+    def __init__(
+        self,
+        planner: FilesystemComponentLockPlanner | None = None,
+        *,
+        replay_repository_sources: bool = False,
+    ) -> None:
         self._planner = planner or FilesystemComponentLockPlanner()
+        self._replay_repository_sources = replay_repository_sources
 
     def read(
         self,
@@ -262,10 +289,20 @@ class FilesystemLockedGenerationAuthorityReader:
                 target_name=target_name,
                 flavor_selectors=flavor_selectors,
             )
+            source_options = {}
+            if self._replay_repository_sources:
+                # Read-only authored operations reconstruct the resolution plan
+                # from the accepted lock. A missing dependency must fail closed.
+                source_options["locked_repository_sources"] = tuple(
+                    source
+                    for node in lock.nodes
+                    for source in node.revision.repository_sources
+                )
             plan = self._planner.plan_snapshot(
                 catalog,
                 target_name=target_name,
                 flavor_selectors=flavor_selectors,
+                **source_options,
             )
             expected = ComponentLockResolver().resolve(
                 plan, expected_input_evidence_identity=plan.identity
@@ -298,7 +335,11 @@ class FilesystemLockedGenerationAuthorityReader:
                 catalog,
                 target_name=target_name,
                 flavor_selectors=flavor_selectors,
-                **({"locked_repository_sources": sources} if sources else {}),
+                **(
+                    {"locked_repository_sources": sources}
+                    if sources or self._replay_repository_sources
+                    else {}
+                ),
             )
             if current_plan.identity != plan.identity:
                 raise LockedGenerationAuthorityReaderError(
@@ -328,6 +369,7 @@ class FilesystemLockedGenerationAuthorityReader:
             flavor_selectors,
             lock_store,
             lock,
+            self._replay_repository_sources,
         )
 
 

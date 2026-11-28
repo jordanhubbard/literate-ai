@@ -6,9 +6,9 @@ bytes is safe.
 
 ## Required decision chain
 
-### 1.1 execution support
+### Local execution support
 
-The 1.1 local generation/build/test path runs as the invoking user when explicitly
+The local generation/build/test path runs as the invoking user when explicitly
 authorized with `--allow-host-execution`. It has no production OS/VM containment
 backend. Process limits, content identities and passing acceptance do not establish
 filesystem, network or credential isolation. See the
@@ -21,8 +21,8 @@ resolved inside that root, including symlinks, and mutations require
 the startup option `--allow-operator-config`. Tool annotations describe risk; they
 are not authorization. These helper checks do not constrain an agent that separately
 has shell access as the same host user, nor do they sandbox generated code or paths
-referenced inside project metadata. Clients upgrading to 1.1 must send explicit
-mutation acknowledgement; read-only calls retain their existing input shape.
+referenced inside project metadata. Mutating client calls must send explicit
+acknowledgement; read-only calls do not require it.
 
 The facade uses the [MCP tool contract](https://modelcontextprotocol.io/specification/2025-03-26/server/tools).
 
@@ -164,13 +164,16 @@ Windows.
 
 Coding-agent credentials remain machine-local inputs. The adapter forwards only the
 selected provider's documented authentication environment variables and records only
-their names in generation evidence; Literate AI never writes their values, and the values
-are neither prompt input nor report content. Interactive credential stores remain outside
-the generated workspace. Raw coding-agent stdout and stderr never enter framework
-exceptions, CLI JSON, reports, or lifecycle events: both authentication diagnostics and
-generic generation failures use stable metadata and direct operators to provider-local
-diagnostics. This is a structural non-disclosure boundary rather than best-effort secret
-substitution, because a provider can echo credentials in unrecognized forms.
+their names in generation evidence; the values are neither prompt input nor report
+content. OpenCode V1 can stage selected API configuration in a private temporary
+file and selected saved API authentication in its child environment; those owned
+files and state are removed after invocation. Original credential stores are
+never modified. Coding-agent failures can include bounded, redacted output
+excerpts and diagnostic transcripts. Authentication diagnostics use typed errors;
+projected API values also enter the diagnostic redaction set, including short keys
+and escaped renderings. This is redaction, not a guarantee against every possible
+provider encoding of a credential. Configuration probes suppress output tracing
+and omit credentials.
 Specifications and Flavors must never contain credentials.
 
 OpenCode is invoked with an isolated LitAI configuration directory, project and
@@ -178,22 +181,46 @@ Claude compatibility discovery disabled, and deny-by-default permissions that en
 only workspace read/edit/list/glob/grep. V1 uses pure-plugin mode and its legacy
 permission map. V2 uses a private server (`--standalone`), native ordered rules,
 and policies denying external plugins, skills, and MCP. Ambient home skill
-discovery is redirected to the temporary config directory. Before any v2 server
-starts, all XDG roots, the database, and temporary storage are also redirected
+discovery is redirected to the temporary config directory. Before even the first
+help child, both versions redirect all XDG roots, the database, and temporary storage
 to owned temporary directories. This prevents stored integration/plugin code
 from running during configuration inspection. V2 consumes process environment
 credentials and does not import saved OpenCode logins or integration state.
-V2 refuses system/MDM configuration and requires a bounded `debug config --standalone` probe to confirm
+Both versions refuse system/MDM configuration. V2 requires a bounded `debug config --standalone` probe to confirm
 that no extra configuration documents or altered rules are loaded. Its
 source-generation process runs in a detached temporary workspace, and LitAI materializes only the completely
 validated file map into the candidate root. OpenCode's own security model identifies
 permissions as a user-control policy rather than an operating-system sandbox, so the
-recorded isolation profile makes that limitation explicit; provider-managed session and
-authentication state may persist outside the temporary workspace for v1; v2's
-owned provider state is removed after the invocation.
+recorded isolation profile makes that limitation explicit.
+V1 passively reads bounded local JSON/JSONC to select one provider and model. It
+projects only that provider's API options and selected model configuration, using
+documented process API keys, a saved `type: api` login or quoted env/file key
+references. It excludes global instructions, MCP, plugins and unrelated models
+or stored authentication. The child still receives OpenCode's documented
+credential environment allowlist; it is not narrowed per model provider.
+A credential-free `--pure debug config` probe confirms the
+private controls before installing selected provider data. A fixed session title
+avoids OpenCode's separate title-generation request.
+
+V1 requires an explicit `provider/model` selection or a local configured model.
+Saved OAuth/refresh and well-known credentials, cloud SDK integrations and
+operator-supplied dynamic/file SDK packages fail with `coding_cli.configuration_unsupported`
+before the prompt. They need native credential-ownership support; they are not
+silently converted to API billing or copied back to user state. Custom providers
+must explicitly select an admitted bundled API SDK, such as
+`@ai-sdk/openai-compatible`. The finite set also includes OpenAI, Anthropic, Azure,
+Google, Cerebras, Cohere, Groq, Mistral, Perplexity, xAI and OpenRouter SDKs from
+the reviewed V1 implementation. Missing SDK overrides use the selected CLI's
+native catalog with models fetch disabled and a private cache; those defaults
+are executable-owned, not independently attested for arbitrary future versions.
+JSON/JSONC reads
+and expansion are bounded; quoted env references expand before file references.
+Arbitrary unquoted JSON injection and remote account configuration are not
+imported. Missing model or credentials have distinct typed errors.
 Before any prompt or model invocation, a bounded `run --help` probe verifies that
 the exact pinned OpenCode executable exposes the options required by either supported
-major. Both probes omit prompts, model selectors, and forwarded credential values.
+major. Help probes omit prompts, model selectors and forwarded credentials;
+configuration probes may include the selected model name but omit credentials.
 An incompatible release fails closed with `coding_cli.incompatible` without provider
 fallback. The exact executable digest and the versioned isolation profile participate
 in source-cache identities.

@@ -10,6 +10,7 @@ from unittest import mock
 from literate_ai.adapters import project_identity_migration as migration
 from literate_ai.adapters.conversion_authority import FilesystemConversionAuthorityStore
 from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
+from literate_ai.projects import ProjectConfigurationStore
 from tests.e2e.test_retained_scope_refresh import RetainedScopeRefreshTests
 from tests.support.fixtures_test_retained_harness_receipts import _invoke
 
@@ -19,7 +20,7 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
     # Inherited scope-refresh tests continue exercising ordinary alpha authority.
 
     def renamed(self, name="beta"):
-        path = self.root / "literate.project.json"
+        path = ProjectConfigurationStore.manifest_path(self.root)
         definition = json.loads(path.read_bytes())
         old = definition["project_id"]
         definition["project_id"] = name
@@ -65,9 +66,10 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
         )
         self.assertEqual(code, 0, result)
         historical = {
-            p: p.read_bytes() for p in (self.root / ".literate").glob("legacy-*.json")
+            p: p.read_bytes()
+            for p in (self.framework / ".literate").glob("legacy-*.json")
         }
-        old_receipt = (self.root / "verification/current.json").read_bytes()
+        old_receipt = (self.framework / "verification/current.json").read_bytes()
         previous = self.renamed()
         before = self.snapshot()
         plan = self.migration_plan(previous)
@@ -84,7 +86,7 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
         code, result = self.migration_apply(previous, plan)
         self.assertEqual(code, 0, result)
         self.assertEqual(
-            (self.root / "verification/current.json").read_bytes(), old_receipt
+            (self.framework / "verification/current.json").read_bytes(), old_receipt
         )
         for path, content in historical.items():
             self.assertEqual(path.read_bytes(), content)
@@ -115,12 +117,12 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
                     path = self.source / "new.txt"
                     path.write_text("changed source")
                 elif change == "manifest":
-                    path = self.root / "literate.project.json"
+                    path = ProjectConfigurationStore.manifest_path(self.root)
                     value = json.loads(path.read_bytes())
                     value["version"] = "9.0.0"
                     path.write_text(json.dumps(value))
                 else:
-                    path = self.root / ".literate/conversion-authority.json"
+                    path = self.framework / ".literate/conversion-authority.json"
                     value = json.loads(path.read_bytes())
                     value["project_id"] = "unrelated"
                     from literate_ai.contracts import canonical_json_bytes
@@ -155,7 +157,9 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
     def test_history_only_interruption_can_retry_without_false_authority(self):
         previous = self.renamed()
         plan = self.migration_plan(previous)
-        before_state = (self.root / ".literate/conversion-authority.json").read_bytes()
+        before_state = (
+            self.framework / ".literate/conversion-authority.json"
+        ).read_bytes()
         with mock.patch.object(
             FilesystemConversionAuthorityStore,
             "_replace",
@@ -164,10 +168,12 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
             code, result = self.migration_apply(previous, plan)
         self.assertEqual(code, 2, result)
         self.assertEqual(
-            (self.root / ".literate/conversion-authority.json").read_bytes(),
+            (self.framework / ".literate/conversion-authority.json").read_bytes(),
             before_state,
         )
-        self.assertEqual(len(list((self.root / migration.HISTORY).glob("*.json"))), 1)
+        self.assertEqual(
+            len(list((self.framework / migration.HISTORY).glob("*.json"))), 1
+        )
         self.assertEqual(
             self.migration_plan(previous)["plan_identity"], plan["plan_identity"]
         )
@@ -179,7 +185,7 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
         with project_lifecycle_lock(self.root, operation="fixture"):
             code, result = self.migration_apply(previous, plan)
         self.assertEqual(code, 2, result)
-        history = self.root / migration.HISTORY
+        history = self.framework / migration.HISTORY
         history.mkdir()
         target = self.base / "foreign"
         target.write_text("foreign")
@@ -205,7 +211,7 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
         self.assertEqual(code, 0, result)
         state = FilesystemConversionAuthorityStore(self.root).load_optional()
         self.assertEqual(state.project_id, "gamma")
-        records = list((self.root / migration.HISTORY).glob("*.json"))
+        records = list((self.framework / migration.HISTORY).glob("*.json"))
         self.assertEqual(len(records), 2)
         first = next(
             p for p in records if json.loads(p.read_bytes())["to_project_id"] == "beta"
@@ -255,7 +261,7 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
     def test_closing_source_change_rolls_back_only_the_owned_state(self):
         previous = self.renamed()
         plan = self.migration_plan(previous)
-        state_path = self.root / ".literate/conversion-authority.json"
+        state_path = self.framework / ".literate/conversion-authority.json"
         before = state_path.read_bytes()
         original = FilesystemConversionAuthorityStore._replace
         changed = self.source / "foreign-change.txt"
@@ -271,7 +277,9 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
         self.assertEqual(result["error"]["code"], "project_identity.source_changed")
         self.assertEqual(state_path.read_bytes(), before)
         self.assertEqual(changed.read_text(), "concurrent authored input")
-        self.assertEqual(len(list((self.root / migration.HISTORY).glob("*.json"))), 1)
+        self.assertEqual(
+            len(list((self.framework / migration.HISTORY).glob("*.json"))), 1
+        )
 
     def test_qualified_authority_is_not_renamed_by_the_source_operation(self):
         from dataclasses import replace
@@ -286,7 +294,7 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
             stage=ConversionAuthorityStage.QUALIFIED,
             prior_state_identity=canonical_identity({"fixture": "not a qualification"}),
         )
-        path = self.root / ".literate/conversion-authority.json"
+        path = self.framework / ".literate/conversion-authority.json"
         path.write_bytes(canonical_json_bytes(qualified.to_dict()) + b"\n")
         previous = self.renamed()
         before = self.snapshot()
@@ -296,9 +304,9 @@ class ProjectIdentityMigrationTests(RetainedScopeRefreshTests):
         self.assertEqual(before, self.snapshot())
 
     def test_missing_plan_wrong_old_id_and_unchanged_identity_refuse(self):
-        old = json.loads((self.root / "literate.project.json").read_bytes())[
-            "project_id"
-        ]
+        old = json.loads(
+            (ProjectConfigurationStore.manifest_path(self.root)).read_bytes()
+        )["project_id"]
         self.assertEqual(self.migrate(old)[0], 2)
         previous = self.renamed()
         self.assertEqual(self.migrate("unrelated")[0], 2)

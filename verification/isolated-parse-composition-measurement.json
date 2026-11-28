@@ -1,0 +1,86 @@
+{
+  "kind": "local paired actual-fixture diagnostic",
+  "baseline": "same original body with parse scopes disabled by maintained fixture",
+  "candidate": "isolated parse scopes enabled; no cached file reads or guard success",
+  "subjects": {
+    "src/literate_ai/projects.py": "1c54d4add66903e4ad6feb3825168ddeb8d41a6ad5702a58a8b54bee50fe27d2",
+    "src/literate_ai/adapters/locked_generation_authority.py": "49d6f3dff00fc61b781a2c59b1df7f5d659c82797b7f508f71e12c41e69e2cad",
+    "src/literate_ai/adapters/retained_cargo_execution_inputs_v2.py": "6041ff61c3825055c62ddcb2cafc57bdc67c38cc1534bf8393f0998c4439b5a4",
+    "tests/critical/test_retained_cargo_isolated_parses.py": "8ca4329223e49928d61884e1c4b96bd09b4fe5e22cdcab895913ce0af6bb16e6"
+  },
+  "setup_seconds": 20.714000041014515,
+  "elapsed_seconds": 54.212309708003886,
+  "trials": [
+    {
+      "reuse": false,
+      "elapsed_seconds": 4.186653165961616,
+      "parser_calls": 17,
+      "fresh_wrapper_guards": 17
+    },
+    {
+      "reuse": true,
+      "elapsed_seconds": 3.7953347500879318,
+      "parser_calls": 1,
+      "fresh_wrapper_guards": 17
+    },
+    {
+      "reuse": true,
+      "elapsed_seconds": 3.8235917079728097,
+      "parser_calls": 1,
+      "fresh_wrapper_guards": 17
+    },
+    {
+      "reuse": false,
+      "elapsed_seconds": 5.12333579105325,
+      "parser_calls": 17,
+      "fresh_wrapper_guards": 17
+    },
+    {
+      "reuse": false,
+      "elapsed_seconds": 4.145903374999762,
+      "parser_calls": 17,
+      "fresh_wrapper_guards": 17
+    },
+    {
+      "reuse": true,
+      "elapsed_seconds": 3.7238246670458466,
+      "parser_calls": 1,
+      "fresh_wrapper_guards": 17
+    },
+    {
+      "reuse": true,
+      "elapsed_seconds": 3.657661375007592,
+      "parser_calls": 1,
+      "fresh_wrapper_guards": 17
+    },
+    {
+      "reuse": false,
+      "elapsed_seconds": 4.282238083076663,
+      "parser_calls": 17,
+      "fresh_wrapper_guards": 17
+    }
+  ],
+  "medians_seconds": {
+    "False": 4.2344456245191395,
+    "True": 3.759579708566889
+  },
+  "limitations": [
+    "Not two released distributions or a complete receiving/installed run.",
+    "Unrelated host load can vary; paired ordering reduces but does not eliminate this uncertainty.",
+    "Timing contains fixture observation instrumentation; no release wall-time claim."
+  ],
+  "source_commit": "7ef2ad0b5ee71bf5cf02d86821dadd561e091d36",
+  "composition_base": "8839ffc915604e72f13cfc19e8639807ffbb8059",
+  "fixture_evolution": {
+    "after_measurement": "Shared receiving setup and receive helper extracted into tests/support; original timing remains bound to the recorded fixture hashes.",
+    "runtime_source": "All three measured production files remain byte-identical.",
+    "preserved": "AST comparison preserves setup and receive bodies after parameter renaming and every original receiving test assertion.",
+    "fresh_combined_controls": {
+      "selected": 11,
+      "passed": 11,
+      "failed": 0,
+      "seconds": 143.219
+    },
+    "repeat_measurement": "not performed after fixture extraction"
+  }
+}

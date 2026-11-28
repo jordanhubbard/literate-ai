@@ -1,7 +1,8 @@
 """Finite committed-profile removal using Git's before-images and index owner.
 
 This stages deletions and never commits, cleans caches, or restores worktree
-bytes. An explicit immutable source commit permits fresh forward recovery.
+bytes. It can retire the exact contained idle lifecycle lock after removal.
+An explicit immutable source commit permits fresh forward recovery.
 """
 
 from __future__ import annotations
@@ -11,12 +12,34 @@ import json
 import os
 import re
 import stat
+from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
-from literate_ai._filesystem import path_is_link_or_reparse, require_safe_directory
+from literate_ai._cache_lock import (
+    CacheLockError,
+    _identity_matches,
+    exclusive_cache_lock,
+)
+from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
+    path_is_link_or_reparse,
+    require_safe_directory,
+)
 from literate_ai.adapters.builders._process import run_bounded_process
 from literate_ai.adapters.builders.python import BuildError
+from literate_ai.adapters.exclusive_directory import (
+    directory_node,
+    publish_directory_between_owned_parents_exclusive,
+)
+from literate_ai.adapters.lifecycle_lock import (
+    ProjectLifecycleLockError,
+    _lock_coordinate,
+)
+from literate_ai.adapters.native_profile_git import (
+    NativeProfileGitBoundaryError,
+    require_native_profile_git_boundary,
+)
 from literate_ai.adapters.native_project_bootstrap import PROFILE, native_template_files
 from literate_ai.contracts import (
     ContentIdentity,
@@ -56,6 +79,7 @@ _METADATA = frozenset(
 )
 _MAXIMUM_BYTES = 4 * 1024 * 1024
 _AUTHORITY_METADATA = _METADATA - {"litai/docs/authority.md"}
+_RUNTIME_RETIREMENT = "literate-native-lock-retirement"
 
 
 class NativeProjectRemovalError(ValueError):
@@ -155,7 +179,10 @@ def _blob(root, entry, *, cache):
 
 
 def _node(path):
-    value = path.lstat()
+    return _file_node(path.lstat())
+
+
+def _file_node(value):
     return {
         "device": str(value.st_dev),
         "inode": str(value.st_ino),
@@ -190,7 +217,19 @@ def _directories(root, selected, git_directory):
     return {str(path): _directory_node(path) for path in sorted(directories)}
 
 
+def _require_git_boundary(root, paths):
+    try:
+        require_native_profile_git_boundary(root, paths)
+    except NativeProfileGitBoundaryError as exc:
+        raise NativeProjectRemovalError("nested_git_boundary", str(exc)) from exc
+
+
 def _worktree(root, relative):
+    observed = _worktree_content(root, relative)
+    return None if observed is None else observed[0]
+
+
+def _worktree_content(root, relative):
     path = root / relative
     require_safe_directory(path.parent, allow_missing=True)
     if not path.exists() and not path.is_symlink():
@@ -209,7 +248,257 @@ def _worktree(root, relative):
     )
     if _node(path) != before:
         _fail("path_changed", "A selected native-profile file changed while read")
-    return {"identity": _digest(content), "node": before}
+    return {"identity": _digest(content), "node": before}, content
+
+
+@contextmanager
+def _runtime_lock(path, *, existing_only):
+    # Windows byte-range locks prohibit reading through a second handle. Keep
+    # the original lock descriptor private and read it only while its owner lives.
+    descriptor = None
+    active = False
+
+    def remember(value):
+        nonlocal descriptor
+        descriptor = value
+
+    def observe():
+        if not active or descriptor is None:
+            _fail("runtime_lock_changed", "The lifecycle lock owner is unavailable")
+        require_safe_directory(path.parent)
+        named = path.lstat()
+        held = os.fstat(descriptor)
+        before = _file_node(named)
+        if (
+            path_is_link_or_reparse(path)
+            or not stat.S_ISREG(named.st_mode)
+            or not stat.S_ISREG(held.st_mode)
+            or named.st_nlink != 1
+            or held.st_nlink != 1
+            or named.st_size > 256 * 1024
+            or any(
+                _file_node(held)[key] != before[key]
+                for key in ("mode", "links", "size", "modified_ns")
+            )
+            or not _identity_matches(path, named, descriptor, held)
+        ):
+            _fail("runtime_lock_changed", "The lifecycle lock custody changed")
+
+        def read_content():
+            position = os.lseek(descriptor, 0, os.SEEK_CUR)
+            content = bytearray()
+            primary = None
+            try:
+                os.lseek(descriptor, 0, os.SEEK_SET)
+                while len(content) <= 256 * 1024:
+                    chunk = os.read(
+                        descriptor, min(65536, 256 * 1024 + 1 - len(content))
+                    )
+                    if not chunk:
+                        break
+                    content.extend(chunk)
+                return bytes(content)
+            except BaseException as error:
+                primary = error
+                raise
+            finally:
+                try:
+                    os.lseek(descriptor, position, os.SEEK_SET)
+                except BaseException as cleanup:
+                    if primary is None:
+                        raise
+                    try:
+                        primary.add_note(
+                            "Lifecycle lock offset restoration also failed: "
+                            + type(cleanup).__name__
+                        )
+                    except BaseException:
+                        pass
+
+        content = read_content()
+        if not _identity_matches(path, path.lstat(), descriptor, os.fstat(descriptor)):
+            _fail("runtime_lock_changed", "The lifecycle lock custody changed")
+        # The native identity probe is a callback boundary too. Close its exact
+        # original bytes afterwards, even if a writer restores the timestamp.
+        closed_content = read_content()
+        require_safe_directory(path.parent)
+        final_named = path.lstat()
+        final_held = os.fstat(descriptor)
+        if (
+            len(content) != before["size"]
+            or closed_content != content
+            or _file_node(final_named) != before
+            or _file_node(final_held) != _file_node(held)
+            or path_is_link_or_reparse(path)
+        ):
+            _fail("runtime_lock_changed", "The lifecycle lock changed while read")
+        return {"identity": _digest(bytes(content)), "node": before}
+
+    with exclusive_cache_lock(
+        path, timeout_seconds=0, existing_only=existing_only, on_locked=remember
+    ):
+        active = True
+        try:
+            yield observe
+        finally:
+            active = False
+
+
+def _require_supported_content_transforms(root, paths):
+    paths = tuple(paths)
+    names = (b"filter", b"working-tree-encoding", b"text", b"eol")
+    raw = _git(
+        root,
+        "check-attr",
+        "-z",
+        "--stdin",
+        *(name.decode("ascii") for name in names),
+        content=b"\0".join(path.encode() for path in paths) + b"\0",
+    ).stdout
+    rows = raw.split(b"\0")
+    if rows.pop() != b"" or len(rows) != len(paths) * len(names) * 3:
+        _fail("git_failed", "Git returned malformed content attributes")
+    attributes = {}
+    offset = 0
+    for path in paths:
+        values = {}
+        for name in names:
+            actual_path, actual_name, value = rows[offset : offset + 3]
+            offset += 3
+            if (actual_path, actual_name) != (path.encode(), name):
+                _fail("git_failed", "Git returned ambiguous content attributes")
+            values[name] = value
+        if (
+            any(values[name] not in {b"unspecified", b"unset"} for name in names[:2])
+            or values[b"text"] not in {b"unspecified", b"unset", b"set", b"auto"}
+            or values[b"eol"] not in {b"unspecified", b"unset", b"lf", b"crlf"}
+        ):
+            _fail(
+                "transform_unsupported",
+                "Selected Git content transforms are not qualified for removal",
+            )
+        attributes[path] = values
+    return attributes
+
+
+def _matches_committed_content(root, relative, content, committed):
+    if content == committed:
+        return True
+    normalized = content.replace(b"\r\n", b"\n")
+    if b"\0" in content or b"\r" in normalized or normalized != committed:
+        return False
+    # Admit only the finite text/EOL policy for exact committed LF bytes. Avoid
+    # Git conversion commands: changed attributes could otherwise launch a
+    # configured filter between a precheck and conversion during read-only work.
+    values = _require_supported_content_transforms(root, (relative,))[relative]
+    if values[b"text"] == b"unset":
+        return False
+    if values[b"text"] in {b"set", b"auto"} or values[b"eol"] in {b"lf", b"crlf"}:
+        return True
+    setting = _git(
+        root,
+        "config",
+        "--type=bool-or-str",
+        "--get",
+        "core.autocrlf",
+        allow_failure=True,
+    )
+    if setting.returncode == 1 and not setting.stdout:
+        return False
+    if setting.returncode or setting.stdout not in {b"true\n", b"false\n", b"input\n"}:
+        _fail("transform_unsupported", "Git text conversion policy is unsupported")
+    return setting.stdout in {b"true\n", b"input\n"}
+
+
+def _lock_only(framework, lock):
+    for directory, member in zip(
+        lock.parents[:3], (lock, *lock.parents[:2]), strict=True
+    ):
+        require_safe_directory(directory)
+        with os.scandir(directory) as entries:
+            names = (entry.name for entry in entries)
+            if next(names, None) != member.name or next(names, None) is not None:
+                return False
+    return lock.parents[2] == framework
+
+
+def _retire_idle_runtime(root, prepared, lock, expected):
+    framework = root / "litai"
+    git_directory = Path(prepared.document["git_directory"])
+    destination = git_directory / _RUNTIME_RETIREMENT
+    result = {"state": "retained", "path": "litai"}
+    if not os.path.lexists(framework):
+        if os.path.lexists(destination):
+            return {"state": "absent", "retirement_slot": str(destination)}
+        return {"state": "absent"}
+    if (
+        not prepared.document["runtime_cleanup"]["complete_profile_selected"]
+        or expected is None
+        or expected["identity"] != _digest(b"\0")
+    ):
+        return {**result, "reason": "unproved-runtime-ownership"}
+    relative = lock.relative_to(root).as_posix()
+    moved = False
+    try:
+        _require_remaining(root, prepared, set())
+        if any(relative.startswith("litai/") for relative in _index(root)):
+            return {**result, "reason": "runtime-destination-still-tracked"}
+        _require_git_boundary(root, (lock,))
+        if _worktree(root, relative) != expected or not _lock_only(framework, lock):
+            return {**result, "reason": "runtime-contents-changed-or-unowned"}
+        # One worktree-local slot bounds retained state. Existing entries need
+        # explicit disposition regardless of their names and contents.
+        if os.path.lexists(destination):
+            return {
+                **result,
+                "reason": "retirement-slot-occupied",
+                "retirement_slot": str(destination),
+            }
+        with _runtime_lock(lock, existing_only=True) as observe_lock:
+            _require_remaining(root, prepared, set())
+            _require_git_boundary(root, (lock,))
+            if observe_lock() != expected or not _lock_only(framework, lock):
+                return {**result, "reason": "runtime-contents-changed-or-unowned"}
+            framework_node = directory_node(framework)
+            root_node = directory_node(root)
+            git_node = directory_node(git_directory)
+            publish_directory_between_owned_parents_exclusive(
+                framework,
+                destination,
+                expected_source=framework_node,
+                expected_source_parent=root_node,
+                expected_destination_parent=git_node,
+            )
+            moved = True
+        archived = destination / lock.relative_to(framework)
+        with _runtime_lock(archived, existing_only=True) as observe_lock:
+            if not _lock_only(destination, archived) or observe_lock() != expected:
+                publish_directory_between_owned_parents_exclusive(
+                    destination,
+                    framework,
+                    expected_source=framework_node,
+                    expected_source_parent=git_node,
+                    expected_destination_parent=root_node,
+                )
+                return {**result, "reason": "runtime-contents-changed-or-unowned"}
+            # The relocated inode is exclusively held and cannot be acquired
+            # through its obsolete worktree name. Delete only this exact byte.
+            archived.unlink()
+        for directory in archived.parents[:3]:
+            directory.rmdir()
+        return {"state": "retired"}
+    except (
+        CacheLockError,
+        OSError,
+        ValueError,
+        UnsafeFilesystemPathError,
+    ):
+        if moved or (not os.path.lexists(framework) and os.path.lexists(destination)):
+            return {
+                "state": "retired-with-resource",
+                "retirement_slot": str(destination),
+            }
+        return {**result, "reason": "runtime-retirement-refused"}
 
 
 def _owned(root, tree, cache):
@@ -330,6 +619,7 @@ class PreparedNativeRemoval:
     document: dict
     entries: dict
     index: dict
+    write_paths: tuple[str | Path, ...]
 
 
 def prepare_native_project_removal(
@@ -418,10 +708,13 @@ def prepare_native_project_removal(
             _fail(
                 "index_changed", "A selected index entry has different content or mode"
             )
-        state = _worktree(root, relative)
+        observed = _worktree_content(root, relative)
+        state = None if observed is None else observed[0]
         if state is not None:
             if (
-                state["identity"] != _digest(_blob(root, entry, cache=cache))
+                not _matches_committed_content(
+                    root, relative, observed[1], _blob(root, entry, cache=cache)
+                )
                 or state["node"]["mode"] & 0o111
             ):
                 if source is not None or relative in _AUTHORITY_METADATA:
@@ -446,27 +739,28 @@ def prepare_native_project_removal(
             "index_flags_unsupported",
             "Selected index flags need native Git disposition",
         )
-    attributes = _git(
-        root,
-        "check-attr",
-        "-z",
-        "--stdin",
-        "filter",
-        "working-tree-encoding",
-        content=b"\0".join(path.encode() for path in selected) + b"\0",
-    ).stdout.split(b"\0")
-    if any(value not in {b"unspecified", b"unset"} for value in attributes[2::3]):
-        _fail(
-            "transform_unsupported",
-            "Selected Git content transforms are not qualified for removal",
-        )
+    _require_supported_content_transforms(root, selected)
+    directories = _directories(root, selected, git_directory)
+    lock = _lock_coordinate(root.resolve(strict=True), root / "litai")
+    live = states[MANIFEST]["worktree"] is not None
+    write_paths: tuple[str | Path, ...] = tuple(selected)
+    if live:
+        write_paths += (lock,)
+    _require_git_boundary(root, write_paths)
+    try:
+        _require_git_boundary(root, (lock,))
+        lock_state = _worktree(root, lock.relative_to(root).as_posix())
+    except (NativeProjectRemovalError, UnsafeFilesystemPathError, OSError):
+        if live:
+            raise
+        lock_state = None
     value = {
         "schema": SCHEMA,
         "root": str(root),
         "source_commit": revision,
         "current_head": head,
         "index_identity": canonical_identity(index).uri,
-        "directory_bindings": _directories(root, selected, git_directory),
+        "directory_bindings": directories,
         "git_directory": str(git_directory),
         "root_node": {
             key: value
@@ -487,11 +781,16 @@ def prepare_native_project_removal(
         ],
         "external_files": [],
         "coordination": "worktree Git administration and existing lifecycle locks",
-        "runtime_state": "preserved; no recursive cleanup",
+        "runtime_cleanup": {
+            "complete_profile_selected": set(selected) == set(tree),
+            "lifecycle_lock": lock_state,
+            "retirement_slot": str(git_directory / _RUNTIME_RETIREMENT),
+        },
+        "runtime_state": "exact idle lifecycle residue only; no recursive cleanup",
         "writes": False,
     }
     value["plan_identity"] = canonical_identity(value).uri
-    return PreparedNativeRemoval(value, selected, index)
+    return PreparedNativeRemoval(value, selected, index, write_paths)
 
 
 def plan_native_project_removal(
@@ -550,6 +849,7 @@ def _require_remaining(root, prepared, remaining):
                 "cleanup_pending",
                 "Git removal is incomplete; use the recorded recovery source and paths",
             )
+    _require_git_boundary(root, prepared.write_paths)
 
 
 def _remove_group(root, prepared, paths):
@@ -567,6 +867,7 @@ def _remove_group(root, prepared, paths):
         if mode == "--index":
             # Refresh copied/touched files' stat cache without staging bytes.
             before_refresh = _index(root)
+            _require_git_boundary(root, prepared.write_paths)
             _git(root, "add", "--refresh", "--", *selected)
             if _index(root) != before_refresh:
                 _fail("concurrent_index", "Index content changed during stat refresh")
@@ -597,6 +898,7 @@ def _remove_group(root, prepared, paths):
             _fail("patch_unavailable", "Exact native deletion patch is unavailable")
         # Both modes verify the exact indexed before-image under Git's lock.
         # Never restore an index entry or follow a newer HEAD with git rm.
+        _require_git_boundary(root, prepared.write_paths)
         _git(
             root,
             "apply",
@@ -629,9 +931,9 @@ def apply_native_project_removal(
     prepared = prepare_native_project_removal(root, source=source, only=only)
     if prepared.document["plan_identity"] != expected:
         _fail("plan_changed", "Native removal plan changed after review")
-    from contextlib import nullcontext
 
-    from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
+    def require_lock_path(path):
+        _require_git_boundary(root, (path,))
 
     with ProjectConfigurationStore.layout_lock(root):
         current = prepare_native_project_removal(root, source=source, only=only)
@@ -640,15 +942,29 @@ def apply_native_project_removal(
         # Missing-manifest recovery cannot rediscover an ancestor project or
         # create root lifecycle files. Its Git layout lock still owns publication.
         live = prepared.document["selected"][MANIFEST]["worktree"] is not None
-        lifecycle = (
-            project_lifecycle_lock(root, operation="native-remove")
-            if live
-            else nullcontext()
-        )
-        manifest_lock = (
-            ProjectConfigurationStore(root)._lock(root) if live else nullcontext()
-        )
-        with lifecycle, manifest_lock:
+        lock = _lock_coordinate(root.resolve(strict=True), root / "litai")
+        expected_lock = prepared.document["runtime_cleanup"]["lifecycle_lock"]
+        with ExitStack() as locks:
+            if live:
+                require_lock_path(lock)
+                try:
+                    observe_lock = locks.enter_context(
+                        _runtime_lock(lock, existing_only=expected_lock is not None)
+                    )
+                except CacheLockError as exc:
+                    raise ProjectLifecycleLockError(
+                        "lifecycle.project_locked",
+                        "Native removal could not acquire the existing lifecycle lock",
+                    ) from exc
+                locked = observe_lock()
+                if expected_lock is not None and locked != expected_lock:
+                    _fail("runtime_lock_changed", "The reviewed lifecycle lock changed")
+                expected_lock = locked
+                locks.enter_context(
+                    ProjectConfigurationStore(root)._lock(
+                        root, require_path=require_lock_path
+                    )
+                )
             supporting = sorted(set(prepared.entries) - {MANIFEST})
             _require_remaining(root, prepared, set(prepared.entries))
             phase = "supporting-files"
@@ -674,6 +990,7 @@ def apply_native_project_removal(
                 if failure is exc:
                     raise
                 raise failure from exc
+        runtime = _retire_idle_runtime(root, prepared, lock, expected_lock)
     return {
         "schema": SCHEMA,
         "state": "removed",
@@ -691,5 +1008,6 @@ def apply_native_project_removal(
         "source_commit": prepared.document["source_commit"],
         "recovery_argv": prepared.document["recovery_argv"],
         "committed": False,
-        "runtime_state": "preserved; no recursive cleanup",
+        "runtime_state": "exact idle lifecycle residue only; no recursive cleanup",
+        "runtime_cleanup": runtime,
     }

@@ -1,0 +1,49 @@
+{
+  "schema": "literate-ai/503-r2-source-fixes-review-and-moved-handback-fixture@1",
+  "source_assessment": "Allthreepreviousr2sourcefindings fixedbyinspection; no additionalactionablesourcefindingidentified. Full503qualification remains pending currenttests/API/installedhistoricaljourney.",
+  "resolved_findings": {
+    "query": "Originalrecoveryfactorycaptures query; inlineglobalidentity/code/default/kwdefaultchecks beforeentry/selection/pruning/reportquery; calls closedoriginalquery, neverreplacementglobalcallback. Queryitselfsealsfinitehelpersbefore/afterproof.",
+    "epoch": "Exactoutercontext.successor passedthrough recover_catalog_renewals andeachactive/postmoveguard. Existing _guard comparesallrecordedsuccessorbindings againstexplicitselection beforeproducerchanges; defaultNone/inference preserved.",
+    "destination_absence": "JoinedrecoveringFrow nowrequiresroot/F.destination absent whenF.destination !=C.destination(Fsource), restoring exactoriginal_state absencecondition withoutbreaking samepathsharedmetadata phases."
+  },
+  "recovery_native_review": [
+    "Fbeforeempty,Fafterexactnativeafter_node/hash/mode; CpostimageFpreimageexactnode/from/modejoin; native C_entry_state validpublished/backedup/original choosesrootdestorcat_after exactly.",
+    "AllnonjoinedFrows original; fullframework_current, Rootlease/Git/nativejournal/sourcecontrols closebefore/after.",
+    "Onlyrolledbackpublishedcoordination/originalscaffolds/equalnodecatnewdir-frameoriginaldir anchors admitted; noaliveframeworkpayload grants. Pruning/returnedretention intersectonlyoldcatnewdirkeys.",
+    "Explicitquery/load before source-restorationeffects and samecontext allsubsequentload/current; no implicitalljournal discovery."
+  ],
+  "moved_handback_regression_proposal": {
+    "status": "SOURCE-DERIVEDSETUP,notexecutedbyreviewer; verifyallassertionswithactualfactoriesbeforeclaim",
+    "why_simple_setup_fails": "Containedcatalogreferenceprojection doesNOT advanceframeworkbase: catalog_continuation.py594-599 onlyrelocatesexistingbasemap, thenreference_edits loop643-694 changesdocument. PlainoriginalPREbase ->POSTrefedit wouldmakewholeframeworkproof correctlyrefuse/skippayload. Do notmanuallyadvancebaseaftercatalogtoforceproof.",
+    "existing_fixture_owner": "InitializedFrameworkProofTests.fixture(content=...) alreadyrecordsindependentoriginalbaselineandretainedframeworkbaseusingrealUpdateBases; InitializedComponentCaptureTests andMixedComponentChannelTests useitthroughoriginalfactories.",
+    "bounded_parameters": "Add original_skill_content=None forwardingparameter through InitializedComponentCaptureTests.fixture ->InitializedFrameworkProofTests.fixture(content=...) andMixedComponentChannelTests.fixture. Defaults unchanged. Add localactualsourceedit onlybeforecatalogplan/capture/Git snapshot.",
+    "original_framework_POST": "# Original framework authority\n[peer](litai/samples/peer/component.md)\n",
+    "local_current_PRE": "# Original framework authority\n[peer](samples/peer/component.md)\n",
+    "authority_model": "FrameworkoriginalbasePOST isrecordedBEFOREcatalog byoriginalfixtureproducer. UserhaslegitimateexistinglocalPREedit. Publiccatalogreferenceapproval restoresdocumenttoitsalready-retainedoriginalbase; subsequentgenuinewholeframeworkproof canthenownit withoutanypostcatalogbaselinechange.",
+    "sequence": [
+      "Useexistingshared_parent imported samples/peer actualCatalogImport/UpdateBases/Git fixture plusindependentoriginalrootSKILL POSTbase. WritecurrentPRElocaleditbeforeoriginalsnapshot/Git/capture; project.agent_skill mustrootSKILL (alreadyInitializedComponent fixture).",
+      "Publiccatalogplan/applywithreferences=(SKILL.md,); assert exactreferenceedit PRE->POST and actualSKILLbaseidentity remainsPREEXISTING_POST; no hand-authoredjournal/baserepair.",
+      "Publicframeworkplan/apply: assert owned_placements.SKILL.md destinationlitai/SKILL.md and from==catalog.reference_edits.SKILL.to; actualF.node joins actualC.after_node. Thisisnowgenuine different-coordinate joinedrow.",
+      "Frameworkoriginalrollbackfirst; verifyrootSKILL POST restored andlitai/SKILLabsent. No Componentfinalization neededsolelyforthisnegativeifkeepingtestbounded.",
+      "Createforeignlitai/SKILL inode; explicitcatalogrecover mustrefusebeforecatalogsourceeffects andpreserveforeignbytes/inode.",
+      "Finallyremoveonlytest-createdforeigninode; exactpubliccatalogrecover withsameexplicitframeworkidentity restoresallinitialPREactualbytesandoriginalinodes."
+    ],
+    "checks": "Atno pointrelabelimportedpayloadasinitialized,forgebaseline/journal,substituteproofissuer,orrelaxwhole-source/nativechecks."
+  },
+  "current_r20b_evidence": {
+    "status": "ExistingparentrunterminalFAILnewfixtureprecondition",
+    "failure": "test_cold_no_catalog_history_recovers_and_retains_exact_empty_anchor assertedlitai/flavors inframework.original_directories butframeworkhadnopayloadunderthatparent. CatalogimportedFlavoralone doesnotconstructsharedanchor.",
+    "repair_requirement": "AddgenuineoriginalinitializedframeworkFlavor/payloadunder samecatalog-createdparent; preserveassertion. No weakeningnativeanchorcondition.",
+    "reviewer_runs": "None"
+  },
+  "reviewed_production_sha256": {
+    "src/literate_ai/adapters/project_layout_catalog_successor.py": "75d04c51f32600a9d92de0690f7cfd058eccbf881ead147d51f588eae1510578",
+    "src/literate_ai/adapters/project_layout_continuation.py": "a10edd669ac8c7fc21fc66266e5a17fff9fd072ff7f6ac42097022353f09b0d4",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "963c161904ff3b3b34c94e83b9c894eb1442dc8f2bf4b7b8a283ca3f64b1469f"
+  },
+  "limits": [
+    "Read-only source/fixturedesign; no edits/jobs/posts/newplan/nativeapply/historicalmutation.",
+    "APIcontractpartition ownedbycontractsreviewer; noindependentfullCLIclosureclaimedhere.",
+    "No full503/release/nativequalificationclaim untilcurrenttestsandactualhistoricalsuccessorjourney."
+  ]
+}

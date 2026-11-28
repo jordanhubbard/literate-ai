@@ -1,0 +1,82 @@
+{
+  "review": "read-only source classification and genuine public-old-producer regression recipe",
+  "status": "conditional_followup_not503blocker",
+  "issue_draft": {
+    "title": "Investigate inconsistent Flavor reference closure after partial framework placement",
+    "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/partial-framework-flavor-reference-issue-draft-r1.md",
+    "posted": false,
+    "duplicate_search": "Read-only Flavor Skill closure search found no matching issue."
+  },
+  "prior_diagnosis": "review-authority-lang-python-partial-framework-r20c-diagnosis-r1.json",
+  "r20c_proof_limit": "Actual plan/apply and lock failure against explicitly modeled old origin and hand-extended baseline. No authentic historical producer proof in this variant.",
+  "authentic_existing_input": {
+    "old_prefix": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r1/environment",
+    "metadata_version": "1.3.1",
+    "metadata_sha256": "ab24767c135c17ddd65a97958184a6c9d9eb712f77de7444fe7760bfb5181e3a",
+    "wheel": {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-inputs/literate_ai-1.3.1-py3-none-any.whl",
+      "bytes": 3817215,
+      "sha256": "4b075b0b7727a11785a59359ccc3fc2de327baad46ec45350faeb66ddfc14c15",
+      "origin": {
+        "git_revision": "87506c804210c46835723e11d1ca1c6cae0f496c",
+        "repository_url": "https://github.com/jordanhubbard/literate-ai",
+        "schema": "literate-ai/distribution-origin@1"
+      }
+    },
+    "verification_limit": "Provider API/publication digest agreement and downloaded bytes; no independent publisher signature verification claimed.",
+    "old_cli_help": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r1/init-1.3.1-help.txt",
+    "public_init_support": "Saved actual1.3.1 help supports canonical generated public init on absent/empty target, Python/Make/host/pip default, no-tool-bootstrap, optional exactfrom source. No invented legacy-layout flag required.",
+    "r2_reference": "historical-layout-r2 prepare.py/old-cli.py prove actual prefix execution and immutable source acquisition conventions; use them as provenance, not copy/modifytheir native project or journals."
+  },
+  "exact_future_recipe": [
+    {
+      "step": "Verify inputs",
+      "actions": [
+        "Verify the immutable released prefix and wheel against the existing provenance receipt. Do not upgrade or modify them.",
+        "Allocate fresh task-owned project, user configuration, cache, build and log namespaces. Keep every original qualification fixture unchanged.",
+        "Use only the saved actual 1.3.1 public CLI flags and recorded source acquisition conventions; do not invent a legacy-layout flag."
+      ]
+    },
+    {
+      "step": "Run the genuine old initializer",
+      "actions": [
+        "Run the actual old installed Python with -I and its public litai --json init command on the fresh target. Retain original argv, finite bounds, exit and streams.",
+        "Record the produced manifest, origin, baseline, update bases and Python Flavor/Skill bytes. Confirm both selected canonical Flavor and produced Skill are baseline members.",
+        "A producer failure remains a failure; do not copy missing files or edit provenance to proceed."
+      ]
+    },
+    {
+      "step": "Create legitimate application customization",
+      "actions": [
+        "Customize only the already produced Python Skill while preserving valid Skill syntax and its original preimage. Leave canonical lang-python Flavor bytes unchanged.",
+        "Do not remove baseline rows, advance update bases manually, fabricate origin, or edit journals.",
+        "Use original public validation and ordinary Component locking to establish that the customized project remains valid. Record any lock renewal through its original API."
+      ]
+    },
+    {
+      "step": "Use the actual new candidate migration",
+      "actions": [
+        "Invoke public project layout plan --migration --place-framework-authority with the exact candidate installed prefix. Inspect required_owners, blocked references and exact plan identity.",
+        "If a public lifecycle rebind or compatibility transition is required, retain its separate acknowledged plan/apply evidence; never hand-edit pins or metadata.",
+        "If the custom Skill blocks migration or the Flavor is not selected, retain that result: this does not confirm the proposed admitted partial-layout gap.",
+        "Only apply an applicable, explicitly acknowledged original plan through its actual transaction owner."
+      ]
+    },
+    {
+      "step": "Check the ordinary consumer",
+      "actions": [
+        "Verify the custom Skill remains at its declared original coordinate with its exact edited bytes, and the unchanged Flavor moved only as declared. Preserve alias, collision and ownership refusals.",
+        "Run ordinary Component lock/plan and its actual snapshot closer on that same typed reference.",
+        "Confirm the consumer gap only if admitted public placement reads the original Skill initially and then pins a different missing path during closing. Otherwise record the refusal or alternate result and retain the original modeled diagnosis as limited."
+      ]
+    }
+  ],
+  "repair_boundary_if_confirmed": "Component lock planning initial, direct and fallback Flavor capture must share the existing configured typed-coordinate owner and expected identity. No change to the #503 anchor owner, no Skill auto-adoption, and no immutable Flavor rewrite.",
+  "503_scoping": "The current os-macos item has empty authoring_inputs and isolates the shared Flavor-parent empty-anchor recovery. Ten retained source controls passed; this does not erase r20c or prove historical ownership.",
+  "source_classification": "Current generated init does not directly produce the modeled lang-python-only ownership baseline; the native profile is excluded. Partial custom/unproved ownership is intentional and the resolver supports a moved Flavor with a root Skill. A genuine producer and normal customization are needed to establish public admissibility.",
+  "limits": [
+    "The future recipe was not executed. No test rerun, job, installation, source edit, external post or original fixture mutation.",
+    "No new release goal, deferral or #503 scope expansion.",
+    "No native, historical or installed qualification claim from r20c or this source analysis."
+  ]
+}

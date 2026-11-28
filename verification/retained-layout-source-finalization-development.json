@@ -1,0 +1,366 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "c14422b2945aaf54ac5b74517a507136953d0093",
+  "scope": "Actual original-ledger normal nonroot source transaction through metadata, exact control effects, verified Git handoff and terminal source observation after successful descriptor teardown. Result remains committed-unqualified.",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_source_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "8048ab9dc8800fbb6af01782c9901f7700654ab634b4bb88eb2e13848a174d98"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "f191abafb841d895feff8b52a73af91ded1ea9af89d689bb97e959a3581db452"
+    },
+    "src/literate_ai/adapters/retained_layout_reservations.py": {
+      "algorithm": "sha256",
+      "digest": "bee58472436b37cb06f5de9759121854ce985c614d6dfea24ccc07d4f7b42463"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "759d88eeda3dae4b35cb8f809b782d7f5b1f6e5623c953824b1f9b06ea39cd03"
+    },
+    "src/literate_ai/adapters/retained_layout_source_movement.py": {
+      "algorithm": "sha256",
+      "digest": "d99454a2f4bfdc7862949502ee2a3fabbd9d9b5322d8349bf8dda52cb5345667"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "568bf00c670db053911f443c3c4358d6f37e5722995e8686d7fafd0a2edc761e"
+    },
+    "src/literate_ai/adapters/retained_layout_source_metadata.py": {
+      "algorithm": "sha256",
+      "digest": "6f288c70d8efbab1f68402aecc7ba4b47b930452821872981d5b2d80f2072748"
+    },
+    "tests/critical/test_retained_layout_source_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "1c34136fc73f1ad1f75a339b59be3e0784c8c6bb3ae82afac2461457523e950c"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "d1506fefa6aa970ba4f37c0d5f34cb5a19d77658282bb7638b23bb650386fb0c"
+    }
+  },
+  "behavior": [
+    "A creating finalization participant funds original transition/history requirements before control effects, authenticates the exact original marker roster, and issues one-use permits only for the planned next begin/normalize/retire/finish action.",
+    "Native normalization/retirement receipts advance original payload/presence observations and complete resulting project/private graphs before their observed journal events. Original plans and framework/cache/catalog seals remain immutable.",
+    "New advisory files normalize under their original OS locks; existing advisory inode/content survives. The durable unqualified commit decision precedes retirement of the exact pending barrier last.",
+    "Actual verified native control handoff releases only the original Git administration scope from live observations; original observations and history remain retained without refunds. Native Git writers resume while source and unknown project neighbors remain current.",
+    "Physical retirement separation includes project, journal, staging, metadata, original predecessor private/source and recursive alternate-object-store roots, plus the whole canonical acquisition cleanup parent.",
+    "Freeze actual creating area descriptor/guard/journal/root/limits/PID and original journal/staging written receipts plus held/named root stamps before phase deactivation. No post-teardown baseline is sampled.",
+    "A slots-only registrar exposes only guarded callback registration. Actual context entry uses the original creating resource registry. Only successful actual local ExitStack exit, with phase revoked, issues the frozen exited receipt required for terminal success.",
+    "The original preparation reader survives actual source/control/private descriptor teardown. Terminal rechecks bounded existing private written receipts, exact private rosters, the complete resulting project/source span and then original lifetimes without further callbacks.",
+    "Terminal observation grants no source phase, writer, admission or recovery rights; attempted readmission refuses before usage changes. Failed release and late foreign changes retain committed-unqualified error semantics and foreign state."
+  ],
+  "qualified_author_make": {
+    "state": "passed",
+    "command": "make python-check",
+    "selection": "tests/critical/test_retained_layout_source*.py",
+    "expected_methods": 72,
+    "report_path": "_build/source-finalization-complete-make-report.json",
+    "log_path": "_build/source-finalization-complete-make.log",
+    "exit_code": 0,
+    "summary": {
+      "executed": 72,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 72,
+      "selected": 72,
+      "skipped": 0
+    },
+    "seconds": 598.76,
+    "report": {
+      "path": "_build/source-finalization-complete-make-report.json",
+      "sha256": "4d46541a400f12d43db1c2457deb2429bc93c621632b8dea9c937cb1ca797fc0"
+    },
+    "log": {
+      "path": "_build/source-finalization-complete-make.log",
+      "sha256": "b5c8e269c5bc6930ec452999c50301f1cef3b6031c3a9e4fe3cc01060b8679c1"
+    },
+    "also_checks": [
+      "compileall src/tests",
+      "maintained script py_compile",
+      "host-path policy"
+    ]
+  },
+  "supplemental_regression": {
+    "state": "passed",
+    "expected_methods": 366,
+    "scope": "Nineteen affected suites; source-preparation cases are included once in maintained Make selection.",
+    "log_path": "_build/source-finalization-complete-regression.log",
+    "exit_code": 0,
+    "tests": 366,
+    "unique_test_ids": 366,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 723.602,
+    "log": {
+      "path": "_build/source-finalization-complete-regression.log",
+      "sha256": "dbea8af5f91407f13187229a4e5d2d6edcf29484b61de6fdeb8e0b225ab6d19a"
+    }
+  },
+  "causal_controls": [
+    {
+      "findings": [
+        "Mutable original retirement guard could be rebound during teardown.",
+        "Journal record changed after actual control FD release escaped terminal source observation.",
+        "Foreign staging entry after actual control FD release escaped terminal source observation.",
+        "Last project-native callback could revoke preparation after its preceding lifetime check."
+      ],
+      "before": {
+        "path": "_build/source-finalization-review-before.log",
+        "sha256": "94d9c6afaad1641c9d547ed96acb401d25b414381bdb834d0b38f7a27263876a",
+        "tests": 4,
+        "seconds": 47.624,
+        "footer": "FAILED (failures=4)"
+      },
+      "after": "The same four methods pass in the intermediate10 cohort and in final exact-subject Make72; affected366 is also green.",
+      "final_qualification": "Final exact-subject Make72 and affected366 pass without failures or skips; cohorts have438 distinct test IDs."
+    },
+    {
+      "findings": [
+        "Mutable resource field redirected creating contexts into another ExitStack.",
+        "Terminal private scan retained 16 foreign names despite a one-entry refusal bound."
+      ],
+      "before": {
+        "path": "_build/source-finalization-owner-budget-before.log",
+        "sha256": "8a79bdf83a7bc86b54075a696b25b0e78a9dbc18f645477d476ffe8b980b89d4",
+        "tests": 2,
+        "seconds": 24.632,
+        "footer": "FAILED (failures=2)"
+      },
+      "after": {
+        "path": "_build/source-finalization-owner-budget-after.log",
+        "sha256": "36772180c6d67cfd87720e7623871500c43a7aa49f635a6adc06b18edd31aff4",
+        "tests": 2,
+        "seconds": 21.609,
+        "footer": "OK"
+      },
+      "final_qualification": "Final exact-subject Make72 and affected366 pass without failures or skips; cohorts have438 distinct test IDs."
+    },
+    {
+      "finding": "Public ExitStack.pop_all transferred original callbacks, leaving a real metadata FD open after source scope reported success.",
+      "before": {
+        "path": "_build/source-finalization-pop-all-before.log",
+        "sha256": "3f20f977f19aaaa18abe891b97bc65aecf7387cfe17a6876ca39478928816267",
+        "tests": 1,
+        "seconds": 14.238,
+        "footer": "FAILED (failures=1)"
+      },
+      "after": {
+        "path": "_build/source-finalization-registrar-after.log",
+        "sha256": "eff9c7be010c51aaf2c625cf263d9af355d3e489e3f8ed4d70db6a26911d1e8c",
+        "tests": 2,
+        "seconds": 45.624,
+        "footer": "OK"
+      },
+      "final_qualification": "Final exact-subject Make72 and affected366 pass without failures or skips; cohorts have438 distinct test IDs."
+    },
+    {
+      "finding": "A repeated finalization call after commit must remain a plain validation refusal, not a translated post-commit failure.",
+      "before": {
+        "path": "_build/source-finalization-legacy-before.log",
+        "sha256": "ce290159e30fd70895e606ed153c35669770d514e1a2ae40281e669dcb5e38be",
+        "tests": 1,
+        "seconds": 3.363,
+        "footer": "FAILED (errors=1)",
+        "interpretation": "Existing legacy test reproduces wrong error translation."
+      },
+      "after": {
+        "path": "_build/source-finalization-legacy-after.log",
+        "sha256": "22008bd182675d50c4fb0171a94fd5531c6e763a4b2140240b4d6b19bc49cd6f",
+        "tests": 19,
+        "seconds": 44.302,
+        "footer": "OK",
+        "interpretation": "All19 legacy finalization controls pass after the boundary correction."
+      },
+      "final_qualification": "Final exact-subject Make72 and affected366 pass without failures or skips; cohorts have438 distinct test IDs."
+    }
+  ],
+  "policy_qualification": {
+    "ordinary_no_git": {
+      "maximum_entries": 65536,
+      "maximum_metadata_bytes": 4294967296
+    },
+    "full_git_positive": {
+      "maximum_entries": 131072,
+      "maximum_metadata_bytes": 8589934592
+    },
+    "framework_canonical_catalog_positive": {
+      "maximum_entries": 262144,
+      "catalog_and_source_metadata_bytes": 8589934592,
+      "framework_metadata_bytes": 2147483648
+    },
+    "unchanged_limits": {
+      "maximum_files": 4096,
+      "maximum_file_bytes": 4194304,
+      "maximum_total_bytes": 134217728
+    },
+    "smaller_git_policy_refusal": {
+      "maximum_entries": 65536,
+      "maximum_metadata_bytes": 4294967296,
+      "behavior": "Before control effects: original marker bytes unchanged, retirement area empty, finalization not started, ledger remains within original policy. Source movement and metadata publication already occurred under the same operation."
+    },
+    "declaration_boundary": "Every positive capacity is declared before creating the first producer/preparation; no active operation enlarges its policy, replaces its reader/ledger, refunds observations, or imports predecessor usage twice."
+  },
+  "author_history": [
+    {
+      "path": "_build/source-finalization-before.log",
+      "sha256": "02f8b0338dd12f36cc7756f1b29bbaab5c3262bcfeec17d57053af311f4bcaff",
+      "tests": 3,
+      "seconds": 38.111,
+      "footer": "FAILED (failures=2, errors=1)",
+      "interpretation": "Missing full path baseline: all three stop at existing unfunded finalization guard; neither late teardown callback is reached. Not three separate teardown defect reproductions."
+    },
+    {
+      "path": "_build/source-finalization-first.log",
+      "sha256": "d0e3fafa35ffb2c2f62d9f30159a1a0775aada89e70120aa5427105c9f9174fd",
+      "tests": 3,
+      "seconds": 44.803,
+      "footer": "FAILED (errors=1)",
+      "interpretation": "Two actual teardown controls pass. Smaller original Git allowance is exhausted by first precharge; repaired to compare capacity before debit, then retained as explicit smaller-policy refusal."
+    },
+    {
+      "path": "_build/source-finalization-second.log",
+      "sha256": "75778296259c12766acce95f78041bb93ae747f4770c41d9251b65b39c9006f0",
+      "tests": 4,
+      "seconds": 70.419,
+      "footer": "FAILED (errors=1)",
+      "interpretation": "After verified Git release, later original lock retirement still looked for that handed-off marker in the retained project graph. Repaired while preserving exact original marker/private receipts."
+    },
+    {
+      "path": "_build/source-finalization-git-third.log",
+      "sha256": "3ad19ce6bde3dd5b61db2e66b75175bbe71cd68e8a0c01f7c14e345854a7bff6",
+      "tests": 1,
+      "seconds": 32.701,
+      "footer": "OK",
+      "interpretation": "Earlier full original-ledger Git/native writer/teardown positive; historical subjects, not final qualification."
+    },
+    {
+      "path": "_build/source-finalization-chain.log",
+      "sha256": "ff730fca1040a73c2c448fa6f31b45992435a3c1ae3118bba499fdd868c86471",
+      "tests": 6,
+      "seconds": 140.454,
+      "footer": "FAILED (errors=1)",
+      "interpretation": "Five controls pass including real framework/canonical catalog completion; one test incorrectly unpacks journal.events documents. Fixed fixture uses event kind field; not a production defect."
+    },
+    {
+      "path": "_build/source-finalization-reviewed-fixes.log",
+      "sha256": "681cb76fec1bbace32c012f8c55e43b9dfa2299efb668e6f43fa8bf8a7f1a150",
+      "tests": 10,
+      "seconds": 190.676,
+      "footer": "OK",
+      "interpretation": "Intermediate 10-test cohort after first three review groups; original stack transfer finding was not yet closed."
+    },
+    {
+      "qualification": "Earlier maintained72 pass before the final two-line legacy validation-boundary correction.",
+      "result": {
+        "state": "passed",
+        "command": "make python-check",
+        "selection": "tests/critical/test_retained_layout_source*.py",
+        "expected_methods": 72,
+        "report_path": "_build/source-finalization-make-report.json",
+        "log_path": "_build/source-finalization-make.log",
+        "exit_code": 0,
+        "summary": {
+          "executed": 72,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 72,
+          "selected": 72,
+          "skipped": 0
+        },
+        "seconds": 593.309,
+        "report": {
+          "path": "_build/source-finalization-make-report.json",
+          "sha256": "4c29d7ceb6b1937f8ef2764bcf73395224b835dfc4a47589793ae5337d022696"
+        },
+        "log": {
+          "path": "_build/source-finalization-make.log",
+          "sha256": "ed7aea9adf4d1d9f112d2389ae8c0095bdd881a8e8e6cc6addd03eec84975162"
+        },
+        "also_checks": [
+          "compileall src/tests",
+          "maintained script py_compile",
+          "host-path policy"
+        ]
+      }
+    },
+    {
+      "path": "_build/source-finalization-regression.log",
+      "sha256": "48fcb44e0ec6da7670db37c0be6b01c91c2c4fff9cd41b52d4a5dba3b599e9e3",
+      "tests": 366,
+      "seconds": 722.986,
+      "footer": "FAILED (errors=1)",
+      "interpretation": "365 pass and one legacy double-finalize validation error; retained unchanged, never relabeled green."
+    }
+  ],
+  "independent_review": {
+    "path": "independent-layout-source-finalization-review.json",
+    "sha256": "e839d6e66e87a0cb4113b41c368d06aaa725b21e5e46fc428e6c655606648d34",
+    "decision": "approved_at_normal_nonroot_committed_unqualified_scope",
+    "independent_dynamic_qualification": false
+  },
+  "static_gates": {
+    "exit_code": 0,
+    "commands": [
+      "make lint",
+      "make format-check",
+      "make repository-layout-check",
+      "make public-export-check",
+      "make openspec-check",
+      "make skills-check"
+    ],
+    "log": {
+      "path": "_build/source-finalization-final-static.log",
+      "sha256": "69f2180459cd5ba3f0816c8da30e6519c69629d5085203852f36d3bbab8e6e93"
+    }
+  },
+  "initial_static_invocation": {
+    "exit_code": 2,
+    "log": {
+      "path": "_build/source-finalization-static.log",
+      "sha256": "86eafdeab1e0339c1b17129e51dd040de9c1bcbae70d9590452a1c27fa9755f2"
+    },
+    "interpretation": "Bare ruff executable absent from PATH. Qualified rerun explicitly selects the existing managed Ruff; no source change."
+  },
+  "acceptance": {
+    "actual_original_ledger_nonroot_finalization": true,
+    "native_git_writer_after_verified_handoff": true,
+    "original_preparation_terminal_observation": true,
+    "actual_successful_resource_exit_receipt": true,
+    "normal_nonroot_committed_unqualified": true,
+    "canonical_authored_role_completion": false,
+    "complete_external_original_provider_admission": false,
+    "root_shared_initial_wrapper_effects": false,
+    "complete_public_recovery": false,
+    "complete_public_apply": false,
+    "installed_native_platform_integration_release": false,
+    "full_roadmap": false
+  },
+  "next_action": "Join complete canonical authored roles and external original-provider admission to the actual complete partition; preserve root/shared/initial/wrapper, public recovery/apply, installed/native/platform/integration/release and all other pending roadmap requirements.",
+  "combined_unique_passing_test_ids": 438,
+  "authority_checks": {
+    "driver_record": {
+      "path": "_build/source-finalization-driver-record.log",
+      "sha256": "2f574dc7663c3055c6a3a5e91f6275b37aed32c35ac72771cddfd5df9a0f74f1",
+      "exit_code": 0
+    },
+    "documentation_record": {
+      "path": "_build/source-finalization-documentation-record.log",
+      "sha256": "585cd262c87f07ff5e3899e6ff4fac3081852fece1372c2a5b73e7882bee7bd4",
+      "exit_code": 0
+    },
+    "driver_runner_layout_export": {
+      "path": "_build/source-finalization-final-authority-checks.log",
+      "sha256": "bf56da7bac1e4011de11e7a625f7b527275e9007bbc5594acce21d42eff2b642",
+      "exit_code": 0
+    },
+    "project_validate": {
+      "path": "_build/source-finalization-project-validate.json",
+      "sha256": "bbba321932514a8dfaa5762de2962458497f1016d3b0616b11f42c7ad53dab58",
+      "exit_code": 0,
+      "ok": true
+    }
+  }
+}

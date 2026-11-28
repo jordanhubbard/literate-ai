@@ -56,3 +56,5 @@ CLI, the next hardening horizon, compounding reuse, and a concrete investment de
 Author speaker notes for every slide stating its supporting authority and its recorded limits. The deck is forwarded without narration.
 
 Foundational framing: readable specification is durable authority; generated source is a candidate; guarded build, tests, execution, independent acceptance, and evidence receipts establish promotion. Do not invent ROI statistics, do not present roadmap outcomes as already shipped, and do not present a design intent as a measured result.
+
+For the 1.4 candidate, use slide 23 to follow the importer from locked SDK preparation to consumer admission. Preserve the distinction between verified package bytes and a completed independent provider and consumer run.

@@ -1,0 +1,175 @@
+{
+  "schema": "literate-ai/development-qualification-evidence@1",
+  "goal": "AUTHORED-GRAPH-QUALIFICATION-001",
+  "release_target": "1.4.0",
+  "issue": 393,
+  "review": 401,
+  "software_commit": "de2370fcd",
+  "integrated_main": "638845ec00272776ae4644944d6e1dec4b1c4ff6",
+  "source_sha256": {
+    "src/literate_ai/contracts/authored_qualification_runs.py": "5ff9d85369c47b47bb234f1d0617c013275977726a5900c3a21b43923037d6b2",
+    "src/literate_ai/adapters/authored_qualification_runs.py": "fc03fb5c39ad78c20f6fc8d69d772b6effc4758fd8a78bb539b2b8c9aa21d595",
+    "schemas/v2/authored-qualification-node-run.schema.json": "dad46ed99436b3333a8681a39a01e2cd36c8c4c8b302eeb518ba8ba58a6446d3",
+    "schemas/v2/authored-qualification-run.schema.json": "7d2644130c4438d5516613af1b3678bc7252d18d886965db703f46e15f7682ad",
+    "schemas/v2/authored-qualification-result.schema.json": "fbe93c6871e3cc48e1a19bc8ce15ed3aaa6b1142217665077b5ea94c11fba150",
+    "schemas/v2/index.json": "4aeb74ddb9a1427da1062022e494a0dd68caa7fcc3fcffc9cc0c7ffc0d8cd17b",
+    "tests/critical/test_authored_qualification_runs.py": "d8680787892abef460c2ea377b3573be02a273997cb26bef52c8eb01fc747f30",
+    "tests/critical/test_authored_qualification_run_observation.py": "04d2831c847649802a12b068905285e92abf3e94e17a3fdfbec3371578a0bd25"
+  },
+  "initial_authored_family": {
+    "subject": "de2370fcd",
+    "summary": {
+      "executed": 59,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 59,
+      "selected": 59,
+      "skipped": 0
+    }
+  },
+  "new_controls": 13,
+  "whole_wheel_before_command_reference_repair": {
+    "subject": "1f0742aa3ad8e282fe7033f8bbfe290b2d9dbdca",
+    "state": "pass",
+    "wheel_identity": "sha256:de9b7332cf0a2dcb96c54968d2bdf28800d801de86be552597eb64ff0663ea4a",
+    "retained_manifest": "_build/ci-wheels/run-yv4nc_ah/manifest.json",
+    "standard_binding": {
+      "distribution": "sha256:c281f07a48bfb145e54cbcf2345e938265f228075515a5e79e7613b2f7a265be",
+      "members": 1395,
+      "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+    },
+    "worker_runtime": {
+      "installed_distributions": 38,
+      "dependency_closure_identity": "sha256:7506528bdd047fc0248a007bb8c5991386db3095dd018b207b06107ae75770c8"
+    },
+    "uv_tool_worker_runtime": {
+      "installed_distributions": 38,
+      "dependency_closure_identity": "sha256:7506528bdd047fc0248a007bb8c5991386db3095dd018b207b06107ae75770c8"
+    }
+  },
+  "current_source_and_wheel": {
+    "state": "pass",
+    "subject": "ea89d0e2605a22e1267b3cb083a2cb3a4ae17af8",
+    "interpreter": {
+      "version": "3.12.3",
+      "implementation": "cpython",
+      "architecture": "aarch64",
+      "platform": "linux"
+    },
+    "source": {
+      "summary": {
+        "executed": 2748,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2748,
+        "selected": 2848,
+        "skipped": 100
+      },
+      "worker_groups": 608,
+      "every_selected_instance_reconciled": true,
+      "report_sha256": "b15fa4824f2cb393d81af5fcfe586e7d31236f765fbcb12d0127767d0b59400f"
+    },
+    "wheel": {
+      "wheel_identity": "sha256:b94ce2339d77661c428b54d4236c20fbd1c42762fe0e8610cd2852b359adcd44",
+      "retained_manifest": "_build/ci-wheels/run-xx7w1_we/manifest.json",
+      "standard_binding": {
+        "distribution": "sha256:13238a2ae76cb2c4b358443e4a83c5d8ec74bb4fc4efe06f878343a025b88832",
+        "members": 1395,
+        "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+      }
+    },
+    "offline_workers": {
+      "worker_runtime": {
+        "installed_distributions": 38,
+        "dependency_closure_identity": "sha256:f8cc436cdf5dcdddf8aebae4fffc5fc10c9f8c19ac6c8862b4b656fb556cdda0",
+        "framework_distribution": "sha256:13238a2ae76cb2c4b358443e4a83c5d8ec74bb4fc4efe06f878343a025b88832"
+      },
+      "uv_tool_worker_runtime": {
+        "installed_distributions": 38,
+        "dependency_closure_identity": "sha256:f8cc436cdf5dcdddf8aebae4fffc5fc10c9f8c19ac6c8862b4b656fb556cdda0",
+        "framework_distribution": "sha256:13238a2ae76cb2c4b358443e4a83c5d8ec74bb4fc4efe06f878343a025b88832"
+      }
+    },
+    "scope": "Complete ordinary source and noneditable wheel/worker gates; not genuine authored plan/apply, authored all-node generation or retained receiving acceptance"
+  },
+  "preserved_failed_source": {
+    "subject": "1f0742aa3ad8e282fe7033f8bbfe290b2d9dbdca",
+    "summary": {
+      "executed": 2180,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 2179,
+      "selected": 2848,
+      "skipped": 88
+    },
+    "cause": "Public authored plan was absent from CLI command reference; retain failure and rerun complete source gate after documentation repair"
+  },
+  "boundaries": [
+    "Actual shared Standard service, typed source/stage/receipt composition, diamond node membership and closed contract/schema decoding execute in the new controls.",
+    "Generation, native commands, installed-framework pins, project-review guard and oracle comparison are explicit fixture boundaries in those controls.",
+    "Existing authored planning and comparison controls retain their real filesystem/private input and isolated verifier coverage.",
+    "No public apply, two genuine all-node authored model runs, recoverable positive publication, closed replay, retained Cargo admission or release acceptance is established.",
+    "No driver or runner pin is renewed; independent non-author review remains required."
+  ],
+  "preserved_second_source_failure": {
+    "subject": "48fab187bf1027a4a9e9d888fa39d20944366335",
+    "summary": {
+      "executed": 1956,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 1955,
+      "selected": 2848,
+      "skipped": 85
+    },
+    "cause": "Canonical project documentation authority review was stale after editing command reference; refreshed through actual documentation-review --record, not a driver repin",
+    "wheel_state": "cancelled after confirmed stale authority; no positive wheel result claimed"
+  },
+  "documentation_authority_review": {
+    "authority_identity": "sha256:f2994a214aa5d3df80d5f292515a33c77c119d980dce6b04122941c0f1600411",
+    "document": "docs/architecture/design-traceability.md",
+    "expected_marker": "<!-- literate-ai:authority-reviewed sha256:f2994a214aa5d3df80d5f292515a33c77c119d980dce6b04122941c0f1600411 -->",
+    "recorded": true,
+    "schema": "literate-ai/authority-review@1",
+    "state": "current"
+  },
+  "driver_review": {
+    "schema": "literate-ai/lifecycle-driver-review@1",
+    "driver_id": "sample-host-conformance",
+    "state": "stale",
+    "pinned_identity": "sha256:0086cc0a419753fccae6f85b47c44a71ad1b01edba192bec635b64827a7aa1ed",
+    "computed_identity": "sha256:cd5dd757a35d950cb2d681ff48af7c1811330efe0d485f7a79df836fc9c717c8",
+    "implementation_paths": [
+      "scripts/run_samples.py",
+      "src/literate_ai",
+      "tests/conformance/support/durable_split_service.py",
+      "tests/conformance/support/runtime_oracles.py",
+      "tests/conformance/support/sample_runner.py",
+      "tests/conformance/support/standard_service_stack.py"
+    ],
+    "changed_since_pin": [
+      "src/literate_ai/adapters/authored_graph_acceptance.py",
+      "src/literate_ai/adapters/authored_qualification_authority.py",
+      "src/literate_ai/adapters/authored_qualification_comparison.py",
+      "src/literate_ai/adapters/authored_qualification_oracles.py",
+      "src/literate_ai/adapters/authored_qualification_planning.py",
+      "src/literate_ai/adapters/authored_qualification_runs.py",
+      "src/literate_ai/adapters/component_lock_planning.py",
+      "src/literate_ai/adapters/lifecycle/standard_local.py",
+      "src/literate_ai/adapters/locked_generation_authority.py",
+      "src/literate_ai/adapters/qualification.py",
+      "src/literate_ai/adapters/qualification_capture.py",
+      "src/literate_ai/adapters/qualification_workspace_namespace.py",
+      "src/literate_ai/cli/authored_qualification.py",
+      "src/literate_ai/cli/dispatch.py",
+      "src/literate_ai/contracts/authored_qualification_acceptance.py",
+      "src/literate_ai/contracts/authored_qualification_comparisons.py",
+      "src/literate_ai/contracts/authored_qualification_plans.py",
+      "src/literate_ai/contracts/authored_qualification_profiles.py",
+      "src/literate_ai/contracts/authored_qualification_requests.py",
+      "src/literate_ai/contracts/authored_qualification_runs.py",
+      "src/literate_ai/contracts/qualification_origins.py",
+      "src/literate_ai/schema_catalog.py"
+    ],
+    "recorded": false
+  }
+}

@@ -14,6 +14,8 @@ from literate_ai.adapters.models import (
     CodingCliTaskResult,
 )
 from literate_ai.cli._wire import result_from_wire, result_to_wire
+from literate_ai.contracts import ContentIdentity
+from literate_ai.contracts.component_locking import ComponentAssetSelector
 from literate_ai.source_to_specification import (
     INVERSE_EVIDENCE_CUSTODY_SCHEMA,
     LANGUAGE_SKILL_IDS,
@@ -43,9 +45,10 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class ScriptedTaskRunner:
-    def __init__(self) -> None:
+    def __init__(self, assets=()) -> None:
         self.calls: list[tuple[str, str | None]] = []
         self.selection = SimpleNamespace(name="codex")
+        self.assets = assets
 
     def run_json_task(self, prompt: str, *, model: str | None = None):
         self.calls.append((prompt, model))
@@ -128,6 +131,11 @@ class ScriptedTaskRunner:
                         "source_paths": evidence_paths,
                         "observation_indexes": [0, 1],
                         "evidence_ids": evidence_ids,
+                        **(
+                            {"assets": [item.to_dict() for item in self.assets]}
+                            if self.assets
+                            else {}
+                        ),
                     }
                 ],
                 "edges": [],
@@ -209,12 +217,14 @@ class FixtureCollector:
                 )
         indexed_source_files = tuple(
             sorted(
-                (
-                    item.reference.path,
-                    len(item.content.encode("utf-8")),
-                    item.reference.content_digest,
-                )
-                for item in evidence
+                {
+                    (
+                        item.reference.path,
+                        len(item.content.encode("utf-8")),
+                        item.reference.content_digest,
+                    )
+                    for item in evidence
+                }
             )
         )
         indexed_manifest = [
@@ -351,6 +361,45 @@ class ModelSourceToSpecificationTests(unittest.TestCase):
                 tuple(journal.language for journal in result.journals), ("elixir",)
             )
             self.assertTrue(result.result.draft.statements)
+
+    def test_reviewed_assets_survive_four_language_graph_merge(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._source_tree(root)
+            data = b'["alpha","beta"]\n'
+            (root / "words.json").write_bytes(data)
+            catalog = dict(load_builtin_skill_catalog())
+            selector = ComponentAssetSelector(
+                asset_id="words",
+                source="words.json",
+                path="source/data/words.json",
+                role="runtime-data",
+                media_type="application/json",
+                pin=ContentIdentity.parse_uri(
+                    "sha256:" + hashlib.sha256(data).hexdigest()
+                ),
+            )
+            runner = ScriptedTaskRunner(assets=(selector,))
+            result = derive_model_checkout(
+                source=root,
+                inventory=inventory_source(root),
+                origin_attestation_id=canonical_digest("origin"),
+                skill_set=builtin_skill_set(
+                    catalog, languages=("cpp", "javascript", "python", "rust")
+                ),
+                skill_catalog=catalog,
+                intelligence_collector=FixtureCollector(),
+                translator=CodingCliInverseTranslator(
+                    model="test-model", task_runner=runner
+                ),
+            )
+            self.assertEqual(len(runner.calls), 4)
+            self.assertEqual(
+                result.result.component_graph_draft.nodes[0].assets, (selector,)
+            )
+            self.assertEqual(
+                result_from_wire(result_to_wire(result.result)), result.result
+            )
 
     def test_four_language_calls_emit_journaled_base_and_flavor_drafts(self):
         with tempfile.TemporaryDirectory() as temporary:

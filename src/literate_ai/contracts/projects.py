@@ -24,6 +24,7 @@ from .channel_events import reject_secret_shaped
 from .generation_cache import SourceCacheConfiguration, SourceCacheRootKind
 from .html_observability import HtmlRenderRequest
 from .identity import SCHEMA_PREFIX, ContentIdentity, contract_identity
+from .native_root_continuation import NativeRootRunPolicy
 from .paths import canonical_relative_posix_path
 from .repository_orchestration import RepositoryOrchestration
 from .testing import ProjectTestReceiptPolicy
@@ -173,6 +174,56 @@ class RepositoryPatchAuthority(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
+class NativeCIPolicy:
+    """An explicit native workflow contract, independent of release authority."""
+
+    workflow: str
+    required_jobs: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        workflow = canonical_relative_posix_path(
+            self.workflow, label="NativeCIPolicy.workflow"
+        )
+        if (
+            workflow.parts[:2] != (".github", "workflows")
+            or len(workflow.parts) != 3
+            or workflow.suffix not in {".yml", ".yaml"}
+        ):
+            fail("NativeCIPolicy.workflow", "must name one GitHub workflow file")
+        if (
+            not isinstance(self.required_jobs, tuple)
+            or not 1 <= len(self.required_jobs) <= 64
+        ):
+            fail("NativeCIPolicy.required_jobs", "must contain between one and 64 jobs")
+        unique(self.required_jobs, "NativeCIPolicy.required_jobs")
+        for name in self.required_jobs:
+            if (
+                not isinstance(name, str)
+                or not 1 <= len(name) <= 256
+                or name.strip() != name
+                or any(
+                    ord(character) < 32 or ord(character) == 127 for character in name
+                )
+            ):
+                fail(
+                    "NativeCIPolicy.required_jobs",
+                    "must contain exact printable job names",
+                )
+
+    def to_dict(self) -> dict[str, object]:
+        return {"workflow": self.workflow, "required_jobs": list(self.required_jobs)}
+
+    @classmethod
+    def from_dict(cls, value: Any, *, path: str = "NativeCIPolicy") -> NativeCIPolicy:
+        data = mapping_value(value, path)
+        fields(data, required={"workflow", "required_jobs"}, optional=set(), path=path)
+        return cls(
+            workflow=string_value(data["workflow"], path),
+            required_jobs=string_tuple(data["required_jobs"], path),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class RepositoryPolicy:
     default_branch: str = "main"
     main_state: RepositoryMainState = RepositoryMainState.FREE
@@ -188,6 +239,7 @@ class RepositoryPolicy:
     patch_authority: RepositoryPatchAuthority = RepositoryPatchAuthority.STRICT
     writers: tuple[str, ...] = ()
     branch_gc_minimum_age_days: int = 7
+    native_ci: NativeCIPolicy | None = None
 
     SCHEMA: ClassVar[str] = REPOSITORY_POLICY_SCHEMA
 
@@ -255,6 +307,10 @@ class RepositoryPolicy:
             "RepositoryPolicy.branch_gc_minimum_age_days",
             minimum=1,
         )
+        if self.native_ci is not None and not isinstance(
+            self.native_ci, NativeCIPolicy
+        ):
+            fail("RepositoryPolicy.native_ci", "must be a typed native CI policy")
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -273,6 +329,11 @@ class RepositoryPolicy:
             "patch_authority": self.patch_authority.value,
             "writers": list(self.writers),
             "branch_gc_minimum_age_days": self.branch_gc_minimum_age_days,
+            **(
+                {"native_ci": self.native_ci.to_dict()}
+                if self.native_ci is not None
+                else {}
+            ),
         }
 
     @classmethod
@@ -294,6 +355,7 @@ class RepositoryPolicy:
             "patch_authority",
             "writers",
             "branch_gc_minimum_age_days",
+            "native_ci",
         }
         data = contract_fields(
             value,
@@ -338,6 +400,11 @@ class RepositoryPolicy:
             writers=(string_tuple(data["writers"], path) if "writers" in data else ()),
             branch_gc_minimum_age_days=int_value(
                 data.get("branch_gc_minimum_age_days", 7), path, minimum=1
+            ),
+            native_ci=(
+                NativeCIPolicy.from_dict(data["native_ci"], path=f"{path}.native_ci")
+                if "native_ci" in data
+                else None
             ),
         )
 
@@ -1196,6 +1263,7 @@ class ProjectDefinition:
     scale_limits: ProjectScaleLimits | None = None
     framework_directory: str | None = None
     agent_entrypoints: tuple[str, ...] | None = None
+    native_root_run_policy: NativeRootRunPolicy | None = None
 
     SCHEMA: ClassVar[str] = PROJECT_DEFINITION_SCHEMA
 
@@ -1314,6 +1382,23 @@ class ProjectDefinition:
                 "ProjectDefinition.lifecycle_driver",
                 "must be a standard or external Project lifecycle driver",
             )
+        if self.native_root_run_policy is not None:
+            if type(self.native_root_run_policy) is not NativeRootRunPolicy:
+                fail(
+                    "ProjectDefinition.native_root_run_policy",
+                    "must be a NativeRootRunPolicy",
+                )
+            self.native_root_run_policy.__post_init__()
+            if not isinstance(self.lifecycle_driver, StandardProjectLifecycleDriver):
+                fail(
+                    "ProjectDefinition.native_root_run_policy",
+                    "requires a configured Standard lifecycle driver",
+                )
+            if not self.component_roots:
+                fail(
+                    "ProjectDefinition.native_root_run_policy",
+                    "requires generated Component catalog roots",
+                )
         if self.source_cache is not None and not isinstance(
             self.source_cache, SourceCacheConfiguration
         ):
@@ -1475,6 +1560,8 @@ class ProjectDefinition:
         }
         if self.lifecycle_driver is not None:
             value["lifecycle_driver"] = self.lifecycle_driver.to_dict()
+        if self.native_root_run_policy is not None:
+            value["native_root_run_policy"] = self.native_root_run_policy.to_dict()
         if self.source_cache is not None:
             value["source_cache"] = self.source_cache.to_dict()
         if self.test_receipt is not None:
@@ -1621,6 +1708,7 @@ class ProjectDefinition:
                     "scale_limits",
                     "framework_directory",
                     "agent_entrypoints",
+                    "native_root_run_policy",
                 }
             ),
         )
@@ -1664,6 +1752,14 @@ class ProjectDefinition:
                     data["lifecycle_driver"], path=f"{path}.lifecycle_driver"
                 )
                 if "lifecycle_driver" in data
+                else None
+            ),
+            native_root_run_policy=(
+                NativeRootRunPolicy.from_dict(
+                    data["native_root_run_policy"],
+                    path=f"{path}.native_root_run_policy",
+                )
+                if "native_root_run_policy" in data
                 else None
             ),
             source_cache=(

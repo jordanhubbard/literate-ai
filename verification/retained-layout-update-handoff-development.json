@@ -1,0 +1,208 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Actual live source-backed framework updater handoff into acknowledged normal nonroot retained source ownership; internal local POSIX development evidence, not complete L1 or feature acceptance",
+  "base_commit": "2c2435bff209947161b389353fde6b00dd18c589",
+  "subjects": {
+    "src/literate_ai/adapters/framework_update_roles.py": {
+      "algorithm": "sha256",
+      "digest": "91dd80ba67bd03860da4f6b6ef1b7af51790a3bad00b8f7c6fc5540d9c4a2c0c"
+    },
+    "src/literate_ai/adapters/project_update_apply.py": {
+      "algorithm": "sha256",
+      "digest": "9bc3e0ead2466a2b0e3d5cbbb407ce7907de9f89ec909e54cad955592c8e2efd"
+    },
+    "src/literate_ai/adapters/project_update_compatibility.py": {
+      "algorithm": "sha256",
+      "digest": "02f7907cacc4f4dd02a3f22d26879905a38f2f75f568a435e467daf6136586e6"
+    },
+    "src/literate_ai/adapters/project_updates.py": {
+      "algorithm": "sha256",
+      "digest": "a5494ed0e6a8a65e5c515723d3612e1607a8f751a115d9289f897d4969f33073"
+    },
+    "src/literate_ai/adapters/retained_layout.py": {
+      "algorithm": "sha256",
+      "digest": "3eb6c36fc8903f61e852e412bbcd3c550def507e6c07755eae4cbc06a5d8f3bf"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "c92305bfb8aa06a818234be7a93c84a6ace14e083c5659f9f14c0347d3db7f88"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "b607ba06154e94eabd36fd3f416414369eb0219e1b248ef7e9d2c6ee639150e1"
+    },
+    "src/literate_ai/adapters/roadmap_dependencies.py": {
+      "algorithm": "sha256",
+      "digest": "130a7deeddc15bcbf7503be32982593e6ccca68bb50a8076c16bba8a62b9d534"
+    },
+    "src/literate_ai/adapters/update_merge.py": {
+      "algorithm": "sha256",
+      "digest": "9d6fb29d1bcf903a536535bed8d1ee2b62a94829264ee5e41272d4419ca01ebd"
+    },
+    "src/literate_ai/application/agent_skill_catalog.py": {
+      "algorithm": "sha256",
+      "digest": "20c9428f925e4efdbd47e4b43049ed53ac82032f52c900c40a7c1a3f28f007a2"
+    },
+    "tests/critical/test_framework_update_roles.py": {
+      "algorithm": "sha256",
+      "digest": "e69f5a4610fdae17c31a91995b3203343a3cffdd7e0f191cbca34d1343e62e2c"
+    }
+  },
+  "behavior": [
+    "Use actual canonical planner/apply readers under one finite shared observation of full project namespace, actual physical source provider, Git routing/configuration/HEAD/ref facts and explicit private retirement area.",
+    "Apply under the real lifecycle mutex; preserve ordinary updater defaults. Release writer lock before yielding actual process-bound read-only provenance, bind a fresh plan to nonce and exact post-checkpoint, and consume the same participant once before source movement.",
+    "Only actual successful selected or verified unchanged/current advances supply roles. Saved checkpoint rows/documents grant none. Actual adopted additions, clean merges and reviewed local overlays join the original live source/control owner.",
+    "Bound actual payload/JSON/record/merge allocations before use; subtract updater/provider consumption from remaining complete partition budgets and retain final native/namespace/currentness closure.",
+    "Strict publication preserves foreign/partial state without legacy blind rollback. Post-application provenance failure explicitly reports update applied with handoff unavailable; interruption types remain intact.",
+    "Record exclusive durable owner/removal intent before native exclusive inode-preserving retirement into a caller-supplied empty private directory. Retain original nodes and ambiguous state without unlink or automatic collection.",
+    "Revoke writer capability after application; revoke owner eligibility inside the pinned resource scope before any original descriptor teardown, on normal/exceptional/writer/pre-yield exits. Unsupported framework alias-group mutations refuse before project writes."
+  ],
+  "affected_suite": {
+    "modules": [
+      "tests.critical.test_framework_update_roles",
+      "tests.critical.test_update_base_observation",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_retained_layout_provider",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_reservations",
+      "tests.e2e.test_project_update_adapter",
+      "tests.e2e.test_project_update_apply",
+      "tests.e2e.test_project_update_merge",
+      "tests.e2e.test_project_update_compatibility"
+    ],
+    "selected": 142,
+    "passed": 142,
+    "skipped": 0,
+    "seconds": 320.437,
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "37c386f89e81170986d8ca7b08f89342e251c19853a755b3b7b08cfaa64be4d6"
+    }
+  },
+  "make_python_check": {
+    "scope": "Managed Make environment, compileall/host-path checks and all28 maintained handoff methods; not full-suite acceptance",
+    "selected": 28,
+    "passed": 28,
+    "skipped": 0,
+    "seconds": 122.697,
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "3afdaac06e12f6978dcb4cae15dde6452e01a206f949eee04f8777ac01ccdded"
+    },
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "117f104a1b379f1ca91a722dd025f2a7245647536ea66a61e795a9923504ea18"
+    }
+  },
+  "static_checks": {
+    "commands": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check"
+    ],
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "74bb6a3d1a60753a08c7eb4629c7ff987cab4f05988a151c1c1006062b2635b2"
+    }
+  },
+  "roadmap_dependencies": {
+    "exit_code": 0,
+    "result": "acyclic",
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "b1e9f7cd21b68450f3a849df6f20b5ea7c1e6a4022c448b194eded087de8ee6c"
+    }
+  },
+  "independent_review": {
+    "decision": "approved_at_exact_limited_scope",
+    "current_report": {
+      "path": "independent-layout-update-lifetime-final-review.json",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "d3da72ee9180358b188f2b78d7104410e79389c5cbe5fbe87447ccb88e868b2b"
+      }
+    },
+    "chain": [
+      {
+        "path": "independent-layout-update-handoff-review.json",
+        "decision": "changes_requested",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "2d6fa6c4a99dd9703e277e10c6fed198f561704b9da1af55dc20513752a69930"
+        }
+      },
+      {
+        "path": "independent-layout-update-handoff-rereview.json",
+        "decision": "changes_requested",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "e80f44654ceb60f834378c36ec0a6a6ad3a3008a25f9bfd822eca02768589e3a"
+        }
+      },
+      {
+        "path": "independent-layout-update-retirement-review.json",
+        "decision": "changes_requested",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "1a59134e5adf587a46ca62e2c74f7765e64adf4981d65df475e5e30fde60f316"
+        }
+      },
+      {
+        "path": "independent-layout-update-lifetime-final-review.json",
+        "decision": "approved_at_exact_limited_scope",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "d3da72ee9180358b188f2b78d7104410e79389c5cbe5fbe87447ccb88e868b2b"
+        }
+      }
+    ],
+    "final_independent_runs": [
+      {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_framework_update_roles",
+        "result": "28 passed,0 failures,0 errors,0 skips,122.437s",
+        "terminal_exit": 0,
+        "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-independent-focused.log"
+      },
+      {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.e2e.test_project_update_apply tests.e2e.test_project_update_merge tests.critical.test_update_base_observation",
+        "result": "18 passed,0 failures,0 errors,0 skips,4.130s",
+        "terminal_exit": 0,
+        "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-independent-regression.log"
+      },
+      {
+        "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-descriptor-teardown-probe.py",
+        "result": "Exact unchanged corrected original probe:1 passed,5.527s. Original FD EBADF verified; replacement FD same number; currentness rejected; inactive afterward.",
+        "terminal_exit": 0,
+        "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-independent-original-teardown.log"
+      },
+      {
+        "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-preyield-probe.py",
+        "result": "1 passed with2 subcases,5.141s. Provider/writer preparation failure and initial reader currentness failure both revoke writing/active before real FD close; EBADF verified.",
+        "terminal_exit": 0,
+        "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-lifetime-final-preyield-probe.log"
+      }
+    ],
+    "findings_closed": [
+      "UPDATE-HANDOFF-LIFETIME-001",
+      "UPDATE-HANDOFF-REMOVAL-002",
+      "UPDATE-HANDOFF-RETIREMENT-LIFETIME-003"
+    ]
+  },
+  "causal_history": [
+    "Initial review found actual context exit during final native closure could leave currentness accepted; final lifetime checks close this boundary.",
+    "Re-review replaced a removal parent after currentness and proved path-based unlink deleted its foreign file; strict private native retirement preserves both original and foreign nodes.",
+    "Third review actually closed the original retirement FD, verified EBADF and reopened the same directory with the same FD number; currentness accepted during teardown. Final inner finally revokes before original descriptor cleanup. Original corrected probe now passes unchanged, and maintained normal/exceptional controls plus independent writer/pre-yield failure probes pass."
+  ],
+  "limitations": [
+    "Internal normal nonroot POSIX source-backed physical file-Git-provider profile only. Noneditable/wheel, reftable and native platform qualification remain open.",
+    "Complete framework alias-group mutation ownership is not implemented; such mutations refuse. Original source aliases retain their separate custody contract.",
+    "Private retirement is retained descriptive evidence, not automatic GC, fresh recovery authorization, durable restart reconstruction or authenticated historical overlay/retirement ownership.",
+    "Actual catalog-import and authored metadata ownership, durable historical update roles, root/shared/initial/wrapper movement, public API/recovery, complete installed/native/integration/release acceptance remain open.",
+    "No continuous atomic snapshot against hostile same-user mutation or full-roadmap completion is claimed. Historical failures are preserved unchanged.",
+    "The configured full-source test receipt is not renewed by the scoped Make or affected suites; full verify remains a separate required observation."
+  ]
+}

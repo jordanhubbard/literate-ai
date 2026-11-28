@@ -9,7 +9,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import shlex
 import shutil
+import subprocess
+import tempfile
+import unittest
 from dataclasses import replace
 from pathlib import Path
 
@@ -63,6 +68,119 @@ HARNESS = b"""fn main() {
   "schema":"literate-ai/library-acceptance-results@1","cases":rows}));
 }
 """
+
+
+def _archive_search_roots():
+    """Prefer explicit local inputs; never follow ambient cache directory links.
+
+    The exact upstream archive size/hash checks still belong to prepare_vendor.
+    This selection neither fetches archives nor changes the operator cache.
+    """
+    import stat
+
+    configured = os.environ.get("LITAI_TEST_RUST_ARCHIVES")
+
+    def directory(path):
+        if not path.is_absolute() or ".." in path.parts:
+            raise ValueError(
+                "fixture archive directory must be an absolute native path"
+            )
+        current = Path(path.anchor)
+        for part in path.parts[1:]:
+            current /= part
+            if not stat.S_ISDIR(current.lstat().st_mode):
+                raise ValueError(
+                    "fixture archive ancestry must contain real directories"
+                )
+        return path
+
+    if configured is not None:
+        return (directory(Path(configured)),)
+    try:
+        base = directory(Path.home() / ".cargo/registry/cache")
+    except (OSError, ValueError) as error:
+        raise unittest.SkipTest(
+            "native archives unavailable through real local cache directories; "
+            "set LITAI_TEST_RUST_ARCHIVES to exact local upstream archives"
+        ) from error
+    roots = []
+    for index, candidate in enumerate(base.glob("*")):
+        if index >= 32:
+            raise ValueError("fixture archive cache directory inventory is excessive")
+        try:
+            roots.append(directory(candidate))
+        except (OSError, ValueError):
+            continue
+    return tuple(roots)
+
+
+def prepare_native_verifier_class(cls):
+    """Provision a genuine direct-native class seed once, before oracle capture."""
+    from literate_ai.adapters.builders.cargo import discover_cargo_toolchain
+    from literate_ai.adapters.builders.rust import discover_rust_toolchain
+    from literate_ai.adapters.lifecycle.standard_local import (
+        LocalComponentToolBinding,
+    )
+    from tests.support.fixtures_rust_harness_vendor import CRATES
+    from tests.support.fixtures_rust_library_harness import prepare_seed
+
+    if not shutil.which("cargo") or not shutil.which("rustc"):
+        raise unittest.SkipTest("native Cargo and rustc are unavailable")
+    import stat
+
+    candidates = _archive_search_roots()
+
+    def actual_archive(root, name):
+        try:
+            return stat.S_ISREG((root / (name + ".crate")).lstat().st_mode)
+        except OSError:
+            return False
+
+    archives = next(
+        (
+            root
+            for root in candidates
+            if all(actual_archive(root, name) for name in CRATES)
+        ),
+        None,
+    )
+    if archives is None:
+        raise unittest.SkipTest("exact real upstream Rust fixture archives unavailable")
+    cls.temporary = tempfile.TemporaryDirectory(prefix="native Rust verifier seed ")
+    cls.addClassCleanup(cls.temporary.cleanup)
+    cls.seed = Path(cls.temporary.name).resolve()
+    cls.environment = {
+        name: value
+        for name, value in os.environ.items()
+        if not name.startswith(("CARGO_", "RUST"))
+    }
+    # This named direct-native profile is selected and measured BEFORE its
+    # oracle is authored. It does not silently replace a pinned shim route.
+    # Ordinary rustup execution under isolated HOME remains unqualified.
+    observed_rust = discover_rust_toolchain(cls.environment)
+    native_rust = Path(observed_rust.compiler_executable)
+    native_cargo = native_rust.with_name("cargo.exe" if os.name == "nt" else "cargo")
+    if not native_cargo.is_file():
+        raise unittest.SkipTest("direct native Cargo/Rust fixture profile unavailable")
+    cls.cargo = LocalComponentToolBinding.from_observed_toolchain(
+        discover_cargo_toolchain(cls.environment, pinned_command=(str(native_cargo),))
+    )
+    cls.rustc = LocalComponentToolBinding.from_observed_toolchain(
+        discover_rust_toolchain(
+            {
+                **cls.environment,
+                "RUSTC": (
+                    subprocess.list2cmdline([str(native_rust)])
+                    if os.name == "nt"
+                    else shlex.quote(str(native_rust))
+                ),
+            }
+        )
+    )
+    prepare_seed(cls.seed, archives, cls.cargo, cls.environment)
+    # Later native checks and public rebuilds share the prepared fixture home;
+    # retain the operator HOME and exact native tool bindings unchanged.
+    cls.environment["CARGO_HOME"] = str(cls.seed / "cargo-home")
 
 
 def prepare_seed(root, archive_directory, cargo, environment):
@@ -288,7 +406,11 @@ class NativeRustVerifierFixture:
         self.author_oracle()
 
     def author_oracle(
-        self, *, specification_identity=None, library_manifest="Cargo.toml"
+        self,
+        *,
+        specification_identity=None,
+        library_manifest="Cargo.toml",
+        timeout_seconds=180,
     ):
         roots = (
             ("cargo-home", "cargo-home"),
@@ -325,7 +447,7 @@ class NativeRustVerifierFixture:
             resolution(library_manifest=library_manifest),
             self.cargo.toolchain_identity,
             self.rustc.toolchain_identity,
-            180,
+            timeout_seconds,
             1024**2,
             1024**2,
         )

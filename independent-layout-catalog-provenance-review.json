@@ -1,0 +1,69 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_scope",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "ab9b50d68f4314ec568fa4ccdcfca31208cc0a96",
+  "scope": "Actual internal local catalog provenance publication joined to the existing partial entry writer; control finalization and imported-role handoff remain incomplete.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_entry_publication.py",
+      "sha256": "10ab0f15c5161c96be310ab0982bda620f3cdef19314732d48defa8cfb5cb7c5"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_provenance_publication.py",
+      "sha256": "af7f28f3173deede82122d89a07035ff44b658c30e0929c5a87e9afdd40da560"
+    },
+    {
+      "path": "tests/critical/test_catalog_provenance_publication.py",
+      "sha256": "421f5c3f20a4ff99e6457fd067984cda0d45be8e19164b9e4baf5a430171135f"
+    }
+  ],
+  "findings": [],
+  "source_assessment": [
+    "Canonical source project identity and transitive ancestors use the existing bounded canonical readers and DAG check. Local source ref is derived from the actual resolved local root; no Git provenance is invented.",
+    "Prospective canonical bytes, actual staged file receipts, original metadata observation and original mode are captured before entry effects. The frozen ticket retains original bytes independently of subsequent live input advancement.",
+    "Preparation funds serialization, retained metadata, comparison views and additional journal event/storage allowances before public entry effects. Shared original stage ledger ceilings remain in force.",
+    "Actual registry publication progress, rather than mutable inspection output, requires every selected item to be published before provenance. Exact plan acknowledgement, writer membership, active PID/thread/factory/control/journal admissions and single-use phase remain checked.",
+    "Original single-link regular metadata is moved exclusively to retained private storage before prospective exclusive publication. Live canonical input advances only from sealed bytes and the verified actual native move; immutable original plan input remains unchanged.",
+    "Currentness compares full expected project/private views, actual canonical inputs, original selected sources, protected controls and final native facts. Foreign changes poison the owner and are preserved; ambiguous failures retain old/prospective files and durable intent.",
+    "Normal provenance-published context exit still refuses completion pending control finalization and imported-role handoff."
+  ],
+  "independent_execution": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_provenance_publication > _build/catalog-provenance-independent.log 2>&1",
+    "session": 18325,
+    "exit_code": 0,
+    "tests": 9,
+    "passed": 9,
+    "skipped": 0,
+    "seconds": 35.551,
+    "log": "_build/catalog-provenance-independent.log",
+    "log_sha256": "8aa6811f777c12a0cdf2a64a5c4f08adf81e42cd2d46bfa1375f92725e7967d8",
+    "coverage": [
+      "Absent canonical metadata positive, actual source identity/ref and file hashes, expired writer/context refusal.",
+      "Original inode/raw/mode retention and preservation of unrelated imports and inheritance decisions.",
+      "Wrong acknowledgement, incomplete actual item publications and forged inspection results refuse.",
+      "Single use and later foreign metadata preservation.",
+      "Hardlinked original metadata refusal before item effects.",
+      "Interrupted post-retirement publication retains original/prospective nodes and durable intent.",
+      "Multiple items share timestamp and canonical transitive source ancestors.",
+      "Provenance event budget refuses before public entry effect.",
+      "Foreign metadata after entry effects prevents provenance publication."
+    ],
+    "bespoke_probes": 0,
+    "terminal": true
+  },
+  "review_lineage": {
+    "prior_entry_review": "independent-layout-catalog-entry-rereview.json",
+    "sha256": "1d02aab2a189c48419aa9546bcdb57d06c6040557493a272d65c2d0de024ba12",
+    "preserved": true
+  },
+  "limits": [
+    "Observed-span consistency only; no continuously frozen snapshot or hostile concurrent-writer guarantee.",
+    "No new bespoke fault scripts or predecessor replay. Dynamic evidence is exactly the maintained nine-method module.",
+    "No independent broad regression or author affected-suite result claimed by this report.",
+    "Internal POSIX/local source-provider profile only; no Git checkout-source provenance lease, public catalog API completion, installed-wheel or cross-platform qualification.",
+    "Canonical control finalization, live imported ownership/handoff, fresh recovery and full retained-layout program acceptance remain mandatory.",
+    "Saved provenance rows, phase flags and results do not grant imported ownership.",
+    "No implementation/test/pin edits, new agents, installs or network actions. Source hashes rechecked unchanged after execution. No independent process remains live."
+  ]
+}

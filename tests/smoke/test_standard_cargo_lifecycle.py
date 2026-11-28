@@ -401,8 +401,6 @@ class StandardCargoLifecycleTests(unittest.TestCase):
             )
             original_mtime = executable.stat().st_mtime_ns
             original_bytes = executable.read_bytes()
-            # Cargo's intermediate directories and hashed library spelling are
-            # internal. This fresh fixture target owns exactly one fixture rlib.
             libraries = list(target.rglob("libfixture*.rlib"))
             self.assertEqual(len(libraries), 1, libraries)
             library = libraries[0]

@@ -329,7 +329,9 @@ class FileAuthorityProjectionStore:
         return root
 
     def _authority_base(self, *, create: bool) -> Path:
-        current = self.project_root
+        from literate_ai.projects import ProjectConfigurationStore
+
+        current = ProjectConfigurationStore.context(self.project_root).framework_root
         for name in ("provenance", "component-authority"):
             current = self._direct_directory(current, name, create=create)
         return current

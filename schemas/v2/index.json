@@ -86,7 +86,9 @@
         "literate-ai/prepared-release@2",
         "literate-ai/release-publication-receipt@1",
         "literate-ai/release-published-verification@1",
-        "literate-ai/release-qualification@1"
+        "literate-ai/release-qualification@1",
+        "literate-ai/release-ci-coverage@1",
+        "literate-ai/release-ci-coverage@2"
       ]
     },
     {
@@ -225,6 +227,15 @@
       ]
     },
     {
+      "file": "node-sdk-contracts.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:node-sdk-contracts",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:library-import-surface@3",
+        "urn:literate-ai:schema:v2:node-sdk-export-declaration@1",
+        "urn:literate-ai:schema:v2:standard-node-sdk-command-profile@1"
+      ]
+    },
+    {
       "file": "component-commands.schema.json",
       "root_id": "urn:literate-ai:schema:v2:component-command-contracts",
       "public_ids": [
@@ -233,6 +244,8 @@
         "urn:literate-ai:schema:v2:multi-entrypoint-component-semantics@1",
         "urn:literate-ai:schema:v2:library-capability-import@1",
         "urn:literate-ai:schema:v2:library-import-surface@1",
+        "urn:literate-ai:schema:v2:library-import-surface@2",
+        "urn:literate-ai:schema:v2:commonjs-module-declaration@1",
         "urn:literate-ai:schema:v2:library-consumer-binding@1"
       ]
     },
@@ -584,6 +597,11 @@
       ]
     },
     {
+      "file": "standard-cargo-command-profile-v3.schema.json",
+      "root_id": "urn:literate-ai:schema:v3:standard-cargo-command-profile",
+      "public_ids": []
+    },
+    {
       "file": "standard-lifecycle-checkpoint.schema.json",
       "root_id": "urn:literate-ai:schema:v2:standard-lifecycle-checkpoint-contracts",
       "public_ids": [
@@ -690,7 +708,9 @@
         "urn:literate-ai:schema:v2:generation-input-audit",
         "urn:literate-ai:schema:v2:source-promotion-provenance",
         "urn:literate-ai:schema:v3:source-promotion-provenance",
-        "urn:literate-ai:schema:v2:legacy-source-promotion-journal-migration"
+        "urn:literate-ai:schema:v4:source-promotion-provenance",
+        "urn:literate-ai:schema:v2:legacy-source-promotion-journal-migration",
+        "urn:literate-ai:schema:v5:source-promotion-provenance"
       ]
     },
     {
@@ -1148,6 +1168,232 @@
         "literate-ai/retained-tree-html-freshness@1",
         "literate-ai/retained-tree-html-check-result@1",
         "literate-ai/project-tree-html@1"
+      ]
+    },
+    {
+      "file": "worker-telemetry.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:worker-telemetry-contracts",
+      "public_ids": [
+        "literate-ai/worker-telemetry-request@1",
+        "literate-ai/worker-telemetry-observation@1",
+        "literate-ai/worker-telemetry-response@1",
+        "literate-ai/authenticated-worker-telemetry-request@1",
+        "literate-ai/authenticated-worker-telemetry-response@1"
+      ]
+    },
+    {
+      "file": "qualification-origin.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:qualification-origin",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:authored-qualification-origin",
+        "urn:literate-ai:schema:v2:source-derived-qualification-origin"
+      ]
+    },
+    {
+      "file": "authored-qualification-profile.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-profile",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:authored-qualification-oracle-selection"
+      ]
+    },
+    {
+      "file": "authored-qualification-acceptance.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-graph-independent-acceptance",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:authored-node-independent-acceptance"
+      ]
+    },
+    {
+      "file": "authored-qualification-request.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-lifecycle-request",
+      "public_ids": []
+    },
+    {
+      "file": "authored-qualification-plan.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-plan",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:authored-qualification-project-review"
+      ]
+    },
+    {
+      "file": "authored-qualification-comparison.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-comparison",
+      "public_ids": []
+    },
+    {
+      "file": "authored-qualification-node-run.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-node-run",
+      "public_ids": []
+    },
+    {
+      "file": "authored-qualification-run.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-run",
+      "public_ids": []
+    },
+    {
+      "file": "authored-qualification-result.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-result",
+      "public_ids": []
+    },
+    {
+      "file": "authored-qualification-products.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-products",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:authored-qualification-run-products"
+      ]
+    },
+    {
+      "file": "authored-qualification-reference.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-reference",
+      "public_ids": []
+    },
+    {
+      "file": "authored-retained-cargo.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-retained-cargo",
+      "public_ids": [
+        "literate-ai/authored-retained-cargo-binding@1",
+        "literate-ai/authored-retained-cargo-admission-receipt@1",
+        "literate-ai/authored-retained-cargo-provisioning@1",
+        "literate-ai/authored-retained-cargo-exclusion-authority@1"
+      ]
+    },
+    {
+      "file": "authored-retained-python.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-retained-python",
+      "public_ids": [
+        "literate-ai/authored-retained-python-binding@1"
+      ]
+    },
+    {
+      "file": "retained-python-workspace.schema.json",
+      "root_id": "literate-ai/retained-python-workspace-plan@1",
+      "public_ids": []
+    },
+    {
+      "file": "source-static-intake.schema.json",
+      "root_id": "urn:literate-ai:schema:v1:source-static-intake-contracts",
+      "public_ids": [
+        "urn:literate-ai:schema:v1:source-static-intake-plan",
+        "urn:literate-ai:schema:v1:source-static-intake-review",
+        "urn:literate-ai:schema:v1:source-static-intake-validation"
+      ]
+    },
+    {
+      "file": "retained-python-tests.schema.json",
+      "root_id": "literate-ai/retained-python-test-inventory@1",
+      "public_ids": []
+    },
+    {
+      "file": "native-root-continuation.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:native-root-continuation",
+      "public_ids": [
+        "literate-ai/native-root-run-policy@1",
+        "literate-ai/native-root-run-deadline@1",
+        "literate-ai/native-root-qualified-dependency-binding@1",
+        "literate-ai/native-root-run-binding@1",
+        "literate-ai/native-root-acceptance-rejection@1",
+        "literate-ai/native-root-repair-diagnostic@1",
+        "literate-ai/native-root-repair-request@1",
+        "literate-ai/native-root-candidate-attempt@1",
+        "literate-ai/native-root-continuation-stop@1",
+        "literate-ai/native-root-continuation-ledger@1",
+        "literate-ai/native-root-acceptance-closure@1",
+        "literate-ai/native-root-execution-result@1"
+      ]
+    },
+    {
+      "file": "project-layout-catalog-continuation.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:project-layout-catalog-continuation",
+      "public_ids": [
+        "literate-ai/project-layout-catalog-continuation@1"
+      ]
+    },
+    {
+      "file": "project-layout-catalog-continuation-result.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:project-layout-catalog-continuation-result",
+      "public_ids": [
+        "literate-ai/project-layout-catalog-continuation-result@1"
+      ]
+    },
+    {
+      "file": "project-layout-framework-authority.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:project-layout-framework-authority",
+      "public_ids": [
+        "literate-ai/project-layout-framework-authority@1"
+      ]
+    },
+    {
+      "file": "project-layout-framework-authority-result.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:project-layout-framework-authority-result",
+      "public_ids": [
+        "literate-ai/project-layout-framework-authority-result@1"
+      ]
+    },
+    {
+      "file": "project-layout-framework-producer-result.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:project-layout-framework-producer-result",
+      "public_ids": [
+        "literate-ai/project-layout-framework-producer-result@1"
+      ]
+    },
+    {
+      "file": "project-layout-catalog-producer-result.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:project-layout-catalog-producer-result",
+      "public_ids": [
+        "literate-ai/project-layout-catalog-producer-result@1"
+      ]
+    },
+    {
+      "file": "project-layout-source-finalization-result.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:project-layout-source-finalization-result",
+      "public_ids": [
+        "literate-ai/project-layout-source-finalization-result@1"
+      ]
+    },
+    {
+      "file": "retained-project-promotion-evidence.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:retained-project-promotion-evidence-contracts",
+      "public_ids": [
+        "literate-ai/retained-project-promotion-evidence@1"
+      ]
+    },
+    {
+      "file": "retained-project-historical-admission.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:retained-project-historical-admission-contracts",
+      "public_ids": [
+        "literate-ai/retained-project-historical-admission@1"
+      ]
+    },
+    {
+      "file": "retained-project-test-runner.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:retained-project-test-runner-contracts",
+      "public_ids": [
+        "literate-ai/retained-project-test-runner@2"
+      ]
+    },
+    {
+      "file": "worker-telemetry-v2.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:worker-telemetry-v2-contracts",
+      "public_ids": [
+        "literate-ai/worker-telemetry-request@2",
+        "literate-ai/worker-telemetry-sample@1",
+        "literate-ai/worker-telemetry-response@2",
+        "literate-ai/worker-telemetry-scope@1",
+        "literate-ai/authenticated-worker-telemetry-request@2",
+        "literate-ai/authenticated-worker-telemetry-response@2",
+        "literate-ai/worker-telemetry-query-result@1",
+        "literate-ai/worker-telemetry-namespace-initialization@1"
+      ]
+    },
+    {
+      "file": "worker-telemetry-native-provisioning.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:worker-telemetry-native-provisioning",
+      "public_ids": [
+        "literate-ai/private-native-provider-build-plan@1",
+        "literate-ai/private-worker-telemetry-native-provider@2",
+        "literate-ai/worker-telemetry-native-initialization@1",
+        "literate-ai/worker-telemetry-native-build-planning@1",
+        "literate-ai/private-native-provider-published@1"
       ]
     }
   ]

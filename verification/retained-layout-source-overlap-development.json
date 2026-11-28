@@ -1,0 +1,110 @@
+{
+  "schema": "literate-ai/original-source-overlap-development@1",
+  "state": "source_reviewed_internal_existing_root_source_target_scoped83pass",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-source-overlap-review.json",
+    "sha256": "a29a52e88f7689202e20036441eb462a495f59a0c4d3ce3891b8851c1e2e7a98"
+  },
+  "distinct_scoped_methods_passed": 83,
+  "checks": [
+    {
+      "report": {
+        "path": "_build/source-overlap-forest-report.json",
+        "sha256": "ecb83b7c5d6edaeee9d3f276580425a98c32fc54f06b1ace2013ec54bfdb6726"
+      },
+      "log": {
+        "path": "_build/source-overlap-forest.log",
+        "sha256": "fb3ee809f681376e7e39a84e6273524a47b4a82fd997adc9624656563dfb1673"
+      },
+      "summary": {
+        "executed": 16,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 16,
+        "selected": 16,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-overlap-state-report.json",
+        "sha256": "ecb4bd8dee54dddcb11961b875c59ad6461da67ed6a17cb5db5399900a1bd44b"
+      },
+      "log": {
+        "path": "_build/source-overlap-state.log",
+        "sha256": "8092c3640b9e66b058d04323296014e438e6b736742cb307b1140c00ae5086fb"
+      },
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-overlap-preparation-report.json",
+        "sha256": "3d06ebe8042412ce7ad78582d9a9cce7c9e1be9f6b93ad1d1794687128cdf4ff"
+      },
+      "log": {
+        "path": "_build/source-overlap-preparation.log",
+        "sha256": "6805aaa4d08fe63156e253dc2846bbf7431b834c5babbbdaf0670a7c99f7a3d9"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-overlap-transaction-report.json",
+        "sha256": "0e47f1d38015dc782edad3e1930b2ed45010653627a88fede11cf388a537c85f"
+      },
+      "log": {
+        "path": "_build/source-overlap-transaction.log",
+        "sha256": "cbcad293a61790bb98d0f6e82ffbfa0fe45af6e2a657464bc50fc27edf0c7c3c"
+      },
+      "summary": {
+        "executed": 26,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 26,
+        "selected": 26,
+        "skipped": 0
+      }
+    }
+  ],
+  "causal_diagnostics": [
+    {
+      "path": "_build/source-overlap-before.log",
+      "sha256": "df525936bfb603421f71663a1bcb8a4246f2966a19779f37b6a82e6e12e36ca9"
+    },
+    {
+      "path": "_build/source-overlap-custody.log",
+      "sha256": "0589b5b62557faf937331e425701d9e8a099ecf251fad5f5fff5c66cff0f2890"
+    }
+  ],
+  "new_cases": [
+    "Existing original-source target projects its own carrier into itself, preserves native node and bytes, persists/reopens private state before guarded source admission",
+    "Existing canonical metadata directory without original source contribution refuses",
+    "Portable-name alias refuses without changing original bytes",
+    "Changed target source payload revokes preparation and preserves changed bytes"
+  ],
+  "pending": [
+    "General valid nonroot source overlap and missing destination parent/prefix observations",
+    "Current full-source/static/driver/documentation/receipt qualification",
+    "Complete multi-carrier execution, metadata, fresh recovery, public/installed/platform/release and all remaining roadmap work"
+  ],
+  "static_scope": "Prior root-destination static/authority checks are historical exact-subject evidence; this changed increment still needs current supported pins and gates"
+}

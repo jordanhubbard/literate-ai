@@ -1,0 +1,70 @@
+{
+  "schema": "independent-followup-source-closing@1",
+  "reviewer": "review_contracts",
+  "observed_at_utc": "2026-11-27T07:50:51.757640+00:00",
+  "repository": "/home/jkh/Src/literate-ai/.worktrees/release-maintained-followup-20261126",
+  "head": "ac2e88417a58fe0c2a1f4d318e3f7fb14811b1a1",
+  "verdict": "All six current file hashes exactly match independent closing reviews; no uncovered delta or new actionable finding within this scope.",
+  "files": [
+    {
+      "path": "src/literate_ai/project_template/scripts/bootstrap_litai.py",
+      "sha256": "a69af3016c68b8b3e7940558280024189d3a8c36065d3773df765d65fa80aecf",
+      "matches_independent_closing_review": true,
+      "closing_evidence": "review-contracts-bootstrap-windows-elixir-closing.json"
+    },
+    {
+      "path": "tests/smoke/test_bootstrap_litai.py",
+      "sha256": "478d6dbe9e30ad3350dfe3318661990d4dafe2a2b50817c1f52ad16c7b72abfe",
+      "matches_independent_closing_review": true,
+      "closing_evidence": "review-contracts-bootstrap-windows-elixir-closing.json"
+    },
+    {
+      "path": "scripts/installed_maintained_controls.py",
+      "sha256": "d32c2392b413ba5a2a1df9699865251f2a1b509c93d84387c26aa61da6093901",
+      "matches_independent_closing_review": true,
+      "closing_evidence": "review-contracts-bootstrap-windows-elixir-closing.json"
+    },
+    {
+      "path": "tests/smoke/test_elixir_flavor.py",
+      "sha256": "99c41341a8efc6ca8bd28850f830c1b2974b223ebaea3cdbfe388638d2f3f6e9",
+      "matches_independent_closing_review": true,
+      "closing_evidence": "review-contracts-bootstrap-windows-elixir-closing.json"
+    },
+    {
+      "path": "src/literate_ai/adapters/flavor_add.py",
+      "sha256": "90736a661fa407bfd416d57733eee1332d80a45172543efa87bf3a12f77ac41a",
+      "matches_independent_closing_review": true,
+      "closing_evidence": "review-contracts-flavor-add-closing.json"
+    },
+    {
+      "path": "tests/smoke/test_flavor_add.py",
+      "sha256": "6ddfab4d3670f8f016cf44d907b8afaa184f3b8822ebccfd5b428525037b0012",
+      "matches_independent_closing_review": true,
+      "closing_evidence": "review-contracts-flavor-add-closing.json"
+    }
+  ],
+  "other_dirty_paths_outside_this_closing_scope": [
+    ".github/qualifications/native_sdk/qualify_public_sdk.py",
+    "docs/roadmap/active-work.md",
+    "src/literate_ai/adapters/authored_retained_cargo_monorepo_observation.py",
+    "src/literate_ai/adapters/authored_retained_cargo_provisioning_monorepo.py",
+    "src/literate_ai/adapters/retained_cargo_execution_core.py",
+    "src/literate_ai/adapters/retained_layout_provider.py",
+    "tests/critical/test_authored_monorepo_completion.py",
+    "tests/critical/test_remote_cleanup_windows_handles.py",
+    "tests/critical/test_retained_layout_provider.py",
+    "tests/e2e/test_native_child_parent_reader.py",
+    "tests/e2e/test_native_project_removal.py",
+    "tests/smoke/test_authored_reopened_native_execution.py",
+    "tests/support/fixtures_retained_cargo_native_v2.py"
+  ],
+  "limits": [
+    "Source-only closing review and unchanged-hash reconciliation. No new test execution is claimed by this report.",
+    "Independent bootstrap modeled-clock/raw-reader controls and eight Flavor-add tests remain the evidence in linked closing reports; modeled controls are not native Windows execution.",
+    "Existing Flavor-add API remains nontransactional; custom Skill preservation grants no semantic or generation-admission authority.",
+    "Root owns Elixir-r4 after final Flavor changes. Previous Elixir-r3 retained one native-runtime skip.",
+    "Existing native run is live, not accepted. No installed/native/full-source-gate/CI/release acceptance is implied.",
+    "Other dirty paths require root/peer reconciliation and are not approved by this six-file report.",
+    "No repository edits,pins,commits,workers,publication or authority-marker changes performed."
+  ]
+}

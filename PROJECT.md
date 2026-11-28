@@ -1,19 +1,5 @@
 # Literate AI — Project Requirements and Completeness
 
-Retained native Cargo tests derive loader custody from validated compiler artifact
-records instead of the retired `debug/deps` intermediate layout. Fresh canonical
-Cargo checks pass all 12 cases on both Rust/Cargo 1.100.1 and 1.99.0, including the
-unchanged native harness, path/alias refusals and byte/namespace mutation checks.
-Target/case accounting, output ownership, currentness and budgets stay intact.
-Full regression and installed qualification remain open under
-RETAINED-SDK-PUBLIC-001 and issue #515.
-The native incremental-cache fixture now locates exactly one actual fixture
-library without assuming Cargo's internal directory or hashed filename. All 28
-Cargo cases pass on both compiler versions, retaining every existing byte and
-timestamp assertion. Full regression still requires renewal. The installed wheel
-refresh scenario separately reaches an unsupported `git worktree list -z` on
-the control environment's Git 2.34; installed qualification remains incomplete.
-
 Under accepted ADR 0058, an explicitly selected tree declaration may be checked
 without creating source, cache, temporary payload or output files. A current
 result requires a complete actual page/metadata/index namespace observation and
@@ -110,7 +96,162 @@ goals require a specific unreleased Literate AI capability.
 
 ## Completeness
 
-The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
+Accepted [ADR 0075](docs/decisions/0075-sealed-node-sdk-composition.md) is being
+implemented under LIBRARY-ARTIFACT-001. Canonical `lang-typescript-library` and
+`package-node-sdk` Flavors select a versioned pure SDK generation skill, dual public
+exports, `src/` implementation and built-SDK tests. Initialization templates match
+the canonical authority. Existing TypeScript application policy and older import
+wire formats remain separate and unchanged.
+
+Explicit local SDK targets share one captured TypeScript compiler, composition and
+offline pack owner. Target/profile/Flavor/tool identities bind actual BUILD, TEST
+and EXEC commands. BUILD requires original admitted invocation/provider custody and
+a separately current finalized build grant through child execution and artifact
+registration. Original bounded product inventory precedes cache hashing. Dependency
+evidence retains exact compiler-image, composition and bundled-provider identities.
+Runtime commands receive no producer checkout paths. Scoped command bindings and
+closing membership checks follow authority callbacks.
+
+Canonical static recipe preparation permits declaration-bearing JavaScript inputs
+only for an explicit TypeScript dual-library SDK policy. Preparation and execution
+share pinned profile decoding and language-shape validation. Other cross-language
+imports, malformed policy and competing build/accelerator profiles remain refused.
+Exact public interface and import-surface metadata reach the static recipe.
+Declaration bytes enter the bound recipe only through live verified provider
+custody; private provider specifications and oracle inputs do not. Static metadata grants no source, provider,
+verifier or build authority. Bound recipes retain the original consumer command
+contract and exact GENERATION+BUILD edges.
+
+An explicit trusted-host operation port retains one original accepted provider,
+loaded v2 oracle and current separate verifier grant around synchronous SDK use.
+The actual scheduler waits for provider acceptance before owned source/cache
+selection, stage reservations and bounded repairs. Revalidation binds the exact
+original invocation. Root cache publication renews that ownership through the
+membership link; a late loss retains durable evidence and withholds acknowledgment.
+Data-only, copied, retired and uncertain scopes cannot reopen source or mutations.
+Node children and coding-agent children share process liveness and cleanup.
+
+Current evidence includes actual authored SDK compilation/packing, bounded cache
+reuse, relocated CJS/ESM root/subpath imports and positive/negative TypeScript
+consumers. A canonical filesystem graph joins strict authored JavaScript
+provider BUILD/TEST/EXEC stages on macOS, original v2 runtime/declaration checks and
+a current fixture-only verifier grant to the owned SDK invocation. Its escaped
+guard is rejected after exit. That same canonical owned invocation now registers
+bound-recipe authored SDK source, obtains separate build authorization, compiles and
+packs through the shared owner, reuses its cache and passes actual TEST and EXEC.
+The Component declares precise addition behavior and a fixture-only immutable legal
+asset before locking; the source and package match its locked bytes and retain
+exact provider/compiler evidence. These
+prove authored source/build seams; the explicit root acceptance checkpoint below
+adds independent verification. Ordinary model generation remains unqualified.
+Earlier foundation `8c2e108f` passed a whole-wheel
+fixture gate; later changes are not covered by that installed-wheel evidence.
+
+A read-only SDK legal comparison now joins caller-owned captured files to the
+original locked Component assets with the explicit `node-sdk-legal` role and exact
+selected packaging profile. It reuses original snapshot pin checks and profile
+decoding; source presence, a model assertion or a different filename policy supplies
+no legal authority. Explicit internal SDK project acceptance now runs the comparison
+against the registered packaged export through the final decision. The comparison
+itself grants no execution or continuing custody.
+
+Explicit local SDK packaging now binds its tarball as a typed package resource to
+original registered BUILD custody of the complete artifact tree. Bounded captures
+and original namespace stamps precede generic hashing. All linked library exports
+materialize from validated immutable blob rows, without traversing producer trees.
+Original invocation, source/build membership and current grant checks close through
+package materialization and registration. Root finalization now revalidates the exact
+accepted SDK binding around assembly, packaging and finalization ports, then retires
+before separate source-cache publication. Original graph/link/package identities
+remain pinned across callbacks. Packaged TEST and EXEC reuse the shared SDK runner,
+with protected original test source and the fixed packaged export under additive
+liveness checks. Original package plan/result objects and CIDs are pinned before
+staging. An explicitly configured internal root policy now retains the original
+snapshot, accepted invocation, registered package and loaded root v2 oracle. It
+requires complete original component plans and actual packaged TEST/EXEC evidence,
+then obtains separate verifier authorization and uses the shared provider/runtime/
+declaration owner. Original oracle, package, BUILD and locked-input stamp checks
+close after the final clock. A canonical authored port-level fixture passes actual
+packaged SDK acceptance with six TypeScript children and both runtime formats;
+missing/wrong grants, copied authority, invented stages and late locked-input
+rewrites are refused. Profiling identified repeated combined host/package checks.
+Root acceptance now uses the shared verifier's separate owner and subject roles,
+retaining original invocation, snapshot, package/legal, stamp and expiry checks.
+The extended authored fixture passes in 979.740 seconds versus the prior 1,344.510
+seconds, including added host-loss, late package-drift and final-clock grant
+revocation refusals. One current root guard measures 2.18 seconds; this is an initial
+local improvement, not a performance guarantee. Public admission and a complete
+generated SDK lifecycle remain unfinished.
+
+An [explicit Python SDK host configuration](docs/architecture/node-sdk-host.md)
+now connects runtime assembly to the existing provider admission and root
+acceptance owners for one root SDK and one CommonJS provider. It binds original
+snapshot, graph, loaded oracles, ports and measured closure, retaining selection
+through runtime recomposition. Root policy selection exists only within the
+current accepted invocation; foreign, malformed or retired copied contexts
+refuse without fallback or configuration rollback. The authored assembled-runtime
+fixture passes actual SDK BUILD/cache/TEST/EXEC/PACKAGE, packaged TEST/EXEC and
+root independent acceptance in 995.361 seconds, with six TypeScript child checks
+and both runtime formats. Native scope and delegate-redirection controls pass
+separately. This exercises owned ports, not complete `runtime.execute` or model
+generation. Configuration supplies no execution grant and does not activate a
+CLI or default policy.
+
+A separate deterministic authored generator now qualifies actual `runtime.execute`
+orchestration in 1081.895 seconds. It binds actual prepared requests, recipes and
+allocated workspaces while the runtime produces all stage receipts. Finalization
+re-admits the original invocation facts with a distinct policy, refuses the
+retired generation context, completes the original packaged six-TypeScript/two-
+runtime checker, and publishes both source memberships only after original root
+acceptance returns. The default local publisher observes membership identity;
+this does not establish durable cache restoration. Production code and grant
+policy remain unchanged; live model generation and installed qualification remain
+separate gates.
+
+SDK operation closing now samples the final clock before checking its original
+oracle/file witnesses, membership and configuration, then validates every verifier
+grant at that same captured time. Three native final-clock mutations reproduced
+escaped results before the repair; the complete 12-case native operation suite
+now passes without recapturing baselines or extending active grants. Multiple
+providers now use a bounded admission inventory with the original recursive
+ownership and closing checks. Scoped native two-provider positives, earlier-input
+and expiry refusals, final-clock closure and aggregate budget unwind pass. The
+actual fixtures use distinct public-interface bytes; identical-interface source
+attribution and complete multi-provider SDK build/package/root acceptance remain
+open. A separate actual two-owner foreign-registry refusal passes while both
+foreign scopes remain live; it establishes registry isolation, not full lifecycle
+acceptance. The shared ceiling of 32 providers is
+a bound, not a 32-provider performance qualification.
+
+The public host also pins the original snapshot input-closure object and captures
+its validated authority stamps before each owned operation. After the lower owner
+returns, finite checks close original host metadata, installed binding, delegate
+and closure identities, and those authority stamps. No later callback, byte read
+or clock can reopen that closing boundary. Late registry replacement is preserved
+and refused rather than restored; a caller's later runtime guard cannot conceal
+an already returned result.
+
+JavaScript library EXEC now retains complete v2 declaration authority and uses
+exact declared runtime paths for root/subpath exports, including nested `.cjs`
+files. Host and standalone driver share bounded CommonJS metadata and declared
+file-membership policy. Fixed driver support is checked by SHA256 and fits the
+original argument limit; immutable artifact custody and independent grants remain
+required. Native public-host provider admission and the default canonical control
+both pass. The complete authored public-host nested-provider SDK passes in
+979.867 seconds, including actual build/cache/test/execute/package, packaged tests
+and execution, and the original six-TypeScript/two-runtime root checker. Current
+source orchestration, ordinary model output and installed qualification remain
+separate from this owned-port proof.
+
+Remaining gates are complete public runtime qualification, ordinary generated/retained canonical SDK lifecycle,
+multiple-provider closing cuts, ordinary generated and retained SDK products,
+packed SDK output publication, supported native platforms and fresh noneditable
+installed qualification. Legacy single-harness acceptance refuses the stronger
+Node oracle. Remote/async/checkpoint SDK recovery and accepted-source-only cache
+continuation remain unqualified/refused. No downstream SDK or registered-child
+cutover follows before complete qualification.
+
+The [task-oriented skill catalog](docs/user/skills.md) enumerates all 90 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records
 composition lessons and proposed adaptations separately from delivered capabilities.
@@ -131,12 +272,66 @@ development (2026-09-10):
 
 ## Current work
 
+ADR 0070 command renewal now has internal read-only planning and bounded current
+read-back under
+RELEASE-INTEGRATION-005 / issue #366. The existing readmission owner now checks
+raw initial-copy inputs before commands and rechecks original source across
+baseline/parity; native disposable build transformations remain supported. It preserves unselected admitted phases
+and keeps compilation coverage unknown. Public selection/apply routing, current
+execution custody, recoverable publication, native and installed qualification
+remain open; completed initial-adoption selection is preserved.
+
+The recovered, already-recorded 1.4 designs for independent promotion authoring
+([ADR 0069](docs/decisions/0069-independent-promotion-authoring-selection.md)),
+retained command renewal ([ADR 0070](docs/decisions/0070-reviewed-retained-command-renewal.md)),
+bounded native root repair ([ADR 0073](docs/decisions/0073-native-root-acceptance-repair.md))
+and sealed Node SDK composition ([ADR 0075](docs/decisions/0075-sealed-node-sdk-composition.md))
+trace to Goals 1, 2, 4, 5 and 6 and their existing release owners. The directing
+user's release-resumption instruction accepts the recorded designs. Preserve
+every separate execution acknowledgement and validation outcome. Native root
+repair already has an integrated implementation; its current qualification
+remains required. Initial adoption command selection keeps its completed scope;
+post-adoption renewal is separate work under RELEASE-INTEGRATION-005. No release
+goal or implementation/qualification outcome closes from restoring these records.
+
+SOURCE-ASSET-PROMOTION-001 and SOURCE-STATIC-INTAKE-001 restore the accepted
+PR #313 work under Goals 1, 2, 4 and 6. Preserve exact source-backed immutable
+assets, signed bounded local static intake, conservative original inventory and
+ordinary qualification authority. ADRs [0067](docs/decisions/0067-reviewed-source-assets.md)
+and [0068](docs/decisions/0068-reviewed-static-source-intake.md) retain their original
+accepted decisions. Contributor development evidence remains historical until
+focused collection, complete regression and clean installed qualification renew it.
+
+The retained Python bridge now has an internal read-only dependency-record
+projection sharing the existing Standard Python verifier. It binds bounded
+metadata and complete recorded payload inventories to current build, source,
+interpreter, target and locked dependency declarations while the filesystem
+owner retains its live guards. This is an implementation foundation only;
+bridge workspace plans, provider admission, both packaging profiles, public
+consumer/source-retirement journeys and receipt integration remain unfinished.
+
+
+RETAINED-PYTHON-BRIDGE-001 implements accepted
+[ADR 0061](docs/decisions/0061-retained-python-library-bridge.md) under Goals 1, 4
+and 6. The directing user confirmed that all recorded roadmap items are reviewed
+in the 2026-11-21 release-resumption instruction. The design requires a current
+qualified provider, sealed source/wheel inputs, prospective full consumer
+qualification before source retirement and exact receipt reopening. Implementation,
+independent source review, installed/native proof and the complete release gates
+remain open; design acceptance completes none of those outcomes.
+
 SDLC-001 makes existing-repository delivery the primary adoption path for 1.4.0.
 The [evidence-backed program](docs/roadmap/existing-repository-delivery.md) and
 [ADR 0074](docs/decisions/0074-existing-repository-delivery.md) consolidate native
 adoption, containment, release measurement and worker lifecycle under existing
 owners. Native source and working build/CI layouts remain application authority;
 generation is an explicit capability. Implementation and pilot acceptance remain open.
+
+AGENT-BOOTSTRAP-001 prepares generated-project setup for 1.5 under Goal 1.
+The contributor bootstrap route is composed with current main, preserving
+project pins, custom instructions and local-tooling exclusions. Forty-one
+focused bootstrap, agent-entrypoint, inventory and update controls pass locally;
+complete installed and integrated acceptance remain open in the active queue.
 
 WHEEL-PYTHON-BINDING-001 closes a qualification-fixture gap under Goals 1 and 4:
 installed continuation must bind its bytecode oracle and native build to the same
@@ -153,8 +348,18 @@ issues #404 and #405 in 1.4 under Goals 1 and 4. Typed native acceptance rejecti
 must remain distinct from archive I/O failure. Generated native-library repair
 requires an explicitly reviewed package-to-attempt custody boundary and the existing
 shared finite retry budget; source custody and private verifier authority remain
-unchanged. PR #406 is under qualification; root-repair design and acceptance remain
-open.
+unchanged. The earlier PR #406 qualification intake is historical: its typed diagnostic
+fix is merged through the transport/diagnostic integration at `25bf1547`.
+NATIVE-ACCEPTANCE-REPAIR-001 is the single current owner for PR #414 and its
+contributor alias CANDIDATE-NATIVE-REPAIR-001. Its reviewed source implementation,
+full source suite and exact candidate's installed native repair pass; final integration
+qualification and resulting-main delivery remain open.
+
+CODEX-STATE-001 includes the SQLite-state and optional remote-catalog finite-limit
+failures in issues #365 and #412 under Goals 3 and 4. Actual Codex 0.166.0 source
+generation now passes under the unchanged 64 MiB ceiling with private state and
+cleanup. Independent source review, whole installed/platform integration and final
+release qualification remain open.
 
 CUDA-SIGNAL-001 records issue #396 as blocking 1.4.0 work under Goals 1, 2, 4
 and 5. Inert source inventory must preserve original bytes and propose CUDA only
@@ -167,12 +372,20 @@ case inventory must preserve every actual node execution; genuinely authored gra
 qualification must not manufacture source-promotion or inverse evidence. The first
 fix is contributor-owned; [ADR 0072](docs/decisions/0072-authored-native-graph-qualification.md)
 was accepted by the directing user on 2026-11-10 for authored admission.
-Implementation and both acceptance gates remain open.
+Implementation and both complete acceptance gates remain open. An actual
+noneditable provider qualification now publishes two clean nominal shared-type
+runs with the original acceptance files unchanged. Ordinary retained consumption
+still blocks closure: separately placed exact exports embed duplicate Cargo path
+packages and fail native lock resolution. The owning queue records the versioned
+shared-export layout and complete receiving work; no source retirement is claimed.
 
 PROJECT-LAYOUT-001 extends Goals 1, 4, 6 and 8 as a blocking 1.4.0 requirement.
-[ADR 0071](docs/decisions/0071-derived-project-litai-directory.md) is proposed;
-canonical `litai/` containment, supported migration and installed cross-platform
-qualification remain unimplemented and unchecked in the
+[ADR 0071](docs/decisions/0071-derived-project-litai-directory.md) is accepted under
+[ADR 0074](docs/decisions/0074-existing-repository-delivery.md). Scoped local source
+controls now cover recoverable framework file placement, initialized Component
+producer records, ordinary renewal and process-interrupted pair recovery. Public migration,
+complete lifecycle containment and installed supported-platform qualification
+remain open and unchecked in the
 [owning queue item](docs/roadmap/active-work.md#project-layout-001-contain-derived-project-literate-ai-files-under-litai).
 
 [WORKER-CPU-001](docs/roadmap/active-work.md#worker-cpu-001) qualifies bounded native Windows CPU observations for the existing worker-health goal; unavailable or incomplete processor-group evidence remains a hold under required-metric policy.
@@ -225,6 +438,13 @@ Each publication, reservation and execution boundary still reopens current
 project, source, profile, catalog, SDK policy and private registration authority.
 No preparation is cached across calls or grants execution or release permission.
 
+RETAINED-RECEIPT-PROMOTE-001 extends Goals 1, 4 and 6 with verified promotion of
+original-source retained evidence under an unchanged project test-receipt policy.
+The directing user accepted corrected ADR 0060 for framework 1.4.0 on 2026-11-04.
+Complete historical verification, genuine live admission capture and installed
+requesting-consumer qualification remain open; the provisional draft does not yet
+satisfy the corrected contract.
+
 RETAINED-OBSERVATION-PERF-001 permits the canonical receiver and source-plan
 assertions within one validation call to use the immutable plan produced by that
 same fresh canonical preparation. Bind its original receiver, request, worker,
@@ -249,6 +469,37 @@ ADOPT-RELOCATE-001 extends Goals 1, 4 and 6 with supported retained implementati
 placement and transactional relocation, including repository-root placement and
 custom wrapper Component names. The directing user accepted ADR 0057 for 1.4 under issue #265 on
 2026-11-03; implementation, rollback and fresh receipt qualification remain open.
+The internal source transaction now binds a descriptive role-based move graph,
+including shared ancestors, empty logical roots and protected Git/child namespaces.
+It also binds the complete original project namespace before acknowledgement,
+projects canonical control changes from actual publication receipts and acquired
+descriptors, and closes the complete namespace through premovement admission.
+The creating preparation also owns canonical initializer, provider and authored
+roles before acknowledgement. Admission retains those actual participants and
+their original shared reader; a fresh post-lock discovery cannot replace them.
+Development persistence retains bounded original namespace, role, native and raw
+metadata observations before canonical publication. Saved descriptions grant no
+effect rights; recovery still requires fresh actual canonical owners. Repeated
+metadata chunks preserve physical deduplication and fund bounded logical
+expansion before assembly; twelve maintained persistence checks pass. All 611
+affected maintained methods pass across six disjoint cohorts. The combined
+provider operation completes through teardown under predeclared 9 GiB source
+and catalog policies with its original 2 GiB updater policy and at least 512 MiB
+of source metadata headroom. Full source and broader qualification, including a
+current project test receipt, remain open.
+Its production executor still accepts only the existing nonroot single-rename
+profile; root/shared movement, public application and recovery remain unfinished.
+Internal root-out preparation now derives a distinct logical source forest from
+the actual original canonical role partition and complete namespace. Unknown
+metadata remains source, shared native directories stay fixed, and acknowledged
+forest data survives bounded private-journal reopening. Independent source review
+and 177 scoped maintained methods cover this read-only prerequisite. Its source
+profile explicitly refuses legacy execution/recovery admission; broader ordinary
+prepared-phase and full-source qualification remain open.
+The recovered development checkpoint also passes the actual three-generation
+recovery retry and five disposition controls under their original finite limits.
+Current composition retains that history; combined native renewal and complete
+public, installed and release qualification remain outstanding.
 
 Issue #217's reviewed Rust library acceptance-harness dependencies are covered by
 ADR 0056, explicitly accepted by the directing user on 2026-11-03. Implementation
@@ -271,7 +522,10 @@ A2A agents already connected through the coding-agent host, when delegation is
 permitted. Connections and agent communication remain host/orchestrator-owned;
 Literate AI retains pinned authority, execution authorization, artifact verification,
 and acceptance. The [roadmap item](docs/roadmap/active-work.md#a2a-001-guide-agents-to-use-connected-a2a-peers-without-adding-framework-orchestration)
-is open, with no release assigned or native A2A implementation implied.
+is in development: optional host-peer guidance, template routing and a bounded
+scenario review are authored. Skill admission, real initialized-project distribution
+and integrated qualification remain open; no release is assigned or native A2A
+implementation implied.
 
 LAB-AUTHORITY-001 extends Goals 2 and 4 with an independent, progressively richer
 canonical lab curriculum. Each lab must use actual Components, selected Flavors,
@@ -335,12 +589,11 @@ not build or release admission.
 RETAINED-PROJECT-001 (issue #22) also makes ordinary `build` and `test` delegate
 explicit original-source selections to the same retained lifecycle as
 `rebuild`, preserving reviewed plan/host authorization and distinct receipts.
-The public `package retained-project` composition now delegates to that same live
-admission and the existing exact ZIP provider, preserving selected locks, retained
-provenance, read-only intent and separate release authority. A noneditable installed CLI fixture now completes its original profile and exact
-ZIP, including stale-input rejection without another execution. The fixture build
-exports its declared original native binary; real adopted-project native compiler/SDK
-producers and stronger configured receipt policies remain open.
+The public `package retained-project` command delegates to the same live
+admission and selected ZIP provider, preserving retained provenance, read-only
+intent and separate project receipt and release authority. Integration and
+installed original-source compilation, package consumption and full native
+qualification remain separate open requirements.
 RETAINED-SSH-001 keeps those long, otherwise-silent remote lifecycles alive at
 the shared SSH transport layer so successful native work can return its exact
 bounded result. The exact KSE direct lifecycle now returns a passing build,
@@ -363,8 +616,13 @@ real authored catalog, preserve target-specific lock and source authority
 boundaries, and scale to complete native trees. Explicit POSIX symlink custody
 must retain bounded relative target text, complete internal target coverage and
 immutable snapshots; it must not dereference source links or weaken default
-refusal and legacy identities. Native action, package and
-independent acceptance qualification remain required beyond ownership planning.
+refusal and legacy identities. Explicit link policy must remain bound through
+source snapshots, quarantine, authored SDK source locks, scoped inspection and
+per-command build checks. Scan file aliases under their observable names and
+retain complete target and payload custody. Required source intelligence must
+refuse unsupported link inputs. Complete original-source corpus, installed SDK,
+native catalog/action/package and independent consumer acceptance remain required
+beyond ownership planning.
 
 RETAINED-FS-001 extends Goals 1 and 4 with independent observation of retained
 products' filesystem effects. Development cases bind private fixtures, exact
@@ -387,6 +645,9 @@ execution and current artifact/acceptance evidence. It is open; registering a
 POSIX endpoint or passing mocked dispatch tests alone does not establish support.
 See framework issue #67 and the active queue. Existing three-platform behavior
 and retained-source authority must remain intact.
+The native host-install catalog now declares AMD64 and ARM64 pkg plans. ARM64
+bootstrap and package/probe qualification remain open; a declared plan alone does
+not establish native SDK, model or release acceptance.
 A native pkg provider is being implemented under the same issue, with explicit
 ABI/dependency/payload projection, bound static pkg tooling and independent
 manifest/file/checksum inspection. Portable format checks do not establish native

@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .attestation import LocalSourceAttestation
 from .contracts import (
     BehaviorObservation,
     BehaviorSurface,
@@ -31,6 +32,7 @@ from .inventory import (
     SourceInventory,
     SourceInventoryEntry,
 )
+from .static_intake import StaticIntakeReview, reviewed_static_entries
 from .synthesis import (
     component_name,
     render_openspec_markdown,
@@ -82,7 +84,11 @@ def _evidence_id(entry: SourceInventoryEntry) -> str:
 
 def _declared_coverage(
     entry: SourceInventoryEntry,
+    *,
+    reviewed: bool = False,
 ) -> tuple[CoverageState | None, str]:
+    if reviewed and entry.classification is SourceFileClassification.SENSITIVE:
+        return None, ""
     if entry.classification in {
         SourceFileClassification.SENSITIVE,
         SourceFileClassification.BINARY,
@@ -131,6 +137,7 @@ def _definition(
 def _inventory_inputs(
     inventory: SourceInventory,
     snapshot: str,
+    reviewed_entries: dict[str, SourceInventoryEntry] | None = None,
 ) -> tuple[
     tuple[BehaviorSurface, ...],
     tuple[EvidenceReference, ...],
@@ -146,6 +153,9 @@ def _inventory_inputs(
     flavor_signals: set[FlavorSignal] = set()
 
     for entry in inventory.entries:
+        reviewed = reviewed_entries is not None and entry.path in reviewed_entries
+        if reviewed:
+            entry = reviewed_entries[entry.path]
         evidence_item = EvidenceReference(
             evidence_id=_evidence_id(entry),
             source_snapshot_id=snapshot,
@@ -154,7 +164,7 @@ def _inventory_inputs(
         )
         evidence.append(evidence_item)
         evidence_by_path[entry.path] = evidence_item
-        declared_state, reason = _declared_coverage(entry)
+        declared_state, reason = _declared_coverage(entry, reviewed=reviewed)
         surface_id = _file_surface(entry)
         surfaces.append(
             BehaviorSurface(
@@ -212,7 +222,7 @@ def _inventory_inputs(
                 )
             )
 
-        if entry.classification is SourceFileClassification.SOURCE:
+        if entry.classification is SourceFileClassification.SOURCE or reviewed:
             behavior_surface = f"behavior:{_short_id(entry.path)}"
             surfaces.append(
                 BehaviorSurface(
@@ -449,10 +459,51 @@ def derive_static_checkout(
     skill_catalog: dict[str, SpecAuthoringSkill],
     mode: RunMode = RunMode.BOOTSTRAP,
     previous_specification_set_id: str | None = None,
+    intake_review: StaticIntakeReview | None = None,
+    intake_attestation: LocalSourceAttestation | None = None,
+    intake_trust_key: bytes | None = None,
+    allow_authorized_policy_intake: bool = False,
 ) -> StaticDerivation:
     """Run every reviewed built-in skill over exact inert inventory evidence."""
 
-    if not any(_declared_coverage(entry)[0] is None for entry in inventory.entries):
+    reviewed = {}
+    if intake_review is not None:
+        if (
+            not isinstance(intake_review, StaticIntakeReview)
+            or not isinstance(intake_attestation, LocalSourceAttestation)
+            or intake_trust_key is None
+        ):
+            raise SourceToSpecificationError(
+                "intake_review.trust_required",
+                "reviewed static derivation requires exact origin and "
+                "explicit trust key",
+            )
+        if origin_attestation_id != intake_attestation.identity:
+            raise SourceToSpecificationError(
+                "intake_review.origin_mismatch",
+                "reviewed static derivation origin does not match its attestation",
+            )
+        reviewed = reviewed_static_entries(
+            intake_review,
+            source,
+            inventory=inventory,
+            attestation=intake_attestation,
+            key=intake_trust_key,
+            allow_authorized_policy=allow_authorized_policy_intake,
+        )
+    elif (
+        intake_attestation is not None
+        or intake_trust_key is not None
+        or allow_authorized_policy_intake
+    ):
+        raise SourceToSpecificationError(
+            "intake_review.required",
+            "static intake options require an explicit signed review",
+        )
+    if not any(
+        _declared_coverage(entry, reviewed=entry.path in reviewed)[0] is None
+        for entry in inventory.entries
+    ):
         raise SourceToSpecificationError(
             "workflow.inventory_excluded",
             "No behavioral source remains after inventory classification. "
@@ -462,18 +513,23 @@ def derive_static_checkout(
     selected_path = Path(source).resolve()
     root = selected_path if selected_path.is_dir() else selected_path.parent
     snapshot = inventory.identity
-    surfaces, evidence, definitions, signals = _inventory_inputs(inventory, snapshot)
+    surfaces, evidence, definitions, signals = _inventory_inputs(
+        inventory, snapshot, reviewed or None
+    )
+    request_identity_inputs = {
+        "source_snapshot_id": snapshot,
+        "origin_attestation_id": origin_attestation_id,
+        "skill_set_identity": skill_set.identity,
+        "inventory_policy_id": inventory.inventory_policy_id,
+        "mode": mode.value,
+        "previous_specification_set_id": previous_specification_set_id,
+    }
+    if intake_review is not None:
+        request_identity_inputs["static_intake_review_identity"] = (
+            intake_review.identity
+        )
     request = SourceToSpecificationRequest(
-        request_id=canonical_digest(
-            {
-                "source_snapshot_id": snapshot,
-                "origin_attestation_id": origin_attestation_id,
-                "skill_set_identity": skill_set.identity,
-                "inventory_policy_id": inventory.inventory_policy_id,
-                "mode": mode.value,
-                "previous_specification_set_id": previous_specification_set_id,
-            }
-        ),
+        request_id=canonical_digest(request_identity_inputs),
         source_snapshot_id=snapshot,
         source_content_digest=snapshot,
         origin_attestation_id=origin_attestation_id,
@@ -481,7 +537,11 @@ def derive_static_checkout(
         output_provider="openspec",
         skill_set_id=skill_set.skill_set_id,
         routing_policy_id="deterministic-static-local@1",
-        redaction_policy_id="sensitive-content-digest-only@1",
+        redaction_policy_id=(
+            "reviewed-local-static-metadata@1"
+            if intake_review is not None
+            else "sensitive-content-digest-only@1"
+        ),
         egress_policy_id="none@1",
         included_paths=tuple(item.path for item in inventory.entries),
         excluded_paths=inventory.excluded_directories,

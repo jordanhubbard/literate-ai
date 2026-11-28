@@ -12,12 +12,20 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
+from literate_ai._atomic_publication import publish_atomic_file_if_scoped
 from literate_ai._cache_lock import CacheLockError, exclusive_cache_lock
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
     path_is_link_or_reparse,
     require_safe_directory,
     stat_is_link_or_reparse,
+)
+from literate_ai.adapters.component_namespace import (
+    ComponentNamespaceError,
+    bind_component_namespace,
+    component_mutation_gate,
+    require_component_mutation_current,
+    require_component_physical_current,
 )
 from literate_ai.contracts.component_locking import ComponentAuthoring, ComponentLock
 from literate_ai.contracts.identity import (
@@ -94,6 +102,13 @@ class ComponentLockStore:
     """Read, compare, and atomically replace one ``component.lock.json``."""
 
     def __init__(self, component_root: Path) -> None:
+        from .bounded_role_observation import current_role_observation
+
+        if current_role_observation() is not None:
+            raise ComponentLockStoreError(
+                "component_lock.original_owner_required",
+                "Canonical observation requires its actual original selection owner",
+            )
         supplied = Path(component_root)
         try:
             metadata = supplied.lstat()
@@ -110,11 +125,7 @@ class ComponentLockStore:
         self.root = supplied.resolve(strict=True)
         matrix_root = os.environ.get("LITAI_MATRIX_CELL_ROOT")
         if matrix_root:
-            storage_root = (
-                Path(matrix_root).resolve()
-                / "component-locks"
-                / hashlib.sha256(str(self.root).encode("utf-8")).hexdigest()
-            )
+            storage_root = self._storage_root(self.root, Path(matrix_root).resolve())
             require_safe_directory(storage_root, allow_missing=True)
         else:
             storage_root = self.root
@@ -122,16 +133,47 @@ class ComponentLockStore:
         self.path = storage_root / LOCK_FILENAME
         self.write_lock_path = storage_root / _WRITE_LOCK_FILENAME
         self.operation_lock_path = storage_root / _OPERATION_LOCK_FILENAME
+        try:
+            bind_component_namespace(self)
+        except (ComponentNamespaceError, OSError) as error:
+            raise ComponentLockStoreError(
+                "component_lock.root_unsafe", str(error)
+            ) from error
+
+    @staticmethod
+    def observe_selection(preparation, component_root):
+        """Observe canonical selection under its actual creating source reader."""
+        from .component_lock_observation import observe_selection
+
+        return observe_selection(preparation, component_root)
+
+    @staticmethod
+    def _storage_root(root: Path, matrix_root: Path | None = None) -> Path:
+        """Name storage from already validated roots without filesystem access."""
+        if matrix_root is None:
+            return root
+        return (
+            matrix_root
+            / "component-locks"
+            / hashlib.sha256(str(root).encode("utf-8")).hexdigest()
+        )
 
     @contextmanager
     def operation(self) -> Iterator[None]:
         """Serialize every lock/audit operation for this Component root."""
 
         try:
-            with exclusive_cache_lock(self.operation_lock_path):
+            with (
+                component_mutation_gate(self),
+                exclusive_cache_lock(self.operation_lock_path),
+            ):
                 self._require_root_current()
                 yield
                 self._require_root_current()
+        except ComponentNamespaceError as error:
+            raise ComponentLockStoreError(
+                "component_lock.root_unsafe", str(error)
+            ) from error
         except ComponentLockStoreError:
             raise
         except CacheLockError as exc:
@@ -158,7 +200,10 @@ class ComponentLockStore:
         expected = _lock_bytes(expected_current)
         replacement = snapshot.content
         try:
-            with exclusive_cache_lock(self.write_lock_path):
+            with (
+                component_mutation_gate(self),
+                exclusive_cache_lock(self.write_lock_path),
+            ):
                 self._require_root_current()
                 if self._read_bytes(required=False) != expected:
                     return False
@@ -170,6 +215,10 @@ class ComponentLockStore:
                     return True
                 self._replace_bytes(replacement, prefix=f".{LOCK_FILENAME}.rollback.")
                 return True
+        except ComponentNamespaceError as error:
+            raise ComponentLockStoreError(
+                "component_lock.root_unsafe", str(error)
+            ) from error
         except ComponentLockStoreError:
             raise
         except (CacheLockError, OSError) as exc:
@@ -388,25 +437,22 @@ class ComponentLockStore:
                 "Component lock exceeds the persisted byte limit",
             )
         try:
-            with exclusive_cache_lock(self.write_lock_path):
+            with (
+                component_mutation_gate(self),
+                exclusive_cache_lock(self.write_lock_path),
+            ):
                 self._require_root_current()
                 current = self._read_bytes(required=False)
                 if current == content:
                     if revalidate is not None:
                         revalidate()
                     return False
-                descriptor, temporary_name = tempfile.mkstemp(
-                    prefix=f".{LOCK_FILENAME}.", dir=self.storage_root
-                )
-                temporary = Path(temporary_name)
-                try:
-                    with os.fdopen(descriptor, "wb") as stream:
-                        stream.write(content)
-                        stream.flush()
-                        os.fsync(stream.fileno())
+
+                def close_publication_inputs():
                     if revalidate is not None:
                         revalidate()
                     self._require_root_current()
+                    require_component_mutation_current(self)
                     if self._read_bytes(required=False) != current:
                         raise ComponentLockStoreError(
                             "component_lock.concurrent_change",
@@ -423,10 +469,29 @@ class ComponentLockStore:
                             "component_lock.path_unsafe",
                             "Component lock destination must be a regular file",
                         )
+
+                if publish_atomic_file_if_scoped(
+                    self.path, content, require_current=close_publication_inputs
+                ):
+                    return True
+                descriptor, temporary_name = tempfile.mkstemp(
+                    prefix=f".{LOCK_FILENAME}.", dir=self.storage_root
+                )
+                temporary = Path(temporary_name)
+                try:
+                    with os.fdopen(descriptor, "wb") as stream:
+                        stream.write(content)
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                    close_publication_inputs()
                     os.replace(temporary, self.path)
                     _fsync_directory(self.storage_root)
                 finally:
                     temporary.unlink(missing_ok=True)
+        except ComponentNamespaceError as error:
+            raise ComponentLockStoreError(
+                "component_lock.root_unsafe", str(error)
+            ) from error
         except ComponentLockStoreError:
             raise
         except (CacheLockError, OSError) as exc:
@@ -485,6 +550,24 @@ class ComponentLockStore:
         return content
 
     def _replace_bytes(self, content: bytes, *, prefix: str) -> None:
+        def close_publication_inputs():
+            self._require_root_current()
+            require_component_mutation_current(self)
+            if path_is_link_or_reparse(self.path):
+                raise ComponentLockStoreError(
+                    "component_lock.path_unsafe",
+                    "Component lock destination cannot be a link or reparse point",
+                )
+            if self.path.exists() and not self.path.is_file():
+                raise ComponentLockStoreError(
+                    "component_lock.path_unsafe",
+                    "Component lock destination must be a regular file",
+                )
+
+        if publish_atomic_file_if_scoped(
+            self.path, content, require_current=close_publication_inputs
+        ):
+            return
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=prefix, dir=self.storage_root
         )
@@ -511,9 +594,10 @@ class ComponentLockStore:
 
     def _require_root_current(self) -> None:
         try:
+            require_component_physical_current(self)
             require_safe_directory(self.root)
             require_safe_directory(self.storage_root, allow_missing=True)
-        except UnsafeFilesystemPathError as exc:
+        except (UnsafeFilesystemPathError, ComponentNamespaceError) as exc:
             raise ComponentLockStoreError(
                 "component_lock.root_unsafe", "Component root became unsafe"
             ) from exc
@@ -655,3 +739,27 @@ __all__ = [
     "ComponentLockStoreError",
     "LOCK_FILENAME",
 ]
+
+
+# Original field descriptors are captured with the actual class, before callbacks.
+_COMPONENT_NAMESPACE_ORIGIN = (
+    ComponentLockStore,
+    type.__getattribute__(ComponentLockStore, "__bases__"),
+    type.__getattribute__(ComponentLockStore, "__mro__"),
+    tuple(
+        (name, ComponentLockStore.__dict__.get(name))
+        for name in (
+            "root",
+            "storage_root",
+            "path",
+            "write_lock_path",
+            "operation_lock_path",
+            "target_name",
+            "__dict__",
+            "__getattribute__",
+            "__getattr__",
+            "__hash__",
+            "__eq__",
+        )
+    ),
+)

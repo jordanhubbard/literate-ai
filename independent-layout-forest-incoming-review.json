@@ -1,0 +1,35 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_actual_incoming_control_observation_transfer",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_control_read.py": {
+      "algorithm": "sha256",
+      "digest": "51c5e758983d62ac49c9ce6510d2a0fe9a359165c84ba30310efe48f9b010566"
+    },
+    "src/literate_ai/adapters/retained_layout_recovery_roles.py": {
+      "algorithm": "sha256",
+      "digest": "5fbbf14d16349cae5608cf8cb3a6ba433127e6c75cc94078a044579b508c97c5"
+    },
+    "tests/critical/test_retained_layout_forest_observation.py": {
+      "algorithm": "sha256",
+      "digest": "4e533d720ea63e6d88448c18c048d6f41e3b25743e826e77d06da5ccc8d209ae"
+    }
+  },
+  "findings_closed": [
+    "A missing one-use invocation must refuse explicitly; key=None must not match the missing-registration sentinel. Actual non-None factory token consumed before owner lookup or native work."
+  ],
+  "scope": [
+    "Only actual canonical acquisition after genuine incoming publication/descriptor acquisition and independent role enrollment may invoke the transfer once.",
+    "Same cumulative fresh reader/ledger; full old/new views and marker representations funded before construction.",
+    "Only originally absent marker payload/presence and absent-file anchors through actual created-directory publications may advance.",
+    "Exact actual publication, held FD, original reader/map, role, fresh parent and store bindings close after dependent native work before simultaneous transfer."
+  ],
+  "not_proven": [
+    "Current carrier, parking, metadata and control endpoint classification, including pending native intents and missing stage-parent stamps",
+    "Actual acknowledged journaled source/metadata/control recovery effects and fresh dispositions",
+    "Genuine canonical integrated forest execution before admission guard removal",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "decision": "approved_at_internal_descriptive_graph_and_guarded_single_rename_scope",
+  "scope": "Complete observed role projection and carrier forest, fixed/shared native directories, destination collision and alias-referent checks, original-ledger funding, original admitted field seal and durable single-rename graph binding. Root effects remain guarded.",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_effect_graph.py": {
+      "algorithm": "sha256",
+      "digest": "fe63b2e40840db43b7e35474674f1d1f44fee2c3097186bf0dac78f1448304fc"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "41c06ce0b65112d5167a96a7c29254d2c4f52bd2de1f6deabac26b6058cf6a4f"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "f7364014a666a5d4977b874e85c487f247754fa4ab4ae74152e7d4c4e5895b5a"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "5fe0c7e9c29a30ed12f2ed3a7ce8e168f958b28ac91866ecbbc65be82e01e4c2"
+    },
+    "tests/critical/test_retained_layout_effect_graph.py": {
+      "algorithm": "sha256",
+      "digest": "1a38662d367be635e21781ecf4682739ffbd059ef5f2a54d10efe1e7076c5291"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "780cb6df4aaaa5cd8002f9588ad9f0e6f3fe994cb6e134a637a606aa377fabe6"
+    },
+    "tests/critical/test_retained_layout_authored_roles.py": {
+      "algorithm": "sha256",
+      "digest": "218c69e27cf51f206485fc0afd97c2f5f845779150065e4a642d6e50c59332fe"
+    }
+  },
+  "method": "Independent source inspection only; no reviewer tests, native probes or edits.",
+  "findings": [
+    {
+      "finding": "Initial review missed projected insertion of new source leaves or empty directories into fixed Git or registered independent-project namespaces without a leaf collision.",
+      "resolution": "Every projected leaf and directory is checked against actual observed Git admin directories and actual independent-project roots before carrier construction. Those protected roots enter the sealed graph and its identity.",
+      "state": "closed_at_current_guarded_scope"
+    },
+    {
+      "finding": "A native author probe found that only-fixed root namespaces omitted the required empty implementation destination.",
+      "resolution": "Always project the logical implementation root while retaining the physical repository; explicit native graph controls cover target creation and protected-root refusal.",
+      "state": "closed_at_descriptive_graph_scope"
+    }
+  ],
+  "limits": [
+    "No independent dynamic qualification; author tests are separate evidence.",
+    "Native carrier replay exercises only the pure descriptive schedule, not a production root executor or restart recovery.",
+    "Production root/shared multi-entry movement, original-observation projections, initial/custom wrapper placement, public plan/apply/recovery and installed/platform/integration/release/full roadmap acceptance remain open."
+  ],
+  "test_fixture_addendum": {
+    "decision": "approved_source_only",
+    "scope": "Preserve original smaller policies. Separate boundary tests consume the same original ledger through its reservation API after finite policy declaration. The committed receipt case targets actual pending retirement after durable commit; the combined-policy case wraps genuine movement and asserts complete-move/native-call consistency, unchanged metadata and preserved pending state."
+  }
+}

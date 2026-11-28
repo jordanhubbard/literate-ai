@@ -1,0 +1,81 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Typed live journal guard correction; source-development controls only, not installed, independent native acceptance or release qualification",
+  "base_revision": "cbf4804e81346864560a4e3c016eb440d57f2135",
+  "source_files": {
+    "src/literate_ai/adapters/retained_readmission_publication.py": "b4274ae46a2f5a64d0a753568c8dc5f7ae7ddaf5e9f5f609d55632804434e924",
+    "tests/critical/test_readmission_guard_records.py": "05af0131778af0e8f3ac0d02fb8a7ca20c4d48c51a998b6455e2e9b2e93e1fbe"
+  },
+  "original_failure": {
+    "log_sha256": "5e2a272f16f9133a55814aeef9a2b7cf0e1230efa290cd27ac7a3fee70526697",
+    "selected": 2,
+    "executed": 1,
+    "passed": 0,
+    "failed": 1,
+    "reason": "Live guard accepted canonical header limit true in place of original integer 1 because Python dictionary equality aliases Boolean and integer values"
+  },
+  "behavior": {
+    "typed_guard": "Compare freshly serialized exact expected canonical bytes; Boolean/integer substitutions refuse, matching existing recovery type requirements",
+    "read_custody": "Every activation/header/step still passes the same bounded native/link/ancestry reader; namespace roster and activation short-circuit order unchanged",
+    "malformed_diagnostics": "Pure original unique-key canonical parser examines mismatched captured bytes; never reread a restored pathname",
+    "expected_record_integrity": "Reject foreign expected-container normalization and malformed private expected values; actual newly appended steps are serialized afresh",
+    "limits": "No disk reads omitted, no cache or read lease, no file/byte/step ceiling or deadline enlarged"
+  },
+  "current_report_union": {
+    "distinct_passed": 35,
+    "failed": 0,
+    "skipped": 0,
+    "reports": [
+      {
+        "cohort": "typed-guard-controls",
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "sha256": "e7483b38576b88740bff4941a2e80e3545d4bd26b6c96c84ffa52b26b464e40c"
+      },
+      {
+        "cohort": "typed-guard-publication",
+        "summary": {
+          "executed": 28,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 28,
+          "selected": 28,
+          "skipped": 0
+        },
+        "sha256": "6f97f541e88a59307f42c57739faf29c16ec3d899df7965a27ea7f3d673cb925"
+      }
+    ]
+  },
+  "independent_peer_review": {
+    "result": "No actionable findings after actual diff review; same source hashes as this record",
+    "scope": "Source review only; not native acceptance"
+  },
+  "native_guard_microbenchmark": {
+    "receipt_sha256": "e18d1d60991a9be52bff9b43faa060b89d21e9314d1e43e2eb21c55952940ce2",
+    "scope": "Native metadata guard only, same actual owned journal; no mocked reader or omitted disk/identity checks; no operator or release speed claim",
+    "same_actual_journal_steps": 16,
+    "guards_per_sample": 10,
+    "alternating_rounds": 6,
+    "sample_median_seconds": {
+      "before": 0.4555411045002984,
+      "after": 0.466813083497982
+    },
+    "median_ratio_after_over_before": 1.024744153461296,
+    "source_unchanged": true,
+    "original_bytes_restored": true,
+    "conclusion": "No proven wall-time improvement; measured median is about 2.5 percent slower on this sample. Observation-performance completion remains open."
+  },
+  "remaining": [
+    "Collect into the combined candidate with all other reviewed work",
+    "Fresh integrated source and exact installed/public/native qualification",
+    "Complete existing observation-performance acceptance using actual lifecycle measurements"
+  ],
+  "qualified": false,
+  "release_evidence": false
+}

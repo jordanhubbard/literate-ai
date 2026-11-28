@@ -51,6 +51,7 @@ from literate_ai.security import (
     DirectBuildAuthorizationVerifier,
     SecurityProfile,
 )
+from literate_ai.sources import InternalSymlinkSnapshotPolicy, SourceSnapshotter
 from literate_ai.storage.cas import FileSystemCAS
 from tests.support.fixtures_test_repository_sources import dependency
 
@@ -78,6 +79,17 @@ class NativeSdkBuildTests(unittest.TestCase):
                 resource.truncate(source_payload_bytes)
                 resource.seek(source_payload_bytes - len(marker))
                 resource.write(marker)
+        source_links = getattr(self, "source_link_targets", {})
+        for name, content in getattr(self, "source_extra_files", {}).items():
+            path = self.source / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
+        for name, target in source_links.items():
+            path = self.source / name
+            if path.exists():
+                path.rename(self.source / target)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.symlink_to(target, target_is_directory=(self.source / target).is_dir())
         for args in (
             ("init", "--quiet"),
             ("add", "."),
@@ -101,14 +113,23 @@ class NativeSdkBuildTests(unittest.TestCase):
                 capture_output=True,
                 timeout=30,
             )
-        self.capture = GitSourceAdapter().capture(self.source)
+        self.capture = GitSourceAdapter(
+            snapshotter=(
+                SourceSnapshotter(InternalSymlinkSnapshotPolicy())
+                if source_links
+                else None
+            )
+        ).capture(self.source)
         self.checkout = RepositoryCheckout(
             self.source,
             self.capture.git.head_commit,
             canonical_identity("fixture resolver"),
+            allow_internal_symlinks=bool(source_links),
         )
         self.lock = RepositorySourceLock(
-            dependency(),
+            dataclasses.replace(
+                dependency(), allow_internal_symlinks=bool(source_links)
+            ),
             self.checkout.resolved_commit,
             self.capture.snapshot.identity,
             self.capture.snapshot.tree_identity,

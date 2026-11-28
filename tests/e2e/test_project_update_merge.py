@@ -10,6 +10,7 @@ from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
+from literate_ai.adapters.project_scaffold_placement import ScaffoldLayout
 from literate_ai.adapters.project_update_apply import apply_project_update
 from literate_ai.adapters.project_updates import (
     FilesystemProjectUpdateAdapter,
@@ -119,6 +120,53 @@ class HistoricalTransportRecoveryTests(unittest.TestCase):
 
 
 class FrameworkMergeTests(unittest.TestCase):
+    def test_serialized_update_base_cannot_bypass_last_write_guard(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            initial = UpdateBases(root)
+            initial.advance("framework", ".gitignore", BASE)
+            initial.write()
+            checkpoint = root / CHECKPOINT
+            original = checkpoint.read_bytes()
+            updated = UpdateBases(root)
+            updated.advance("framework", ".gitignore", THEIRS)
+            expected = updated.serialized()
+            self.assertNotEqual(expected, original)
+            self.assertEqual(checkpoint.read_bytes(), original)
+            guarded = []
+
+            def refuse(path):
+                guarded.append((path, path.read_bytes()))
+                raise ProjectUpdateError(
+                    "project.update_guard_refused", "guard refused"
+                )
+
+            with self.assertRaises(ProjectUpdateError) as refusal:
+                updated.write(before_write=refuse)
+            self.assertEqual(refusal.exception.code, "project.update_guard_refused")
+            self.assertEqual(guarded, [(checkpoint, original)])
+            self.assertEqual(checkpoint.read_bytes(), original)
+            self.assertFalse(updated.checkpoint_needs_rollback())
+
+            updated.write(
+                before_write=lambda path: guarded.append((path, path.read_bytes()))
+            )
+            self.assertEqual(checkpoint.read_bytes(), expected)
+            self.assertTrue(updated.checkpoint_needs_rollback())
+            updated.rollback(
+                before_write=lambda path: guarded.append((path, path.read_bytes())),
+                require_intended=True,
+            )
+            self.assertEqual(checkpoint.read_bytes(), original)
+            self.assertEqual(
+                guarded,
+                [
+                    (checkpoint, original),
+                    (checkpoint, original),
+                    (checkpoint, expected),
+                ],
+            )
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
@@ -127,7 +175,12 @@ class FrameworkMergeTests(unittest.TestCase):
         RootParentProjectInitializationAdapter(
             standard_binding_provider=lambda: None,
             initialization_origin_provider=lambda: self.origin,
-        ).initialize(self.root, empty=True, source_intelligence_provider="none")
+        ).initialize(
+            self.root,
+            empty=True,
+            source_intelligence_provider="none",
+            _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE,
+        )
         self.target = self.root / ".gitignore"
         self.target.write_bytes(OURS)
         bases = UpdateBases(self.root)
@@ -135,13 +188,19 @@ class FrameworkMergeTests(unittest.TestCase):
         bases.write()
         self.upstream = {".gitignore": THEIRS}
         self.addCleanup(patch.stopall)
+
+        def upstream(_paths, *, profile="generated", observation=None):
+            self.assertEqual(profile, "generated")
+            self.assertIsNone(observation)
+            return self.upstream
+
         patch(
             "literate_ai.adapters.project_updates._upstream_template",
-            side_effect=lambda _: self.upstream,
+            side_effect=upstream,
         ).start()
         patch(
             "literate_ai.adapters.project_update_apply._upstream_template",
-            side_effect=lambda _: self.upstream,
+            side_effect=upstream,
         ).start()
         self.adapter = FilesystemProjectUpdateAdapter(
             origin_provider=lambda: self.origin
@@ -260,6 +319,7 @@ class CatalogMergeTests(unittest.TestCase):
             source_intelligence_provider="none",
             parent_selection=selection,
             flavor_selectors=("+python", "+macos"),
+            _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE,
         )
         self.adapter = FilesystemRepositoryUpdateAdapter(
             lineage_resolver=lambda _: self.catalogs.lineage,

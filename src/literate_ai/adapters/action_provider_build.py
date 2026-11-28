@@ -109,6 +109,7 @@ def verify_accepted_component_records(records, receipt, validation, generation_p
         or candidate.tree_identity != receipt.build.source_tree_identity
         or candidate.component_generation_plan_identity != generation_plan.identity
         or candidate.generation_key_identity != generation_plan.generation_key.identity
+        or candidate.recipe_identity.uri != validation.recipe_identity
         or generation_plan.component_revision != receipt.component_revision
         or custody.get("managed_graph_identity")
         != validation.managed_graph.identity.uri
@@ -133,7 +134,40 @@ def verify_accepted_component_records(records, receipt, validation, generation_p
     plan = StandardComponentBuildPlan.from_dict(
         reader.read_json(receipt.build.build_plan_identity)
     )
-    verify_qualification_build(reader, plan=plan, build=receipt.build)
+    python_command = None
+    original_observation = reader.read_json(receipt.build.build_observation_identity)
+    original_process = reader.read_json(
+        ContentIdentity.parse_uri(original_observation["process_observation_identity"])
+    )
+    if "python_build_inputs_identity" in original_process:
+        from literate_ai.contracts import ComponentCommandContract
+
+        context = reader.read_json(
+            ContentIdentity.parse_uri(original_process["python_build_inputs_identity"])
+        )
+        command_identity = ContentIdentity.parse_uri(
+            context["command_contract_identity"]
+        )
+        python_command = ComponentCommandContract.from_dict(
+            reader.read_json(command_identity)
+        )
+        if (
+            python_command.identity != command_identity
+            or python_command.component_revision != receipt.component_revision
+            or (
+                receipt.execution.execution_authority is not None
+                and receipt.execution.execution_authority.command_contract_identity
+                != command_identity
+            )
+        ):
+            _invalid()
+    verify_qualification_build(
+        reader,
+        plan=plan,
+        build=receipt.build,
+        python_command=python_command,
+        python_requires_inputs=bool(validation.managed_python_imports),
+    )
     verify_qualification_generated_tests(
         reader,
         build_plan_identity=plan.identity,

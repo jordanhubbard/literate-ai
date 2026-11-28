@@ -11,6 +11,12 @@ import unittest
 from dataclasses import replace
 from unittest.mock import patch
 
+from literate_ai.adapters.builders import run_bounded_process
+from literate_ai.adapters.builders.python import (
+    controlled_python_environment,
+    discover_python_toolchain,
+)
+from literate_ai.adapters.lifecycle.standard_local import LocalStandardLifecyclePorts
 from literate_ai.adapters.standard_lifecycle_binding import (
     resolve_standard_project_lifecycle_driver,
 )
@@ -18,11 +24,99 @@ from literate_ai.cli import main
 from tests.e2e import test_cli_model_free_rebuild as fixture
 from tests.support.fixtures_retained_native import author_retained_native_fixture
 
+# Initialization contains framework authority under ``litai/`` by default. These
+# journeys concern accepted retained source, not layout, so they use the actual
+# contained coordinates declared by the initialized manifest.
+SAMPLE = "litai/samples/hello-component"
+OTHER_COMPONENT = "litai/components/other-component"
+RECEIPT = "litai/verification/current.json"
+ACCEPTANCE = "litai/verification/acceptance"
+COMMITTED_CACHE = "litai/generated/committed-source-cache"
+
 
 @unittest.skipUnless(shutil.which("make"), "the retained fixture needs Make")
 class AcceptedRetainedSourceExportTests(unittest.TestCase):
-    setUp = fixture.ModelFreeRebuildTests.setUp
-    rebuild = fixture.ModelFreeRebuildTests.rebuild
+    def setUp(self):
+        fixture.ModelFreeRebuildTests.setUp(self)
+        self.assertTrue((self.project / "litai/literate.project.json").is_file())
+        self.admitted_python = []
+        original_accept = LocalStandardLifecyclePorts.accept
+
+        def observe_compiler(ports, plan, *args, **kwargs):
+            accepted = original_accept(ports, plan, *args, **kwargs)
+            contract = ports.contracts[plan.component_revision.uri]
+            binding = ports.tool_bindings[contract.language_compiler_identity.uri]
+            binding.require_unchanged()
+            self.admitted_python.append(
+                (binding.command, binding.toolchain_identity.uri)
+            )
+            return accepted
+
+        self.enterContext(
+            patch.object(LocalStandardLifecyclePorts, "accept", observe_compiler)
+        )
+
+    def compile_expected(self, source, destination):
+        # The unittest interpreter is not the admitted native compiler. Reopen
+        # the actual accepted binding rather than selecting another PATH tool.
+        self.assertTrue(self.admitted_python)
+        command, identity = self.admitted_python[-1]
+        environment = controlled_python_environment({**os.environ, **self.environment})
+        compiler = discover_python_toolchain(environment, pinned_command=command)
+        self.assertEqual(compiler.identity, identity)
+        self.assertFalse(destination.exists())
+        compiler.require_unchanged(environment)
+        try:
+            result = run_bounded_process(
+                [
+                    *compiler.command,
+                    "-I",
+                    "-S",
+                    "-c",
+                    "import py_compile,sys; py_compile.compile("
+                    "sys.argv[1],cfile=sys.argv[2],dfile='main.py',doraise=True,"
+                    "invalidation_mode=py_compile.PycInvalidationMode.CHECKED_HASH)",
+                    str(source),
+                    str(destination),
+                ],
+                cwd=self.root,
+                environment=environment,
+                timeout_seconds=60,
+                stdout_limit_bytes=1024,
+                stderr_limit_bytes=4096,
+                error_prefix="fixture.accepted-python-compile",
+            )
+        finally:
+            compiler.require_unchanged(environment)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return destination.read_bytes()
+
+    def rebuild(self, *extra: str) -> tuple[int, dict[str, object]]:
+        output = io.StringIO()
+        with (
+            patch.dict(os.environ, self.environment),
+            patch(
+                "literate_ai.cli.rebuild.resolve_standard_project_lifecycle_driver",
+                lambda driver: resolve_standard_project_lifecycle_driver(
+                    driver, distribution_observer=lambda: self.distribution
+                ),
+            ),
+            contextlib.redirect_stdout(output),
+            contextlib.redirect_stderr(output),
+        ):
+            status = main(
+                [
+                    "--json",
+                    "rebuild",
+                    SAMPLE,
+                    "--project",
+                    str(self.project),
+                    "--allow-host-execution",
+                    "--update-receipt",
+                    *extra,
+                ]
+            )
+        return status, json.loads(output.getvalue())
 
     def build(self, *, command="build", cache_entries=()):
         output = io.StringIO()
@@ -41,7 +135,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
             arguments = [
                 "--json",
                 command,
-                "samples/hello-component",
+                SAMPLE,
                 "--project",
                 str(self.project),
             ]
@@ -53,7 +147,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                 # This retained executable's explicit CLI takes one JSON argument
                 # vector. It does not declare an argument-free application mode.
                 payload = {"name": "Ada"}
-                specification = self.project / "samples/hello-component/component.md"
+                specification = self.project / f"{SAMPLE}/component.md"
                 if "| `messages` |" in specification.read_text():
                     payload["messages"] = ["hello", "world"]
                 arguments.insert(3, json.dumps([payload]))
@@ -67,13 +161,12 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
             ) from exc
 
     def test_exact_entry_selection_preserves_successive_admitted_revisions(self):
-        import py_compile
         from pathlib import Path
 
         from literate_ai.adapters.cache import FileSystemSourceCache
 
         source = self.root / "retained"
-        author_retained_native_fixture(self.project, source)
+        author_retained_native_fixture(self.project, source, component_path=SAMPLE)
         (self.root / "tools/claude").unlink()
         self.environment["CODING_CLI"] = "no-generation-provider"
         cache = FileSystemSourceCache(
@@ -90,19 +183,14 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                         stream.write(
                             "\n# independently reviewed second retained revision\n"
                         )
-                compiled = self.root / f"expected-{revision}.pyc"
-                py_compile.compile(
-                    str(source / "main.py"),
-                    cfile=str(compiled),
-                    dfile="main.py",
-                    doraise=True,
-                    invalidation_mode=py_compile.PycInvalidationMode.CHECKED_HASH,
-                )
-                expected.append(compiled.read_bytes())
+                # Retain an independent pre-build oracle. A builder must not
+                # mutate the retained input and make both byte streams agree.
+                expected_source = (source / "main.py").read_bytes()
                 status, review = self.rebuild(
                     "--retained-source", str(source), "--retained-source-plan"
                 )
                 self.assertEqual(status, 0, review)
+                self.assertEqual((source / "main.py").read_bytes(), expected_source)
                 status, result = self.rebuild(
                     "--retained-source",
                     str(source),
@@ -110,6 +198,16 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                     review["result"]["authorization_identity"],
                 )
                 self.assertEqual(status, 0, result)
+                self.assertEqual((source / "main.py").read_bytes(), expected_source)
+                oracle_source = self.root / f"expected-source-{revision}.py"
+                with oracle_source.open("xb") as stream:
+                    stream.write(expected_source)
+                expected.append(
+                    self.compile_expected(
+                        oracle_source, self.root / f"expected-{revision}.pyc"
+                    )
+                )
+                self.assertEqual(oracle_source.read_bytes(), expected_source)
                 entries = cache.verified_published_entries()
                 fresh = [entry for entry in entries if entry not in admitted]
                 self.assertEqual(len(fresh), 1)
@@ -153,7 +251,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                     )
                 finally:
                     record.write_bytes(original_record)
-            receipt = (self.project / "verification/current.json").read_bytes()
+            receipt = (self.project / RECEIPT).read_bytes()
             for choices in (
                 ("sha256:" + "0" * 64,),
                 ("invalid",),
@@ -164,7 +262,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                     status, refused = self.build(cache_entries=choices)
                     self.assertNotEqual(status, 0, refused)
                     self.assertEqual(
-                        (self.project / "verification/current.json").read_bytes(),
+                        (self.project / RECEIPT).read_bytes(),
                         receipt,
                     )
             self.assertEqual(
@@ -198,7 +296,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                 if index:
                     self.project = self.root / "other-project"
                     shutil.copytree(original, self.project)
-                    component = self.project / "samples/hello-component"
+                    component = self.project / SAMPLE
                     spec = component / "component.md"
                     text = spec.read_text()
                     self.assertIn("namespace: example", text)
@@ -224,9 +322,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                         for node in locked["nodes"]
                         if node["revision"]["coordinate"]["name"] == "hello-component"
                     )
-                    oracle = (
-                        self.project / "verification/acceptance/hello-component.json"
-                    )
+                    oracle = self.project / f"{ACCEPTANCE}/hello-component.json"
                     cases = json.loads(oracle.read_text())
                     cases["specification_set_identity"] = (
                         f"{specification['algorithm']}:{specification['digest']}"
@@ -234,7 +330,9 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                     oracle.write_text(json.dumps(cases, indent=2) + "\n")
                     record_project_authority_review(self.project)
                 source = self.root / f"retained-{index}"
-                author_retained_native_fixture(self.project, source)
+                author_retained_native_fixture(
+                    self.project, source, component_path=SAMPLE
+                )
                 status, review = self.rebuild(
                     "--retained-source", str(source), "--retained-source-plan"
                 )
@@ -264,15 +362,13 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                 self.project = project
                 status, result = self.build()
                 self.assertEqual(status, 0, result)
-                receipt = (project / "verification/current.json").read_bytes()
+                receipt = (project / RECEIPT).read_bytes()
                 status, refused = self.build(cache_entries=(foreign.identity.uri,))
                 self.assertNotEqual(status, 0, refused)
                 self.assertEqual(
                     refused["error"]["code"], "source-cache.selection-not-applicable"
                 )
-                self.assertEqual(
-                    (project / "verification/current.json").read_bytes(), receipt
-                )
+                self.assertEqual((project / RECEIPT).read_bytes(), receipt)
             self.assertEqual(len(cache.verified_published_entries()), 2)
 
     def test_project_root_partitions_exact_entries_across_current_components(self):
@@ -313,8 +409,8 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                 )
             return status, json.loads(output.getvalue())
 
-        original = self.project / "samples/hello-component"
-        other = self.project / "components/other-component"
+        original = self.project / SAMPLE
+        other = self.project / OTHER_COMPONENT
         shutil.copytree(original, other)
         spec = other / "component.md"
         spec.write_text(
@@ -340,14 +436,14 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
             if node["revision"]["coordinate"]["name"] == "other-component"
         )
         oracle = json.loads(
-            (self.project / "verification/acceptance/hello-component.json").read_text()
+            (self.project / f"{ACCEPTANCE}/hello-component.json").read_text()
         )
         # Independent JSON expectations are unchanged by the new coordinate.
         oracle["component"] = "other-component"
         oracle["specification_set_identity"] = (
             f"{identity['algorithm']}:{identity['digest']}"
         )
-        (self.project / "verification/acceptance/other-component.json").write_text(
+        (self.project / f"{ACCEPTANCE}/other-component.json").write_text(
             json.dumps(oracle, indent=2) + "\n"
         )
         record_project_authority_review(self.project)
@@ -362,9 +458,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
             "literate_ai.adapters.models.coding_cli.select_coding_cli",
             side_effect=AssertionError("project continuation invoked coding agent"),
         ):
-            for index, component in enumerate(
-                ("samples/hello-component", "components/other-component")
-            ):
+            for index, component in enumerate((SAMPLE, OTHER_COMPONENT)):
                 source = self.root / f"project-retained-{index}"
                 author_retained_native_fixture(
                     self.project, source, component_path=component
@@ -418,7 +512,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
             )
             self.assertEqual(status, 0, partial)
             self.assertEqual(len(partial["result"]["components"]), 2)
-            receipt = (self.project / "verification/current.json").read_bytes()
+            receipt = (self.project / RECEIPT).read_bytes()
             with patch.object(
                 LocalStandardLifecyclePorts,
                 "build",
@@ -431,9 +525,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                     "sha256:" + "0" * 64,
                 )
             self.assertNotEqual(status, 0, refused)
-            self.assertEqual(
-                (self.project / "verification/current.json").read_bytes(), receipt
-            )
+            self.assertEqual((self.project / RECEIPT).read_bytes(), receipt)
             # A previously valid admission outside the currently selected lock
             # set is foreign, even though its immutable cache membership remains.
             lock = other / "component.lock.json"
@@ -450,9 +542,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                 self.assertEqual(
                     refused["error"]["code"], "source-cache.selection-not-applicable"
                 )
-                self.assertEqual(
-                    (self.project / "verification/current.json").read_bytes(), receipt
-                )
+                self.assertEqual((self.project / RECEIPT).read_bytes(), receipt)
             finally:
                 retained_lock.rename(lock)
 
@@ -466,7 +556,6 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
         self.exercise_accepted_export(committed_target=True, materialize=True)
 
     def exercise_accepted_export(self, *, committed_target, materialize=False):
-        import py_compile
         from pathlib import Path
 
         from literate_ai.adapters.artifact_exports import load_artifact_export
@@ -498,7 +587,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                             SourceCacheTarget(
                                 target_id="project-committed",
                                 root_kind=SourceCacheRootKind.PROJECT_RELATIVE,
-                                root_reference="generated/committed-source-cache",
+                                root_reference=COMMITTED_CACHE,
                             ),
                         ),
                         write_target_id="project-committed",
@@ -511,14 +600,14 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
             )
 
             record_project_authority_review(self.project)
-            cache_root = self.project / "generated/committed-source-cache"
+            cache_root = self.project / COMMITTED_CACHE
 
             if materialize:
                 import subprocess
 
                 subprocess.run(["git", "init", "-q", str(self.project)], check=True)
                 (self.project / ".gitignore").write_text(
-                    "generated/committed-source-cache/\nprivate-ignored/\n"
+                    f"{COMMITTED_CACHE}/\nprivate-ignored/\n"
                 )
                 private = self.project / "private-ignored"
                 private.mkdir()
@@ -533,7 +622,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
             return result
 
         source = self.root / "retained"
-        author_retained_native_fixture(self.project, source)
+        author_retained_native_fixture(self.project, source, component_path=SAMPLE)
         (self.root / "tools/claude").unlink()
         self.environment["CODING_CLI"] = "no-generation-provider"
         with (
@@ -588,7 +677,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                     captured.materialization.source_tree_identity.uri,
                 )
                 self.project = destination / "literate-ai"
-                cache_root = self.project / "generated/committed-source-cache"
+                cache_root = self.project / COMMITTED_CACHE
                 self.assertTrue(
                     cache_root.is_dir(), "ignored declared cache was omitted"
                 )
@@ -601,7 +690,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
                         if item.is_file()
                     },
                 )
-                controller_cache = original_project / "generated/committed-source-cache"
+                controller_cache = original_project / COMMITTED_CACHE
                 self.assertEqual(
                     before_cache,
                     {
@@ -621,22 +710,16 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
         self.assertEqual(len(acceptances), prior_acceptance_count + 1)
         self.assertNotEqual(acceptances[-1], acceptances[-2])
         self.assertTrue(built["result"]["passed"])
-        export = load_artifact_export(self.project, "samples/hello-component")
+        export = load_artifact_export(self.project, SAMPLE)
         self.assertTrue(export.accepted_source_only)
         self.assertIsNone(export.model_selector)
         self.assertTrue(export.artifact_reference.identity.uri.startswith("sha256:"))
         expected = self.root / "expected.pyc"
-        py_compile.compile(
-            str(source / "main.py"),
-            cfile=str(expected),
-            dfile="main.py",
-            doraise=True,
-            invalidation_mode=py_compile.PycInvalidationMode.CHECKED_HASH,
-        )
+        self.compile_expected(source / "main.py", expected)
         self.assertEqual(
             Path(built["result"]["artifact"]).read_bytes(), expected.read_bytes()
         )
-        receipt = self.project / "verification/current.json"
+        receipt = self.project / RECEIPT
         prior_receipt = receipt.read_bytes()
         prior_artifact = Path(built["result"]["artifact"]).read_bytes()
         with patch.object(
@@ -649,9 +732,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
         self.assertTrue(refused.called)
         self.assertIn("fresh acceptance refused", failed["error"]["message"])
         self.assertEqual(receipt.read_bytes(), prior_receipt)
-        self.assertEqual(
-            load_artifact_export(self.project, "samples/hello-component"), export
-        )
+        self.assertEqual(load_artifact_export(self.project, SAMPLE), export)
         self.assertEqual(Path(built["result"]["artifact"]).read_bytes(), prior_artifact)
 
         cache = FileSystemSourceCache("upgrade", cache_root)
@@ -671,9 +752,7 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
             status, missing = self.build()
         self.assertNotEqual(status, 0, missing)
         self.assertEqual(receipt.read_bytes(), prior_receipt)
-        self.assertEqual(
-            load_artifact_export(self.project, "samples/hello-component"), export
-        )
+        self.assertEqual(load_artifact_export(self.project, SAMPLE), export)
 
         # A fresh reviewed lifecycle can upgrade the legacy entry while keeping
         # both immutable histories. Prior acceptance cannot perform that upgrade.
@@ -719,14 +798,12 @@ class AcceptedRetainedSourceExportTests(unittest.TestCase):
         blob_path = cache.cas.path_for(source_file.blob)
         blob_path.chmod(0o600)
         blob_path.write_bytes(b"changed retained cache bytes")
-        prior_export = load_artifact_export(self.project, "samples/hello-component")
+        prior_export = load_artifact_export(self.project, SAMPLE)
         prior_receipt = receipt.read_bytes()
         status, corrupt = self.build()
         self.assertNotEqual(status, 0, corrupt)
         self.assertEqual(receipt.read_bytes(), prior_receipt)
-        self.assertEqual(
-            load_artifact_export(self.project, "samples/hello-component"), prior_export
-        )
+        self.assertEqual(load_artifact_export(self.project, SAMPLE), prior_export)
 
 
 if __name__ == "__main__":

@@ -184,7 +184,10 @@ cover the inventory and have no dependency cycles.
 Execution requires clean selected child worktrees at the exact indexed revisions
 and a root binding matching its Gitlinks. Commands run sequentially in dependency
 order. A failed command blocks subsequent children. Each run retains a JSON receipt
-and per-command stdout/stderr logs under `_build/lifecycle/<run>/`. Timeouts and
+and per-command stdout/stderr logs under the selected framework root's
+`_build/lifecycle/<run>/`: `litai/_build/lifecycle/<run>/` for contained projects,
+or `_build/lifecycle/<run>/` for legacy root placement. The execution lock uses
+that same lifecycle directory. Timeouts and
 handled interruption terminate the owned command process tree. An exclusive root
 lock prevents simultaneous runs. Descriptor-backed reservation ownership is checked
 before and after commands. Replaced or edited markers are retained and block further

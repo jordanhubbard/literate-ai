@@ -2,9 +2,11 @@
 
 - Status: Accepted
 - Date: 2026-11-04
-- Acceptance: The directing user explicitly accepted this corrected design on
-  2026-11-04, recorded in [PR #297 comment6636036548](https://github.com/jordanhubbard/literate-ai/pull/297#issuecomment-6636036548).
-  This accepts the design under ADR 0006; draft implementation and qualification remain open.
+- Acceptance: The directing user explicitly accepted the corrected design on
+  2026-11-04 ("Accept corrected ADR 0060."). See the
+  [acceptance record](https://github.com/jordanhubbard/literate-ai/pull/297#issuecomment-6636036548). The accepted
+  proposed-text SHA-256 is
+  `dbdb2a0f30b0d293aeb70e88af49d7cf71887116f718ff36e8eb321bcdf6d0b9`.
 - Decision owners: directing user and literate-ai maintainers
 - Release target: 1.4.0, per the included disposition on issue #295 and PR #297;
   the requesting consumer's release is separate.
@@ -29,7 +31,7 @@ inventory, and a derived digest is labeled workspace admission despite incomplet
 resolved-output/dependency verification. This replacement specifies their required
 resolution; source review and real qualification remain open.
 
-## Proposed decision
+## Decision
 
 Add `litai project test-receipt promote-retained CANDIDATE` for an explicitly selected
 original-source retained receipt, manifest, profile and custody source. It executes no
@@ -147,6 +149,28 @@ published, hit, accepted or admitted. If the policy requires operational cache d
 lifecycle or publication evidence, require actual verified records with those semantics
 or refuse. A required cache kind may not pass merely because its name is present beside
 a `not-applicable` identity. Existing Standard cache meanings remain unchanged.
+
+### Historical SDK acceptance dependency facts
+
+Ordinary retained SDK commands keep execution metadata `@5`. Independent SDK
+acceptance uses additive execution metadata `@6` to reference the original
+canonical export-dependency document and, for a private filesystem case, its
+separate environment-bound dependency document. Capture reuses the native
+observations already required before the actual command; it does not substitute
+a final build graph for an earlier stage or repeat the native probe for metadata.
+The original command, SDK, currentness, output and post-command dependency checks
+remain mandatory. Partial CAS records confer no admission or promotion capture.
+
+The existing SDK metadata walk follows these named references under its original
+per-document, record-count, aggregate-byte and decoded-memory policies. Historical
+inspection recomputes each dependency identity, validates its bounded native graph,
+and joins its plan, stage output manifest and base or private-case environment to
+the corresponding captured action/case launch. It opens no recorded worker path,
+runs no command, acquires no SDK owner and writes no CAS object. Old SDK acceptance
+records without these facts require fresh capture; safe non-SDK legacy reading
+and the frozen retained receipt, acceptance observation and planning wires remain
+unchanged. These documents remain historical assertions under the trust boundary
+below, rather than proof against an arbitrary hostile custody-store writer.
 
 ### Custody, finite resources and writes
 

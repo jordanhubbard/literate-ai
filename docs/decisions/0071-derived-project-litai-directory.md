@@ -119,3 +119,37 @@ records the subsequent explicit delegation to implement the review recommendatio
 in this release, including containment through this shared context. This records
 delegated implementation authority, not a claim of a separate user review of this
 text. No existing release goal is deferred.
+
+## Implementation inventory prerequisite
+
+The current update planner combines several independent exclusion signals. A
+shared projection belongs with an actual layout-plan consumer; an extraction that
+is immediately flattened by its only caller adds no ownership decision. Existing
+update exclusions are protection evidence, not a relocation inventory or migration
+permission. A future layout plan must combine initialization-baseline and update
+identities with current topology, references and application ownership before
+selecting any move.
+
+| Existing owner or signal | Established scope | Remaining containment work |
+| --- | --- | --- |
+| Initialization baseline and framework update bases | Finite previously materialized paths and historical byte identities | Resolve current semantic ownership, modes, links and references; a baseline entry alone does not authorize relocation |
+| Catalog-import manifest and catalog update bases | Independent evidence protecting inherited authority from template replacement | Preserve exact parent provenance and application-relative path meanings; normalize implicit metadata through the shared context |
+| Project generation inputs and retained-shim authority | Paths current local Components and retained execution still require | Preserve authored authority and retained application bytes, including mixed framework/application Component directories |
+| Shared `ProjectContext` | Application root, explicitly declared framework root, discovery and coordination | Route remaining consumers through the same context; retain refusal of conflicting authority |
+| Native bootstrap inventory | A finite contained profile with no added external adapters | It does not classify legacy canonical projects or authorize converting their baseline into a native one |
+| Producer-owned locks, receipts, caches and outputs | Their own identities and lifecycle rules | Classify historical preservation, invalidation/renewal or recreation through each producer; no directory-name sweep |
+
+The existing eligible agent entrypoint names are `AGENTS.md`, `CLAUDE.md`,
+`.cursor/rules/literate-ai.mdc` and `agents/openai.yaml`. Eligibility does not
+establish ownership of custom contents or require every profile to install them.
+The entrypoint auditor is read-only. The README parent-attribution writer owns
+only its explicit paired marker region. Neither is a general editor for shared
+instructions, build files, Git-ignore rules or CI workflows.
+
+Before migration can publish a plan, each supported profile must enumerate the
+external consumers that require root files and define their exact delegates or
+owned regions. Application CI, package metadata, source and product documentation
+remain application content. Unresolved shared ownership, mixed directories and
+unknown references block relocation; they do not create additional exceptions.
+This prerequisite leaves the public migration transaction and installed/platform
+acceptance above open.

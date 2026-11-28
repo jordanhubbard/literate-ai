@@ -654,9 +654,14 @@ def run_gates(
     project_root: Path | None = None,
     gate_pins: Mapping[str, Pin] | None = None,
     dispatch: PinDispatchService | None = None,
+    required_gates: Sequence[str] = (),
 ) -> int:
     if not gates or len(set(gates)) != len(gates):
         raise ValueError("gates must be a non-empty sequence of unique names")
+    if len(set(required_gates)) != len(required_gates) or any(
+        gate not in gates for gate in required_gates
+    ):
+        raise ValueError("required gates must be unique members of the selected plan")
     root = project_root or Path.cwd()
     if evidence_run is None:
         evidence_run = attach_run(root)
@@ -693,7 +698,7 @@ def run_gates(
         scheduled = decisions[pin.identity.uri]
         skip_tested = scheduled.action is DispatchAction.SKIP
         skip_marker = gate in scheduled.completed_steps
-        if skip_tested or skip_marker:
+        if gate not in required_gates and (skip_tested or skip_marker):
             reason = (
                 "pin tested at current hash"
                 if skip_tested
@@ -738,7 +743,10 @@ def run_gates(
         marker = service.record_step(pin, gate)
         decisions[pin.identity.uri] = replace(
             scheduled,
-            action=DispatchAction.RESUME,
+            # A forced gate does not revoke an independently current full-pin
+            # receipt for other gates. Every required gate still runs, and an
+            # actual required failure returns before this marker update.
+            action=DispatchAction.SKIP if skip_tested else DispatchAction.RESUME,
             completed_steps=marker.completed_steps,
         )
         if evidence_run is not None:
@@ -1309,6 +1317,7 @@ def _parser() -> argparse.ArgumentParser:
     gates.add_argument("--suite", default="release-check")
     gates.add_argument("--make", default=os.environ.get("MAKE", "make"))
     gates.add_argument("--reset", action="store_true")
+    gates.add_argument("--require-gate", action="append", default=[])
     gates.add_argument("gates", nargs="*")
     return parser
 
@@ -1372,6 +1381,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not arguments.gates:
         raise SystemExit("at least one gate is required unless --reset is used")
 
+    required_gates = tuple(getattr(arguments, "require_gate", ()))
+    if len(set(required_gates)) != len(required_gates) or any(
+        gate not in arguments.gates for gate in required_gates
+    ):
+        raise SystemExit("required gates must be unique members of the selected plan")
     project_root = Path.cwd()
     evidence_run = attach_run(project_root)
     owns_evidence_run = evidence_run is None
@@ -1412,6 +1426,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 state_path=state_path,
                 runner=run_make,
                 project_root=project_root,
+                **({"required_gates": required_gates} if required_gates else {}),
             )
         else:
             with evidence_context as node:
@@ -1426,6 +1441,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                         evidence_node.node_id if evidence_node is not None else None
                     ),
                     project_root=project_root,
+                    **({"required_gates": required_gates} if required_gates else {}),
                 )
                 if result != 0 and isinstance(evidence_node, EvidenceNode):
                     evidence_node.fail(

@@ -356,16 +356,70 @@ class FilesystemStandardAcceptedSourcePublisher:
     def publish_accepted(
         self, publication: StandardAcceptedSourcePublication
     ) -> ContentIdentity:
+        from literate_ai.application.native_root_run import current_native_root_run
+        from literate_ai.application.standard_node_sdk_admission import (
+            capture_node_sdk_lifecycle,
+        )
+
+        original_run = current_native_root_run()
+        sdk_guard = capture_node_sdk_lifecycle()
+
+        def require_original():
+            if original_run is not None:
+                original_run.require_current()
+            if sdk_guard is not None:
+                sdk_guard()
+            if original_run is not None:
+                original_run.require_current()
+
+        constraint = (
+            {
+                "require_current": require_original,
+                "remaining": original_run.remaining,
+            }
+            if original_run is not None
+            else {}
+        )
         _key, entry = self._build_entry(publication)
-        self.cache.publish(entry, caller_cas=self.caller_cas)
+        if original_run is not None or sdk_guard is not None:
+            require_original()
+        self.cache.publish(entry, caller_cas=self.caller_cas, **constraint)
+        if original_run is not None or sdk_guard is not None:
+            require_original()
         if self.source_admission is not None:
             # An explicitly reviewed live retained qualification supersedes its
             # prior exact-key membership. Immutable older evidence is retained.
-            self.cache.retire_other_memberships(_key, keep=entry.identity)
-        self._published_entry_by_membership[publication.membership.identity] = (
-            entry.identity
-        )
-        return publication.membership.identity
+            self.cache.retire_other_memberships(_key, keep=entry.identity, **constraint)
+        if original_run is not None or sdk_guard is not None:
+            require_original()
+        membership_identity = publication.membership.identity
+        if original_run is not None or sdk_guard is not None:
+            require_original()
+        published_identity = entry.identity
+        mapping = self._published_entry_by_membership
+        if original_run is None and sdk_guard is None:
+            mapping[membership_identity] = published_identity
+            return membership_identity
+        absent = object()
+        prior = mapping.get(membership_identity, absent)
+        try:
+            mapping[membership_identity] = published_identity
+            require_original()
+        except BaseException as original_error:
+            try:
+                if mapping.get(membership_identity, absent) is published_identity:
+                    if prior is absent:
+                        del mapping[membership_identity]
+                    else:
+                        mapping[membership_identity] = prior
+            except BaseException as cleanup_error:
+                from ._publication import _note_cleanup
+
+                _note_cleanup(
+                    original_error, "publication mapping rollback failed", cleanup_error
+                )
+            raise
+        return membership_identity
 
     def _build_entry(
         self, publication: StandardAcceptedSourcePublication
@@ -509,8 +563,34 @@ class FilesystemStandardAcceptedSourcePublisher:
         ``--source-cache-entry`` selection reaches them again once retired.
         """
 
+        from literate_ai.application.native_root_run import current_native_root_run
+        from literate_ai.application.standard_node_sdk_admission import (
+            capture_node_sdk_lifecycle,
+        )
+
+        original_run = current_native_root_run()
+        sdk_guard = capture_node_sdk_lifecycle()
+
+        def require_original():
+            if original_run is not None:
+                original_run.require_current()
+            if sdk_guard is not None:
+                sdk_guard()
+            if original_run is not None:
+                original_run.require_current()
+
         key, entry = self._build_entry(publication)
-        self.cache.retire_other_memberships(key, keep=entry.identity)
+        constraint = {}
+        if original_run is not None or sdk_guard is not None:
+            require_original()
+            if original_run is not None:
+                constraint = {
+                    "require_current": require_original,
+                    "remaining": original_run.remaining,
+                }
+        self.cache.retire_other_memberships(key, keep=entry.identity, **constraint)
+        if original_run is not None or sdk_guard is not None:
+            require_original()
 
 
 class FilesystemStandardSourceAdmissionPublisher:
@@ -542,6 +622,9 @@ class FilesystemStandardSourceAdmissionPublisher:
         self.cache_key = cache_key
 
     def publish(self, membership: StandardSourceAdmissionMembership) -> ContentIdentity:
+        from literate_ai.application.native_root_run import current_native_root_run
+
+        original_run = current_native_root_run()
         if not isinstance(membership, StandardSourceAdmissionMembership):
             raise TypeError("membership must be a StandardSourceAdmissionMembership")
         candidate = membership.generation.output.candidate
@@ -625,8 +708,18 @@ class FilesystemStandardSourceAdmissionPublisher:
                 membership.evidence.semantic_dict()
             ),
         )
-        self.cache.publish(entry, caller_cas=self.caller_cas)
-        return membership.identity
+        constraint = {}
+        if original_run is not None:
+            original_run.require_current()
+            constraint = {
+                "require_current": original_run.require_current,
+                "remaining": original_run.remaining,
+            }
+        self.cache.publish(entry, caller_cas=self.caller_cas, **constraint)
+        membership_identity = membership.identity
+        if original_run is not None:
+            original_run.require_current()
+        return membership_identity
 
 
 def restore_standard_source_cache_membership(

@@ -7,6 +7,8 @@ import shutil
 import tarfile
 import tempfile
 import unittest
+from contextlib import ExitStack
+from copy import copy
 from dataclasses import fields, replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -331,6 +333,128 @@ class StandardSourceCacheRoundTripTests(unittest.TestCase):
                 ).read_bytes(),
                 cache_key=lambda _publication: entry.derivation.cache_key,
             )
+
+            # Exercise real entry construction, CAS copying and filesystem
+            # membership links under an additive captured owner. This does not
+            # qualify provider/SDK execution; only the publication cut is tested.
+            from literate_ai.adapters.cache import filesystem as cache_filesystem
+
+            for boundary in ("entry", "copy", "prelink", "postlink"):
+                with self.subTest(owner_loss=boundary):
+                    guarded_cache = FileSystemSourceCache(boundary, root / boundary)
+                    guarded_publisher = copy(publisher)
+                    guarded_publisher.cache = guarded_cache
+                    guarded_publisher._published_entry_by_membership = {}
+                    state = {"alive": True, "membership": False}
+
+                    def owner(state=state):
+                        if not state["alive"]:
+                            raise ValueError("publication owner ended")
+
+                    original_write = guarded_cache._publish_immutable_bytes
+
+                    def write(
+                        destination,
+                        content,
+                        *,
+                        state=state,
+                        guarded_cache=guarded_cache,
+                        original_write=original_write,
+                        **kwargs,
+                    ):
+                        state["membership"] = (
+                            destination.parent.parent == guarded_cache.keys
+                        )
+                        try:
+                            return original_write(destination, content, **kwargs)
+                        finally:
+                            state["membership"] = False
+
+                    with ExitStack() as stack:
+                        stack.enter_context(
+                            patch(
+                                "literate_ai.application.standard_node_sdk_admission.capture_node_sdk_lifecycle",
+                                return_value=owner,
+                            )
+                        )
+                        if boundary == "entry":
+
+                            def key(_publication, state=state):
+                                state["alive"] = False
+                                return entry.derivation.cache_key
+
+                            guarded_publisher.cache_key = key
+                        elif boundary == "copy":
+                            original_copy = guarded_cache.cas.put_file
+
+                            def copied(
+                                *args,
+                                state=state,
+                                original_copy=original_copy,
+                                **kwargs,
+                            ):
+                                result = original_copy(*args, **kwargs)
+                                state["alive"] = False
+                                return result
+
+                            stack.enter_context(
+                                patch.object(
+                                    guarded_cache.cas, "put_file", side_effect=copied
+                                )
+                            )
+                        else:
+                            stack.enter_context(
+                                patch.object(
+                                    guarded_cache,
+                                    "_publish_immutable_bytes",
+                                    side_effect=write,
+                                )
+                            )
+                            if boundary == "prelink":
+                                original_fsync = cache_filesystem.os.fsync
+
+                                def fsync(
+                                    descriptor,
+                                    state=state,
+                                    original_fsync=original_fsync,
+                                ):
+                                    original_fsync(descriptor)
+                                    if state["membership"]:
+                                        state["alive"] = False
+
+                                stack.enter_context(
+                                    patch.object(
+                                        cache_filesystem.os, "fsync", side_effect=fsync
+                                    )
+                                )
+                            else:
+                                original_link = cache_filesystem.os.link
+
+                                def link(
+                                    *args,
+                                    state=state,
+                                    original_link=original_link,
+                                    **kwargs,
+                                ):
+                                    original_link(*args, **kwargs)
+                                    if state["membership"]:
+                                        state["alive"] = False
+
+                                stack.enter_context(
+                                    patch.object(
+                                        cache_filesystem.os, "link", side_effect=link
+                                    )
+                                )
+                        with self.assertRaisesRegex(ValueError, "owner ended"):
+                            guarded_publisher.publish_accepted(publication)
+                    candidates = guarded_cache.candidates(entry.derivation.cache_key)
+                    # Guarded SDK publication joins the existing cooperative
+                    # transaction: loss before commit rolls back its own pointer,
+                    # including a link already created by this invocation.
+                    self.assertEqual(len(candidates), 0)
+                    self.assertIsNone(
+                        guarded_publisher.published_entry_identity(membership.identity)
+                    )
 
             published = publisher.publish_accepted(publication)
             candidates = cache.candidates(entry.derivation.cache_key)

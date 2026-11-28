@@ -26,6 +26,7 @@ from literate_ai.contracts import (
     canonical_json_bytes,
     canonical_relative_posix_path,
 )
+from literate_ai.contracts.native_cargo_provider_graph import NativeCargoProviderGraph
 from literate_ai.ports.contracts import (
     BuildDependencyObservation,
     BuildInputConsumption,
@@ -51,12 +52,18 @@ from .cyclonedx import (
     validate_cyclonedx_bom,
     validate_resolved_cyclonedx_bom,
 )
+from .managed_python import (
+    ManagedPythonImports,
+    managed_python_import_map,
+    require_managed_python_imports,
+)
 from .mix_resolution import (
     MixDependencyEvidence,
     project_mix_evidence,
     validate_mix_source_bom,
 )
 from .mix_source import MixSourceAuthority
+from .native_cargo_lock import require_native_cargo_managed_graph
 from .observation import (
     _MAX_OBSERVED_FILES,
     _MAX_TOOL_OUTPUT,
@@ -142,6 +149,7 @@ class CycloneDxLifecycleResolver:
         managed_graph: CycloneDxManagedGraph,
         observer: PortableHostDependencyObserver,
         evidence_path: Path,
+        write_evidence: Callable[[Path, bytes], None] | None = None,
         additional_components: Sequence[Mapping[str, object]] = (),
         additional_edges: Sequence[tuple[str, str]] = (),
         repository_resolutions: Sequence[CycloneDxRepositorySourceResolution] = (),
@@ -150,16 +158,36 @@ class CycloneDxLifecycleResolver:
         python_source_authority: PythonSourceAuthority | None = None,
         python_dependency_observer: Callable[[], PythonDependencyEvidence]
         | None = None,
+        observed_managed_python_imports: ManagedPythonImports = (),
         mix_source_authority: MixSourceAuthority | None = None,
         mix_dependency_observer: Callable[[], MixDependencyEvidence] | None = None,
+        native_cargo_graph: NativeCargoProviderGraph | None = None,
+        native_cargo_manifest: str | None = None,
     ) -> None:
         self.managed_graph = managed_graph
+        managed_python_import_map(managed_graph, observed_managed_python_imports)
+        self.observed_managed_python_imports = observed_managed_python_imports
         self.observer = observer
         self.evidence_path = evidence_path
+        self.write_evidence = write_evidence
         self.additional_components = tuple(dict(item) for item in additional_components)
         self.additional_edges = tuple(additional_edges)
         self.repository_resolutions = tuple(repository_resolutions)
         self.allow_missing_cargo_lock = allow_missing_cargo_lock
+        if native_cargo_graph is not None:
+            require_native_cargo_managed_graph(native_cargo_graph, managed_graph)
+            if not isinstance(native_cargo_manifest, str):
+                raise DependencyObservationError(
+                    "dependencies.rust-native-graph-invalid",
+                    "native graph requires its selected manifest",
+                )
+        elif native_cargo_manifest is not None:
+            raise DependencyObservationError(
+                "dependencies.rust-native-graph-invalid",
+                "native manifest requires its typed graph",
+            )
+        self.native_cargo_graph = native_cargo_graph
+        self.native_cargo_manifest = native_cargo_manifest
         self.runtime_python_imports = runtime_python_imports
         self.mix_source_authority = mix_source_authority
         self.mix_dependency_observer = mix_dependency_observer
@@ -303,6 +331,11 @@ class CycloneDxLifecycleResolver:
                     "payload verification",
                 )
             python_evidence = self.python_dependency_observer()
+            require_managed_python_imports(
+                json.loads(source_content),
+                self.managed_graph,
+                self.observed_managed_python_imports,
+            )
             python_observed = project_python_evidence(
                 source_content,
                 root_ref=self.managed_graph.root_ref,
@@ -329,6 +362,9 @@ class CycloneDxLifecycleResolver:
                         "literate-ai:python-top-level-import", ()
                     )
                 ),
+                observed_managed_python_imports=frozenset(
+                    alias for _provider, alias in self.observed_managed_python_imports
+                ),
                 python_source_authority=self.python_source_authority,
             )
         mix_observed = HostDependencyObservation((), ())
@@ -337,6 +373,8 @@ class CycloneDxLifecycleResolver:
             resolution_files,
             python_source_authority=self.python_source_authority,
             mix_source_authority=self.mix_source_authority,
+            native_cargo_graph=self.native_cargo_graph,
+            native_cargo_manifest=self.native_cargo_manifest,
         )
         if self.mix_source_authority is not None:
             if self.mix_dependency_observer is None:
@@ -388,6 +426,7 @@ class CycloneDxLifecycleResolver:
             ),
             lock_projection=lock_projection,
             authoritative_bzlmod_versions=dict(bazel_resolution.authoritative_versions),
+            native_cargo_graph=self.native_cargo_graph,
         )
         edges = (
             *source_edges,
@@ -420,17 +459,22 @@ class CycloneDxLifecycleResolver:
                 "sbom.transition-binding-mismatch",
                 "source-to-resolved validation returned different CycloneDX bindings",
             )
-        self.evidence_path.parent.mkdir(parents=True, exist_ok=True)
-        descriptor, temporary_name = tempfile.mkstemp(
-            prefix=f".{self.evidence_path.name}.", dir=self.evidence_path.parent
-        )
-        os.close(descriptor)
-        temporary = Path(temporary_name)
-        try:
-            temporary.write_bytes(resolved_content)
-            os.replace(temporary, self.evidence_path)
-        finally:
-            temporary.unlink(missing_ok=True)
+        if self.write_evidence is not None:
+            # A lifecycle owner may retain exclusive original-file custody.
+            # This trusted host callback grants no resolver or runtime authority.
+            self.write_evidence(self.evidence_path, resolved_content)
+        else:
+            self.evidence_path.parent.mkdir(parents=True, exist_ok=True)
+            descriptor, temporary_name = tempfile.mkstemp(
+                prefix=f".{self.evidence_path.name}.", dir=self.evidence_path.parent
+            )
+            os.close(descriptor)
+            temporary = Path(temporary_name)
+            try:
+                temporary.write_bytes(resolved_content)
+                os.replace(temporary, self.evidence_path)
+            finally:
+                temporary.unlink(missing_ok=True)
         identity_material: dict[str, object] = {
             "resolver_id": self.resolver_id,
             "effective_revision_digest": artifact["effective_revision_digest"],
@@ -1838,6 +1882,7 @@ def _resolved_source_projection(
     lock_projection: _LockProjection,
     authoritative_bzlmod_versions: Mapping[str, str] | None = None,
     require_package_dependency_kind: bool = False,
+    native_cargo_graph: NativeCargoProviderGraph | None = None,
 ) -> tuple[tuple[dict[str, object], ...], tuple[tuple[str, str], ...]]:
     """Preserve source inventory/edges and replace ranges with exact evidence."""
 
@@ -1854,6 +1899,32 @@ def _resolved_source_projection(
             "source BOM inventory or dependency graph is invalid",
         )
     managed_refs = {item.bom_ref for item in managed_graph.components}
+    native_packages = tuple(
+        package
+        for package in lock_projection.packages
+        if package.managed_ref is not None
+    )
+    if native_packages:
+        require_native_cargo_managed_graph(native_cargo_graph, managed_graph)
+        from literate_ai.contracts.sbom import component_bom_ref
+
+        expected_native = {
+            (node.package, node.version): component_bom_ref(node.component_revision)
+            for node in native_cargo_graph.nodes
+        }
+        observed_native = {
+            (package.coordinate, package.version): package.managed_ref
+            for package in native_packages
+            if not package.root
+        }
+        if observed_native != {
+            (_lock_coordinate("cargo", name), version): ref
+            for (name, version), ref in expected_native.items()
+        }:
+            raise DependencyObservationError(
+                "dependencies.rust-native-graph-invalid",
+                "native lock references differ from their exact managed graph",
+            )
     candidate_by_ref: dict[str, dict[str, object]] = {}
     for raw in resolution_candidates:
         candidate = dict(raw)
@@ -1873,7 +1944,11 @@ def _resolved_source_projection(
 
     projected: list[dict[str, object]] = []
     consumed_candidates: set[str] = set()
-    package_ref_by_lock_key: dict[str, str] = {}
+    package_ref_by_lock_key: dict[str, str] = {
+        package.key: package.managed_ref
+        for package in native_packages
+        if not package.root
+    }
     for raw in raw_components:
         if not isinstance(raw, Mapping):
             raise DependencyObservationError(

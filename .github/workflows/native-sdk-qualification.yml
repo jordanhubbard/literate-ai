@@ -1,12 +1,26 @@
 name: Native FreeBSD SDK qualification
 
 on:
+  workflow_call:
+    inputs:
+      candidate_revision:
+        required: true
+        type: string
+      full_source:
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       candidate_revision:
         description: Exact clean Literate AI commit to build and qualify
         required: true
         type: string
+      full_source:
+        description: Also run the complete canonical source suite in the native guest
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -15,13 +29,16 @@ jobs:
   public-sdk:
     name: Installed public SDK / FreeBSD 15.1 amd64
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: ${{ inputs.full_source && 360 || 120 }}
     env:
       CANDIDATE_REVISION: ${{ inputs.candidate_revision }}
+      PULL_REQUEST_HEAD: ${{ github.event.pull_request.head.sha }}
+      FULL_SOURCE_SUITE: ${{ inputs.full_source && '1' || '0' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.11"
@@ -38,6 +55,15 @@ jobs:
                   target = target.parent
               assert shutil.disk_usage(target).free > 20 * 1024**3
           PY
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          if [ "$GITHUB_EVENT_NAME" != workflow_dispatch ]; then
+            test "$CANDIDATE_REVISION" = "$GITHUB_SHA"
+          fi
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            [[ "$PULL_REQUEST_HEAD" =~ ^[0-9a-f]{40}$ ]]
+            test "$(git rev-parse HEAD^2)" = "$PULL_REQUEST_HEAD"
+            export PULL_REQUEST_BASE="$(git rev-parse HEAD^1)"
+          fi
           git cat-file -e "$CANDIDATE_REVISION^{commit}"
           mkdir -p "$HOME/.worktrees/literate-ai" qualification-wheel
           git worktree add --detach "$HOME/.worktrees/literate-ai/native-sdk" "$CANDIDATE_REVISION"
@@ -57,16 +83,19 @@ jobs:
           (directory / "wheel.json").write_text(json.dumps({
               "revision": os.environ["CANDIDATE_REVISION"], "wheel": wheel.name,
               "qualification_harness_revision": os.environ["GITHUB_SHA"],
+              "pull_request_head": os.environ.get("PULL_REQUEST_HEAD") or None,
+              "pull_request_base": os.environ.get("PULL_REQUEST_BASE") or None,
               "sha256": hashlib.sha256(wheel.read_bytes()).hexdigest(),
               "test_source_sha256": hashlib.sha256((directory / "test-source.tar").read_bytes()).hexdigest(),
+              "full_source_requested": os.environ["FULL_SOURCE_SUITE"] == "1",
           }, indent=2))
           PY
       - name: Exercise canonical CLI and installed owner controls on FreeBSD
-        uses: vmactions/freebsd-vm@c46abacb49f09938ca4e1702d15d836285d694cc # v1.5.9
+        uses: vmactions/freebsd-vm@811efaaac0668df8bfb8308c3ec997b5ab50037b # v1.6.0
         with:
           release: "15.1"
-          mem: 4096
-          cpu: 2
+          mem: ${{ inputs.full_source && 8192 || 4096 }}
+          cpu: ${{ inputs.full_source && 4 || 2 }}
           copyback: true
           prepare: |
             set -eu
@@ -105,6 +134,12 @@ jobs:
             python_minor=${python_minor%-pip}
             qualification_python="/usr/local/bin/python3.$python_minor"
             test -x "$qualification_python"
+            full_source_requested=$("$qualification_python" -c 'import json; from pathlib import Path; print(int(json.loads(Path("qualification-wheel/wheel.json").read_bytes())["full_source_requested"]))')
+            workspace_gib=16
+            if [ "$full_source_requested" = 1 ]; then
+              pkg install -y gmake git-lfs node24 npm-node24
+              workspace_gib=32
+            fi
             df -Pk / /tmp /home
             "$qualification_python" -c 'import shutil,sys; assert (3,11) <= sys.version_info[:2] <= (3,14); assert shutil.disk_usage("/home").free > 10 * 1024**3'
             pw useradd -n litai-qual -m -s /bin/sh -w random > /dev/null
@@ -114,7 +149,7 @@ jobs:
             # declared POSIX.1e workspace on a private sparse vnode-backed UFS.
             # The disposable VM owns the device/image through teardown.
             workspace_image=$(mktemp /var/tmp/litai-sdk-ufs.XXXXXXXX)
-            truncate -s 16g "$workspace_image"
+            truncate -s "${workspace_gib}g" "$workspace_image"
             workspace_device=$(mdconfig -a -t vnode -f "$workspace_image")
             newfs -U "/dev/$workspace_device"
             mount -t ufs -o acls "/dev/$workspace_device" "$work"
@@ -141,10 +176,17 @@ jobs:
             /home/litai-qual/venv/bin/python -I "$work/harness/run_cell.py" acl-preflight --parent "$work" --uid "$(id -u litai-qual)" --output "$work/result"
             chown -R litai-qual:litai-qual /home/litai-qual
             su - litai-qual -c 'env TMPDIR=/home/litai-qual/qualification/tmp /home/litai-qual/venv/bin/python -I /home/litai-qual/qualification/harness/run_cell.py --wheel-dir /home/litai-qual/qualification/wheel --framework /home/litai-qual/qualification/framework.git --fixture /home/litai-qual/qualification/test-source/tests/fixtures/native_sdk --test-source /home/litai-qual/qualification/test-source --output /home/litai-qual/qualification/result'
+            if [ "$full_source_requested" = 1 ]; then
+              su - litai-qual -c 'env TMPDIR=/home/litai-qual/qualification/tmp /home/litai-qual/venv/bin/python -I /home/litai-qual/qualification/harness/qualify_source.py --wheel-dir /home/litai-qual/qualification/wheel --framework /home/litai-qual/qualification/framework.git --output /home/litai-qual/qualification/result'
+            fi
       - name: Require copied-back native qualification success
         if: always()
         run: |
-          python .github/qualifications/native_sdk/collect_results.py --destination qualification-results --check
+          full_source_option=
+          if [ "$FULL_SOURCE_SUITE" = 1 ]; then
+            full_source_option=--require-full-source
+          fi
+          python .github/qualifications/native_sdk/collect_results.py --destination qualification-results --check $full_source_option
           python -c 'from pathlib import Path; statuses = {name: int(Path("qualification-results", name + "-exit-code.txt").read_text()) for name in ("guest", "collection")}; assert all(value == 0 for value in statuses.values()), statuses'
       - name: Retain source-bound reports and failure diagnostics
         if: always()

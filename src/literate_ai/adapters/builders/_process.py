@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 import threading
 import time
 from collections.abc import Callable, Mapping, Sequence
@@ -12,13 +13,24 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import BinaryIO
 
+from literate_ai.adapters.process_liveness import capture_process_liveness
+from literate_ai.adapters.worker_telemetry_processes import (
+    register_original_process_launch,
+    retire_original_process_observation,
+)
+from literate_ai.application.native_root_run import current_native_root_run
 from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
 
+from .._process_interrupt import (
+    BOUNDED_INTERRUPT_GRACE_SECONDS,
+    relay_process_interrupt,
+)
 from .._processes import (
     create_process_tree_ownership,
     process_tree_termination_wait_seconds,
 )
 from .._processes import terminate_process_tree as _terminate_process_tree
+from ..worker_telemetry_context import observe_actual_spawn
 from .python import BuildError
 
 _PIPE_READ_BYTES = 64 * 1024
@@ -27,15 +39,31 @@ _PROCESS_EXIT_WAIT_SECONDS = 5
 _STREAM_JOIN_SECONDS = 1
 
 
-def remote_cleanup_wait_seconds(*, platform_name: str | None = None) -> float:
-    """Conservative configured waits for descendant cleanup with no stdin writer.
+def remote_cleanup_wait_seconds(
+    *, platform_name: str | None = None, has_stdin_writer: bool = False
+) -> float:
+    """Conservative configured waits for owned descendants and optional stdin.
 
-    The long pipe-close path has three termination calls, two shared reader
+    Without stdin, the long pipe-close path has three termination calls, two reader
     deadlines, two final reader joins and a final process wait. The timeout path
     has two termination calls, two process waits and two reader joins. Native
     calls and blocking stream.close are not bounded by this wait arithmetic.
+    A stdin writer adds its joins and a possible fourth termination fallback
+    after the second reader-close phase; all formulas use the same owner limits.
     """
     terminate = process_tree_termination_wait_seconds(platform_name=platform_name)
+    if has_stdin_writer:
+        return max(
+            2 * terminate + 2 * _PROCESS_EXIT_WAIT_SECONDS + 3 * _STREAM_JOIN_SECONDS,
+            3 * terminate
+            + 2 * _PIPE_CLOSE_TIMEOUT_SECONDS
+            + 3 * _STREAM_JOIN_SECONDS
+            + _PROCESS_EXIT_WAIT_SECONDS,
+            4 * terminate
+            + 2 * _PIPE_CLOSE_TIMEOUT_SECONDS
+            + 2 * _STREAM_JOIN_SECONDS
+            + _PROCESS_EXIT_WAIT_SECONDS,
+        )
     return max(
         3 * terminate
         + 2 * _PIPE_CLOSE_TIMEOUT_SECONDS
@@ -69,6 +97,7 @@ def run_bounded_process(
     cwd: Path | None,
     environment: Mapping[str, str],
     timeout_seconds: float,
+    deadline_monotonic: float | None = None,
     stdout_limit_bytes: int,
     stderr_limit_bytes: int,
     error_prefix: str,
@@ -83,14 +112,20 @@ def run_bounded_process(
     terminate_descendants: bool = False,
     stdout_sink: BinaryIO | None = None,
     stderr_tail_bytes: int | None = None,
+    windows_job_observation: object | None = None,
 ) -> BoundedProcessResult:
     """Drain bounded streams and kill the owned process tree on failure.
 
     An explicit caller-owned binary stdout sink avoids retaining archive bytes
     in memory. Its written bytes count against the same stdout limit; stdout in
     the result is empty in that mode. The caller owns flush/close and publication.
+    An optional absolute deadline uses the supplied clock's monotonic domain and
+    caps the ordinary relative execution timeout without restarting its budget.
     """
 
+    live_run = current_native_root_run()
+    if live_run is not None:
+        timeout_seconds = live_run.clamp_timeout(timeout_seconds)
     if timeout_seconds <= 0:
         raise ValueError("tool process timeout must be positive")
     if inactivity_timeout_seconds is not None and inactivity_timeout_seconds <= 0:
@@ -114,21 +149,58 @@ def run_bounded_process(
         not isinstance(input_bytes, bytes) or len(input_bytes) > input_limit_bytes
     ):
         raise ValueError("tool process input exceeds its configured byte limit")
-    if interrupt_guard is not None:
-        interrupt_guard()
+    if deadline_monotonic is not None and clock() >= deadline_monotonic:
+        raise BuildError(
+            f"{error_prefix}_timeout", "Tool deadline expired before launch"
+        )
+    caller_guard = interrupt_guard
+    require_process_liveness = capture_process_liveness()
+
+    def interrupt_guard():
+        require_process_liveness()
+        if caller_guard is not None:
+            caller_guard()
+        require_process_liveness()
+
+    interrupt_guard()
     if stdout_sink is not None and not stdout_sink.writable():
         raise ValueError("tool stdout sink must be writable")
+    observation_wake = None
+    observation_control = None
+    observation_active = False
+    if windows_job_observation is not None:
+        try:
+            observation_control = tuple(threading.Event() for _ in range(3))
+            observation_wake = observation_control[0]
+        except Exception:
+            pass
+    from ..retained_execution_workspace import (
+        native_bounded_command_start,
+        native_command_complete,
+        native_command_environment,
+        native_command_not_started,
+    )
+
+    native_joined = native_bounded_command_start(cwd)
     ownership = create_process_tree_ownership()
-    child_environment = inherited_verbose_environment(environment)
-    started_monotonic = clock()
+    native_closed = not native_joined
+    native_refused = False
     try:
+        child_environment = inherited_verbose_environment(
+            native_command_environment(environment) if native_joined else environment
+        )
+        started_monotonic = clock()
         _started = datetime.now(UTC)
         if trace:
             trace_subprocess(
                 command, cwd=cwd or Path.cwd(), environment=child_environment
             )
-        process = process_factory(
-            list(command),
+        if deadline_monotonic is not None and clock() >= deadline_monotonic:
+            raise BuildError(
+                f"{error_prefix}_timeout", "Tool deadline expired before launch"
+            )
+        launch_command = list(command)
+        launch_options = dict(
             cwd=cwd,
             env=child_environment,
             stdin=subprocess.DEVNULL if input_bytes is None else subprocess.PIPE,
@@ -137,109 +209,150 @@ def run_bounded_process(
             **({} if input_bytes is None else {"bufsize": 0}),
             **ownership.popen_options,
         )
+        interrupt_guard()
+        process = process_factory(launch_command, **launch_options)
     except OSError as exc:
+        if native_joined:
+            native_command_not_started()
         ownership.release()
         raise BuildError(
             f"{error_prefix}_launch_failed", "Tool process could not start"
         ) from exc
-    ownership.bind(process.pid)
-    assert process.stdout is not None and process.stderr is not None
-    streams = {
-        "stdout": (process.stdout, stdout_limit_bytes),
-        "stderr": (process.stderr, stderr_limit_bytes),
-    }
-    buffers = {name: bytearray() for name in streams}
-    counts = dict.fromkeys(streams, 0)
-    overflow = threading.Event()
-    read_errors: list[OSError | ValueError] = []
-    state_lock = threading.Lock()
-    last_activity = [started_monotonic]
-    input_errors: list[OSError | ValueError] = []
-
-    def send_input() -> None:
-        assert process.stdin is not None and input_bytes is not None
-        try:
-            remaining = memoryview(input_bytes)
-            while remaining:
-                written = process.stdin.write(remaining[:_PIPE_READ_BYTES])
-                if not written:
-                    raise OSError("tool input stream stopped accepting bytes")
-                remaining = remaining[written:]
-        except (OSError, ValueError) as exc:
-            input_errors.append(exc)
-        finally:
-            with suppress(OSError, ValueError):
-                process.stdin.close()
-
+    except BaseException:
+        if native_joined:
+            native_command_not_started()
+        ownership.release()
+        raise
+    observation = None
     writer = None
-    if input_bytes is not None:
-        writer = threading.Thread(
-            target=send_input, name="literate-ai-tool-stdin", daemon=True
-        )
-        writer.start()
+    readers: list[threading.Thread] = []
+    try:
+        ownership.bind(process.pid)
+        observation = register_original_process_launch(process)
+        if observation_wake is not None:
+            try:
+                observation_active = ownership.begin_windows_job_observation(
+                    windows_job_observation, observation_control
+                )
+            except Exception:
+                ownership.close_windows_job_observation()
+        observe_actual_spawn(process.pid)
+        assert process.stdout is not None and process.stderr is not None
+        streams = {
+            "stdout": (process.stdout, stdout_limit_bytes),
+            "stderr": (process.stderr, stderr_limit_bytes),
+        }
+        buffers = {name: bytearray() for name in streams}
+        counts = dict.fromkeys(streams, 0)
+        overflow = threading.Event()
+        read_errors: list[OSError | ValueError] = []
+        state_lock = threading.Lock()
+        last_activity = [started_monotonic]
+        input_errors: list[OSError | ValueError] = []
 
-    def retain(name: str, chunk: bytes) -> None:
-        if name == "stdout" and stdout_sink is not None:
-            remaining = memoryview(chunk)
-            while remaining:
-                try:
-                    written = stdout_sink.write(remaining)
-                except Exception as exc:
-                    # A callback failure must reach the supervising thread even
-                    # when the child already exited successfully. Never let a
-                    # reader-thread traceback turn lost archive bytes into zero.
-                    raise OSError("tool stdout sink write failed") from exc
-                if type(written) is not int or not 0 < written <= len(remaining):
-                    raise OSError("tool stdout sink stopped accepting bytes")
-                remaining = remaining[written:]
-        else:
-            buffers[name].extend(chunk)
-            if name == "stderr" and stderr_tail_bytes is not None:
-                del buffers[name][:-stderr_tail_bytes]
-        counts[name] += len(chunk)
+        def send_input() -> None:
+            assert process.stdin is not None and input_bytes is not None
+            try:
+                remaining = memoryview(input_bytes)
+                while remaining:
+                    written = process.stdin.write(remaining[:_PIPE_READ_BYTES])
+                    if not written:
+                        raise OSError("tool input stream stopped accepting bytes")
+                    remaining = remaining[written:]
+            except (OSError, ValueError) as exc:
+                input_errors.append(exc)
+            finally:
+                with suppress(OSError, ValueError):
+                    process.stdin.close()
 
-    def drain(name: str) -> None:
-        stream, limit = streams[name]
-        try:
-            while True:
-                tail = name == "stderr" and stderr_tail_bytes is not None
-                remaining = _PIPE_READ_BYTES if tail else limit - counts[name]
-                read_available = getattr(stream, "read1", stream.read)
-                chunk = read_available(min(_PIPE_READ_BYTES, remaining + 1))
-                if not chunk:
-                    return
-                if len(chunk) > remaining:
-                    if remaining > 0:
-                        retain(name, chunk[:remaining])
+        if input_bytes is not None:
+            writer = threading.Thread(
+                target=send_input, name="literate-ai-tool-stdin", daemon=True
+            )
+            writer.start()
+
+        def retain(name: str, chunk: bytes) -> None:
+            if name == "stdout" and stdout_sink is not None:
+                remaining = memoryview(chunk)
+                while remaining:
+                    try:
+                        written = stdout_sink.write(remaining)
+                    except Exception as exc:
+                        # A callback failure must reach the supervising thread even
+                        # when the child already exited successfully. Never let a
+                        # reader-thread traceback turn lost archive bytes into zero.
+                        raise OSError("tool stdout sink write failed") from exc
+                    if type(written) is not int or not 0 < written <= len(remaining):
+                        raise OSError("tool stdout sink stopped accepting bytes")
+                    remaining = remaining[written:]
+            else:
+                buffers[name].extend(chunk)
+                if name == "stderr" and stderr_tail_bytes is not None:
+                    del buffers[name][:-stderr_tail_bytes]
+            counts[name] += len(chunk)
+
+        def drain(name: str) -> None:
+            stream, limit = streams[name]
+            try:
+                while True:
+                    tail = name == "stderr" and stderr_tail_bytes is not None
+                    remaining = _PIPE_READ_BYTES if tail else limit - counts[name]
+                    read_available = getattr(stream, "read1", stream.read)
+                    chunk = read_available(min(_PIPE_READ_BYTES, remaining + 1))
+                    if not chunk:
+                        return
+                    if len(chunk) > remaining:
+                        if remaining > 0:
+                            retain(name, chunk[:remaining])
+                        with state_lock:
+                            last_activity[0] = clock()
+                        overflow.set()
+                        if observation_active:
+                            observation_wake.set()
+                        elif process.poll() is None:
+                            _terminate_process_tree(process, ownership=ownership)
+                        return
+                    retain(name, chunk)
                     with state_lock:
                         last_activity[0] = clock()
-                    overflow.set()
-                    if process.poll() is None:
-                        _terminate_process_tree(process, ownership=ownership)
-                    return
-                retain(name, chunk)
+            except (OSError, ValueError) as exc:
                 with state_lock:
-                    last_activity[0] = clock()
-        except (OSError, ValueError) as exc:
-            with state_lock:
-                read_errors.append(exc)
-            if process.poll() is None:
-                _terminate_process_tree(process, ownership=ownership)
+                    read_errors.append(exc)
+                if observation_active:
+                    observation_wake.set()
+                elif process.poll() is None:
+                    _terminate_process_tree(process, ownership=ownership)
 
-    readers = tuple(
-        threading.Thread(
-            target=drain,
-            args=(name,),
-            name=f"literate-ai-tool-{name}",
-            daemon=True,
+        readers = tuple(
+            threading.Thread(
+                target=drain,
+                args=(name,),
+                name=f"literate-ai-tool-{name}",
+                daemon=True,
+            )
+            for name in streams
         )
-        for name in streams
-    )
-    for reader in readers:
-        reader.start()
-    try:
+        for reader in readers:
+            reader.start()
+        next_job_sample = 0.0
         try:
             while True:
+                if observation_active:
+                    control_request = ownership.take_windows_job_control_request()
+                    if control_request == "terminate":
+                        _terminate_process_tree(process, ownership=ownership)
+                    elif control_request == "release":
+                        ownership.release()
+                    if overflow.is_set() or read_errors:
+                        _terminate_process_tree(process, ownership=ownership)
+                        with suppress(subprocess.TimeoutExpired):
+                            process.wait(timeout=_PROCESS_EXIT_WAIT_SECONDS)
+                        returncode = process.poll()
+                        break
+                    sample_now = time.monotonic()
+                    if sample_now >= next_job_sample:
+                        ownership.sample_windows_job_observation()
+                        next_job_sample = sample_now + 0.25
                 if interrupt_guard is not None:
                     interrupt_guard()
                 now = clock()
@@ -247,6 +360,11 @@ def run_bounded_process(
                 with state_lock:
                     inactive = now - last_activity[0]
                 total_remaining = timeout_seconds - elapsed
+                if live_run is not None:
+                    live_run.require_current()
+                    total_remaining = min(total_remaining, live_run.remaining())
+                if deadline_monotonic is not None:
+                    total_remaining = min(total_remaining, deadline_monotonic - now)
                 inactive_remaining = (
                     None
                     if inactivity_timeout_seconds is None
@@ -254,7 +372,13 @@ def run_bounded_process(
                 )
                 if total_remaining <= 0:
                     timeout_kind = "total"
-                    deadline = timeout_seconds
+                    deadline = (
+                        timeout_seconds
+                        if deadline_monotonic is None
+                        else min(
+                            timeout_seconds, deadline_monotonic - started_monotonic
+                        )
+                    )
                     break
                 if inactive_remaining is not None and inactive_remaining <= 0:
                     timeout_kind = "no-progress"
@@ -265,11 +389,20 @@ def run_bounded_process(
                     total_remaining,
                     *(() if inactive_remaining is None else (inactive_remaining,)),
                 )
-                try:
-                    returncode = process.wait(timeout=wait_for)
-                    break
-                except subprocess.TimeoutExpired:
-                    continue
+                if observation_active:
+                    returncode = process.poll()
+                    if returncode is not None:
+                        if overflow.is_set() or read_errors:
+                            _terminate_process_tree(process, ownership=ownership)
+                        break
+                    observation_wake.wait(timeout=wait_for)
+                    observation_wake.clear()
+                else:
+                    try:
+                        returncode = process.wait(timeout=wait_for)
+                        break
+                    except subprocess.TimeoutExpired:
+                        continue
         except BaseException:
             raise
         if "timeout_kind" in locals():
@@ -294,8 +427,22 @@ def run_bounded_process(
         if terminate_descendants:
             _terminate_process_tree(process, ownership=ownership)
         pipe_close_deadline = time.monotonic() + _PIPE_CLOSE_TIMEOUT_SECONDS
+        stream_failure_terminated = False
         for reader in readers:
-            reader.join(timeout=max(0.0, pipe_close_deadline - time.monotonic()))
+            if observation_active:
+                while reader.is_alive() and time.monotonic() < pipe_close_deadline:
+                    if not stream_failure_terminated and (
+                        overflow.is_set() or read_errors
+                    ):
+                        _terminate_process_tree(process, ownership=ownership)
+                        stream_failure_terminated = True
+                    reader.join(
+                        timeout=min(
+                            0.05, max(0.0, pipe_close_deadline - time.monotonic())
+                        )
+                    )
+            else:
+                reader.join(timeout=max(0.0, pipe_close_deadline - time.monotonic()))
         if any(reader.is_alive() for reader in readers):
             _terminate_process_tree(process, ownership=ownership)
             descendant_close_deadline = time.monotonic() + _PIPE_CLOSE_TIMEOUT_SECONDS
@@ -311,6 +458,9 @@ def run_bounded_process(
                     f"{error_prefix}_output_stream",
                     "Tool descendants left inherited output streams open",
                 )
+        if observation_active and (overflow.is_set() or read_errors):
+            if not stream_failure_terminated:
+                _terminate_process_tree(process, ownership=ownership)
         if overflow.is_set():
             raise BuildError(
                 f"{error_prefix}_output_limit",
@@ -339,6 +489,17 @@ def run_bounded_process(
             stderr_truncated=stderr_tail_bytes is not None
             and counts["stderr"] > stderr_tail_bytes,
         )
+        if native_joined:
+            try:
+                native_command_complete(process)
+            except BaseException:
+                native_refused = True
+                if result.returncode == 0:
+                    raise
+                # The caller still constructs its original failed-command rejection.
+                # A refused completion leaves native ownership broken and retained.
+            finally:
+                native_closed = True
         if trace:
             trace_subprocess(
                 command,
@@ -349,19 +510,56 @@ def run_bounded_process(
                 stderr=result.stderr,
                 started_at=_started,
             )
-        return result
+        if live_run is not None:
+            live_run.require_current()
+    except KeyboardInterrupt:
+        if terminate_descendants:
+            relay_process_interrupt(
+                process,
+                ownership=ownership,
+                readers=readers,
+                grace_seconds=BOUNDED_INTERRUPT_GRACE_SECONDS,
+            )
+        raise
     finally:
-        if process.poll() is None or terminate_descendants:
-            _terminate_process_tree(process, ownership=ownership)
-            with suppress(subprocess.TimeoutExpired):
-                process.wait(timeout=_PROCESS_EXIT_WAIT_SECONDS)
-        ownership.release()
-        _close_process_pipes(process)
-        if writer is not None:
-            if process.stdin is not None:
-                with suppress(OSError, ValueError):
-                    process.stdin.close()
-            writer.join(timeout=_STREAM_JOIN_SECONDS)
+        original_error = sys.exception()
+        ownership.close_windows_job_observation()
+        try:
+            if (
+                process.poll() is None
+                or terminate_descendants
+                or native_refused
+                or (native_joined and original_error is not None)
+            ):
+                _terminate_process_tree(process, ownership=ownership)
+                with suppress(subprocess.TimeoutExpired):
+                    process.wait(timeout=_PROCESS_EXIT_WAIT_SECONDS)
+            if not native_closed:
+                try:
+                    native_command_complete(process)
+                except BaseException as error:
+                    if original_error is None:
+                        raise
+                    original_error.add_note(
+                        "Native process closure refused: " + str(error)
+                    )
+        finally:
+            try:
+                retire_original_process_observation(observation)
+            finally:
+                ownership.release()
+                ownership.finish_windows_job_observation()
+                _close_process_pipes(process)
+                if process.stdin is not None:
+                    with suppress(OSError, ValueError):
+                        process.stdin.close()
+                if writer is not None and writer.ident is not None:
+                    writer.join(timeout=_STREAM_JOIN_SECONDS)
+
+    interrupt_guard()
+    if live_run is not None:
+        live_run.require_current()
+    return result
 
 
 __all__ = ["BoundedProcessResult", "run_bounded_process"]

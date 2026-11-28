@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
+import locale
 import os
 import re
 import shutil
@@ -109,6 +111,12 @@ from literate_ai.source_to_specification import (
 )
 from literate_ai.source_to_specification.inventory import (
     inventory_matches_accepted_snapshot,
+    source_inventory_from_dict,
+)
+from literate_ai.source_to_specification.reviewed_assets import (
+    ReviewedSourceAssetBinding,
+    validate_bound_component_assets,
+    validate_reviewed_asset_inventory,
 )
 from literate_ai.source_to_specification.synthesis import (
     capability_contract_path,
@@ -119,6 +127,7 @@ from literate_ai.source_to_specification.synthesis import (
 
 from ._wire import (
     component_graph_from_wire,
+    component_graph_to_wire,
     result_from_wire,
     result_to_wire,
     review_from_wire,
@@ -128,6 +137,7 @@ from .errors import CLI_RESULT_SCHEMA, CliFailure, JsonArgumentParser, _json_tex
 
 CASE_SCHEMA = "literate-ai/source-to-specification-case@1"
 BUNDLE_SCHEMA = "literate-ai/source-to-specification-result-bundle@5"
+REVIEWED_INTAKE_BUNDLE_SCHEMA = "literate-ai/source-to-specification-result-bundle@6"
 PREVIOUS_BUNDLE_SCHEMA = "literate-ai/source-to-specification-result-bundle@4"
 OLDER_BUNDLE_SCHEMA = "literate-ai/source-to-specification-result-bundle@3"
 V2_BUNDLE_SCHEMA = "literate-ai/source-to-specification-result-bundle@2"
@@ -168,7 +178,9 @@ def _read_json(path: str | Path) -> dict[str, Any]:
         ) from exc
 
 
-def _read_stable_bounded_regular_file(path: str | Path, *, maximum_bytes: int) -> bytes:
+def _read_stable_bounded_regular_file(
+    path: str | Path, *, maximum_bytes: int, _maximum_selector=None
+) -> bytes:
     """Read one direct regular file without following or racing its pathname."""
 
     candidate = Path(os.path.abspath(path))
@@ -198,11 +210,14 @@ def _read_stable_bounded_regular_file(path: str | Path, *, maximum_bytes: int) -
             flags |= getattr(os, name, 0)
         descriptor = os.open(candidate, flags)
         opened = os.fstat(descriptor)
-        if (
-            not stat.S_ISREG(opened.st_mode)
-            or opened.st_size > maximum_bytes
-            or not named_file_matches(descriptor, opened)
+        if not stat.S_ISREG(opened.st_mode) or not named_file_matches(
+            descriptor, opened
         ):
+            raise OSError
+        if _maximum_selector is not None:
+            maximum_bytes = _maximum_selector(descriptor, opened.st_size)
+            os.lseek(descriptor, 0, os.SEEK_SET)
+        if opened.st_size > maximum_bytes:
             raise OSError
         content = bytearray()
         while len(content) <= maximum_bytes:
@@ -420,14 +435,48 @@ def _derive_standalone(
     model_evidence_byte_budget: int = 262_144,
     mode: RunMode = RunMode.BOOTSTRAP,
     previous_specification_set_id: str | None = None,
+    intake_review_path: str | None = None,
+    allow_authorized_policy_intake: bool = False,
 ) -> tuple[dict[str, Any], SourceToSpecificationResult]:
+    from literate_ai.source_to_specification.static_intake import (
+        StaticIntakeReview,
+        read_static_intake_document,
+        read_static_intake_key,
+        require_static_intake_source,
+    )
+
+    intake_review = None
+    if intake_review_path is not None:
+        if translator_kind != "static" or allow_model_egress or model is not None:
+            raise CliFailure(
+                "intake_review.static_only",
+                "reviewed intake permits local static translation only, "
+                "without model egress",
+            )
+        source = require_static_intake_source(source)
+        intake_review = StaticIntakeReview.from_dict(
+            read_static_intake_document(intake_review_path)
+        )
+        if attestation_path is None or trust_key_path is None:
+            raise CliFailure(
+                "intake_review.trust_required",
+                "reviewed intake requires --attestation and --trust-key",
+            )
+    elif allow_authorized_policy_intake:
+        raise CliFailure(
+            "intake_review.required", "policy intake opt-in requires --intake-review"
+        )
     inventory = inventory_source(source)
     languages = tuple(
         sorted(
             {item.language for item in inventory.entries if item.language is not None}
         )
     )
-    attestation = _load_attestation(attestation_path)
+    attestation = (
+        parse_source_attestation(read_static_intake_document(attestation_path))
+        if intake_review is not None
+        else _load_attestation(attestation_path)
+    )
     origin_verified = False
     if attestation is not None:
         if trust_key_path is None:
@@ -435,7 +484,11 @@ def _derive_standalone(
                 "cli.trust_key_required",
                 "verifying a local source attestation requires --trust-key",
             )
-        key = read_local_trust_key(trust_key_path)
+        key = (
+            read_static_intake_key(trust_key_path)
+            if intake_review is not None
+            else read_local_trust_key(trust_key_path)
+        )
         verify_source_attestation(
             attestation,
             expected_source_snapshot_id=inventory.identity,
@@ -465,6 +518,16 @@ def _derive_standalone(
             skill_catalog=catalog,
             mode=mode,
             previous_specification_set_id=previous_specification_set_id,
+            **(
+                {
+                    "intake_review": intake_review,
+                    "intake_attestation": attestation,
+                    "intake_trust_key": key,
+                    "allow_authorized_policy_intake": allow_authorized_policy_intake,
+                }
+                if intake_review is not None
+                else {}
+            ),
         )
     result = derivation.result
     classifications = Counter(item.classification.value for item in inventory.entries)
@@ -479,7 +542,9 @@ def _derive_standalone(
         if item.state not in allowed_coverage
     )
     bundle = {
-        "schema": BUNDLE_SCHEMA,
+        "schema": REVIEWED_INTAKE_BUNDLE_SCHEMA
+        if intake_review is not None
+        else BUNDLE_SCHEMA,
         "case_id": f"standalone:{source.name}",
         "source_kind": "standalone-local",
         "result": result_to_wire(result),
@@ -551,6 +616,8 @@ def _derive_standalone(
             "promotion_eligible": origin_verified and not blocked_coverage,
         },
     }
+    if intake_review is not None:
+        bundle["static_intake_review"] = intake_review.to_dict()
     return bundle, result
 
 
@@ -853,10 +920,51 @@ def _flavor_drafts(
     return drafts
 
 
+def _read_bundle_json(path):
+    """Select the schema ceiling before allocation on the same original file."""
+    from ._bundle_schema_scan import scan_bundle_envelopes
+
+    maximum = 16 * 1024 * 1024
+    encoding = io.text_encoding(None)
+    if encoding == "locale":
+        encoding = locale.getencoding()
+
+    def ceiling(descriptor, size):
+        if size <= maximum:
+            return maximum
+        envelope = scan_bundle_envelopes(descriptor, size, encoding=encoding)
+        if isinstance(envelope, dict) and envelope.get("schema") == CLI_RESULT_SCHEMA:
+            envelope = envelope.get("result")
+        if isinstance(envelope, dict) and envelope.get("schema") in {
+            "literate-ai/source-to-specification-audit@1",
+            "literate-ai/source-to-specification-refresh@1",
+        }:
+            envelope = envelope.get("bundle")
+        if (
+            isinstance(envelope, dict)
+            and envelope.get("schema") == REVIEWED_INTAKE_BUNDLE_SCHEMA
+        ):
+            return maximum
+        # Legacy formats have no fixed ceiling: retain their original finite
+        # descriptor size, not a new global restriction on existing bundles.
+        return size
+
+    try:
+        content = _read_stable_bounded_regular_file(
+            path, maximum_bytes=maximum, _maximum_selector=ceiling
+        )
+        data = _object(json.loads(content.decode(encoding)), str(path))
+    except (OSError, ValueError, UnicodeError, RecursionError, CliFailure) as error:
+        raise CliFailure(
+            "cli.invalid_json", "bundle requires stable bounded JSON input"
+        ) from error
+    return data, content
+
+
 def _unwrap_bundle(
     path: str | Path,
 ) -> tuple[dict[str, Any], SourceToSpecificationResult]:
-    data = _read_json(path)
+    data, content = _read_bundle_json(path)
     if data.get("schema") == CLI_RESULT_SCHEMA:
         data = _object(data.get("result"), "CLI result")
     if data.get("schema") in {
@@ -865,6 +973,7 @@ def _unwrap_bundle(
     }:
         data = _object(data.get("bundle"), "nested result bundle")
     if data.get("schema") not in {
+        REVIEWED_INTAKE_BUNDLE_SCHEMA,
         BUNDLE_SCHEMA,
         PREVIOUS_BUNDLE_SCHEMA,
         OLDER_BUNDLE_SCHEMA,
@@ -872,6 +981,53 @@ def _unwrap_bundle(
         LEGACY_BUNDLE_SCHEMA,
     }:
         raise CliFailure("cli.unsupported_bundle", "input is not a result bundle")
+    if data.get("schema") == REVIEWED_INTAKE_BUNDLE_SCHEMA:
+        from literate_ai.source_to_specification.promotion_materialization import (
+            _require_direct_directory,
+        )
+        from literate_ai.source_to_specification.static_intake import (
+            StaticIntakeReview,
+            _parse_static_intake_json,
+        )
+
+        selected_parent = Path(path).absolute().parent
+        original_parent = _require_direct_directory(
+            selected_parent, label="static intake metadata"
+        )
+        data = _parse_static_intake_json(content)
+        _require_direct_directory(original_parent, label="static intake metadata")
+        _require_direct_directory(selected_parent, label="static intake metadata")
+        if data.get("schema") in {
+            "literate-ai/source-to-specification-audit@1",
+            "literate-ai/source-to-specification-refresh@1",
+        }:
+            data = _object(data.get("bundle"), "nested reviewed intake bundle")
+        fields = {
+            "schema",
+            "case_id",
+            "source_kind",
+            "result",
+            "source_inventory",
+            "skill_stage_runs",
+            "flavor_drafts",
+            "behavioral_surface_inventory",
+            "evidence_partition_manifest",
+            "evidence_batch_plan",
+            "translation",
+            "security",
+            "review_gate",
+            "static_intake_review",
+        }
+        if set(data) != fields or data.get("schema") != REVIEWED_INTAKE_BUNDLE_SCHEMA:
+            raise CliFailure(
+                "cli.invalid_bundle", "reviewed intake bundle fields are invalid"
+            )
+        StaticIntakeReview.from_dict(data["static_intake_review"])
+    elif "static_intake_review" in data:
+        raise CliFailure(
+            "cli.invalid_bundle",
+            "legacy bundles cannot declare static intake permission",
+        )
     try:
         return data, result_from_wire(data["result"])
     except (KeyError, TypeError, ValueError, SourceToSpecificationError) as exc:
@@ -899,6 +1055,51 @@ def _read_reviewed_component_graph(path: str | Path) -> ComponentGraphDraft:
             "reviewed Component graph is invalid",
         ) from exc
     return graph
+
+
+def _validate_reviewed_graph_assets(graph, inventory_value) -> None:
+    if not any(node.assets for node in graph.nodes):
+        return
+    try:
+        inventory = source_inventory_from_dict(inventory_value)
+        validate_reviewed_asset_inventory(graph, inventory)
+    except SourceToSpecificationError as exc:
+        raise CliFailure(exc.code, exc.message) from exc
+
+
+def _capture_reviewed_assets(accepted_root, graph, source_root) -> None:
+    """Freeze declared bytes before publishing an accepted specification set."""
+
+    if not any(node.assets for node in graph.nodes):
+        return
+    from literate_ai.source_to_specification.promotion_materialization import (
+        PromotionInputKind,
+        SourcePromotionInput,
+        SourcePromotionMaterializer,
+    )
+
+    try:
+        validate_reviewed_asset_inventory(graph, inventory_source(source_root))
+        inputs = tuple(
+            SourcePromotionInput(
+                kind=PromotionInputKind.AUTHORED_ASSET,
+                source_root=source_root,
+                source_root_label="reviewed-source-assets",
+                source_path=asset.source,
+                target_path=(
+                    f"{_coordinate_parts(node.coordinate, accepted_root.name)[1]}/"
+                    f"{asset.asset_id}"
+                ),
+                expected_content_identity=asset.pin.uri,
+            )
+            for node in graph.nodes
+            for asset in node.assets
+        )
+        SourcePromotionMaterializer().materialize(
+            inputs, accepted_root / "authored-assets"
+        )
+    except SourceToSpecificationError as exc:
+        raise CliFailure(exc.code, exc.message) from exc
 
 
 def _static_review_artifacts(
@@ -1186,10 +1387,36 @@ def _create_promoted_project(
     inverse_evidence_custody: object | None,
     parent_selection: RepositoryParentSelection | None,
     promotion_parent=None,
+    static_intake_review: object | None = None,
+    native_root_policy=None,
 ) -> dict[str, object]:
     """Create one complete, disposable-source-ready project from an accepted set."""
 
+    from literate_ai.source_to_specification.promotion_materialization import (
+        REVIEWED_SOURCE_PROMOTION_PROVENANCE_SCHEMA,
+    )
+    from literate_ai.source_to_specification.static_intake import StaticIntakeReview
+
     from .project import init_project_from_args
+
+    original_native_policy = None
+    if native_root_policy is not None:
+        from .native_root_promotion_policy import PinnedNativeRootPromotionPolicy
+
+        if type(native_root_policy) is not PinnedNativeRootPromotionPolicy:
+            raise TypeError("original native root promotion policy input required")
+        original_native_policy = native_root_policy.value
+
+    if static_intake_review is not None and (
+        not isinstance(static_intake_review, StaticIntakeReview)
+        or static_intake_review.source_snapshot_id != result.request.source_snapshot_id
+        or not isinstance(translation, dict)
+        or translation.get("mode") != "deterministic-static"
+    ):
+        raise CliFailure(
+            "intake_review.promotion_invalid",
+            "reviewed promotion requires exact local static source review",
+        )
 
     if project_target.exists() or project_target.is_symlink():
         raise CliFailure(
@@ -1278,35 +1505,58 @@ def _create_promoted_project(
                 parent_selection=parent_selection,
             )
         )
+        _scaffold_context = ProjectConfigurationStore.context(staging)
+        _scaffold_framework = _scaffold_context.framework_root
+
+        def _scaffold_coordinate(relative):
+            # Compiler-produced paths only, never source/import path rewriting.
+            if _scaffold_framework == staging or relative.startswith("litai/"):
+                return relative
+            return (
+                _scaffold_context.framework_path(relative)
+                .relative_to(staging)
+                .as_posix()
+            )
+
         # Canonical initialization includes a tutorial Component.  A promotion is
         # itself the complete application graph, so retaining that unrelated lock
         # would both pollute the graph and become stale when reviewed Flavors replace
         # template Flavors at the same paths.
-        starter_component = staging / "samples" / "hello-component"
+        starter_component = _scaffold_framework / "samples" / "hello-component"
         if starter_component.is_dir() and not starter_component.is_symlink():
             shutil.rmtree(starter_component)
         workflow_path = (
-            staging / "workflows" / "production" / "staging" / "dev" / "workflow.md"
+            _scaffold_framework
+            / "workflows"
+            / "production"
+            / "staging"
+            / "dev"
+            / "workflow.md"
         )
         routing_path = (
-            staging / "routing" / "production" / "staging" / "dev" / "routing.json"
+            _scaffold_framework
+            / "routing"
+            / "production"
+            / "staging"
+            / "dev"
+            / "routing.json"
         )
         skill_path = (
-            staging
+            _scaffold_framework
             / "skills"
             / "specification-to-source"
             / "portable-application"
             / "SKILL.md"
         )
         implementation_skill_path = (
-            staging
+            _scaffold_framework
             / "skills"
             / "specification-to-source"
             / "portable-application-implementation"
             / "SKILL.md"
         )
         planning_skill_path = (
-            staging
+            _scaffold_framework
             / "skills"
             / "specification-to-source"
             / "portable-specification-planning"
@@ -1314,17 +1564,19 @@ def _create_promoted_project(
         )
         workflow_ref = _raw_reference(
             "workflow",
-            "workflows/production/staging/dev/workflow.md",
+            _scaffold_coordinate("workflows/production/staging/dev/workflow.md"),
             workflow_path.read_bytes(),
         )
         routing_ref = _raw_reference(
             "routing-policy",
-            "routing/production/staging/dev/routing.json",
+            _scaffold_coordinate("routing/production/staging/dev/routing.json"),
             routing_path.read_bytes(),
         )
         skill_ref = _raw_reference(
             "specification-to-source-skill",
-            "skills/specification-to-source/portable-application/SKILL.md",
+            _scaffold_coordinate(
+                "skills/specification-to-source/portable-application/SKILL.md"
+            ),
             skill_path.read_bytes(),
         )
         # A selected language Flavor contributes its own portable-application
@@ -1335,13 +1587,17 @@ def _create_promoted_project(
         # _resolved_recipe_skills to admit the flavor's skill.
         implementation_skill_ref = _raw_reference(
             "specification-to-source-skill",
-            "skills/specification-to-source/portable-application-implementation/"
-            "SKILL.md",
+            _scaffold_coordinate(
+                "skills/specification-to-source/portable-application-implementation/"
+                "SKILL.md"
+            ),
             implementation_skill_path.read_bytes(),
         )
         planning_skill_ref = _raw_reference(
             "specification-to-source-skill",
-            "skills/specification-to-source/portable-specification-planning/SKILL.md",
+            _scaffold_coordinate(
+                "skills/specification-to-source/portable-specification-planning/SKILL.md"
+            ),
             planning_skill_path.read_bytes(),
         )
         root_acceptance_contracts: list[dict[str, object]] = []
@@ -1411,7 +1667,7 @@ def _create_promoted_project(
 
         for node in graph.nodes:
             node_namespace, node_name = node_coordinates[node.coordinate]
-            component_root = staging / "components" / node_name
+            component_root = _scaffold_framework / "components" / node_name
             try:
                 specification_projection = promoted_component_specification_projection(
                     provider=result.draft.output_provider,
@@ -1452,6 +1708,16 @@ def _create_promoted_project(
                     ),
                 )
                 for source_path, promoted_artifact in specification_projection
+            ) + tuple(
+                SourcePromotionInput(
+                    kind=PromotionInputKind.AUTHORED_ASSET,
+                    source_root=accepted_root,
+                    source_root_label="accepted-specifications",
+                    source_path=f"authored-assets/{node_name}/{asset.asset_id}",
+                    target_path=f"assets/{asset.asset_id}",
+                    expected_content_identity=asset.pin.uri,
+                )
+                for asset in node.assets
             )
             materializer.materialize(
                 promotion_inputs,
@@ -1600,6 +1866,10 @@ def _create_promoted_project(
                     else ()
                 ),
                 source_dependencies=(),
+                assets=tuple(
+                    replace(asset, source=f"assets/{asset.asset_id}")
+                    for asset in node.assets
+                ),
             )
             authoring_path = component_root / "component.md"
             authoring_path.write_text(
@@ -1631,7 +1901,7 @@ def _create_promoted_project(
             created_flavors.append(flavor)
             axis = str(proposal.get("axis", "implementation.language-ecosystem"))
             created_flavor_axes[directory] = axis
-            flavor_root = staging / "flavors" / directory
+            flavor_root = _scaffold_framework / "flavors" / directory
             flavor_path = flavor_root / "flavor.md"
             spec_path = flavor_root / "openspec" / "spec.md"
             spec_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1749,7 +2019,9 @@ def _create_promoted_project(
                 continue
             selected_name = flavor_selector_directory(selector)
             selected_aliases.add(canonical_flavor_selector(selector)[1:])
-            selected_path = staging / "flavors" / selected_name / "flavor.md"
+            selected_path = (
+                _scaffold_framework / "flavors" / selected_name / "flavor.md"
+            )
             if not selected_path.is_file():
                 continue
             selected_authoring, _description = parse_authoring_markdown(
@@ -1801,7 +2073,7 @@ def _create_promoted_project(
             else:
                 inherited_selector = "+" + inherited.selection.coordinate_uri
                 inherited_path = (
-                    staging
+                    _scaffold_framework
                     / "flavors"
                     / flavor_selector_directory(inherited_selector)
                     / "flavor.md"
@@ -1850,7 +2122,7 @@ def _create_promoted_project(
             if not selector.startswith("+"):
                 continue
             flavor = flavor_selector_directory(selector)
-            flavor_path = staging / "flavors" / flavor / "flavor.md"
+            flavor_path = _scaffold_framework / "flavors" / flavor / "flavor.md"
             if not flavor_path.is_file():
                 continue
             selected_authoring, selected_description = parse_authoring_markdown(
@@ -1866,17 +2138,24 @@ def _create_promoted_project(
             )
         project_store = ProjectConfigurationStore(staging)
         project_snapshot = project_store.read()
+        if native_root_policy is not None:
+            native_root_policy.require_current()
         project_store.update(
             project_snapshot,
             replace(
                 project_snapshot.definition,
                 default_flavor_selectors=tuple(sorted(promoted_defaults)),
+                **(
+                    {"native_root_run_policy": original_native_policy}
+                    if native_root_policy is not None
+                    else {}
+                ),
             ),
         )
 
         from .component_locks import component_lock_from_args
 
-        component_root = staging / "components" / name
+        component_root = _scaffold_framework / "components" / name
         lock_report, lock_status = component_lock_from_args(
             Namespace(
                 component=str(component_root),
@@ -1908,7 +2187,7 @@ def _create_promoted_project(
         ):
             if other_coordinate == graph.root_coordinate:
                 continue
-            other_component_root = staging / "components" / other_name
+            other_component_root = _scaffold_framework / "components" / other_name
             _other_report, other_status = component_lock_from_args(
                 Namespace(
                     component=str(other_component_root),
@@ -1953,6 +2232,7 @@ def _create_promoted_project(
         from literate_ai.adapters.authority import FileAuthorityProjectionStore
         from literate_ai.authority import ComponentAuthorityLifecycle
         from literate_ai.source_to_specification.promotion_materialization import (
+            ASSET_SOURCE_PROMOTION_PROVENANCE_SCHEMA,
             SOURCE_PROMOTION_PROVENANCE_SCHEMA,
             PromotionInputKind,
         )
@@ -1980,6 +2260,13 @@ def _create_promoted_project(
                 forward_paths[f"components/{node_name}/{artifact.path}"] = (
                     PromotionInputKind.SPECIFICATION
                 )
+            graph_node = next(
+                node for node in graph.nodes if node.coordinate == coordinate
+            )
+            for asset in graph_node.assets:
+                forward_paths[f"components/{node_name}/assets/{asset.asset_id}"] = (
+                    PromotionInputKind.AUTHORED_ASSET
+                )
         if profile_content is not None:
             forward_paths[f"components/{name}/qualification/profile.json"] = (
                 PromotionInputKind.PROJECT_CONFIGURATION
@@ -1988,7 +2275,7 @@ def _create_promoted_project(
             if not selector.startswith("+"):
                 continue
             flavor = flavor_selector_directory(selector)
-            flavor_root = staging / "flavors" / flavor
+            flavor_root = _scaffold_framework / "flavors" / flavor
             if not flavor_root.is_dir() or flavor_root.is_symlink():
                 raise CliFailure(
                     "promotion.flavor_missing",
@@ -1999,6 +2286,9 @@ def _create_promoted_project(
                     continue
                 relative = flavor_input.relative_to(staging).as_posix()
                 forward_paths[relative] = PromotionInputKind.REVIEWED_FLAVOR
+        forward_paths = {
+            _scaffold_coordinate(path): kind for path, kind in forward_paths.items()
+        }
         forward_inputs = tuple(
             SourcePromotionInput(
                 kind=kind,
@@ -2016,8 +2306,42 @@ def _create_promoted_project(
         complete_audit = materializer.audit(forward_inputs)
         promotion_audits.append((complete_audit.identity, complete_audit))
 
+        asset_bindings = tuple(
+            sorted(
+                (
+                    ReviewedSourceAssetBinding(
+                        component_coordinate=f"component://{node_coordinates[node.coordinate][0]}/{node_coordinates[node.coordinate][1]}",
+                        asset_id=asset.asset_id,
+                        source_path=asset.source,
+                        project_path=_scaffold_coordinate(
+                            f"components/{node_coordinates[node.coordinate][1]}/assets/{asset.asset_id}"
+                        ),
+                        runtime_path=asset.path,
+                        role=asset.role,
+                        media_type=asset.media_type,
+                        content_identity=asset.pin.uri,
+                        byte_count=(
+                            _scaffold_framework
+                            / "components"
+                            / node_coordinates[node.coordinate][1]
+                            / "assets"
+                            / asset.asset_id
+                        )
+                        .stat()
+                        .st_size,
+                    )
+                    for node in graph.nodes
+                    for asset in node.assets
+                ),
+                key=lambda item: item.project_path,
+            )
+        )
         promotion_record = {
-            "schema": SOURCE_PROMOTION_PROVENANCE_SCHEMA,
+            "schema": REVIEWED_SOURCE_PROMOTION_PROVENANCE_SCHEMA
+            if static_intake_review is not None
+            else ASSET_SOURCE_PROMOTION_PROVENANCE_SCHEMA
+            if asset_bindings
+            else SOURCE_PROMOTION_PROVENANCE_SCHEMA,
             "source_snapshot_identity": result.request.source_snapshot_id,
             "specification_set_identity": specification_set_id,
             "review_identity": review_id,
@@ -2046,15 +2370,34 @@ def _create_promoted_project(
                 for _name, audit in promotion_audits
             ],
         }
+        if asset_bindings or static_intake_review is not None:
+            promotion_record["authored_asset_bindings"] = [
+                item.to_dict() for item in asset_bindings
+            ]
+        if static_intake_review is not None:
+            promotion_record["static_intake_review_reference"] = {
+                "kind": "static-intake-review",
+                "identity": static_intake_review.identity,
+                "path": "static-intake-review.json",
+            }
         promotion_identity = canonical_identity(promotion_record)
         promotion_root = (
-            staging / "provenance" / "source-promotion" / promotion_identity.digest
+            _scaffold_framework
+            / "provenance"
+            / "source-promotion"
+            / promotion_identity.digest
         )
         audit_root = promotion_root / "generation-input-audits"
         audit_root.mkdir(parents=True)
         (promotion_root / "reference.json").write_text(
             _json_text(promotion_record), encoding="utf-8", newline="\n"
         )
+        if static_intake_review is not None:
+            (promotion_root / "static-intake-review.json").write_text(
+                _json_text(static_intake_review.to_dict()),
+                encoding="utf-8",
+                newline="\n",
+            )
         if translation is not None:
             (promotion_root / "source-translation.json").write_text(
                 _json_text(translation), encoding="utf-8", newline="\n"
@@ -2152,16 +2495,23 @@ def _create_promoted_project(
                     "promotion.parent_changed",
                     "parent build selection changed during promotion",
                 )
-        os.replace(staging, project_target)
+        if native_root_policy is None:
+            os.replace(staging, project_target)
+        else:
+            from .native_root_promotion_policy import commit_native_root_policy_project
+
+            commit_native_root_policy_project(
+                native_root_policy, staging, project_target
+            )
     except BaseException:
         if staging.exists():
             shutil.rmtree(staging)
         raise
     return {
         "project_target": str(project_target),
-        "component": f"components/{name}/component.md",
+        "component": _scaffold_coordinate(f"components/{name}/component.md"),
         "components": sorted(
-            f"components/{node_name}/component.md"
+            _scaffold_coordinate(f"components/{node_name}/component.md")
             for _node_namespace, node_name in node_coordinates.values()
         ),
         "component_authoring_count": len(authored_components),
@@ -2218,7 +2568,9 @@ def _authority_status_from_args(args: Namespace) -> dict[str, object]:
     revisions: dict[str, ContentIdentity] = {}
     authoring_identities: dict[str, ContentIdentity] = {}
     locked_snapshots = []
-    components_root = project.root / "components"
+    # Promotion scaffolds authored Components beneath the framework root; a
+    # contained project declares that as ``litai/`` rather than the project root.
+    components_root = project.framework_root / "components"
     for lock_path in sorted(components_root.rglob("component.lock.json")):
         if lock_path.is_symlink() or not lock_path.is_file():
             raise CliFailure(
@@ -2430,6 +2782,70 @@ def _conformance(
     }
 
 
+def _publish_retained_qualification(
+    adapter: Any,
+    qualification: Any,
+    store_path: Path,
+    extra_records: tuple[tuple[ContentIdentity, bytes], ...] = (),
+) -> dict[str, Any]:
+    from literate_ai.adapters.evidence_storage import FileSystemEvidenceStore
+    from literate_ai.adapters.qualification_archive import (
+        encode_qualification_archive,
+        reopen_qualification_archive,
+    )
+    from literate_ai.security.evidence.storage import EvidenceReadLimits
+
+    limit = adapter.max_capture_bytes
+    records = list(adapter.evidence_blobs)
+    known = dict(records)
+    for identity, content in extra_records:
+        if identity in known:
+            if known[identity] != content:
+                raise CliFailure(
+                    "qualification.retained_intake_conflict",
+                    "retained intake identity has different bytes",
+                )
+        else:
+            known[identity] = content
+            records.append((identity, content))
+    records.sort(key=lambda entry: entry[0].uri)
+    archive = encode_qualification_archive(
+        tuple(records), max_bytes=limit, max_records=100_000
+    )
+    store = FileSystemEvidenceStore(
+        store_path,
+        writable=True,
+        limits=EvidenceReadLimits(maximum_blob_bytes=limit, maximum_total_bytes=limit),
+    )
+    reference = store.put_bytes(archive, media_type="application/zip")
+    reopened = reopen_qualification_archive(
+        store.get_bytes(reference), reference, max_bytes=limit, max_records=100_000
+    )
+    if reopened.read_json(qualification.identity) != qualification.to_dict():
+        raise CliFailure(
+            "qualification.retained_result_mismatch",
+            "retained evidence does not contain the qualified lifecycle result",
+        )
+    for identity, content in extra_records:
+        if reopened.read_json(identity) != json.loads(content):
+            raise CliFailure(
+                "qualification.retained_intake_mismatch",
+                "retained evidence does not contain the exact static intake records",
+            )
+    adapter.lifecycle.require_current_authority()
+    return {
+        "archive": reference.to_dict(),
+        "qualification_identity": qualification.identity.uri,
+        "runs": [
+            {
+                "run_identity": capture.run.run_identity.uri,
+                "export_set_identity": capture.exports.identity.uri,
+            }
+            for capture in adapter.library_captures
+        ],
+    }
+
+
 def _complete_standard_lifecycle_qualification(
     *,
     args: argparse.Namespace,
@@ -2453,6 +2869,9 @@ def _complete_standard_lifecycle_qualification(
     recertify_current_qualified: bool = False,
     prior_project_configuration: bytes | None = None,
     allow_legacy_inventory_policy: bool = False,
+    static_intake_review: object | None = None,
+    qualified_library_prepared=None,
+    qualified_library_archive_reader=None,
 ) -> tuple[dict[str, Any], int]:
     """Run and admit only the filesystem Standard lifecycle qualification contract."""
 
@@ -2487,6 +2906,40 @@ def _complete_standard_lifecycle_qualification(
         QualificationLifecyclePlan,
         VerifiedSourcePromotionEvidence,
     )
+    from literate_ai.source_to_specification.attestation import _canonical_bytes
+    from literate_ai.source_to_specification.static_intake import (
+        StaticIntakeValidation,
+        read_static_intake_document,
+        read_static_intake_key,
+        verify_static_intake_signature,
+        verify_static_intake_source_binding,
+        write_new_static_intake_validation,
+    )
+
+    intake_review = static_intake_review
+    if intake_review is not None:
+        if getattr(args, "intake_trust_key", None) is None:
+            raise CliFailure(
+                "intake_review.trust_required",
+                "reviewed qualification requires --intake-trust-key",
+            )
+        verify_static_intake_signature(
+            intake_review,
+            key=read_static_intake_key(args.intake_trust_key),
+            allow_authorized_policy=getattr(
+                args, "allow_authorized_policy_intake", False
+            ),
+        )
+        verify_static_intake_source_binding(
+            intake_review, source, inventory=inventory_source(source)
+        )
+    elif getattr(args, "intake_trust_key", None) is not None or getattr(
+        args, "allow_authorized_policy_intake", False
+    ):
+        raise CliFailure(
+            "intake_review.required",
+            "intake qualification options require a reviewed source promotion",
+        )
 
     driver = project.definition.lifecycle_driver
     if not isinstance(driver, StandardProjectLifecycleDriver):
@@ -2496,14 +2949,20 @@ def _complete_standard_lifecycle_qualification(
         )
     try:
         binding = resolve_standard_project_lifecycle_driver(driver)
-        prepared = FilesystemLockedGenerationApplicationAdapter().prepare(
-            GenerationPreparationRequest(
-                component_root=component_root,
-                target_name=args.target,
-                flavor_selectors=tuple(args.flavor),
-                flavor_roots=project.roots("flavor"),
+        if qualified_library_prepared is None:
+            prepared = FilesystemLockedGenerationApplicationAdapter().prepare(
+                GenerationPreparationRequest(
+                    component_root=component_root,
+                    target_name=args.target,
+                    flavor_selectors=tuple(args.flavor),
+                    flavor_roots=project.roots("flavor"),
+                )
             )
-        )
+        else:
+            # Same object used by the earlier source-plan projection. Never
+            # renew a receiving owner or reopen its mutable importer scopes.
+            prepared = qualified_library_prepared
+            FilesystemLockedGenerationApplicationAdapter.require_unchanged(prepared)
     except (GenerationPreparationError, StandardLifecycleBindingError) as exc:
         raise CliFailure(
             getattr(exc, "code", "qualification.standard_preparation_failed"),
@@ -2537,6 +2996,8 @@ def _complete_standard_lifecycle_qualification(
     )
     retained_store = getattr(args, "retained_evidence_store", None)
     retained_evidence = None
+    adapter = None
+    plan = None
     try:
         if retained_store is not None:
             store_path = Path(retained_store).absolute()
@@ -2562,6 +3023,11 @@ def _complete_standard_lifecycle_qualification(
             retain_library_products=retained_store is not None,
             pipeline_model=getattr(args, "model", None),
             allow_legacy_inventory_policy=allow_legacy_inventory_policy,
+            **(
+                {"qualified_library_archive_reader": qualified_library_archive_reader}
+                if qualified_library_archive_reader is not None
+                else {}
+            ),
         )
         run_identities = tuple(
             sorted(
@@ -2604,61 +3070,47 @@ def _complete_standard_lifecycle_qualification(
                 "qualification.standard_binding_mismatch",
                 "qualification result differs from the resolved Standard binding",
             )
-        if retained_store is not None:
+        if retained_store is not None and intake_review is None:
             qualification_authority.require_unchanged()
-            from literate_ai.adapters.evidence_storage import FileSystemEvidenceStore
-            from literate_ai.adapters.qualification_archive import (
-                encode_qualification_archive,
-                reopen_qualification_archive,
+            # Immutable transport publication remains separate from authority admission.
+            retained_evidence = _publish_retained_qualification(
+                adapter, qualification, store_path
             )
-            from literate_ai.security.evidence.storage import EvidenceReadLimits
-
-            # This publishes immutable transport bytes, not importer admission.
-            # A failed later admission may leave an unreferenced CAS object, which
-            # must not be deleted: another transaction may already reference it.
-            limit = adapter.max_capture_bytes
-            archive = encode_qualification_archive(
-                adapter.evidence_blobs, max_bytes=limit, max_records=100_000
-            )
-            store = FileSystemEvidenceStore(
-                store_path,
-                writable=True,
-                limits=EvidenceReadLimits(
-                    maximum_blob_bytes=limit, maximum_total_bytes=limit
-                ),
-            )
-            reference = store.put_bytes(archive, media_type="application/zip")
-            reopened = reopen_qualification_archive(
-                store.get_bytes(reference),
-                reference,
-                max_bytes=limit,
-                max_records=100_000,
-            )
-            if reopened.read_json(qualification.identity) != qualification.to_dict():
-                raise CliFailure(
-                    "qualification.retained_result_mismatch",
-                    "retained evidence does not contain the qualified lifecycle result",
+    except ComponentAcceptanceError as exc:
+        raise CliFailure(exc.code, exc.message) from exc
+    except (FilesystemQualificationError, SourceToSpecificationError) as exc:
+        code = getattr(exc, "code", "qualification.lifecycle_failed")
+        message = getattr(exc, "message", str(exc))
+        if retained_store is not None and adapter is not None and plan is not None:
+            try:
+                from literate_ai.adapters.qualification_diagnostics import (
+                    publish_qualification_failure_diagnostic,
                 )
-            adapter.lifecycle.require_current_authority()
-            retained_evidence = {
-                "archive": reference.to_dict(),
-                "qualification_identity": qualification.identity.uri,
-                "runs": [
-                    {
-                        "run_identity": capture.run.run_identity.uri,
-                        "export_set_identity": capture.exports.identity.uri,
-                    }
-                    for capture in adapter.library_captures
-                ],
-            }
-    except (
-        FilesystemQualificationError,
-        SourceToSpecificationError,
-        ComponentAcceptanceError,
-    ) as exc:
+
+                reference = publish_qualification_failure_diagnostic(
+                    Path(retained_store).absolute(),
+                    plan,
+                    code,
+                    adapter.diagnostic_evidence_blobs,
+                    max_bytes=adapter.max_capture_bytes,
+                    case_records=adapter.diagnostic_case_record_identities,
+                    active_case=adapter.diagnostic_active_case,
+                )
+            except Exception:
+                # Diagnostic publication must never replace the original refusal
+                # or expose an exception's potentially private stream/path text.
+                suffix = "failure diagnostics unavailable"
+            else:
+                suffix = (
+                    "failure diagnostic in retained-store/diagnostics: "
+                    + json.dumps(
+                        reference.to_dict(), sort_keys=True, separators=(",", ":")
+                    )
+                )
+            message = suffix + "; " + message[: max(0, 510 - len(suffix))]
         raise CliFailure(
-            getattr(exc, "code", "qualification.lifecycle_failed"),
-            getattr(exc, "message", str(exc)),
+            code,
+            message,
         ) from exc
     except PinnedInputClosureError as exc:
         raise CliFailure(exc.code, exc.message) from exc
@@ -2717,6 +3169,91 @@ def _complete_standard_lifecycle_qualification(
             "promotion evidence changed or became unavailable during qualification",
         ) from exc
     qualification_identity = qualification.identity
+    intake_validation = None
+    if intake_review is not None:
+        if verified_promotion.static_intake_review != intake_review:
+            raise CliFailure(
+                "intake_review.source_drift",
+                "review changed during measured qualification",
+            )
+        verify_static_intake_signature(
+            intake_review,
+            key=read_static_intake_key(args.intake_trust_key),
+            allow_authorized_policy=getattr(
+                args, "allow_authorized_policy_intake", False
+            ),
+        )
+        verify_static_intake_source_binding(
+            intake_review, source, inventory=inventory_source(source)
+        )
+        intake_validation = StaticIntakeValidation(
+            source_snapshot_id=source_snapshot_identity.uri,
+            promotion_reference_id=current_projection.provenance_reference_identity.uri,
+            review_identity=intake_review.identity,
+            qualification_result_id=qualification_identity.uri,
+            trust_key_id=intake_review.key_id,
+        )
+        validation_root = (
+            project.framework_root
+            / "provenance"
+            / "source-promotion"
+            / current_projection.provenance_reference_identity.digest
+            / "static-intake-validations"
+        )
+        validation_root.mkdir(exist_ok=True)
+        validation_path = (
+            validation_root
+            / f"{ContentIdentity.parse_uri(intake_validation.identity).digest}.json"
+        )
+        if validation_path.exists() or validation_path.is_symlink():
+            if (
+                StaticIntakeValidation.from_dict(
+                    read_static_intake_document(validation_path)
+                )
+                != intake_validation
+            ):
+                raise CliFailure(
+                    "intake_review.validation_conflict",
+                    "validation identity is occupied by different content",
+                )
+        else:
+            write_new_static_intake_validation(validation_path, intake_validation)
+        if retained_store is not None:
+            qualification_authority.require_unchanged()
+            retained_evidence = _publish_retained_qualification(
+                adapter,
+                qualification,
+                store_path,
+                (
+                    (
+                        ContentIdentity.parse_uri(intake_review.identity),
+                        _canonical_bytes(intake_review.to_dict()),
+                    ),
+                    (
+                        ContentIdentity.parse_uri(intake_validation.identity),
+                        _canonical_bytes(intake_validation.to_dict()),
+                    ),
+                ),
+            )
+        # Publishing transport records does not authorize a stale transition.
+        adapter.lifecycle.require_current_authority()
+        locked_snapshot.require_unchanged()
+        qualification_authority.require_unchanged()
+        verify_static_intake_signature(
+            intake_review,
+            key=read_static_intake_key(args.intake_trust_key),
+            allow_authorized_policy=getattr(
+                args, "allow_authorized_policy_intake", False
+            ),
+        )
+        verify_static_intake_source_binding(
+            intake_review, source, inventory=inventory_source(source)
+        )
+        if authority_store.current(component_coordinate) != current_projection:
+            raise CliFailure(
+                "qualification.authority_changed",
+                "authority changed while static intake validation was retained",
+            )
     closure = ComponentGenerationClosure(
         flavor_set_identity,
         skill_set_identity,
@@ -2742,9 +3279,14 @@ def _complete_standard_lifecycle_qualification(
             verified_promotion.inverse_evidence_custody_identity
         ),
         standard_rebind_migration=migration,
+        authored_asset_bindings=getattr(
+            verified_promotion, "authored_asset_bindings", ()
+        ),
+        static_intake_review=intake_review,
+        static_intake_validation=intake_validation,
     )
     if migration is not None:
-        migration_root = project.root / "provenance" / "qualification-rebind"
+        migration_root = project.framework_root / "provenance" / "qualification-rebind"
         migration_root.mkdir(parents=True, exist_ok=True)
         if migration_root.is_symlink() or not migration_root.is_dir():
             raise CliFailure(
@@ -2765,7 +3307,7 @@ def _complete_standard_lifecycle_qualification(
                 )
         else:
             _write_new_json(migration_path, migration.to_dict())
-    qualification_root = project.root / "provenance" / "qualification"
+    qualification_root = project.framework_root / "provenance" / "qualification"
     qualification_root.mkdir(parents=True, exist_ok=True)
     if qualification_root.is_symlink() or not qualification_root.is_dir():
         raise CliFailure(
@@ -2827,6 +3369,32 @@ def _complete_standard_lifecycle_qualification(
 
 
 def spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+    if (
+        args.spec_command == "qualify"
+        and getattr(args, "qualified_library_receivers", None) is not None
+    ):
+        from literate_ai._filesystem import require_safe_directory
+
+        from .qualified_library_receivers import qualified_library_receiving_operation
+
+        component = Path(args.component).absolute()
+        component_directory = (
+            component.parent if component.name == "component.md" else component
+        )
+        require_safe_directory(component_directory)
+        project = discover_project(component_directory)
+        if project is None:
+            raise CliFailure(
+                "qualification.project_required",
+                "qualification requires a canonical promoted project",
+            )
+        with qualified_library_receiving_operation(
+            project,
+            args,
+            hold_consumer_lock=True,
+            operation="qualified-library-consumer-qualification",
+        ) as receivers:
+            return _spec_from_args(args, qualified_library_receivers=receivers)
     if args.spec_command == "accept" and getattr(args, "root_project", False):
         if args.project_target is None or args.integrate_project is not None:
             raise CliFailure(
@@ -2850,8 +3418,90 @@ def spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     return _spec_from_args(args)
 
 
-def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+def _intake_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+    from literate_ai.source_to_specification.static_intake import (
+        StaticIntakePlan,
+        create_static_intake_plan,
+        read_static_intake_document,
+        read_static_intake_key,
+        require_static_intake_source,
+        sign_static_intake_review,
+        write_new_static_intake_review,
+    )
+
+    source = require_static_intake_source(args.source)
+    inventory = inventory_source(source)
+    attestation = parse_source_attestation(
+        read_static_intake_document(args.attestation)
+    )
+    key = read_static_intake_key(
+        args.trust_key if args.intake_command == "plan" else args.key
+    )
+    if args.intake_command == "plan":
+        if len(args.files) != len(set(args.files)):
+            raise CliFailure(
+                "intake_review.invalid", "review file selections must be unique"
+            )
+        plan = create_static_intake_plan(
+            source,
+            inventory=inventory,
+            attestation=attestation,
+            paths=tuple(sorted(args.files)),
+            key=key,
+        )
+        return plan.to_dict(), 0
+    if not args.acknowledge:
+        raise CliFailure(
+            "intake_review.acknowledgement_required",
+            "approval requires --acknowledge for the exact reviewed plan",
+        )
+    proposed = StaticIntakePlan.from_dict(read_static_intake_document(args.plan))
+    plan = create_static_intake_plan(
+        source,
+        inventory=inventory,
+        attestation=attestation,
+        paths=tuple(item.path for item in proposed.files),
+        key=key,
+    )
+    if args.expect_plan != proposed.identity or plan != proposed:
+        raise CliFailure(
+            "intake_review.plan_changed",
+            "the reviewed plan no longer matches current source and origin",
+        )
+    output = Path(args.output).absolute()
+    if output == source or (source.is_dir() and _contained(source, output)):
+        raise CliFailure(
+            "intake_review.output_overlap",
+            "review output must be outside the original source",
+        )
+    review = sign_static_intake_review(
+        plan, actor=args.actor, authority=args.authority, reason=args.reason, key=key
+    )
+    write_new_static_intake_review(output, review)
+    current = create_static_intake_plan(
+        source,
+        inventory=inventory_source(source),
+        attestation=attestation,
+        paths=tuple(item.path for item in proposed.files),
+        key=key,
+    )
+    if current != plan:
+        raise CliFailure(
+            "intake_review.source_drift",
+            "source changed while the review was published",
+        )
+    return review.to_dict(), 0
+
+
+def _spec_from_args(
+    args: argparse.Namespace, *, qualified_library_receivers=None
+) -> tuple[dict[str, Any], int]:
     command = args.spec_command
+    native_policy_selection = None
+    if command == "accept" and getattr(args, "native_root_policy", None) is not None:
+        from .native_root_promotion_policy import read_native_root_promotion_policy
+
+        native_policy_selection = read_native_root_promotion_policy(args)
     if command == "merge":
         from literate_ai.adapters.spec_merge import (
             SpecMergeError,
@@ -2884,6 +3534,8 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             return specification_corpus_from_args(args)
         except SpecificationCliError as exc:
             raise CliFailure(exc.code, exc.message) from exc
+    if command == "intake":
+        return _intake_from_args(args)
     if command == "attest":
         source = Path(args.source).resolve()
         inventory = inventory_source(source)
@@ -2917,6 +3569,8 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     if command == "derive":
         standalone = _standalone_source(args.case)
         if standalone is not None:
+            if args.intake_review is not None:
+                standalone = Path(args.case).absolute()
             bundle, _result = _derive_standalone(
                 standalone,
                 skills_root=args.skills,
@@ -2926,8 +3580,15 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 allow_model_egress=args.allow_model_egress,
                 model=args.model,
                 model_evidence_byte_budget=args.model_evidence_byte_budget,
+                intake_review_path=args.intake_review,
+                allow_authorized_policy_intake=args.allow_authorized_policy_intake,
             )
             return bundle, 0
+        if args.intake_review is not None or args.allow_authorized_policy_intake:
+            raise CliFailure(
+                "intake_review.standalone_required",
+                "reviewed intake requires a real standalone source path",
+            )
         if args.translator != "static" or args.allow_model_egress or args.model:
             raise CliFailure(
                 "cli.translator_case_unsupported",
@@ -3008,6 +3669,9 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             else _read_reviewed_component_graph(args.component_graph)
         )
         if reviewed_graph is not None:
+            _validate_reviewed_graph_assets(
+                reviewed_graph, bundle.get("source_inventory")
+            )
             try:
                 validate_component_graph_projection(result, reviewed_graph)
             except SourceToSpecificationError as exc:
@@ -3086,9 +3750,34 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "native child replacement requires --integrate-project",
             )
         bundle, result = _unwrap_bundle(args.bundle)
+        intake_review = None
+        reviewed_intake = bundle.get("schema") == REVIEWED_INTAKE_BUNDLE_SCHEMA
+        if reviewed_intake:
+            from literate_ai.source_to_specification.static_intake import (
+                StaticIntakeReview,
+                read_static_intake_key,
+                require_static_intake_source,
+                verify_static_intake_review,
+            )
+
+            intake_review = StaticIntakeReview.from_dict(bundle["static_intake_review"])
+        elif getattr(args, "allow_authorized_policy_intake", False):
+            raise CliFailure(
+                "intake_review.required",
+                "policy intake opt-in requires a reviewed intake bundle",
+            )
         standalone = bundle.get("source_kind") == "standalone-local"
+        if reviewed_intake and not standalone:
+            raise CliFailure(
+                "intake_review.standalone_required",
+                "reviewed intake requires standalone original source",
+            )
         if standalone:
-            selected_source = Path(args.case).resolve()
+            selected_source = (
+                require_static_intake_source(args.case)
+                if reviewed_intake
+                else Path(args.case).resolve()
+            )
             inventory = inventory_source(selected_source)
             source_root = (
                 selected_source if selected_source.is_dir() else selected_source.parent
@@ -3108,7 +3797,11 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                     "cli.trust_key_required",
                     "standalone acceptance requires --trust-key",
                 )
-            key = read_local_trust_key(args.trust_key)
+            key = (
+                read_static_intake_key(args.trust_key)
+                if reviewed_intake
+                else read_local_trust_key(args.trust_key)
+            )
             security = _object(bundle.get("security"), "security metadata")
             attestation = parse_source_attestation(security.get("origin_attestation"))
             verify_source_attestation(
@@ -3116,6 +3809,39 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 expected_source_snapshot_id=inventory.identity,
                 key=key,
             )
+            if intake_review is not None:
+                if canonical_value(inventory) != bundle.get("source_inventory"):
+                    raise CliFailure(
+                        "intake_review.inventory_mismatch",
+                        "reviewed intake must retain the exact original inventory",
+                    )
+                if (
+                    result.request.source_snapshot_id
+                    != intake_review.source_snapshot_id
+                    or result.request.origin_attestation_id
+                    != intake_review.origin_attestation_id
+                    or result.request.egress_policy_id != "none@1"
+                    or result.request.redaction_policy_id
+                    != "reviewed-local-static-metadata@1"
+                    or bundle.get("translation", {}).get("mode")
+                    != "deterministic-static"
+                    or security.get("model_egress_authorized") is not False
+                ):
+                    raise CliFailure(
+                        "intake_review.static_only",
+                        "reviewed source must remain bound to local static analysis "
+                        "without model egress",
+                    )
+                verify_static_intake_review(
+                    intake_review,
+                    selected_source,
+                    inventory=inventory,
+                    attestation=attestation,
+                    key=key,
+                    allow_authorized_policy=getattr(
+                        args, "allow_authorized_policy_intake", False
+                    ),
+                )
         else:
             descriptor, case = _load_case(args.case)
             source_root = _source_root(descriptor, case)
@@ -3180,9 +3906,7 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             )
             namespace, name = _coordinate_parts(coordinate, "component")
             project_target = (
-                integration_project.root
-                / ".literate"
-                / "native-projects"
+                integration_project.context.framework_path(".literate/native-projects")
                 / f"{namespace}-{name}"
             )
             try:
@@ -3362,6 +4086,10 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 validation=review.validation,
             ),
         )
+        if effective_graph is not None:
+            _validate_reviewed_graph_assets(
+                effective_graph, bundle.get("source_inventory")
+            )
         specification = promote(
             result,
             review,
@@ -3454,6 +4182,8 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                     "promotion.replacement_plan_stale",
                     "reviewed replacement plan is no longer current",
                 )
+        if native_policy_selection is not None:
+            native_policy_selection.require_current()
         parent = target.parent
         parent.mkdir(parents=True, exist_ok=True)
         staging = Path(tempfile.mkdtemp(prefix=f".{target.name}.", dir=parent))
@@ -3485,6 +4215,10 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                     }
                 )
             )
+            if intake_review is not None:
+                (staging / "static-intake-review.json").write_text(
+                    _json_text(intake_review.to_dict()), encoding="utf-8", newline="\n"
+                )
             if translation is not None:
                 translation_identity = ContentIdentity.parse_uri(
                     canonical_digest(translation)
@@ -3516,8 +4250,11 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 )
             if result.component_graph_draft is not None:
                 (staging / "component-graph-draft.json").write_text(
-                    _json_text(canonical_value(result.component_graph_draft)),
+                    _json_text(component_graph_to_wire(result.component_graph_draft)),
                     encoding="utf-8",
+                )
+                _capture_reviewed_assets(
+                    staging, result.component_graph_draft, source_root
                 )
             guard.require_unchanged()
             os.replace(staging, target)
@@ -3565,6 +4302,12 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                         inverse_evidence_custody=inverse_evidence_custody,
                         parent_selection=parent_selection,
                         promotion_parent=integration_project,
+                        static_intake_review=intake_review,
+                        **(
+                            {"native_root_policy": native_policy_selection}
+                            if native_policy_selection is not None
+                            else {}
+                        ),
                     )
 
                 if replacement_plan is not None:
@@ -3805,7 +4548,15 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                     "retained inverse evidence does not prove complete bounded model "
                     "admission",
                 ) from exc
-        source = Path(args.source).resolve(strict=True)
+        intake_review = getattr(verified_promotion, "static_intake_review", None)
+        if intake_review is not None:
+            from literate_ai.source_to_specification.static_intake import (
+                require_static_intake_source,
+            )
+
+            source = require_static_intake_source(args.source)
+        else:
+            source = Path(args.source).resolve(strict=True)
         if _contained(project.root, source) or _contained(source, project.root):
             raise CliFailure(
                 "qualification.source_project_overlap",
@@ -3837,9 +4588,19 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "qualification.source_mismatch",
                 "source baseline does not match the accepted source snapshot",
             )
-        source_exclusion = promotion_service.assess_source_exclusion(
-            component_audit, inventory
-        )
+        try:
+            validate_bound_component_assets(
+                verified_promotion.authored_asset_bindings,
+                component_coordinate,
+                locked_authority.root_authoring.assets,
+            )
+            source_exclusion = promotion_service.assess_source_exclusion(
+                component_audit,
+                inventory,
+                authored_asset_bindings=verified_promotion.authored_asset_bindings,
+            )
+        except SourceToSpecificationError as exc:
+            raise CliFailure(exc.code, exc.message) from exc
         if not source_exclusion.source_excluded:
             raise CliFailure(
                 "qualification.source_in_generation_inputs",
@@ -3852,15 +4613,41 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             )
         from .generation import plan_from_args
 
-        plan_report = plan_from_args(
-            Namespace(
-                specification=str(component_root),
-                recipe_id=None,
-                model=getattr(args, "model", None),
-                target=args.target,
-                flavor=list(args.flavor),
-                flavor_root=[],
+        plan_args = Namespace(
+            specification=str(component_root),
+            recipe_id=None,
+            model=getattr(args, "model", None),
+            target=args.target,
+            flavor=list(args.flavor),
+            flavor_root=[],
+        )
+        qualified_prepared = None
+        if qualified_library_receivers is not None:
+            from literate_ai.adapters.generation_preparation import (
+                FilesystemLockedGenerationApplicationAdapter,
+                FilesystemLockedGenerationPreparationAdapter,
             )
+            from literate_ai.application import GenerationPreparationRequest
+
+            qualified_prepared = FilesystemLockedGenerationApplicationAdapter(
+                FilesystemLockedGenerationPreparationAdapter(
+                    qualified_library_builder=qualified_library_receivers.prepare
+                )
+            ).prepare(
+                GenerationPreparationRequest(
+                    component_root=component_root,
+                    target_name=args.target,
+                    flavor_selectors=tuple(args.flavor),
+                    flavor_roots=project.roots("flavor"),
+                )
+            )
+        plan_report = plan_from_args(
+            plan_args,
+            **(
+                {"_prepared": qualified_prepared}
+                if qualified_prepared is not None
+                else {}
+            ),
         )
         planned_component = _object(
             plan_report.get("component"), "generation Component"
@@ -3903,7 +4690,11 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 component_audit,
                 kinds=frozenset({PromotionInputKind.REVIEWED_FLAVOR}),
                 target_prefixes=tuple(
-                    f"flavors/{flavor_selector_directory(f'+{flavor_id}')}"
+                    project.context.framework_path(
+                        f"flavors/{flavor_selector_directory(f'+{flavor_id}')}"
+                    )
+                    .relative_to(project.root)
+                    .as_posix()
                     for flavor_id in selected_flavor_ids
                 ),
             )
@@ -3941,6 +4732,7 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "generation plan does not close its audited Flavor, skill, workflow, "
                 "and routing inputs",
             ) from exc
+        receivers = qualified_library_receivers
         return _complete_standard_lifecycle_qualification(
             args=args,
             project=project,
@@ -3963,6 +4755,17 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             recertify_current_qualified=recertify_current_qualified,
             prior_project_configuration=prior_project_configuration,
             allow_legacy_inventory_policy=rebind_migration is not None,
+            static_intake_review=getattr(
+                verified_promotion, "static_intake_review", None
+            ),
+            **(
+                {
+                    "qualified_library_prepared": qualified_prepared,
+                    "qualified_library_archive_reader": receivers.read_archive,
+                }
+                if qualified_library_receivers is not None
+                else {}
+            ),
         )
 
     if command == "refresh":
@@ -4069,6 +4872,33 @@ def add_spec_parser(commands: argparse._SubParsersAction) -> None:
     attest.add_argument("--machine", required=True)
     attest.add_argument("--key", required=True)
 
+    intake = spec_commands.add_parser(
+        "intake", help="review exact source for local static analysis"
+    )
+    intake_commands = intake.add_subparsers(dest="intake_command", required=True)
+    intake_plan = intake_commands.add_parser(
+        "plan", help="inspect a read-only source-bound review plan"
+    )
+    intake_plan.add_argument("source")
+    intake_plan.add_argument("--file", dest="files", action="append", required=True)
+    intake_plan.add_argument("--attestation", required=True)
+    intake_plan.add_argument("--trust-key", required=True)
+    intake_approve = intake_commands.add_parser(
+        "approve", help="sign one freshly rechecked local static-intake plan"
+    )
+    intake_approve.add_argument("plan")
+    intake_approve.add_argument("--source", required=True)
+    intake_approve.add_argument("--attestation", required=True)
+    intake_approve.add_argument("--actor", required=True)
+    intake_approve.add_argument(
+        "--authority", choices=("human", "authorized-policy"), default="human"
+    )
+    intake_approve.add_argument("--reason", required=True)
+    intake_approve.add_argument("--key", required=True)
+    intake_approve.add_argument("--acknowledge", action="store_true")
+    intake_approve.add_argument("--expect-plan", required=True)
+    intake_approve.add_argument("--output", required=True)
+
     skills = spec_commands.add_parser("skills")
     skills.add_argument("--skills", "--skills-root", dest="skills")
 
@@ -4106,6 +4936,14 @@ def add_spec_parser(commands: argparse._SubParsersAction) -> None:
     derive.add_argument("--skills", "--skills-root", dest="skills")
     derive.add_argument("--attestation")
     derive.add_argument("--trust-key")
+    derive.add_argument(
+        "--intake-review", help="exact signed permission for local static intake"
+    )
+    derive.add_argument(
+        "--allow-authorized-policy-intake",
+        action="store_true",
+        help="separate caller opt-in to an authorized-policy intake review",
+    )
     derive.add_argument(
         "--translator",
         choices=("static", "coding-cli"),
@@ -4167,6 +5005,11 @@ def add_spec_parser(commands: argparse._SubParsersAction) -> None:
     accept.add_argument("--target", required=True)
     accept.add_argument("--trust-key")
     accept.add_argument(
+        "--allow-authorized-policy-intake",
+        action="store_true",
+        help="separate caller opt-in to signed policy intake review",
+    )
+    accept.add_argument(
         "--allow-authorized-policy-review",
         action="store_true",
         help=(
@@ -4210,6 +5053,10 @@ def add_spec_parser(commands: argparse._SubParsersAction) -> None:
     )
     accept.add_argument("--project-id")
     accept.add_argument(
+        "--native-root-policy",
+        help="strict finite native root policy JSON for the new promoted project",
+    )
+    accept.add_argument(
         "--qualification-target",
         default="host",
         help="target name recorded in the promoted Component lock",
@@ -4240,6 +5087,15 @@ def add_spec_parser(commands: argparse._SubParsersAction) -> None:
     qualify.add_argument("--profile", required=True)
     qualify.add_argument("--output", required=True)
     qualify.add_argument("--key", help=argparse.SUPPRESS)
+    qualify.add_argument(
+        "--intake-trust-key",
+        help="existing private trust key for the exact reviewed static-intake route",
+    )
+    qualify.add_argument(
+        "--allow-authorized-policy-intake",
+        action="store_true",
+        help="separate caller opt-in to policy intake review during qualification",
+    )
     qualify.add_argument("--signer", help=argparse.SUPPRESS)
     qualify.add_argument("--target", default="host")
     qualify.add_argument(
@@ -4251,7 +5107,8 @@ def add_spec_parser(commands: argparse._SubParsersAction) -> None:
         "--retained-evidence-store",
         help=(
             "explicit local immutable evidence store for captured library packages "
-            "and qualification records; does not authorize importer admission"
+            "and qualification records, plus separate failed-run diagnostics; "
+            "does not authorize importer admission"
         ),
     )
     qualify.add_argument(
@@ -4268,6 +5125,10 @@ def add_spec_parser(commands: argparse._SubParsersAction) -> None:
             "exact pre-rebind literate.project.json whose bytes match the historical "
             "promotion audit; accepted only for current-qualified recertification"
         ),
+    )
+    qualify.add_argument(
+        "--qualified-library-receivers",
+        help="explicit local genuine V2 qualified-library receiving configuration",
     )
     qualify.add_argument("--allow-host-execution", action="store_true")
 

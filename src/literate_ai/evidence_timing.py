@@ -38,6 +38,251 @@ def _union_seconds(intervals: list[tuple[float, float]]) -> float:
     return total
 
 
+def summarize_module_timing(
+    records: list[object], *, invocation: str
+) -> dict[str, object]:
+    """Reduce one parent monotonic clock; observations never admit test results."""
+    from literate_ai.parallel_unittest_timing import SCHEMA
+
+    issues: list[str] = []
+    selected: dict[int, dict[str, object]] = {}
+    phases: dict[int, dict[str, Mapping[str, object]]] = {}
+    header: Mapping[str, object] = {}
+    closed: Mapping[str, object] | None = None
+    previous = -1
+    executing = False
+    for sequence, record in enumerate(records):
+        if (
+            not isinstance(record, Mapping)
+            or record.get("schema") != SCHEMA
+            or record.get("invocation") != invocation
+            or type(record.get("sequence")) is not int
+            or record["sequence"] != sequence
+            or type(record.get("offset_ns")) is not int
+            or not previous <= record["offset_ns"] < 2**63
+            or record["offset_ns"] < 0
+            or closed is not None
+        ):
+            issues.append("invalid_record_or_clock")
+            break
+        previous = record["offset_ns"]
+        kind = record.get("kind")
+        if sequence == 0:
+            if (
+                kind != "invocation"
+                or record.get("clock_domain") != invocation
+                or type(record.get("selected_modules")) is not int
+                or not 0 <= record["selected_modules"] <= 100000
+                or type(record.get("workers")) is not int
+                or record["workers"] < 1
+            ):
+                issues.append("invalid_invocation")
+                break
+            header = record
+            continue
+        if kind == "suite_closed":
+            if not isinstance(record.get("failed"), bool):
+                issues.append("invalid_suite_close")
+                break
+            closed = record
+            continue
+        module_id = record.get("module_id")
+        if type(module_id) is not int or module_id < 0:
+            issues.append("invalid_module_id")
+            break
+        if kind == "selected":
+            if (
+                executing
+                or module_id in selected
+                or not isinstance(record.get("module"), str)
+                or not record["module"]
+                or type(record.get("cases")) is not int
+                or record["cases"] < 1
+                or not isinstance(record.get("serial"), bool)
+            ):
+                issues.append("invalid_selection")
+                break
+            selected[module_id] = dict(record)
+            phases[module_id] = {}
+            continue
+        executing = True
+        observed = phases.get(module_id)
+        prerequisites = {
+            "setup_begin": None,
+            "spawn_begin": "setup_begin",
+            "spawn_returned": "spawn_begin",
+            "exit_observed": "spawn_returned",
+            "cancel_requested": "spawn_returned",
+            "cleanup_begin": "spawn_returned",
+            "cleanup_complete": "cleanup_begin",
+            "scratch_removal_begin": "cleanup_complete",
+            "scratch_removed": "scratch_removal_begin",
+            "scratch_retained": "cleanup_complete",
+            "report_observed": "cleanup_complete",
+            "launch_error": "setup_begin",
+        }
+        if (
+            observed is None
+            or not isinstance(kind, str)
+            or kind not in prerequisites
+            or kind in observed
+            or "launch_error" in observed
+            or "report_observed" in observed
+            or (prerequisites[kind] is not None and prerequisites[kind] not in observed)
+            or (kind == "cleanup_complete" and "exit_observed" not in observed)
+            or (kind == "exit_observed" and "cleanup_complete" in observed)
+            or (kind == "cancel_requested" and "cleanup_begin" in observed)
+            or (kind == "scratch_retained" and "scratch_removal_begin" in observed)
+            or (kind == "scratch_removal_begin" and "scratch_retained" in observed)
+        ):
+            issues.append("invalid_or_duplicate_phase")
+            break
+        if kind == "report_observed" and (
+            any(
+                not isinstance(record.get(key), bool)
+                for key in ("done", "failed", "invalid")
+            )
+            or type(record.get("terminal_cases")) is not int
+            or not 0 <= record["terminal_cases"] <= selected[module_id]["cases"]
+        ):
+            issues.append("invalid_report_observation")
+            break
+        if kind == "exit_observed" and type(record.get("returncode")) is not int:
+            issues.append("invalid_exit_observation")
+            break
+        if kind == "cleanup_begin" and (
+            not isinstance(record.get("disposition"), str)
+            or record["disposition"]
+            not in {
+                "normal",
+                "failed-report",
+                "worker-error",
+                "deadline",
+                "peer-cancelled",
+                "interrupted",
+            }
+        ):
+            issues.append("invalid_disposition")
+            break
+        observed[kind] = record
+
+    if not header or len(selected) != header.get("selected_modules"):
+        issues.append("missing_selection")
+    if closed is None:
+        issues.append("unclosed_invocation")
+    rows: list[dict[str, object]] = []
+    intervals: list[tuple[float, float]] = []
+    for module_id, descriptor in selected.items():
+        observed = phases[module_id]
+
+        def offset(kind: str, observations=observed) -> float | None:
+            item = observations.get(kind)
+            return item["offset_ns"] / 1e9 if item is not None else None
+
+        def elapsed(first: str, last: str) -> float | None:
+            start, end = offset(first), offset(last)
+            return end - start if start is not None and end is not None else None
+
+        scratch_terminal = (
+            "scratch_removed"
+            if "scratch_removal_begin" in observed
+            else "scratch_retained"
+        )
+        start, end = offset("setup_begin"), offset(scratch_terminal)
+        if start is not None and end is not None:
+            intervals.append((start, end))
+        disposition = observed.get("cleanup_begin", {}).get("disposition", "unknown")
+        if "launch_error" in observed:
+            disposition = "launch-error"
+        elif not observed and closed is not None:
+            disposition = (
+                "not-started-after-failure" if closed["failed"] else "not-started"
+            )
+            if not closed["failed"]:
+                issues.append(f"not_started_on_success:{module_id}")
+        elif end is None and observed:
+            disposition = "unknown"
+        report = observed.get("report_observed")
+        report_state = "unknown"
+        if report is not None:
+            report_state = (
+                "invalid"
+                if report["invalid"]
+                else ("failed" if report["failed"] else "complete")
+                if report["done"]
+                else "partial"
+            )
+        if (
+            closed is not None
+            and observed
+            and "launch_error" not in observed
+            and (end is None or report is None)
+        ):
+            issues.append(f"incomplete_module:{module_id}")
+        rows.append(
+            {
+                "module_id": module_id,
+                "module": descriptor["module"],
+                "cases": descriptor["cases"],
+                "serial": descriptor["serial"],
+                "disposition": disposition,
+                "report_state": report_state,
+                "terminal_cases": report.get("terminal_cases") if report else None,
+                "admission_delay_seconds": start,
+                "elapsed_seconds": elapsed("setup_begin", scratch_terminal),
+                "setup_seconds": elapsed("setup_begin", "spawn_begin"),
+                "spawn_call_seconds": elapsed("spawn_begin", "spawn_returned"),
+                "process_observation_seconds": elapsed("spawn_begin", "exit_observed"),
+                "process_cleanup_seconds": elapsed("cleanup_begin", "cleanup_complete"),
+                "scratch_cleanup_seconds": elapsed(
+                    "scratch_removal_begin", "scratch_removed"
+                ),
+                "scratch_disposition": (
+                    "removed"
+                    if "scratch_removed" in observed
+                    else "retained-by-policy"
+                    if "scratch_retained" in observed
+                    else "unknown"
+                ),
+                "cleanup_seconds": elapsed("cleanup_begin", scratch_terminal),
+                "offsets_seconds": {kind: offset(kind) for kind in observed},
+            }
+        )
+    overlap = peak = 0
+    for _, change in sorted(
+        (point, change)
+        for start, end in intervals
+        if end > start
+        for point, change in ((start, 1), (end, -1))
+    ):
+        overlap += change
+        peak = max(peak, overlap)
+    return {
+        "invocation": invocation,
+        "coverage": "complete" if not issues else "incomplete",
+        "workers": header.get("workers"),
+        "selected_modules": header.get("selected_modules"),
+        "elapsed_seconds": closed["offset_ns"] / 1e9 if closed else None,
+        "completed_modules_wall_seconds": _union_seconds(intervals)
+        if intervals
+        else None,
+        "completed_module_envelope_seconds": (
+            sum(end - start for start, end in intervals) if intervals else None
+        ),
+        "observed_peak_module_overlap": peak if intervals else None,
+        "critical_path_seconds": None,
+        "runner_seconds": None,
+        "modules": rows,
+        "issues": issues,
+        "limitations": [
+            "Module envelopes include setup/cleanup, not CPU or billable runner time.",
+            "Process intervals use parent observations, not exact kernel lifetimes.",
+            "Admission delay includes unattributed barrier/slot waits and parent work.",
+            "Only the existing event validator owns outcomes; timing is diagnostic.",
+        ],
+    }
+
+
 def summarize_timing(index: Mapping[str, object]) -> dict[str, object]:
     """Account for completed intervals, retaining incomplete and malformed evidence.
 

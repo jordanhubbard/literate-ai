@@ -1,0 +1,136 @@
+{
+  "schema": "independent-source-review-delta@1",
+  "reviewer": "review_contracts",
+  "generated_at_utc": "2026-11-27T06:19:50.761014+00:00",
+  "repository": "/home/jkh/Src/literate-ai",
+  "head_at_observation": "5eb6bfb34146e3b8a2e3827876a54d10173035c7",
+  "frozen_review_subject": "339cc31ada8abcf4c27cfb94e65bc31ba386fb6b",
+  "original_review_baseline": "9e4299d9457ce636b407946a26667b7effb58d17",
+  "attestation_scope": "Exactly these six current file byte sequences and their inspected deltas from the frozen subject; source-only review evidence, not a policy approval marker.",
+  "files": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "5a3867f545f832ab7cad2413790f614f2405d689e9d02e426416aa11757012de",
+      "byte_count": 28019,
+      "delta_from_frozen_sha256": "6112e992152b3343a163e3060f401d41b44e3e3cb6a1848b680ffdb805270129",
+      "review_status": "source_reviewed_no_remaining_actionable_finding",
+      "reviewed_scope": "Catalog source O_NONBLOCK; retained original nofollow/fstat/byte/native fences.",
+      "closing_evidence": [
+        "review-contracts-reader-closing-review.md"
+      ]
+    },
+    {
+      "path": "src/literate_ai/adapters/component_namespace.py",
+      "sha256": "9cea8c0c707729af29079fc8662dba09def3ea703ddfa5a6eaa709c117634775",
+      "byte_count": 10931,
+      "delta_from_frozen_sha256": "49b98af64a68c5a870672455e40a191b4c5c951eb4b90c5877fdc24020dab87e",
+      "review_status": "source_reviewed_no_remaining_actionable_finding",
+      "reviewed_scope": "Existing authoring2MiB/project1MiB limits checked before reading; original bounded growth/native closure retained.",
+      "closing_evidence": [
+        "review-contracts-reader-closing-review.md"
+      ]
+    },
+    {
+      "path": "src/literate_ai/project_template/scripts/bootstrap_litai.py",
+      "sha256": "e65e124fe8c4616f34aae7de18312b6bcbcf38abaf39ea1dc8bc0cd523117973",
+      "byte_count": 16203,
+      "delta_from_frozen_sha256": "a3b1d6e7780c4fbdf7c5e32dc53a04110114ab704a05eb8f27dceabc704ce57b",
+      "review_status": "source_reviewed_no_remaining_actionable_finding",
+      "reviewed_scope": "Bounded original raw/native observations and post-result project selection revalidation; exact helper digest.",
+      "closing_evidence": [
+        "review-contracts-bootstrap-closing-review.md"
+      ]
+    },
+    {
+      "path": "src/literate_ai/cli/_bundle_schema_scan.py",
+      "sha256": "cae5452ce8f2b208ca4cc5d1af75a4134d3372bb7f9366d4635bae80827d4882",
+      "byte_count": 5276,
+      "delta_from_frozen_sha256": "4634c7d9bfb8f280959bef07c18f57c52a1e98bad36ca31bd610407501f23732",
+      "review_status": "source_reviewed_no_remaining_actionable_finding",
+      "reviewed_scope": "Entire new bounded incremental-character scanner, finite envelope projection, locale codecs and duplicate-last semantics.",
+      "closing_evidence": [
+        "review-contracts-intake-closing-review.md"
+      ]
+    },
+    {
+      "path": "src/literate_ai/cli/source_to_specification.py",
+      "sha256": "4a2a603e39fb13d9b0cada4f78533c78c8de5e9900af6312bad90121649cfa97",
+      "byte_count": 213048,
+      "delta_from_frozen_sha256": "e3395a3ad9f344712beeb14a4b882471120c5f9b5ce531f48d229fc7ecf9d772",
+      "review_status": "source_reviewed_no_remaining_actionable_finding",
+      "reviewed_scope": "Same-fd finite schema-discriminated ingress; same-byte strict reviewed parse and parent guards; canonical context-derived qualification Flavor audit prefix.",
+      "closing_evidence": [
+        "review-contracts-intake-closing-review.md",
+        "review-contracts-qualification-audit-prefix-closing.md"
+      ]
+    },
+    {
+      "path": "tests/conformance/support/sample_runner.py",
+      "sha256": "1147f1d0c10a8ec0b2549de1ee2bf6f5353b97cacc2fe9ec41acf05881da960c",
+      "byte_count": 389691,
+      "delta_from_frozen_sha256": "b88ac9412d7f590b8ebef7dddbdb75f2a77220f5d7dfddf85b9c0c121952b1a0",
+      "review_status": "source_reviewed_no_remaining_actionable_finding",
+      "reviewed_scope": "Exact root lock slot/revision projection and both callsites; dependency-only exclusion and same-revision multi-slot grouping.",
+      "closing_evidence": [
+        "review-contracts-sample-slot-closing-review.md"
+      ]
+    }
+  ],
+  "extra_unreviewed_drift_within_six_files": [],
+  "other_worktree_drift_outside_attestation": [
+    {
+      "path": "docs/roadmap/active-work.md",
+      "git_status": " M",
+      "review_status": "outside_this_six_file_attestation_not_reviewed_here"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_execution_workspace.py",
+      "git_status": " M",
+      "review_status": "outside_this_six_file_attestation_not_reviewed_here"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_python_original_gates.py",
+      "git_status": " M",
+      "review_status": "outside_this_six_file_attestation_not_reviewed_here"
+    },
+    {
+      "path": "tests/critical/test_retained_python_original_gates.py",
+      "git_status": " M",
+      "review_status": "outside_this_six_file_attestation_not_reviewed_here"
+    },
+    {
+      "path": "verification/release-1.4-source-review.json",
+      "git_status": " M",
+      "review_status": "outside_this_six_file_attestation_not_reviewed_here"
+    }
+  ],
+  "findings_status": {
+    "catalog_fifo": "source_reviewed_closed",
+    "namespace_prebound": "source_reviewed_closed",
+    "bootstrap_post_probe_close": "source_reviewed_closed",
+    "sample_slot_selection": "source_reviewed_closed",
+    "reviewed_intake_prebound": "source_reviewed_closed",
+    "contained_qualification_audit_prefix": "source_reviewed_closed"
+  },
+  "independent_controls": [
+    "Bootstrap actual-current-script controlled-probe matrix36 passed; root/contained application/framework; rewrite/replacement/authority addition across ready/nonzero/incompatible/unavailable.",
+    "Catalog FIFO and namespace constructor new regressions2 passed; additional exact size/cap+1/growth controls passed for authoring2MiB and project1MiB.",
+    "Sample-slot actual resolver cohort4 passed.",
+    "Bundle-input five-method cohort passed after incremental-codec repair;2000 current-scanner valid-JSON differential controls passed.",
+    "Actual reviewed CLI envelope exact16MiB accepted and16MiB+1 refused before full decode; post-scan restored-mtime rewrite refused; UTF8/cp1252/cp932 one-byte split controls passed.",
+    "Final reviewed-parent guards independently reject original symlink parent and post-parse parent substitution, preserve equivalent legacy parent-alias acceptance.",
+    "Original contained promotion/qualification trust e2e passed independently1test25.727s; original trust/policy/wrong-key/tamper/no-output/source assertions retained.",
+    "Canonical root/contained typed audit subset controls exclude alternate-root and similarly named neighbor subtrees."
+  ],
+  "parent_reported_controls_not_independently_rerun_as_whole": [
+    "CLI6 all passed26.249s; zero skips."
+  ],
+  "limitations": [
+    "Changed-source inspection and specific helper/control checks do not certify complete unchanged-source or whole-product behavior.",
+    "Root owns complete affected Python gate cohort, which was reported still running when this attestation was requested; no complete-gate pass is asserted here.",
+    "No installed/native-platform/full matrix or release acceptance is implied; controlled probe and modeled codec/audit controls preserve their stated limits.",
+    "Intake discriminator bounds memory and I/O by original finite file sizeN; it does not impose16MiB total I/O or a new fixed legacy wire-size ceiling.",
+    "Other dirty paths are listed only for reconciliation and are outside this reviewer six-file closing attestation; peer coverage must be reconciled separately.",
+    "No code edits, re-pins, documentation authority marker changes, worker dispatch, publication or release action were performed."
+  ]
+}

@@ -342,11 +342,16 @@ def inherited_verbose_environment(environment: Mapping[str, str]) -> dict[str, s
 
 
 def _secret_values(environment: Mapping[str, str] | None) -> tuple[str, ...]:
+    # Explicit internal diagnostic bindings also protect short credentials. They
+    # are separate from, and must never be forwarded as, child environment keys.
     values = []
     for key, value in (os.environ if environment is None else environment).items():
         if (
             value
-            and len(value) >= _MIN_SECRET_LENGTH
+            and (
+                len(value) >= _MIN_SECRET_LENGTH
+                or key.startswith("LITAI_REDACTION_SECRET_")
+            )
             and any(marker in key.casefold() for marker in _SECRET_MARKERS)
         ):
             values.append(value)

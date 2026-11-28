@@ -63,7 +63,11 @@ class _ObservedTool:
 
     @property
     def node(self):
-        return self.owner._tools["node"] if self.observation.role == "npm" else None
+        return (
+            self.owner._tools["node"]
+            if self.observation.role in {"npm", "typescript"}
+            else None
+        )
 
     def require_unchanged(self):
         self.owner.require_unchanged()
@@ -200,15 +204,15 @@ class RemoteStandardToolchains:
                 _refuse("worker selector verifier returned no authority")
             self._selectors = tuple(sorted(selectors.items()))
             self._selector_identity = verified
-        if role == "npm":
+        if role in {"npm", "typescript"}:
             if constraint is None:
-                _refuse("npm requires its locked version constraint")
+                _refuse(f"{role} requires its locked version constraint")
             try:
                 constraint.version_range()
             except ValueError as exc:
                 raise ActionWireError(
                     "action_tools.constraint_mismatch",
-                    "npm requires a bounded version range",
+                    f"{role} requires a bounded version range",
                 ) from exc
         minimum = None if constraint is None else constraint.minimum_version
         minimum = minimum or _DEFAULT_MINIMUMS.get(role)

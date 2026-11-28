@@ -1,0 +1,55 @@
+{
+  "review": "507 catalog source r24 closure r3",
+  "created_utc": "2026-11-27T19:53:55.949998+00:00",
+  "head": "55c31be8d4ae07b77aa5318e301ac44fc1f48842",
+  "status": "reviewed source findings closed; broader original regression pending",
+  "files_sha256": {
+    "src/literate_ai/adapters/project_layout_native_identity.py": "16f1f15fdbe49f50b9e505e0351db354d770e63f6c40431f086b3193a83419da",
+    "src/literate_ai/adapters/component_namespace_closing.py": "dd79c946b00d8217e8e0ca8f1366d18c8c8deb96d8dd33ba2a7b6500aa5d6d91",
+    "src/literate_ai/adapters/project_layout_catalog_continuation.py": "92f6b8f3e84e1fb5c7f355d358059d1fd2d8588e54f40ab197acbb5fd0293abf",
+    "src/literate_ai/adapters/project_layout_catalog_finalization.py": "489b447d476d69560164562cd2122f3e0c9b90c3b1a38b72df544d675bf9c529",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "fcf52eb7e90a4dd7f67102769cc5fc3417a387c9dd9839afe42fba8e2dbb1117",
+    "src/literate_ai/adapters/project_layout_continuation.py": "ad4555154491cbfe3eaded2fedf980cc09acce085921d6c9e92ee860c44fcba6",
+    "src/literate_ai/adapters/project_layout_migration.py": "3e9520d2c1cf9a8f687cd423bca65ed8f6d8d733420bfe778f1bfb0e4e734a16",
+    "src/literate_ai/adapters/project_layout_pair_publication.py": "ed31c183acd3f7910be38e153ee9ef97525ff289fca12417c934dec6559404c3",
+    "src/literate_ai/cli/layout_component_commands.py": "aea9b9cdad47b8830dbdcb12cff5f7f2b955cb52b8438e94f9ffd0de7bb80bd4",
+    "schemas/v2/project-layout-catalog-continuation.schema.json": "224a41f960c1e41cfaf4dc58126aa1e5832f303439cdc183ec47f4aeb52d7cab",
+    "tests/critical/test_catalog_native_identity.py": "4c6a8670c5a14745d58fba4533d9e3723e4789e4aed097b56048392c2f4be563"
+  },
+  "changed_since_r2": [
+    "src/literate_ai/adapters/project_layout_native_identity.py",
+    "tests/critical/test_catalog_native_identity.py"
+  ],
+  "findings": [],
+  "closed_findings": [
+    {
+      "id": "catalog-native-identity-fresh-builtin-shadow-baseline",
+      "resolution": "Original import-time slot set now captures actual used helper/scalar global names with presence and identity, including original absent builtin shadows and resolved function.__builtins__ lookup slots. Its captured check validates these before both later installers collect caller roots/boundaries. Adding codec.int/type/dict or scalar namespace int can no longer be adopted as a later caller original dependency. Per-port runtime graph likewise seals effective builtin lookups."
+    },
+    {
+      "id": "catalog-native-identity-fresh-baseline",
+      "resolution": "Original helper/scalar code/defaults/keyword-default contents, function aliases, scalar defining-module export and exported installer identities remain fixed in original helper-owned closure; later binding validates baseline before collecting caller state and requires exact original requested functions."
+    },
+    {
+      "id": "catalog-native-identity-unrelated-helper-test",
+      "resolution": "Revised owner probes target actual renewal and physical-source helper paths; _stage uses full five-argument call."
+    }
+  ],
+  "coverage": {
+    "narrow_refresh": "Read changed import-time/global-slot and per-port runtime slot capture/check implementation plus complete newly added late-binder builtin-shadow test. Compared current hashes of all eleven reviewed files with r2: only helper and new test differ.",
+    "previous_review_retained": "Full existing catalog production diff, schema, finite E/D map, original staging/decode/currentness/closing/write/export and owner callback boundaries covered by r1/r2; no new E/D/callsite changes found in this refresh.",
+    "test_control_review": "New test adds foreign aliases at codec int/type/dict and scalar defining namespace int, requires refusal at original stage and both later binders, and restores each absent slot in finally. Foreign callback raises immediately if executed.",
+    "trust_boundary": "No protection claim against arbitrary interpreter or Python closure-cell introspection/mutation."
+  },
+  "validation": {
+    "reviewer_execution": "No tests/jobs/posts/source edits performed. Source and control review only.",
+    "parent_reported": "r24d final eleven controls passed, zero skips; r24c ten controls passed. Prior failed fixture attempt retained. Outcomes are parent-reported, not independently executed.",
+    "pending": "Broader original regression on this frozen source.",
+    "not_claimed": [
+      "native Windows execution/acceptance",
+      "full issue507 acceptance",
+      "full installed release acceptance",
+      "historical finalizer acceptance on this changed source"
+    ]
+  }
+}

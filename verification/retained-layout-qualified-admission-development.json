@@ -1,0 +1,305 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Local POSIX qualified retained receipt and operation-local Cargo consumption of genuinely readmitted nonroot selected layouts; not full L2 or feature acceptance",
+  "base_revision": "cb615dedeba7e5d4a96aaf939c33adcd38fa59ab",
+  "subjects": {
+    "src/literate_ai/adapters/retained_harness_receipts.py": {
+      "algorithm": "sha256",
+      "digest": "3ec36f3320314993ab4fba39b3ab7f40ff2a91f8572e2683f4fb0577be1c594e"
+    },
+    "src/literate_ai/adapters/retained_cargo_wrapper_v2.py": {
+      "algorithm": "sha256",
+      "digest": "bc77c18310a5759ad6e0457989901152098223bade4a98019fed443aae33519f"
+    },
+    "src/literate_ai/projects.py": {
+      "algorithm": "sha256",
+      "digest": "265203a0eeb0327b68961bfe10991dd6c06d549fe1d56335c3e4c0b3e434ce8e"
+    },
+    "tests/critical/test_retained_layout_admission.py": {
+      "algorithm": "sha256",
+      "digest": "061ac43ef694606411bc5dd0b1e731f72ea866a0a0a7cb5b38e7a308301c25cc"
+    },
+    "tests/support/fixtures_retained_cargo_scratch.py": {
+      "algorithm": "sha256",
+      "digest": "92807d7701e0236bd182a573b7433420d5782d89c981715118970306a9093b66"
+    }
+  },
+  "causal_history": [
+    {
+      "source": "retained_harness_receipts.py at base_revision",
+      "maintained_actual_move_readmit_receipt_case_errors": 1,
+      "seconds": 5.388,
+      "reason": "Genuinely renewed nonroot evidence refuses at historical passed-only lift guard.",
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "8c60194521891b6d31e4ba598bead0ade8a6e3c54b0165272c9526b7e9c7c64a"
+      }
+    },
+    {
+      "source": "retained_cargo_wrapper_v2.py at base_revision, current receipt reader",
+      "maintained_selected_wrapper_case_errors": 1,
+      "seconds": 21.34,
+      "reason": "Actual current selected wrapper lock/catalog is absent at the hardcoded legacy coordinate.",
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "ff3ac45d4239c35842b49f8166369465dd2b949064298d8372522dec8499bc58"
+      }
+    },
+    {
+      "subject_receipts": "sha256:69dd15fafc4edb486bac50a64ae33226f7c323f5a5935e219aeb4f8f4a043fd1",
+      "subject_cargo": "sha256:292fdb9071d8812cf24edf3cc5a8c28c6722d6a9b4f1f2392f794c9d634703c9",
+      "methods_failed": 3,
+      "seconds": 29.228,
+      "findings": [
+        "Missing direct phase source observations can pass through actual receipt promotion/current verification.",
+        "Parity baseline source references can disagree with their actual direct phase.",
+        "Cargo currentness can return across late pending insertion at its final actual lock read."
+      ],
+      "repair": "Require direct phase source closure and parity baseline-source agreement; close pending and original known project/review/selected-lock native inputs after all Cargo payload reads."
+    },
+    {
+      "bound_directory_replacement": {
+        "source_cargo": "sha256:78d6a4f2971d4f8dce9deac9f1c89362d35eb4dbb918136b826ccaf4f52e580a",
+        "maintained_failed": 1,
+        "seconds": 21.741,
+        "independent_counterexample_seconds": 21.805
+      },
+      "repair": "Capture actual bound implementation/workspace directory nodes and ancestry before payload reads, then close after final lock reads."
+    },
+    {
+      "selected_workflow_replacement": {
+        "source_cargo": "sha256:427be679397975db133896f48c3af23966540b5c24ba9d20fc1f70f9d257f00b",
+        "maintained_failed": 1,
+        "seconds": 21.117
+      },
+      "repair": "Use complete actual selected pinned input paths through a bounded read-only inspection seam; these paths grant no rights."
+    },
+    {
+      "declared_source_edit": {
+        "source_cargo": "sha256:45ba49b0937f66da756cd3f8f9aa3b03c8a8e775d3c50791b24770ca732abae5",
+        "maintained_failed": 1,
+        "seconds": 21.285,
+        "independent_counterexample_seconds": 23.134
+      },
+      "repair": "Bind exact original validated source-scope paths and current onboarding/document/skill inputs into native closing; move existing project-authority check after lock/catalog reads."
+    }
+  ],
+  "actual_behavior": [
+    "Actual completed nonroot move, genuine direct baseline/parity/current selected lock renewal, finalized retained receipt production/promotion and current receipt verification.",
+    "Prior finalized candidate remains unchanged and stale after actual move and genuine renewal; a fresh candidate can be produced.",
+    "Require matching layout-readmission bindings in baseline and parity, complete passing phase coverage and executed source observations, current declaration, inventory, wrapper bytes and original lift lineage. Root admission remains unavailable.",
+    "Resolve actual current selected source and wrapper under fresh declaration/lineage native facts and ancestry; refuse pending relocation and stale captured input.",
+    "Bind declaration into retained admission identity and Cargo live pinned-input closure; select actual current wrapper from current lock/catalog bindings.",
+    "Missing/mismatched renewal, malformed/failed/missing phases, changed wrapper/declaration and pending state refuse without positive receipt outputs."
+  ],
+  "independent_review": {
+    "decision": "approved_at_limited_scope",
+    "initial_changes_requested_identity": {
+      "algorithm": "sha256",
+      "digest": "337b2995c62ec739e110b4796ed4470c57d0cc45584355629b26419bce2080fe"
+    },
+    "bound_root_changes_requested_identity": {
+      "algorithm": "sha256",
+      "digest": "927548190bdd74d5ad8740b9068c2558a03ed1fa9a5ef14638066a6990038260"
+    },
+    "declared_source_changes_requested_identity": {
+      "algorithm": "sha256",
+      "digest": "2955d18237f9f9c4925388390ff3ec212652b0504ed7d65c6a926b4bf9aa236c"
+    },
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "0f943074651b6c10aaa37b1bcfdf031d1512639d842d0bfe23d4f4d75c55345e"
+    },
+    "context_source_hashes": {
+      "src/literate_ai/adapters/harness_tree.py": "52effc9dd06b3ffc069dc98490ae0439844407e782fbb4a82713a576556cc6ac",
+      "src/literate_ai/adapters/project_validation.py": "1f801b0e7ef5759acf8dcb7e0a518f32f4141cc40d25ece1a07ba8376b8dcfa3",
+      "src/literate_ai/adapters/component_lock_planning.py": "8c119d22baf3c1d34649b39bdb8103edca87a75f6baa9d5b10ca040259847f78",
+      "src/literate_ai/adapters/repository_refresh.py": "4aa4b18744e079bd4800181582b69cc31325ac46e88a3717d5e0a79a6f8c3d1f"
+    },
+    "maintained_methods_passed": 14,
+    "maintained_seconds": 143.721,
+    "native_replacement_and_expiry_supplement_methods_passed": 1,
+    "native_replacement_and_expiry_seconds": 27.645,
+    "authority_mutation_supplement_methods_passed": 1,
+    "authority_mutation_leaves": 53,
+    "authority_mutation_seconds": 51.735,
+    "independent_declared_source_predecessor_failed": 1,
+    "independent_declared_source_predecessor_seconds": 24.822,
+    "qualification": "Exact local POSIX declared-source-policy receipt/Cargo admission scope; not full L2 or feature acceptance. No inverse-skill native mutation case was available."
+  },
+  "repository_checks": {
+    "driver_review": "passed",
+    "runner_review": "passed",
+    "lint": "passed",
+    "format_check": "passed",
+    "repository_layout_check": "passed",
+    "public_export_check": "passed",
+    "project_validate_ok": true
+  },
+  "all_gates_read_only_verify": {
+    "ok": false,
+    "counts": {
+      "fail": 1,
+      "pass": 1,
+      "skipped": 3
+    },
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ],
+    "qualification": "Authority passes; configured full-source receipt remains stale. This scoped record does not renew it."
+  },
+  "limits": [
+    "The custom wrapper fixture is independently authored and genuinely locked/readmitted. It does not establish public wrapper movement or initial custom placement.",
+    "Cargo review declarations are fixture-owned; this scope qualifies actual source/project/Git/catalog/context interactions, not a real compiler/model/execution/installation matrix.",
+    "Scope refresh before qualification, schema-only migration, native rewrite and monorepo discovery, complete actual root/shared/mixed/nested partition ownership, initial placement and the full public normal/recovery span remain unfinished.",
+    "Local source results do not establish full-source, installed/native Windows/Linux, exact-head CI/integration/main or release acceptance. Configured full-source receipt remains stale.",
+    "Candidate files are historical observations; the existing output span can retain one if pending appears after its last currentness check. Promotion independently requires current authority and refuses pending state. No continuous multi-file snapshot is claimed.",
+    "Candidate files are historical observations; the output span can retain one if pending appears after the last currentness check. Promotion independently requires current authority and refuses pending. No continuous multi-file snapshot is claimed."
+  ],
+  "pre_source_and_cargo_closing_scope": {
+    "methods": 64,
+    "seconds": 206.685,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "admission_methods": 8,
+    "modules": [
+      "tests.critical.test_retained_layout_admission",
+      "tests.critical.test_retained_layout_renewal",
+      "tests.e2e.test_retained_harness_readmission",
+      "tests.e2e.test_retained_harness_receipts",
+      "tests.critical.test_retained_cargo_build_output_v2",
+      "tests.critical.test_retained_cargo_receiving_v2",
+      "tests.critical.test_retained_cargo_materialization",
+      "tests.e2e.test_retained_scope_refresh",
+      "tests.e2e.test_project_identity_migration"
+    ],
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "65171be39ab1dddc5eedcf0ff1563237a06eb351b8ec6404e8a7c2197c390a10"
+    }
+  },
+  "initial_admission_subjects": {
+    "src/literate_ai/adapters/retained_harness_receipts.py": {
+      "algorithm": "sha256",
+      "digest": "69dd15fafc4edb486bac50a64ae33226f7c323f5a5935e219aeb4f8f4a043fd1"
+    },
+    "src/literate_ai/adapters/retained_cargo_wrapper_v2.py": {
+      "algorithm": "sha256",
+      "digest": "292fdb9071d8812cf24edf3cc5a8c28c6722d6a9b4f1f2392f794c9d634703c9"
+    },
+    "tests/critical/test_retained_layout_admission.py": {
+      "algorithm": "sha256",
+      "digest": "a5841c70e09b255c327cdb96caef8a056c74b73f1e04e814e6f4e4b124ec86ff"
+    },
+    "tests/support/fixtures_retained_cargo_scratch.py": {
+      "algorithm": "sha256",
+      "digest": "92807d7701e0236bd182a573b7433420d5782d89c981715118970306a9093b66"
+    }
+  },
+  "final_affected_scope": {
+    "methods": 70,
+    "seconds": 303.377,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "admission_methods": 14,
+    "modules": [
+      "tests.critical.test_retained_layout_admission",
+      "tests.critical.test_retained_layout_renewal",
+      "tests.e2e.test_retained_harness_readmission",
+      "tests.e2e.test_retained_harness_receipts",
+      "tests.critical.test_retained_cargo_build_output_v2",
+      "tests.critical.test_retained_cargo_receiving_v2",
+      "tests.critical.test_retained_cargo_materialization",
+      "tests.e2e.test_retained_scope_refresh",
+      "tests.e2e.test_project_identity_migration"
+    ],
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "126c1018f59f98ae7c605462afedd4950bd5baca57a697a543a45c0c05119295"
+    }
+  },
+  "native_focused_repair": {
+    "complete_pin_methods_passed": 13,
+    "complete_pin_seconds": 114.913,
+    "source_and_workflow_targeted_passed": 2,
+    "source_and_workflow_targeted_seconds": 40.717,
+    "qualification": "Final70 and exact independent current14 pass; prior cohorts retain their original limits.",
+    "source_authority_targeted_passed": 2,
+    "source_authority_targeted_seconds": 40.717
+  },
+  "pre_complete_native_input_scope": {
+    "methods": 67,
+    "seconds": 235.685,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "qualification": "Historical passing cohort before subsequent closing repairs; not final composition evidence.",
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "27f09d2cc2da2570609ee1feb0f6cd28fbdaf59c39f08cd2d7f3c85bb245dc4f"
+    }
+  },
+  "pre_source_authority_closing_scope": {
+    "methods": 69,
+    "seconds": 275.359,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "qualification": "Before declared source and late project-authority closing repair.",
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "07f8da6a17215e3d1e4df075a7c4f084318a2f6e1e29e9037d098703c58ce344"
+    }
+  },
+  "pre_workflow_expectation_alignment_scope": {
+    "methods": 14,
+    "seconds": 133.999,
+    "failures": 1,
+    "qualification": "The actual workflow mutation was refused by the later project authority gate; assertion still expected only the old native diagnostic. Not a passing14-method scope. Final70 accepts and verifies the documented authority-stale refusal."
+  },
+  "pending_candidate_promotion_supplement": {
+    "passed": 1,
+    "seconds": 6.714,
+    "observed_error": "retained_receipt.layout_pending",
+    "qualification": "A genuinely produced candidate remains unchanged and refuses promotion after pending insertion. No continuous publication snapshot claim."
+  },
+  "pre_declared_source_closing_scope": {
+    "methods": 69,
+    "seconds": 275.359,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "qualification": "Historical passing cohort before subsequent closing repairs; not final composition evidence.",
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "07f8da6a17215e3d1e4df075a7c4f084318a2f6e1e29e9037d098703c58ce344"
+    }
+  }
+}

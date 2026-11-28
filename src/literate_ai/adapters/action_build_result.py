@@ -274,7 +274,12 @@ def capture_build_result(
         output.evidence.to_dict()
     ):
         _invalid()
-    verify_qualification_build(reader, plan=admitted.plan, build=output.evidence)
+    verify_qualification_build(
+        reader,
+        plan=admitted.plan,
+        build=output.evidence,
+        python_command=admitted.inputs.contract,
+    )
     roots = {ports.artifact_path(item).parent for item in output.exports}
     if len(roots) != 1:
         _invalid()
@@ -405,7 +410,12 @@ def read_build_result(
         result.evidence.to_dict()
     ):
         _invalid()
-    verify_qualification_build(reader, plan=admitted.plan, build=result.evidence)
+    verify_qualification_build(
+        reader,
+        plan=admitted.plan,
+        build=result.evidence,
+        python_command=admitted.inputs.contract,
+    )
     files = read_directory_export(
         fetch(result.artifact_archive),
         result.artifact_archive,

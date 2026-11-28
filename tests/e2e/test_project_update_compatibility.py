@@ -56,10 +56,10 @@ class ProjectUpdateCompatibilityTests(unittest.TestCase):
         self.root = Path(temporary.name).resolve() / "project"
         self.origin = _origin("a", "1.0.0")
         self.installed_origin = _origin("b", "2.0.0")
-        self.prefix = "skills/specification-to-source/"
-        self.a = self.prefix + "fixture-a/SKILL.md"
-        self.b = self.prefix + "fixture-b/SKILL.md"
-        self.c = self.prefix + "fixture-c/SKILL.md"
+        # Inherited catalog files name framework-relative (logical) coordinates;
+        # update plans and the working tree use project-root coordinates, which
+        # follow the contained framework directory once the project exists.
+        self.catalog_a = "skills/specification-to-source/fixture-a/SKILL.md"
         self.old = self.skill("fixture-a")
         self.new = self.skill("fixture-a", version="2.0.0")
         self.selection, _, parent, self.lineage = fixture()
@@ -70,7 +70,7 @@ class ProjectUpdateCompatibilityTests(unittest.TestCase):
                     "skill",
                     "specification-to-source/fixture-a",
                     parent,
-                    (InheritedCatalogFile(self.a, self.old, False),),
+                    (InheritedCatalogFile(self.catalog_a, self.old, False),),
                 ),
             ),
         )
@@ -85,6 +85,11 @@ class ProjectUpdateCompatibilityTests(unittest.TestCase):
             empty=True,
             parent_selection=self.selection,
         )
+        framework = load_project(self.root).framework_root.relative_to(self.root)
+        self.prefix = (framework / "skills/specification-to-source").as_posix() + "/"
+        self.a = self.prefix + "fixture-a/SKILL.md"
+        self.b = self.prefix + "fixture-b/SKILL.md"
+        self.c = self.prefix + "fixture-c/SKILL.md"
 
     def skill(self, name, *, version="1.1.0", dependency=None):
         source = (
@@ -120,8 +125,8 @@ class ProjectUpdateCompatibilityTests(unittest.TestCase):
     def planned(self, additions, **options):
         original = project_updates._upstream_template
 
-        def upstream(paths):
-            return original(paths) | additions
+        def upstream(paths, **keywords):
+            return original(paths, **keywords) | additions
 
         with mock.patch.object(
             project_updates, "_upstream_template", side_effect=upstream
@@ -187,8 +192,8 @@ class ProjectUpdateCompatibilityTests(unittest.TestCase):
     ):
         original_template = project_updates._upstream_template
 
-        def upstream(paths):
-            return original_template(paths) | additions
+        def upstream(paths, **keywords):
+            return original_template(paths, **keywords) | additions
 
         def adapter(**options):
             return FilesystemProjectUpdateAdapter(
@@ -248,7 +253,10 @@ class ProjectUpdateCompatibilityTests(unittest.TestCase):
         self.parent_catalog = replace(
             self.parent_catalog,
             items=(
-                replace(item, files=(InheritedCatalogFile(self.a, self.new, False),)),
+                replace(
+                    item,
+                    files=(InheritedCatalogFile(self.catalog_a, self.new, False),),
+                ),
             ),
         )
         good = self.skill("fixture-c")

@@ -72,8 +72,12 @@ normal assistant-backed `litai build`, or re-author and review the seed rather
 than copying an old receipt. Only the harness writes `verification/current.json`.
 The independent browser contract is verifier-owned under `verification/acceptance/`.
 
-This project currently has one application Component with three selected Flavors.
-It does not claim that its internal drawing/audio roles are separate Components.
+The browser root selects JavaScript, Make and the host OS. Its checked-in lock
+also includes the [choir-score provider](components/data/choir-score/component.md)
+as a build dependency. That provider selects Python, Make and the same OS, so the
+two-Component graph has four distinct Flavors. The browser's internal
+drawing/audio roles are not additional Components. This describes checked-in
+authority; it does not establish native or browser acceptance of that graph.
 Progressive multi-Component curriculum work remains tracked by LAB-AUTHORITY-001.
 
 <!-- literate-ai:parent-repositories -->

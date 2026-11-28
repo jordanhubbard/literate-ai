@@ -45,6 +45,7 @@ class ContextAuthorityKind(StrEnum):
     LOCAL_PUBLIC_INTERFACE = "local-public-interface"
     LOCAL_ASSET_METADATA = "local-asset-metadata"
     LOCAL_NATIVE_SDK_METADATA = "local-native-sdk-metadata"
+    LOCAL_NODE_SDK_PROVIDER_METADATA = "local-node-sdk-provider-metadata"
     DIRECT_PUBLIC_INTERFACE = "direct-public-interface"
 
     PRIVATE_DEPENDENCY_SPECIFICATION = "private-dependency-specification"
@@ -74,6 +75,9 @@ _ALLOWED_VISIBILITY = {
     ContextAuthorityKind.LOCAL_PUBLIC_INTERFACE: ContextVisibility.LOCAL_AUTHORITY,
     ContextAuthorityKind.LOCAL_ASSET_METADATA: ContextVisibility.LOCAL_AUTHORITY,
     ContextAuthorityKind.LOCAL_NATIVE_SDK_METADATA: ContextVisibility.LOCAL_AUTHORITY,
+    ContextAuthorityKind.LOCAL_NODE_SDK_PROVIDER_METADATA: (
+        ContextVisibility.LOCAL_AUTHORITY
+    ),
     ContextAuthorityKind.DIRECT_PUBLIC_INTERFACE: (
         ContextVisibility.DIRECT_PUBLIC_INTERFACE
     ),

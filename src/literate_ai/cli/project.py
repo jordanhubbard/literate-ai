@@ -609,13 +609,20 @@ def _attach_update_conflict_evidence(
         raise CliFailure(exc.code, exc.message) from exc
 
 
-def _update_native_project(args, project) -> dict[str, Any]:
-    """Use the ordinary three-way update owner for the minimal native profile."""
-    from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
+def _update_contained_root_project(args, project) -> dict[str, Any]:
+    """Update contained root templates through the ordinary three-way owner."""
+    from literate_ai.adapters.lifecycle_lock import (
+        project_lifecycle_lock,
+        project_lifecycle_lock_path,
+    )
     from literate_ai.adapters.project_initialization import INITIALIZATION_BASELINE_FILE
-    from literate_ai.adapters.project_update_apply import apply_project_update
+    from literate_ai.adapters.project_update_apply import (
+        _require_native_update_git_boundary,
+        _selected_update_paths,
+        apply_project_update,
+    )
     from literate_ai.adapters.project_updates import _read_contract
-    from literate_ai.adapters.update_merge import load_resolutions
+    from literate_ai.adapters.update_merge import CHECKPOINT, load_resolutions
     from literate_ai.contracts import ProjectInitializationBaseline, canonical_identity
     from literate_ai.projects import ProjectConfigurationStore
 
@@ -625,29 +632,46 @@ def _update_native_project(args, project) -> dict[str, Any]:
         "record_work_items",
         "review_conflicts",
         "follow",
+        "follow_ref",
+        "unpin",
         "allow_minor",
         "allow_major",
     )
     if any(getattr(args, name, None) for name in unsupported):
         raise CliFailure(
             "project.native_update_options",
-            "Native template updates do not change parent selectors "
+            "Contained template updates do not change parent selectors "
             "or create generation work",
         )
     try:
         baseline = _read_contract(
             project.root, INITIALIZATION_BASELINE_FILE, ProjectInitializationBaseline
         )
-        if baseline.profile != "native":
-            raise ProjectUpdateError(
-                "project.native_profile_required",
-                "Contained root updates require the native bootstrap profile",
-            )
         adapter = FilesystemProjectUpdateAdapter()
         plan = adapter.plan(project.root)
+        apply = bool(getattr(args, "apply", False))
+        adopt_added = bool(getattr(args, "adopt_added", False))
+        resolutions = (
+            load_resolutions(getattr(args, "resolutions", None), plan.files)
+            if apply
+            else {}
+        )
+        lifecycle_path = project_lifecycle_lock_path(project.root)
+        paths = (
+            *_selected_update_paths(
+                plan, adopt_added=adopt_added, resolutions=resolutions
+            ),
+            project.framework_root / CHECKPOINT,
+            lifecycle_path,
+        )
+        _require_native_update_git_boundary(project.root, paths)
         identity = canonical_identity(plan.to_dict()).uri
         value: dict[str, Any] = {
-            "schema": "literate-ai/native-project-update@1",
+            "schema": (
+                "literate-ai/native-project-update@1"
+                if baseline.profile == "native"
+                else "literate-ai/initialized-project-update@1"
+            ),
             "mode": "read-only-plan",
             "framework": plan.to_dict(),
             "plan_identity": identity,
@@ -655,30 +679,42 @@ def _update_native_project(args, project) -> dict[str, Any]:
             "source_moved": False,
             "authority_review_required": False,
         }
-        if not getattr(args, "apply", False):
+        if not apply:
             return value
-        resolutions = load_resolutions(getattr(args, "resolutions", None), plan.files)
-        with (
-            ProjectConfigurationStore.layout_lock(project.root),
-            project_lifecycle_lock(project.root, operation="native-update"),
-        ):
-            current = adapter.plan(project.root)
-            if canonical_identity(current.to_dict()).uri != identity:
-                raise ProjectUpdateError(
-                    "project.update_plan_changed",
-                    "Native update inputs changed before apply",
-                )
-            applied = apply_project_update(
-                plan,
+
+        def require_lock_path(path):
+            _require_native_update_git_boundary(project.root, (path,))
+
+        with ProjectConfigurationStore.layout_lock(project.root):
+            _require_native_update_git_boundary(project.root, paths)
+            with project_lifecycle_lock(
                 project.root,
-                adopt_added=bool(getattr(args, "adopt_added", False)),
-                resolutions=resolutions,
-                validator=lambda root: FilesystemProjectValidationAdapter().validate(
-                    root,
-                    require_authority_review=False,
-                    include_test_receipt=False,
-                ),
-            )
+                operation="native-update"
+                if baseline.profile == "native"
+                else "framework-update",
+                require_path=require_lock_path,
+                layout_locked=True,
+            ):
+                current = adapter.plan(project.root)
+                if canonical_identity(current.to_dict()).uri != identity:
+                    raise ProjectUpdateError(
+                        "project.update_plan_changed",
+                        "Contained update inputs changed before apply",
+                    )
+                applied = apply_project_update(
+                    plan,
+                    project.root,
+                    adopt_added=adopt_added,
+                    resolutions=resolutions,
+                    native_lock=lifecycle_path,
+                    validator=lambda root: (
+                        FilesystemProjectValidationAdapter().validate(
+                            root,
+                            require_authority_review=False,
+                            include_test_receipt=False,
+                        )
+                    ),
+                )
         value.update(
             mode="applied",
             application=applied.to_dict(),
@@ -721,7 +757,7 @@ def update_project_from_args(args) -> dict[str, Any]:
     except RepositoryLineageStoreError as exc:
         raise CliFailure(exc.code, exc.message) from exc
     if project.definition.framework_directory == "litai" and not selection.parents:
-        return _update_native_project(args, project)
+        return _update_contained_root_project(args, project)
     if not selection.parents:
         provider = _repository_fetch_provider(args)
         return {
@@ -1124,6 +1160,194 @@ def project_source_intelligence_from_args(args) -> dict[str, Any]:
         raise CliFailure(exc.code, exc.message) from exc
 
 
+def project_layout_from_args(args) -> dict[str, Any]:
+    """Dispatch read-only inspection and explicitly acknowledged placement."""
+    from literate_ai.adapters.project_layout_migration import (
+        apply_legacy_layout_migration,
+        plan_legacy_layout_migration,
+        recover_legacy_layout_migration,
+    )
+    from literate_ai.adapters.project_layout_planning import (
+        ProjectLayoutPlanError,
+        plan_project_layout,
+    )
+
+    try:
+        project = Path(args.project)
+        if args.layout_command in {"renew", "finalize"}:
+            framework_scope = bool(getattr(args, "place_framework_authority", False))
+            catalog_scope = bool(getattr(args, "place_imported_catalogs", False))
+            if framework_scope == catalog_scope or any(
+                getattr(args, name, False)
+                for name in (
+                    "rewrite_reference",
+                    "place_forward_skills",
+                    "place_release_policy",
+                )
+            ):
+                raise ProjectLayoutPlanError(
+                    "framework_scope_conflict",
+                    "select exactly one original Component placement scope",
+                )
+            if (
+                framework_scope
+                and getattr(args, "successor_plan_identity", None) is not None
+            ):
+                raise ProjectLayoutPlanError(
+                    "framework_scope_conflict",
+                    "successor identity belongs to the catalog Component scope",
+                )
+            if args.layout_command == "finalize":
+                from .layout_component_commands import finalize_layout_from_args
+
+                return finalize_layout_from_args(args)
+            if catalog_scope:
+                from .layout_component_commands import renew_catalog_from_args
+
+                return renew_catalog_from_args(args)
+        if getattr(args, "place_framework_authority", False):
+            if getattr(args, "successor_plan_identity", None) is not None:
+                raise ProjectLayoutPlanError(
+                    "framework_scope_conflict",
+                    "successor identity belongs to catalog recovery",
+                )
+            approved_references = tuple(getattr(args, "rewrite_reference", ()))
+            if (
+                approved_references
+                and (
+                    approved_references != ("litai/literate.release.json",)
+                    or args.layout_command not in {"plan", "apply"}
+                )
+            ) or any(
+                getattr(args, field, False)
+                for field in (
+                    "place_forward_skills",
+                    "place_imported_catalogs",
+                    "place_release_policy",
+                )
+            ):
+                raise ProjectLayoutPlanError(
+                    "framework_scope_conflict",
+                    "framework authority scope cannot mix other placements",
+                )
+            from literate_ai._filesystem import require_safe_directory
+            from literate_ai.adapters.project_layout_framework_ingress import (
+                close_observed_framework_selection,
+                read_existing_framework_authority,
+            )
+            from literate_ai.adapters.project_layout_framework_transaction import (
+                apply_framework_authority,
+                journal_path,
+                recover_framework_authority,
+            )
+            from literate_ai.projects import ProjectConfigurationStore
+
+            if args.layout_command == "plan":
+                if not args.migration:
+                    raise ProjectLayoutPlanError(
+                        "framework_scope_conflict",
+                        "framework authority placement requires --migration",
+                    )
+                plan, selected = read_existing_framework_authority(
+                    project,
+                    **(
+                        {"approved_references": approved_references}
+                        if approved_references
+                        else {}
+                    ),
+                )
+                try:
+                    return plan
+                finally:
+                    close_observed_framework_selection(selected)
+            if not args.acknowledge:
+                raise ProjectLayoutPlanError(
+                    "acknowledgement_required",
+                    "acknowledge the exact framework authority migration plan",
+                )
+            if args.layout_command == "renew":
+                from .layout_framework_renewal import renew_framework_from_args
+
+                return renew_framework_from_args(args)
+            if args.layout_command == "recover":
+                # Recovery owns exact original native facts, even while the
+                # manifest is backed up. Do not reconstruct a live source owner.
+                root = project.absolute()
+                require_safe_directory(journal_path(root, args.plan_identity))
+                with ProjectConfigurationStore.layout_lock(root):
+                    return recover_framework_authority(root, args.plan_identity)
+            snapshot = ProjectConfigurationStore.discover(project)
+            if (
+                snapshot is None
+                or ProjectConfigurationStore.context(snapshot.root).framework_root
+                != snapshot.root / "litai"
+            ):
+                raise ProjectLayoutPlanError(
+                    "framework_migration_profile",
+                    "framework authority requires existing contained project metadata",
+                )
+            with ProjectConfigurationStore.layout_lock(snapshot.root):
+                plan, selected = read_existing_framework_authority(
+                    snapshot.root,
+                    **(
+                        {"approved_references": approved_references}
+                        if approved_references
+                        else {}
+                    ),
+                )
+                try:
+                    return apply_framework_authority(selected, args.plan_identity)
+                finally:
+                    close_observed_framework_selection(selected)
+        if args.layout_command == "apply":
+            return apply_legacy_layout_migration(
+                project,
+                args.plan_identity,
+                acknowledge=args.acknowledge,
+                references=tuple(args.rewrite_reference),
+                place_forward_skills=args.place_forward_skills,
+                place_imported_catalogs=args.place_imported_catalogs,
+                place_release_policy=args.place_release_policy,
+            )
+        if args.layout_command == "recover":
+            return recover_legacy_layout_migration(
+                project,
+                args.plan_identity,
+                acknowledge=args.acknowledge,
+                **(
+                    {"successor_plan_identity": args.successor_plan_identity}
+                    if getattr(args, "successor_plan_identity", None) is not None
+                    else {}
+                ),
+            )
+        if args.migration:
+            return plan_legacy_layout_migration(
+                project,
+                tuple(args.rewrite_reference),
+                place_forward_skills=args.place_forward_skills,
+                place_imported_catalogs=args.place_imported_catalogs,
+                place_release_policy=args.place_release_policy,
+            )
+        if (
+            args.rewrite_reference
+            or args.place_forward_skills
+            or args.place_imported_catalogs
+            or args.place_release_policy
+        ):
+            raise ProjectLayoutPlanError(
+                "reference_authority",
+                "reference and Skill placement require --migration",
+            )
+        return plan_project_layout(project)
+    except (ProjectLayoutPlanError, ProjectError, ProjectUpdateError) as exc:
+        raise CliFailure(exc.code, str(exc)) from exc
+    except (OSError, ValueError, RuntimeError) as exc:
+        raise CliFailure(
+            "project.layout.invalid",
+            "project containment inputs could not be inspected safely",
+        ) from exc
+
+
 def agent_entrypoints_from_args(args) -> dict[str, Any]:
     """Audit owned delegates without changing source or adoption authority."""
     from literate_ai.adapters.agent_entrypoints import audit_agent_entrypoints
@@ -1319,6 +1543,12 @@ def project_test_receipt_from_args(args) -> dict[str, Any]:
 
         return publish_evidence_from_args(args)
 
+    if args.test_receipt_command == "promote-retained":
+        from literate_ai.adapters.readonly_authority import strict_readonly_authority
+
+        with strict_readonly_authority():
+            return _project_test_receipt_from_args(args)
+
     if args.test_receipt_command in {"run-retained", "update"}:
         from literate_ai.adapters.lifecycle_lock import (
             ProjectLifecycleLockError,
@@ -1340,13 +1570,13 @@ def project_test_receipt_from_args(args) -> dict[str, Any]:
 def _project_test_receipt_from_args(args) -> dict[str, Any]:
     selected = Path(args.project)
     try:
-        authority_options = (
-            {"synchronize_source_intelligence": False}
+        project_revision_identity = (
+            adapter_project_authority_identity(
+                selected,
+                synchronize_source_intelligence=False,
+            )
             if args.test_receipt_command == "promote-retained"
-            else {}
-        )
-        project_revision_identity = adapter_project_authority_identity(
-            selected, **authority_options
+            else adapter_project_authority_identity(selected)
         )
     except ProjectValidationError as exc:
         raise CliFailure(exc.code, exc.message) from exc
@@ -1648,6 +1878,19 @@ def parent_checkout_from_args(args) -> dict[str, Any]:
         raise CliFailure(exc.code, exc.message) from None
 
 
+def project_ci_verify_from_args(args) -> dict[str, Any]:
+    """Observe the base policy's native CI contract without executing jobs."""
+    from literate_ai.adapters.native_ci import NativeCIError, verify_project_ci
+    from literate_ai.adapters.original_project_adoption import (
+        OriginalProjectAdoptionError,
+    )
+
+    try:
+        return verify_project_ci(Path(args.path), pull_request=args.pr)
+    except (NativeCIError, ProjectError, OriginalProjectAdoptionError) as exc:
+        raise CliFailure(exc.code, exc.message) from exc
+
+
 __all__ = [
     "agent_entrypoints_from_args",
     "PROJECT_INITIALIZATION_SCHEMA",
@@ -1658,7 +1901,9 @@ __all__ = [
     "parent_checkout_from_args",
     "parent_readme_from_args",
     "project_ci_plan_from_args",
+    "project_ci_verify_from_args",
     "project_guidance_from_args",
+    "project_layout_from_args",
     "project_peer_work_from_args",
     "project_source_intelligence_from_args",
     "project_test_receipt_from_args",

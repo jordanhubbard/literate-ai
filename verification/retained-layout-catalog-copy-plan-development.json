@@ -1,0 +1,144 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Read-only exact local catalog-copy input plan; required precursor to actual application and live imported-role ownership, not complete catalog ownership or retained-layout acceptance",
+  "base_commit": "a21007acfddc62450fcb9798a08e0154fb458035",
+  "subjects": {
+    "src/literate_ai/adapters/catalog_copy_plan.py": {
+      "algorithm": "sha256",
+      "digest": "a4c5b82e1c2f363799bd6db4784ba025bbe8caa383be07ca6d94b9ee81a35122"
+    },
+    "src/literate_ai/adapters/catalog_import.py": {
+      "algorithm": "sha256",
+      "digest": "e66a1bf858546f7163332fc666a3ff2d51bf953aedc8576226f3d0ca829ca1f8"
+    },
+    "tests/critical/test_catalog_copy_plan.py": {
+      "algorithm": "sha256",
+      "digest": "bb5c6bef62ecaad18d80da51d63badf4bf5d1e4cb4bc65ecf086f1445340fa51"
+    }
+  },
+  "behavior": [
+    "Describe the complete destination namespace and each exact selected local catalog source tree with no framework labels or exclusions; retain unknown members, modes and complete internal aliases/hardlinks.",
+    "Use actual canonical selectors and project/DAG/import/initialization-origin readers through optional bounded observations; preserve ordinary copy defaults and typed destination errors.",
+    "Charge complete censuses, source/DAG/code snapshots, decoded inventory records, selected configuration, reread buffers and serialized descriptive plan into explicit shared allowances. Reject exhausted allowances before additional bounded reads and typed catalog population.",
+    "Bind exact raw source project identity, selected items, overwrite request, selector mapping, namespace/native identities, metadata/absence and ancestry facts. Return frozen observations and a detached deterministic document with no copy or role capability.",
+    "After complete payload rereads, finish every namespace traversal, then close original metadata, known nodes, directory stamps and ancestors across the entire plan without a later enumeration. Preserve intervening state on refusal.",
+    "Hash the same original initialization-origin bytes parsed by the canonical source ancestry reader, instead of rereading them independently for its identity."
+  ],
+  "affected_suite": {
+    "modules": [
+      "tests.critical.test_catalog_copy_plan",
+      "tests.smoke.test_catalog_import",
+      "tests.e2e.test_repository_catalogs",
+      "tests.e2e.test_retained_catalog_discovery"
+    ],
+    "selected": 37,
+    "passed": 37,
+    "skipped": 0,
+    "seconds": 13.979,
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "7be2e6743afa81030e2739921d5f6b5444649ed9b1c7cb1b5275be8852987a76"
+    }
+  },
+  "make_python_check": {
+    "scope": "Managed Make environment, compileall/host-path checks and all20 maintained planning methods; no full-suite claim",
+    "selected": 20,
+    "passed": 20,
+    "skipped": 0,
+    "seconds": 0.37,
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "1f9e8373a0a3eaf9dbf3357022d93218125d4c9eada7019b4589d89d1f533369"
+    },
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "f57a31eb1442ff17160028133d0655cfba99d2f77e1fb294c03bd22950386bc6"
+    }
+  },
+  "static_checks": {
+    "commands": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check"
+    ],
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "3ab6817c05640a0c529f61aaa6c83539ecfc3af71fba2192186cfa15f71cf26c"
+    }
+  },
+  "independent_review": {
+    "decision": "approved_at_exact_read_only_scope",
+    "report": {
+      "path": "independent-layout-catalog-copy-plan-closing-review.json",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "e9a952aab4eb0311349ce1132412680efc0611fa3aee0bd53ef03bfd6d9928b2"
+      }
+    },
+    "predecessor": {
+      "path": "independent-layout-catalog-copy-plan-review.json",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "bc439b5e9f4ab9e065759555da824c04f56f1752de00bfe6525cfc7fc17b0c89"
+      },
+      "decision": "changes_requested"
+    },
+    "executed": [
+      {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_plan tests.smoke.test_catalog_import tests.e2e.test_repository_catalogs tests.e2e.test_retained_catalog_discovery",
+        "result": "37 passed,0 failed,0 errors,0 skipped,14.617s;20 maintained+17 ordinary regressions",
+        "terminal_exit": 0,
+        "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-independent-cohort.log"
+      },
+      {
+        "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-probe.py",
+        "result": "Exact unchanged independent2 predecessor controls pass,0 failures/errors/skips,0.069s",
+        "terminal_exit": 0,
+        "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-independent-original.log"
+      }
+    ],
+    "resolved": [
+      {
+        "id": "CATALOG-COPY-PLAN-CLOSING-001",
+        "status": "closed_in_exact_reviewed_bytes",
+        "evidence": "All _close_tree enumerations finish before _close_known_inputs closes original metadata/absence/anchors plus all census original native entry/root stamps globally files-first/deepest-directories/root-last. No payload/enumeration follows. Both unchanged independent predecessor controls pass."
+      }
+    ]
+  },
+  "causal_history": {
+    "finding": "CATALOG-COPY-PLAN-CLOSING-001",
+    "original_independent_result": "Two actual changes after final selected-source traversal (source project metadata rewrite and unknown destination insertion) were accepted; 2 failures in0.073s.",
+    "maintained_before_repair": {
+      "selected": 2,
+      "failed": 2,
+      "seconds": 0.078,
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "f9e46c248fb5cfd7453539adf10fcb8f4d8f52b026cc184df4106229880173aa"
+      }
+    },
+    "original_independent_probe_after_author_repair": {
+      "selected": 2,
+      "passed": 2,
+      "seconds": 0.071,
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "d3560b69eae7f7cfb2c3ebd1a277f8d65338b378b697895ef78e20a05aabdce6"
+      }
+    },
+    "independent_final_result": "Both original controls passed unchanged in0.069s; exact final37-method independent cohort passed in14.617s."
+  },
+  "limitations": [
+    "No actual copy, overwrite retirement, source exclusion/ownership, live handoff, CLI, network acquisition or recovery is enabled by this plan.",
+    "Each selected source item is currently observed as its own complete closed tree. Cross-item topology/projection, actual alias-copy transformations and overlapping effect sequences remain required future application work.",
+    "All item kinds use the canonical selector mapping, but the final effect/installed/platform acceptance matrix remains open.",
+    "Saved plans and provenance rows are descriptive data; they cannot reconstruct actual application ownership or qualify historical producer authenticity.",
+    "Only local managed editable-source POSIX/macOS evidence is retained. Noneditable/wheel, native Linux/Windows/cross-platform, complete source, integration, release and full roadmap acceptance remain open.",
+    "Authored metadata roles, durable historical update ownership, root/shared/initial/wrapper movement and complete public recovery remain required.",
+    "No continuous atomic snapshot against hostile same-user mutation is claimed. Full configured test receipt is not renewed by this scoped evidence."
+  ]
+}

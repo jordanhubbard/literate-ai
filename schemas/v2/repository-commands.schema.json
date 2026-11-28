@@ -25,12 +25,16 @@
       "additionalProperties": false,
       "required": ["schema", "path", "state", "current_identity", "expected_identity"],
       "properties": {
-        "schema": {"const": "literate-ai/repository-lock-check@1"},
-        "path": {"const": ".literate/repository.lock.json"},
+        "schema": {"enum": ["literate-ai/repository-lock-check@1", "literate-ai/repository-lock-check@2"]},
+        "path": {"enum": [".literate/repository.lock.json", "litai/.literate/repository.lock.json"]},
         "state": {"enum": ["missing", "current", "stale"]},
         "current_identity": {"$ref": "#/$defs/nullableIdentity"},
         "expected_identity": {"$ref": "#/$defs/identity"}
-      }
+      },
+      "oneOf": [
+        {"properties": {"schema": {"const": "literate-ai/repository-lock-check@1"}, "path": {"const": ".literate/repository.lock.json"}}},
+        {"properties": {"schema": {"const": "literate-ai/repository-lock-check@2"}, "path": {"const": "litai/.literate/repository.lock.json"}}}
+      ]
     },
     "components": {
       "type": "array",

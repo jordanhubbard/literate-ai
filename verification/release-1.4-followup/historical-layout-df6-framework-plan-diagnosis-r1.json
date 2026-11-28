@@ -1,0 +1,170 @@
+{
+  "schema": "literate-ai/independent-historical-framework-diagnosis@1",
+  "phase": "Read-only actual installed df6 refusal diagnosis plus dirty source repair review; no new plan/apply or project mutation",
+  "installed_candidate": {
+    "source_revision": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+    "wheel_sha256": "2067d7cce561c7b6546e3cc8c4d10c91a593a20883062d9bb0ee39fed3b064cc",
+    "prefix": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/literate-wheel-smoke-qfzn8746/environment",
+    "acceptance": "Provisional wheel; no full wheel/release acceptance claim"
+  },
+  "public_refusals": {
+    "root": {
+      "json": {
+        "sha256": "e65bcac42ed205adb46b7a78f1b0aa94a896ed035b7adfeff83136f483da7432",
+        "bytes": 569
+      },
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "sha256": "6dd6236639abf7b5309f0db1f31eb4ff314fd175c25904a1ed8dd00f1fafdf65",
+        "bytes": 218
+      },
+      "error": {
+        "command": "project.layout",
+        "error": {
+          "code": "project.layout.framework_source_unproven",
+          "message": "application/imported source cannot be adopted as initialized framework"
+        },
+        "ok": false,
+        "schema": "literate-ai/cli-error@1"
+      }
+    },
+    "descendant": {
+      "json": {
+        "sha256": "21ea95ce1ec75609dd35b0bdbab661b7fca25036c819bbeb3a96750cc051971f",
+        "bytes": 618
+      },
+      "stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "sha256": "6dd6236639abf7b5309f0db1f31eb4ff314fd175c25904a1ed8dd00f1fafdf65",
+        "bytes": 218
+      },
+      "error": {
+        "command": "project.layout",
+        "error": {
+          "code": "project.layout.framework_source_unproven",
+          "message": "application/imported source cannot be adopted as initialized framework"
+        },
+        "ok": false,
+        "schema": "literate-ai/cli-error@1"
+      }
+    }
+  },
+  "finding": {
+    "severity": "P1 integration blocker",
+    "owner": "src/literate_ai/adapters/project_layout_initialized_items.py",
+    "lines": "76-100 frozen fallback; guard at project_layout_framework_source_proofs.py:184 is correct",
+    "cause": "Fallback inventory invokes original initialized-file proof issuer for a managed catalog manifest without first excluding original imported/protected source coordinates. Ingress already excludes both. Equal baseline/resource/current bytes do not issue framework ownership over an imported payload.",
+    "actual_first_candidate": {
+      "logical": "components/document-pair/component.md",
+      "source_path": "litai/components/document-pair/component.md",
+      "protected_membership": false,
+      "imported_membership": true,
+      "identity": "sha256:4a351ce67fee19439f468f02bc4798d5cd567e1991547f26fd70eccf97d1e126",
+      "scope": "Pure selection replay only; stub issuer records first request and creates no source proof/plan/owner. Actual protected-membership false is independently implied by ingress protecting only original implementation prefix."
+    },
+    "actual_import_joins": {
+      "imports": [
+        {
+          "kind": "component",
+          "name": "document-pair",
+          "source": {
+            "project_id": "literate-ai",
+            "project_identity": "sha256:44ba766f953b36b43cdae851bcc72179c82a09dd1ea866b30102ab465f9477d0",
+            "ref": "git:https://github.com/jordanhubbard/literate-ai.git@87506c804210c46835723e11d1ca1c6cae0f496c",
+            "schema": "literate-ai/catalog-import-source@1",
+            "transitive_ancestors": []
+          },
+          "files": [
+            {
+              "identity": "sha256:4a351ce67fee19439f468f02bc4798d5cd567e1991547f26fd70eccf97d1e126",
+              "path": "litai/components/document-pair/component.md"
+            }
+          ]
+        }
+      ],
+      "decisions": [
+        {
+          "kind": "component",
+          "name": "document-pair",
+          "source": {
+            "project_id": "literate-ai",
+            "project_identity": "sha256:44ba766f953b36b43cdae851bcc72179c82a09dd1ea866b30102ab465f9477d0",
+            "ref": "git:https://github.com/jordanhubbard/literate-ai.git@87506c804210c46835723e11d1ca1c6cae0f496c",
+            "schema": "literate-ai/catalog-import-source@1",
+            "transitive_ancestors": []
+          },
+          "files": [
+            {
+              "identity": "sha256:4a351ce67fee19439f468f02bc4798d5cd567e1991547f26fd70eccf97d1e126",
+              "path": "litai/components/document-pair/component.md"
+            }
+          ]
+        }
+      ]
+    },
+    "protected_membership": false,
+    "protected_membership_basis": "Actual ingress protects original retained implementation prefix; candidate is under litai/components/document-pair, outside that prefix.",
+    "tracker": "Existing open #481 prerequisite; also blocks actual #499 historical journey acceptance"
+  },
+  "preservation": {
+    "baseline_sha256": "660e305f6275ced9a8c1414d43d75499566581124c6fa37f2eefc9bedbad337b",
+    "result": {
+      "files": {
+        "before_count": 613,
+        "after_count": 613,
+        "added": [],
+        "removed": [],
+        "changed": []
+      },
+      "directories": {
+        "before_count": 471,
+        "after_count": 471,
+        "added": [],
+        "removed": [],
+        "changed": []
+      },
+      "Git": {
+        "before_count": 3,
+        "after_count": 3,
+        "added": [],
+        "removed": [],
+        "changed": []
+      }
+    }
+  },
+  "repair_review": {
+    "source_sha256": "cab9515969007b787f4b9e23860d1aefa580c2f098d651007e20b20e821b1ea4",
+    "test_sha256_observed": "134829d4c1f7d9511f5a3f0ffa2bbef3adcb5fb4f2aa3dc538c295fc0a1e56aa",
+    "source_delta": "Two-line source-coordinate membership exclusion immediately after unique original/contained coordinate selection and before baseline lookup/proof issuance. No changes to source-proof guard, bytes, ambiguity rule or custody.",
+    "assessment": "Source/regression closing review complete for diagnosed inventory fallback defect. No further actionable source finding. Actual new installed historical root/descendant journey remains to be exercised separately.",
+    "test_status": "Independent latest focused r5 test PASS: 1 method,4subcases (root/contained x imported/protected),0.337s; original broader cohort remains parent-owned.",
+    "required_test_adjustment": "Completed: exact source exclusions in public placements and private rewritten outputs, exact captured-original preservation, both coordinates and both exclusion sets, unrelated SKILL target equals clean-selection baseline. New incorrect assumptions about full original_contents and identity coordinate_map removed; original existing assertions unchanged.",
+    "regression_cuts": [
+      "Both imported and protected actual source paths skipped without proof issuance; unrelated legitimate SKILL placement/target identical to control selection",
+      "Both legacy-root and contained catalog manifest coordinates",
+      "Preserve direct issuer imported/protected refusal and old/contained uniqueness rule",
+      "After source-only closure, actual new noneditable installed root/descendant public plans must be exercised separately on preserved historical project; no such retry performed here"
+    ],
+    "focused_log": {
+      "path": "review-runtime-inventory-exclusion-focused-r5.log",
+      "sha256": "f8e1eb8cf6023257de9608657de05d6905579d2c7e98798bdd7f3b2739f7a8ba"
+    }
+  },
+  "evidence": {
+    "historical-df6-inventory-fallback-pure-replay-r1.json": "952a669424950bfc183d86346746ec033f3eabead1df6815d6d9b46da1514ae9",
+    "historical-df6-framework-preservation-check-r1.json": "5d7ff7f5a1e01577175ab6cd933ba7d5a77094be073ede6f602dbb62bf6f0057",
+    "historical-layout-framework-before-facts-r1.json": "660e305f6275ced9a8c1414d43d75499566581124c6fa37f2eefc9bedbad337b"
+  },
+  "limits": [
+    "Pure fallback replay stubs issuer only to record first request; creates no proof, owner, plan, writer or native acceptance.",
+    "No project/source/marker/Git mutations or new public plan calls by reviewer.",
+    "Original6 native payloads included in exact613-file checks; all471 directory facts and all3 rawGitfacts also unchanged.",
+    "Catalog remains partial with12 held blockers; full historical framework/lifecycle/native generation journey remains open."
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "schema": "independent-source-review@1",
+  "reviewer": "single authorized independent reviewer",
+  "decision": "changes_requested_for_additional_planner_guard",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "6a600e7711db6bd3ea1ed20270430ddfa823a668",
+  "scope": "Read-only catalog protection preflight and existing actual source partition/planner nested-project candidate refusal. No new effects or publication.",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_protection.py",
+      "sha256": "ef19e063c542e512aa7b2bd11b832dba6b5412d485f07c7bc3000d478fc9f5a7"
+    },
+    {
+      "path": "src/literate_ai/adapters/bounded_role_observation.py",
+      "sha256": "f6c2eb49244b3d2f9281d4cbb38169b11afd82fcf2f439b1dba4baf225173432"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "d466bd32144f2dbc6dbdbe42610acf8d19b9348982c9888dd9a7f84fe59542dd"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_control_roles.py",
+      "sha256": "cb0c3712e7a88a5b7cfcc0ee9e8ec87051a8a51c340b068387b5b13c3f6a6243"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_protection.py",
+      "sha256": "739b0b5d008463de2245541cf6d69c9abefab138683a6455f0d671affc9320fe"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_ownership.py",
+      "sha256": "3bba4fe05d0ef80865c8f5965baa9734a7b7ecd0c922f7d2a447bf794ea7bafd"
+    },
+    {
+      "path": "tests/critical/test_retained_layout_ownership.py",
+      "sha256": "5417a1d09f326c5e6ebcc272b96308c77f196030d003586a10c9b67989ed16a6"
+    }
+  ],
+  "preserved_records": [
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-catalog-protection-review.json",
+      "sha256": "02b7e3e88951f589bb9605adb32ae1253a0d70a9d7e2740fa4b644f99567d7f7",
+      "unchanged_verified": true
+    },
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-catalog-protection-rereview.json",
+      "sha256": "0a936bf1a826d4af6afb74eb3ba500f98d8479038fc91945ce3b7d87c2b9b386",
+      "unchanged_verified": true
+    },
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-catalog-protection-teardown-clarification.json",
+      "sha256": "2389eed72c3fb7dcd7b37b316aa778d7bfec7a41821c3050bab24f187e77efc6",
+      "unchanged_verified": true
+    },
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-nested-project-candidate-addendum.json",
+      "sha256": "0b7af2734062c2dc946c7f9426c53f324923680dd8dcf76d24c290a78eccd746",
+      "unchanged_verified": true
+    }
+  ],
+  "resolved": [
+    {
+      "id": "NESTED-PROJECT-CANDIDATE-CASE-003",
+      "status": "closed_at_two_originally_reported_locations",
+      "evidence": "Protection and full-partition predicates now casefold sentinel basenames, exclude top-level own-root parent and preserve actual registered-child exemption/separate framework validation. Four added maintained cases pass, including both native canonical-alias positives without skips."
+    },
+    {
+      "id": "CATALOG-PROTECTION-PHYSICAL-001",
+      "status": "previous_repair_preserved",
+      "evidence": "Portable original-prefix/native receipt checks remain in current protection module and pass maintained coverage."
+    },
+    {
+      "id": "CATALOG-PROTECTION-CLOSING-002",
+      "status": "previous_repair_preserved",
+      "evidence": "Stage known-fact close remains after linked-Git ownership traversal; maintained actual worktree ordering control passes."
+    }
+  ],
+  "findings": [
+    {
+      "id": "NESTED-PROJECT-PLANNER-LEAVES-004",
+      "severity": "blocking_for_source_candidate_assurance",
+      "status": "open",
+      "evidence_kind": "additional source finding; no bespoke reproduction",
+      "locations": [
+        "retained_layout_transaction.plan_retained_layout_source_move:360",
+        "retained_layout_transaction._validate_plan_roles:471"
+      ],
+      "reason": "Both source guards test exact Path(name).name == PROJECT_FILENAME only over tree.files. Portable-case sentinel spellings are missed. Canonical hardlink alias leaves are also omitted when the manifest's original name is represented in tree.aliases rather than tree.files.",
+      "impact": "The source-phase API permits a source move without complete_partition unless bound to a framework update. Therefore fixes in full-partition classification alone cannot cover this route; both planning and role revalidation need the complete portable candidate leaf rule.",
+      "required_change": [
+        "Use a shared portable sentinel leaf helper covering both actual regular file names and captured alias names, then use it in both transaction guards and whole-project protection/partition rules as appropriate.",
+        "Do not apply whole-project own-root exclusion indiscriminately: the selected-source tree root is already nested in the overall project, so a manifest at that source tree's relative root must still trigger planner refusal.",
+        "Keep exact framework-role validation and actual registered-child semantics separate from candidate detection.",
+        "Keep the full-partition negative fixture outside selected source when needed so the planner's earlier refusal does not mask partition-classifier coverage."
+      ],
+      "execution_limit": "No source-plan case/alias probe was executed. This finding is based on exact current source and actual optional complete-partition control flow."
+    }
+  ],
+  "source_assessment": [
+    "Reviewed both repaired predicates and four maintained methods; verified exact seven source/test hashes. Actual own-root and registered-child canonical case-alias positives executed on this host rather than skipping.",
+    "Casefold candidate detection grants no independent or framework role; names remain conservative refusal triggers. Separate framework exact-name validation is unchanged.",
+    "After a further user-requested read-only search, inspected the two additional transaction guards and confirmed their exact-file-only predicates. This prevents overall candidate-assurance approval despite all maintained tests passing.",
+    "Prior read-only teardown clarification remains valid and is not superseded by this additional planner finding."
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_protection tests.critical.test_retained_layout_ownership",
+      "result": "50 passed,0 failures/errors/skips,70.774s;21 protection+29 ownership",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-protection-final-independent-cohort.log",
+      "log_sha256": "1fa9b64af6ccacc453cc30d630bbaa9dd862154bcca60fb5fd126de5f3d99c7d"
+    }
+  ],
+  "terminal_process_state": "Independent47184 terminal exit0. No further tests, bespoke probes or reproduction scripts launched. Author original-source gates not relabeled.",
+  "acceptance_limits": [
+    "No final overall candidate-protection approval until additional planner guard finding is closed.",
+    "Actual catalog receiver transfer/publication/overwrite retirement/imported-role join, root/shared/initial/wrapper cells and full-feature/platform/installed/program/release acceptance remain pending.",
+    "Local maintained editable-source POSIX/macOS evidence only. No exhaustive filesystem Unicode/case behavior or continuous hostile same-user atomic snapshot claim.",
+    "No implementation/test/pin edits, installs, subagents, network or external posts. Only this new immutable report written; all earlier records preserved."
+  ]
+}

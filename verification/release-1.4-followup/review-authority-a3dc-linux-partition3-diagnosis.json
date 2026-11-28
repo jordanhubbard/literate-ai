@@ -1,0 +1,26 @@
+{
+  "status": "both_exact_head_linux_first_failures_diagnosed",
+  "revision": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+  "run": 45980368875,
+  "cases": [
+    {
+      "job": 140442966659,
+      "python": "3.11",
+      "log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-a3dc-linux311-partition3.log",
+      "summary": "97cases1failure12.733seconds"
+    },
+    {
+      "job": 140442966378,
+      "python": "3.14",
+      "log": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/ci-a3dc-linux314-partition3.log",
+      "summary": "98cases1failure19.927seconds"
+    }
+  ],
+  "first_and_only_failed_case": "EvidenceNativeReadTests.test_windows_handle_composition_model",
+  "source": "tests/critical/test_remote_evidence_native_reads.py215",
+  "chain": "self.copy ->remote_execution._copy_evidence_tree ->evidence_files.copy_evidence_files ->WindowsAccess.__init__._hold ->model.open_reparse_aware assertsFalse(share_write) forDIRECTORY",
+  "cause": "Stale fixture expectation after independently reviewed and actual native-supported directory write sharing repair. Original leaf readers stilldenywrite. No production regression evidenced at this first seam.",
+  "bounded_repair": "Retain assertFalse(share_delete) forALLoriginalopens. After existing node=Path(path).lstat(), require share_write == stat.S_ISDIR(node.st_mode), enforcingdirectoryTrue/leafFalse. Preserve originalnativehandleownership/transfer/closure/copybytes assertions and full test. No productionchange/deadline/retry/skip.",
+  "source_sha256": "2488d4e85593daf67d5fcc1878c15a6698efba9c049a8885ac9324295a4bfae2",
+  "limits": "Log/source diagnosisonly. No reviewer source edits or qualification reruns; twooriginalfailedlogs retained raw+ANSIstripped boundedlines."
+}

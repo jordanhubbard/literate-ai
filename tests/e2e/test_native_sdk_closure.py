@@ -19,6 +19,7 @@ from literate_ai.adapters.lifecycle import (
 )
 from literate_ai.adapters.lifecycle.standard_runtime import (
     STANDARD_PYTHON_SDK_RUNTIME_DRIVER,
+    STANDARD_PYTHON_SDK_SUPPORT,
 )
 from literate_ai.adapters.native_sdk_package_scope import NativeSdkPackageExecutionScope
 from literate_ai.adapters.native_sdk_qualification import (
@@ -93,6 +94,7 @@ def runtime_contract(contract):
                     "-B",
                     "-c",
                     STANDARD_PYTHON_SDK_RUNTIME_DRIVER,
+                    STANDARD_PYTHON_SDK_SUPPORT,
                     "{native_sdk_inputs}",
                     "{artifact_root}",
                     "{export_path}",

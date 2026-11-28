@@ -78,13 +78,26 @@ def retained_sdk_metadata_closure(
                 "literate-ai/native-sdk-command-execution@2",
                 "literate-ai/native-sdk-command-execution@4",
                 "literate-ai/native-sdk-command-execution@5",
+                "literate-ai/native-sdk-command-execution@6",
             }
         )
-        if execution["schema"] == "literate-ai/native-sdk-command-execution@5":
+        if execution["schema"] in {
+            "literate-ai/native-sdk-command-execution@5",
+            "literate-ai/native-sdk-command-execution@6",
+        }:
             observations = execution["retained_sdk_runtime_observations"]
             require(type(observations) is list and len(observations) <= maximum_records)
             for observation in observations:
                 blob(observation["observation"])
+        if execution["schema"] == "literate-ai/native-sdk-command-execution@6":
+            dependencies = execution["retained_acceptance_dependencies"]
+            require(
+                type(dependencies) is dict
+                and set(dependencies) == {"dependency", "filesystem_dependency"}
+            )
+            identified(dependencies["dependency"])
+            if dependencies["filesystem_dependency"] is not None:
+                identified(dependencies["filesystem_dependency"])
         embedded(execution["request"])
         embedded(execution["authorization"])
         for dependency in execution["dependencies"]:

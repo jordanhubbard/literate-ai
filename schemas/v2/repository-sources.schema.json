@@ -34,6 +34,7 @@
         "revision_selector": { "$ref": "urn:literate-ai:schema:v1:repository-source-contracts#/$defs/selector" },
         "dependency_kind": { "enum": ["generation", "build", "runtime", "validation", "toolchain", "packaging", "deployment"] },
         "optional": { "type": "boolean" },
+        "allow_internal_symlinks": { "type": "boolean" },
         "integration_contract": { "oneOf": [{ "$ref": "urn:literate-ai:schema:v1:content-reference" }, { "type": "null" }] }
       }
     },

@@ -24,6 +24,21 @@ incomplete recovery and does not clear the root namespace, preserving concurrent
 files as well as changed quarantined inputs.
 Existing multi-root staging and receipt behavior is unchanged.
 
+Native commands own outputs in their original private execution workspace until
+the original completion boundary closes them. Cleanup can retire a complete
+hardlink group only when every link belongs to that workspace. It keeps an
+original file descriptor and verifies exact bytes and metadata around its own
+unlinks before accounting for the resulting peer link-count/change-time updates.
+Changed bytes, redirected names or external peers cause preservation and refusal;
+a saved path or failed runtime cannot issue fresh cleanup authority.
+
+Retained planning binds its single release-policy input to the same declared
+coordinate as the existing release owner. Its exact raw identity and repeated
+custody checks apply at root and contained locations. Equal bytes at another path
+cannot replace configured authority, and a root policy cannot shadow a contained
+policy. The release owner's initialization/conversion eligibility checks remain
+part of the read.
+
 Files beneath a selected root belong to that Component. Every remaining captured
 source file requires exactly one `shared_sources` assignment: `path` (a file or
 directory prefix), `owner` (Component name), and explicit `consumers` (other Component
@@ -128,3 +143,48 @@ The implementation is `adapters/monorepo_components.py`: `stage_monorepo_compone
 `check_component_retained_receipt`, plus `check_monorepo_retained_receipts` for the
 complete boundary set. These are internal integration APIs, not new
 CLI commands or a substitute for completing #365's adoption transaction.
+
+## Declared retained layouts
+
+For a project with a current retained-layout declaration, installed Component
+inspection resolves source through that declaration and current project/conversion
+authority. A layout-bound installation uses
+`literate-ai/monorepo-component-installation@2` and records
+`retained_layout_identity`. Its source coordinate and declaration identity must
+match the actual current layout. A historical installation is stale even when its
+Component input bytes happen to be unchanged; inspection does not execute or
+repair it. Undeclared projects retain their existing `@1` installation schema.
+
+Acknowledged refresh can locate structurally current source before overall retained
+readmission. It reuses the verified boundary selection and executes every selected
+Component when the layout binding changed, then publishes a new installation bound
+to that declaration. Component receipts remain retained boundary evidence; this
+operation grants no whole-project parity, native authority or fresh project receipt.
+Pending relocation, changed layout/source/project inputs or intervening installed
+payload edits refuse. Publication guards run after private temporary output is
+flushed and before replacement; final inspection closes original known facts.
+Installed inspection retains the complete consumed bundle, receipt and projection
+file set through its final layout read. Refresh retains those original file facts
+across execution and transfers them, including the same original parent ancestry,
+to the replacement writer. An intervening edit or substituted parent cannot become
+a later accepted baseline. Initial publication closes its known
+written outputs after validation within its ordinary rollback span.
+Ordinary failure restores only still-owned bytes. Full root/initial/wrapper/public
+relocation and installed/native acceptance remain under ADR 0057's open owner.
+
+## Authored authority during harness readmission
+
+Retained-harness readmission preserves existing shim files byte for byte, except
+for one unambiguous generated baseline-summary paragraph in the wrapper
+Component. The plan exposes the summary's before/after facts. Missing or duplicate
+summaries refuse before execution; quoted Markdown examples do not grant ownership.
+The same rule applies to legacy and contained scaffold coordinates.
+
+Referenced specifications, interfaces, contracts, Flavors, workflows and routing
+remain pinned through qualification and publication. The authority comparison
+excludes only this operation's declared outputs, and recording the updated review
+binds both the expected authority identity and the original review-document bytes.
+The current publication journal guards every replacement. A late owner edit,
+deletion or nonregular replacement remains untouched; retained originals and the
+reviewed plan remain available for explicit acknowledged recovery. Readmission
+does not grant specification or release authority.

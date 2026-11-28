@@ -1,0 +1,90 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "ab9b50d68f4314ec568fa4ccdcfca31208cc0a96",
+  "scope": "Internal actual normal nonroot POSIX local-source catalog provenance publication, retaining controls and refusing complete catalog application pending genuine finalization and imported-role handoff",
+  "subjects": {
+    "src/literate_ai/adapters/catalog_entry_publication.py": {
+      "algorithm": "sha256",
+      "digest": "10ab0f15c5161c96be310ab0982bda620f3cdef19314732d48defa8cfb5cb7c5"
+    },
+    "src/literate_ai/adapters/catalog_provenance_publication.py": {
+      "algorithm": "sha256",
+      "digest": "af7f28f3173deede82122d89a07035ff44b658c30e0929c5a87e9afdd40da560"
+    },
+    "tests/critical/test_catalog_provenance_publication.py": {
+      "algorithm": "sha256",
+      "digest": "421f5c3f20a4ff99e6457fd067984cda0d45be8e19164b9e4baf5a430171135f"
+    }
+  },
+  "behavior": [
+    "Prepare sealed canonical imports from genuine staged file receipts and canonical project/source ancestor/DAG observations before entry effects; derive local ref through canonical resolver, without claiming a Git source lease.",
+    "Preserve unrelated imports and inheritance decisions, immutable original metadata observation, one UTC timestamp, original retained inode/bytes and ordinary file permissions. Refuse linked or aliased original metadata.",
+    "Fund file receipts, canonical serialization, retained current-view payloads and all metadata journal events/storage within the original shared ledger and original journal policy before any public item effect.",
+    "Require actual registry-backed selected-item publications, original acknowledgement, actual writer/PID/thread/factory/control/journal admission and unspent metadata phase.",
+    "Write prospective bytes exclusively in private storage, fsync and verify them, journal exact intent, exclusively retain original metadata and publish prospective metadata. Advance only the live expected observation from verified native results and sealed bytes; retain original plan observations.",
+    "Close complete expected namespace/native/content views. Preserve foreign modifications and ambiguous endpoints without undo. Observe after context only until real stage teardown; no new effects after writer exit.",
+    "Continue refusing normal complete application pending control finalization and the genuine one-use imported-role/source-custody join; results/rows confer no roles."
+  ],
+  "final_affected_suite": {
+    "passed": 153,
+    "seconds": 165.023,
+    "skipped": 0,
+    "log_sha256": "45f3c02c6677710948445baabba63323400f1b748de42cfe04fa396082591494",
+    "modules": [
+      "tests.critical.test_catalog_provenance_publication",
+      "tests.critical.test_catalog_entry_publication",
+      "tests.critical.test_catalog_copy_staging",
+      "tests.critical.test_catalog_copy_protection",
+      "tests.critical.test_catalog_copy_plan",
+      "tests.critical.test_bounded_role_observation",
+      "tests.critical.test_retained_layout_control_roles",
+      "tests.critical.test_retained_layout_journal"
+    ]
+  },
+  "maintained_make": {
+    "pattern": "test_catalog_provenance_publication.py",
+    "passed": 9,
+    "seconds": 35.485,
+    "skipped": 0,
+    "log_sha256": "947cf1edf41a1ceb0ed37c9be3d5d03c7736a4cbfd1e38ce8d25d9b887fb5575",
+    "report_sha256": "38a8745181cb4b26a404a9ac22ba07e04c027108193319ebffbf8020052bf5af"
+  },
+  "independent_review": {
+    "path": "independent-layout-catalog-provenance-review.json",
+    "sha256": "fca3965433ae9af47c14efbac93ae8a2c9fbabd7c64c59172c5cf2e29a197543",
+    "decision": "approved_at_limited_scope",
+    "passed": 9,
+    "seconds": 35.551,
+    "skipped": 0,
+    "log_sha256": "8aa6811f777c12a0cdf2a64a5c4f08adf81e42cd2d46bfa1375f92725e7967d8"
+  },
+  "historical_author_test_error": {
+    "initial_methods": 6,
+    "errors": 1,
+    "cause": "New test accessed stage ledger cache before publication factory observed the absent metadata input; corrected test to use immutable original plan input. No product bypass.",
+    "log_sha256": "2ddfbb574641557246c2dfef9b3f006b93d845a89e29a8425088ec81bd60197e"
+  },
+  "open_requirements": [
+    "Authentic Git source checkout lease and reference admission",
+    "Genuine control finalization under same held descriptors and known effects",
+    "One-use live imported-role/source handoff",
+    "Cross-item topology and full root/shared/initial/wrapper placement",
+    "Public recovery, installed/native, full-program and release acceptance"
+  ],
+  "qualification": {
+    "feature_complete": false,
+    "imported_roles_granted": false,
+    "release_evidence": false
+  },
+  "checks": {
+    "driver_review": "PASS",
+    "runner_review": "PASS",
+    "lint": "PASS",
+    "format_check": "PASS (2004 files)",
+    "repository_layout": "PASS",
+    "public_export": "PASS",
+    "project_validate": "PASS",
+    "static_log_sha256": "eadccacfe925ebaee75f0f6bc35701536a3088a06b559ae090a4b8cc608d299c",
+    "validation_sha256": "a74f695ee9eb9768dbc53b573114e07316c1c079d2f2fefec5715911f3a2f8a9"
+  }
+}

@@ -7,6 +7,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import tempfile
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
@@ -14,7 +15,7 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 
 from literate_ai._cache_lock import CacheLockError, exclusive_cache_lock
-from literate_ai._filesystem import path_is_link_or_reparse
+from literate_ai._filesystem import path_is_link_or_reparse, stat_is_link_or_reparse
 from literate_ai.adapters.builders._process import (
     BoundedProcessResult,
     run_bounded_process,
@@ -43,6 +44,14 @@ _MAX_AUTHORITY_BYTES = 16 * 1024 * 1024
 _MAX_GIT_DIAGNOSTIC_BYTES = 8 * 1024 * 1024
 _MAX_CATALOG_FILES = 16_384
 _MAX_CATALOG_BYTES = 256 * 1024 * 1024
+_MAX_CACHE_OBJECT_ENTRIES = 131_072
+
+
+def _lineage_writer_lock_path(project_root: Path) -> Path:
+    """Canonical advisory endpoint shared by actual lineage writers and observers."""
+    return _metadata_path(Path(project_root), ".literate/repository-lineage.lock")
+
+
 _NON_FETCH_GIT_TIMEOUT_SECONDS = 120
 _SCP_REPOSITORY = re.compile(r"^(?P<user>[^/@:]+)@(?P<host>[^/:]+):(?P<path>.+)$")
 RepositoryGitProcessRunner = Callable[..., BoundedProcessResult]
@@ -219,7 +228,7 @@ class FilesystemRepositoryLineageStore:
                 "repository-lineage metadata root must be a directory",
             )
         metadata.mkdir(parents=True, exist_ok=True)
-        lock = metadata / "repository-lineage.lock"
+        lock = _lineage_writer_lock_path(self.root)
         try:
             with exclusive_cache_lock(lock):
                 current_selection = self._optional(REPOSITORY_PARENT_FILE)
@@ -288,7 +297,7 @@ class FilesystemRepositoryLineageStore:
                 "repository_lineage.concurrent_change",
                 "repository-lineage evidence disappeared before rollback",
             )
-        lock = metadata / "repository-lineage.lock"
+        lock = _lineage_writer_lock_path(self.root)
         try:
             with exclusive_cache_lock(lock):
                 current_selection = self._optional(REPOSITORY_PARENT_FILE)
@@ -453,16 +462,11 @@ class GitRepositorySnapshotProvider:
         self, reference: RepositoryParentReference
     ) -> ResolvedRepositorySnapshot:
         with self._locked_repository(reference.repository_url) as repository:
-            self._fetch(repository, reference)
-            revision = self._required_text(
-                repository,
-                "rev-parse",
-                "--verify",
-                "FETCH_HEAD^{commit}",
-                code="repository_lineage.revision_unavailable",
-            ).strip()
-        manifest = self._blob(repository, revision, _PROJECT_FILE)
-        parent = self._blob(repository, revision, REPOSITORY_PARENT_FILE)
+            revision = self._resolve_revision(repository, reference)
+        prefix, manifest = self._authority_manifest(repository, revision)
+        parent = self._authority_blob(
+            repository, revision, prefix + REPOSITORY_PARENT_FILE
+        )
         try:
             definition = parse_project_configuration(manifest)
         except ValueError as exc:
@@ -470,6 +474,7 @@ class GitRepositorySnapshotProvider:
                 "repository_lineage.authority_invalid",
                 f"repository project authority is invalid: {exc}",
             ) from exc
+        self._require_authority_location(definition, prefix)
         try:
             parent_selection = RepositoryParentSelection.from_dict(json.loads(parent))
         except (TypeError, ValueError, UnicodeError, json.JSONDecodeError) as exc:
@@ -505,11 +510,7 @@ class GitRepositorySnapshotProvider:
             ):
                 raise ValueError("unsafe update base path")
         with self._locked_repository(reference.repository_url) as repository:
-            present = self._run(
-                repository, "cat-file", "-e", reference.requested_revision + "^{commit}"
-            )
-            if present.returncode:
-                self._fetch(repository, reference)
+            self._resolve_revision(repository, reference)
             result = {}
             for path in paths:
                 try:
@@ -532,20 +533,13 @@ class GitRepositorySnapshotProvider:
             node.repository_url, node.resolved_revision
         )
         with self._locked_repository(node.repository_url) as repository:
-            self._fetch(repository, reference)
-            revision = self._required_text(
-                repository,
-                "rev-parse",
-                "--verify",
-                "FETCH_HEAD^{commit}",
-                code="repository_lineage.revision_unavailable",
-            ).strip()
+            revision = self._resolve_revision(repository, reference)
         if revision != node.resolved_revision:
             raise GitRepositoryLineageError(
                 "repository_lineage.revision_changed",
                 "exact repository revision changed during catalog resolution",
             )
-        manifest = self._blob(repository, revision, _PROJECT_FILE)
+        prefix, manifest = self._authority_manifest(repository, revision)
         if (
             ContentIdentity(HashAlgorithm.SHA256, hashlib.sha256(manifest).hexdigest())
             != node.project_identity
@@ -561,6 +555,7 @@ class GitRepositorySnapshotProvider:
                 "repository_lineage.authority_invalid",
                 f"repository project authority is invalid: {exc}",
             ) from exc
+        self._require_authority_location(definition, prefix)
         roots = tuple(
             sorted(
                 set(
@@ -687,7 +682,7 @@ class GitRepositorySnapshotProvider:
 
     def _ensure_repository(self, root: Path, key: str) -> Path:
         repository = root / f"{key}.git"
-        if repository.is_symlink():
+        if path_is_link_or_reparse(repository):
             raise GitRepositoryLineageError(
                 "repository_lineage.cache_unsafe",
                 "repository-lineage cache entry cannot be a symbolic link",
@@ -712,6 +707,123 @@ class GitRepositorySnapshotProvider:
             )
         return repository
 
+    def _resolve_revision(
+        self, repository: Path, reference: RepositoryParentReference
+    ) -> str:
+        requested = reference.requested_revision
+        if re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", requested):
+            self._require_local_object_store(repository)
+            present = self._run(repository, "cat-file", "-t", requested)
+            if present.returncode == 0 and present.stdout.strip() == b"commit":
+                revision = self._required_text(
+                    repository,
+                    "rev-parse",
+                    "--verify",
+                    requested + "^{commit}",
+                    code="repository_lineage.revision_unavailable",
+                ).strip()
+                if revision != requested:
+                    raise GitRepositoryLineageError(
+                        "repository_lineage.revision_changed",
+                        "cached commit differs from the exact requested object",
+                    )
+                return revision
+        # Mutable refs and absent exact objects still use the existing bounded
+        # transport. FETCH_HEAD is consumed only for this actual fetch.
+        self._fetch(repository, reference)
+        return self._required_text(
+            repository,
+            "rev-parse",
+            "--verify",
+            "FETCH_HEAD^{commit}",
+            code="repository_lineage.revision_unavailable",
+        ).strip()
+
+    def _require_local_object_store(self, repository: Path) -> None:
+        # Internal caches are direct bare stores. A shallow boundary is valid;
+        # borrowed object stores, partial clones and configuration delegation
+        # must not turn an exact local read into another authority or transport.
+        for relative in (
+            "HEAD",
+            "config",
+            "commondir",
+            "info",
+            "info/grafts",
+            "objects",
+            "objects/info",
+            "objects/info/alternates",
+            "objects/pack",
+        ):
+            if path_is_link_or_reparse(repository / relative):
+                raise GitRepositoryLineageError(
+                    "repository_lineage.cache_unsafe", "repository cache is redirected"
+                )
+        # Check backing entries, not just their parent directories. This reads
+        # bounded no-follow metadata, without rehashing historical blob content.
+        pending = [repository / "objects"]
+        observed = 0
+        try:
+            while pending:
+                with os.scandir(pending.pop()) as children:
+                    for child in children:
+                        observed += 1
+                        if observed > _MAX_CACHE_OBJECT_ENTRIES:
+                            raise GitRepositoryLineageError(
+                                "repository_lineage.cache_unsafe",
+                                "repository object inventory exceeds "
+                                "the local-cache bound",
+                            )
+                        # Windows DirEntry hints omit the real hard-link count.
+                        metadata = os.stat(child.path, follow_symlinks=False)
+                        if stat_is_link_or_reparse(metadata):
+                            raise GitRepositoryLineageError(
+                                "repository_lineage.cache_unsafe",
+                                "repository object backing is redirected",
+                            )
+                        if stat.S_ISDIR(metadata.st_mode):
+                            pending.append(Path(child.path))
+                        elif (
+                            not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1
+                        ):
+                            raise GitRepositoryLineageError(
+                                "repository_lineage.cache_unsafe",
+                                "repository objects require "
+                                "private regular backing files",
+                            )
+        except OSError as exc:
+            raise GitRepositoryLineageError(
+                "repository_lineage.cache_unsafe",
+                "repository object backing could not be inspected safely",
+            ) from exc
+        if any(
+            (repository / name).exists()
+            for name in (
+                "commondir",
+                "info/grafts",
+                "objects/info/alternates",
+            )
+        ) or any((repository / "objects/pack").glob("*.promisor")):
+            raise GitRepositoryLineageError(
+                "repository_lineage.cache_unsafe",
+                "repository cache must contain its own non-promisor objects",
+            )
+        configuration = self._run(
+            repository,
+            "config",
+            "--local",
+            "--no-includes",
+            "--name-only",
+            "--get-regexp",
+            r"^(include\.|includeif\.|extensions\.(partialclone|worktreeconfig)$|"
+            r"remote\..*\.promisor$|core\.worktree$)",
+        )
+        if configuration.returncode != 1:
+            raise GitRepositoryLineageError(
+                "repository_lineage.cache_unsafe",
+                "repository cache configuration is unavailable "
+                "or delegates object ownership",
+            )
+
     def _fetch(self, repository: Path, reference: RepositoryParentReference) -> None:
         report_progress(
             f"Fetching {reference.repository_url}#{reference.requested_revision}"
@@ -730,6 +842,89 @@ class GitRepositorySnapshotProvider:
             reference.requested_revision,
             code="repository_lineage.fetch_failed",
         )
+
+    def _authority_entry(self, repository, revision, path):
+        """Inspect immutable tracked names without checkout or link traversal."""
+        result = self._run(
+            repository, "ls-tree", "-z", "--full-tree", revision, "--", path
+        )
+        if result.returncode != 0:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_unavailable",
+                f"repository authority tree could not be read: {path}",
+            )
+        records = [row for row in result.stdout.split(b"\0") if row]
+        if not records:
+            return None
+        if len(records) == 1:
+            metadata, separator, name = records[0].partition(b"\t")
+            fields = metadata.split(b" ")
+            if separator and name == path.encode("utf-8") and len(fields) == 3:
+                return fields[0], fields[1]
+        raise GitRepositoryLineageError(
+            "repository_lineage.authority_invalid",
+            f"repository authority has an invalid Git tree record: {path}",
+        )
+
+    def _authority_blob(self, repository, revision, path):
+        for parent in reversed(PurePosixPath(path).parents):
+            if parent == PurePosixPath("."):
+                continue
+            entry = self._authority_entry(repository, revision, parent.as_posix())
+            if entry is None:
+                raise GitRepositoryLineageError(
+                    "repository_lineage.authority_missing",
+                    f"repository revision does not contain required authority: {path}",
+                )
+            if entry != (b"040000", b"tree"):
+                raise GitRepositoryLineageError(
+                    "repository_lineage.authority_unsafe",
+                    f"repository authority ancestor must be a tracked tree: {parent}",
+                )
+        entry = self._authority_entry(repository, revision, path)
+        if entry is None:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_missing",
+                f"repository revision does not contain required authority: {path}",
+            )
+        if entry not in {(b"100644", b"blob"), (b"100755", b"blob")}:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_unsafe",
+                f"repository authority must be a regular tracked file: {path}",
+            )
+        return self._blob(repository, revision, path)
+
+    def _authority_manifest(self, repository, revision):
+        root = self._authority_entry(repository, revision, _PROJECT_FILE)
+        directory = self._authority_entry(repository, revision, "litai")
+        if directory in {(b"120000", b"blob"), (b"160000", b"commit")}:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_unsafe",
+                "contained repository authority cannot cross a link or submodule",
+            )
+        contained = (
+            self._authority_entry(repository, revision, "litai/" + _PROJECT_FILE)
+            if directory == (b"040000", b"tree")
+            else None
+        )
+        if root is not None and contained is not None:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_ambiguous",
+                "root and contained repository project authority coexist",
+            )
+        prefix = "litai/" if contained is not None else ""
+        return prefix, self._authority_blob(
+            repository, revision, prefix + _PROJECT_FILE
+        )
+
+    @staticmethod
+    def _require_authority_location(definition, prefix):
+        expected = "litai/" if definition.framework_directory == "litai" else ""
+        if prefix != expected:
+            raise GitRepositoryLineageError(
+                "repository_lineage.authority_invalid",
+                "repository project authority differs from its declared location",
+            )
 
     def _blob(self, repository: Path, revision: str, path: str) -> bytes:
         result = self._run(repository, "show", f"{revision}:{path}")
@@ -782,7 +977,28 @@ class GitRepositorySnapshotProvider:
                 "repository_lineage.git_unavailable",
                 "Git is required to resolve repository parents; install Git and retry",
             )
-        environment = os.environ.copy()
+        local_objects = bool(arguments) and arguments[0] in {
+            "cat-file",
+            "show",
+            "ls-tree",
+            "rev-parse",
+            "config",
+        }
+        environment = {
+            key: value
+            for key, value in os.environ.items()
+            if not local_objects or not key.upper().startswith("GIT_")
+        }
+        local_options: tuple[str, ...] = ()
+        if local_objects:
+            environment.update(
+                GIT_CONFIG_GLOBAL=os.devnull,
+                GIT_CONFIG_NOSYSTEM="1",
+                GIT_NO_REPLACE_OBJECTS="1",
+                GIT_NO_LAZY_FETCH="1",
+                GIT_ALLOW_PROTOCOL="",
+            )
+            local_options = ("--no-replace-objects", f"--git-dir={repository}")
         environment.update(
             {
                 "GIT_TERMINAL_PROMPT": "0",
@@ -801,6 +1017,7 @@ class GitRepositorySnapshotProvider:
                     executable,
                     "-c",
                     f"core.hooksPath={os.devnull}",
+                    *local_options,
                     "-C",
                     str(repository),
                     *arguments,

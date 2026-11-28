@@ -14,7 +14,13 @@ provides:
   - name: application.web-frontend
     version: 1.0.0
     interface: null
-requires: []
+requires:
+  - requirement_id: cathedral-choir-score
+    capability: unprompted.cathedral-choir-score
+    version_range: ">=1,<2"
+    dependency_kind: build
+    optional: false
+    constraints: []
 authoring_inputs:
   - kind: specification-to-source-skill
     uri: skills/specification-to-source/frontend-application/SKILL.md

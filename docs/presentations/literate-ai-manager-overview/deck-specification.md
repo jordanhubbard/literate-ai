@@ -130,13 +130,12 @@ collection with worktree and pull-request inspection. Keep 26 slides by revising
 
 ### Consequences (continued)
 
-23. The 1.3 release builds on the 1.2 repair, cross-host worker, Mix, and forge
-    foundation. It adds reviewed original-source first binding, target-bound Python
-    source projection, FreeBSD worker and target foundations, native SDK tree custody,
-    and retained execution hardening. Distinguish these implemented framework slices
-    from complete FreeBSD platform admission, Windows ARM64 host realization, remote
-    native-package custody, production action-DAG/LAN-cache qualification, and the
-    remaining retained-project end-to-end acceptance deferred to 1.4 or 1.3.1.
+23. Show how an importing team evaluates a retained Cargo library in the 1.4
+    candidate. Preparing a locked SDK supplies an input for provider qualification.
+    The provider applies its acknowledged qualification plan and supplies the resulting
+    reference and archive to the importer. Checking the archive identifies missing packages. Materializing supplies
+    those packages. Admission requires the consumer's ordered gates and reviewed
+    per-target tests. Identify the independent provider and consumer run as pending.
 24. The end state is a living portfolio of intent.
 25. Start with one demanding application. Build for the portfolio.
 26. Build the system that builds the software.
@@ -145,7 +144,7 @@ collection with worktree and pull-request inspection. Keep 26 slides by revising
 
 The two-week horizon is a target, not a readiness guarantee. It covers four connected outcomes:
 
-1. Exercise installed 1.3 retained-source, native-custody, worker, package, and
+1. Exercise installed 1.4 candidate retained-source, native-custody, worker, package, and
    native-acceptance slices against a demanding downstream application and carry them
    through explicit evidence.
 2. Realize the production-containment contract as supported host backends.

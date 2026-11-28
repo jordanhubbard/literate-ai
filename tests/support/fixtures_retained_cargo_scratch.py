@@ -28,7 +28,7 @@ from literate_ai.contracts.retained_cargo_workspace_v2 import (
     RetainedCargoWorkspacePlanV2,
 )
 from literate_ai.contracts.retained_libraries import RetainedLibraryGatePolicy
-from literate_ai.projects import load_project
+from literate_ai.projects import ProjectConfigurationStore, load_project
 from tests.support.fixtures_test_retained_cargo_import import (
     RetainedCargoImportTests,
     blob,
@@ -41,7 +41,16 @@ from tests.support.fixtures_test_retained_harness_receipts import (
 
 
 @contextmanager
-def scratch_review_fixture(base):
+def scratch_review_fixture(
+    base,
+    *,
+    with_provider=False,
+    fixture=None,
+    build_outputs=(),
+    native_custody=None,
+    prepare_project=None,
+    _layout=None,
+):
     project = base / "converted"
     _legacy_project(project)
     (project / ".gitignore").write_text("pkgs/\ncargo-output/\n")
@@ -57,13 +66,17 @@ def scratch_review_fixture(base):
         flavor_selectors=_selectors(project),
         source_intelligence_provider="none",
         convert=True,
+        **({"_layout": _layout} if _layout is not None else {}),
     )
+    if prepare_project is not None:
+        prepare_project(project)
     loaded = load_project(project)
-    fixture = RetainedCargoImportTests()
+    fixture = RetainedCargoImportTests() if fixture is None else fixture
     fixture.setUp()
     try:
+        context = ProjectConfigurationStore.context(project)
         implementation = json.loads(
-            (project / ".literate/legacy-lift-shift.json").read_bytes()
+            context.framework_path(".literate/legacy-lift-shift.json").read_bytes()
         )["implementation_directory"]
         common = replace(fixture.plan, workspace_root=implementation)
         budget = RetainedCargoInputBudget(1000, 4000, 64 * 1024**2, 128 * 1024**2)
@@ -73,16 +86,33 @@ def scratch_review_fixture(base):
             ),
             RetainedCargoInputBudget(2000, 8000, 64 * 1024**2, 256 * 1024**2),
         )
-        graph = CargoWorkspaceExpectationV2(common.graph, ())
+        graph = CargoWorkspaceExpectationV2(
+            common.graph, getattr(fixture, "registry_patches", ())
+        )
         plan = RetainedCargoWorkspacePlanV2(
             common,
             graph,
-            (
-                RetainedCargoScratchRoot("cargo-output", "cargo-output"),
-                RetainedCargoScratchRoot("pkgs", "member-packages"),
+            tuple(
+                sorted(
+                    (
+                        RetainedCargoScratchRoot("cargo-output", "cargo-output"),
+                        RetainedCargoScratchRoot("pkgs", "member-packages"),
+                        *(
+                            RetainedCargoScratchRoot(p, "build-output")
+                            for p in build_outputs
+                        ),
+                    ),
+                    key=lambda r: r.path,
+                )
             ),
             custody,
         )
+        if build_outputs:
+            ignore = project / ".gitignore"
+            ignore.write_text(
+                (ignore.read_text() if ignore.exists() else "")
+                + "".join("**/" + p + "/\n" for p in build_outputs)
+            )
         policy = RetainedLibraryGatePolicyV2(
             RetainedLibraryGatePolicy(
                 loaded.definition.project_id,
@@ -95,6 +125,7 @@ def scratch_review_fixture(base):
                 ),
             ),
             custody,
+            native_custody,
         )
         targets = tuple(
             sorted(
@@ -103,8 +134,13 @@ def scratch_review_fixture(base):
                         p.root,
                         t.name,
                         tuple(sorted(t.kinds)),
-                        True,
-                        RetainedCargoLibtestProtocol(("reviewed_case",), ()),
+                        getattr(fixture, "harnesses", {}).get(
+                            (p.root, t.name, tuple(sorted(t.kinds))), True
+                        ),
+                        getattr(fixture, "protocols", {}).get(
+                            (p.root, t.name, tuple(sorted(t.kinds))),
+                            RetainedCargoLibtestProtocol(("reviewed_case",), ()),
+                        ),
                     )
                     for p, t in retained_cargo_test_targets(common.graph)
                 ),
@@ -147,6 +183,6 @@ def scratch_review_fixture(base):
             gate_policy_path="review/policy.json",
             test_inventory_path="review/tests.json",
         )
-        yield reviewed
+        yield (reviewed, fixture) if with_provider else reviewed
     finally:
         fixture.doCleanups()

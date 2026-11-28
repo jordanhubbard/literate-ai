@@ -1,0 +1,90 @@
+{
+  "schema": "independent-source-review@1",
+  "reviewer": "single authorized independent reviewer",
+  "decision": "approved_at_exact_read_budget_scope",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "5faa0149d47095d27554de5d207023f8b2c990e6",
+  "scope": "Operation-local bounded canonical role input observation only; read-budget prerequisite to future catalog publication, not publication or role/effect authority.",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/bounded_role_observation.py",
+      "sha256": "e1ae7265e966a0c2401bd9d70a3ec2cd17db4350648b4403a5eeca43a64c2e75"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "665f8276e7a2ca4afa47723bc53da5c1e7d8e2ea8d609912ca460d48d7a51d9a"
+    },
+    {
+      "path": "src/literate_ai/adapters/conversion_authority.py",
+      "sha256": "2a89f6e76c7273c69c50619289877de1ae820fb27704194e5cc95881047530b1"
+    },
+    {
+      "path": "src/literate_ai/adapters/project_identity_migration.py",
+      "sha256": "75fba2e490f1fa04bbe7d5cdd01670d7eaab65bcb58faa64945d49af496fb919"
+    },
+    {
+      "path": "src/literate_ai/adapters/repository_orchestration.py",
+      "sha256": "05913cb9c32d4960e9b67f95762f65b7a9b07e90a110b93942e662faaa2a2251"
+    },
+    {
+      "path": "src/literate_ai/adapters/repository_refresh.py",
+      "sha256": "91b54aa48740f15f3fff97cbfb7e84ae69f7287002ce0f98b02901f1c9c73620"
+    },
+    {
+      "path": "src/literate_ai/adapters/repository_refresh_refs.py",
+      "sha256": "b39a3ca3f2393afe6cdc94b41c39290c40c20b6c3c5f795802316d9ba2ea0eac"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_git_controls.py",
+      "sha256": "d4301620b31453c904df22636a59ad258d3141dd2ec2177b4953d10e19c1221c"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_partition.py",
+      "sha256": "09a4e466b4c23c9d5251fe9a1eafcc64c28edb74c0278a600b7bf4786b7e21fb"
+    },
+    {
+      "path": "src/literate_ai/projects.py",
+      "sha256": "4528ffcf02221b98622cfdc2daa611ff684b01cd837d7f517e1f59d9a61ba457"
+    },
+    {
+      "path": "tests/critical/test_bounded_role_observation.py",
+      "sha256": "97d8e64847874f6f825959dd1d6252d562cebf31c918c109042641d65ffb137f"
+    }
+  ],
+  "findings": [],
+  "source_assessment": [
+    "Read complete new scope and maintained tests, all changed canonical reader hooks and relevant existing parser/role/native-currentness implementations. Rechecked all11 source/test hashes after independent executions; no subject drift.",
+    "Canonical project/conversion/migration parsers, canonical encodings, migration validation and native safety checks are retained. Observed reads use original per-reader byte ceilings intersected with remaining shared allowance; default branches remain unchanged outside scope.",
+    "First file observations debit shared files/entries/bytes/metadata; exact cached original bytes remain fixed and cannot borrow a later larger limit. Revalidation uses original observed sizes and native signatures/anchors. Empty/missing inputs remain original observations.",
+    "Traversed ancestry is reserved before lineage tuple capture and remembered as original facts. Decoded canonical records debit shared entries/metadata. Git stdout/stderr allowances are precharged against remaining bytes/metadata and original limits; returned stdout is reconciled and output records are charged.",
+    "ContextVar binding rejects nested scopes, ended copied contexts, different PIDs/threads, exhaustion and reentrant role I/O. Failures do not silently fall back to legacy larger readers. Context revokes eligibility and restores prior binding in finally.",
+    "Aggregate require_current rereads recorded input bytes, checks original lineages/presences, then closes recorded input anchors/native signatures and final eligibility; no later payload read follows those native checks.",
+    "Loose-ref absence with missing parent, conversion-state absence, native child registry absence, actual include configuration and registered child manifests are routed through the shared canonical observer. Child manifests preserve their own1MiB project ceiling rather than the256KiB conversion-state ceiling.",
+    "The observation is neither a lock nor a source exclusion/mutation/live role grant. Actual canonical role leases, reservations and effect owners must still derive and hold every effect-specific condition; arbitrary Git command output is not a complete Git custody model."
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_bounded_role_observation",
+      "result": "19 passed,0 failures/errors/skips,4.339s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/bounded-role-inputs-independent-focused.log",
+      "log_sha256": "7fa7e9258e5840bd26699477bd5692b23a16d294e54494c0a88d8ede1c27d901"
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_project_configuration.ProjectConfigurationStoreTests tests.critical.test_repository_refresh_inputs tests.e2e.test_project_identity_migration.ProjectIdentityMigrationTests.test_missing_or_modified_migration_history_refuses_state_read tests.e2e.test_project_identity_migration.ProjectIdentityMigrationTests.test_history_keeps_per_observer_times_and_rejects_metadata_drift",
+      "result": "13 passed,0 failures/errors/skips,59.300s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/bounded-role-inputs-independent-regression.log",
+      "log_sha256": "8e35189766610a3621f6da714d7a70c7b0b400d22652180f7012095f271f1b8d"
+    }
+  ],
+  "terminal_process_state": "All independent maintained test processes terminal exit0. No bespoke probe/reproduction scripts were created or run. Author171/Make19/static results not relabeled as independent evidence.",
+  "acceptance_limits": [
+    "Approval only for exact11subject manifest and bounded canonical read-input prerequisite, not actual catalog publication/overwrite retirement/live imported-role or source-partition completion.",
+    "Finite input/metadata accounting and observed-span closure are assessed at their documented scope; no exhaustive allocator/RSS or continuous hostile same-user atomic snapshot proof.",
+    "Observer currentness covers recorded inputs/ancestry/presences. It does not replace complete project/Git role leases, locks, actual source custody, transient operation guards or effect-specific lifecycle validation.",
+    "Local maintained editable-source POSIX/macOS evidence only; no isolated installed/wheel, native Linux/Windows/cross-platform or full-feature/program/release acceptance.",
+    "No saved read observation or metadata label confers roles, ownership, execution, source exclusion or mutation permission.",
+    "No implementation/test/pin edits, installs, agents, network or external posts. Only the requested new immutable review report written; previous reviews unchanged."
+  ]
+}

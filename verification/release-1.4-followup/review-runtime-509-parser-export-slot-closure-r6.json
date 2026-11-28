@@ -1,0 +1,122 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "created_utc": "2026-11-27T19:15:20.639149+00:00",
+  "issue": 509,
+  "status": "source review closed; r5 export-slot finding closed",
+  "reviewer": "review_runtime",
+  "scope": [
+    {
+      "path": "src/literate_ai/adapters/project_layout_framework_observation.py",
+      "sha256": "f2c98a805a74f3104ef6506018c922a0c5af2ac0c608db0d5b91372dec322831",
+      "bytes": 26417
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_framework_ingress.py",
+      "sha256": "e6458a5f7ff54ff0a32f370492ba0828d328a35adcfc9a330a8309e272b463a9",
+      "bytes": 65092
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_framework_selection.py",
+      "sha256": "7f0757642eab38bb8c909f8fa43f1182c16b1436a8ef496386e339013cd7c35a",
+      "bytes": 53889
+    },
+    {
+      "path": "tests/critical/test_framework_reference_targets.py",
+      "sha256": "d0684b6d0d50a967036827f839956d4cd1d0f079c87052d1f625a2f2a4914ef1",
+      "bytes": 13421
+    }
+  ],
+  "exact_delta_verification": {
+    "observation_and_selection": "Byte hashes equal final r4 independently reviewed source.",
+    "ingress": "Removing only the added original _local_subjects dependency-name line reproduces exact r4 ingress SHA2564053ebbc6dbf53c10cf3252808b58b033b7c9fb19d6ff985099b64f89a29f889. No other production drift.",
+    "test": "Removing only new test_selector_parser_export_replacement_refuses_before_foreign_call method reproduces exact r4 test SHA256194b1706bae7886ee47cd8ac573e5442e5eeb17cd6886ef5112cc851ca3dcd88. No original assertion changed."
+  },
+  "finding_closure": {
+    "finding": "Captured parser alias was not linked to original selector module export slot.",
+    "repair": "_local_subjects now in finite reference_dependencies, capturing the original selection-module export identity at factory initialization. Existing _check validates before/after original callback invocation, including before entering original selector, while original same-function code/default seals remain.",
+    "new_control": "Replaces only selection-module original parser export with foreign counter callback returning empty tuple; calls original ingress _invoke on still-original parser alias, expects typed producer refusal and calls==[], then restores exact original export. Correctly tests pointer gap without changing original alias/code."
+  },
+  "actionable_remaining_findings": [],
+  "canonical_original_cohort_reports": [
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/successor-catalog-r21e-report.json",
+      "sha256": "35bef837cea7bb1b54dc78eb6d383218746703b400e24990e6ef5043952feb64",
+      "summary": {
+        "executed": 30,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 30,
+        "selected": 30,
+        "skipped": 0
+      },
+      "outcome_count": 30
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/successor-framework-r21e-report.json",
+      "sha256": "d043a8f92864197df8f9d12519bba77b61367d46e28d6e72cfac803de8e15b4b",
+      "summary": {
+        "executed": 122,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 122,
+        "selected": 122,
+        "skipped": 0
+      },
+      "outcome_count": 122
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/successor-initialized-r21e-report.json",
+      "sha256": "73e84ff7cb3d6750a9430e6e7d4f81204b342bc7b6f7030d89ae925976b1a58c",
+      "summary": {
+        "executed": 18,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 18,
+        "selected": 18,
+        "skipped": 0
+      },
+      "outcome_count": 18
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/successor-mixed-r21e-report.json",
+      "sha256": "2c50547204e97f80922e842966958b9a45f1f29ef0f5ae7cdbcbfacff25a952c",
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "outcome_count": 2
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/successor-public-r21e-report.json",
+      "sha256": "f5f6aa8c10f870e2e4a59a581e8945dc5eb91831fb4543d20d22156484e40be8",
+      "summary": {
+        "executed": 5,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 5,
+        "selected": 5,
+        "skipped": 0
+      },
+      "outcome_count": 5
+    }
+  ],
+  "canonical_original_total": {
+    "passed": 177,
+    "failed": 0,
+    "skipped": 0
+  },
+  "evidence_timing": "r21e original177 completed before the final one-line export binding/new negative test. Those reports are retained evidence for immediately preceding source, not execution evidence for final new negative. Prior r21d23pass likewise predates final slot addition.",
+  "checks": {
+    "git_diff_check": "Passed, no output",
+    "reviewer_tests_jobs": "None"
+  },
+  "limits": [
+    "Source review evidence only; final new negative execution not claimed.",
+    "No native Windows runtime, new installed artifact/authentic historical journey, whole-wheel gate or release acceptance claim.",
+    "No reviewer source edits, test jobs, external posts, pins or project mutation."
+  ]
+}

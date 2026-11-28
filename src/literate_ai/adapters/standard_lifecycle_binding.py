@@ -501,6 +501,8 @@ def observe_installed_framework_distribution(
 
 def observe_installed_framework_origin(
     distribution_version: str,
+    *,
+    _observation=None,
 ) -> ProjectInitializationOrigin:
     """Read the immutable origin embedded by the wheel build backend.
 
@@ -514,9 +516,18 @@ def observe_installed_framework_origin(
         resource = importlib.resources.files("literate_ai").joinpath(
             "_distribution_origin.json"
         )
-        if not resource.is_file():
-            raise FileNotFoundError
-        raw = resource.read_bytes()
+        if _observation is None:
+            if not resource.is_file():
+                raise FileNotFoundError
+            raw = resource.read_bytes()
+        else:
+            if not isinstance(resource, Path):
+                raise FileNotFoundError
+            raw = _observation.file(
+                resource.absolute(), optional=True, maximum_bytes=64 * 1024
+            ).content
+            if raw is None:
+                raise FileNotFoundError
     except (FileNotFoundError, ModuleNotFoundError, OSError) as exc:
         raise StandardLifecycleBindingError(
             "standard_binding.distribution_origin_unavailable",
@@ -528,7 +539,11 @@ def observe_installed_framework_origin(
             "installed framework wheel has invalid embedded origin evidence",
         )
     try:
-        value = json.loads(raw)
+        value = (
+            json.loads(raw)
+            if _observation is None
+            else _observation.json_value(raw, str(resource.absolute()))
+        )
     except (UnicodeError, json.JSONDecodeError) as exc:
         raise StandardLifecycleBindingError(
             "standard_binding.distribution_origin_invalid",

@@ -172,6 +172,25 @@ passes independent acceptance and replay. Hosted CI has not yet run. Inverse
 inventory and skill coverage are tested, but live inverse translation is currently
 unavailable for every language; a complete bidirectional roundtrip remains open.
 
+## Explicit Node SDK library policy
+
+Select `+flavor://literate-ai/lang-typescript-library` together with
+`+flavor://literate-ai/package-node-sdk` for an explicitly declared TypeScript dual
+library. The language Flavor selects `src/` implementations and a generated CJS test
+driver at `source/tests/litai_test.cjs`; the test driver receives the built SDK path.
+The packaging Flavor selects the shared strict compiler and offline pack owner,
+with npm `>=9,<13` and TypeScript `>=5.8,<7`. The operator supplies an absolute
+`LITAI_TYPESCRIPT_SDK` package location; selection captures that image without
+installing it or resolving a registry package. The existing `lang-typescript`
+application policy remains separate.
+
+These canonical Flavors currently establish lock, recipe and target selection.
+They do not establish an accepted SDK lifecycle. Original provider/generation
+admission, exact Component-authorized legal text, independent runtime/declaration
+acceptance and generated/native/installed qualification remain required. Missing
+license text must be supplied by the Component owner; the Flavor chooses no license.
+No downstream SDK adoption or publication follows from selecting these Flavors.
+
 ## Build systems are replaceable Flavors
 
 `build.system` is independent of operating system, implementation language, and
@@ -295,5 +314,6 @@ Then inspect
 [`samples/flavor-matrix`](../../samples/flavor-matrix/) and the source-derived
 [`flavor-split` case](../../tests/fixtures/source_to_specification/flavor-split/). The full
 contract design is in [Composable Component Flavors](../architecture/component-flavors.md).
-The current sample runner deliberately uses its guarded native language builders and
-does not claim Bazel execution; samples do not declare a `build.system` slot yet.
+Samples declare their build-system slots. The runner uses guarded language builders
+and selects its Bazel build adapter when the chosen build-system Flavor is
+`build-bazel`; each matrix cell still requires its own execution evidence.

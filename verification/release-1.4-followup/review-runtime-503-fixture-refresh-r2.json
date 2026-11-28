@@ -1,0 +1,132 @@
+{
+  "created_utc": "2026-11-27T18:22:35.327960+00:00",
+  "source_status": "prior source closure preserved; all source and fixture bytes unchanged",
+  "scope": [
+    {
+      "path": "src/literate_ai/adapters/project_layout_catalog_successor.py",
+      "sha256": "75d04c51f32600a9d92de0690f7cfd058eccbf881ead147d51f588eae1510578",
+      "matches_closure_r1": true
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_continuation.py",
+      "sha256": "472c7e2c59e49eb2cb07f64d89db64023a94cca8e4dcc595902f4324399df653",
+      "matches_closure_r1": true
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_catalog_renewal.py",
+      "sha256": "963c161904ff3b3b34c94e83b9c894eb1442dc8f2bf4b7b8a283ca3f64b1469f",
+      "matches_closure_r1": true
+    },
+    {
+      "path": "tests/critical/test_catalog_successor_membership.py",
+      "sha256": "9405fbc34c2aef211afc12b4386038dbabc859bf35820424606769f76b080a42",
+      "matches_closure_r1": true
+    },
+    {
+      "path": "tests/critical/test_project_layout_initialized_component_capture.py",
+      "sha256": "5b5fbfef14034b2158b389e9446461cb476e3d708d76371ba2b7232d7b014636",
+      "matches_closure_r1": true
+    },
+    {
+      "path": "tests/critical/test_project_layout_mixed_component_channels.py",
+      "sha256": "b1912ac4c6100b05fb9d9e9824a3b5a4471690a862819a1ca69f43806085341e",
+      "matches_closure_r1": true
+    },
+    {
+      "path": "docs/user/project-layout.md",
+      "sha256": "1a3d521b90c5bdbcb2de34ce96b7bf668a36577ccb5908ee30df2f7ef2a850e4",
+      "matches_closure_r1": true
+    }
+  ],
+  "canonical_r20e_evidence": [
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/successor-framework-r20e-report.json",
+      "sha256": "c303bc157bcd07c30f8af52e2ac978f2f13de90905436455e6bdbffd4c620e76",
+      "summary": {
+        "executed": 122,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 122,
+        "selected": 122,
+        "skipped": 0
+      },
+      "outcome_count": 122
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/successor-catalog-r20e-report.json",
+      "sha256": "2f471647a9bec9691c85d86bada1a0162b26783e79339fc0edc6ecd246ecfd2e",
+      "summary": {
+        "executed": 30,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 30,
+        "selected": 30,
+        "skipped": 0
+      },
+      "outcome_count": 30
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/successor-initialized-r20e-report.json",
+      "sha256": "ebc741cf3f236b9228e6052c2d24fbbbfcf8ed488c674059fdd7dcea22936ec9",
+      "summary": {
+        "executed": 18,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 18,
+        "selected": 18,
+        "skipped": 0
+      },
+      "outcome_count": 18
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/successor-mixed-r20e-report.json",
+      "sha256": "533526cb6781910341f6f99ddcad298b696e815bcee47364baac9a0f3c3379a3",
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "outcome_count": 2
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/successor-public-r20e-report.json",
+      "sha256": "3252c41071a64d0efb85f3f0012a3d10b4fe007520a905d046825118e96b4d5d",
+      "summary": {
+        "executed": 5,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 5,
+        "selected": 5,
+        "skipped": 0
+      },
+      "outcome_count": 5
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/successor-new-r20e-report.json",
+      "sha256": "75b5a8206c7885576b4a03feafd71e364aab847bb27a6e8f609973e48deb4b4c",
+      "summary": {
+        "executed": 12,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 12,
+        "skipped": 0
+      },
+      "outcome_count": 12
+    }
+  ],
+  "original_cohort_total": {
+    "passed": 177,
+    "failed": 0,
+    "skipped": 0
+  },
+  "fixture_correction_review": "NOT YET POSSIBLE: primary source still contains old synthetic PRE/POST and lacks resources import. Parent notified; r20f process primary cwd verified read-only. No claim that proposed canonical-template correction is present or tested.",
+  "limits": [
+    "No jobs/reruns/mutations dispatched.",
+    "r20f pending, not counted.",
+    "Actual installed historical journey pending."
+  ]
+}

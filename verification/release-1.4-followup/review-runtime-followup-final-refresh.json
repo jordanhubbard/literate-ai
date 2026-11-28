@@ -1,0 +1,134 @@
+{
+  "reviewer": "review_runtime",
+  "status": "closed-with-explicit-coverage-boundary",
+  "worktree": "/home/jkh/Src/literate-ai/.worktrees/release-maintained-followup-20261126",
+  "head": "ac2e88417a58fe0c2a1f4d318e3f7fb14811b1a1",
+  "attested_utc": "2026-11-27T07:51:16.437097+00:00",
+  "files": [
+    {
+      "file": "src/literate_ai/adapters/cache/_publication.py",
+      "sha256": "10743825136a604812947dfba9e85a7cdb8ff7f46464a54fd557f3f7c2ed0f0c",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "src/literate_ai/adapters/cache/filesystem.py",
+      "sha256": "9e974682074f3fde24ef94bec99cb4ced3424a3589222f67b0a00f3c36eac17f",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "src/literate_ai/application/native_root_run.py",
+      "sha256": "1726ebc8f997e84e22ab4b25a3a9511da8e1acd3a2100c5e60337fffd9447aee",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "src/literate_ai/application/standard_node_sdk_admission.py",
+      "sha256": "f435a41088437f9eb920616a6a6987e2feb8e022e928649479a58a4213aad1ed",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "src/literate_ai/adapters/_processes.py",
+      "sha256": "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb690",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "src/literate_ai/project_template/scripts/_bootstrap_processes.py",
+      "sha256": "5646e92eab6fa6e0fbbb8c17cbb2c04f909a5b12e80297e436ac885a2e5fb690",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "src/literate_ai/adapters/retained_layout_forest_metadata_replay.py",
+      "sha256": "ba2500a2cc6ef97a8ba09d2c4461ba676713dd2f4743598a94e5fbe5402be231",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "src/literate_ai/adapters/authored_retained_cargo_monorepo_observation.py",
+      "sha256": "e5d5d4c8f33d9e42484a51efb2c4744fbfee6b6a149949803bbdb22c40ea9d4e",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "src/literate_ai/adapters/authored_retained_cargo_provisioning_monorepo.py",
+      "sha256": "4d11ed752ceeba829f54d1405d6faa92ed2a07e00e955c318bef94a9da872e29",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "src/literate_ai/adapters/retained_layout_provider.py",
+      "sha256": "1467d559828d7afa642ec6f43018aeee5a61c64c50671b083d377ad22ec13ecf",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": ".github/qualifications/native_sdk/qualify_public_sdk.py",
+      "sha256": "f670c1504fb5f0960ddb11dc33d477fb6758acce3179be1838a0b017b57fbf7f",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "tests/critical/test_retained_layout_provider.py",
+      "sha256": "5ebd23167c7878508d3b65518ae460900c401c955c518ed5786e529e43a3fffa",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "tests/support/fixtures_retained_cargo_native_v2.py",
+      "sha256": "67153564258399caa6d62aab0f1efe4bc558f5b51b488e96300f4a28b588d583",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "tests/smoke/test_authored_reopened_native_execution.py",
+      "sha256": "99231d9d836f414f4c9f32714ce4dd5f99e41e21c1b6791a1f2b8ba361e48272",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "tests/critical/test_authored_monorepo_completion.py",
+      "sha256": "29734cd41ce4f015b0a4f3b3753c25d306b0f1014818cd4a01ba4496ed87f84b",
+      "matches_closed_evidence": true
+    },
+    {
+      "file": "tests/e2e/test_native_child_parent_reader.py",
+      "sha256": "131ec5cba0d67070d5ea3687267f995fe12cd223cbb271cf12e539567aca3449",
+      "new_closing_review": "Source-only coordinate closure. Child destination resolves canonical .literate/native-projects/a; registry and authority byte assertions resolve canonical native-projects.json/conversion-authority.json, exactly matching production producer/store paths. Original expected registry_bytes/state_bytes and foreign source bytes, refusal, timing and postpublication reader assertions retained."
+    }
+  ],
+  "findings_in_reviewed_scope": [],
+  "unreviewed_drift_within_previously_closed_scope": [],
+  "dirty_production_or_scripts_outside_this_reviewers_coverage": [
+    {
+      "file": "scripts/installed_maintained_controls.py",
+      "sha256": "d32c2392b413ba5a2a1df9699865251f2a1b509c93d84387c26aa61da6093901",
+      "status": "Not independently reviewed by review_runtime; may be assigned to another reviewer"
+    },
+    {
+      "file": "src/literate_ai/adapters/flavor_add.py",
+      "sha256": "90736a661fa407bfd416d57733eee1332d80a45172543efa87bf3a12f77ac41a",
+      "status": "Not independently reviewed by review_runtime; may be assigned to another reviewer"
+    },
+    {
+      "file": "src/literate_ai/adapters/retained_cargo_execution_core.py",
+      "sha256": "3e141c0052f97100e4fdd9873beba8ec275d3e94eee51806b1234fe3ceaaedac",
+      "status": "Not independently reviewed by review_runtime; may be assigned to another reviewer"
+    },
+    {
+      "file": "src/literate_ai/project_template/scripts/bootstrap_litai.py",
+      "sha256": "a69af3016c68b8b3e7940558280024189d3a8c36065d3773df765d65fa80aecf",
+      "status": "Not independently reviewed by review_runtime; may be assigned to another reviewer"
+    }
+  ],
+  "other_dirty_files_outside_this_report": [
+    "docs/roadmap/active-work.md",
+    "tests/critical/test_remote_cleanup_windows_handles.py",
+    "tests/e2e/test_native_project_removal.py",
+    "tests/smoke/test_bootstrap_litai.py",
+    "tests/smoke/test_elixir_flavor.py",
+    "tests/smoke/test_flavor_add.py"
+  ],
+  "supporting_evidence": [
+    "review-runtime-final-delta.json",
+    "review-runtime-authored-monorepo-placement-close.json",
+    "review-runtime-followup-provider-provisioning-sdk-close.json",
+    "review-runtime-optional-include-budget-finding.json"
+  ],
+  "closing_assessment": "All7 earlier integrated runtime source repairs and all4 currently dirty production/harness files in this reviewer coverage match latest independently closed hashes. Associated previously reviewed test hashes also match. New native-parent-reader edits change only canonical metadata/child placement selection and preserve all original behavioral assertions. Optional include occurrence-budget followup remains closed.",
+  "limits": [
+    "New native-parent-reader coordinate diff source-reviewed only; no additional E2/native execution run performed for this final bounded refresh.",
+    "Broader provider/source/native cohorts are root-owned; consult their actual terminal artifacts rather than treating this source attestation as cohort success.",
+    "No actual FreeBSD SDK success, installed native release acceptance or resulting-main qualification claimed.",
+    "Four dirty production/script files outside this reviewers coverage are explicitly listed; this report does not assert they are unreviewed by the entire team."
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "status": "independent_read_only_narrow_owner_design_review",
+  "subject": "bf6551038c5051c19b192e6e8cc79e4fb02169ff",
+  "issue": "https://github.com/jordanhubbard/literate-ai/issues/501",
+  "observed_gap": "Frameworkselector correctly blocks residentpolicy movedtargetconsumer, hardcodesreference_editsempty; CLI rejectsrewrite_reference inframeworkscope. Existingwriter ACTION_GROUPS alreadystages/referencewrites/restores reference_edits, but strictcodec hasnoresidentpolicyowner and ingress/freshreplan have noapprovalscope.",
+  "existing_owner_reuse": {
+    "catalog": "Existing migration._documentation_edits/catalog_continuation approved-reference transforms are Markdown spans with exactdocumentapproval, before/afteridentity/mode and unsupportedconsumer blockers. They are nottypedJSONpolicyvalidation; reuse scopedapproval/currentness discipline, notgenerictextreplace.",
+    "projection": "ProjectScaffoldPlacement finite template renderer knows releasepolicyversionbinding/gate/contributioncoordinates but resident authoredpolicy is not initializedtemplateownership. Do notlabelresidentpolicy ascurrent-project-definition/initialized-file or blindlyrunalltemplate rewrites.",
+    "writer": "Framework plan ACTION_GROUPS and transaction._entries/_stage/_state/nativepublication/reverse_recovery already supportresidentreferenceedit bytesgenerically. Reuse same originalobservations,stagedbefore/afterpins,modestamps,journal,root/Git/component/source fences and rollback; no secondwriter/newmutationAPI."
+  },
+  "narrow_v1_scope": [
+    "Only actual canonical releasepolicy resolved by existing project_releases._release_policy_path under originalobservedcontext, preserving shadow/ambiguityrefusal. Resolve/capture in originalingress; pureprojector mustnotreopenpath orduplicateresolver.",
+    "Only contributions.roadmap_goal_manifest leaf changes, and only when originalcanonical relativepath is exactkey in same original proved movedcoordinate map and newvalue is exact mappedselecteddestination. No prefixguess or prepointing nonexistentcurrentdestination.",
+    "Target must be actualselectedproved roadmapauthority file with source/resource/native/afteridentity association, not just an arbitrarydict coordinate. Keep all83goalcontents/authority unchanged except separatelyexistingprovedresource coordinateprojection.",
+    "Unknownfields/malformedpolicy/ambiguousJSON/unsupportedpolicyconsumers remainblocked orrefuse; no generalJSON/Mardownreference rewritepermission. Versionauthority/changelog/nativegate muststayunchanged foractual#501case."
+  ],
+  "api_and_lifetime": [
+    "Permit only--rewrite-reference inexistingframeworkbranch; retain refusalofotherplacementflag combinations. Validate uniqueboundedcanonical app-relativeapproveddocuments and allowonlyactualcanonicalpolicy.",
+    "Thread exactimmutableapprovaltuple through read_existing_framework_authority, originalobservation/factory/selector/privateFrameworkAuthoritySelection and identity-boundpublicplan/referenceeditkeys. Keep privateowner pairing andtransitiveguardcapture.",
+    "Transaction451freshread mustuse SAME approvedscope fromoriginal live selection/publicidentity; planidentity mustremainexact after producerfencing. Neverreconstructfreshgrantfromdecodedplan alone.",
+    "Journal/inertcodec mustcapture exactapprovalscope; recoveruses originalintent/nativebefore/after plusstrictdecode, not reselectingdifferentpolicy/parser. Any replan/recoveryAPI selection mustbindsameapproveddocumentset.",
+    "Noapproval preservescurrentblockedplan. Alreadycorrect/unaffectedpolicy yieldsunchangedbytes/noactionwithoutapproval; unused/staleapproval shouldfailclosed ascurrentcatalog approvals ratherthancreateauthority."
+  ],
+  "typed_pure_projection": [
+    "Parse original capturedboundedbytes as strictunambiguousJSON; validate with original ReleasePolicy.from_dict. Retain untouchedoriginalJSONtree/rawbytes.",
+    "Modify onlysingle supportedleaf toproveddestination; validate afterwithsameoriginaltypedparser; compareallotherdecodedJSONvalues exactly, includingoptionalpolicybranches. Do notroundtripwholepolicy through to_dict ifnormalizingdefaultswouldalterauthoredsemantics.",
+    "Prefer exact originalJSONstringtoken span replacement forsupportedleaf (escape-aware, uniquepath/duplicate refusal), preservingallbytesoutsidevalue; otherwise explicitlydefineacceptedformatonlynormalization and proveallnonreference dataequal. No unrestricted regex/stringreplace.",
+    "Expose exactfield/from/to andbefore/afterbyteidentities/mode inplan. Bind projectionidentity toapprovedpolicycoordinate,fieldtransition,originalplacementmap/targetproof/resourceidentity andpolicybefore/after. Pureoutputs areinertdata, notwritergrant."
+  ],
+  "codec_change": [
+    "Add dedicatedcurrent-resident-release-policy owner allowedONLY reference_edits, exactcanonicalresidentpolicy coordinate forcurrentmode,logicalreleasepolicyfile,source_proofNone andnoinitializedresourceimpersonation.",
+    "Strictconditionalrow shape exposes boundedfinitechanges for knownleaf/from/to; rejectunknownfieldpaths,wronggroup/coordinate,spoofedproducer/projection/resource/identity and overlaps withplacements/resident/delegateedits.",
+    "Keep previousemptyreference_edits andunchanged/noopplanbytes compatible; newpolicyowner mustnotbeacceptedbyunrelatedrowtypes or broadcurrent-project-definition branch."
+  ],
+  "concrete_finite_parser_custody_recommendation": {
+    "approach": "Local finite explicitsame-pattern dependency snapshot, notgenericrecursiveguardframework ormutableglobalcallback argument. Retainoriginalfunctionobject/code/defaults/kwdefaults, relevantclassnamespace/bases/MRO/descriptors andimmutableconstants; guardbefore/aftereverycall andthroughoriginalowner lifetime/freshreplan.",
+    "required_project_releases": [
+      "ReleasePolicy",
+      "VersionBinding",
+      "ReleaseContributionsPolicy",
+      "ReleaseCollateralPolicy",
+      "_mapping",
+      "_keys",
+      "_string",
+      "_strings",
+      "_relative_path",
+      "_fail",
+      "usedschema/regexconstants and re.fullmatch binding"
+    ],
+    "optional_readme": [
+      "ReadmeLatestReleasePolicy.from_dict andclassdescriptor/code/defaultdata"
+    ],
+    "optional_qualification": [
+      "ReleaseQualificationPolicy",
+      "QualificationAction",
+      "CICoverageBinding",
+      "CITestedFile",
+      "_platforms",
+      "module_fail andusedconstants/leafparsers"
+    ],
+    "optional_authenticated_receipt": [
+      "release_evidence.validate_release_evidence_policy",
+      "its canonicalpath/ContentIdentity/_name validators",
+      "HttpsEvidenceStore constructor/path helpers forhttps entries",
+      "JSONnormalization bindings"
+    ],
+    "primitive_and_projector": [
+      "originalJSONparser/encoder bindings andusedcode/defaultdata",
+      "pureprojector function/code andimmutable supportedfield/domainconstants",
+      "existingcanonicalpolicyresolver andcontextcallbindings"
+    ],
+    "scope_limit": "Ifany optionalbranch dependencychain isnotcovered initially, retainthatshape asunsupportedoriginalconsumer with explicitblocker; nevercallunguardedvalidator orclaimallpolicyshapes. Extendingfinitebranch coverage requiresfocusedtests, notimplicitintrospection.",
+    "tests": [
+      "SwapReleasePolicy.from_dict descriptor anddirect_mapping helper; foreignfunctionmustnotexecute.",
+      "Mutatesamefunction.__code__/defaults/constants ortransitiveoptionalvalidator; refusebeforepureprojection/publication.",
+      "Swapcatalogresolver/policyresolver/projectionhelper duringoriginalsourcecallback; before/afterownerchecks mustreject, preservealloriginalnative/state."
+    ]
+  },
+  "acceptance_controls": [
+    "Noapprovalunchangedblockedbehavior; alreadycorrect/noopbytes; exactonlygoalmanifestvalue changes; invalid/duplicate/foreignpolicy andwrongtarget/path reject.",
+    "Root/contained coordinatefixtures useactualcanonicalresolver semantics; containedshadowrootpolicy remainsrefusal, notrootfallback.",
+    "Validoptionalpolicybranches preservedwiththeirguardcoverage or explicitlyunsupportedshape blocker. Unknownconsumer remainsblocked.",
+    "Publicplan typeddecoder wrongowner/group/field/projection/approval changes rejected; oldversions/noopnormalforms preserved.",
+    "Applychangingpolicy/target/source/native/Git/alias/currentness callback refusesbeforeeffects; afterlegitimatepublication reverse_recovery restoresexactoriginalpolicy/native/mode with originaljournalguard; foreignreplacementpreserved.",
+    "Actualpublished1.3.1 root/implementationdescendant planparity,explicitreviewedpolicyrewrite,frameworkapply andordinaryrenew/finalize; original83goals andpendingprovider/native/platformacceptance preserved."
+  ],
+  "limits": "No implementation,project/prefixmutation,markerupdate,planapply/recovery ornewacceptance claim. This isdesignadvice overexactbf655source andpublicissue only."
+}

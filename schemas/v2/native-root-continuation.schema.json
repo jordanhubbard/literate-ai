@@ -1,0 +1,911 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:literate-ai:schema:v2:native-root-continuation",
+  "description": "Closed native-root continuation records. Cross-record identities, predecessor order, exact history, scoped optional fields, deadline policy joins and global terminal/budget semantics are additionally enforced by the typed contracts. These data never restore live execution authority.",
+  "$defs": {
+    "NativeRootRunPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "max_duration_seconds",
+        "candidate_limit"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-run-policy@1"
+        },
+        "max_duration_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400,
+          "description": "Explicit local whole-run bound; the shipped default and operation phase caps may be lower."
+        },
+        "candidate_limit": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 3,
+          "const": 3
+        }
+      },
+      "$id": "literate-ai/native-root-run-policy@1"
+    },
+    "NativeRootRunDeadline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "run_nonce",
+        "policy_identity",
+        "started_utc_ns",
+        "expires_utc_ns"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-run-deadline@1"
+        },
+        "run_nonce": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "policy_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "started_utc_ns": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "expires_utc_ns": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        }
+      },
+      "$id": "literate-ai/native-root-run-deadline@1"
+    },
+    "packageBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_graph_identity",
+        "link_plan_identity",
+        "package_plan_identity",
+        "package_result_identity",
+        "root_generated_test_identity",
+        "packaged_execution_identity"
+      ],
+      "properties": {
+        "artifact_graph_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "link_plan_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "package_plan_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "package_result_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "root_generated_test_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "packaged_execution_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        }
+      }
+    },
+    "NativeRootQualifiedDependencyBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "component_revision",
+        "acceptance_identity",
+        "qualified_product_identity",
+        "source_provenance_identity",
+        "artifact_export_identities",
+        "target_profile_identity",
+        "toolchain_binding_identities",
+        "sdk_binding_identities"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-qualified-dependency-binding@1"
+        },
+        "component_revision": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "acceptance_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "qualified_product_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "source_provenance_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "artifact_export_identities": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:literate-ai:schema:v1:content-identity"
+          },
+          "uniqueItems": true,
+          "minItems": 1
+        },
+        "target_profile_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "toolchain_binding_identities": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:literate-ai:schema:v1:content-identity"
+          },
+          "uniqueItems": true
+        },
+        "sdk_binding_identities": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:literate-ai:schema:v1:content-identity"
+          },
+          "uniqueItems": true
+        }
+      },
+      "$id": "literate-ai/native-root-qualified-dependency-binding@1"
+    },
+    "NativeRootRunBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "run_nonce",
+        "project_definition_identity",
+        "project_authority_identity",
+        "root_revision",
+        "component_lock_identity",
+        "execution_plan_identity",
+        "original_recipe_identity",
+        "original_generation_plan_identity",
+        "original_bounded_request_identity",
+        "framework_distribution_identity",
+        "lifecycle_policy_identity",
+        "target_profile_identity",
+        "verifier_profile_identity",
+        "oracle_identity",
+        "original_deadline_identity",
+        "qualified_dependency_binding_identities",
+        "candidate_limit"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-run-binding@1"
+        },
+        "run_nonce": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$",
+          "minLength": 32,
+          "maxLength": 32
+        },
+        "root_revision": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "component_lock_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "execution_plan_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "original_recipe_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "original_generation_plan_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "original_bounded_request_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "framework_distribution_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "lifecycle_policy_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "target_profile_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "verifier_profile_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "oracle_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "original_deadline_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "qualified_dependency_binding_identities": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:literate-ai:schema:v1:content-identity"
+          },
+          "uniqueItems": true
+        },
+        "candidate_limit": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 3,
+          "const": 3
+        },
+        "project_definition_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "project_authority_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        }
+      },
+      "$id": "literate-ai/native-root-run-binding@1"
+    },
+    "NativeRootAcceptanceRejection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "run_binding_identity",
+        "candidate_ordinal",
+        "component_revision",
+        "bounded_generation_request_identity",
+        "source_output_identity",
+        "source_tree_identity",
+        "workspace_allocation_identity",
+        "node_lifecycle_result_identity",
+        "build_plan_identity",
+        "build_result_identity",
+        "artifact_export_identity",
+        "verifier_profile_identity",
+        "oracle_identity",
+        "native_execution_evidence_identity",
+        "native_executable_identity",
+        "tool_observation_identities",
+        "target_profile_identity",
+        "original_deadline_identity",
+        "acceptance_scope",
+        "packaged_binding",
+        "decision",
+        "public_code"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-acceptance-rejection@1"
+        },
+        "run_binding_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "candidate_ordinal": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "component_revision": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "bounded_generation_request_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "source_output_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "source_tree_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "workspace_allocation_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "node_lifecycle_result_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "build_plan_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "build_result_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "artifact_export_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "verifier_profile_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "oracle_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "native_execution_evidence_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "native_executable_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "tool_observation_identities": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:literate-ai:schema:v1:content-identity"
+          },
+          "uniqueItems": true,
+          "minItems": 1
+        },
+        "target_profile_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "original_deadline_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "acceptance_scope": {
+          "type": "string",
+          "enum": [
+            "node-native-precheck",
+            "packaged-root"
+          ]
+        },
+        "packaged_binding": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/packageBinding"
+            }
+          ]
+        },
+        "decision": {
+          "type": "string",
+          "const": "result-values-differ"
+        },
+        "public_code": {
+          "type": "string",
+          "const": "component_acceptance.rust_harness_result_mismatch"
+        }
+      },
+      "$id": "literate-ai/native-root-acceptance-rejection@1"
+    },
+    "NativeRootRepairDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "component_revision",
+        "acceptance_rejection_identity",
+        "code",
+        "classification",
+        "sanitized_text"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-repair-diagnostic@1"
+        },
+        "component_revision": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "acceptance_rejection_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "code": {
+          "type": "string",
+          "const": "component_acceptance.rust_harness_result_mismatch"
+        },
+        "classification": {
+          "type": "string",
+          "const": "retryable"
+        },
+        "sanitized_text": {
+          "type": "string",
+          "const": "the independent native library verifier rejected the generated public behavior; produce a complete fresh replacement from the approved public specifications and interfaces"
+        }
+      },
+      "$id": "literate-ai/native-root-repair-diagnostic@1"
+    },
+    "NativeRootRepairRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "run_binding_identity",
+        "candidate_ordinal",
+        "original_recipe_identity",
+        "predecessor_root_attempt_identities",
+        "diagnostic_identity",
+        "acceptance_rejection_identity",
+        "bounded_generation_request_identity",
+        "workspace_allocation_identity",
+        "cause_kind",
+        "failure_evidence_identity"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-repair-request@1"
+        },
+        "run_binding_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "candidate_ordinal": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "original_recipe_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "predecessor_root_attempt_identities": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:literate-ai:schema:v1:content-identity"
+          },
+          "uniqueItems": true,
+          "maxItems": 2,
+          "minItems": 1
+        },
+        "diagnostic_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "acceptance_rejection_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          ]
+        },
+        "bounded_generation_request_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "workspace_allocation_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "cause_kind": {
+          "type": "string",
+          "enum": [
+            "node-build-test",
+            "native-acceptance"
+          ]
+        },
+        "failure_evidence_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        }
+      },
+      "$id": "literate-ai/native-root-repair-request@1"
+    },
+    "NativeRootCandidateAttempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "run_binding_identity",
+        "ordinal",
+        "predecessor_root_attempt_identities",
+        "incoming_request_kind",
+        "incoming_request_identity",
+        "bounded_generation_request_identity",
+        "workspace_allocation_identity",
+        "source_output_identity",
+        "node_lifecycle_result_identity",
+        "legacy_node_chain_identity",
+        "legacy_node_attempt_index",
+        "outcome",
+        "failure_evidence_identity",
+        "diagnostic_identity",
+        "retryability",
+        "actual_packaged_acceptance_identity",
+        "final_packaged_binding"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-candidate-attempt@1"
+        },
+        "run_binding_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "predecessor_root_attempt_identities": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:literate-ai:schema:v1:content-identity"
+          },
+          "uniqueItems": true,
+          "maxItems": 2
+        },
+        "incoming_request_kind": {
+          "type": "string",
+          "enum": [
+            "initial",
+            "legacy-node-repair",
+            "native-root-repair"
+          ]
+        },
+        "incoming_request_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          ]
+        },
+        "bounded_generation_request_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "workspace_allocation_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "source_output_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          ]
+        },
+        "node_lifecycle_result_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          ]
+        },
+        "legacy_node_chain_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          ]
+        },
+        "legacy_node_attempt_index": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2
+            }
+          ]
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "node-rejected",
+            "native-precheck-rejected",
+            "package-rejected",
+            "root-accepted",
+            "terminal-before-node",
+            "root-terminal"
+          ]
+        },
+        "failure_evidence_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          ]
+        },
+        "diagnostic_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          ]
+        },
+        "retryability": {
+          "type": "string",
+          "enum": [
+            "none",
+            "retryable",
+            "terminal"
+          ]
+        },
+        "actual_packaged_acceptance_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          ]
+        },
+        "final_packaged_binding": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/packageBinding"
+            }
+          ]
+        }
+      },
+      "$id": "literate-ai/native-root-candidate-attempt@1",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "outcome": {
+                "const": "root-terminal"
+              }
+            },
+            "required": [
+              "outcome"
+            ]
+          },
+          "then": {
+            "properties": {
+              "retryability": {
+                "const": "terminal"
+              },
+              "source_output_identity": {
+                "$ref": "urn:literate-ai:schema:v1:content-identity"
+              },
+              "node_lifecycle_result_identity": {
+                "$ref": "urn:literate-ai:schema:v1:content-identity"
+              },
+              "failure_evidence_identity": {
+                "$ref": "urn:literate-ai:schema:v1:content-identity"
+              },
+              "actual_packaged_acceptance_identity": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "NativeRootContinuationStop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "run_binding_identity",
+        "before_candidate_ordinal",
+        "last_attempt_identity",
+        "failure_evidence_identity",
+        "stage",
+        "code"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-continuation-stop@1"
+        },
+        "run_binding_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "before_candidate_ordinal": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "last_attempt_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          ]
+        },
+        "failure_evidence_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "stage": {
+          "type": "string",
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "$id": "literate-ai/native-root-continuation-stop@1"
+    },
+    "NativeRootContinuationLedger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "run_binding_identity",
+        "attempts",
+        "historical_legacy_node_chain_identities",
+        "disposition",
+        "terminal_stop_identity"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-continuation-ledger@1"
+        },
+        "run_binding_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "attempts": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootCandidateAttempt"
+          },
+          "uniqueItems": true,
+          "maxItems": 3
+        },
+        "historical_legacy_node_chain_identities": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:literate-ai:schema:v1:content-identity"
+          },
+          "uniqueItems": true
+        },
+        "disposition": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "accepted",
+            "terminal",
+            "exhausted"
+          ]
+        },
+        "terminal_stop_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          ]
+        }
+      },
+      "$id": "literate-ai/native-root-continuation-ledger@1"
+    },
+    "NativeRootAcceptanceClosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "run_binding_identity",
+        "ledger_identity",
+        "actual_independent_acceptance_identity",
+        "final_source_output_identity",
+        "package_plan_identity",
+        "package_result_identity"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-acceptance-closure@1"
+        },
+        "run_binding_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "ledger_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "actual_independent_acceptance_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "final_source_output_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "package_plan_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "package_result_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        }
+      },
+      "$id": "literate-ai/native-root-acceptance-closure@1"
+    },
+    "NativeRootExecutionResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "run_binding_identity",
+        "ledger_identity",
+        "final_lifecycle_result_identity",
+        "acceptance_closure_identity",
+        "status"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/native-root-execution-result@1"
+        },
+        "run_binding_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "ledger_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "final_lifecycle_result_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "acceptance_closure_identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:content-identity"
+            }
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "accepted",
+            "terminal",
+            "exhausted"
+          ]
+        }
+      },
+      "$id": "literate-ai/native-root-execution-result@1"
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootRunPolicy"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootRunDeadline"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootQualifiedDependencyBinding"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootRunBinding"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootAcceptanceRejection"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootRepairDiagnostic"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootRepairRequest"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootCandidateAttempt"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootContinuationStop"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootContinuationLedger"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootAcceptanceClosure"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootExecutionResult"
+    }
+  ]
+}

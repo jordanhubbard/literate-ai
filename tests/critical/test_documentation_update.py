@@ -37,6 +37,8 @@ def identity(content: bytes) -> str:
 
 class DocumentationUpdateTests(unittest.TestCase):
     def project(self, root: Path):
+        # macOS temporary roots traverse the /var -> /private/var redirect.
+        root = root.resolve()
         (root / "docs").mkdir()
         (root / "docs" / "guide.md").write_text("# Old guide\n", encoding="utf-8")
         (root / "literate.project.json").write_text(

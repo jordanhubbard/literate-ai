@@ -12,28 +12,46 @@ import sys
 import tempfile
 import threading
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import deepcopy
-from dataclasses import dataclass, fields, is_dataclass
+from dataclasses import dataclass, field, fields, is_dataclass
 from enum import Enum
 from pathlib import Path
 
-from literate_ai._cache_lock import _is_windows, _windows_identity_matches
+from literate_ai._atomic_publication import (
+    publish_atomic_file_if_scoped,
+    scoped_writer_permits_project_read,
+)
+from literate_ai._cache_lock import (
+    _is_windows,
+    _lock_cleanup_allowed,
+    _windows_identity_matches,
+)
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
+    _readonly_directory_batch,
+    capture_directory_ancestries,
     path_is_link_or_reparse,
     require_safe_directory,
+    stat_is_link_or_reparse,
 )
+from literate_ai.adapters.initialized_records import (
+    ProjectUpdateError as _InitializedRecordError,
+)
+from literate_ai.adapters.initialized_records import _initialization_record_ports
 from literate_ai.application.agent_skill_catalog import (
     AgentSkillCatalog,
     AgentSkillCatalogError,
+    read_only_agent_skill_metadata_parses,
 )
 from literate_ai.contracts import (
     CANONICAL_PROJECT_PROFILE,
     ContentIdentity,
     ProjectDefinition,
+    ProjectInitializationBaseline,
+    ProjectInitializationOrigin,
     SourceCacheRootKind,
     canonical_identity,
 )
@@ -144,16 +162,21 @@ _PROJECT_CONFIGURATION_PARSES: ContextVar[_ProjectConfigurationParses | None] = 
 
 
 @contextmanager
-def read_only_project_configuration_parses() -> Iterator[None]:
-    """Share private parsing templates, never file reads or currentness decisions."""
-    if _PROJECT_CONFIGURATION_PARSES.get() is not None:
-        yield
-        return
-    token = _PROJECT_CONFIGURATION_PARSES.set(_ProjectConfigurationParses())
-    try:
-        yield
-    finally:
-        _PROJECT_CONFIGURATION_PARSES.reset(token)
+def read_only_project_configuration_parses(*, isolated: bool = False) -> Iterator[None]:
+    """Share parsing templates, never file reads or currentness decisions.
+
+    An isolated frame restores any ambient frame on exit and retains no new
+    templates in that ambient frame.
+    """
+    with read_only_agent_skill_metadata_parses(isolated=isolated):
+        if not isolated and _PROJECT_CONFIGURATION_PARSES.get() is not None:
+            yield
+            return
+        token = _PROJECT_CONFIGURATION_PARSES.set(_ProjectConfigurationParses())
+        try:
+            yield
+        finally:
+            _PROJECT_CONFIGURATION_PARSES.reset(token)
 
 
 def parse_project_configuration(content: bytes) -> ProjectDefinition:
@@ -163,6 +186,79 @@ def parse_project_configuration(content: bytes) -> ProjectDefinition:
         raise ProjectError(
             "project.manifest_invalid", "project manifest is invalid"
         ) from exc
+
+
+_MANIFEST_DECLARATION_METADATA: ContextVar[Callable[[bytes], str | None] | None] = (
+    ContextVar("read_only_manifest_declaration_metadata", default=None)
+)
+
+
+@contextmanager
+def read_only_project_manifest_metadata() -> Iterator[None]:
+    """Reuse only a full parser's immutable declaration field after fresh reads.
+
+    This private closure has the same module/closure-introspection boundary as
+    Skill DATA. No context, native observation or placement decision is cached.
+    """
+    parser = parse_project_configuration
+    entry_limit, byte_limit = _PROJECT_PARSE_MAX_ENTRIES, _PROJECT_PARSE_MAX_BYTES
+    entries: dict[bytes, str | None] = {}
+    retained_bytes = hits = parses = 0
+    active = True
+    lock = threading.RLock()
+
+    def load(content):
+        nonlocal retained_bytes, hits, parses
+        with lock:
+            retired = not active
+            if not retired and type(content) is bytes and content in entries:
+                hits += 1
+                return entries[content]
+            parses += 1
+        if retired:
+            return parse_project_configuration(content).framework_directory
+        # Full schema validation still runs on every miss. Never replace it with
+        # a permissive JSON-field lookup, nor retain exceptions or parsed objects.
+        directory = parser(content).framework_directory
+        if type(content) is not bytes or not (
+            directory is None or type(directory) is str and directory == "litai"
+        ):
+            return directory
+        size = len(content) + (0 if directory is None else 4 * len(directory)) + 64
+        with lock:
+            if (
+                active
+                and content not in entries
+                and len(entries) < entry_limit
+                and retained_bytes + size <= byte_limit
+            ):
+                entries[content] = directory
+                retained_bytes += size
+        return directory
+
+    def statistics():
+        with lock:
+            return {
+                "active": active,
+                "entries": len(entries),
+                "payload_bytes": retained_bytes,
+                "hits": hits,
+                "parses": parses,
+            }
+
+    load.statistics = statistics
+    owner = _MANIFEST_DECLARATION_METADATA
+    token = owner.set(load)
+    try:
+        yield
+    finally:
+        active = False
+        try:
+            with lock:
+                entries.clear()
+                retained_bytes = 0
+        finally:
+            owner.reset(token)
 
 
 def serialize_project_configuration(definition: ProjectDefinition) -> bytes:
@@ -223,6 +319,9 @@ class ProjectConfigurationSnapshot:
         )
 
 
+_LAYOUT_ACQUIRED_LEASE_KEY = object()
+
+
 class ProjectConfigurationStore:
     """Atomic project manifest storage using exact-byte compare-and-swap."""
 
@@ -247,50 +346,129 @@ class ProjectConfigurationStore:
 
     @staticmethod
     def context(root: Path) -> ProjectContext:
-        """Select one declared location without writes or implicit migration.
+        """Select direct authority without probing redirected target ancestry."""
+        from literate_ai._filesystem import stat_is_link_or_reparse
 
-        A child repository named ``litai`` is independent unless its manifest
-        explicitly declares the containing application's framework directory.
-        """
         root = Path(root)
-        direct = root / PROJECT_FILENAME
-        child = root / "litai"
-        contained = child / PROJECT_FILENAME
 
-        def declared(path: Path) -> bool:
-            content = ProjectConfigurationStore(path.parent)._read_manifest(path)
-            return parse_project_configuration(content).framework_directory == "litai"
-
-        def require_direct(directory: Path) -> None:
+        def entry(path):
             try:
-                require_safe_directory(directory.absolute())
-            except (UnsafeFilesystemPathError, OSError) as exc:
+                return path.lstat()
+            except FileNotFoundError:
+                return None
+
+        def unsafe():
+            raise ProjectError(
+                "project.framework_directory_unsafe",
+                "framework directory must be direct and unredirected",
+            )
+
+        def direct_directory(path, *, missing=False):
+            try:
+                require_safe_directory(path.absolute(), allow_missing=missing)
+            except (UnsafeFilesystemPathError, OSError) as error:
                 raise ProjectError(
                     "project.framework_directory_unsafe",
                     "framework directory must be direct and unredirected",
-                ) from exc
+                ) from error
+            node = entry(path)
+            if node is not None and (
+                stat_is_link_or_reparse(node) or not stat.S_ISDIR(node.st_mode)
+            ):
+                unsafe()
+            return node
 
-        if root.name == "litai" and direct.is_file() and not direct.is_symlink():
+        def observed(application, framework):
+            values = []
+            for path in (application, framework):
+                node = direct_directory(path, missing=True)
+                if node is None:
+                    return ProjectContext(application, framework)
+                values.append(
+                    (node.st_dev, node.st_ino, node.st_mode, node.st_uid, node.st_gid)
+                )
+            return ProjectContext(application, framework, tuple(values))
+
+        def pending(directory, *, owned):
+            parent = directory
+            for name in (".literate", "retained-harness-readmission"):
+                parent = parent / name
+                node = entry(parent)
+                if node is None:
+                    return
+                if stat_is_link_or_reparse(node) or not stat.S_ISDIR(node.st_mode):
+                    if owned:
+                        unsafe()
+                    return  # unrelated unmanaged metadata: no target descent
+                direct_directory(parent)
+            if entry(
+                parent / "active.json"
+            ) is not None and not scoped_writer_permits_project_read(directory):
+                raise ProjectError(
+                    "project.retained_readmission_recovery_required",
+                    "retained readmission metadata publication requires recovery",
+                )
+
+        def declared(path):
+            node = entry(path)
+            if node is None:
+                return False
+            if stat_is_link_or_reparse(node) or not stat.S_ISREG(node.st_mode):
+                raise ProjectError(
+                    "project.manifest_unavailable",
+                    f"project root must contain {PROJECT_FILENAME}",
+                )
+            content = ProjectConfigurationStore(path.parent)._read_manifest(path)
+            metadata = _MANIFEST_DECLARATION_METADATA.get()
+            directory = (
+                parse_project_configuration(content).framework_directory
+                if metadata is None
+                else metadata(content)
+            )
+            return directory == "litai"
+
+        if direct_directory(root, missing=True) is None:
+            return observed(root, root)
+        direct = root / PROJECT_FILENAME
+        direct_node = entry(direct)
+        if root.name == "litai" and direct_node is not None:
+            pending(root, owned=True)  # this coordinate owns either profile's metadata
             if declared(direct):
-                require_direct(root)
-                legacy = root.parent / PROJECT_FILENAME
-                if legacy.exists() or legacy.is_symlink():
+                direct_directory(root.parent)
+                if entry(root.parent / PROJECT_FILENAME) is not None:
                     raise ProjectError(
                         "project.manifest_ambiguous",
                         "root and contained project authority cannot coexist",
                     )
-                return ProjectContext.observe(root.parent, root)
-        if contained.exists() or contained.is_symlink():
-            # Inspect no manifest through redirected directory ancestry.
-            require_direct(child)
-            if declared(contained):
-                if direct.exists() or direct.is_symlink():
-                    raise ProjectError(
-                        "project.manifest_ambiguous",
-                        "root and contained project authority cannot coexist",
-                    )
-                return ProjectContext.observe(root, child)
-        return ProjectContext.observe(root, root)
+                return observed(root.parent, root)
+        child = root / "litai"
+        child_node = entry(child)
+        if child_node is not None:
+            if stat_is_link_or_reparse(child_node):
+                unsafe()  # never ask exists/stat about a child target
+            if stat.S_ISDIR(child_node.st_mode):
+                direct_directory(child)
+                contained = child / PROJECT_FILENAME
+                if direct_node is None and entry(contained) is not None:
+                    # An interrupted contained publication can leave invalid
+                    # manifest bytes. Report its pending owner before parsing.
+                    pending(child, owned=True)
+                if entry(contained) is not None and declared(contained):
+                    if direct_node is not None:
+                        raise ProjectError(
+                            "project.manifest_ambiguous",
+                            "root and contained project authority cannot coexist",
+                        )
+                    pending(child, owned=True)
+                    # Root .literate is application-owned in this profile.
+                    return observed(root, child)
+        pending(root, owned=direct_node is not None)
+        if direct_node is not None and stat_is_link_or_reparse(direct_node):
+            raise ProjectError(
+                "project.manifest_unavailable",
+                f"project root must contain {PROJECT_FILENAME}",
+            )
+        return observed(root, root)
 
     @classmethod
     def lock_path(cls, root: Path) -> Path:
@@ -419,10 +597,27 @@ class ProjectConfigurationStore:
         transient root reservation. Both reuse the manifest lock's bounded
         identity-checked protocol and idle-file cleanup.
         """
+        try:
+            require_safe_directory(Path(root).absolute())
+        except (UnsafeFilesystemPathError, OSError) as error:
+            raise ProjectError(
+                "project.layout_lock_unsafe", "original layout root is unsafe"
+            ) from error
         root = Path(root).resolve(strict=True)
+        from literate_ai.adapters.project_layout_lease import (
+            current_layout_lease,
+            require_layout_lease,
+        )
+
+        existing = current_layout_lease(root)
+        if existing is not None:
+            require_layout_lease(existing, root)
+            yield
+            require_layout_lease(existing, root)
+            return
         directory = cls.layout_metadata_directory(root)
         coordinate = (directory or root) / "literate-layout"
-        with cls(root)._lock(root, manifest_path=coordinate):
+        with cls(root)._lock(root, manifest_path=coordinate, _layout_lease_root=root):
             yield
 
     def create(self, definition: ProjectDefinition) -> ProjectConfigurationSnapshot:
@@ -480,6 +675,8 @@ class ProjectConfigurationStore:
         self,
         expected: ProjectConfigurationSnapshot,
         definition: ProjectDefinition,
+        *,
+        require_current: Callable[[], None] | None = None,
     ) -> ProjectConfigurationSnapshot:
         if not isinstance(expected, ProjectConfigurationSnapshot):
             raise TypeError("expected must be a ProjectConfigurationSnapshot")
@@ -504,6 +701,7 @@ class ProjectConfigurationStore:
                     "project.manifest_stale",
                     "project manifest location changed since it was read",
                 )
+            before = path.lstat() if require_current is not None else None
             current = self._read_manifest(path)
             if current != expected.content:
                 raise ProjectError(
@@ -515,13 +713,54 @@ class ProjectConfigurationStore:
                     "project.manifest_stale",
                     "project manifest location changed while it was read",
                 )
+
+            def close_publication_inputs():
+                require_current()
+                if self.context(root) != selected:
+                    raise ProjectError(
+                        "project.manifest_stale",
+                        "project manifest location changed during publication checks",
+                    )
+                after = path.lstat()
+                if any(
+                    getattr(before, name) != getattr(after, name)
+                    for name in (
+                        "st_dev",
+                        "st_ino",
+                        "st_mode",
+                        "st_size",
+                        "st_mtime_ns",
+                        "st_ctime_ns",
+                    )
+                ):
+                    raise ProjectError(
+                        "project.manifest_stale",
+                        "project manifest changed during publication checks",
+                    )
+
             if content != current:
-                self._replace(path, content)
+                if require_current is None:
+                    self._replace(path, content)
+                else:
+                    self._replace(
+                        path, content, require_current=close_publication_inputs
+                    )
+            elif require_current is not None:
+                close_publication_inputs()
         return ProjectConfigurationSnapshot(
             root, definition, content, path, selected.directory_binding
         )
 
     def _read_manifest(self, path: Path) -> bytes:
+        from literate_ai.adapters.bounded_role_observation import (
+            current_role_observation,
+        )
+
+        observation = current_role_observation()
+        if observation is not None:
+            content = observation.file(path, maximum_bytes=self.maximum_bytes).content
+            observation.json_value(content, str(path))
+            return content
         flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0)
         flags |= (
             getattr(os, "O_NOFOLLOW", 0)
@@ -676,7 +915,14 @@ class ProjectConfigurationStore:
             fcntl.flock(descriptor, fcntl.LOCK_UN)
 
     @contextmanager
-    def _lock(self, root: Path, *, manifest_path: Path | None = None) -> Iterator[None]:
+    def _lock(
+        self,
+        root: Path,
+        *,
+        manifest_path: Path | None = None,
+        require_path: Callable[[Path], None] | None = None,
+        _layout_lease_root: Path | None = None,
+    ) -> Iterator[None]:
         path = (
             self.lock_path(root)
             if manifest_path is None
@@ -686,8 +932,29 @@ class ProjectConfigurationStore:
         locked = False
         opened: os.stat_result | None = None
         try:
+            if require_path is not None:
+                require_path(path)
             descriptor, locked, opened = self._open_and_acquire(path)
-            yield
+            if _layout_lease_root is None:
+                yield
+            else:
+                from literate_ai.adapters.project_layout_lease import (
+                    ProjectLayoutLeaseError,
+                    acquired_layout_lease,
+                )
+
+                try:
+                    with acquired_layout_lease(
+                        _layout_lease_root,
+                        path,
+                        descriptor,
+                        _origin=_LAYOUT_ACQUIRED_LEASE_KEY,
+                    ):
+                        yield
+                except ProjectLayoutLeaseError as error:
+                    raise ProjectError(
+                        "project.layout_lock_unsafe", str(error)
+                    ) from error
         except ProjectError:
             raise
         except OSError as exc:
@@ -700,8 +967,8 @@ class ProjectConfigurationStore:
                     except OSError:
                         pass
                 os.close(descriptor)
-            if opened is not None:
-                self._remove_idle_lock(path, opened)
+            if opened is not None and _lock_cleanup_allowed(path, require_path):
+                self._remove_idle_lock(path, opened, require_path=require_path)
 
     def _open_and_acquire(self, path: Path) -> tuple[int, bool, os.stat_result]:
         """Open the lock file, take the exclusive lock, and verify identity.
@@ -866,7 +1133,13 @@ class ProjectConfigurationStore:
             if retry:
                 time.sleep(_LOCK_RETRY_SECONDS)
 
-    def _remove_idle_lock(self, path: Path, expected: os.stat_result) -> None:
+    def _remove_idle_lock(
+        self,
+        path: Path,
+        expected: os.stat_result,
+        *,
+        require_path: Callable[[Path], None] | None = None,
+    ) -> None:
         """Remove only the same unlocked inode when no waiter has acquired it."""
 
         flags = os.O_RDWR | getattr(os, "O_CLOEXEC", 0)
@@ -918,7 +1191,7 @@ class ProjectConfigurationStore:
                 path, observed, descriptor, opened
             ):
                 return
-            if os.name != "nt":
+            if os.name != "nt" and _lock_cleanup_allowed(path, require_path):
                 path.unlink()
         except OSError:
             return
@@ -935,17 +1208,27 @@ class ProjectConfigurationStore:
             # we just held (never a symlink) before removing it.
             try:
                 observed = path.lstat()
-                if not stat.S_ISLNK(observed.st_mode) and (
-                    self._same_file(expected, observed)
-                    if not (_is_windows() and expected.st_ino == 0)
-                    else True
+                if (
+                    not stat.S_ISLNK(observed.st_mode)
+                    and (
+                        self._same_file(expected, observed)
+                        if not (_is_windows() and expected.st_ino == 0)
+                        else True
+                    )
+                    and _lock_cleanup_allowed(path, require_path)
                 ):
                     path.unlink()
             except OSError:
                 pass
 
     @staticmethod
-    def _replace(path: Path, content: bytes) -> None:
+    def _replace(
+        path: Path, content: bytes, *, require_current: Callable[[], None] | None = None
+    ) -> None:
+        if publish_atomic_file_if_scoped(
+            path, content, require_current=require_current
+        ):
+            return
         descriptor, name = tempfile.mkstemp(
             prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
         )
@@ -955,6 +1238,8 @@ class ProjectConfigurationStore:
                 handle.write(content)
                 handle.flush()
                 os.fsync(handle.fileno())
+            if require_current is not None:
+                require_current()
             temporary.replace(path)
             # Fsync the parent directory so the rename is durable. Windows does
             # not permit FlushFileBuffers on a directory handle (it raises
@@ -1040,10 +1325,31 @@ class PinnedInputClosure:
                 "inputs.closure_label_invalid",
                 "pinned-input labels must be non-empty and at most 1024 bytes",
             )
+        expected_identity = _expected_identity_before_read(expected_identity)
         configured_boundary, resolved_boundary = self._boundary(boundary)
         resolved_path, content = self._read(
             path, resolved_boundary, configured_boundary=configured_boundary
         )
+        return self._admit_read(
+            resolved_path,
+            resolved_boundary,
+            content,
+            label=label,
+            expected_content=expected_content,
+            expected_identity=expected_identity,
+        )
+
+    def _admit_read(
+        self,
+        resolved_path,
+        resolved_boundary,
+        content,
+        *,
+        label,
+        expected_content=None,
+        expected_identity=None,
+    ) -> bytes:
+        """One common identity, quota and label admission after a current read."""
         if expected_content is not None and content != expected_content:
             raise PinnedInputClosureError(
                 "inputs.closure_capture_drift",
@@ -1069,6 +1375,140 @@ class PinnedInputClosure:
                 )
         self._admit(_PinnedInput(resolved_path, resolved_boundary, content, (label,)))
         return content
+
+    def _supports_direct_capture(self):
+        namespace = object.__getattribute__(self, "__dict__")
+        return (
+            type(self) is PinnedInputClosure
+            and "_read" not in namespace
+            and "pin" not in namespace
+            and type(self).__dict__.get("_read") is _DEFAULT_PINNED_INPUT_READ
+            and type(self).__dict__.get("pin") is _DEFAULT_PINNED_INPUT_PIN
+            and _pinned_read_batch_supported()
+        )
+
+    def _try_pin_direct(
+        self,
+        path,
+        *,
+        boundary,
+        label,
+        directories,
+        expected_identity,
+        unsafe_code,
+        unavailable_code,
+    ):
+        """Fuse a strict local path check and bounded capture, or decline early.
+
+        None is eligibility-only, before payload IO. The caller then retains its
+        original path-helper plus ordinary pin policy. Errors never ask to retry.
+        """
+        if not self._supports_direct_capture():
+            return None
+        configured = Path(os.path.abspath(path))
+        if (
+            not boundary.is_absolute()
+            or ".." in boundary.parts
+            or not configured.is_relative_to(boundary)
+            or configured == boundary
+        ):
+            return None
+        maximum = self.maximum_file_bytes
+
+        def settings_current():
+            if (
+                self.maximum_file_bytes != maximum
+                or not self._supports_direct_capture()
+            ):
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed",
+                    "pinned input reader or limit changed during capture",
+                )
+
+        if not label or len(label.encode("utf-8")) > 1024:
+            raise PinnedInputClosureError(
+                "inputs.closure_label_invalid",
+                "pinned-input labels must be non-empty and at most 1024 bytes",
+            )
+        expected_identity = _expected_identity_before_read(expected_identity)
+        content = None
+        try:
+            with directories.capture(configured.parent) as directory:
+                if directory is not None:
+                    parent = directory.binding.descriptor
+                    named = os.stat(
+                        configured.name, dir_fd=parent, follow_symlinks=False
+                    )
+                    if stat_is_link_or_reparse(named) or not stat.S_ISREG(
+                        named.st_mode
+                    ):
+                        raise PinnedInputClosureError(
+                            unsafe_code,
+                            "Component content must be a direct regular file "
+                            "without reparse points",
+                        )
+                    if named.st_ino:
+                        if named.st_size > maximum:
+                            raise PinnedInputClosureError(
+                                "inputs.closure_file_size_limit",
+                                "generation authority exceeds the "
+                                "pinned-input per-file limit",
+                            )
+                        original = _pinned_file_stamp(named)
+                        descriptor = os.open(
+                            configured.name,
+                            os.O_RDONLY
+                            | os.O_NOFOLLOW
+                            | os.O_NONBLOCK
+                            | getattr(os, "O_CLOEXEC", 0),
+                            dir_fd=parent,
+                        )
+                        try:
+                            if _pinned_file_stamp(os.fstat(descriptor)) != original:
+                                raise _pinned_replaced()
+                            content = _read_pinned_descriptor(descriptor, maximum)
+                            if _pinned_file_stamp(os.fstat(descriptor)) != original:
+                                raise _pinned_replaced()
+                        finally:
+                            os.close(descriptor)
+                        if len(content) > maximum:
+                            raise PinnedInputClosureError(
+                                "inputs.closure_file_size_limit",
+                                "generation authority exceeds the "
+                                "pinned-input per-file limit",
+                            )
+                        if (
+                            _pinned_file_stamp(
+                                os.stat(
+                                    configured.name,
+                                    dir_fd=parent,
+                                    follow_symlinks=False,
+                                )
+                            )
+                            != original
+                        ):
+                            raise _pinned_replaced()
+                settings_current()
+            settings_current()
+        except UnsafeFilesystemPathError as error:
+            raise PinnedInputClosureError(
+                unsafe_code,
+                "Component content traverses an unsafe directory",
+            ) from error
+        except OSError as error:
+            raise PinnedInputClosureError(
+                unavailable_code,
+                "Component content is unavailable",
+            ) from error
+        if content is None:
+            return None
+        return self._admit_read(
+            configured,
+            boundary,
+            content,
+            label=label,
+            expected_identity=expected_identity,
+        )
 
     def include(self, other: PinnedInputClosure) -> None:
         """Merge an independently captured authority set without rereading it."""
@@ -1103,6 +1543,15 @@ class PinnedInputClosure:
     def total_bytes(self) -> int:
         return self._total_bytes
 
+    @property
+    def pinned_paths(self) -> tuple[Path, ...]:
+        """Current bounded leaf names for native closing checks, not ownership.
+
+        This read-only inspection grants no exclusion, write or execution rights.
+        Consumers must still validate this actual closure and its original inputs.
+        """
+        return tuple(dict.fromkeys(entry.path for entry in self._entries.values()))
+
     def to_dict(self) -> dict[str, object]:
         return {
             "schema": "literate-ai/pinned-input-closure@1",
@@ -1113,6 +1562,13 @@ class PinnedInputClosure:
         }
 
     def require_unchanged(self) -> None:
+        if (
+            _pinned_read_batch_supported()
+            and type(self) is PinnedInputClosure
+            and getattr(self._read, "__func__", None) is _DEFAULT_PINNED_INPUT_READ
+            and self._require_unchanged_posix()
+        ):
+            return
         for entry in self._entries.values():
             _resolved, content = self._read(entry.path, entry.boundary)
             if content != entry.content:
@@ -1121,6 +1577,201 @@ class PinnedInputClosure:
                     "generation authority changed during the operation: "
                     + ", ".join(entry.labels),
                 )
+
+    def _require_unchanged_posix(self):
+        """Read original pinned DATA once per entry using fresh bounded handles."""
+        values, entries_current = self._capture_entry_values()
+        limits = (self.maximum_files, self.maximum_file_bytes, self.maximum_total_bytes)
+        rows = tuple(
+            (Path(path), Path(boundary), content, labels)
+            for path, boundary, content, labels in values
+        )
+        for path, boundary, _content, _labels in rows:
+            if (
+                not path.is_absolute()
+                or not boundary.is_absolute()
+                or ".." in path.parts
+                or ".." in boundary.parts
+                or not path.is_relative_to(boundary)
+                or path == boundary
+            ):
+                raise PinnedInputClosureError(
+                    "inputs.closure_path_escape", "pinned input escaped its boundary"
+                )
+
+        def metadata_current():
+            entries_current()
+            if limits != (
+                self.maximum_files,
+                self.maximum_file_bytes,
+                self.maximum_total_bytes,
+            ):
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed",
+                    "pinned input limits changed during validation",
+                )
+
+        try:
+            parents = tuple(dict.fromkeys(row[0].parent for row in rows))
+            with _readonly_directory_batch(parents) as view:
+                if view is None:
+                    metadata_current()
+                    return False
+                descriptors, _directories_current = view
+                originals = []
+                # Establish the entire original file set BEFORE reading payloads.
+                # Unknown identity declines the optimization before any file read.
+                for path, _boundary, content, labels in rows:
+                    parent = descriptors[path.parent]
+                    value = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+                    original = _pinned_file_stamp(value)
+                    if not value.st_ino:
+                        metadata_current()
+                        return False
+                    if value.st_size > limits[1]:
+                        raise PinnedInputClosureError(
+                            "inputs.closure_file_size_limit",
+                            "generation authority exceeds the pinned-input "
+                            "per-file limit",
+                        )
+                    originals.append((path, parent, original, content, labels))
+                for path, parent, original, expected, labels in originals:
+                    descriptor = os.open(
+                        path.name,
+                        os.O_RDONLY
+                        | os.O_NOFOLLOW
+                        | os.O_NONBLOCK
+                        | getattr(os, "O_CLOEXEC", 0),
+                        dir_fd=parent,
+                    )
+                    try:
+                        if _pinned_file_stamp(os.fstat(descriptor)) != original:
+                            raise _pinned_replaced()
+                        content = _read_pinned_descriptor(descriptor, limits[1])
+                        if _pinned_file_stamp(os.fstat(descriptor)) != original:
+                            raise _pinned_replaced()
+                    finally:
+                        os.close(descriptor)
+                    if len(content) > limits[1]:
+                        raise PinnedInputClosureError(
+                            "inputs.closure_file_size_limit",
+                            "generation authority exceeds the pinned-input "
+                            "per-file limit",
+                        )
+                    if content != expected:
+                        raise PinnedInputClosureError(
+                            "inputs.closure_changed",
+                            "generation authority changed during the operation: "
+                            + ", ".join(labels),
+                        )
+                for path, parent, original, _content, _labels in originals:
+                    named = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+                    if _pinned_file_stamp(named) != original:
+                        raise _pinned_replaced()
+                metadata_current()
+            return True
+        except UnsafeFilesystemPathError as error:
+            raise PinnedInputClosureError(
+                "inputs.closure_symlink",
+                "pinned directory changed or traverses a symbolic link",
+            ) from error
+        except OSError as error:
+            raise PinnedInputClosureError(
+                "inputs.closure_unavailable",
+                "pinned generation authority is unavailable",
+            ) from error
+
+    def _capture_entry_values(self):
+        """Snapshot immutable entry DATA without retaining aliased entry DTOs."""
+
+        def current_values():
+            rows = []
+            for key, entry in self._entries.items():
+                path, boundary = str(entry.path), str(entry.boundary)
+                if (
+                    tuple(str(part) for part in key) != (path, boundary)
+                    or not isinstance(entry.content, bytes)
+                    or type(entry.labels) is not tuple
+                    or any(not isinstance(label, str) for label in entry.labels)
+                ):
+                    raise PinnedInputClosureError(
+                        "inputs.closure_changed", "pinned input entry metadata changed"
+                    )
+                rows.append(
+                    (
+                        path,
+                        boundary,
+                        (
+                            entry.content
+                            if type(entry.content) is bytes
+                            else memoryview(entry.content).tobytes()
+                        ),
+                        tuple(str.__str__(label) for label in entry.labels),
+                    )
+                )
+            return tuple(sorted(rows, key=lambda row: (row[0], row[1])))
+
+        original = current_values()
+
+        def require_entries():
+            if current_values() != original:
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned inputs changed before close"
+                )
+
+        return original, require_entries
+
+    def capture_current_stamps(self):
+        """Fence original POSIX files after owner callbacks without reading again.
+
+        This is observation only. It neither renews authority nor replaces byte
+        validation. Directory identity is pinned without rejecting unrelated
+        sibling writes; original files retain metadata-change timestamps.
+        """
+        if os.name != "posix":
+            raise ValueError("live pinned files require POSIX change timestamps")
+        entries, entries_current = self._capture_entry_values()
+        files = {}
+
+        def file_stamp(path):
+            value = path.lstat()
+            if not stat.S_ISREG(value.st_mode):
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned file is no longer regular"
+                )
+            return (
+                value.st_dev,
+                value.st_ino,
+                value.st_mode,
+                value.st_nlink,
+                value.st_size,
+                value.st_mtime_ns,
+                value.st_ctime_ns,
+            )
+
+        for path, _boundary, _content, _labels in entries:
+            path = Path(path)
+            files[path] = file_stamp(path)
+        directories_current = capture_directory_ancestries(
+            tuple(dict.fromkeys(Path(row[0]).parent for row in entries))
+        )
+
+        def require_stamps():
+            try:
+                directories_current()
+            except (OSError, UnsafeFilesystemPathError) as error:
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned directory changed"
+                ) from error
+            entries_current()
+            if any(file_stamp(path) != value for path, value in files.items()):
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned inputs changed before close"
+                )
+
+        self.require_unchanged()
+        require_stamps()
+        return require_stamps
 
     def _identity_document(self) -> dict[str, object]:
         return {
@@ -1264,7 +1915,15 @@ class PinnedInputClosure:
             )
         try:
             with resolved.open("rb") as stream:
-                content = stream.read(self.maximum_file_bytes + 1)
+                remaining = self.maximum_file_bytes + 1
+                chunks = []
+                while remaining > 0:
+                    chunk = stream.read(min(64 * 1024, remaining))
+                    if not chunk:
+                        break
+                    chunks.append(chunk)
+                    remaining -= len(chunk)
+                content = b"".join(chunks)
         except OSError as exc:
             raise PinnedInputClosureError(
                 "inputs.closure_unavailable",
@@ -1283,10 +1942,75 @@ class PinnedInputClosure:
         return resolved, content
 
 
+_DEFAULT_PINNED_INPUT_READ = PinnedInputClosure._read
+_DEFAULT_PINNED_INPUT_PIN = PinnedInputClosure.pin
+
+
+def _expected_identity_before_read(value):
+    if isinstance(value, ContentIdentity):
+        value = value.uri
+    # Detach str subclasses without invoking their overridable formatting.
+    # Other input types retain the common admission owner's invalid-ID error.
+    return str.__str__(value) if isinstance(value, str) else value
+
+
+def _pinned_read_batch_supported():
+    return (
+        os.name == "posix"
+        and all(
+            hasattr(os, name) for name in ("O_DIRECTORY", "O_NOFOLLOW", "O_NONBLOCK")
+        )
+        and os.open in os.supports_dir_fd
+        and os.stat in os.supports_dir_fd
+        and os.stat in os.supports_follow_symlinks
+    )
+
+
+def _pinned_replaced():
+    return PinnedInputClosureError(
+        "inputs.closure_replaced", "generation authority changed while it was read"
+    )
+
+
+def _pinned_file_stamp(value):
+    if stat.S_ISLNK(value.st_mode):
+        raise PinnedInputClosureError(
+            "inputs.closure_symlink",
+            "generation authority cannot traverse a symbolic link",
+        )
+    if not stat.S_ISREG(value.st_mode):
+        raise PinnedInputClosureError(
+            "inputs.closure_not_regular", "generation authority must be a regular file"
+        )
+    return (
+        value.st_dev,
+        value.st_ino,
+        value.st_mode,
+        value.st_nlink,
+        value.st_size,
+        value.st_mtime_ns,
+        value.st_ctime_ns,
+    )
+
+
+def _read_pinned_descriptor(descriptor, maximum):
+    parts, remaining = [], maximum + 1
+    while remaining:
+        content = os.read(descriptor, min(remaining, 64 * 1024))
+        if not content:
+            break
+        parts.append(content)
+        remaining -= len(content)
+    return b"".join(parts)
+
+
 @dataclass(frozen=True, slots=True)
 class LoadedProject:
     root: Path
     definition: ProjectDefinition
+    _snapshot: ProjectConfigurationSnapshot | None = field(
+        default=None, repr=False, compare=False, kw_only=True
+    )
 
     @property
     def context(self) -> ProjectContext:
@@ -1351,19 +2075,465 @@ class LoadedProject:
 
 def load_project(root: Path) -> LoadedProject:
     snapshot = ProjectConfigurationStore(root).read()
-    return LoadedProject(snapshot.root, snapshot.definition)
+    return LoadedProject(snapshot.root, snapshot.definition, _snapshot=snapshot)
 
 
 def discover_project(start: Path) -> LoadedProject | None:
     snapshot = ProjectConfigurationStore.discover(start)
     if snapshot is None:
         return None
-    return LoadedProject(snapshot.root, snapshot.definition)
+    return LoadedProject(snapshot.root, snapshot.definition, _snapshot=snapshot)
 
 
 def project_boundary(start: Path, *, legacy: Path) -> Path:
     project = discover_project(start)
     return project.root if project is not None else legacy.resolve(strict=True)
+
+
+FORWARD_SKILL_ROOT = "skills/specification-to-source"
+CONTAINED_SKILL_ROOT = "litai/skills"
+CATALOG_PLACEMENT_ROOTS = {
+    "skill": "skills",
+    "flavor": "flavors",
+    "component": "components",
+    "workflow": "workflows",
+    "routing": "routing",
+}
+CATALOG_SOURCE_ROOTS = frozenset((*CATALOG_PLACEMENT_ROOTS.values(), "samples"))
+
+
+def catalog_placement_root(kind: str, coordinate: str) -> str | None:
+    if kind == "component" and coordinate.startswith(("samples/", "litai/samples/")):
+        return "samples"
+    return CATALOG_PLACEMENT_ROOTS.get(kind)
+
+
+def initialization_coordinate_baseline(
+    root: Path,
+    *,
+    _observation=None,
+    _initialization=None,
+    _record_ports,
+    _record_check,
+    _normal,
+):
+    """Read existing paired coordinate provenance; never issue a live owner."""
+    project_path, read_at, parse_bytes, pair, record_error, project_error = (
+        _record_ports
+    )
+    _record_check(_normal)
+
+    if _observation is not None and _initialization is not None:
+        raise project_error(
+            "project.skill_placement_conflict",
+            "one initialization read source required",
+        )
+    try:
+        if _initialization is not None:
+            if type(_initialization) is not tuple or len(_initialization) != 2:
+                raise ValueError("exact initialization pair required")
+            origin, baseline = _initialization
+        else:
+            names = (
+                ".literate/initialization-origin.json",
+                ".literate/initialization-baseline.json",
+            )
+            if _observation is not None:
+                payloads = []
+                for name in names:
+                    _record_check(_normal)
+                    payloads.append(_observation.read(name, optional=True))
+                _record_check(_normal)
+                present = tuple(payload is not None for payload in payloads)
+            else:
+                _record_check(_normal)
+                context = ProjectConfigurationStore.context(root)
+                present = []
+                for name in names:
+                    _record_check(_normal)
+                    present.append(project_path(context.framework_root, name).exists())
+                _record_check(_normal)
+            if not any(present):
+                return None
+            if not all(present):
+                raise ValueError("initialization provenance pair is incomplete")
+            if _observation is not None:
+                _record_check(_normal)
+                origin = parse_bytes(
+                    payloads[0], names[0], ProjectInitializationOrigin, _observation
+                )
+                _record_check(_normal)
+                baseline = parse_bytes(
+                    payloads[1], names[1], ProjectInitializationBaseline, _observation
+                )
+            else:
+                # Preserve the original independent selection before EACH read,
+                # in addition to the original presence-selection above.
+                _record_check(_normal)
+                origin = read_at(
+                    ProjectConfigurationStore.context(root).framework_root,
+                    names[0],
+                    ProjectInitializationOrigin,
+                )
+                _record_check(_normal)
+                baseline = read_at(
+                    ProjectConfigurationStore.context(root).framework_root,
+                    names[1],
+                    ProjectInitializationBaseline,
+                )
+        _record_check(_normal)
+        return pair(origin, baseline)
+    except (record_error, OSError, TypeError, ValueError) as error:
+        _record_check(_normal)
+        raise project_error(
+            "project.skill_placement_conflict",
+            "initialized coordinate provenance is unavailable or invalid",
+        ) from error
+
+
+def _bind_initialization_coordinate_baseline(implementation):
+    path, read_at, parse, pair, record_guard = _initialization_record_ports()
+    namespace, exact, size, some, text, mapping, failure = (
+        globals(),
+        type,
+        len,
+        any,
+        str,
+        vars,
+        ValueError,
+    )
+    error, store = ProjectError, ProjectConfigurationStore
+    context = mapping(store)["context"].__func__
+    ports = (path, read_at, parse, pair, _InitializedRecordError, error)
+    aliases = tuple(
+        (
+            name,
+            name in namespace,
+            namespace.get(name, implementation.__builtins__.get(name)),
+        )
+        for name in (
+            "ProjectInitializationOrigin",
+            "ProjectInitializationBaseline",
+            "ProjectError",
+            "_InitializedRecordError",
+            "type",
+            "tuple",
+            "len",
+            "any",
+            "all",
+            "ValueError",
+            "OSError",
+            "TypeError",
+        )
+    )
+    builtins = implementation.__builtins__
+    context_descriptor = mapping(store)["context"]
+    error_items = tuple(mapping(error).items())
+
+    def row(function):
+        return (
+            function,
+            function.__code__,
+            function.__defaults__,
+            function.__kwdefaults__,
+            tuple((function.__kwdefaults__ or {}).items()),
+        )
+
+    def same(function, code, defaults, keywords, items):
+        actual = function.__kwdefaults__
+        return (
+            function.__code__ is code
+            and function.__defaults__ is defaults
+            and actual is keywords
+            and size(actual or {}) == size(items)
+            and not some(exact(key) is not text for key in (actual or {}))
+            and not some((actual or {}).get(key) is not value for key, value in items)
+        )
+
+    codes = tuple(row(fn) for fn in (implementation, record_guard, error.__init__))
+    context_code = row(context)
+
+    def checked(normal):
+        if (
+            namespace.get("initialization_coordinate_baseline") is not baseline
+            or (
+                normal
+                and (
+                    namespace.get("ProjectConfigurationStore") is not store
+                    or mapping(store).get("context") is not context_descriptor
+                    or not same(*context_code)
+                )
+            )
+            or size(mapping(error)) != size(error_items)
+            or some(
+                mapping(error).get(name) is not value for name, value in error_items
+            )
+            or some(not same(*entry) for entry in codes)
+            or some(not same(*entry) for entry in boundary_codes)
+            or some(
+                (name in namespace) != present
+                or namespace.get(name, builtins.get(name)) is not value
+                for name, present, value in aliases
+            )
+        ):
+            raise failure("original initialization coordinate port changed")
+        record_guard()
+
+    def baseline(root: Path, *, _observation=None, _initialization=None):
+        normal = _observation is None and _initialization is None
+        checked(normal)
+        result = implementation(
+            root,
+            _observation=_observation,
+            _initialization=_initialization,
+            _record_ports=ports,
+            _record_check=checked,
+            _normal=normal,
+        )
+        checked(normal)
+        return result
+
+    boundary_codes = tuple(row(fn) for fn in (same, checked, baseline))
+    return baseline
+
+
+initialization_coordinate_baseline = _bind_initialization_coordinate_baseline(
+    initialization_coordinate_baseline
+)
+del _bind_initialization_coordinate_baseline
+
+
+def contained_catalog_coordinates(root: Path) -> dict[str, str]:
+    """Resolve recorded initialized and imported contained catalog coordinates."""
+    store = ProjectConfigurationStore(root)
+    if store.context(root).framework_root == root:
+        return {}
+    snapshot = store.read()
+    enabled = {
+        name
+        for kind, primary in CATALOG_PLACEMENT_ROOTS.items()
+        for name in ((primary, "samples") if kind == "component" else (primary,))
+        if f"litai/{name}" in getattr(snapshot.definition, f"{kind}_roots")
+    }
+    if not enabled:
+        return {}
+
+    from literate_ai.adapters.catalog_import import (
+        CatalogImportError,
+        read_contained_catalog_imports,
+    )
+
+    try:
+        imports = read_contained_catalog_imports(snapshot)
+    except CatalogImportError as exc:
+        raise ProjectError(exc.code, str(exc)) from exc
+    imported_paths = (
+        {row.path for entry in imports.imports for row in entry.files}
+        if imports is not None
+        else set()
+    )
+    mixed = {
+        name
+        for kind, primary in CATALOG_PLACEMENT_ROOTS.items()
+        for name in ((primary, "samples") if kind == "component" else (primary,))
+        if name in enabled and name in getattr(snapshot.definition, f"{kind}_roots")
+    }
+    coordinates = {}
+    if mixed:
+        # The original migration relocates baseline coordinates through its
+        # acknowledged writer. This is a resolver, never permission to move or
+        # adopt a neighboring file, nor a replacement for current input checks.
+        from literate_ai.adapters.project_updates import (
+            ProjectUpdateError,
+            _project_path,
+        )
+
+        baseline_path = _project_path(
+            store.context(root).framework_root, ".literate/initialization-baseline.json"
+        )
+        if baseline_path.exists():
+            baseline = initialization_coordinate_baseline(root)
+            if baseline is None:
+                raise ProjectError(
+                    "project.skill_placement_conflict",
+                    "initialized catalog evidence disappeared during coordinate read",
+                )
+            for item in baseline.files:
+                # Initialization may snapshot inherited files. Their current
+                # import producer remains the owner, even after an update has
+                # changed bytes since the historical initialization snapshot.
+                if item.path in imported_paths or not item.path.startswith("litai/"):
+                    continue
+                logical = item.path.removeprefix("litai/")
+                if logical.split("/", 1)[0] not in mixed:
+                    continue
+                try:
+                    original = _project_path(root, logical)
+                    require_safe_directory(
+                        (root / item.path).parent, allow_missing=True
+                    )
+                except (ProjectUpdateError, UnsafeFilesystemPathError, OSError) as exc:
+                    raise ProjectError(
+                        "project.skill_placement_conflict",
+                        f"initialized catalog coordinate is redirected: {logical}",
+                    ) from exc
+                if logical in coordinates or os.path.lexists(original):
+                    raise ProjectError(
+                        "project.skill_placement_conflict",
+                        f"old-root or duplicate initialized catalog file: {logical}",
+                    )
+                coordinates[logical] = item.path
+
+    if imports is None:
+        # A newly authored contained-only catalog is declared directly, without
+        # invented parent imports. Mixed old/new imported catalogs still require
+        # their original strict provenance mapping.
+        if coordinates or all(
+            name not in getattr(snapshot.definition, f"{kind}_roots")
+            for kind, primary in CATALOG_PLACEMENT_ROOTS.items()
+            for name in ((primary, "samples") if kind == "component" else (primary,))
+            if name in enabled
+        ):
+            return coordinates
+        raise ProjectError(
+            "project.skill_placement_missing",
+            "contained Skill import authority is absent",
+        )
+    for entry in imports.imports:
+        touched = {
+            catalog_placement_root(entry.kind, row.path)
+            for row in entry.files
+            if row.path.startswith("litai/")
+        }
+        if not touched.intersection(enabled):
+            continue
+        if len(touched) != 1:
+            raise ProjectError(
+                "project.skill_placement_conflict",
+                f"catalog has multiple placement roots: {entry.name}",
+            )
+        name = next(iter(touched))
+        prefix = f"litai/{name}/{entry.name}"
+        if any(
+            row.path != prefix and not row.path.startswith(prefix + "/")
+            for row in entry.files
+        ):
+            raise ProjectError(
+                "project.skill_placement_conflict",
+                f"catalog has mixed import ownership: {entry.name}",
+            )
+        for item in entry.files:
+            logical = item.path.removeprefix("litai/")
+            if logical in coordinates or os.path.lexists(root / logical):
+                raise ProjectError(
+                    "project.skill_placement_conflict",
+                    f"old-root or duplicate catalog file shadows authority: {logical}",
+                )
+            coordinates[logical] = item.path
+    return coordinates
+
+
+def configured_catalog_path(boundary: Path, base: Path, uri: str, *, kind: str) -> Path:
+    """Resolve an original typed URI through recorded catalog placement."""
+    configured = base / uri
+    if (
+        kind
+        not in {
+            "specification-to-source-skill",
+            "agent-skill",
+            "source-to-specification-skill",
+            "workflow",
+            "routing-policy",
+        }
+        or Path(uri).is_absolute()
+    ):
+        return configured
+    old = Path(os.path.abspath(configured))
+    if not old.is_relative_to(boundary):
+        return configured
+    relative = old.relative_to(boundary).as_posix()
+    if not relative.startswith(("skills/", "litai/skills/", "workflows/", "routing/")):
+        return configured
+    coordinates = contained_catalog_coordinates(boundary)
+    relative_base = (
+        base.relative_to(boundary).as_posix() if base.is_relative_to(boundary) else ""
+    )
+    if (
+        relative.startswith("litai/skills/")
+        and f"{relative_base}/flavor.md" in coordinates.values()
+    ):
+        original = relative.removeprefix("litai/")
+        destination = coordinates.get(original)
+        if destination is None:
+            # A template-installed skill already sits beside the contained
+            # Flavor; only an absent one falls back to its old-root coordinate.
+            contained = boundary / relative
+            destination = (
+                relative
+                if contained.is_file() and not contained.is_symlink()
+                else original
+            )
+    else:
+        destination = coordinates.get(relative)
+    if destination is None:
+        root_name = relative.split("/", 1)[0]
+        field = {
+            "skills": "skill_roots",
+            "workflows": "workflow_roots",
+            "routing": "routing_roots",
+        }.get(root_name)
+        if field is not None:
+            store = ProjectConfigurationStore(boundary)
+            if store.context(boundary).framework_root == boundary:
+                return configured
+            snapshot = store.read()
+            declared = getattr(snapshot.definition, field)
+            if (
+                snapshot.definition.framework_directory == "litai"
+                and f"litai/{root_name}" in declared
+                and root_name not in declared
+            ):
+                from literate_ai.adapters.retained_layout import (
+                    original_source_occupies_coordinate,
+                )
+
+                if original_source_occupies_coordinate(boundary, relative):
+                    raise ProjectError(
+                        "project.skill_placement_conflict",
+                        "old-root source shadows an explicitly contained "
+                        "catalog reference",
+                    )
+                destination = f"litai/{relative}"
+        if destination is None:
+            return configured
+    selected = boundary / destination
+    try:
+        require_safe_directory(selected.parent, allow_missing=True)
+    except (UnsafeFilesystemPathError, OSError) as exc:
+        raise ProjectError(
+            "project.skill_placement_conflict",
+            f"contained Skill path is redirected: {destination}",
+        ) from exc
+    return selected
+
+
+def configured_component_coordinate(project: LoadedProject, coordinate: str) -> str:
+    """Resolve a moved imported Component named by an app-relative CLI argument."""
+    path = Path(coordinate)
+    if (
+        path.is_absolute()
+        or ".." in path.parts
+        or not path.parts
+        or path.parts[0] not in {"components", "samples"}
+    ):
+        return coordinate
+    relative = path if path.name == "component.md" else path / "component.md"
+    placement = contained_catalog_coordinates(project.root).get(relative.as_posix())
+    if placement is None:
+        return coordinate
+    return (
+        placement if path.name == "component.md" else Path(placement).parent.as_posix()
+    )
 
 
 def project_skill_catalog(project: LoadedProject) -> AgentSkillCatalog:
@@ -1372,14 +2542,56 @@ def project_skill_catalog(project: LoadedProject) -> AgentSkillCatalog:
     roots = project.roots("skill")
     if not roots:
         raise ProjectError("project.skill_invalid", "project declares no skill roots")
+    coordinates = {
+        old: new
+        for old, new in contained_catalog_coordinates(project.root).items()
+        if old.startswith("skills/")
+    }
+    contained_only = (
+        project.definition.framework_directory == "litai"
+        and "litai/skills" in project.definition.skill_roots
+        and "skills" not in project.definition.skill_roots
+    )
+    contained_agent = (
+        project.definition.framework_directory == "litai"
+        and project.definition.agent_skill == "litai/SKILL.md"
+    )
+    if contained_agent:
+        coordinates["SKILL.md"] = "litai/SKILL.md"
     try:
-        return AgentSkillCatalog.discover(
+        catalog = AgentSkillCatalog.discover(
             project.root,
             catalog_roots=roots,
             root_manifests=(project.agent_skill,),
             validate_dependencies=True,
             validate_references=True,
+            reference_coordinates=coordinates,
+            **(
+                {"reference_root_coordinates": {"skills": "litai/skills"}}
+                if contained_only
+                else {}
+            ),
         )
+        if contained_only or contained_agent:
+            from literate_ai.adapters.retained_layout import (
+                original_source_occupies_coordinate,
+            )
+
+            for skill in catalog.skills:
+                for logical in skill.owned_paths:
+                    if not (
+                        contained_only
+                        and logical.parts[0] == "skills"
+                        or str(logical) == "SKILL.md"
+                        and coordinates.get("SKILL.md") == "litai/SKILL.md"
+                    ):
+                        continue
+                    if original_source_occupies_coordinate(project.root, str(logical)):
+                        raise ProjectError(
+                            "project.skill_placement_conflict",
+                            "old-root file shadows contained skill authority",
+                        )
+        return catalog
     except AgentSkillCatalogError as exc:
         raise ProjectError(exc.code, exc.message) from exc
 

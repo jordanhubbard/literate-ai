@@ -1,0 +1,75 @@
+{
+  "review": "read-only focused installed HTML evidence closing",
+  "current_script_sha256": "3665bcd9537e535ddb5150918ea79bb4b3166bda63386acb31efbd5435283c1b",
+  "result_path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/installed-html-coordinates-r1/result.json",
+  "result_sha256": "0814b2bcdbc7d38a4e7129a7c6cb865e2f49ae9693cb0479f990c8b495cd475a",
+  "all_recorded_command_exits": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "final_driver": {
+    "argv": [
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/candidate-environment/bin/python",
+      "-I",
+      "-B",
+      "/home/jkh/Src/literate-ai/scripts/installed_html_smoke.py",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/candidate-environment/bin/litai",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/installed-html-coordinates-r1/project",
+      "sha256:78112f456ab988f24707a72cfddad065092f3f3766cbc90f18655ae2891fe665",
+      "--parent-repository",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/installed-html-coordinates-r1/parent.git"
+    ],
+    "exit": 0,
+    "seconds": 570.089581503009,
+    "timeout_seconds": 7200
+  },
+  "framework_distribution_identity": "sha256:78112f456ab988f24707a72cfddad065092f3f3766cbc90f18655ae2891fe665",
+  "receiving_authority_path": "litai/samples/hello-component/component.md",
+  "update_parent_before": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+  "update_verdicts": [
+    "current",
+    "stale",
+    "current"
+  ],
+  "version_health_currency": [
+    "current",
+    "stale",
+    "current"
+  ],
+  "lock_health_currency": [
+    "current",
+    "stale",
+    "current"
+  ],
+  "lock_health_states": [
+    {
+      "gate": "fail",
+      "state": "not-current"
+    },
+    {
+      "gate": "fail",
+      "state": "error"
+    },
+    {
+      "gate": "skipped",
+      "state": "empty"
+    }
+  ],
+  "verification_health_currency": [
+    "current",
+    "unpinned",
+    "stale",
+    "current"
+  ],
+  "repeat_bytes_and_observation_preserved": true,
+  "limits": [
+    "Fresh task-owned parent/project created by parent helper; original failed wheel fixture untouched.",
+    "Parent final installed-driver command recorded exit0; reviewer inspected retained result and command evidence, did not rerun.",
+    "Installed exact a3 wheel identity shown; current dirty coordinate driver source reviewed separately. This is focused driver acceptance, not a wheel built from all current changes.",
+    "Browser acceptance explicitly not-exercised. Full wheel/release acceptance remains separate."
+  ]
+}

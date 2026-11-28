@@ -6,7 +6,7 @@ import path from 'node:path';
 import {createRequire} from 'node:module';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const require=createRequire(path.join(root,'tools/openspec/package.json'));
+const require=createRequire(path.join(root,'tools/documentation/package.json'));
 const {default:puppeteer}=await import(pathToFileURL(require.resolve('puppeteer')));
 const base=(process.argv[2]||'http://127.0.0.1:8766/literate-ai/').replace(/\/?$/,'/');
 const output=path.join(root,'_build/conference-website-browser',base.startsWith('https:')?'live':'local');

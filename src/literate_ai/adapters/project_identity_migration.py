@@ -31,7 +31,11 @@ from literate_ai.adapters.retained_harness_receipts import (
     _load_retained_documents,
     _require_qualified_parity,
 )
-from literate_ai.adapters.retained_scope_refresh import _members, _safe_path
+from literate_ai.adapters.retained_scope_refresh import (
+    _members,
+    _metadata_coordinate,
+    _safe_path,
+)
 from literate_ai.contracts import (
     ContentIdentity,
     canonical_identity,
@@ -60,53 +64,62 @@ def _fail(suffix: str, message: str) -> None:
 
 
 def _history_path(root: Path, identity: ContentIdentity) -> Path:
-    return _safe_path(root, f"{HISTORY}/{identity.digest}.json")
+    return _safe_path(
+        root, _metadata_coordinate(root, f"{HISTORY}/{identity.digest}.json")
+    )
 
 
 def _read_record(root: Path, identity: ContentIdentity) -> dict[str, Any]:
     path = _history_path(root, identity)
     try:
-        named_before = path.lstat()
-        fd = os.open(
-            path,
-            os.O_RDONLY
-            | getattr(os, "O_NOFOLLOW", 0)
-            | getattr(os, "O_NONBLOCK", 0)
-            | getattr(os, "O_BINARY", 0),
-        )
-        try:
-            before = os.fstat(fd)
-            if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 262144:
-                raise ValueError
-            content = os.read(fd, 262145)
-            after = os.fstat(fd)
-            named = path.lstat()
+        from .bounded_role_observation import current_role_observation
 
-            def stamp(s):
-                return (
-                    s.st_dev,
-                    s.st_ino,
-                    s.st_mode,
-                    s.st_size,
-                    s.st_mtime_ns,
-                    s.st_ctime_ns,
-                    s.st_nlink,
-                )
+        observation = current_role_observation()
+        if observation is not None:
+            content = observation.file(path, maximum_bytes=262144).content
+            observation.json_value(content, str(path))
+        else:
+            named_before = path.lstat()
+            fd = os.open(
+                path,
+                os.O_RDONLY
+                | getattr(os, "O_NOFOLLOW", 0)
+                | getattr(os, "O_NONBLOCK", 0)
+                | getattr(os, "O_BINARY", 0),
+            )
+            try:
+                before = os.fstat(fd)
+                if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 262144:
+                    raise ValueError
+                content = os.read(fd, 262145)
+                after = os.fstat(fd)
+                named = path.lstat()
 
-            # Windows fstat and lstat can expose different ctime meanings.
-            # Preserve change detection within each observer; bind their file
-            # identity with the conversion store's native Windows fallback.
-            if (
-                len(content) != before.st_size
-                or stamp(before) != stamp(after)
-                or stamp(named_before) != stamp(named)
-                or (before.st_size, before.st_mtime_ns)
-                != (named.st_size, named.st_mtime_ns)
-                or not _named_file_matches(path, fd, before)
-            ):
-                raise ValueError
-        finally:
-            os.close(fd)
+                def stamp(s):
+                    return (
+                        s.st_dev,
+                        s.st_ino,
+                        s.st_mode,
+                        s.st_size,
+                        s.st_mtime_ns,
+                        s.st_ctime_ns,
+                        s.st_nlink,
+                    )
+
+                # Windows fstat and lstat can expose different ctime meanings.
+                # Preserve change detection within each observer; bind their file
+                # identity with the conversion store's native Windows fallback.
+                if (
+                    len(content) != before.st_size
+                    or stamp(before) != stamp(after)
+                    or stamp(named_before) != stamp(named)
+                    or (before.st_size, before.st_mtime_ns)
+                    != (named.st_size, named.st_mtime_ns)
+                    or not _named_file_matches(path, fd, before)
+                ):
+                    raise ValueError
+            finally:
+                os.close(fd)
         record = json.loads(content)
         if (
             content != canonical_json_bytes(record) + b"\n"
@@ -216,9 +229,12 @@ def plan_project_identity_migration(
     """Plan recovery of an explicitly authored new ID; never infer the old ID."""
     project = load_project(selected)
     root = project.root
-    _safe_path(root, "literate.project.json")
-    _safe_path(root, CONVERSION_AUTHORITY_FILE)
-    _safe_path(root, HISTORY)
+    _safe_path(
+        root, ProjectConfigurationStore.manifest_path(root).relative_to(root).as_posix()
+    )
+    authority = _metadata_coordinate(root, CONVERSION_AUTHORITY_FILE)
+    _safe_path(root, authority)
+    _safe_path(root, _metadata_coordinate(root, HISTORY))
     state = FilesystemConversionAuthorityStore(root).load_optional()
     if state is None or state.project_id != from_project_id:
         _fail(
@@ -256,7 +272,7 @@ def plan_project_identity_migration(
         "record_identity": identity.uri,
         "conversion_identity": state.identity.uri,
         "new_conversion_state": replacement.to_dict(),
-        "write_set": [history.relative_to(root).as_posix(), CONVERSION_AUTHORITY_FILE],
+        "write_set": [history.relative_to(root).as_posix(), authority],
         "execution_performed": False,
         "requalification_required": True,
     }

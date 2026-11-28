@@ -38,6 +38,7 @@ from literate_ai.contracts import (
     ArtifactExport,
     ComponentCommandContract,
     ComponentCommandPhase,
+    ComponentExecutionPlan,
     ContentIdentity,
     CppLibraryLayout,
     CycloneDxBomBinding,
@@ -56,6 +57,7 @@ from .standard_local import (
     local_generated_source_tree_identity,
     local_tree_identity,
 )
+from .standard_node_sdk import StandardNodeSDKTarget
 from .standard_npm import StandardNpmTarget
 from .standard_python import StandardPythonTarget
 
@@ -274,9 +276,11 @@ class StandardBazelLifecyclePorts(LocalStandardLifecyclePorts):
         tool_bindings: tuple[LocalComponentToolBinding, ...] = (),
         bazel_targets: tuple[StandardBazelTarget, ...],
         npm_targets: tuple[StandardNpmTarget, ...] = (),
+        node_sdk_targets: tuple[StandardNodeSDKTarget, ...] = (),
         python_targets: tuple[StandardPythonTarget, ...] = (),
         python_wheelhouse: Path | None = None,
         provider_environment: Mapping[str, tuple[str, str]] | None = None,
+        execution_plan: ComponentExecutionPlan | None = None,
         dependency_observation: HostDependencyObservation | None = None,
         independent_acceptance_oracle: LocalIndependentAcceptanceOracle | None = None,
         browser_driver: object | None = None,
@@ -292,9 +296,11 @@ class StandardBazelLifecyclePorts(LocalStandardLifecyclePorts):
             command_phases=command_phases,
             tool_bindings=tool_bindings,
             npm_targets=npm_targets,
+            node_sdk_targets=node_sdk_targets,
             python_targets=python_targets,
             python_wheelhouse=python_wheelhouse,
             provider_environment=provider_environment,
+            execution_plan=execution_plan,
             dependency_observation=dependency_observation,
             independent_acceptance_oracle=independent_acceptance_oracle,
             browser_driver=browser_driver,
@@ -447,11 +453,17 @@ class StandardBazelLifecyclePorts(LocalStandardLifecyclePorts):
         }
 
     def _write_resolved_sbom(
-        self, plan: StandardComponentBuildPlan, artifact_root: Path
+        self,
+        plan: StandardComponentBuildPlan,
+        artifact_root: Path,
+        *,
+        write_evidence: Callable[[Path, bytes], None] | None = None,
     ) -> CycloneDxBomBinding:
         evidence = self._bazel_resolution_builds.get(plan.identity.uri)
         if evidence is None:
-            return super()._write_resolved_sbom(plan, artifact_root)
+            return super()._write_resolved_sbom(
+                plan, artifact_root, write_evidence=write_evidence
+            )
         observation = evidence["dependency_observation"]
         if not isinstance(observation, BuildDependencyObservation):
             raise LocalStandardLifecycleError(
@@ -473,6 +485,7 @@ class StandardBazelLifecyclePorts(LocalStandardLifecyclePorts):
             dependency_observation=observation,
             artifact_digest=artifact_digest,
             additional_build_evidence=additional,
+            write_evidence=write_evidence,
         )
 
     def _build_locked(
@@ -530,7 +543,7 @@ class StandardBazelLifecyclePorts(LocalStandardLifecyclePorts):
         source = self.source_trees.resolve(plan.request.source_tree_identity)
         source_identity = local_generated_source_tree_identity(source)
         provider_materials = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
+            provider_artifacts, consumer_plan=plan
         )
         cache_identity = canonical_identity(
             {

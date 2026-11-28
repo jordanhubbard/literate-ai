@@ -1,0 +1,77 @@
+{
+  "schema": "literate-ai/native-module-budget-observation@1",
+  "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+  "run": 44968003486,
+  "module": "tests.smoke.test_authored_owning_admission",
+  "native_case_operation_timeout_seconds": 3600,
+  "failed_worker_timeout_seconds": 3600,
+  "failures": [
+    {
+      "python": "311",
+      "artifact": 14735170915,
+      "artifact_sha256": "b6156f045e28f54acb5be1f4afb1fb874155bc9bc82cdf145876331cd85c220c",
+      "summary": {
+        "executed": 218,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 217,
+        "selected": 232,
+        "skipped": 3
+      },
+      "report_sha256": "57fc6c66d140a2a98d5a6cb86d4d628724053d30550ffeb519b1bde322dddf1d",
+      "module_cases": 4,
+      "module_serial": true,
+      "worker_elapsed_seconds": 3600.007174,
+      "cleanup_disposition": "deadline",
+      "cleanup_complete": true,
+      "terminal_cases_before_worker_kill": 3
+    },
+    {
+      "python": "314",
+      "artifact": 14734978179,
+      "artifact_sha256": "016e2463984bf70eb5e1206d10254e7651a48d0023478106248fea2bb4c11f9c",
+      "summary": {
+        "executed": 218,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 217,
+        "selected": 232,
+        "skipped": 3
+      },
+      "report_sha256": "57fc6c66d140a2a98d5a6cb86d4d628724053d30550ffeb519b1bde322dddf1d",
+      "module_cases": 4,
+      "module_serial": true,
+      "worker_elapsed_seconds": 3600.005654,
+      "cleanup_disposition": "deadline",
+      "cleanup_complete": true,
+      "terminal_cases_before_worker_kill": 3
+    }
+  ],
+  "correction_intent": "Give the complete four-case native owning-admission family an explicit finite 6600-second CI worker budget in its Linux and macOS cells; keep every production/test operation deadline, method, assertion, module partition, 180/120-minute step and 240-minute job boundary. This is a measured-budget hypothesis requiring fresh native execution, not a passing qualification.",
+  "corrected_native_result": "pending",
+  "development_verification": {
+    "maintained_ci_policy_summary": {
+      "executed": 35,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 35,
+      "selected": 35,
+      "skipped": 0
+    },
+    "report_sha256": "5b8f7f89cb7b5951ccf79ff2fc3296f4d737935b7a657349cca5d01c05d2183e",
+    "lint": "passed",
+    "format": "2184Pythonfilescurrent",
+    "driver_review": "current;unchanged05c3a129f8f50a6a0f33b227ba903f21d56dd5b6e016bc3972eceb96ee81c60f",
+    "runner_review": "current;unchanged421dfa16df016a87818b667ffcbe180187827f53b7bb429c497e700d728b6af1",
+    "documentation_authority": "current",
+    "repository_layout": "passed",
+    "public_export": "passed",
+    "documentation": {
+      "exit_code": 0,
+      "diagrams": 181,
+      "renderer_controls": 23,
+      "markdown_files": 1967
+    },
+    "native_successor_result": "pending; policy checks do not establish that 6600seconds is sufficient"
+  }
+}

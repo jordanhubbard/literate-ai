@@ -2,9 +2,15 @@ from __future__ import annotations
 
 import hashlib
 import io
+import json
 import os
+import shlex
+import shutil
+import signal
+import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -84,6 +90,166 @@ class EvidenceLedgerTests(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 7)
             self.assertEqual(run.reduced()["nodes"][0]["state"], "failed")
+
+    @unittest.skipUnless(
+        os.name == "posix" and shutil.which("make"), "requires POSIX Make"
+    )
+    def test_interrupt_cleanup_for_nested_release_steps(self) -> None:
+        repository = Path(__file__).resolve().parents[2]
+        step = shlex.join((sys.executable, str(repository / "scripts/litai_step.py")))
+        for use_bounded_owner, without_waitid in (
+            (False, False),
+            (True, False),
+            (False, True),
+            (True, True),
+        ):
+            with (
+                self.subTest(
+                    use_bounded_owner=use_bounded_owner, without_waitid=without_waitid
+                ),
+                tempfile.TemporaryDirectory() as directory,
+            ):
+                root = Path(directory).resolve()
+                leaf = root / "finite_leaf.py"
+                leaf.write_text(
+                    "import os, signal, sys, time\n"
+                    "from pathlib import Path\n"
+                    "signal.signal(signal.SIGINT, signal.SIG_IGN)\n"
+                    "Path(sys.argv[1]).write_text(str(os.getpid()))\n"
+                    "time.sleep(20)\n",
+                    encoding="utf-8",
+                )
+                completed = shlex.join((sys.executable, "-c", "pass"))
+                owned = root / "owned.pid"
+                unrelated_marker = root / "unrelated.pid"
+                owned_command = shlex.join((sys.executable, str(leaf), str(owned)))
+                (root / "Makefile").write_text(
+                    "gate:\n"
+                    f"	{step} --name complete -- {completed}\n"
+                    f"	{step} --name interrupted -- {owned_command}\n"
+                    "later:\n"
+                    "	touch later-ran\n",
+                    encoding="utf-8",
+                )
+                command = [
+                    sys.executable,
+                    "-P",
+                    str(repository / "scripts/run_checkpointed_gates.py"),
+                    "--state",
+                    "checkpoint.json",
+                    "--make",
+                    shutil.which("make"),
+                    "gate",
+                    "later",
+                ]
+                if use_bounded_owner:
+                    supervisor = root / "bounded_owner.py"
+                    supervisor.write_text(
+                        "import os, sys\nfrom pathlib import Path\n"
+                        "from literate_ai.adapters.builders import "
+                        "run_bounded_process\n"
+                        "run_bounded_process(sys.argv[1:], cwd=Path.cwd(), "
+                        "environment=dict(os.environ), timeout_seconds=30, "
+                        "stdout_limit_bytes=16384, stderr_limit_bytes=16384, "
+                        "error_prefix='cancel_fixture', terminate_descendants=True)\n",
+                        encoding="utf-8",
+                    )
+                    command = [sys.executable, "-P", str(supervisor), *command]
+                if without_waitid:
+                    launcher = root / "without_waitid.py"
+                    launcher.write_text(
+                        "import os, runpy, sys\n"
+                        "if hasattr(os, 'waitid'): del os.waitid\n"
+                        "script = sys.argv.pop(1)\n"
+                        "runpy.run_path(script, run_name='__main__')\n",
+                        encoding="utf-8",
+                    )
+                    command = [sys.executable, "-P", str(launcher), *command[2:]]
+                # This is an independent fixture Makefile. Parent command-line
+                # overrides would redirect its evidence out of the fixture root.
+                environment = {
+                    key: value
+                    for key, value in os.environ.items()
+                    if key
+                    not in {"MAKEFLAGS", "MFLAGS", "GNUMAKEFLAGS", "MAKEOVERRIDES"}
+                }
+                environment.update(
+                    PYTHONPATH=str(repository / "src"),
+                    OBJ_DIR=str(root / "objects"),
+                )
+
+                def owns_leaf(pid: int, script: Path, marker: Path) -> bool:
+                    process = subprocess.run(
+                        ["ps", "-p", str(pid), "-o", "command="],
+                        capture_output=True,
+                        text=True,
+                        timeout=3,
+                        check=False,
+                    )
+                    return (
+                        str(script) in process.stdout and str(marker) in process.stdout
+                    )
+
+                with (
+                    (root / "controller.log").open("wb") as log,
+                    subprocess.Popen(
+                        [sys.executable, str(leaf), str(unrelated_marker)],
+                        cwd=root,
+                    ) as unrelated,
+                    subprocess.Popen(
+                        command,
+                        cwd=root,
+                        env=environment,
+                        stdout=log,
+                        stderr=subprocess.STDOUT,
+                    ) as controller,
+                ):
+                    owned_pid = None
+                    try:
+                        deadline = time.monotonic() + 10
+                        while (
+                            (not owned.is_file() or owned.stat().st_size == 0)
+                            and controller.poll() is None
+                            and time.monotonic() < deadline
+                        ):
+                            time.sleep(0.03)
+                        self.assertTrue(
+                            owned.is_file(), (root / "controller.log").read_text()
+                        )
+                        owned_pid = int(owned.read_text())
+                        self.assertTrue(owns_leaf(owned_pid, leaf, owned))
+                        controller.send_signal(signal.SIGINT)
+                        self.assertEqual(controller.wait(timeout=8), -signal.SIGINT)
+                        self.assertFalse(owns_leaf(owned_pid, leaf, owned))
+                        self.assertIsNone(unrelated.poll())
+                        self.assertFalse((root / "later-ran").exists())
+                        self.assertFalse((root / "checkpoint.json").exists())
+                        (index,) = (
+                            path
+                            for path in (root / "objects/evidence").glob("*/index.json")
+                            if not path.parent.is_symlink()
+                            and path.parent.name != "latest"
+                        )
+                        nodes = {
+                            row["path"]: row["state"]
+                            for row in json.loads(index.read_bytes())["nodes"]
+                        }
+                        self.assertEqual(
+                            nodes,
+                            {
+                                "release": "failed",
+                                "release/gate/release-check/gate": "failed",
+                                "steps/complete": "passed",
+                                "steps/interrupted": "failed",
+                            },
+                        )
+                    finally:
+                        if controller.poll() is None:
+                            controller.kill()
+                        if owned_pid is not None and owns_leaf(owned_pid, leaf, owned):
+                            os.kill(owned_pid, signal.SIGTERM)
+                        if unrelated.poll() is None:
+                            unrelated.terminate()
 
     def test_explain_renders_failure_and_independent_ancestor_errors(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

@@ -1,0 +1,119 @@
+{
+  "schema": "literate-ai/development-qualification@1",
+  "requirement": "AUTHORED-GRAPH-QUALIFICATION-001 / accepted ADR 0072",
+  "status": "original current read-input scope source-qualified; public receiving and semantic replay integration remain open",
+  "platform": {
+    "system": "Linux",
+    "machine": "aarch64"
+  },
+  "source_sha256": {
+    "src/literate_ai/adapters/authored_qualification_receiving.py": "63b0853396b6d8cac128c17073b1f12360b8c25ac9ade83a12932152dafe6057",
+    "tests/critical/test_authored_qualification_receiving.py": "08b0a57a5690d7fdae2d321aebed57e2dd0580d0922cfbe83ee167170a869ee5",
+    "tests/critical/test_authored_qualification_receiving_expiry.py": "c2c735671273616d79fbbc12330bbbbdd7396c3f4c86f4bbccac3faf3c771227"
+  },
+  "command": "make python-check PYTHON_TEST_WORKERS=1 PYTHON_TEST_START_DIRECTORY=tests/critical PYTHON_TEST_PATTERN=test_authored_qualification_receiving*.py",
+  "summary": {
+    "executed": 20,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 20,
+    "selected": 20,
+    "skipped": 0
+  },
+  "report_sha256": "f7a010353ee9177e86a2bcd80652aec7b6f20f0a1fa4b65c7c9f8036fca4a951",
+  "release_evidence": false,
+  "qualified": [
+    "Factory performs original independently approved six-file read, retaining exact returned file owner, review pointer and captured identity",
+    "Original graph/oracle/project review/Standard binding and complete logical execution plan remain current without coding CLI selection or executable planning",
+    "Scope expiry, copying/serialization refusal, missing review and mismatched operator selections refuse",
+    "Actual provider/oracle/review/framework drift, replaced passive records and callback-time field substitution refuse",
+    "Original dispatch is authenticated before use and at scope closing; changed callback, public method, same-function code and defaults refuse with zero foreign execution",
+    "Framework binding is refreshed after callback and parse-frame closing before final pure field/function seals",
+    "Original scope retirement inside a review callback refuses the same in-flight check; callback failure after retirement retains its exact primary exception"
+  ],
+  "source_review_repairs": [
+    {
+      "finding": "Stored-check or public-method substitution could bypass dispatch and expiry",
+      "repair": "Context-bounded original issuer registry, authenticated trusted helper and direct captured factory boundary checks"
+    },
+    {
+      "finding": "Reviewer could invalidate framework state after its initial observation",
+      "repair": "Refresh original binding after callback-rich checks and frame closing; regression asserts the same pre-effect call refuses"
+    },
+    {
+      "finding": "Same-function code replacement preserves method pointer",
+      "repair": "Seal code/defaults/keyword-default pointer and bounded entries of both exposed dispatch functions before use and at final closing"
+    },
+    {
+      "finding": "Callback can close original manager while an outer current-input check remains in flight",
+      "repair": "Final pure closing rechecks original active state and registry owner/check/seal identities without new native queries, callbacks or clocks"
+    }
+  ],
+  "prior_development_reports": [
+    {
+      "report_sha256": "82465fa0a2dcabbcd6205344553d62c8a4a12024467dbb9e0d36e57b64ff9a41",
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      },
+      "scope": "Earlier passing tests did not cover subsequent source-review findings; preserved, not current repaired-source acceptance"
+    },
+    {
+      "report_sha256": "9a294925a5270c9c9706b9d397aa631d7814c1b05924ebc48daf7045ec320280",
+      "summary": {
+        "executed": 15,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 15,
+        "selected": 15,
+        "skipped": 0
+      },
+      "scope": "Earlier passing tests did not cover subsequent source-review findings; preserved, not current repaired-source acceptance"
+    },
+    {
+      "report_sha256": "f7028eea0aa3a15d535d4476e0bb1813c13cda5f88a26cbb63396a8a51bd1a37",
+      "summary": {
+        "executed": 18,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 18,
+        "selected": 18,
+        "skipped": 0
+      },
+      "scope": "Previous 18-case source proof did not cover callback-triggered original scope retirement; preserved, not current lifetime-repair acceptance"
+    }
+  ],
+  "required_next": [
+    "Use trusted require_reviewed_authored_qualification_inputs at every new-owner eligibility/currentness seam; mutable public methods alone cannot grant eligibility",
+    "Join factory-original full binding and complete reviewed identity to every downstream fresh review and receipt/closing observation",
+    "Allow new owner only in exact read-only Cargo products, publication files, projection, comparison and reopening paths; keep original generation/execution/writable publication owners",
+    "Thread independent operands through closed CLI routing and complete ordinary public check/materialize/admit",
+    "Qualify genuine SDK/current published reference/all-run replay/installed/native/source-retirement and all release requirements"
+  ],
+  "limits": [
+    "Review, framework and original coding intent observations are explicit source-fixture ports; no genuine qualified provider is asserted",
+    "The positive fixture has no native SDK; forged SDK data is rejected, while genuine SDK product/currentness integration remains required",
+    "This input owner does not reopen published metadata, an archive, all clean runs or packages and grants no importer admission",
+    "Finite seals cover the two exposed dispatch functions; existing module/native/interpreter trust roots remain trusted, with no recursive tamper-hardening claim",
+    "No new CLI or original read/write/execution type gate is broadened by this stage",
+    "No installed candidate, full source, native platform, complete receiving or release acceptance"
+  ],
+  "preserved_lifetime_counterexample": {
+    "production_commit": "ac3e00f823531e6c4d4f47e650a658eead7ca017",
+    "report_sha256": "0e792e6abc0c01964a728bb6a0da4db248e85270760533ccfcc13c8b121a2ced",
+    "summary": {
+      "executed": 1,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 0,
+      "selected": 1,
+      "skipped": 0
+    },
+    "observation": "The same outer current-input helper returned success after reviewer closed its original context; the original expired assertion failed",
+    "current_control": "Original expired assertion retained; additional controls prove original manager closed, registry retired and exact callback failure preserved"
+  }
+}

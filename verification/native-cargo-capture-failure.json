@@ -1,0 +1,167 @@
+{
+  "schema": "literate-ai/native-cargo-capture-failure@1",
+  "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+  "public_apply": {
+    "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+    "plan_identity": "sha256:36aff65e207cc24cfe04d7f4843933cfd5607bc6b751a77e68e0488d764c69fc",
+    "minimum_clean_runs": 2,
+    "libraries": 3,
+    "fixture_ports_used": false,
+    "qualified": false,
+    "exit_code": 2,
+    "duration_seconds": 1813.112,
+    "original_oracles_unchanged": true
+  },
+  "typed_error": "qualification.authored.publication_failed",
+  "diagnostic": "Actual native alpha/gamma dependency manifests contain native-provider-graph.json. qualification_cargo requires exactly the old leaf-only three-member evidence namespace and cannot reopen their native graph. Genuine qualification remains refused; no provider admission or release acceptance.",
+  "actual_retained_layout": {
+    "scope": "Actual retained native dependency evidence manifests, not reopened qualification or importer admission",
+    "manifests": [
+      {
+        "component_revision": "sha256:b52654e659b19c904d8a1c4cc89e742a2cc8ed39aabbe478eef561da4aa83bb2",
+        "manifest_sha256": "15ac490ce33bb68800cd69be5c8c5789bb78c6218b315a7a019a09afe4ce9ac7",
+        "files": [
+          ".literate/cargo/Cargo.lock",
+          ".literate/cargo/metadata.json",
+          ".literate/cargo/native-provider-graph.json"
+        ],
+        "legacy_verifier_three_member_guard_matches": false
+      },
+      {
+        "component_revision": "sha256:1657c65a704a1696a24276d7e9ec555875593016076ad201b07b27e8cb8c2d38",
+        "manifest_sha256": "070d03abe4fd485d55216d54dd42b0220f91c1c36e6f3acfe64fe02f79305324",
+        "files": [
+          ".literate/cargo/Cargo.lock",
+          ".literate/cargo/metadata.json",
+          ".literate/cargo/native-provider-graph.json"
+        ],
+        "legacy_verifier_three_member_guard_matches": false
+      },
+      {
+        "component_revision": "sha256:708fcd32341442415c8b6bd67d4549e7a9862210b0bee5242dec18e91de9f13e",
+        "manifest_sha256": "bc771f84177a15091f2d8e099c36dceeb6643f6bce31952b0a0717ac38080c82",
+        "files": [
+          ".literate/cargo/Cargo.lock",
+          ".literate/cargo/metadata.json"
+        ],
+        "legacy_verifier_three_member_guard_matches": true
+      },
+      {
+        "component_revision": "sha256:708fcd32341442415c8b6bd67d4549e7a9862210b0bee5242dec18e91de9f13e",
+        "manifest_sha256": "f7db7baebcfacad71dfa2de00e2bdd885ddaca20dad79ae76490cefb4278cc36",
+        "files": [
+          ".literate/cargo/Cargo.lock",
+          ".literate/cargo/metadata.json"
+        ],
+        "legacy_verifier_three_member_guard_matches": true
+      },
+      {
+        "component_revision": "sha256:b52654e659b19c904d8a1c4cc89e742a2cc8ed39aabbe478eef561da4aa83bb2",
+        "manifest_sha256": "7e02379181f502ad1b7cef6a06c1c3e3d3d7da60b78f50899b74690e277667fb",
+        "files": [
+          ".literate/cargo/Cargo.lock",
+          ".literate/cargo/metadata.json",
+          ".literate/cargo/native-provider-graph.json"
+        ],
+        "legacy_verifier_three_member_guard_matches": false
+      },
+      {
+        "component_revision": "sha256:1657c65a704a1696a24276d7e9ec555875593016076ad201b07b27e8cb8c2d38",
+        "manifest_sha256": "c3d710bda2f0b6c9120afdcb00add31daa1a49459a773309cac4e42d9c281643",
+        "files": [
+          ".literate/cargo/Cargo.lock",
+          ".literate/cargo/metadata.json",
+          ".literate/cargo/native-provider-graph.json"
+        ],
+        "legacy_verifier_three_member_guard_matches": false
+      }
+    ],
+    "release_acceptance": false
+  },
+  "required_fix": "Keep leaf evidence closed and unchanged. For native providers, derive the exact graph and locks from current commands, exact provider exports and independently bound source bytes; compare closed native metadata/manifest evidence without executing or opening recorded paths. Unknown, missing or changed native provenance must refuse. Actual build root ownership checks remain mandatory and unchanged in meaning.",
+  "implementation": "Source correction implemented; actual native leaf/provider reopening passes, as do 13 rehashed/orphan negative controls, no-I/O/no-execution checks, portable Windows-coordinate and unchanged live concrete-Path guards. The original native reproducer fails specifically at qualification_cargo.py104. Original discovery also executed two imported helper methods; final tests import the module without duplicating those methods.",
+  "native_successor": "Fresh noneditable genuine nominal-type diamond, complete public qualification/replay and actual retained consumer admission remain required.",
+  "development_reports": {
+    "reopen-original": {
+      "summary": {
+        "executed": 3,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 3,
+        "skipped": 0
+      },
+      "report_sha256": "cfaeaaeebd73979e28b4c8eefd5bf2f7992839624b8a61d1a5c55753ec996413"
+    },
+    "reopen-current-interfaces": {
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      },
+      "report_sha256": "6a753d131384e78461767b82e53cef8ca0ca307a8d665b26fa70362d4e403d88"
+    },
+    "capture-interfaces": {
+      "summary": {
+        "executed": 15,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 15,
+        "selected": 15,
+        "skipped": 0
+      },
+      "report_sha256": "42375086924eca7cb16d536bac3c9930824b749dbd206244bdfc4060ad9991ad"
+    },
+    "native-interfaces": {
+      "summary": {
+        "executed": 42,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 42,
+        "selected": 42,
+        "skipped": 0
+      },
+      "report_sha256": "e8c7846abd238e47ecc79de23e1bd63b42ff35673c2d2bce535b19bb1381b99d"
+    },
+    "authored-reopening": {
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "report_sha256": "cb1413a7cbd1b86605c29e91dac55c0727563453956f69b9ef0ce6cdac0b5277"
+    }
+  },
+  "maintained_scope": "4 new methods with13 rehashed/orphan/current-interface refusal controls,15maintainedcapture,42nativeprovider and11authoredreopeningmethods pass with zero failures/skips. Native test source and generation envelopes are declared fixtures; this is not genuine model, installed or release acceptance.",
+  "source_capture": "After verifying every original source bundle member, retain the already-defined canonical source-tree coordinate under its existing exact identity. Native replay uses it to pin original Cargo.toml without opening any recorded path.",
+  "source_review": {
+    "state": "pending independent non-author review; no author repin",
+    "old_pin": "sha256:05c3a129f8f50a6a0f33b227ba903f21d56dd5b6e016bc3972eceb96ee81c60f",
+    "computed_final_staged_source": "sha256:2d3c7bbb1d84ab35de632997af2fc93d518768b51a6405b05a812f136a334f6e",
+    "changed_trusted_files": 5,
+    "source_pin_check_exit_code": 1
+  },
+  "current_interface_authority": "Origin-specific source/authored callers supply independently projected current recipes through every shared replay layer. Require exact current generation library dependencies as well as contracts and exports; missing/duplicated/substituted interface custody refuses.",
+  "static_checks": {
+    "lint": "passed",
+    "format": "2186filescurrent",
+    "runner_review": "current;421dfa16df016a87818b667ffcbe180187827f53b7bb429c497e700d728b6af1",
+    "documentation_authority": "current",
+    "repository_layout": "passed",
+    "public_export": "passed",
+    "documentation": "181diagrams/1967Markdownfiles/23renderercontrols pass; later source-only recipe plumbing adds no Markdown diagrams"
+  },
+  "source_files": {
+    "src/literate_ai/adapters/qualification_cargo.py": "efed24526fd623eda41ad7b7b37f58442ee014d735152aad7965f59684bd5356",
+    "src/literate_ai/adapters/qualification_native_cargo.py": "c0736588d1e086fb8edf365e8e95957e1ec0f9dcc0efb252df3019d4a7844600",
+    "src/literate_ai/adapters/qualification_capture.py": "46913343594637d79fd2406c0cc758b8b76a524685704e769ab19bdc05acaf7c",
+    "src/literate_ai/adapters/lifecycle/native_cargo_projection.py": "aa2dbcf9bcfc4c37812f8a8ab23234ad1213a6a54a0f69011e881dc366411a89",
+    "src/literate_ai/adapters/authored_qualification_reopening.py": "721255a6f9a09efa610155fd77737edde48748d9d0ccc59a464d905f99c1ceeb"
+  }
+}

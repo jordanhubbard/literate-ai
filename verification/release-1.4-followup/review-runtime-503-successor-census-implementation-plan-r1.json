@@ -1,0 +1,103 @@
+{
+  "schema": "literate-ai/catalog-successor-directory-membership-implementation-plan@1",
+  "issue": 503,
+  "status": "Read-only source-level plan; root alone implements",
+  "binding_and_contracts": {
+    "keep_wire_fields": [
+      "plan_identity",
+      "intent_identity"
+    ],
+    "keep_require_catalog_successor_return": "Original set of catalog source-row keys shadowed by successor; preserve callers/history codec.",
+    "no_new_wire_grants": "Do not serialize allowed names, directory grants, native owners, Root lease, callbacks or a prevalidated approval token. Existing binding is inert history identity, revalidated each use.",
+    "internal_context": "Only the original caller lease, existing explicit successor binding, original catalog intent/journal and exact recovering bool may cross guard layers. Do not accept raw arbitrary extra_paths/allowed_children as authorization."
+  },
+  "minimal_owner_changes": [
+    {
+      "owner": "project_layout_catalog_successor.py",
+      "change": "Refactor existing validation into one original internal observation routine returning detached joined-row keys plus finite currently proved live member coordinates, while existing require_catalog_successor wrapper retains old set API. Add a directory-membership entrypoint that runs that SAME full validation with original same-root current lease; derive no live-member permission until validation succeeds.",
+      "preserve": "_load framework._decode; binding intent_identity join; project/project_id/root_node/framework_node equality; framework._current; placed/rolledback markers; _published_framework terminal pair checks; native exact metadata preimage handoff; final framework/current lease/_bindings checks."
+    },
+    {
+      "owner": "project_layout_continuation.py",
+      "change": "Narrowly thread optional original successor context through _current -> _guard_journal -> _guard_directories (defaults leave current behavior exact). At directory guard, use original successor-owned entrypoint to freshly derive members BEFORE _names census, union only immediate child projections into existing catalog roster, then close original successor/current lease after census. Do not replace native._current or rewrite old intent.",
+      "callback_boundary": "No raw caller pathset and no arbitrary checker callback accepted. The leaf consumes only original identity+lease context and dispatches to original bound successor owner. Existing imports are cyclic: successor/framework/renewal depend on native; use controlled lazy owner dependency at execution, not eager native import of partially initialized successor. Bind/check each newly used helper identity/code/default state in the existing owner/caller closure; do not first-capture an original from a mutable callback-controlled module during a running guard."
+    },
+    {
+      "owner": "project_layout_catalog_renewal.py:_guard",
+      "change": "Move the current early native._current call after existing renewal-history inspection has resolved and compared recorded successor bindings. Forward resolved explicit identity+original lease+recovering to native current guard. Keep every old output/preimage check; existing later require_catalog_successor continues supplying shadowed rows (or reuse same original validated observation without weakening freshness).",
+      "reason": "Before resolving historical successor, old census fails at first legitimate sibling. Never widen default/no-successor path to make early call succeed."
+    },
+    {
+      "owner": "existing owner source-closure binders",
+      "change": "Extend only used new helper/delegate/function code bindings in catalog_successor._bind, catalog_renewal._bind and any caller that adds new helper call. The added native guard dependency must be original and checked before foreign callbacks; no blanket sealing of unrelated symbols."
+    }
+  ],
+  "acyclic_validation_graph": [
+    "native directory guard -> original successor directory observation",
+    "successor _load -> framework._decode (strict inert decode)",
+    "successor -> framework._current/_published_framework",
+    "framework published-history -> framework_renewal._decode/_guard_journal/_state",
+    "These owners call low-level native._view/_matches and framework guards; none call catalog native._current/_guard_journal/_guard_directories. Preserve that distinction; do not call catalogrenewal._guard from successor helper."
+  ],
+  "exact_finite_member_union": {
+    "base": "Keep current catalog entries destinations,new_directories,coordination and componentfixedcontrols roster unchanged.",
+    "successor_live_payloads": "Every exact destination from validated successor entries (including immutable/owned/reference/resident/delegate actions and finite creations); ownership only where actual published state is proved.",
+    "successor_new_directories": "Exact successor new_directories coordinates after framework guard proves original inode/native state and bounded expected descendants. Not directories found opportunistically on disk.",
+    "successor_coordination": "Exact successor coordination destination coordinates, with original stored native-kind/node/identity/mode custody validated by original framework guards. Never source_coordination paths as destination grants.",
+    "normal_producer_history": "Refactor _published_framework to expose its already validated outputs map/keys rather than discard it. Include exact current record.entries coordinate keys only after renewal._decode/_guard_journal, terminal renewed and notrolledback, nonoverlap, exact _state and original beforeimage preservation checks. Do not require old framework after_node when an actual admitted normal producer replaced it.",
+    "do_not_include": [
+      "private journal before/after/history/coordination slots as live catalog members",
+      "arbitrary siblings from root.iterdir or any parent prefix wildcard",
+      "names from a decoded unvalidated successor or source metadata without exact native handoff",
+      "new target names absent from successor original Component roster",
+      "source-control archive under litai/.literate unless ever an exact separately acknowledged live member; it is normally outside old newdirectory census anyway"
+    ],
+    "projection": "For each old catalog new directory, project only proved descendant coordinates to immediate child name using canonical strict relative paths; retain exact old parent node and live/staged exclusive custody. Close descendant physical membership under original framework new-directory guards, so admitting a directory name never adopts an unrecorded nested child. Keep existing finite combined-entry bounds; bounded inputs do not imply an unbounded N*M scan."
+  },
+  "default_and_recovery": {
+    "no_successor": "Exact existing strict roster and errors, no implicit discover-all-journals and no extra allowlist.",
+    "recovering": "Require actual framework rolled_back and every original framework entry restored; member union empty, shadowed rows empty. Preserve recover-framework-before-catalog refusal, no extra postimage grants.",
+    "lease": "Caller original lease object/current physicalRoot must survive every observer/callback/native census. WrongRoot/stale/ended/copied-context lease refuses. No retired project/source actors restored from journal.",
+    "native_namespace": "Keep operation reservation, _FENCES, original directory nodes, Git, exact intent/history/coordination, source-location closing, worktree-membership checks and before/after closing guards; no generic bypass."
+  },
+  "meaningful_regression_plan": {
+    "fixture_owner": "New focused extension of tests/critical/test_project_layout_mixed_component_channels.py + mixed_producer_epochs fixture helpers with defaults unchanged.",
+    "must_force_missing_shape": "Current MixedComponentChannelTests fixture precreates litai/components and places imported peer under components while initialized hello goes under samples, so it cannot catch this bug. New fixture should put imported peer under samples/peer, original initialized samples/hello-component alongside it, DO NOTprecreate litai/samples, and assert catalog intent.new_directories contains litai/samples. Use genuine imported source/bases, actual initial proof, Git, both public original transactions.",
+    "positive": [
+      "No-write current framework pair plus source finalization, then catalog finalization with explicit exact successor: source controls close, application/native/sourcecustody preserved.",
+      "Actual changed normal framework producer pair in fresh child process (existing alternate Flavor fixture) with writestrue; derived membership follows validated new lock/audit nodes, then framework/catalog source finalization and ordered original-inode recovery.",
+      "Pure helper coordinate projection on already validated inert rows covers directfile,newnestedchild,coordination,renewal-output keys, no duplicates/escape/private-slot grants. Pure output is never itself a grant."
+    ],
+    "negative": [
+      "Missing/wrong successor identity, foreignsamebyte intent/inode, mismatched project/framework/root physicalnodes or changed original metadata preimage refuse before effects.",
+      "Unrecorded sibling beside admitted new framework name ANDunrecorded descendant under its subtree refuse; preserve foreignfiles.",
+      "Changed successor payload/normalproducerpostimage/coordination inode (including equalbytes/restoredmtime) refuses. Incomplete/rolledback/overlapping renewal history refuses.",
+      "Default no-successor roster still refuses exact same valid successor sibling; no implicit adoption. Recovery before framework rollback retains original refusal; after original framework rollback originalcatalog recovery succeeds.",
+      "Replace new sourceowner helper/native reader with foreign callback; original binding/code check refuses before invocation. Close lease or mutate producer/native data inside last callback and require closing refusal. A saved derived projection in ended/copied context cannot grant another invocation currentness."
+    ],
+    "retain_original_controls": [
+      "CatalogSuccessorControls.test_replaced_successor_guard_is_never_called_or_granted_custody",
+      "CatalogSuccessorControls.test_equal_byte_foreign_successor_beforeimage_refuses_before_intent",
+      "CatalogSuccessorControls.test_wrong_recovery_order_preserves_live_pair_and_retained_history",
+      "CatalogSuccessorControls.test_child_exit_after_real_catalog_backup_recovers_after_framework_undo",
+      "CatalogSuccessorControls.test_original_v1_pair_journal_remains_recoverable_without_a_successor",
+      "MixedProducerEpochTests.test_fresh_normal_owners_join_both_epochs_and_restore_original_inodes",
+      "FrameworkSourceFinalizationTests current/no-write and actualrenewed pair journeys"
+    ]
+  },
+  "exact_historical_acceptance": "After source+independent controls and an actual new noneditable candidate, root alone retries original public catalogfinalize with parent0a083149... and successor febac... on preserved R2. Do not recreate journals, delete siblings, edit identity fields or claim success before actual target. Existing failed2d1 attempt stays retained.",
+  "source_sha256": {
+    "src/literate_ai/adapters/project_layout_catalog_successor.py": "bf5ca72da4f0dcea85f868eb618d12a2157715adaed39c421a1df3e4d87d1172",
+    "src/literate_ai/adapters/project_layout_continuation.py": "55dc2d5822d80a629aad47ddc5771a5495f94860611b1d17d9303674216fc7d0",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "d0b715248ca31cb8e5debc1c958fe5fa799ce03e9cdbb03cb4234c6b122b6a5a",
+    "src/literate_ai/adapters/project_layout_catalog_finalization.py": "ec758edc4ce9f19f01ee59fea5115211a8656be2baf4b4f10e7d24de183e5755",
+    "tests/critical/test_project_layout_catalog_successor_controls.py": "8606ae33541e429a596424c9f23f516598a999930a3d57decd52f2b9fdf6a4d9",
+    "tests/critical/test_project_layout_mixed_component_channels.py": "a4075a0fc780aef30f259977ee5e53b852f920d0de0b40c3c6a2dc23e4ae5788",
+    "tests/critical/test_project_layout_mixed_producer_epochs.py": "7748ab58f62de8fbe3aa2d60c1297746c07726120a2a31bbbf5458109726de6a"
+  },
+  "limits": [
+    "No source changes/tests/builds/newnativecalls/posts by reviewer; implementation plan only.",
+    "A primitive path list alone is insufficient authority; original owner/currentlease/native state must be revalidated when census consumes it.",
+    "No deadline/assertion/policy/goal/release acceptance narrowing."
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Actual SDK historical ordinary-command context joins, original promotion and source-controller regression renewal; not complete source, installed SDK promotion or release qualification",
+  "base_revision": "fc9e2f12e744497349c570364d9aab97bdcb2879",
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_sdk_run_inspection.py": "979fb98c9652af274f94a5aef9d293bd0699464fe8a63aba1575ce79934a4c27",
+    "src/literate_ai/adapters/retained_unit_run_inspection.py": "dff99b7d92447d8b463bc3da71bc1008c93854f7b5086ad5a3f594b1562ea877",
+    "tests/support/fixtures_public_retained_promotion.py": "fb8fd01045bcad69fc2efd20a3fd49f609f8ef3423eb84a3b3e1d288c5345e49",
+    "tests/e2e/test_retained_sdk_promotion.py": "ab32f283ef1f9c6705429c0a5e25d073425f7a8d6cb92dc9f20af492f20ba978",
+    "tests/e2e/test_monorepo_components.py": "c86afc5adc3e6bd8124fc317132932cea2d52d3cedf971126b3798670ba54782",
+    "tests/critical/test_retained_layout_admission.py": "86195c77bbfedf3a4987395472ba70f18824663cc8975ca8b7cc064afb01fa3d",
+    ".github/qualifications/native_sdk/qualify_source.py": "eca84d161f568eb626c30da5139cd41466a0e34588b9df3f2516647b3d6057fd"
+  },
+  "checks": {
+    "sdk-promotion-red": {
+      "report_sha256": "9eee44c4e947dc4e298b2503fb8540fc47cf54d2ec7f8387cc66dc765daac083",
+      "summary": {
+        "executed": 1,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 0,
+        "selected": 1,
+        "skipped": 0
+      },
+      "seconds": 143.003
+    },
+    "sdk-promotion-green": {
+      "report_sha256": "86cd09720960ac61454674c8e453c9f3c5b92f251398146152c3d41c9853259d",
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "seconds": 151.086
+    },
+    "sdk-join-original-promotion": {
+      "report_sha256": "71ac38ffef271a15ceb374a687f00f0bd6fe25bf38ba36a7b49818465b2df525",
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "seconds": 198.841
+    },
+    "native-source-harness-current": {
+      "report_sha256": "1c2feb0e53232e8561b31aa5ff90ab503425c91226e585703bd390b03d5b8f91",
+      "summary": {
+        "executed": 15,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 15,
+        "selected": 15,
+        "skipped": 0
+      },
+      "seconds": 5.827
+    },
+    "monorepo-base-interpreter": {
+      "report_sha256": "3f5cdf6360b77d2a59a86a3dc83cfa63996d516c926cda0d83b933902980f85e",
+      "summary": {
+        "executed": 5,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 5,
+        "selected": 5,
+        "skipped": 0
+      },
+      "seconds": 2.682
+    },
+    "layout-admission-current-core": {
+      "report_sha256": "bb8c88cacfe5123e78c93787d054399c1b208ebde1052def96c8b348378187ce",
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      },
+      "seconds": 331.006
+    },
+    "authored-monorepo-base-interpreter": {
+      "report_sha256": "b674473fd71a23a79ccd4e7d1169cc0849dc526ed95cfd61b504198dc93c8421",
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      },
+      "seconds": 1814.432
+    }
+  },
+  "green_native_cases": 45,
+  "sdk_capture": {
+    "producer": "Actual maintained native POSIX CMake SDK fixture; external Standard binding/component-placement seam explicitly retained",
+    "baseline": "Valid captured SDK run reopens. Coherent ordinary-command environment identity forgery was accepted by the original reader.",
+    "correction": "Join ordinary observation environment/dependency identities to existing native-sdk-command-execution@5 launch contexts and original retained tool observation through the custody-checked, allocation-bounded reader.",
+    "controls": [
+      "valid historical reopening",
+      "coherent command environment forgery refuses",
+      "coherent command dependency forgery refuses",
+      "no original or acceptance process execution",
+      "no SDK execution-authority acquisition",
+      "no CAS writes during historical inspection"
+    ],
+    "new_wire_version_or_duplicate_launch_context": false,
+    "remaining": "Acceptance per-case native dependency document capture and exact installed/full release renewal remain open."
+  },
+  "linux_combined_baseline": {
+    "revision": "fc9e2f12e744497349c570364d9aab97bdcb2879",
+    "tree": "ccd6be3160b7f45d7338f0c909cd638de10cac1d",
+    "summary": {
+      "executed": 1899,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 1898,
+      "selected": 5259,
+      "skipped": 56
+    },
+    "seconds": 1262.955,
+    "test_report_sha256": "daff6dfacc6e2cbab62b181bc40776c5df3b100bcf50fdbc5c517f8df870bac5",
+    "source_unchanged": true,
+    "source_gate_passed": false
+  },
+  "linux_failure": "Recovered Cargo late-mutation controls referenced a removed wrapper-v2 alias. Port only their patch target to the current core owner; all fourteen original native admission controls pass without a production guard relaxation.",
+  "freebsd_baseline": {
+    "revision": "f83936626ec6a2f776418d86ebb0d7b2b5dbde08",
+    "summary": {
+      "executed": 243,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 242,
+      "selected": 4145,
+      "skipped": 32
+    },
+    "seconds": 352.924,
+    "test_report_sha256": "c751ca40126fd86852f061fcff3419ac3822fac47f77ac8b7cc4e2b85846f206",
+    "source_unchanged": false,
+    "source_gate_passed": false,
+    "source_status_porcelain": "?? application.core\n?? original.core"
+  },
+  "freebsd_corrections": [
+    "Original stdlib-only monorepo fixture uses the selected base interpreter instead of binding its command to the controller venv.",
+    "Source suite children receive a zero core limit; nonzero process status and strict source Git cleanliness checks remain intact. Actual POSIX child probe preserves exit7 and leaves parent resource limits unchanged.",
+    "Native FreeBSD complete source renewal remains required; portable controller tests are not native FreeBSD acceptance."
+  ],
+  "independent_whole_implementation_review": false,
+  "complete_combined_source_passed": false,
+  "installed_sdk_promotion_qualified": false,
+  "release_authorized": false
+}

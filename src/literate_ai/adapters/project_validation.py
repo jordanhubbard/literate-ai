@@ -64,6 +64,7 @@ from literate_ai.projects import (
     PinnedInputClosure,
     PinnedInputClosureError,
     ProjectError,
+    configured_catalog_path,
     discover_project,
     documentation_files,
     source_to_specification_skill_paths,
@@ -147,13 +148,18 @@ def _documentation_catalog(project: Any) -> dict[str, object]:
 
         from .roadmap_dependencies import require_project_roadmap_acyclic
 
-        require_project_roadmap_acyclic(project.root, captured)
+        require_project_roadmap_acyclic(
+            project.root,
+            captured,
+            framework_directory=project.definition.framework_directory,
+        )
         graph = validate_documentation_graph(
             project_root=project.root,
             agent_skill=project.agent_skill,
             agent_skill_content=skill_content,
             documents=documents,
             assets=assets,
+            framework_directory=project.definition.framework_directory,
         )
         closure.require_unchanged()
     except (DocumentationError, PinnedInputClosureError, RoadmapDependencyError) as exc:
@@ -528,7 +534,9 @@ def _validate_component_authoring(
                 admitted_cache["skills"] = cached
         admitted_skills = cached
         for selector in generation_skills:
-            selected = project.root.joinpath(*Path(selector.uri).parts).resolve()
+            selected = configured_catalog_path(
+                project.root, project.root, selector.uri, kind=selector.kind
+            ).resolve()
             if selected not in admitted_skills:
                 raise ProjectValidationError(
                     "generate.skill_not_cataloged",
@@ -538,7 +546,9 @@ def _validate_component_authoring(
 
         def resolve(selector: Any, label: str) -> ContentIdentity:
             base = project.root if selector.kind in global_kinds else manifest.parent
-            path = base.joinpath(*Path(selector.uri).parts)
+            path = configured_catalog_path(
+                project.root, base, selector.uri, kind=selector.kind
+            )
             selected = closure.pin(
                 path,
                 boundary=project.root,
@@ -637,6 +647,7 @@ def _authority_review(
     workflows: tuple[dict[str, object], ...],
     routing: tuple[dict[str, object], ...],
     required: bool,
+    capture_inputs: dict[str, object] | None = None,
 ) -> ProjectAuthorityReview:
     raw_documents = documentation["document_contents"]
     raw_assets = documentation["asset_contents"]
@@ -699,6 +710,8 @@ def _authority_review(
             if not documentation_path_is_execution_queue(str(path))
         ),
     )
+    if capture_inputs is not None:
+        capture_inputs.update(inventory.to_canonical_value())
     try:
         return review_project_authority(inventory, required=required)
     except ProjectAuthorityError as exc:
@@ -737,6 +750,145 @@ def _doc_identity_advisories(project) -> list[dict[str, str]]:
     return advisories
 
 
+def _project_and_layout(selected: Path):
+    try:
+        project = discover_project(selected)
+    except ProjectError as exc:
+        _error(exc, "project.invalid", "project discovery failed")
+    if project is None:
+        raise ProjectValidationError(
+            "project.not_found", f"no {PROJECT_FILENAME} found from {selected}"
+        )
+    try:
+        layout = validate_project_structure(project)
+    except ProjectError as exc:
+        _error(exc, "project.invalid", "project structure is invalid")
+    return project, layout
+
+
+def _read_project_authority_file_inputs(
+    project, *, require_authority_review, capture_inputs=None
+):
+    """Compute local normative inventory without index/provider execution.
+
+    This preserves the original authority-file reads and review semantics. It
+    deliberately does not qualify installed monorepo retained receipts or the
+    configured source-index provider's current execution/liveness status.
+    """
+    try:
+        assert_project_mcp_hygiene(
+            mcp_roots=project.roots("mcp"),
+            skill_roots=project.roots("skill"),
+        )
+    except ProjectMcpError as exc:
+        raise ProjectValidationError(exc.code, exc.message) from exc
+    try:
+        parent_selection, repository_lineage = FilesystemRepositoryLineageStore(
+            project.root
+        ).load()
+    except RepositoryLineageStoreError as exc:
+        raise ProjectValidationError(exc.code, exc.message) from exc
+    documentation = _documentation_catalog(project)
+    onboarding = _agent_skill(project, documentation)
+    skills = _skill_catalog(project)
+    inverse_skills = _inverse_skill_catalog(project)
+    workflows = _catalog_file_identities(project, "workflow")
+    routing = _catalog_file_identities(project, "routing")
+    try:
+        flavors = load_flavor_catalog(project.roots("flavor"))
+    except Exception as exc:
+        _error(exc, "generate.invalid_flavor", "Flavor catalog is invalid")
+    components: list[dict[str, object]] = []
+    admitted_cache: dict[str, frozenset[Path]] = {}
+    from literate_ai.adapters.component_lock_planning import (
+        ComponentLockPlanningError,
+        component_catalog_manifest_paths,
+    )
+
+    try:
+        manifests = component_catalog_manifest_paths(
+            project.roots("component"),
+            boundary=project.root,
+            scale_limits=project.definition.scale_limits,
+            manifest_names=("component.md", "component.json"),
+        )
+    except ComponentLockPlanningError as exc:
+        raise ProjectValidationError(exc.code, exc.message) from exc
+    authored_directories: set[Path] = set()
+    for manifest in manifests:
+        if manifest.name == "component.md":
+            if manifest.is_symlink() or not manifest.is_file():
+                raise ProjectValidationError(
+                    "project.component_invalid",
+                    "Component authoring documents must be regular files",
+                )
+            authored_directories.add(manifest.parent)
+            components.append(
+                _validate_component_authoring(
+                    manifest, project, admitted_cache=admitted_cache
+                )
+            )
+    for manifest in manifests:
+        if manifest.name == "component.json":
+            if manifest.parent in authored_directories:
+                continue
+            from literate_ai.compatibility.component_authoring import (
+                legacy_component_migration_message,
+            )
+
+            raise ProjectValidationError(
+                "project.component_migration_required",
+                legacy_component_migration_message(),
+            )
+    try:
+        authority_graph = project_authority_graph(project.root)
+    except AuthorityGraphError as exc:
+        raise ProjectValidationError(exc.code, exc.message) from exc
+    authority_review = _authority_review(
+        project=project,
+        repository_lineage=repository_lineage.identity,
+        onboarding=onboarding,
+        documentation=documentation,
+        components=components,
+        flavors=flavors,
+        skills=skills,
+        inverse_skills=inverse_skills,
+        workflows=workflows,
+        routing=routing,
+        required=require_authority_review,
+        capture_inputs=capture_inputs,
+    )
+    return (
+        parent_selection,
+        repository_lineage,
+        documentation,
+        onboarding,
+        skills,
+        inverse_skills,
+        workflows,
+        routing,
+        flavors,
+        components,
+        authority_graph,
+        authority_review,
+    )
+
+
+def _project_authority_files_identity(selected: Path) -> ContentIdentity:
+    """Recompute file authority for comparison with an original reviewed revision.
+
+    This private value computation is not full project validation or permission.
+    A completion owner must retain the full normal validation first, separately
+    preserve original installed-monorepo and persisted-lock observations, and
+    finally check its original source/config/package/retirement observations.
+    No baseline is renewed here; callers must compare to their original revision.
+    """
+    project, _layout = _project_and_layout(selected)
+    return _read_project_authority_file_inputs(project, require_authority_review=True)[
+        -1
+    ].authority_identity
+
+
 class FilesystemProjectValidationAdapter:
     """Validate one project using only declared, content-pinned filesystem inputs."""
 
@@ -751,19 +903,9 @@ class FilesystemProjectValidationAdapter:
             SourceIntelligenceStage.PROJECT_MAINTENANCE
         ),
         require_monorepo_current: bool = True,
+        include_authority_inputs: bool = False,
     ) -> dict[str, Any]:
-        try:
-            project = discover_project(selected)
-        except ProjectError as exc:
-            _error(exc, "project.invalid", "project discovery failed")
-        if project is None:
-            raise ProjectValidationError(
-                "project.not_found", f"no {PROJECT_FILENAME} found from {selected}"
-            )
-        try:
-            layout = validate_project_structure(project)
-        except ProjectError as exc:
-            _error(exc, "project.invalid", "project structure is invalid")
+        project, layout = _project_and_layout(selected)
         monorepo_components: dict[str, object] | None = None
         monorepo_installation = (
             project.framework_root
@@ -786,87 +928,26 @@ class FilesystemProjectValidationAdapter:
                     "state": "stale",
                     "error": {"code": exc.code, "message": exc.message},
                 }
-        try:
-            assert_project_mcp_hygiene(
-                mcp_roots=project.roots("mcp"),
-                skill_roots=project.roots("skill"),
-            )
-        except ProjectMcpError as exc:
-            raise ProjectValidationError(exc.code, exc.message) from exc
-        try:
-            parent_selection, repository_lineage = FilesystemRepositoryLineageStore(
-                project.root
-            ).load()
-        except RepositoryLineageStoreError as exc:
-            raise ProjectValidationError(exc.code, exc.message) from exc
-        documentation = _documentation_catalog(project)
-        onboarding = _agent_skill(project, documentation)
-        skills = _skill_catalog(project)
-        inverse_skills = _inverse_skill_catalog(project)
-        workflows = _catalog_file_identities(project, "workflow")
-        routing = _catalog_file_identities(project, "routing")
-        try:
-            flavors = load_flavor_catalog(project.roots("flavor"))
-        except Exception as exc:
-            _error(exc, "generate.invalid_flavor", "Flavor catalog is invalid")
-        components: list[dict[str, object]] = []
-        admitted_cache: dict[str, frozenset[Path]] = {}
-        from literate_ai.adapters.component_lock_planning import (
-            ComponentLockPlanningError,
-            component_catalog_manifest_paths,
-        )
-
-        try:
-            manifests = component_catalog_manifest_paths(
-                project.roots("component"),
-                boundary=project.root,
-                scale_limits=project.definition.scale_limits,
-                manifest_names=("component.md", "component.json"),
-            )
-        except ComponentLockPlanningError as exc:
-            raise ProjectValidationError(exc.code, exc.message) from exc
-        authored_directories: set[Path] = set()
-        for manifest in manifests:
-            if manifest.name == "component.md":
-                if manifest.is_symlink() or not manifest.is_file():
-                    raise ProjectValidationError(
-                        "project.component_invalid",
-                        "Component authoring documents must be regular files",
-                    )
-                authored_directories.add(manifest.parent)
-                components.append(
-                    _validate_component_authoring(
-                        manifest, project, admitted_cache=admitted_cache
-                    )
-                )
-        for manifest in manifests:
-            if manifest.name == "component.json":
-                if manifest.parent in authored_directories:
-                    continue
-                from literate_ai.compatibility.component_authoring import (
-                    legacy_component_migration_message,
-                )
-
-                raise ProjectValidationError(
-                    "project.component_migration_required",
-                    legacy_component_migration_message(),
-                )
-        try:
-            authority_graph = project_authority_graph(project.root)
-        except AuthorityGraphError as exc:
-            raise ProjectValidationError(exc.code, exc.message) from exc
-        authority_review = _authority_review(
-            project=project,
-            repository_lineage=repository_lineage.identity,
-            onboarding=onboarding,
-            documentation=documentation,
-            components=components,
-            flavors=flavors,
-            skills=skills,
-            inverse_skills=inverse_skills,
-            workflows=workflows,
-            routing=routing,
-            required=require_authority_review,
+        authority_inputs = {} if include_authority_inputs else None
+        (
+            parent_selection,
+            repository_lineage,
+            documentation,
+            onboarding,
+            skills,
+            inverse_skills,
+            workflows,
+            routing,
+            flavors,
+            components,
+            authority_graph,
+            authority_review,
+        ) = _read_project_authority_file_inputs(
+            project,
+            require_authority_review=require_authority_review,
+            **(
+                {"capture_inputs": authority_inputs} if include_authority_inputs else {}
+            ),
         )
         project_revision_identity = authority_review.authority_identity
         policy = project.definition.source_intelligence
@@ -893,26 +974,49 @@ class FilesystemProjectValidationAdapter:
                 "project.source_intelligence_provider_unsupported",
             ).to_dict()
         else:
-            try:
-                provider = CodeGraphProjectSourceIntelligence(policy)
-                source_intelligence_observation = (
-                    provider.sync(project.root)
-                    if synchronize_source_intelligence
-                    else provider.check(project.root)
-                )
-                source_intelligence_status = SourceIntelligenceStageStatus(
-                    source_intelligence_stage, mode, "current", policy.provider_id
-                ).to_dict()
-            except ProjectSourceIntelligenceError as exc:
+            from literate_ai.adapters.readonly_authority import (
+                strict_authority_reads_required,
+            )
+
+            if strict_authority_reads_required():
+                # check() also allocates shadow files and invokes the provider;
+                # neither it nor sync() is a pure-read primitive. Preserve the
+                # configured mode: required refuses, preferred is unavailable.
+                code = "project.source_intelligence_readonly_unsupported"
                 if mode is SourceIntelligenceMode.REQUIRED:
-                    raise ProjectValidationError(exc.code, exc.message) from exc
+                    raise ProjectValidationError(
+                        code,
+                        "the configured source-intelligence provider has no "
+                        "supported side-effect-free authority-read operation",
+                    )
                 source_intelligence_status = SourceIntelligenceStageStatus(
                     source_intelligence_stage,
                     mode,
                     "unavailable",
                     policy.provider_id,
-                    exc.code,
+                    code,
                 ).to_dict()
+            else:
+                try:
+                    provider = CodeGraphProjectSourceIntelligence(policy)
+                    source_intelligence_observation = (
+                        provider.sync(project.root)
+                        if synchronize_source_intelligence
+                        else provider.check(project.root)
+                    )
+                    source_intelligence_status = SourceIntelligenceStageStatus(
+                        source_intelligence_stage, mode, "current", policy.provider_id
+                    ).to_dict()
+                except ProjectSourceIntelligenceError as exc:
+                    if mode is SourceIntelligenceMode.REQUIRED:
+                        raise ProjectValidationError(exc.code, exc.message) from exc
+                    source_intelligence_status = SourceIntelligenceStageStatus(
+                        source_intelligence_stage,
+                        mode,
+                        "unavailable",
+                        policy.provider_id,
+                        exc.code,
+                    ).to_dict()
         configured_source_intelligence = layout["source_intelligence"]
         assert isinstance(configured_source_intelligence, dict)
         layout["source_intelligence"] = {
@@ -955,6 +1059,8 @@ class FilesystemProjectValidationAdapter:
             "authority_review": authority_review.to_dict(),
             "monorepo_components": monorepo_components,
         }
+        if authority_inputs is not None:
+            result["authority_review_inputs"] = authority_inputs
         doc_advisories = _doc_identity_advisories(project)
         if doc_advisories:
             result["advisories"] = doc_advisories
@@ -980,16 +1086,21 @@ class FilesystemProjectValidationAdapter:
         assert isinstance(review, dict)
         return ContentIdentity.parse_uri(str(review["authority_identity"]))
 
-    def documentation_review(self, selected: Path) -> dict[str, object]:
+    def documentation_review(
+        self, selected: Path, *, include_inputs: bool = False
+    ) -> dict[str, object]:
         result = self.validate(
             selected,
             require_authority_review=False,
             synchronize_source_intelligence=False,
             source_intelligence_stage=SourceIntelligenceStage.STRUCTURAL_REVIEW,
             require_monorepo_current=False,
+            **({"include_authority_inputs": True} if include_inputs else {}),
         )
         review = result["authority_review"]
         assert isinstance(review, dict)
+        if include_inputs:
+            return {**review, "inputs": result["authority_review_inputs"]}
         return review
 
 

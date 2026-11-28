@@ -1,0 +1,281 @@
+{
+  "schema": "literate-ai/forest-terminal-replay-development@1",
+  "state": "source_reviewed_actual_terminal_replay_and_one_interrupted_native_disposition_retry",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "general_canonical_forest_recovery_proven": false,
+  "fresh_process_disposition_reopen_proven": true,
+  "one_actual_interrupted_native_disposition_retry_proven": true,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-terminal-replay-review.json",
+    "sha256": "593fb4ed11338d3cda19858111a237a9cb74687004dfd6c9e95dcdb36ee7562c"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-retry-identity-retry-report.json",
+        "sha256": "a13a0d3957af1c5b870b5c0f3cc8a269ce666952c971d952bc8296d2e6938303"
+      },
+      "log": {
+        "path": "_build/forest-retry-identity-retry-maintained.log",
+        "sha256": "e17c64133c78792f0f9c7234c3a7963d766fc38e5f28c6670352d737c172e532"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "d4267c2033beb07a3190d2aa86d9d0566744f5864673ab5703c1c246519f67ea",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "lineage": "final_identity_group_source"
+    },
+    {
+      "report": {
+        "path": "_build/forest-retry-identity-terminal-report.json",
+        "sha256": "e11b0b6d9ed5542fb5878cd05a4ae0425de767471e9df3c105579d9771282657"
+      },
+      "log": {
+        "path": "_build/forest-retry-identity-terminal-maintained.log",
+        "sha256": "477eabbadb58abb3da7d731c74599a53dae255710bc3c96abedf3b8502a0abe6"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "2f014b065fb9e113ec7b2316ea8ee56dab01bbec3d0260469726687d688c7905",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "lineage": "final_identity_group_source"
+    },
+    {
+      "report": {
+        "path": "_build/forest-retry-identity-types-report.json",
+        "sha256": "ad47ddd8048351ded7b13bf698f9ee6fedd8dc741ea5c74275ab15a0e827e68f"
+      },
+      "log": {
+        "path": "_build/forest-retry-identity-types-maintained.log",
+        "sha256": "672f947cd1670b6a91009d08ac7484b5563b90cc427dc2c4e633539abda199b7"
+      },
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "8cfa2f9e23885d0c5c990f3693e1aa5c821d56c712f30fa3ea90a53004d04891",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "lineage": "final_identity_group_source"
+    },
+    {
+      "report": {
+        "path": "_build/forest-retry-identity-projection-report.json",
+        "sha256": "bba740e9c04c30d5f07fb552cf7c3f007aad528e875d39d6083a1457b1af760b"
+      },
+      "log": {
+        "path": "_build/forest-retry-identity-projection-maintained.log",
+        "sha256": "6f2770eec04d24fb2bd5dcd6e82c70f7960e7c22391afd6a49eda6299d283b37"
+      },
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "61f78e8a73695ef40d3bff4985cd97ff4b536c64282b5017cb486637a0603e89",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "lineage": "final_identity_group_source"
+    },
+    {
+      "report": {
+        "path": "_build/forest-terminal-replay-current-report.json",
+        "sha256": "5b77cd615ed335cc75c1c64fa7691ee867f1442fb63e85eb1fb68e73d69301f9"
+      },
+      "log": {
+        "path": "_build/forest-terminal-replay-current-maintained.log",
+        "sha256": "f6ac47e499668b6d2de6ea0305adfd38efd9da911bf5cb78c0d279ac528f1dee"
+      },
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "8d70a5849231915a39c4924c5d6778d3df50a8a05ec1dfc4254ac5e8a78ace09",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "lineage": "prior_approved_terminal_replay_source_before_handoff_dedup_delta"
+    },
+    {
+      "report": {
+        "path": "_build/forest-terminal-replay-resume-report.json",
+        "sha256": "34753378aee7d2746e074adb2fcdba799952c7827a0fd71ea4ae5eb150f562eb"
+      },
+      "log": {
+        "path": "_build/forest-terminal-replay-resume-maintained.log",
+        "sha256": "1129f471b6aff43fdc21e46f27fbdf56dab91ebe1a4f97418d2aaf50cd2187ac"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "c8b154663ddca5a3604ee373a22ecf94284f12df5db1c0f483d2541394b848e8",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "lineage": "prior_approved_terminal_replay_source_before_handoff_dedup_delta"
+    },
+    {
+      "report": {
+        "path": "_build/forest-terminal-replay-finalization-report.json",
+        "sha256": "96998bb6cf084b387a37ec4b01b32ea6c4d5bec7f6951170f6adf69ed56c66d2"
+      },
+      "log": {
+        "path": "_build/forest-terminal-replay-finalization-maintained.log",
+        "sha256": "20d72794ea081d9939a737b3005f6ec1281d16075301cc1749a468e008bbc477"
+      },
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "b734f3f60891c767a6f395bb9898178a7d5e59aaf691eb228f6ab415eb23fa30",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "lineage": "prior_approved_terminal_replay_source_before_handoff_dedup_delta"
+    },
+    {
+      "report": {
+        "path": "_build/forest-terminal-replay-preserved-parking-report.json",
+        "sha256": "d001235524fec09bcb789e9b8e261fb72b8b2eb1470f092575e0fc08309e450b"
+      },
+      "log": {
+        "path": "_build/forest-terminal-replay-preserved-parking-maintained.log",
+        "sha256": "ec6cdf4304f1cf0502e874a92fef30c1cbf7d87ca06de187745ecdb8ff370139"
+      },
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "d58143df04a2e771228b0575e8e245ebc1b7606b73010953fa485486f3ef4360",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "lineage": "prior_approved_terminal_replay_source_before_handoff_dedup_delta"
+    }
+  ],
+  "distinct_maintained_passes_across_documented_lineage": 47,
+  "final_source_affected_maintained_passes": 8,
+  "scope": [
+    "Strict typed disposition prefix decoding preserves actual durable normalization/retirement intent-observation pairs, original private root identities, pending-last decision, partial attempts and exact canonical epochs. Decoded descriptions grant no ownership.",
+    "Actual same-pool raw G0/G1 owners plus real canonical producer observations can create a separately registered read-only terminal observer. It creates no canonical writer lease, missing native marker, journal event or control publication, and cannot enroll a writer.",
+    "Actual raw plan histories, observer/catalogue/field references and nested canonical facts remain independently sealed across finite prepaid non-reentrant native checks and full final teardown.",
+    "Later disposition roots follow original quarantine, preserving all original data/inverse area indices and private inode/byte custody.",
+    "A genuine separate OS process starts with empty registries, receives descriptive inputs only and reacquires actual raw owners to observe the completed disposition without recreating public native controls.",
+    "Actual interruption after first exclusive native retirement observation ends all owners; a fresh canonical owner publishes a real missing G2 generation, a separately acknowledged disposition completes, and three-generation terminal replay preserves all previously retired private nodes.",
+    "Distinct old owners may hand off the same incoming coordinate. Duplicate old group/path or raw identity/path and inconsistent per-epoch identity/group mappings refuse. Historical opaque IDs are not compared with freshly acquired plan identities; actual private-descriptor lineage remains the ownership proof."
+  ],
+  "not_proven": [
+    "Original canonical forest SourcePhase/acquired partition execution remains guarded and unproven. Existing fixture source execution is explicitly unmanaged under real normal canonical owners, with no fabricated partition or role.",
+    "General interruption recovery across all normalization primitive boundaries, retire-before-observed, decision, raw/canonical acquisition and all descriptor teardown boundaries remains unqualified.",
+    "Committed forests, multiple replacement targets, larger topology, ordinary public project reentry, initial/wrapper/root/shared/renewal, installed/platform/integration/release and all other pending roadmap obligations remain open."
+  ],
+  "causal_and_development_diagnostics": [
+    {
+      "exit": 1,
+      "log": {
+        "path": "_build/forest-disposition-next-reentry-diagnostic.log",
+        "sha256": "75b5f15b1de100d950f6893822572ad2e68215faeecc1330724580a4847f6fb1"
+      },
+      "cause": "Actual prior old-journal reentry lacked strict disposition suffix replay; separate ordinary journal canonical acquisition succeeded and private bytes survived."
+    },
+    {
+      "exit": 1,
+      "log": {
+        "path": "_build/forest-terminal-replay-sealed-diagnostic.log",
+        "sha256": "f5328b83e3d5a6f05967e35969b301b42d53f44446746a1083a12c9c238031e3"
+      },
+      "cause": "Initial attempt serialized live capabilities. Corrected by independent reference pins and canonical-only nested seals."
+    },
+    {
+      "exit": 1,
+      "log": {
+        "path": "_build/forest-terminal-replay-interrupted-next-diagnostic.log",
+        "sha256": "4ede3edc2685367c6f02d32edc0ca63cc37a075b470f286c8d93be28c39a1b64"
+      },
+      "cause": "Actual G0/G1 old observation handoffs of G2 coordinate hit path-only dedup. All private nodes/bytes preserved."
+    },
+    {
+      "exit": 0,
+      "log": {
+        "path": "_build/forest-retry-grouppath-diagnostic.log",
+        "sha256": "ba7a999b9acba257a25fab231e7688ddfd8a0770d84fa5b2a4b7933e3f255208"
+      },
+      "seconds": 295.584,
+      "scope": "Actual full interrupted retry, before additional reviewer-required identity/group strictness; superseded by maintained final-source regression."
+    }
+  ],
+  "collision_repair": {
+    "cause": "Avoidable creation-name collision overwrote existing untracked parking-terminal module/test and an older diagnostic log/alignment file; new replay implementation was moved to distinct paths.",
+    "restored": [
+      [
+        "src/literate_ai/adapters/retained_layout_forest_terminal.py",
+        "a7af4bcee2af1c201fcf119d1463de8c0af9de55cbb2a6567a5cde65446965d5"
+      ],
+      [
+        "tests/critical/test_retained_layout_forest_terminal.py",
+        "c4eafc2fa9ffde09533849789794545a1cb0990cbd899a4016d861ad68ed1c6f"
+      ],
+      [
+        "_build/forest-terminal-first-diagnostic.log",
+        "9b7d329ea30963469e25454da33f2a409c255a95d55ddc8417f100a76fbf311e"
+      ]
+    ],
+    "verification": "Exact original source/test/log hashes restored; original parking nine methods and source finalization fourteen methods pass. Historical review/evidence retained untouched."
+  },
+  "gates": "Development evidence; final supported static/authority gate results recorded separately in execution queue. Receipt freshness and full roadmap are not claimed."
+}

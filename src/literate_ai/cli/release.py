@@ -17,6 +17,7 @@ from literate_ai.evidence_ledger import (
 from literate_ai.project_releases import (
     RELEASE_TARGETS,
     ProjectReleaseError,
+    _release_build_root,
     advance_default_branch_version,
     backport_commits,
     backport_status,
@@ -33,6 +34,31 @@ from literate_ai.project_releases import (
     set_release_state,
     verify_published_release,
 )
+
+
+def _release_output(project: Path, declared: str | None, filename: str) -> Path:
+    if declared is not None:
+        # Explicit paths keep their original application-relative/export meaning.
+        return Path(declared)
+    from literate_ai.projects import ProjectConfigurationStore
+
+    try:
+        snapshot = ProjectConfigurationStore.discover(project.resolve(strict=True))
+    except (OSError, ValueError) as exc:
+        raise ProjectReleaseError(
+            "release.project_unavailable", "cannot resolve the selected project"
+        ) from exc
+    if snapshot is None:
+        raise ProjectReleaseError(
+            "release.project_not_found", "no literate.project.json found"
+        )
+    # Return an application-relative coordinate just like the old root default;
+    # backend policy/admission/publication still belongs to its original owner.
+    return (
+        _release_build_root(snapshot.root).relative_to(snapshot.root)
+        / "release"
+        / filename
+    )
 
 
 def _evidence_run(args: argparse.Namespace) -> EvidenceRun:
@@ -156,10 +182,13 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
             result = check_release(
                 Path(args.project),
                 Path(args.plan),
-                output=Path(args.output),
+                output=_release_output(
+                    Path(args.project), args.output, "prepared.json"
+                ),
                 target=args.target,
                 actor=args.actor,
                 break_glass_reason=args.break_glass_reason,
+                tee_controller_gate=not args.json,
             )
             evidence = result.get("evidence")
             if isinstance(evidence, dict) and isinstance(evidence.get("root"), str):
@@ -178,7 +207,11 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
             )
         if args.release_command == "verify-published":
             return (
-                verify_published_release(Path(args.project), Path(args.prepared)),
+                verify_published_release(
+                    Path(args.project),
+                    Path(args.prepared),
+                    expected_tag_object=getattr(args, "expected_tag_object", None),
+                ),
                 0,
             )
         if args.release_command == "advance-default-branch":
@@ -205,7 +238,12 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
                 0,
             )
         if args.release_command == "qualify":
-            return qualify_release(Path(args.project), output=Path(args.output)), 0
+            return qualify_release(
+                Path(args.project),
+                output=_release_output(
+                    Path(args.project), args.output, "qualification.json"
+                ),
+            ), 0
         if args.release_command == "rc":
             return (
                 create_release_candidate(
@@ -266,8 +304,14 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
             run = _evidence_run(args)
             if args.evidence_command == "timing":
                 from literate_ai.evidence_timing import summarize_timing
+                from literate_ai.parallel_unittest_timing import (
+                    registered_module_timings,
+                )
 
-                return summarize_timing(run.reduced()), 0
+                index = run.reduced()
+                summary = summarize_timing(index)
+                summary["module_timing"] = registered_module_timings(index, run.root)
+                return summary, 0
             if args.evidence_command == "index":
                 path = run.write_index()
                 return {
@@ -406,8 +450,11 @@ def add_release_parser(commands: argparse._SubParsersAction) -> None:
     check.add_argument("--project", default=".")
     check.add_argument(
         "--output",
-        default="_build/release/prepared.json",
-        help="prepared-release record (default: _build/release/prepared.json)",
+        default=None,
+        help=(
+            "prepared-release record "
+            "(default: selected framework _build/release/prepared.json)"
+        ),
     )
     check.add_argument(
         "--actor", default=None, help="assert authenticated GitHub login"
@@ -418,11 +465,11 @@ def add_release_parser(commands: argparse._SubParsersAction) -> None:
         choices=sorted(RELEASE_TARGETS),
         default=None,
         help=(
-            "explicit release-gate execution target; overrides the default, "
-            "which is tiered when the release policy declares qualification "
-            "(this host, then workers, then CI), else the project's declared "
-            "ci_targets preference, else the invoking machine "
-            "(gitlab is recognized but not yet supported)"
+            "explicit release-gate execution target. The local target uses the "
+            "configured private SSH fleet. The default is tiered when the release "
+            "policy declares qualification (this host, then workers, then CI), "
+            "then the project's ci_targets preference if configured, and otherwise "
+            "the invoking machine. GitLab support is pending."
         ),
     )
 
@@ -455,6 +502,10 @@ def add_release_parser(commands: argparse._SubParsersAction) -> None:
     )
     verify_published.add_argument("prepared", help="prepared-release JSON")
     verify_published.add_argument("--project", default=".")
+    verify_published.add_argument(
+        "--expected-tag-object",
+        help="trusted tag_object_id from a strict tested-file publication receipt",
+    )
 
     advance = release_commands.add_parser(
         "advance-default-branch",
@@ -530,8 +581,11 @@ def add_release_parser(commands: argparse._SubParsersAction) -> None:
     qualify.add_argument("--project", default=".")
     qualify.add_argument(
         "--output",
-        default="_build/release/qualification.json",
-        help="qualification record (default: _build/release/qualification.json)",
+        default=None,
+        help=(
+            "qualification record "
+            "(default: selected framework _build/release/qualification.json)"
+        ),
     )
 
     state = release_commands.add_parser("state", help="inspect or set release state")

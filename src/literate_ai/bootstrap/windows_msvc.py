@@ -146,9 +146,10 @@ def discover_native_msvc_compiler(
             if (value := configured.get(name)) and Path(value).is_absolute()
         )
     )
-    # At most 24 roots and one bounded metadata read per root. The declared
-    # BuildTools edition takes priority; no directory enumeration is performed.
-    for year in ("2022", "2019"):
+    # At most 36 roots and one bounded metadata read per root. Preserve existing
+    # edition/version priority. VS 2026 uses its major version (18) as its standard
+    # directory name; no recursive discovery or version subprocess is required.
+    for year in ("2022", "2019", "18"):
         for edition in ("BuildTools", "Community", "Professional", "Enterprise"):
             for root in roots:
                 vc = root / "Microsoft Visual Studio" / year / edition / "VC"

@@ -78,7 +78,7 @@ or upgrading host compilers, package managers, and other toolchains. Completing
 
 | Dependency | Required for | Preflight and failure behavior |
 | --- | --- | --- |
-| Python 3.11+ | Framework CLI | Honor explicit `PYTHON`; Make otherwise tries `python3` then `python` in each `PATH` directory, uses the first compatible interpreter to create the ignored `.venv`, and fails when none is compatible. |
+| Python 3.11+ | Framework CLI | Honor explicit `PYTHON`; Make otherwise tries `python3` then `python` in each `PATH` directory, uses the first compatible interpreter to create the ignored `$(OBJ_DIR)/python-envs/<session-key>` environment, and fails when none is compatible. |
 | CycloneDX and JSON Schema validators | Strict validation of every source/resolved SBOM and every migrated wire contract | Installed as `cyclonedx-python-lib[json-validation]==11.11.0` and `jsonschema==4.26.0`; absence or schema-validation failure stops admission or migration. |
 | Version and range libraries | Parse package versions and prove that each resolved version satisfies source intent | Installed as `packaging==26.3`, `semantic-version==2.10.0`, and `univers==32.0.1`; an unsupported ecosystem, invalid range, or out-of-range lock stops pre-build dependency admission. |
 | Codex, Claude, Cursor Agent, or OpenCode | Model generation | Honor `CODING_CLI` or select first on `PATH`; authenticate the same machine/user with login or supported environment tokens. Before model egress, OpenCode must pass the bounded `run --help` capability probe for v1 pure mode or v2 standalone mode; v2 also confirms the owned configuration through `debug config --standalone`. Unsupported interfaces or ambient v2 configuration fail as `coding_cli.incompatible`. Host-install manifests keep their v1 pin; an operator-selected v2 binary is also supported with process environment credentials and fresh provider state (saved OpenCode logins are not imported). Missing authentication is `coding_cli.authentication_required`; neither failure permits provider fallback. |
@@ -224,8 +224,9 @@ That installs the environment under `/usr/local/share/literate-ai/venv` and the 
 under `/usr/local/bin/litai`; normal filesystem permissions still apply. On native
 Windows the host-path policy defaults to the user's Local AppData application directory;
 the installer writes `litai.cmd` and uses the environment's `Scripts` directory.
-Contributor targets continue to use the separate ignored `.venv` and do not
-change the installed CLI.
+Contributor targets use a separate ignored environment under
+`$(OBJ_DIR)/python-envs/<session-key>` (by default beneath `_build/python-envs/`)
+and do not change the installed CLI.
 
 FreeBSD realizes Python SQLite support with the separate `py312-sqlite3` package.
 The OS Flavor probes an in-memory query through the current interpreter and checks
@@ -459,6 +460,10 @@ same validated temporary root through Win32's extended-length path namespace; th
 required because a compact root can still contain a ruleset-owned runfiles leaf beyond
 the classic path limit.
 
+The following commands are preserved evidence of the recorded support run with
+its then-combined tool package. They are historical; use the current tool commands
+after this excerpt for the separated packages.
+
 Framework packages stayed out of the system interpreter. Native Windows setup used an
 ignored project environment and the repository's Node lockfile:
 
@@ -487,6 +492,21 @@ $env:PYTHONPATH = "src"
 & .\tools\openspec\node_modules\.bin\openspec.cmd validate `
   --all --strict --no-interactive
 npm --prefix tools\openspec run documentation:check
+```
+
+Current tool setup and checks use separate locks and a shared audit helper. These
+updated commands are not evidence of a new native Windows qualification; either
+audit can stop this sequence before its validation or rendering command:
+
+```powershell
+npm --prefix tools\openspec ci
+if ($LASTEXITCODE -ne 0) { throw "OpenSpec tool installation failed" }
+npm --prefix tools\documentation ci
+if ($LASTEXITCODE -ne 0) { throw "Documentation tool installation failed" }
+npm --prefix tools\openspec run openspec:check
+if ($LASTEXITCODE -ne 0) { throw "OpenSpec audit or validation failed" }
+npm --prefix tools\documentation run documentation:check
+if ($LASTEXITCODE -ne 0) { throw "Documentation audit or rendering failed" }
 ```
 
 The platform run also established that the self-hosted replication proof needs a
@@ -564,8 +584,9 @@ it never combines an incomplete embedded copy with schemas from another installa
 
 If `PYTHON` is not set, Make examines each `PATH` directory in order and tries
 `python3` then `python`, selecting the first interpreter that reports Python 3.11 or
-newer. That exact system interpreter creates the ignored `.venv`; runtime
-targets install the editable package and its pinned dependencies there, and contributor
+newer. That exact system interpreter creates the ignored environment at
+`$(OBJ_DIR)/python-envs/<session-key>`; runtime targets install the editable
+package and its pinned dependencies there, and contributor
 targets add the pinned development tools to the same environment. Subsequent Python and
 Ruff gates use that managed environment. `make help` lists targets without creating it.
 
@@ -576,11 +597,12 @@ path, resolved launcher path, and launcher bytes, so retargeting the venv link s
 fails closed.
 
 Set `PYTHON` to an explicit command when required. An explicit command is authoritative:
-Make invokes it directly, does not create or use `.venv`, and does not fall
-back when its version check or a downstream operation fails.
+Make invokes it directly, does not create or use the managed session environment,
+and does not fall back when its version check or a downstream operation fails.
 
 Contributor OpenSpec and documentation tooling are repository-pinned
-under `tools/openspec/`. Install them when changing this framework:
+under `tools/openspec/` and `tools/documentation/`, with one shared audit helper
+under `tools/npm-audit/`. Install both when changing this framework:
 
 ```console
 make tools-install
@@ -615,22 +637,24 @@ cd path/to/project
 litai project validate
 ```
 
-The generated root `SKILL.md` is the provider-neutral onboarding entrypoint for agents.
+The generated `litai/SKILL.md` is the provider-neutral onboarding entrypoint for
+agents in a new derived project; its manifest declares the exact path.
 Initialization never writes a partial project when scaffolding or preflight fails.
 The scaffold includes a linked documentation spine and one current authority-review
-marker. It also installs a content-pinned Bazel Flavor/specification and build skill,
-then records `+flavor://literate-ai/build-bazel` as a removable generation-prompt
-preference. Explicit Component
-requirements, selected Flavors, an alternative build-system selector, and `-bazel`
+marker. Full-profile initialization defaults to content-pinned Make, Python and pip
+Flavors plus the host OS selector. These are removable generation-prompt
+preferences. Explicit Component
+requirements, selected Flavors and alternative selectors
 remain authoritative over that default; it is not runtime enforcement. Later authority
 or documentation changes require human review and an updated
 marker calculated with `litai project documentation-review .`. The scaffold contains
-no generated application source. It configures
-`verification/current.json` as the one replaceable test-receipt path but does not create
-a receipt policy, receipt, or claim that tests passed. `litai project validate`
-reports that initial state as `policy-unconfigured`. Before accepting evidence, add an
-explicit policy for the suite ID/version, runner content identity, required evidence,
-and minimum test count. Continue with the
+no generated application source. Installed full-profile initialization binds the
+exact installed Standard lifecycle driver and its test-receipt policy. It configures
+`litai/verification/current.json` as the one replaceable receipt path but creates no
+passing receipt. Use the configured lifecycle to produce and admit current evidence.
+An explicitly unbound source-checkout scaffold can instead report
+`policy-unconfigured`; it needs a reviewed driver and receipt policy before evidence
+can be accepted. Continue with the
 [project layout](project-layout.md), then add a Component and use `litai plan` before
 generation.
 

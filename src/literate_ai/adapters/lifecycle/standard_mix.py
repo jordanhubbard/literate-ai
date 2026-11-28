@@ -665,9 +665,11 @@ class StandardMixLifecyclePorts(StandardCargoLifecyclePorts):
         observer()
         self._mix_observers[str(root.resolve())] = observer
 
-    def _write_resolved_sbom(self, plan, artifact_root):
+    def _write_resolved_sbom(self, plan, artifact_root, *, write_evidence=None):
         if plan.component_revision.uri not in self.mix_targets:
-            return super()._write_resolved_sbom(plan, artifact_root)
+            return super()._write_resolved_sbom(
+                plan, artifact_root, write_evidence=write_evidence
+            )
         observer = self._mix_observers.get(str(artifact_root.resolve()))
         if observer is None:
             raise LocalStandardLifecycleError(
@@ -678,6 +680,7 @@ class StandardMixLifecyclePorts(StandardCargoLifecyclePorts):
             artifact_root,
             artifact_digest=observer.artifact.artifact_digest,
             mix_observer=observer,
+            write_evidence=write_evidence,
         )
 
     def _build_locked(self, plan, provider_artifacts, contract):
@@ -701,9 +704,7 @@ class StandardMixLifecyclePorts(StandardCargoLifecyclePorts):
                 "Mix export differs from locked command shape"
             )
         source_root = self.source_trees.resolve(plan.request.source_tree_identity)
-        providers = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
-        )
+        providers = self._provider_materials(provider_artifacts, consumer_plan=plan)
         cache = canonical_identity(
             {
                 "schema": "literate-ai/standard-mix-cache@1",

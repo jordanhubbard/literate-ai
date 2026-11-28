@@ -308,6 +308,38 @@ The coordinator verifies and imports the returned manifest/log bundle
 This qualifies the framework source composition on that worker; it is not an
 installed-wheel, generated consumer or application fanout qualification.
 
+## Explicit SDK source links and external producer outputs
+
+An authored repository source dependency can select
+`allow_internal_symlinks: true`. The selected policy is bound into its exact
+source lock, acquisition, SDK inspection and current-source guards. It admits
+closed POSIX target text and separately captured payloads; default dependencies
+retain their regular-only identity and refusal behavior. Required source
+intelligence refuses link inputs until its provider supports that capability.
+
+SDK producers can acquire a live `native_sdk_build_workspace` beneath an existing
+safe parent and pass it to `NativeSdkRepositoryBuilder` or
+`NativeSdkSourceBuildService`. The output directory and execution capability have
+separate lifetimes: closing the owner preserves products and partial work while
+ending execution authority. Captured products continue through the existing CAS,
+SDK admission and separately authorized consumer owners.
+
+Authored argv may use `@SDK_SOURCE_ROOT@`, `@SDK_WORKSPACE_ROOT@` and
+`@SDK_OUTPUT_ROOT@`. Logical `sdk_root` remains a canonical relative path inside
+the owned output workspace. Project acquisition creates a fresh workspace for a
+recipe selecting those slots, or accepts a trusted host's live workspace factory.
+Commands retain their declared source-relative working directories. Slots in tool
+bindings, environment or working-directory declarations refuse, as do unknown or
+incomplete slots. Physical path text inserted during expansion is not rescanned.
+Unselected recipes preserve their previous request identity and source placement.
+
+The workspace identity participates in execution authorization and is rechecked
+around commands and capture alongside source, tools, license and live revocation.
+Source/output overlap, directory substitution, ended scopes and grants for another
+workspace refuse. This composition needs current source and installed/native
+qualification; it does not qualify a complete operating-system SDK or its retained
+consumer merely by exposing the workspace API.
+
 ## Consumer input composition
 
 Bind completed source-build services to the same current locked consumer/target

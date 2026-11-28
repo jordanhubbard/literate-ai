@@ -70,6 +70,66 @@ def _changes(
     return tuple(result)
 
 
+def _require_existing_contained_parent_authority(project) -> None:
+    if project.definition.framework_directory is None:
+        return
+    from literate_ai.adapters.catalog_import import (
+        CatalogImportError,
+        read_contained_catalog_imports,
+    )
+    from literate_ai.adapters.project_initialization import (
+        INITIALIZATION_BASELINE_FILE,
+        INITIALIZATION_ORIGIN_FILE,
+    )
+    from literate_ai.adapters.project_updates import ProjectUpdateError, _read_contract
+    from literate_ai.contracts import (
+        ProjectInitializationBaseline,
+        ProjectInitializationOrigin,
+    )
+    from literate_ai.projects import ProjectConfigurationStore
+
+    try:
+        baseline = _read_contract(
+            project.root, INITIALIZATION_BASELINE_FILE, ProjectInitializationBaseline
+        )
+        if baseline.profile != "native":
+            origin = _read_contract(
+                project.root, INITIALIZATION_ORIGIN_FILE, ProjectInitializationOrigin
+            )
+            if baseline.origin_identity != origin.identity:
+                raise ProjectUpdateError(
+                    "project.update_origin_mismatch",
+                    "initialization baseline does not bind the recorded origin",
+                )
+            snapshot = ProjectConfigurationStore(project.root).read()
+            imports = read_contained_catalog_imports(snapshot)
+            recorded = FilesystemRepositoryLineageStore(project.root).load_optional()
+            # Baseline coordinates are initialization history, including
+            # already-migrated metadata and shared root integrations. Current
+            # project/agent coordinates and lineage own reparent eligibility.
+            if recorded and (
+                (imports is not None and imports.imports and recorded[1].nodes)
+                or (
+                    not recorded[1].nodes
+                    and recorded[0] == RepositoryParentSelection.root()
+                    and project.agent_skill == project.framework_root / "SKILL.md"
+                )
+            ):
+                return
+    except (
+        CatalogImportError,
+        ProjectError,
+        ProjectUpdateError,
+        RepositoryLineageStoreError,
+    ) as exc:
+        raise RepositoryReparentError(exc.code, str(exc)) from exc
+    raise RepositoryReparentError(
+        "repository_reparent.native_profile_unsupported",
+        "contained reparent requires a generated baseline and "
+        "existing parent catalog authority",
+    )
+
+
 class FilesystemRepositoryReparentAdapter:
     """Resolve first, expose a plan, then compare-and-swap the lineage authority."""
 
@@ -89,11 +149,7 @@ class FilesystemRepositoryReparentAdapter:
             raise RepositoryReparentError(
                 "project.not_found", f"no {PROJECT_FILENAME} found from {selected}"
             )
-        if project.definition.framework_directory is not None:
-            raise RepositoryReparentError(
-                "repository_reparent.native_profile_unsupported",
-                "The contained native profile does not admit parent catalogs",
-            )
+        _require_existing_contained_parent_authority(project)
         store = FilesystemRepositoryLineageStore(project.root)
         try:
             previous = store.load_optional()
@@ -146,6 +202,7 @@ class FilesystemRepositoryReparentAdapter:
             raise RepositoryReparentError(
                 "project.not_found", f"no {PROJECT_FILENAME} found from {selected}"
             )
+        _require_existing_contained_parent_authority(project)
         if project.definition.identity != plan.project_identity:
             raise RepositoryReparentError(
                 "repository_reparent.project_changed",

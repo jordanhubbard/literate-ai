@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import json
+from collections.abc import Mapping
+from pathlib import PurePosixPath
+
 from literate_ai.contracts import ContentIdentity, CppLibraryLayout
 from literate_ai.contracts.elixir_libraries import elixir_namespace
 from literate_ai.contracts.executable_components.commands import (
@@ -9,6 +13,57 @@ from literate_ai.contracts.executable_components.commands import (
     LibraryImportSurface,
 )
 from literate_ai.contracts.library_imports import AuthoredLibraryImport
+
+COMMONJS_PACKAGE_METADATA_MAX_BYTES = 65536
+
+
+def javascript_module_paths(
+    surface: LibraryImportSurface, module: str
+) -> tuple[str, str | None]:
+    """Resolve only declared public authority; preserve the established @1 path."""
+    if surface.language != "javascript" or module not in {
+        item.module for item in surface.capabilities
+    }:
+        raise ValueError("module is not a public JavaScript library import")
+    if surface.declarations:
+        declared = next(item for item in surface.declarations if item.module == module)
+        return declared.runtime, declared.declaration
+    return "source/" + module + ".js", None
+
+
+def require_commonjs_package_boundary(content: bytes) -> None:
+    """One JSON-only CommonJS boundary policy, also embedded in native drivers."""
+    if len(content) > COMMONJS_PACKAGE_METADATA_MAX_BYTES:
+        raise ValueError("CommonJS package boundary exceeds its metadata bound")
+    metadata = json.loads(content)
+    if not isinstance(metadata, dict) or metadata.get("type", "commonjs") != "commonjs":
+        raise ValueError(
+            "declared CommonJS provider has a conflicting package boundary"
+        )
+
+
+def require_commonjs_module_files(modules, files) -> None:
+    """Check declared file membership, not content, execution or admission."""
+    for runtime, declaration in modules:
+        if runtime not in files or declaration not in files:
+            raise ValueError(
+                "JavaScript provider runtime or declaration is absent from sealed bytes"
+            )
+
+
+def require_declared_commonjs_files(
+    surface: LibraryImportSurface, files: Mapping[str, bytes]
+) -> None:
+    """Require the explicit format boundary before any consumer can load @2."""
+    if not surface.declarations:
+        return
+    require_commonjs_module_files(
+        ((row.runtime, row.declaration) for row in surface.declarations), files
+    )
+    for path, content in files.items():
+        if PurePosixPath(path).name != "package.json":
+            continue
+        require_commonjs_package_boundary(content)
 
 
 def project_library_import_surface(
@@ -35,6 +90,24 @@ def project_library_import_surface(
             raise ValueError(
                 "native import declarations must cover every current interface"
             )
+        module_files = {}
+        for item in selected:
+            if item.node_module is not None:
+                previous = module_files.setdefault(item.module, item.node_module)
+                if previous != item.node_module:
+                    raise ValueError(
+                        "conflicting declaration files for one public module"
+                    )
+        if module_files and any(item.node_module is None for item in selected):
+            raise ValueError(
+                "declaration-bearing surfaces require complete module authority"
+            )
+        sdk_exports = {}
+        for item in selected:
+            for export in item.node_sdk_exports:
+                previous = sdk_exports.setdefault(export.module, export)
+                if previous != export:
+                    raise ValueError("conflicting SDK files for one public module")
         return LibraryImportSurface(
             language,
             selected[0].package,
@@ -47,6 +120,8 @@ def project_library_import_surface(
                 )
                 for item in selected
             ),
+            declarations=tuple(module_files[name] for name in sorted(module_files)),
+            node_sdk_exports=tuple(sdk_exports[name] for name in sorted(sdk_exports)),
         )
     package = component_name.replace("-", "_")
     imports = []

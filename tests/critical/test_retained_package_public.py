@@ -33,7 +33,7 @@ from literate_ai.contracts.retained_project_package import RetainedProjectPackag
 from literate_ai.projects import load_project
 from literate_ai.storage.cas import FileSystemCAS
 from literate_ai.version import DISTRIBUTION_VERSION
-from tests.critical.test_retained_receipt_promotion import snapshot
+from tests.critical.test_retained_promotion_public_readonly import snapshot
 from tests.support.fixtures_public_retained_promotion import (
     author_public_retained_project,
 )

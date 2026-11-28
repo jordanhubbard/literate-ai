@@ -12,6 +12,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from literate_ai.adapters.standard_project import (
+    _STANDARD_COMMONJS_IMPORT_DRIVER,
     _STANDARD_LIBRARY_IMPORT_DRIVER,
     StandardCommandProjectionError,
     _encoded_library_import_surface,
@@ -132,6 +133,7 @@ class LibraryImportCommandTests(unittest.TestCase):
                         str(export),
                         "-",
                         str(export.parent),
+                        _STANDARD_COMMONJS_IMPORT_DRIVER,
                     ],
                     capture_output=True,
                     text=True,

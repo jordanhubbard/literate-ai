@@ -1,0 +1,2470 @@
+{
+  "record_version": 1,
+  "release": "1.4.0",
+  "owning_work": "RELEASE-INTEGRATION-005",
+  "review_subject": "339cc31ada8abcf4c27cfb94e65bc31ba386fb6b",
+  "review_baseline": "9e4299d9457ce636b407946a26667b7effb58d17",
+  "scope": "Independent source review of 462 changed lifecycle-driver files; source review alone does not qualify installed, native, worker, release or complete-feature acceptance.",
+  "acceptance": "pending; unresolved findings and original release goals remain blockers",
+  "findings": [
+    {
+      "id": "sample-slot-selection",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "tests/conformance/support/sample_runner.py",
+      "required_outcome": "Use original root lock slot/revision bindings; retain same-target distinct selections and exclude dependency-only flavors.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "bootstrap-pin-closing",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "src/literate_ai/project_template/scripts/bootstrap_litai.py",
+      "required_outcome": "Close original project selection, native manifest facts and exact bytes after the runtime probe.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "intake-prebound-read",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "src/literate_ai/cli/source_to_specification.py",
+      "required_outcome": "Enforce the finite input ceiling before initial bundle read/decode and schema dispatch.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "catalog-fifo-open",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "required_outcome": "Open the selected source without blocking on substituted FIFOs and retain identity refusal.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "component-namespace-read",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "src/literate_ai/adapters/component_namespace.py",
+      "required_outcome": "Enforce existing metadata byte ceilings before constructor witness hashing, including growth.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "cache-retirement-close",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/cache/_publication.py",
+      "required_outcome": "Close exact original membership after the last callback; settle only owned hardlink changes.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "cache-target-selection",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/cache/filesystem.py",
+      "required_outcome": "Retain original store/CAS/path selection before callbacks and fence before effects without changing legacy rollback.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "cache-explicit-owner",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/cache/filesystem.py",
+      "required_outcome": "Compose original native/SDK fences and minimum budgets with explicit caller constraints.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "cache-dual-owner-close",
+      "severity": "P1",
+      "reviewer": "runtime",
+      "path": "src/literate_ai/adapters/cache/filesystem.py",
+      "required_outcome": "Capture both originals before callbacks and close SDK identity after the final native callback.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "python-temp-cleanup",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/retained_python_original_gates.py",
+      "required_outcome": "Retain foreign replacement namespace and failed native residue; no unconditional recursive temporary cleanup.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "python-product-owner",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/retained_python_source.py",
+      "required_outcome": "Close exact original owner fields and delegate after all currentness callbacks.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "authored-product-owner",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/authored_retained_cargo_products.py",
+      "required_outcome": "Bind neutral owner reference/run/exports/blobs/delegate before and after callbacks, preserving modeled compatibility.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "finite-absence-budget",
+      "severity": "P2",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/project_layout_finite_creations.py",
+      "required_outcome": "Bound sibling enumeration before allocating names during each finite absence observation.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "windows-result-path",
+      "severity": "P3",
+      "reviewer": "authority",
+      "path": "src/literate_ai/adapters/project_layout_continuation_result.py",
+      "required_outcome": "Decode inert recorded Windows/UNC journal coordinates using pure path semantics on every host.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "forest-contained-metadata",
+      "severity": "P2",
+      "reviewer": "runtime",
+      "path": "src/literate_ai/adapters/retained_layout_forest_metadata_replay.py",
+      "required_outcome": "Replay metadata using independently validated original contained placement coordinates.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    },
+    {
+      "id": "contained-qualification-audit-prefix",
+      "severity": "P2",
+      "reviewer": "contracts",
+      "path": "src/literate_ai/cli/source_to_specification.py",
+      "required_outcome": "Select audited Flavor inputs through original recorded catalog placement so default contained promotion reaches original trust checks.",
+      "state": "fixed-targeted-and-independently-reviewed"
+    }
+  ],
+  "targeted_evidence": {
+    "cache-before-dual-closing": {
+      "command": "make python-check PYTHON_TEST_START_DIRECTORY=tests/critical PYTHON_TEST_PATTERN=test_source_cache*.py",
+      "selected": 60,
+      "passed": 60,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Before final dual-owner callback-free closing repair; fresh regression and independent closing review required."
+    },
+    "cache-final": {
+      "command": "make python-check PYTHON_TEST_START_DIRECTORY=tests/critical PYTHON_TEST_PATTERN=test_source_cache*.py",
+      "selected": 61,
+      "passed": 61,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Targeted local source controls; not full native/installed or release acceptance."
+    },
+    "bootstrap-final": {
+      "command": "make python-check PYTHON_TEST_START_DIRECTORY=tests/smoke PYTHON_TEST_PATTERN=test_bootstrap_litai.py",
+      "selected": 15,
+      "passed": 15,
+      "skipped": 0,
+      "failures": 0,
+      "independent_probe_cases": 36,
+      "limit": "Source and controlled probe cases; fresh noneditable maintained controls remain required."
+    },
+    "catalog-fifo-open": {
+      "run": "catalog-fifo-r1",
+      "selected": 29,
+      "passed": 29,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Targeted source controls and independent closing review; full native/installed and release acceptance remain pending."
+    },
+    "component-namespace-read": {
+      "run": "namespace-bound-r2",
+      "selected": 25,
+      "passed": 25,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Targeted source controls and independent closing review; full native/installed and release acceptance remain pending."
+    },
+    "finite-absence-budget": {
+      "run": "finite-bound-r2",
+      "selected": 19,
+      "passed": 19,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Targeted source controls and independent closing review; full native/installed and release acceptance remain pending."
+    },
+    "windows-result-path": {
+      "run": "catalog-result-r1",
+      "selected": 15,
+      "passed": 15,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Targeted source controls and independent closing review; full native/installed and release acceptance remain pending."
+    },
+    "python-product-owner": {
+      "run": "python-products-r1",
+      "selected": 7,
+      "passed": 7,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Source controls and independent closing review only; original full native/installed and release qualification remains required."
+    },
+    "authored-product-owner": {
+      "run": "authored-products-r1",
+      "selected": 20,
+      "passed": 20,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Source controls and independent closing review only; original full native/installed and release qualification remains required."
+    },
+    "sample-slot-selection": {
+      "run": "sample-slots-r1",
+      "selected": 4,
+      "passed": 4,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Source controls and independent closing review only; original full native/installed and release qualification remains required."
+    },
+    "sample-ladder": {
+      "run": "sample-ladder-r1",
+      "selected": 12,
+      "passed": 6,
+      "skipped": 6,
+      "failures": 0,
+      "limit": "Original declared live/native opt-in skips; source recipe checks only."
+    },
+    "forest-contained-metadata": {
+      "run": "forest-metadata-r3",
+      "selected": 9,
+      "passed": 9,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Affected source controls and independent closing review only; full native/installed and release acceptance remain pending."
+    },
+    "intake-prebound-read": {
+      "run": "bundle-input-r4",
+      "selected": 5,
+      "passed": 5,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "Affected source controls and independent closing review only; full native/installed and release acceptance remain pending."
+    },
+    "contained-qualification-audit-prefix": {
+      "run": "static-intake-cli-r3",
+      "selected": 6,
+      "passed": 6,
+      "skipped": 0,
+      "failures": 0,
+      "limit": "All original CLI trust/promotion assertions retained; source integration controls only."
+    },
+    "python-temp-cleanup-independent": {
+      "selected": 3,
+      "passed": 3,
+      "skipped": 0,
+      "failures": 0,
+      "duration_seconds": 491.22,
+      "limit": "Independent actual replacement/foreign-residue/nested-original execution controls; canonical expanded cohort also passed separately. No complete-source or release acceptance."
+    }
+  },
+  "review_scope": "All 462 frozen changed files independently inspected: runtime 65, SDK transfer 36, retained-layout transfer 36, authority 157 and remaining contracts 168. This is source review only.",
+  "final_delta_review": {
+    "subject_commit": "1600b1444",
+    "attested_files": 19,
+    "all_post_frozen_production_deltas_hash_verified": true,
+    "reports": [
+      "verification/release-1.4-review-runtime-delta.json",
+      "verification/release-1.4-review-authority-delta.json",
+      "verification/release-1.4-review-contracts-delta.json"
+    ],
+    "limit": "Independent source review only. Full source, complete affected Python gate cohort, installed/native, platforms, goals and release acceptance remain pending."
+  },
+  "followup_delta_review": {
+    "base_commit": "ac2e88417a58fe0c2a1f4d318e3f7fb14811b1a1",
+    "reviewed_dirty_python_files": {
+      ".github/qualifications/native_sdk/qualify_public_sdk.py": {
+        "sha256": "f670c1504fb5f0960ddb11dc33d477fb6758acce3179be1838a0b017b57fbf7f",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "scripts/installed_maintained_controls.py": {
+        "sha256": "d32c2392b413ba5a2a1df9699865251f2a1b509c93d84387c26aa61da6093901",
+        "review_report": "verification/release-1.4-followup/review-contracts-bootstrap-windows-elixir-closing.json"
+      },
+      "src/literate_ai/adapters/authored_retained_cargo_monorepo_observation.py": {
+        "sha256": "e5d5d4c8f33d9e42484a51efb2c4744fbfee6b6a149949803bbdb22c40ea9d4e",
+        "review_report": "verification/release-1.4-followup/review-runtime-authored-monorepo-placement-close.json"
+      },
+      "src/literate_ai/adapters/authored_retained_cargo_provisioning_monorepo.py": {
+        "sha256": "4d11ed752ceeba829f54d1405d6faa92ed2a07e00e955c318bef94a9da872e29",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "src/literate_ai/adapters/flavor_add.py": {
+        "sha256": "90736a661fa407bfd416d57733eee1332d80a45172543efa87bf3a12f77ac41a",
+        "review_report": "verification/release-1.4-followup/review-contracts-flavor-add-closing.json"
+      },
+      "src/literate_ai/adapters/retained_cargo_execution_core.py": {
+        "sha256": "3e141c0052f97100e4fdd9873beba8ec275d3e94eee51806b1234fe3ceaaedac",
+        "review_report": "verification/release-1.4-followup/review-authority-native-skill-frame-closing.json"
+      },
+      "src/literate_ai/adapters/retained_layout_provider.py": {
+        "sha256": "1467d559828d7afa642ec6f43018aeee5a61c64c50671b083d377ad22ec13ecf",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "src/literate_ai/project_template/scripts/bootstrap_litai.py": {
+        "sha256": "a69af3016c68b8b3e7940558280024189d3a8c36065d3773df765d65fa80aecf",
+        "review_report": "verification/release-1.4-followup/review-contracts-bootstrap-windows-elixir-closing.json"
+      },
+      "tests/critical/test_authored_monorepo_completion.py": {
+        "sha256": "29734cd41ce4f015b0a4f3b3753c25d306b0f1014818cd4a01ba4496ed87f84b",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "tests/critical/test_remote_cleanup_windows_handles.py": {
+        "sha256": "c03beb8411245bb17fdb2f231fc70088f0c2b13cf3b1f18cef9718ff01ef0ccb",
+        "review_report": "verification/release-1.4-followup/review-authority-ci-fixtures-closing.json"
+      },
+      "tests/critical/test_retained_layout_provider.py": {
+        "sha256": "5ebd23167c7878508d3b65518ae460900c401c955c518ed5786e529e43a3fffa",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "tests/e2e/test_native_child_parent_reader.py": {
+        "sha256": "131ec5cba0d67070d5ea3687267f995fe12cd223cbb271cf12e539567aca3449",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-final-refresh.json"
+      },
+      "tests/e2e/test_native_project_removal.py": {
+        "sha256": "a9e2e4665da1231ea47e9055ae955ea4864703b39a224313abf5eaa2d9bcbf89",
+        "review_report": "verification/release-1.4-followup/review-authority-ci-fixtures-closing.json"
+      },
+      "tests/smoke/test_authored_reopened_native_execution.py": {
+        "sha256": "99231d9d836f414f4c9f32714ce4dd5f99e41e21c1b6791a1f2b8ba361e48272",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      },
+      "tests/smoke/test_bootstrap_litai.py": {
+        "sha256": "478d6dbe9e30ad3350dfe3318661990d4dafe2a2b50817c1f52ad16c7b72abfe",
+        "review_report": "verification/release-1.4-followup/review-contracts-bootstrap-windows-elixir-closing.json"
+      },
+      "tests/smoke/test_elixir_flavor.py": {
+        "sha256": "99c41341a8efc6ca8bd28850f830c1b2974b223ebaea3cdbfe388638d2f3f6e9",
+        "review_report": "verification/release-1.4-followup/review-contracts-bootstrap-windows-elixir-closing.json"
+      },
+      "tests/smoke/test_flavor_add.py": {
+        "sha256": "6ddfab4d3670f8f016cf44d907b8afaa184f3b8822ebccfd5b428525037b0012",
+        "review_report": "verification/release-1.4-followup/review-contracts-flavor-add-closing.json"
+      },
+      "tests/support/fixtures_retained_cargo_native_v2.py": {
+        "sha256": "67153564258399caa6d62aab0f1efe4bc558f5b51b488e96300f4a28b588d583",
+        "review_report": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json"
+      }
+    },
+    "reports": [
+      {
+        "path": "verification/release-1.4-followup/review-runtime-followup-final-refresh.json",
+        "sha256": "33dfc59b58293fc60d3d5fdc62937e3cd3aa9aadb0a8067d4fa17601cf33725c"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-runtime-authored-monorepo-placement-close.json",
+        "sha256": "1fae05120d26ae6e349501fb08c6364424cf63dda00ce5570454c44c1f0925f6"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-runtime-followup-provider-provisioning-sdk-close.json",
+        "sha256": "384264910658d32affbbae2476f0df8cfaff53f1355eef69e88356b3f4fc5ef6"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-runtime-qualification-fixture-close.json",
+        "sha256": "9169fed68481b8a70456fe2e6c8dd100405c5f30be51cf8bc3daa88972673450"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-contracts-followup-final-closing.json",
+        "sha256": "41653d81e33047b3a744f8a3463a4fc17dd6589b92ba06efad7252fdced61cb2"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-contracts-bootstrap-windows-elixir-closing.json",
+        "sha256": "77452085c2c0926f01cdca6d661490aa8f3eacf76f16573e60c08669a45f4e75"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-contracts-flavor-add-closing.json",
+        "sha256": "a60504aeb3f7e8b855f4b0372eaf03970d6b2b4a9e04e5127db3362c14be100d"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-authority-ci-fixtures-closing.json",
+        "sha256": "c137ee4f2645b711d0375b281e6f5272b1857ad42c4ffaecc2504a22a31b3de6"
+      },
+      {
+        "path": "verification/release-1.4-followup/review-authority-native-skill-frame-closing.json",
+        "sha256": "66e744d978be53bd6788b54182dcb4a9db2dec3c9dc3b520b7b5c1921915799a"
+      }
+    ],
+    "targeted_evidence": {
+      "python-gate-custody-r2": {
+        "report_sha256": "d1cb3121d303ba4a4112b78136c34382a5fce012b8df8bab58a907a8f4b3e619",
+        "summary": {
+          "executed": 15,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 15,
+          "selected": 15,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "library-fixture-r2": {
+        "report_sha256": "9429355364ff3d96cad38660d1da776b8b22d1134b1ed431af813f016a084232",
+        "summary": {
+          "executed": 19,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 19,
+          "selected": 19,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "capture-fixture-r1": {
+        "report_sha256": "2accd174202b8878d5ebd23695968c89288873853649e5d348df65cb42293926",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "monorepo-placement-r3": {
+        "report_sha256": "986623a8c6271beb4e4d1e75ec008f88ee87831cc7995b01ea5a3fa89dfa2ac8",
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "provisioning-monorepo-r2": {
+        "report_sha256": "939d998c58ed7164376613695b62ca3954151cf4369dac298b7f6111ca1113ee",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "provider-includes-r2": {
+        "report_sha256": "1d049ea63017b438474a3cf610ac2ad386c49f8ffdaab507d3e3b2c455dd5eae",
+        "summary": {
+          "executed": 21,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 21,
+          "selected": 21,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "bootstrap-native-clocks-r1": {
+        "report_sha256": "071e8e6f19e30bee6e9fe989e9319652aa0a00028b031373a8a0e0fd4bf4bd88",
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "cleanup-privacy-r1": {
+        "report_sha256": "89c3491a0a82ea265c3285524067661e167d66737936d6acd2c9d3fdfc5e5b58",
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "native-removal-r1": {
+        "report_sha256": "bd812b61289c6208b52c5843472d4a8cfaa481a18490a2b601ed5e0b940bef28",
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "flavor-placement-r3": {
+        "report_sha256": "35dace06a2d538f3cd584c249cc1112f2c2c797eccb307f0eaab15afe28585d7",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "elixir-fixtures-r4": {
+        "report_sha256": "1af9736f1ba7200b323e1145a2ca2d4bba9c914b768a458a44993b5187df2904",
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 14,
+          "skipped": 1
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "skill-metadata-frame-r1": {
+        "report_sha256": "c061ef49fb499d3409b7d9d3fb2b6cfa4fd16eeafb0b1a8add6c291631580c96",
+        "summary": {
+          "executed": 14,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 14,
+          "selected": 14,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "authored-native-completion-r1": {
+        "report_sha256": "e375f5965860f81546e82b63bfc6c29cc2b884b857b3d792e5f6078dbad80dd5",
+        "summary": {
+          "executed": 1,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 0,
+          "selected": 3,
+          "skipped": 0
+        },
+        "limit": "Focused source/fixture validation only; original skips/failures retained. Not complete source, installed, target-platform or release acceptance."
+      },
+      "native-parent-fixture-r3": {
+        "report_sha256": "c3609d240122e89bc91334f000ade42bbca77ff6c873daa3de7647ef1fc1a0eb",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        },
+        "limit": "Original e2e assertions preserved; local Linux source run only. No native Windows or release acceptance."
+      }
+    },
+    "remaining_acceptance": [
+      "Original authored-native-completion run failed genuine 900-second execution deadline; bounded syntax-only frame repair independently source-reviewed but actual native deadline result pending.",
+      "Native Windows bootstrap/removal and actual FreeBSD SDK CI must be rerun; removal diagnostics do not establish its cause or repair.",
+      "Fresh complete-source and noneditable wheel gates, resulting-main, all immutable release goals, collateral, contribution readiness and release workflow remain required.",
+      "authored-native-completion-r2 is running the new syntax-only frame in the isolated followup; repair evidence only until terminal, exact committed-candidate gates still required."
+    ],
+    "limits": "Source review of exact hashes and focused terminal results only. Earlier final_delta_review is historical for original candidate and does not supersede newer per-file hashes.",
+    "observation_scope": "Historical source-transfer snapshot for candidate9d75fb1b7; later qualification_followup_r2 supersedes pending process statuses and its newer file hashes."
+  },
+  "qualification_followup_r2": {
+    "base_commit": "9d75fb1b747ae3c718c53a496956c61b0eddcad7",
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-labs-documentation-closing.json",
+      "verification/release-1.4-followup/review-contracts-installed-bootstrap-inventory-closing.json",
+      "verification/release-1.4-followup/review-runtime-cargo-output-ignore-fixture-close.json"
+    ],
+    "repairs": [
+      "Retain strict installed bootstrap inventory equality with corrected discovery order; all 17 original/new methods retained.",
+      "Permit absent application-root fixture .gitignore after conversion; preserve existing content, output patterns and all eight original ownership/refusal controls.",
+      "Clarify checked-in Lab05 browser-root/build-graph authority; renew only its stale documentation marker, with unfinished curriculum and acceptance limits retained."
+    ],
+    "terminal_source_evidence": {
+      "cargo-output-fixture-r1": {
+        "report_sha256": "d9d1142ff8fdab0c04a7360204e751afb774d9911db4ea62e5aa09128f8ebca6",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        }
+      },
+      "authored-reopened-native-r1": {
+        "report_sha256": "53724b84800af28484634575a3325a6ab5b7e6b9fb98260c862a5c5248571b71",
+        "summary": {
+          "executed": 1,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 0,
+          "selected": 4,
+          "skipped": 0
+        }
+      },
+      "labs": {
+        "all_six_project_validation": "passed before final wording tightening; final Lab05 separately revalidated after canonical record",
+        "offline_bundles": 6,
+        "source_tests_passed": 6,
+        "browser_acceptance": false,
+        "limit": "Historical source/structure/authority review only; no new curriculum or actual native lifecycle acceptance."
+      }
+    },
+    "prior_candidate_disposition": "wheel-full-r4 failed exact method ordering; exact-head CI partitions3 failed absent fixture ignore; full-source-r9 intentionally SIGINT after those confirmed failures, cleanup exited130. Partial results are not a complete-source pass.",
+    "native_original_disposition": "authored-reopened-native-r1 reached two event successes then failed original 3600-second worker deadline on third control. Report records one failure; no full cohort pass or new-code acceptance.",
+    "remaining_acceptance": "New native completion repair run still active; fresh complete source and installed wheel, target Windows/FreeBSD CI, all original release goals and collateral remain required."
+  },
+  "qualification_followup_r3": {
+    "base_commit": "40d28c36a24c9d0ae2ffb094862d8b07a23b7b74",
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-all-maintained-inventory-closing.json",
+      "verification/release-1.4-followup/review-authority-ci-9d75-diagnosis.json",
+      "verification/release-1.4-followup/review-authority-native-lock-owner-final-closing.json"
+    ],
+    "current_reviewed_hashes": {
+      "src/literate_ai/adapters/native_project_removal.py": "99ea408fa44626e48afe335cfe2135f1eee2dccc26f752b55b1ed8950e5da88e",
+      "tests/critical/test_native_removal_lock_observation.py": "22cea54478bc576b02bddb5c07f1ab5ca7a85de4f3f727f8e9ea47f9f1bcc78f",
+      "scripts/installed_maintained_controls.py": "81fe3d62c89095c97e2a09c1c230d25edb395a9b538940663601dfb0eaf2a885"
+    },
+    "changes": [
+      "Installed maintained inventory now matches actual26classes/9scopes/224methods, retaining every prior control and strict equality; mismatch diagnostic names class and expected/observed methods.",
+      "Three held lifecycle-lock reads use original cache-owner descriptor, with expiring observation, original byte limit, native identity fallback, distinct named/held metadata and offset restoration. Unlocked reads remain fresh path reads.",
+      "Final native identity callback is followed by exact closing bytes and metadata; mutation with restored timestamp refuses and preserves foreign archived bytes.",
+      "Per-read original cancellation identity survives restoration failure; unrelated ambient exceptions cannot suppress a restoration-only failure."
+    ],
+    "targeted_evidence": {
+      "native-lock-owner-r3": {
+        "report_sha256": "e62894a71fb7d34c941958c13c8f149a79c0dca1f2cee84ea47337ec08d9b5ae",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        },
+        "limit": "Source validation only; original skips/failures retained, not installed/platform/release acceptance."
+      },
+      "retained-update-installed-inventory-r1": {
+        "report_sha256": "76da69987a54153ad2ca93032235deeb4245277124f7acc5aaf516dac4bd096c",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        },
+        "limit": "Source validation only; original skips/failures retained, not installed/platform/release acceptance."
+      },
+      "authored-native-completion-r2": {
+        "report_sha256": "9d3ad85b94349f52b05ca50c3f5b71546846ed6dd734ad816e9073f54e655fc6",
+        "summary": {
+          "executed": 1,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 0,
+          "selected": 3,
+          "skipped": 0
+        },
+        "limit": "Source validation only; original skips/failures retained, not installed/platform/release acceptance."
+      },
+      "native-removal-owner-r4": {
+        "report_sha256": "4fbcd91a79d5ed9a50e255a56a178f248503a8e4b470722df9d9b2c5496b2fa7",
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        },
+        "limit": "All original30 local Linux e2e controls pass after final helper changes; native Windows, installed and release acceptance remain separate."
+      }
+    },
+    "native_performance_blocker": "authored-native-completion-r2 still fails original900-second deadline at final guard after metadata;1031.043seconds total. Bounded Skill syntax frame is not sufficient. No deadline change or unchanged gate retry is authorized by this result.",
+    "full_source_state": "Clean40d full-source-r10 continues separately in frozen qualification-r2 checkout as prior-candidate evidence. It does not qualify the later lock/inventory repairs; a complete final-candidate source gate remains required.",
+    "installed_state": "wheel-full-r5 failed retained-layout inventory; current corrected224method list independently matches discovery, but fresh installed execution still required.",
+    "platform_state": "Actual native Windows removal and all other original target-platform/release acceptance remain pending.",
+    "validation": "Formatting, lint and renewed driver/runner/documentation require-current gates pass; root project validation recorded separately."
+  },
+  "qualification_followup_r4": {
+    "base_commit": "7128d6e4cd4584b5bc3c3a7f9e765574b2fb4333",
+    "review_reports": [
+      "verification/release-1.4-followup/review-authority-native-byte-frame-design.json",
+      "verification/release-1.4-followup/review-authority-executable-data-final-closing.json",
+      "verification/release-1.4-followup/review-authority-executable-data-r2-extra-controls.json",
+      "verification/release-1.4-followup/review-contracts-installed-cache-continuation-closing.json",
+      "verification/release-1.4-followup/review-runtime-authored-review-layout-fixture-close.json",
+      "verification/release-1.4-followup/executable-byte-data-benchmark-r2.json"
+    ],
+    "current_reviewed_hashes": {
+      "src/literate_ai/adapters/builders/_executable_digest_data.py": "0b070c0a19b68293cbe22b5190e2d7524efc10bde2bffa794f30d10c8d2fee5e",
+      "src/literate_ai/adapters/builders/python.py": "44844a5fda032f8eebad6b7523ce4d6073c6f794d8a30c9a3a2e0a0779e61930",
+      "src/literate_ai/adapters/retained_cargo_execution_core.py": "9e56f68c9b6222127feeed1f0cdbe870dfcdfef126718487afe1453c01c4dbd6",
+      "tests/critical/test_executable_digest_data.py": "70062081dd09a99ae0470e12e36b7e6e1a1eda58398cad3fdde079cc4de3c97b",
+      "scripts/installed_cache_continuation_smoke.py": "ef4b854381ecf00c93c1e8820af4cf9d1759bdc57ade900c26763e257802ce49",
+      "tests/critical/test_authored_retained_cargo_review.py": "118b508102944ec2287835830c66e5d65419c7b33403e3ae2d91624b167b5825"
+    },
+    "changes": [
+      "Fresh executable reads still consume all original raw bytes through EOF and close. A bounded private closure may reuse SHA DATA only after exact original bytes match; no native/probe/currentness/membership observation is cached. Default and substituted factories remain uncached.",
+      "Closure-owned original associations replace unsafe exposed prototype records; projection poisoning, mmap writes, mutable buffers, geometry changes, reentry/retirement and original errors are independently checked. Native session body/signature, all guards and original900 deadline unchanged.",
+      "Installed cache-continuation scenario derives actual component and declared receipt coordinates, retaining both distinct cache-owner declarations and every original acceptance/refusal assertion.",
+      "Only two manual manifest-reconstruction tests explicitly select legacy input; four other tests retain default contained layout. Shared defaults, helper operations and every original assertion remain."
+    ],
+    "source_evidence": {
+      "executable-byte-data-r2": {
+        "report_sha256": "b3e9e2e21f5f1086d6fc6a5c3a5e26503190409e56125ce8b677d6318490771e",
+        "summary": {
+          "executed": 10,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 10,
+          "selected": 10,
+          "skipped": 0
+        },
+        "limit": "Focused source validation only, not native900/installed/release acceptance."
+      },
+      "authored-review-layout-r1": {
+        "report_sha256": "043fa7a67ecb545389801112a56424f3381c68a475fe6b8db0bbeac612a5258a",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "limit": "Focused source validation only, not native900/installed/release acceptance."
+      }
+    },
+    "prior_whole_gate_failures": {
+      "full-source-r10": "Frozen40d report:525passed,26skipped,1failed,8442selected; failed at missing legacy rootmanifest in contained-manifest fixture. Not a complete-source pass.",
+      "wheel-full-r6": "Frozen7128 fails cache-continuation fixture root samples lookup. No installed continuation/fullwheel pass."
+    },
+    "native_performance": "Reviewed final implementation repeated fresh-read microbenchmark2.33x median hash-data speedup on20,172,120byte rustup image, after population. This does not establish original native900 deadline or whole-work speedup. Fresh exact-candidate actual control required.",
+    "limits": "Existing Skill DATA private-module/closure-cell trust boundary; no new unforgeability/native-admission registry claimed. All83 immutable goals, full source/installed/platform/collateral/contribution/resulting-main/release acceptance remain required."
+  },
+  "qualification_followup_r5": {
+    "base_commit": "b08783b92e5e9383610eb85f1ee382d7ffa5f393",
+    "review_reports": [
+      "verification/release-1.4-followup/review-runtime-wire-initializer-edge-close.json",
+      "verification/release-1.4-followup/review-runtime-provider-finite-edges-final-close.json",
+      "verification/release-1.4-followup/review-runtime-initializer-eager-import-portability-close.json",
+      "verification/release-1.4-followup/review-authority-git-optional-ancestor-final-closing.json",
+      "verification/release-1.4-followup/review-contracts-locked-generation-fixtures-closing.json",
+      "verification/release-1.4-followup/review-authority-ci-7128-sdk-wheel-final-closing.json",
+      "verification/release-1.4-followup/review-authority-oracle-placement-final-closing.json",
+      "verification/release-1.4-followup/review-runtime-manifest-declaration-data-source-review.json"
+    ],
+    "current_reviewed_hashes": {
+      ".github/qualifications/native_sdk/qualify_public_sdk.py": "5a6dd6cdc36b2d753e5bc15c1d64f1abb333cb44780cf9d8398b3143cf175117",
+      "scripts/wheel_smoke.py": "5f45b19884b2f851f71bf424877cd26c20708b745da30fb288ce92b4dddb4d96",
+      "src/literate_ai/adapters/component_acceptance.py": "1c6d88ac400415d9259adf2b2a42936f6a8f1812c29778cdacbe8d29a519bc4b",
+      "src/literate_ai/adapters/retained_cargo_execution_core.py": "b6f805f6356581461a69d7a55ef4c649f5ece10f9dfa6e5e181695936435559b",
+      "src/literate_ai/adapters/retained_layout_ast.py": "4d0a468fb03dd8c4857da64822764f8230675e2e7537e5c0643e985c8d527b73",
+      "src/literate_ai/adapters/retained_layout_git_controls.py": "f7dfe2ec5acf8b89567c1f536de37d5517afa8e8b7e3f8ce981691554e1d9b89",
+      "src/literate_ai/adapters/retained_layout_provider.py": "ebcf66c4f61db19008414b20b77621fda57615c6f8ba57f0e390df388946f835",
+      "src/literate_ai/cli/_wire.py": "6e703c52cddfc28694916182114af135405ec160d86d4577df9df1fe94ba5bba",
+      "src/literate_ai/projects.py": "b3cf623844d23c2d51d72c28d9820f260c8e2235d1486bebd15535aee0d7926b",
+      "tests/critical/test_cli_locked_generation.py": "640f27c12fb53f74076aaa395664fcf29bb5eea5a61db245f5c16500a0bf6726",
+      "tests/critical/test_retained_layout_ast.py": "b94fa2726c6b0ec4e56498fe326c6177a33cd3d77570ff41c36ce7aa8b8b69b7",
+      "tests/critical/test_retained_layout_control_roles.py": "daa64a4fc72cc17df65dfa660b081bd70ef8d2e445217b90faedc2bfd940669e",
+      "tests/critical/test_reviewed_source_assets.py": "87408025e1e1fdb36baf2975f214de3454bff52e8e5e019e42b7bf10d0bcb846",
+      "tests/critical/test_acceptance_oracle_placement.py": "0847c10004fcc9d4bc168eb6ab1028f96a96dfe95e468465aa494c1caf0af427",
+      "tests/critical/test_manifest_declaration_metadata.py": "c28b1c31c948a781bc09f171d4709132aad8d14e5248df678f5855b544ce5f44"
+    },
+    "changes": [
+      "Typed library imports use their strict branch-aware wire projection for result, graph and signed review roundtrips; strict decoders, identities and signing unchanged.",
+      "Initializer recognition retains all historical fingerprints and matching rules, adding only independently reviewed finite custody/context/scaffold transitions. Syntax normalization ignores only eager import is_lazy false/exact integer zero for cross-version AST parity.",
+      "Optional absent interior Git include prefixes retain native absence and existing parent witnesses without synthetic config-file or writer-lock roles. Activation and callback closing are still refused; file budgets remain.",
+      "Three owned macOS temporary roots are physically resolved without changing original assertions. SDK release-policy roles use original canonical framework coordinates; installed starter asserts normative contained placement.",
+      "Default acceptance oracle lookup uses canonical framework placement after unchanged name validation; explicit paths and legacy bare-root fallback remain.",
+      "Per-native-invocation manifest DATA frame stores only a full parser-derived primitive after fresh guarded exact bytes. No context, placement, native probe, currentness or guard result is retained; closure lifetime, bounds and retirement are independently checked."
+    ],
+    "source_evidence": {
+      "reviewed-import-wire-r2": {
+        "report_sha256": "0eb22aba869181429221ef410c7681d7ac107302d67320d1e043747dc94737b8",
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        }
+      },
+      "native-child-wire-r1": {
+        "report_sha256": "de651ba5a64abd4ae09e21dc4463e0999c2fec8ad33e6b39fe204d4ec64357ae",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      },
+      "provider-custody-edge-r2": {
+        "report_sha256": "08adb67e3f77b1614fc20c0b46a493c0d71397af704eb2181e3727839d5002eb",
+        "summary": {
+          "executed": 21,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 21,
+          "selected": 21,
+          "skipped": 0
+        }
+      },
+      "initializer-ast-portability-r3": {
+        "report_sha256": "e7c283e63f3f9d545c3f9d0f4dd164780ba63365923f18d3c079f77dddf4be11",
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        }
+      },
+      "git-control-optional-ancestor-r2": {
+        "report_sha256": "bae9265c94ed5403846d1717c8844a9f83087ecac80dd7eb7202a7692bbcd4b8",
+        "summary": {
+          "executed": 25,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 25,
+          "selected": 25,
+          "skipped": 0
+        }
+      },
+      "bounded-git-optional-ancestor-r1": {
+        "report_sha256": "24e88766dac5bce2032d7e048f2da94f29f43f0d08d8a936975832576e872305",
+        "summary": {
+          "executed": 32,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 32,
+          "selected": 32,
+          "skipped": 0
+        }
+      },
+      "locked-generation-fixtures-r1": {
+        "report_sha256": "094909e6ae08bdf3e97289558f2e103c587d7e2e45b3f6f8f56f601c92b5c427",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      },
+      "oracle-placement-r3": {
+        "report_sha256": "846543d974f0ee2e73d22291c938ce3f910f7056638095a1a5976d217ad72891",
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        }
+      },
+      "oracle-lint-render-r1": {
+        "report_sha256": "1243a0efbe81470cf325afc941a06dfd8cd23401f39af80186c063528ec98754",
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        }
+      },
+      "manifest-declaration-data-r2": {
+        "report_sha256": "88196212829b8108846f610b057e388f4d9d8f7ab7ff366d9f233657c8341f15",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        }
+      }
+    },
+    "native_guard_diagnostic": {
+      "measurements": [
+        {
+          "stage": "fixture_ready",
+          "seconds": 90.73238530100207
+        },
+        {
+          "stage": "complete_guard",
+          "iteration": 0,
+          "seconds": 6.741269182006363,
+          "executable_data": {
+            "active": true,
+            "entries": 2,
+            "payload_bytes": 22506208,
+            "digests": [
+              "9f608c142e0e38a78957d0661ba1dfaf0b6fb37184cfaa4b9a0aa57af6184282",
+              "db0c9200524653ed0ff20a2950b49402879887ad4932c4de18606df9de5cf3d9"
+            ]
+          },
+          "manifest_data": {
+            "active": true,
+            "entries": 1,
+            "payload_bytes": 3625,
+            "hits": 10953,
+            "parses": 1
+          }
+        },
+        {
+          "stage": "complete_guard",
+          "iteration": 1,
+          "seconds": 6.74307499002316,
+          "executable_data": {
+            "active": true,
+            "entries": 2,
+            "payload_bytes": 22506208,
+            "digests": [
+              "9f608c142e0e38a78957d0661ba1dfaf0b6fb37184cfaa4b9a0aa57af6184282",
+              "db0c9200524653ed0ff20a2950b49402879887ad4932c4de18606df9de5cf3d9"
+            ]
+          },
+          "manifest_data": {
+            "active": true,
+            "entries": 1,
+            "payload_bytes": 3625,
+            "hits": 21907,
+            "parses": 1
+          }
+        },
+        {
+          "stage": "complete_guard",
+          "iteration": 2,
+          "seconds": 6.800409830000717,
+          "executable_data": {
+            "active": true,
+            "entries": 2,
+            "payload_bytes": 22506208,
+            "digests": [
+              "9f608c142e0e38a78957d0661ba1dfaf0b6fb37184cfaa4b9a0aa57af6184282",
+              "db0c9200524653ed0ff20a2950b49402879887ad4932c4de18606df9de5cf3d9"
+            ]
+          },
+          "manifest_data": {
+            "active": true,
+            "entries": 1,
+            "payload_bytes": 3625,
+            "hits": 32861,
+            "parses": 1
+          }
+        }
+      ],
+      "baseline_unprofiled_seconds": 9.388,
+      "limit": "Complete-input-guard diagnostic only; not original native900 execution acceptance. Prior cProfile31.442 seconds includes instrumentation overhead and is not baseline."
+    },
+    "prior_whole_gate_failures": {
+      "authored-native-completion-r3": "Frozen b087 fails unchanged900 execution deadline,1028.493seconds overall. Existing executable DATA frame was active and insufficient.",
+      "wheel-full-r7": "Frozen b087 fails component_acceptance.oracle_missing at legacy root path for contained starter; no complete installed pass.",
+      "full-source-r10": "Frozen40d fails;525passed,26skipped,1failed out of8442selected. Original failed evidence retained."
+    },
+    "review_supersession": "Wire report retains historical unresolved helper endpoints and intermediate provider hash; final finite-edge and AST portability reports close those source findings at current hashes.",
+    "limits": "Source closing and diagnostic only. All83 immutable release goals, complete source/installed/native/platform/collateral/contribution/resulting-main/publication/readback requirements remain open unless individually evidenced elsewhere. No deadline or original assertion relaxed."
+  },
+  "qualification_followup_r6": {
+    "base_commit": "fef411fafba81dfcf890dd159d69e388589acf4e",
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-scratch-release-fixtures-closing.json",
+      "verification/release-1.4-followup/review-contracts-windows-scaffold-diagnostic-closing.json",
+      "verification/release-1.4-followup/review-contracts-ci-b087-diagnosis.json"
+    ],
+    "current_reviewed_hashes": {
+      ".github/workflows/ci.yml": "49c2ce6c7d77c4cc0656947c28e5f054b0cf99b4a0fc9e1ceef65d00e4cb29df",
+      "tests/critical/test_authored_retained_cargo_scratch.py": "dad8677b08632bad7f5c6c70c1f5b003c57ab1a27a672f705f4be3aa13581bcc",
+      "tests/critical/test_release_atomic_writer.py": "7478d230b59cfc2f8ef876fe2747a312f958df0f525d88491f649134806c1935"
+    },
+    "changes": [
+      "Contained scratch fixture explicitly issues its modeled wrapper view inside the original live core/lifecycle and around the original reservation;31assertion expressions unchanged.",
+      "Two release atomic writer fixtures resolve their newly owned temporary roots;51assertion expressions unchanged. Actual macOS required.",
+      "Additional unchanged positive scaffold create/replace/rollback case runs single-process before Windows group3; exact JUnit joins existing always-upload artifact. Original full shard and boundary commands unchanged; no retry or softened source sharing policy."
+    ],
+    "source_evidence": {
+      "authored-scratch-view-r1": {
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "report_sha256": "798c63b7aaf56d6ada609edcfd18ee9671b285b3d719b794694c19b30b6b0c33"
+      },
+      "release-writer-path-r1": {
+        "summary": {
+          "executed": 11,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 11,
+          "skipped": 0
+        },
+        "report_sha256": "463f265ee9b2a751650af67bcc05d25efcff36497797021c73ce80b31c06df30"
+      },
+      "scaffold-isolation-source-r1": {
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        },
+        "report_sha256": "9ca42decb11ccd13be50a58108279593b082aa30c9496cd5d4e4a0908e72f687"
+      }
+    },
+    "native_windows_blocker": "Prior b087 native Windows group3 report222failures/65errors/1860passed/743skipped includes sharing violations, but full report is not classified as one cause. Writer and metadata leaf handles appear closed before first scaffold replace; no speculative production policy repair. Existing positive scaffold class absent from group3 JUnit, so added isolated execution supplies missing evidence.",
+    "limits": "Frozenfef native900 and wheel gates still running independently. Complete source/native/installed/platform/collateral/contribution/all83goals/publication/readback remain required."
+  },
+  "qualification_followup_r7": {
+    "base_commit": "d5d4deccc0694770363e27cf18a2092545904b77",
+    "review_reports": [
+      "verification/release-1.4-followup/review-authority-windows-directory-sharing-final-closing.json",
+      "verification/release-1.4-followup/review-authority-windows-directory-sharing-model.json",
+      "verification/release-1.4-followup/review-contracts-wheelhouse-r8-diagnosis.json",
+      "verification/release-1.4-followup/release-scope-audit-r1.json"
+    ],
+    "current_reviewed_hashes": {
+      "src/literate_ai/adapters/evidence_files.py": "4cf4ae0ce51d5bd0130682a7516a50e27f2f3f1d5fa3b912a0bca1180affb699"
+    },
+    "native_reproduction": {
+      "head": "d5d4deccc0694770363e27cf18a2092545904b77",
+      "run": 45976794040,
+      "job": 140430894978,
+      "result": "Original positive scaffold control1failed at FIRST write os.replace/WinError32, before full shard. Writer and metadata leaves already closed; no shard pollution dependency."
+    },
+    "repair": "Only Windows directory held/probe opens share writes so native rename can open its destination parent for FILE_ADD_FILE. All directory opens still deny delete; native named/held IDs and types, fresh census closures, perleaf native/byte reads/sharing and original lifetimes remain. No new test skip/retry/deadline/sourceauthority waiver.",
+    "source_evidence": {
+      "windows-directory-sharing-model-r1": {
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        },
+        "report_sha256": "a7b3fcc9e25af02db895a97a335d305f639c2283a812c279fc8e7979f1443d0c"
+      },
+      "windows-directory-sharing-scaffold-r1": {
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        },
+        "report_sha256": "68d6e96114a400bd443cefedee348c411829d979883d01d8688a1b6892f0284f"
+      },
+      "windows-directory-sharing-evidence-r1": {
+        "summary": {
+          "executed": 24,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 24,
+          "selected": 24,
+          "skipped": 0
+        },
+        "report_sha256": "1bf974bf9e99b7e46e1a1765a5f566bfec2685935239d035ab856e6c817c650b"
+      }
+    },
+    "native900_state": "Frozenfef original first native completion case now has a success event including graph-change refusal assertions; secondcase running, thirdnotyetexecuted. No complete cohort/realprovider/completefeature acceptance inferred.",
+    "wheel_state": "Frozenfef Python3.15 wheel-full-r8 advanced beyond contained oracle lookup but failed binary dependency export: exactPyYAML6.0.3 lacks compatible observed3.15/aarch64 binary. Samepin resolves3.14/aarch64. Fresh complete wheel-full-r9 uses native3.14.7 on frozend5, preserving binary-only, versionpin,300second downloader, original assertions and failed3.15receipt.",
+    "scope_audit": "All83 immutable1.4goals retained:35checked,46open,2partial. Independent audit maps all48unclosed goals to12groups; actual historical migration, provider-to-consumer admission/source retirement,5unit100kFreeBSD cold verification+2physicalhosts, heldprovider independentruns, finalcollateral/labs and publication remain required.",
+    "limits": "Actual fixed Windows positive control and fullplatform qualification still required. Separate archive live-verifier leaf-sharing concern is unmodified/unqualified. Frozen source/native/wheel jobs remain independent; no resulting-main/release attestation."
+  },
+  "qualification_followup_r8": {
+    "base_commit": "f1e9c06f2733af0535bb3eb54455f2706baea91d",
+    "review_reports": [
+      "verification/release-1.4-followup/review-authority-f1-scaffold-rollback-diagnosis.json",
+      "verification/release-1.4-followup/review-authority-scaffold-retirement-final-closing.json",
+      "verification/release-1.4-followup/review-authority-scaffold-retirement-final-extra-controls.json",
+      "verification/release-1.4-followup/review-contracts-wheel-golden-adopted-coordinates-closing.json",
+      "verification/release-1.4-followup/historical-layout-old-producer-review-r1.json"
+    ],
+    "current_reviewed_hashes": {
+      "src/literate_ai/adapters/scaffold_custody.py": "df72244ad5fcfcfe41f1a0c5ad3c3f4fc67fb186587eeb9f87c29148439c074b",
+      "tests/critical/test_remote_cleanup_windows_handles.py": "6cfae8496c928ea431d028ca290fabf1a2e054aaa9cf92df40c05df17cd7227b",
+      "scripts/wheel_smoke.py": "ae231fb9640cef91a7273d7a8ecbd68c3583c268cd13fe2e1900326ed2157119"
+    },
+    "native_windows_progress": "Exactf1 run45978232683/job140435858935 passes actual first/second scaffold publication and original bytes/mode assertions. It then deletes the original leaf and fails post-delete callback requiring that retired leaf. Historical full isolated case remains failed.",
+    "repair": "Only scaffold owner per-leaf deletion callback permits absent original node after deletion, retaining live root/ledger checks and refusing every present non-original node. Generic pre-delete exact leaf/handle checks, disposition, post-guard and final absence checks unchanged; ledgerpop stays after successful primitive return. New actual-source API-model test reproduces prior error; equal-byte/samemtime foreign inode inserted after actual native close is preserved/refused.",
+    "source_evidence": {
+      "scaffold-retirement-model-repro-r1": {
+        "summary": {
+          "executed": 3,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 18,
+          "skipped": 0
+        },
+        "report_sha256": "e26bfff997aefd25b531f5e6283b225fe751b89b03df9442a91a3eb33eeb0837"
+      },
+      "scaffold-retirement-model-r2": {
+        "summary": {
+          "executed": 19,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 19,
+          "selected": 19,
+          "skipped": 0
+        },
+        "report_sha256": "53626eb2e61b0d501ac1ad6d62e0685848559f02031540c1fb1f0d57498918e1"
+      },
+      "scaffold-retirement-native-source-r1": {
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        },
+        "report_sha256": "673e8778edd95ed9addb4d82b045d479a5dc127e8de6f009a93162675a12374b"
+      }
+    },
+    "wheel_progress": "Frozen d5 native3.14 wheel-full-r9 passes prior binary dependency export failure, then fails supplemental golden adopted fixture legacy root-manifest lookup. Three normative default contained manifest/flavor coordinates corrected; all other original predicates/mutation/restoration/receipt guards unchanged. Fresh complete gate remains required.",
+    "historical_producer": "Authentic published1.3.1 wheel verified against providerdigest and all1112installedpayloadmembers; public pinned87506c oldconversion completes in279.468s. Direct/wrapper/liftshift build+test+package pass,2tests each. All6originalpayloads retainbytes+nativefacts at recordedimplementation. Original11role/min1policy preserved; actual2tests remain. Oldconversion legitimately stages4Gitmvrenames; exact resultingHEAD/index/metadata captured. Candidate migration/lifecycle/receipt remain unexecuted.",
+    "native900_progress": "Frozenfef first2original completion cases now have success events; thirdrunning. Preserve original900/3600 deadlines and no completecohort/realprovider claim.",
+    "limits": "All83releasegoals and fullsource/installed/platform/historicalupgrade/provider/coldFreeBSD/collateral/contribution/resultingmain/publication acceptance remain. No deadline/assertion/strictdefault weakened. Existing frozenjobs retain their exact source."
+  },
+  "qualification_followup_r9": {
+    "base_commit": "a3dc46d4e057022462fdf2cc192e9250e5704859",
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-authored-native-completion-r4-acceptance.json",
+      "verification/release-1.4-followup/review-authority-a3dc-native-scaffold-outcome.json",
+      "verification/release-1.4-followup/review-authority-a3dc-linux-partition3-diagnosis.json",
+      "verification/release-1.4-followup/review-authority-full-source-r11-swift-diagnosis.json",
+      "verification/release-1.4-followup/review-authority-evidence-directory-model-final-closing.json",
+      "verification/release-1.4-followup/review-contracts-installed-retained-coordinates-closing.json",
+      "verification/release-1.4-followup/review-authority-installed-html-final-closing.json",
+      "verification/release-1.4-followup/review-authority-installed-html-focused-evidence-r1.json",
+      "verification/release-1.4-followup/review-contracts-refined-command-receiver-closing-r2.json",
+      "verification/release-1.4-followup/historical-layout-metadata-policy-plan-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-metadata-postapply-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-standard-rebind-plan-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-fresh-receipt-review-r1.json"
+    ],
+    "current_reviewed_hashes": {
+      "scripts/installed_html_smoke.py": "3665bcd9537e535ddb5150918ea79bb4b3166bda63386acb31efbd5435283c1b",
+      "scripts/installed_retained_catalog_smoke.py": "f61b9b8564a32a04ca4ffc0bfb962647928651f8c96057c2b6d3caf99c16597e",
+      "scripts/installed_retained_command_smoke.py": "45a01ab06a679821a63d6c492b1c10d14b6b5263097e70aa9aeb53c810977ab8",
+      "src/literate_ai/adapters/retained_component_command_execution.py": "264f56ebff14e4dc8e339603f1b2975d5bce24caef287a9bab0a530aab80edb1",
+      "src/literate_ai/adapters/retained_component_commands.py": "99f6c10134dbe737d176bba75a60ff05780aff4daec0db8e2ecfe25fe5836ce0",
+      "src/literate_ai/adapters/retained_harness_readmission.py": "5b73ed34753272d9324a765d7714fa12c425663bbe548964780264e4f6d200ab",
+      "tests/critical/test_remote_evidence_native_reads.py": "3311f1f9c6c1443b04c636e322a4e06aa8398acbfd5fd1db05b07b5d22c4f3cf",
+      "tests/e2e/test_refined_command_budget.py": "51d6e469662c600e0eb1b71e9973b4392081bd9e83e141d14ba890d7fe135e3b",
+      "tests/e2e/test_refined_command_readmission.py": "6960954d609c1b7133c5dd796f496ce3228f91b2ab2ffd03877698cc74411787"
+    },
+    "source_evidence": {
+      "authored-native-completion-r4": {
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        },
+        "report_sha256": "cee0b0ff51e4346adba0dd31d393da6c5e5cd0eca792e9e59886bffc09f9e391"
+      },
+      "full-source-r11": {
+        "summary": {
+          "executed": 1072,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 1071,
+          "selected": 8477,
+          "skipped": 30
+        },
+        "report_sha256": "e7c6686e6fdfe20067c1ffc4ac4612a082c76ff81b9c98cb25d1f5e1e6f27ff3"
+      },
+      "evidence-directory-sharing-model-r2": {
+        "summary": {
+          "executed": 10,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 10,
+          "selected": 10,
+          "skipped": 0
+        },
+        "report_sha256": "a86f92d24d7e03895983ca88c69a98a74c9b364c9c47d8c63f2f3b8361bc81a8"
+      },
+      "refined-component-owners-r1": {
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 13,
+          "skipped": 0
+        },
+        "report_sha256": "a68cd05396e55c147d40ff85743f0d811b53dcd64d676533225aa537ffe8648d"
+      },
+      "refined-command-receiver-r1": {
+        "summary": {
+          "executed": 2,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 5,
+          "skipped": 0
+        },
+        "report_sha256": "bfa7a8cbc00537274716fa299447b6fecdb5201589647598b43345bf1cdcea0d"
+      },
+      "refined-command-receiver-r2": {
+        "summary": {
+          "executed": 3,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 5,
+          "skipped": 0
+        },
+        "report_sha256": "ce8b136ff81d20f9f5e3096e547cdfa3425b56329e0a13a09a9185276650726f"
+      },
+      "refined-command-receiver-r3": {
+        "summary": {
+          "executed": 5,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 5,
+          "skipped": 0
+        },
+        "report_sha256": "41eff5e35f821b689d7a3b20706519c56cca1204a880c4a60b230f4147b0e15f"
+      },
+      "refined-command-receiver-r4": {
+        "summary": {
+          "executed": 5,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 5,
+          "skipped": 0
+        },
+        "report_sha256": "b849f9cdb61e5d4fa04ee64927fbfba3faa351bbfc105d8aff3ca698b976ad94"
+      },
+      "refined-command-receiver-r5": {
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "report_sha256": "1ef49ff88b6cde7f68996fce0140b484191c10ccaf34c433800e4277aca884b8"
+      }
+    },
+    "native_completion": "Original3 cases pass2394.692s on frozenfef411faf, original900inner/3600worker bounds unchanged. Injected admission fixture only; real provider-to-consumer/source retirement remains required.",
+    "windows": "Exacta3 Windows3 isolated original scaffold and following nativeboundary controls pass. Complete platform CI not qualified; refresh remains required.",
+    "full_source": "Frozen d5 full-source-r11 failed at unconditional contained Swift compiler discovery; real Swift missing. Verified archive prepared; explicit installation authorization pending. No skip/deadline/assertion change.",
+    "installed": "a3 wheel-full-r10 failed legacy metadata observer. Three maintained drivers corrected independently. Focused installed catalog and HTML pass against original immutable a3 noneditable wheel; browser acceptance not exercised. Refined command driver exposed product planner/receiver canonical coordinates, repaired and reviewed; complete fresh exact-candidate installed gate remains required. Old failures retained.",
+    "fixture_followup": "Native evidence composition now distinguishes original directory lifetime pin sharing from one-shot directory and regular payload reads. Refined fixtures observe canonical inventory/manifest/shim; exact budget arithmetic, original tests and refusal guards remain. Added lock allowance narrowed to exact original lifecycle lock.",
+    "historical": "Actual published1.3.1 conversion followed by public metadata+release-policy migration14moves, documentation review, Standard rebind, original retained build/2tests/package, fresh receipt update, require-current and validation all pass. Independent evidence joins producer/candidate/receipt/runner and preserves original11roles/min1policy, source and Git. Original failed usage diagnostic retained. Catalog/framework placements and complete historical journey remain open.",
+    "workers": "Original private catalog invalid only by order. All11 original complete descriptors reproduced exactly using public worker add into private task catalog; original untouched. Alignment reports2ready,8transport failures,1low-home-space. Public transport diagnosis pending. No private catalog committed or workers hand-repaired.",
+    "limits": "All83immutable1.4goals retained. Full source/installed/platform/historical/provider/coldFreeBSD/collateral/contributions/resulting-main/publication acceptance remain required. No release prepare/tag/publish."
+  },
+  "qualification_followup_r10": {
+    "base_commit": "86662cc0a5d0aaeed89728c55b4a6f55accddfaf",
+    "review_reports": [
+      "verification/release-1.4-followup/review-authority-wheel-smoke-coordinates-final-closing-r1.json",
+      "verification/release-1.4-followup/review-authority-wheel-smoke-coordinate-audit-r1.json",
+      "verification/release-1.4-followup/review-authority-wheel-starter-focused-evidence-r1.json",
+      "verification/release-1.4-followup/review-authority-86662-ci-triage-r1.json",
+      "verification/release-1.4-followup/historical-layout-starter-old-producer-review-r1.json"
+    ],
+    "current_reviewed_hashes": {
+      "scripts/wheel_smoke.py": "a951ce6146ac158028d66f0c5e2e8d9fcd44c4201217fde1db378fce5da5eb0e",
+      "tests/critical/test_library_import_command.py": "3fc46cbf21940d043598a8477806bbc075fdf6f7e1cb6dfcdc2aede306391f3b"
+    },
+    "repair": "Direct JavaScript import fixture now supplies production original hash-bound support argument. Maintained wheel fixture uses captured receiving context for initialized/scoped authority, bootstrap/version mutation and restoration, selected provider files and physical lock/plan operands. Catalog YAML/logical run/orchestration root authoring/source parent coordinates preserved. Contained root delegates must exactly route to receiving SKILL; SKILL still requires bootstrap-before-doctor. Legacy direct bootstrap ordering remains.",
+    "original_guards": "Independent review compares all151original wheel Raise ASTs and1assert, unittest assertions and timeout/limit keyword ASTs unchanged. No production code, policy, expected defaults, binary requirement or test deadline modified.",
+    "javascript_tests": {
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      },
+      "report_sha256": "e6f02fda7f6d8155b2b04ea42e825a65e156efa03a2d8fa294e8ecdc4f90665b"
+    },
+    "focused_installed": "Fresh public a3 initialization exit0,46.769s under1800bound. Original maintained version/bootstrap helper calls pass exact/forged and ready/missing/incompatible/route checks, manifest restored. Exact original main provider-through-plan AST block passes selected provider locks, validation, exact packaging graph/edge/defaultFlavor and generation-plan guards. Uses immutable a3 noneditable prefix, not current866 or full wheel qualification.",
+    "historical_starter": "Actual published1.3.1 public init from exact local87506parent, validation and original lock checks pass. Original committedREADME/GitHEAD/rawindex/ref retain exact content and nativefacts. Rootlayout and actualoldStandardbinding verified independently. No generated lifecycle/currentreceipt claim; real provider/worker prerequisites remain before that work.",
+    "historical_catalog": "Independent exact public partial plan reviewed245unchangedplacements+4residentrecordtransforms. Original acknowledged apply still live at record time under original1800bound. Twelve explicit blockers remain; no postapply/completion/renewal claim yet.",
+    "contributions": {
+      "identity": "sha256:c33eb254fbc701cb0d30389feea760b2eee246b7c1339b60f527816fc3089c0c",
+      "in_scope_open": 143,
+      "ready": false,
+      "full_snapshot_sha256": "8cd72c542cb7bacb36b2a7ce9090b6c664295e8255c1bebf2ca8fb7669d5957c"
+    },
+    "limits": "All83goals retained. Frozen866wheelr12 and exactheadCI continue separately; original900nativeperformance remains unresolved on hostedCI despite scoped local3pass. Swift installation approval pending. Complete source/installed/platform/historical/provider/coldFreeBSD/collateral/contributions/resulting-main/publication acceptance remains."
+  },
+  "qualification_followup_r11": {
+    "base_commit": "5322c993b3148f8d36c5fb525b8d9ac0b97d6a62",
+    "review_reports": [
+      "verification/release-1.4-followup/historical-layout-catalog-postapply-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-framework-plan-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-contracts-codex-pinned-argv0-version.json",
+      "verification/release-1.4-followup/review-contracts-opencode-argv0-boundary-diagnosis.json",
+      "verification/release-1.4-followup/review-contracts-opencode-pinned-argv0-interface-help.json",
+      "verification/release-1.4-followup/review-contracts-opencode-pinned-argv0-version.json",
+      "verification/release-1.4-followup/review-contracts-coding-cli-pinned-argv0-design-review.json"
+    ],
+    "catalog_apply": "Actual public original0a083149 plan completed712.675s underoriginal1800bound. All245destinations/4residenttransforms/249savedoriginals checked. Native6payloads,GitHEAD/index/refs,policy/driver/currentreceipt bytes preserved. All8importedComponent target/lock/audit absences genuine. No fullcontainment/renewal/finalize claim;12blockersheld.",
+    "framework_plan": "Root+actualimplementationdescendant publicplans both fail project.layout.invalid. Independent mode0600 diagnosis proves6of7originalconverterentries equal; genuine1.3.1Make515bytes differs fromcurrent572bytes only3cdquotingprefixes introducedbd3197765. Preimage/schema/parity/source/policy guardspass before expectedcurrentrenderer equalityrefuses. All613files/471dirs+Gitfacts unchanged. No apply/retry/markeredit/workaround attempted.",
+    "provider_launch": "Actualcompiledmulticall Codex/OpenCode aliases reportversion successfully; pinningcanonicalWebMux image thenusingcanonicalargv0 fails. Logicalargv0+explicitlypinnedoriginalimage succeeds forboth, executable guards passbeforeafter. OpenCodeoriginalv1interfacehelp requirements pass throughsameboundimage. Sharedboundedrunnerprocess_factory canpreserveselectednativeimage/PID/treeownership; Windowsbatchroute requirescompatibilitycarveout. Actualmodelquery/readiness remains unproven.",
+    "new_integration_findings": [
+      {
+        "issue": 498,
+        "url": "https://github.com/jordanhubbard/literate-ai/issues/498",
+        "decision": "include",
+        "release": "1.4.0",
+        "state": "recorded-before-implementation; canonical executable/digest/drift guards and deadlines must remain"
+      },
+      {
+        "issue": 499,
+        "url": "https://github.com/jordanhubbard/literate-ai/issues/499",
+        "decision": "include",
+        "release": "1.4.0",
+        "state": "recorded-before-implementation; exact released-producer compatibility, never edit oldpreimage or bypass guards"
+      }
+    ],
+    "qualification": "Frozen866wheelr12 remains live at recordtime, currently original installed commandrenewal scenarios underunchangedbounds. Latest5322 fixturechanges separatelysourceclosed/focusedinstalledpassed; exact latestfullgate remainsrequired. Earlier r11launcher environmentfailure retained, no testsqualifiedbyit.",
+    "limits": "All83immutablegoals retained. Newfindings are subtasks within RELEASE-INTEGRATION-005. Swift installation approval pending. Full source/installed/platform/historical/provider/coldFreeBSD/collateral/contributions/resulting-main/publication acceptance remains. No releaseprepared/tagged/published."
+  },
+  "qualification_followup_r12": {
+    "base_commit": "311fc6c0b1fb51bb153ecad81d342da981986160",
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-coding-cli-pinned-argv0-closing-r3.json",
+      "verification/release-1.4-followup/review-authority-provider-model-readiness-r2.json",
+      "verification/release-1.4-followup/review-runtime-499-compatibility-closing-r1.json",
+      "verification/release-1.4-followup/review-runtime-499-grammar-equivalence-r1.json",
+      "verification/release-1.4-followup/review-authority-layout-git-filesystem-boundary-closing-r1.json",
+      "verification/release-1.4-followup/review-contracts-wheel-r12-refined-native-result-diagnosis.json",
+      "verification/release-1.4-followup/review-contracts-make-environment-authored-pressure-closing-r2.json",
+      "verification/release-1.4-followup/review-runtime-5322-source-capacity-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-contracts-installed-refined-archive-coordinate-closing-r1.json"
+    ],
+    "current_reviewed_hashes": {
+      "scripts/installed_retained_command_smoke.py": "c10e212d5d55cf125d6c5911b25462912387feb3512931c74751de027cf181ad",
+      "src/literate_ai/adapters/models/coding_cli.py": "45d8ee5ee2c63da57e3f49041fcd3a1fe26a6e73003f7093a7fae4bf7e219d3e",
+      "src/literate_ai/adapters/project_layout_planning.py": "4433b8f978f1c868b2c7c0e8fad17e4d2b148fa84d61fb51df325b896cb51391",
+      "src/literate_ai/adapters/project_layout_recorded_wrapper_projection.py": "0e0c24af8d9a5c2f128dbe6a9363490af5c41bb6ec2b51fbde37324826fd2848",
+      "src/literate_ai/adapters/project_layout_recorded_wrapper_source.py": "91b8dab2bc7ca7a27617648a493980a1be1b459c4051be706507a96823462b0d",
+      "tests/critical/test_codex_runtime_state.py": "a46a7edc10e5d5f230cc633f40de91d588067166cb0b6fa5a9252a6cb15f603a",
+      "tests/critical/test_coding_cli_multicall.py": "45d150984f43b8bcd497c6147f7b684cd5adc3cb8cbe8c775d204fddad5e8d5a",
+      "tests/critical/test_layout_git_filesystem_boundary.py": "09717bef95c89d520ee4347850f69faa5a5a076fcd94bce2fe9a715ce18d9fdd",
+      "tests/critical/test_opencode_cli.py": "d86ce4b745ed2580b67c35b177fbac9fb1f5aaf1979d4e7ae0b06963f81dda2d",
+      "tests/critical/test_project_host_flavors.py": "6e4e1d834b4e1a10cdae655bc819e3af00eff7857bb1c52fc7fe6e9ea8e30496",
+      "tests/critical/test_project_layout_framework_resources.py": "bd47aea8412ba55ae6583b38f8df9bacde91f898dc50cddbd3e09308ebc51cf0",
+      "tests/critical/test_project_layout_recorded_wrapper_projection.py": "d14d12240dcccfc2338313114d8c6fdd92695650f721ad909b756c77bfde147e",
+      "tests/critical/test_retained_layout_authored_roles.py": "0e94e700e69739f0f2c51c299217db0d5b3eced7a9a442759707707ec64f3244"
+    },
+    "source_evidence": {
+      "coding-cli-multicall-r3": {
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "report_sha256": "fa4ad4f914b6cf49a92d9f6df996654acfedfed922c1599ac2f888eee5777d96"
+      },
+      "coding-cli-generation-launch-r1": {
+        "summary": {
+          "executed": 31,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 31,
+          "selected": 31,
+          "skipped": 0
+        },
+        "report_sha256": "70347720a563668e1aa52155b0f78e4ea78118d6c8bbc99eac87af0db0008732"
+      },
+      "opencode-pinned-launch-r2": {
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "report_sha256": "214ac681de4c80b8838fbf5ba99a4509ccad7ab39744bafc3e1a05284a1ab0a6"
+      },
+      "codex-pinned-launch-r2": {
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        },
+        "report_sha256": "eafa875ab9ee1b02bf435061e942ce3d5bd64e716f23ce4bb2c8641d37b6b5ae"
+      },
+      "provider-process-telemetry-r1": {
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 13,
+          "skipped": 0
+        },
+        "report_sha256": "a54cb1b19e200e0bfbfae385cba1ce11b2a7a80722077163429b5e5f5e2947e7"
+      },
+      "project-host-flavor-coordinates-r2": {
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        },
+        "report_sha256": "dca80338d35a8e2cacf0e1cd51a25b5a82dab17d506d5f108b18cbc16df2833a"
+      },
+      "recorded-producer-131-projection-r3": {
+        "summary": {
+          "executed": 21,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 21,
+          "selected": 21,
+          "skipped": 0
+        },
+        "report_sha256": "be268ab0de99a04acc5530420dc422cd359ca34b394b3ea9cec203208b6d75b0"
+      },
+      "recorded-producer-custody-r3": {
+        "summary": {
+          "executed": 59,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 59,
+          "selected": 59,
+          "skipped": 0
+        },
+        "report_sha256": "37004bc2ab875d289130ee26826d96bd54abb9a1c971ad29ea0b70b946888a33"
+      },
+      "layout-git-boundary-r2": {
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        },
+        "report_sha256": "4e1ecb5625269aae26a959ce33fa99b4dad9acf88083361e9c1dfabbec330e6d"
+      },
+      "authored-role-capacity-pressure-r2": {
+        "summary": {
+          "executed": 18,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 18,
+          "selected": 19,
+          "skipped": 1
+        },
+        "report_sha256": "3ec1a9f4921625eb30e7b76071a6fb61e2af8ad6576b3adb9d036eab2c62f29b"
+      }
+    },
+    "launcher_498": "Nativeprovider launch separates logicalargv0 from originalcanonicalpinnedimage using originalsharedrunnerprocessfactory. Canonicalpin/hash/drift helpers and sharedPID/tree/nativehooks unchanged; all7processsites carryselectedpin. Windowsbatchroute retains originalimplicitcommandinterpreterroute. ActualcompiledC covers4names,aliasretarget,image-drift,post-nativeauthdrift andstartedhelpercleanup; sourceWindowsroutecontrol isnotnativeWindowsproof.",
+    "model_readiness": "ActualconfiguredOpenCodepreflight nowpassesoriginalinterface/privateprofile and reachesmodelrun, thenfailswithAPIstreamerror. RetainedexcerptdoesnotidentifyHTTP/auth/quota/model/servicecause. Existingconfigurationunchanged; noactualmodelreadiness/fullgenerationclaim. Originalfailureretained, noblindmodelretry.",
+    "producer_499": "Exactadmittedpublished1.3.1origin/version/revision/repository andbaselinejoin selectfiniteinertoldMakegrammar onlywhencurrent7byteprojectiondiffers. All7actualoriginalbytesmustmatch; prospectivebytesremainidentical. Currentdefaultinputidentitypreserved; oldpathbindsepochinidentity. Usedhelper/codeclosuresandexplicitNone lexicalrootsrefuseforeigncallbackcodeandavoidfilesystemdefaultresolution. Actualnewfixedinstalledwheel publichistoricalR2plans remainrequired.",
+    "git_500": "StopimplicitmanualGitdiscoverybeforedifferent-deviceancestor matchingactualsanitizedGit. SameFSancestor/scopedindex andregular.gitworktrees remain; originalmarkerrefusals/Gitargv/env/boundsunchanged. MountedstorageactualreadbacknowNone, with4currentcontrols independentlypassed.",
+    "capacity_fixture": "Originalnegativefixture ceasedexhausting65536 afteroptimization. AddrealboundedJSONdecoded-entrypressure throughoriginalissuedreader/activescope; noledgerassignment/guardmock. Leave1entry, preserve65536/4GiB/alloriginalrefusal/source/journalassertions. This provesdeliberatelyexhaustedallowancerefusal, notunpressurednaturalworkloadcost. Cohort18pass/1originalskip. Originalr1setupscopefailurekept.",
+    "wheel_r12": "Frozen866fullgatefailedafterthirdpublicrefinedreadmission successfullycommitted;nativebuildexit0,2testscompleted0skip. DriverexactstdouthashassumptionconflictedwithinheritednestedMakebanners(295bytesv44expected). Originalcommittedreceiptpreserved; ownedfixtureenvnowdrops4MAKEcontrols withalloriginalassertions/commandsunchanged. Freshhostileenvscopedcaseisrunning, notyetqualified; completefreshlatestgatepending.",
+    "limits": "All83immutable1.4goals retained. Newissues498/499/500 remainincludedintegrationdefects; sourceclosure/scopedtestsdoNOTcompleteinstalled/platform/generation/historicalsourcefinalization/FreeBSD/collateral/contributions/resulting-main/publicationacceptance. Swift installation authorization remainspending. No prepare/tag/publish.",
+    "format_followup": "OpenCode fixture finalformat is AST-identical and independently closed in r3; no semantic test rerun required.",
+    "wheel_followup": "Fresh hostileMake case on immutable866passes original44byte nativebuildstdout hash and2passed/0skip collection, thenfails archivedComponentobserver. Actualcommittedarchive matches savedpreapplycanonicalComponentkey. Driver nowderives that key from originalcapturedliveComponentreceipt path; implicitbaselinearchivekeys remainlogical. Bothfailedruns preserved, noapplyretry. Completefreshlatestgate mustpassall3originalcases."
+  },
+  "qualification_followup_r13": {
+    "baseline": "df6a725e116e337a471d7b5f9a35272b83d32e47",
+    "review": "verification/release-1.4-followup/review-contracts-portable-python-cli-fixture-closing-r1.json",
+    "repair": "POSIX Python subprocess fixtures use owned CLI-name aliases targeting the exact original canonical interpreter and adjacent runtime-derived stdlib-only ._pth files. Production, executable pin, logical argv0, original guards, limits, case inventory and assertions are unchanged. Windows setup is unchanged.",
+    "wheel_r13": "Full frozen df6 wheel gate failed in the original native SQLite controlled Python transport before native journey scenarios. Original failure retained; targeted controls do not reclassify that full gate.",
+    "installed_controls": {
+      "installed_module_origins_verified": true,
+      "passed": 27,
+      "scope": "coding-cli-posix",
+      "selected": 27,
+      "skipped": 0,
+      "test_python_input_identity": "sha256:94391500aed79d0b88292eab94298d5ca88a1fa58e7d59dcc55e8a79063fd74e"
+    },
+    "source_opencode": {
+      "executed": 6,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 6,
+      "selected": 6,
+      "skipped": 0
+    },
+    "scope": "All 83 release goals retained. Complete fresh full-wheel, source, native platform, historical lifecycle and release acceptance remain pending. Current df6 hosted CI is preserved; no retry/cancellation."
+  },
+  "qualification_followup_r14": {
+    "owning_issues": [
+      481,
+      499
+    ],
+    "independent_review": "verification/release-1.4-followup/historical-layout-df6-framework-plan-diagnosis-r1.json",
+    "observed_failure": "Both actual installed df6 historical R2 public framework plans refuse before effects. The first fallback candidate is actual imported litai/components/document-pair/component.md; its current bytes match the old initialization baseline but import ownership remains authoritative.",
+    "preservation": "Independent exact before-facts equality: 613 files, 471 directories and three Git facts unchanged after both refused plans.",
+    "repair": "After original unique source-coordinate selection, exclude protected/imported sources before initialized-file proof issuance. Direct proof guard, whole-item closure, admission and movement owners remain unchanged.",
+    "regression": "Actual framework resources and issued proofs cover root/contained coordinates crossed with protected/imported membership. Excluded files have no placement or rewritten payload; original captured bytes remain; unrelated SKILL transformation equals the normal baseline. Original tests and default fixture behavior retained.",
+    "cohorts": {
+      "selection": {
+        "summary": {
+          "executed": 11,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 11,
+          "skipped": 0
+        },
+        "report_sha256": "1fe90412ce6f5e30541c599b7e46bc999b54fced0250bb174170284f58b34a10"
+      },
+      "proof_guards": {
+        "summary": {
+          "executed": 19,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 19,
+          "selected": 19,
+          "skipped": 0
+        },
+        "report_sha256": "5a2e566a04ee9e1d033ba9ff314cba119e84de3567f9be3bf936279743a8041b"
+      }
+    },
+    "new_fixture_development_failures": "r1-r4 retained: new assertions initially confused owned/catalog placement views, expected unchanged relocated Markdown references, and assumed captured data/identity coordinate maps conferred movement authority. New assertions corrected against actual documented owner semantics; no original assertion or product guard changed.",
+    "driver_pin": "sha256:d1d85f3889635945fbabe3a39006b6bd49e363699b698dd81df2930104adc79f",
+    "qualification": "Full wheel r14 remains running on frozen 5f3f850e9 (fixture repair only). This later source repair still requires new immutable installed artifact and actual public historical plans. All 83 goals and full release acceptance remain open as recorded; no prepare/tag/publish."
+  },
+  "qualification_followup_r15": {
+    "candidate": {
+      "source": {
+        "git_revision": "bf6551038c5051c19b192e6e8cc79e4fb02169ff",
+        "repository_url": "https://github.com/jordanhubbard/literate-ai",
+        "schema": "literate-ai/distribution-origin@1"
+      },
+      "wheel_sha256": "81e1fe4f49537f8c9988660e35aa103d4646b2c7f497bfef2405ff4cacb9e0a1",
+      "framework_distribution_identity": "sha256:52bf69177713d63ff32b9f2e8f60722a740c03bd0229b21adcaf5250e405b755",
+      "package_members_exact": 1637,
+      "prefix": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r15/environment",
+      "whole_gate": "not run; provisional build/install only"
+    },
+    "review": "verification/release-1.4-followup/historical-layout-bf6-framework-plan-review-r1.json",
+    "public_historical_plans": {
+      "root_exit": 0,
+      "descendant_exit": 0,
+      "stdout_byte_identical": true,
+      "plan_identity": "sha256:d042ffc42dcb2ee60a6950f5e331157e1173645d63c6afb767070fb9d4e3c755",
+      "applicable": false,
+      "sole_required_owner": {
+        "path": "litai/literate.release.json",
+        "owner": "original-reference-consumer"
+      }
+    },
+    "preservation": "Exact original 613 files, 471 directories and three Git facts remain unchanged. Existing 35 action preimages/modes exact and original 28 movement destinations plus finite creation absent. No apply attempted.",
+    "next_action": "Included issue501 under existing RELEASE-INTEGRATION-005: add reviewed typed resident-policy reference transition for contributions.roadmap_goal_manifest to its same proved ledger destination, preserving all other policy semantics and goals. Existing framework scope rejects approved-reference flags; no manual prepointing/bypass.",
+    "limits": "Provisional build/install only for bf6551038; full wheel r14 still runs on frozen5f3f850e9. Actual placement, renewal/finalization, full installed/native/source/platform/generation/FreeBSD/collateral/contributions/main/publication acceptance remain open. All83 immutable goals retained."
+  },
+  "qualification_followup_r16": {
+    "baseline": "53aaac0201d4c31c7c9291250d0752d5ec3e26af",
+    "owning_issue": 501,
+    "reviews": [
+      "verification/release-1.4-followup/review-contracts-501-resident-policy-design-r1.json",
+      "verification/release-1.4-followup/review-contracts-501-resident-policy-initial-review-r1.json",
+      "verification/release-1.4-followup/review-contracts-501-policy-escaped-consumer-finding-r1.json",
+      "verification/release-1.4-followup/review-contracts-501-resident-policy-closing-r1.json",
+      "verification/release-1.4-followup/review-runtime-finite-creation-git-seam-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-runtime-501-native-closure-r3.json",
+      "verification/release-1.4-followup/review-authority-df6-ci-refresh-r3.json",
+      "verification/release-1.4-followup/review-authority-bootstrap-process-custody-diagnosis-r1.json"
+    ],
+    "repair": "Canonical resident policy reference approval is explicit, checked before foreign truthiness, and threaded through original observation plus fresh apply from acknowledged reference-edits keys. Typed projection changes only contributions.roadmap_goal_manifest against the same proved move. Plan exposes pointer/from/to and exact policy before/after/resource/projection identities. Existing writer and journal carry original reference rows and rollback.",
+    "guards": "Finite original required policy class/method/helper/default/constant closure and actual JSON decoder/encoder/scanner delegates/tables. Canonical tag/collateral patterns precompiled with same grammar, avoiding mutable regex compiler calls. UTF8 decode avoids implicit byte encoding dispatch. Unknown policy references, imported/protected policy, root shadow and original native drift remain refused.",
+    "escaped_consumer_fix": "Known canonical/root policy discovery now uses guarded semantic JSON inspection independently of approval or projector support. Escaped leaf, unsupported optional policy, escaped other consumer and malformed JSON cannot hide a moved reference. Explicit supported escaped approval succeeds. Existing source owner captures both finite policy coordinates regardless of approval.",
+    "supported_shape_limits": "Optional qualification, authenticated_receipt and readme_latest_release parser owners are not admitted; affected policies remain blocked. Documentation states this explicitly. No complete policy/migration/release acceptance claimed.",
+    "fixture_fix": "Remove exactly one stale resources._git_state=None mock from finite-creation fixture. Actual later Git initialization must agree with original ingress/resource native observers. Original failing placed-consumer control independently passes with only this mock suppressed; no original assertion or guard changed.",
+    "cohorts": {
+      "new_policy_native": {
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 13,
+          "skipped": 0
+        },
+        "report_sha256": "7ddd5d09ab4b5046be753f17d00ea6a3d12047c5371b124b7e31ecc68b38a6e7"
+      },
+      "original_framework_before_final_discovery": {
+        "summary": {
+          "executed": 122,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 122,
+          "selected": 122,
+          "skipped": 0
+        },
+        "report_sha256": "a848d4c48e17c79b11aae2f3212c3a569bd6572d255c09b8fb9dc5bdf41b7480"
+      },
+      "original_release": {
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        },
+        "report_sha256": "1ac17eb336c91263948641860aa776280f9143f3524e23483441e6f80e6858bb"
+      }
+    },
+    "driver_pin": "sha256:7700e90f6ec5b8315b048ba036ccf081e693bbc500aad170edc7a582bf06cc7c",
+    "limits": "Final frozen framework cohort and new installed historical plan/placement/renewal are pending. Whole wheel r14 remains live on prior5f3. Exact df6 CI first fails in standalone bootstrap run_with_tree_kill import of absent release custody module before original timeout assertions; separate shared-owner repair required. Preserve all83 goals, all included open contribution items, original failures/deadlines and full release acceptance. No prepare/tag/publish.",
+    "bootstrap_followup_issue": 502,
+    "validation": {
+      "project_validate": "passed",
+      "report_sha256": "7e4dfa5815ff102ecc93c98a759ed7b958bf0758cf04ea61f2417a540ba9ace2",
+      "release_receipt": "stale, not release acceptance",
+      "driver": "current",
+      "runner": "current",
+      "public_export": "passed before final semantic-discovery helper addition; final frozen check pending"
+    },
+    "preserved_development_findings": [
+      "Original framework r1 failed stale Git mock before selection; r2 failed original unknown-reference CLI error assertion; original assertion preserved and upfront scope check repaired.",
+      "New native r2 cold import failed at zero discovered tests due JSONDecodeError alias in encoder binding list; corrected to json module and fresh native r3/r4/r5 pass.",
+      "Original policy JSONDecoder/recompiler/escaped consumer holes independently reproduced, retained and fixed before source closure.",
+      "Project validation r1 correctly refused concurrent active-work documentation mutation; final stable r2 passes."
+    ]
+  },
+  "qualification_followup_r17": {
+    "baseline": "2d10c8a9deceecb8a8c75459dd5157f9c99a2655",
+    "owning_issues": [
+      502,
+      506
+    ],
+    "reviews": [
+      "verification/release-1.4-followup/review-authority-bootstrap-process-custody-final-closing-r1.json",
+      "verification/release-1.4-followup/review-contracts-506-evidence-staging-flags-closing-r1.json",
+      "verification/release-1.4-followup/review-contracts-wheel-r14-tree-html-coordinate-closing-r1.json",
+      "verification/release-1.4-followup/historical-layout-2d1-framework-approved-plan-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-2d1-framework-postapply-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-2d1-framework-host-renew-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-2d1-framework-finalize-review-r1.json",
+      "verification/release-1.4-followup/historical-layout-2d1-catalog-finalize-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-authority-df6-platform-job-inventory-r4.json",
+      "verification/release-1.4-followup/review-authority-df6-all-linux-failures-r1.json",
+      "verification/release-1.4-followup/review-authority-df6-linux-native-deadline-artifacts-r1.json",
+      "verification/release-1.4-followup/review-runtime-df6-macos-freebsd-first-failures-r1.json",
+      "verification/release-1.4-followup/review-contracts-df6-windows-all-cases-r1.json",
+      "verification/release-1.4-followup/review-contracts-df6-windows-deep-triage-r2.json",
+      "verification/release-1.4-followup/review-contracts-df6-windows-artifact-outcomes-r1.json",
+      "verification/release-1.4-followup/review-runtime-cache-runtime-owner-design-r1.json",
+      "verification/release-1.4-followup/review-authority-forest-prerequisite-order-design-r1.json",
+      "verification/release-1.4-followup/review-runtime-503-successor-census-implementation-plan-r1.json"
+    ],
+    "repairs": {
+      "502": "Replace mandatory domain import with stdlib ContextVar observer installed by original release custody owner across create/use/cleanup; refuse nested replacement; retain exact runner semantics and bundled helper digest parity.",
+      "506": "Use platform-available O_NONBLOCK at both existing staging read sites; retain native handoff, identity, disposal and primary exception behavior.",
+      "html_fixture": "Derive onboarded manifest from original ProjectConfigurationStore.context; preserve original assertions and application output coordinates."
+    },
+    "receipts": {
+      "bootstrap-custody-r2-report.json": {
+        "sha256": "90c21963433e84f36f4719b3419e9fdec0ce785e866d9ae3a49e12082302c643",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      },
+      "bootstrap-original-process-r1-report.json": {
+        "sha256": "2a0729dc2deed91203a4431462b2554bdc5ebd9ff1169c2e5fd74d31c9cd106c",
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 13,
+          "skipped": 4
+        }
+      },
+      "bootstrap-original-release-custody-r1-report.json": {
+        "sha256": "8667fc837adcfee7213745336162a5ae4ea6e8393a361a2ce15d79dd77b74163",
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        }
+      },
+      "bootstrap-original-loader-r1-report.json": {
+        "sha256": "4b6bdff52b68eff920c167ce9f7a5fb2b99098d983ff9bdb574b35b0138c8b5c",
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        }
+      },
+      "evidence-stage-flags-r1-report.json": {
+        "sha256": "179e7c68d9da0f06b90a06d2d7949e4ad45713c6026ead5e6f8d85d3b08715ec",
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 13,
+          "skipped": 0
+        }
+      },
+      "policy-frozen-framework-r2-report.json": {
+        "sha256": "85f46c285109c878db2fc7a7d7756a386bf9c6f6140addb81f91eccf20dcfae6",
+        "summary": {
+          "executed": 122,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 122,
+          "selected": 122,
+          "skipped": 0
+        }
+      },
+      "policy-frozen-native-r2-report.json": {
+        "sha256": "7ddd5d09ab4b5046be753f17d00ea6a3d12047c5371b124b7e31ecc68b38a6e7",
+        "summary": {
+          "executed": 13,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 13,
+          "selected": 13,
+          "skipped": 0
+        }
+      },
+      "policy-frozen-release-r2-report.json": {
+        "sha256": "b9074c73d50543814b382772eb865e404f3724a8bce0456fb0d0d42f2ea0a167",
+        "summary": {
+          "executed": 17,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 17,
+          "selected": 17,
+          "skipped": 0
+        }
+      }
+    },
+    "installed_html": "Fresh scoped journey against immutable5f3 installed prefix passes all31 expected command exits and9page inspection. Whole wheel r14 remains FAILED at old root-manifest assumption; no whole-wheel acceptance.",
+    "historical_2d1": "Actual approved framework apply49.098s within original1800; independent originals/postimages/native/Git readback; configured original host renewal current with no writes; framework finalize succeeds and archives exact3 source controls. Catalog finalize correctly refuses new framework-owned catalog siblings; #503 blocks continuation before documentation or Standard rebind.",
+    "ci": "Exact df6 run45997696262 terminal33success22failure1cancelled. All8Linux,11Mac/FreeBSD and370Windows detailed failures/errors inventoried;1751 original Windows skip events reconciled. Native deadlines lack inner stack evidence; native Windows control mismatches lack field-pair evidence. Do not infer causes or weaken deadlines/guards/skips.",
+    "new_included_issues": {
+      "503": "Catalog successor exact membership",
+      "504": "Codex cache runtime owner",
+      "505": "Forest pure prerequisites before native context",
+      "506": "Portable staging flags",
+      "507": "Lossless wide native IDs",
+      "508": "Windows native observations"
+    },
+    "limits": "All83 original release goals retained. Included issues remain open. Full source/installed/platform, historical catalog successor, genuine second historical starter, actual model, workers, native deadlines, collateral, resulting-main and publication acceptance remain incomplete. No prepare/tag/publish.",
+    "driver_pin": "sha256:e9e54cc24abfb90b894b17c267e41c36e48e18f4182d2d6ed4ac7c4c0294b7a8",
+    "validation": {
+      "project_validate": "passed",
+      "project_validate_sha256": "a5bf3d2b418a71f4de7f1256963e29a364c49a0b6aeb9232b8c9a403f010d324",
+      "documentation_review": "recorded",
+      "public_export": "passed",
+      "ruff_lint": "passed",
+      "ruff_format": "8files already formatted",
+      "diff_check": "passed",
+      "release_acceptance": false
+    }
+  },
+  "qualification_followup_r18": {
+    "baseline": "a59c64522",
+    "owning_issue": 504,
+    "review": "verification/release-1.4-followup/review-runtime-504-cache-runtime-closing-r1.json",
+    "repair": "Original private runtime scope only around prospective cache-hit command metadata; no new child or model call, keys/schema/pins and original guards unchanged.",
+    "tests": {
+      "cache-original-cached_coding_cli_source_generation_runner-r18-report.json": {
+        "sha256": "134f1e68cf8fb070d3ae2fde45dd5399dacff771283c052bb013996f41542ec6",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      },
+      "cache-original-codex_runtime_state-r18-report.json": {
+        "sha256": "30e6d71f1f860b8ae439aa22f3503d8d6fa7c907ad6e0bf79fbe26c89cf1e76b",
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        }
+      },
+      "cache-original-coding_cli_generation-r18-report.json": {
+        "sha256": "52177b7f054c9bb0db16d31598b8a825463d231ec0e45cec8f5e4b979fdb32e7",
+        "summary": {
+          "executed": 22,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 22,
+          "selected": 22,
+          "skipped": 0
+        }
+      },
+      "cache-runtime-r18-report.json": {
+        "sha256": "65e7c34b14e7c74791d2de44cf3eea5047cccd2a39aeb2319362fc47131e8266",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      }
+    },
+    "limits": "Process seam controls are not actual native Darwin authored-child acceptance. #504 remains open pending platform/integration/landing. All83 goals retained; no prepare/tag/publish.",
+    "driver_pin": "sha256:cdf8b55d40cf3172dafc97d49388c096aa5ab78091f467b0cd4f623b89be7b29",
+    "validation": {
+      "project_validate": "passed",
+      "report_sha256": "9072df05c7a5f06a869271e0b360a2ca2e474970150422cbd2b3e15598776666",
+      "public_export": "passed",
+      "ruff_lint": "passed",
+      "ruff_format": "passed",
+      "documentation_review": "recorded",
+      "diff_check": "passed"
+    }
+  },
+  "qualification_followup_r19": {
+    "baseline": "2c49e0e59",
+    "issue": 503,
+    "status": "in progress, full source review and acceptance OPEN",
+    "reviews": [
+      "verification/release-1.4-followup/review-runtime-503-original-link-design-r1.json",
+      "verification/release-1.4-followup/review-runtime-503-recovery-design-and-source-findings-r1.json",
+      "verification/release-1.4-followup/review-runtime-503-late-helper-source-closure-r1.json",
+      "verification/release-1.4-followup/review-contracts-503-recovery-api-design-r1.json"
+    ],
+    "source_sha256": {
+      "src/literate_ai/adapters/project_layout_continuation.py": "49311337d839431f5508b0e46538e8f51720524aacfb98a893d9f74b9a2d3f06",
+      "src/literate_ai/adapters/project_layout_catalog_successor.py": "aad22c36de961885b813d42ef5210ff25722f88bd5f9aa480784a8bd1ca38fa9",
+      "src/literate_ai/adapters/project_layout_catalog_renewal.py": "c0bd386df669109e2f2249a81137a30986fc51656bc8702d50746bee530da047",
+      "tests/critical/test_project_layout_mixed_component_channels.py": "1668966083e39092d51710485f35e24b610b6fa5fd26723551723b4c1fdd0fb6",
+      "tests/critical/test_catalog_successor_membership.py": "002040177e07b128aedce6c8ce381743a3df3cc34cc04a34806220e4cf799cfe"
+    },
+    "forward_progress": "New exact same-parent journey reaches original framework and catalog finalization after genuine normal producer renewal. Original full recovery assertion remains unchanged and fails at catalog strict census after framework rollback retains exact coordination scaffolds. Historical installed R2 has not been retried.",
+    "current_scoped_receipt": {
+      "file": "catalog-membership-r19f-report.json",
+      "sha256": "93c557efc4aeb6a3be2063c265bd926fd5bc16eacc3c70943a6763523cdbaaea",
+      "summary": {
+        "executed": 4,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 3,
+        "selected": 5,
+        "skipped": 0
+      },
+      "not_executed_due_original_failfast": [
+        "test_foreign_member_observer_is_refused_before_invocation_and_lease_expires"
+      ]
+    },
+    "original_cohort_diagnostics": {
+      "membership-project_layout_framework_source_finalization-r19d-report.json": {
+        "sha256": "deda90f3b9a41a462d4a7e7fa0dcb09d7496fd895f2f20a33b846a27240564f1",
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        },
+        "scope": "Earlier source before closing-helper refinement; nine passes, not final current candidate qualification."
+      },
+      "membership-project_layout_mixed_component_channels-r19d-report.json": {
+        "sha256": "34b9d450270de0285a01b36d91ea1f617e49b002b677a223c70324ccc8d5e360",
+        "summary": {
+          "executed": 1,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 1,
+          "skipped": 0
+        },
+        "scope": "Earlier source before closing-helper refinement; nine passes, not final current candidate qualification."
+      },
+      "membership-project_layout_mixed_producer_epochs-r19d-report.json": {
+        "sha256": "335e6693dc5a41069c24070b04e763fe18da0d9e3b7177b755c4cec73fecddfb",
+        "summary": {
+          "executed": 1,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 1,
+          "skipped": 0
+        },
+        "scope": "Earlier source before closing-helper refinement; nine passes, not final current candidate qualification."
+      },
+      "membership-project_layout_catalog_successor_controls-r19d-report.json": {
+        "sha256": "1cc2e87ff88e395383c8f9960902290328a38ca7f8d83a542a7e3b7cea6c164d",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "scope": "Earlier source before closing-helper refinement; nine passes, not final current candidate qualification."
+      }
+    },
+    "pending": [
+      "Explicit successor identity on catalog recovery, rejected for framework/noncatalog scope, before original first load; same lease/namespace/binding at every currentness boundary.",
+      "Exact cross-journal shared metadata handback through predecessor published/backedup/original states; no live successor payload grants in rollback direction.",
+      "Native equality proof and bounded retention for successor coordination plus original directory anchors that are catalog-created, including no-coordination cases.",
+      "Actual late callback mutation, source/code/default binding, cold import-order, no-write and changed-producer, interruption/restart and complete original-inode recovery controls.",
+      "Independent full source closure, reviewed pin/documentation refresh, frozen original/current regressions and actual installed historical acceptance."
+    ],
+    "preserved_failures": "r19/r19b fixture setup required ordinary producer renewal; baseline-r19/r19b caught missing catalog/empty-directory assumptions. r19c diagnostic run had concurrent source/test edits and is not frozen qualification. r19d/r19e special function attribute mock cleanup raised TypeError; manual finally restoration repaired it. r19f retains actual rollback failure.",
+    "limits": "All83 goals retained; no issue closed, no prepare/tag/publish, no driver repin while source closure/recovery incomplete."
+  },
+  "qualification_followup_r20": {
+    "baseline": "2c49e0e593f6cefab1a4c47fcca817f1e344f571",
+    "owning_issues": [
+      503,
+      509
+    ],
+    "status": "503 native/source/API review closed; full qualification blocked by separately recorded509 before moved-reference handback",
+    "reviews": [
+      "verification/release-1.4-followup/review-runtime-503-final-source-closure-r1.json",
+      "verification/release-1.4-followup/review-runtime-503-fixture-refresh-r2.json",
+      "verification/release-1.4-followup/review-runtime-503-fixture-source-closure-r3.json",
+      "verification/release-1.4-followup/review-contracts-503-recovery-api-docs-closing-r3.json",
+      "verification/release-1.4-followup/review-runtime-503-r2-fixes-and-moved-handback-fixture-r1.json",
+      "verification/release-1.4-followup/review-runtime-framework-imported-reference-scope-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-runtime-framework-imported-reference-scope-design-r2.json",
+      "verification/release-1.4-followup/review-authority-lang-python-partial-framework-r20c-diagnosis-r1.json",
+      "verification/release-1.4-followup/review-authority-partial-flavor-public-producer-plan-r1.json"
+    ],
+    "repairs": "Original import-bound successor owner derives finite exact active or rollback membership; same original lease/namespace/binding throughout initial load, producer undo and every currentness boundary. Shared metadata follows exact predecessor published/backedup/original handback nodes/slots. Recovering retains only proved coordination and native directory anchors. Explicit successor recover option has strict wrong-scope/empty/legacy refusal and preserves omitted-option call shapes. No target ownership grant or deadline changes.",
+    "reports": {
+      "successor-catalog-r20e-report.json": {
+        "sha256": "2f471647a9bec9691c85d86bada1a0162b26783e79339fc0edc6ecd246ecfd2e",
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        }
+      },
+      "successor-framework-r20e-report.json": {
+        "sha256": "c303bc157bcd07c30f8af52e2ac978f2f13de90905436455e6bdbffd4c620e76",
+        "summary": {
+          "executed": 122,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 122,
+          "selected": 122,
+          "skipped": 0
+        }
+      },
+      "successor-initialized-r20e-report.json": {
+        "sha256": "ebc741cf3f236b9228e6052c2d24fbbbfcf8ed488c674059fdd7dcea22936ec9",
+        "summary": {
+          "executed": 18,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 18,
+          "selected": 18,
+          "skipped": 0
+        }
+      },
+      "successor-mixed-r20e-report.json": {
+        "sha256": "533526cb6781910341f6f99ddcad298b696e815bcee47364baac9a0f3c3379a3",
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        }
+      },
+      "successor-new-r20e-report.json": {
+        "sha256": "75b5a8206c7885576b4a03feafd71e364aab847bb27a6e8f609973e48deb4b4c",
+        "summary": {
+          "executed": 12,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 12,
+          "skipped": 0
+        }
+      },
+      "successor-public-r20e-report.json": {
+        "sha256": "3252c41071a64d0efb85f3f0012a3d10b4fe007520a905d046825118e96b4d5d",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        }
+      },
+      "successor-new-r20g-report.json": {
+        "sha256": "6df9123fcdb74e7308f82ea5821cf4153f7d27fe9339f10494bd0fe695c7111b",
+        "summary": {
+          "executed": 12,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 12,
+          "skipped": 0
+        }
+      },
+      "catalog-membership-recovery-r20d-report.json": {
+        "sha256": "97af2f20cbd7cd5b9acd600f63f85eefaf941e2086558fff119e8b1e22a94068",
+        "summary": {
+          "executed": 10,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 10,
+          "selected": 10,
+          "skipped": 0
+        }
+      }
+    },
+    "new_failure": "Canonical valid-SKILL original POST baseline plus real local PRE edit reaches catalog placement/rewrite; framework plan then refuses existing contained imported target litai/samples/peer/component.md because curated semantic observation excludes it. #509 included1.4.0 before implementation; original applicability/foreign-inode/complete-recovery assertions retained.",
+    "next": "Add finite original ingress-owned read-only target facts derived from proved Markdown and typed imported file membership, separate from contents/source proofs/writer inventory, with safe native/currentness/callback closure. Keep private/output/escaped/missing refs strict. Then finish full handback control, original regressions, driver/docs gates and frozen installed historical catalog finalization.",
+    "preserved_failures": "r20 expired lease fixture expected wrong exception; corrected to exact original ProjectLayoutLeaseError. r20b lacked initialized Flavor anchor; r20c langPython partial modeled fixture reached separate consumer-closer asymmetry with public provenance unproven. r20e synthetic moved SKILL lacked frontmatter. r20f accidental unchanged rerun after an unchecked string replacement missed formatted text; no newqualification claimed. Exact apply_patch+AST/hash before r20g corrects template and reaches distinct509 refusal.",
+    "conditional_followup": "Mixed Flavor primary/closing consumer coordinate asymmetry is read-only source-confirmed but admissible public producer regression is unrun. Preserve r20c diagnosis separately; do not claim authentic historical/native acceptance or expand503 scope.",
+    "limits": "All83 goals retained. #509 includedexisting1.4.0 scope. No issueclosed, no finalsourcegate/publication claim, no prepare/tag/publish. Actual R2 remains preserved at oldcatalogfinalizefailure; no provisional retry with this dirty tree. Driver/doc reviews remain stale pending complete source wave."
+  },
+  "qualification_followup_r21": {
+    "created_utc": "2026-11-27T19:17:39.868976+00:00",
+    "issues": [
+      503,
+      509
+    ],
+    "status": "independently reviewed source fixes and scoped regressions pass; installed historical and release acceptance remain open",
+    "reports": {
+      "successor-catalog-r21e-report.json": {
+        "sha256": "35bef837cea7bb1b54dc78eb6d383218746703b400e24990e6ef5043952feb64",
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        }
+      },
+      "successor-framework-r21e-report.json": {
+        "sha256": "d043a8f92864197df8f9d12519bba77b61367d46e28d6e72cfac803de8e15b4b",
+        "summary": {
+          "executed": 122,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 122,
+          "selected": 122,
+          "skipped": 0
+        }
+      },
+      "successor-initialized-r21e-report.json": {
+        "sha256": "73e84ff7cb3d6750a9430e6e7d4f81204b342bc7b6f7030d89ae925976b1a58c",
+        "summary": {
+          "executed": 18,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 18,
+          "selected": 18,
+          "skipped": 0
+        }
+      },
+      "successor-mixed-r21e-report.json": {
+        "sha256": "2c50547204e97f80922e842966958b9a45f1f29ef0f5ae7cdbcbfacff25a952c",
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        }
+      },
+      "successor-public-r21e-report.json": {
+        "sha256": "f5f6aa8c10f870e2e4a59a581e8945dc5eb91831fb4543d20d22156484e40be8",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        }
+      },
+      "reference-catalog_successor_membership-r21f-report.json": {
+        "sha256": "55c4743edc6a19b1e64f7f3270ab63ce646c01abe80b1562c7f5b53d14534513",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      },
+      "reference-framework_reference_targets-r21f-report.json": {
+        "sha256": "741264c57535d96702d5dd4b4b1c50a33c2f6f2be91c5a76a637be5c6d92c197",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      }
+    },
+    "scope": "Original177 r21e pass before final single export-slot guard addition. Final12 reference-target controls and12 complete successor membership/recovery controls r21f pass on final production bytes. No original assertions/deadlines changed; no new skips.",
+    "review_reports": [
+      "verification/release-1.4-followup/review-runtime-509-final-source-closure-r4.json",
+      "verification/release-1.4-followup/review-runtime-509-parser-export-slot-closure-r6.json",
+      "verification/release-1.4-followup/review-runtime-509-parser-export-slot-findings-r5.json",
+      "verification/release-1.4-followup/review-runtime-509-prototype-source-findings-r1.json",
+      "verification/release-1.4-followup/review-runtime-509-tightened-source-findings-r2.json",
+      "verification/release-1.4-followup/review-runtime-509-url-result-source-findings-r3.json",
+      "verification/release-1.4-followup/review-contracts-503-509-final-docs-r4.json"
+    ],
+    "source_sha256": {
+      "src/literate_ai/adapters/project_layout_framework_ingress.py": "e6458a5f7ff54ff0a32f370492ba0828d328a35adcfc9a330a8309e272b463a9",
+      "src/literate_ai/adapters/project_layout_framework_observation.py": "f2c98a805a74f3104ef6506018c922a0c5af2ac0c608db0d5b91372dec322831",
+      "src/literate_ai/adapters/project_layout_framework_selection.py": "7f0757642eab38bb8c909f8fa43f1182c16b1436a8ef496386e339013cd7c35a"
+    },
+    "source_fix": "Finite metadata-only native reference observations from original proved Markdown and imported membership; no payload/ownership grant; currentness across callbacks. Original parser export/code/default/dependency closure guarded before foreign invocation.",
+    "preserved_failures": "Prior r20g moved reference refusal and r21 intermediate reviewer findings retained. r4 closure amended by r5 export pointer finding; r6 closes exact final fix.",
+    "next": "Documentation authority and project validation, clean commit, fresh immutable candidate and original preserved R2 catalog finalization; no legacy journal edits.",
+    "limits": "All83 original goals retained. No issue closed, merge, prepare, tag, publication or whole-wheel/native matrix acceptance."
+  },
+  "qualification_followup_r22": {
+    "issues": [
+      505
+    ],
+    "status": "independent source review closed; original forest operation and control publication cohorts pass with zero skips",
+    "source_repair": "Pure exact acknowledgement/allow predicate before original execute _require; pure exact coordinate type and original live-pool reference membership before planning _state. All later original ownership/currentness/equality/fieldseals/native guards unchanged.",
+    "review_reports": [
+      "verification/release-1.4-followup/review-authority-505-source-review-r2.json",
+      "verification/release-1.4-followup/review-authority-forest-prerequisite-order-design-r1.json"
+    ],
+    "reports": {
+      "forest-control-publication-r22-report.json": {
+        "sha256": "e650b8608d51f4d40c560e95175f1ad20a719115206ad1a7deaf3d21143ca5f3",
+        "summary": {
+          "executed": 21,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 21,
+          "selected": 21,
+          "skipped": 0
+        }
+      },
+      "forest-prerequisite-r22-report.json": {
+        "sha256": "b74c0e519be2d51899e92ffe6e138edf2695880232a907703f0ca8e929121c2e",
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        }
+      }
+    },
+    "unchanged_original_test_sha256": "23c3dca561c96c0764f444a6cc7b2d57a67a5a73c943602f9ba30dd3c3f56f12",
+    "limits": "These original source cohorts preserve all assertions/deadlines. Installed historical candidate remains immutable e0ed42469 and its catalog finalizer remains live under original1800. No issue closure, release preparation or publication. All83goals retained."
+  },
+  "qualification_followup_r23": {
+    "issue": 507,
+    "status": "wrapper wire-only projection independently reviewed; final6 and original37 controls pass0skip; catalog complete wire path open",
+    "reports": {
+      "wrapper-native-identity-r23-report.json": {
+        "sha256": "b34226cb04af53b26185ba8c86181c244d8fd7d67d5b2e8fae61b82c66a8b666",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        }
+      },
+      "wrapper-native-identity-r23b-report.json": {
+        "sha256": "16f056105b869f80d2e40fe5288186372a764add7ddb26a07e27838bfed9cf59",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        }
+      },
+      "wrapper-original-r23-report.json": {
+        "sha256": "88cdb5159963fd15c6a0e5b6efaab328ff55fd0c305dea207d12189bee6d4941",
+        "summary": {
+          "executed": 37,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 37,
+          "selected": 37,
+          "skipped": 0
+        }
+      },
+      "wrapper-native-identity-r23c-report.json": {
+        "sha256": "1296247395591781d662672ff239754301c74479eadab21b0194f828c372abe8",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        }
+      }
+    },
+    "limits": "Wide-ID controls are modeled wire data, do not issue an original source owner and do not claim native Windows acceptance. Original37 wrapper controls pass on production bytes. First5 newcontrols passed with9fieldstamp, refined5 passed with exact7fieldstamp; final6 passes including default/kwdefault cuts. No assertion/deadline relaxation. Original live native facts remain integers; ordinary preimage bytes unchanged. Original83goals preserved, no issueclosure or prepare/tag/publication.",
+    "next": "Implement completecatalog schema/codec/journal/native joins per independentdesign, then affected actualWindows readback. Wrapper scope does not close issue507.",
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-507-lossless-wire-design-r1.json",
+      "verification/release-1.4-followup/review-authority-507-wrapper-wire-source-r1.json"
+    ]
+  },
+  "qualification_followup_r24": {
+    "created_utc": "2026-11-27T20:05:53.280545+00:00",
+    "issues": [
+      507,
+      510
+    ],
+    "status": "507 complete catalog wire source independently reviewed and 208 scoped controls pass0skip; actual Windows and release acceptance open. Historical catalog finalization passes; next documentation review blocked510.",
+    "source_repair": "Explicit schema-owned E/D native-ID projections at plan/private intent/renewal/closure/pair/receipt boundaries; no in-place mutation of hashed data. Original private views retain native integers and every native comparison/move/lease/custody guard. Import-time helper baseline cannot be refreshed by later binders; used module/builtin slots and code/default/kwdefault contents sealed. Context guard rechecks at enter.",
+    "reports": {
+      "successor-catalog-r24e-report.json": {
+        "sha256": "3c5cdac6f1bfa57c764fbe16cca26a420ed6845563757b7bca60c8bf934292d5",
+        "summary": {
+          "executed": 30,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 30,
+          "selected": 30,
+          "skipped": 0
+        }
+      },
+      "successor-framework-r24e-report.json": {
+        "sha256": "b94c1cca4dc76bbe5db9a9e3d48c1de83de63119fbe1f652773cabe8231cb077",
+        "summary": {
+          "executed": 122,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 122,
+          "selected": 122,
+          "skipped": 0
+        }
+      },
+      "successor-initialized-r24e-report.json": {
+        "sha256": "6bb05bc2040549e0d47df276336305bba44cdbcccd34617026c7e5afdaf9cad0",
+        "summary": {
+          "executed": 18,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 18,
+          "selected": 18,
+          "skipped": 0
+        }
+      },
+      "successor-membership-r24e-report.json": {
+        "sha256": "19a585cde80b49354e2a596ae03962d17918e04e5507e6ef43d0cf2d83efdb15",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      },
+      "successor-mixed-r24e-report.json": {
+        "sha256": "82e06f785ded7198798cac1823bc92884267b04479235127bbab921fd2442d66",
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        }
+      },
+      "successor-physical-r24e-report.json": {
+        "sha256": "dbcf77de9794e0a6b381671cbd7fc69e96663d2697f2b84ce57f89ae90be348d",
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        }
+      },
+      "successor-public-r24e-report.json": {
+        "sha256": "545225ded197ef58ecd008d6d683798d956b8fc64e04681045f9b77b916c2ad1",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        }
+      },
+      "catalog-native-identity-r24-report.json": {
+        "sha256": "c01bb24b830a1e3ba6e27f3b9a0f72de5e223acf806a0ebbf9aefe68358e5c16",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        }
+      },
+      "catalog-native-identity-r24b-report.json": {
+        "sha256": "1963c78db0e899f88248b191973cc9dea8a19e9fe27ccdb009c8c8bb482c0c73",
+        "summary": {
+          "executed": 7,
+          "failed": 1,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 9,
+          "skipped": 0
+        }
+      },
+      "catalog-native-identity-r24c-report.json": {
+        "sha256": "eb453abb9870f593bb6866cd67ade4a84dd80decb8445f192b0dbf46ec5e5bb9",
+        "summary": {
+          "executed": 10,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 10,
+          "selected": 10,
+          "skipped": 0
+        }
+      },
+      "catalog-native-identity-r24d-report.json": {
+        "sha256": "9bc3cf427a216c78ed483665d2640322b5c7a97efb9f464c0fd94dcd0531ae43",
+        "summary": {
+          "executed": 11,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 11,
+          "skipped": 0
+        }
+      },
+      "catalog-native-identity-r24f-report.json": {
+        "sha256": "c28a1cff7dd1734ae98f8671b98b14584710a80ab69c8671650e5586a5ebe01c",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      }
+    },
+    "review_reports": [
+      "verification/release-1.4-followup/review-contracts-507-native-view-projection-design-r2.json",
+      "verification/release-1.4-followup/review-contracts-507-catalog-wire-closure-r24-r1.json",
+      "verification/release-1.4-followup/review-authority-507-catalog-source-r24-findings-r1.json",
+      "verification/release-1.4-followup/review-authority-507-catalog-source-r24-findings-r2.json",
+      "verification/release-1.4-followup/review-authority-507-catalog-source-r24-closure-r3.json",
+      "verification/release-1.4-followup/review-authority-507-final-test-source-r24-r4.json",
+      "verification/release-1.4-followup/historical-layout-r21-catalog-finalize-review-preparation-r1.json",
+      "verification/release-1.4-followup/historical-layout-r21-catalog-finalize-review-r1.json",
+      "verification/release-1.4-followup/review-authority-510-mixed-wrapper-coordinate-design-r1.json",
+      "verification/release-1.4-followup/review-contracts-508-original-guard-note-design-r2.json"
+    ],
+    "preserved_development_failures": "r24b original run selected9, executed7 with6pass1error and2unexecuted: new provenance fixture called _stage with3 instead of5args and probed unrelated renewal/closure helpers through that owner. Fixed actual consumer controls and exact signature, no original assertions changed. r1/r2 late-import fresh-baseline findings retained, fixed by import-time module/scalar/global+effective-builtin baseline. Initial schema trailing-LF gap fixed with true-end assertion. E731 lambda assignment fixed only after broad run terminal; final12 adds NT3model coverage.",
+    "historical_finalization": {
+      "candidate_source": "e0ed424699155877ec9a72071f5b1b5920bdd2c1",
+      "wheel_sha256": "62b399b33417424b0c2e57eb37276e8e5273a270e371d404269254e82c104a39",
+      "execution": {
+        "argv": [
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r21/environment/bin/python",
+          "-I",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r21/environment/bin/litai",
+          "--json",
+          "project",
+          "layout",
+          "finalize",
+          "--place-imported-catalogs",
+          "--acknowledge",
+          "--plan-identity",
+          "sha256:0a083149cd38189d11b86dbb7a8e72248cc779498e76752287a1e548ecfec915",
+          "--successor-plan-identity",
+          "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+          "--project",
+          "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+        ],
+        "exit": 0,
+        "seconds": 1799.6227332149865,
+        "timeout_seconds": 1800
+      },
+      "independent_readback": "closed; all8sourcearchives,249catalogjoins,37frameworkoutputs,613originalfiles/native6/Git/receipt/policy/oldStandard preserved",
+      "limits": "Qualification/full_containment remainfalse. This source is the immutable earlier candidate, not current dirty507source or whole-wheel/native-matrix acceptance."
+    },
+    "next_historical_failure": {
+      "issue": 510,
+      "error": "retained_receipt.wrapper_invalid: retained harness wrapper is unavailable",
+      "cause": "Current mixed component_roots retains original implementation but resolver chooses root wrapper instead of exact placed litai/litai.harness.mk; paired typed initialization data already records moved wrapper coordinates.",
+      "preserved_usage_error": "First docreview attempt passed unsupported --project and was rejected before effects; corrected cwd-only public command reaches actual product failure. No unchanged failure rerun, handpins or project workaround."
+    },
+    "next": "Complete source authority gates and commit507; implement reviewed510finite provenance resolver and qualify preserved actual installed journey through normal docs/Standard/freshreceipt. Add508originalguarddiagnostics before next nativecandidate.",
+    "limits": "All83originalgoals retained. Included510under existing1.4.0 integration scope, no deferral, issueclosure, merge, prepare, tag or publication. Native Windows, original remaining CI failures/skips and all other release goals remain open."
+  }
+}

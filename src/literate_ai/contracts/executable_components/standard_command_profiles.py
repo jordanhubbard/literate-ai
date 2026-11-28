@@ -14,6 +14,7 @@ from typing import Any, ClassVar
 
 from .._validation import contract_fields, enum_value, fail, string_value
 from ..identity import ContentIdentity, contract_identity
+from ..paths import canonical_relative_posix_paths
 from ._common import portable_name
 
 STANDARD_LANGUAGE_COMMAND_PROFILE_SCHEMA = (
@@ -39,6 +40,9 @@ STANDARD_MIX_COMMAND_PROFILE_SCHEMA = (
 )
 STANDARD_NPM_COMMAND_PROFILE_SCHEMA = (
     "urn:literate-ai:schema:v2:standard-npm-command-profile"
+)
+STANDARD_NODE_SDK_COMMAND_PROFILE_SCHEMA = (
+    "urn:literate-ai:schema:v2:standard-node-sdk-command-profile@1"
 )
 STANDARD_PYTHON_WHEEL_COMMAND_PROFILE_SCHEMA = (
     "urn:literate-ai:schema:v2:standard-python-wheel-command-profile"
@@ -556,7 +560,11 @@ class StandardCargoCommandProfile:
     toolchain: str
     manifest: str
     binary: str
+    package_layout: str = "embedded"
 
+    SHARED_SCHEMA: ClassVar[str] = (
+        "urn:literate-ai:schema:v3:standard-cargo-command-profile"
+    )
     SCHEMA: ClassVar[str] = STANDARD_CARGO_COMMAND_PROFILE_SCHEMA
 
     def __post_init__(self) -> None:
@@ -571,35 +579,56 @@ class StandardCargoCommandProfile:
         if PurePosixPath(self.manifest).name != "Cargo.toml":
             fail("StandardCargoCommandProfile.manifest", "must name Cargo.toml")
         portable_name(self.binary, "StandardCargoCommandProfile.binary")
+        if self.package_layout not in {"embedded", "shared-siblings"}:
+            fail(
+                "StandardCargoCommandProfile.package_layout",
+                "requires a supported package layout",
+            )
 
     @property
     def identity(self) -> ContentIdentity:
         return contract_identity(self)
 
     def to_dict(self) -> dict[str, object]:
-        return {
+        value = {
             "schema": self.SCHEMA,
             "target": self.target,
             "toolchain": self.toolchain,
             "manifest": self.manifest,
             "binary": self.binary,
         }
+        if self.package_layout != "embedded":
+            value["schema"] = self.SHARED_SCHEMA
+            value["package_layout"] = self.package_layout
+        return value
 
     @classmethod
     def from_dict(
         cls, value: Any, *, path: str = "StandardCargoCommandProfile"
     ) -> StandardCargoCommandProfile:
+        shared = isinstance(value, dict) and value.get("schema") == cls.SHARED_SCHEMA
         data = contract_fields(
             value,
             path=path,
-            schema_uri=cls.SCHEMA,
-            required=frozenset({"target", "toolchain", "manifest", "binary"}),
+            schema_uri=cls.SHARED_SCHEMA if shared else cls.SCHEMA,
+            required=frozenset(
+                {
+                    "target",
+                    "toolchain",
+                    "manifest",
+                    "binary",
+                    *({"package_layout"} if shared else ()),
+                }
+            ),
         )
+        if shared and data["package_layout"] != "shared-siblings":
+            fail(f"{path}.package_layout", "v3 requires the shared-siblings layout")
         return cls(
             portable_name(data["target"], f"{path}.target"),
             portable_name(data["toolchain"], f"{path}.toolchain"),
             _relative_path(data["manifest"], f"{path}.manifest"),
             portable_name(data["binary"], f"{path}.binary"),
+            "shared-siblings" if shared else "embedded",
         )
 
 
@@ -717,6 +746,117 @@ class StandardNpmCommandProfile:
             portable_name(data["toolchain"], f"{path}.toolchain"),
             _relative_path(data["manifest"], f"{path}.manifest"),
             _relative_path(data["lockfile"], f"{path}.lockfile"),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class StandardNodeSDKCommandProfile:
+    """Opt-in pure TypeScript SDK policy; never an npm application profile.
+
+    Host paths, compiler flags, package scripts and provider selection are not
+    author-controlled profile fields. Tool observations and current lifecycle
+    admission bind those independently before execution.
+    """
+
+    target: str
+    toolchain: str
+    compiler: str
+    source_root: str
+    legal_files: tuple[str, ...]
+
+    SCHEMA: ClassVar[str] = STANDARD_NODE_SDK_COMMAND_PROFILE_SCHEMA
+
+    def __post_init__(self) -> None:
+        for name, expected in (
+            ("target", "node-sdk"),
+            ("toolchain", "npm"),
+            ("compiler", "typescript"),
+            ("source_root", "src"),
+        ):
+            if getattr(self, name) != expected:
+                fail(f"StandardNodeSDKCommandProfile.{name}", f"must be {expected}")
+        files = self.legal_files
+        if (
+            not isinstance(files, tuple)
+            or not 1 <= len(files) <= 16
+            or any(not isinstance(name, str) for name in files)
+        ):
+            fail("StandardNodeSDKCommandProfile.legal_files", "must be bounded names")
+        canonical_relative_posix_paths(
+            files, label="StandardNodeSDKCommandProfile.legal_files"
+        )
+        if files != tuple(sorted(set(files))) or len(
+            {n.casefold() for n in files}
+        ) != len(files):
+            fail(
+                "StandardNodeSDKCommandProfile.legal_files",
+                "must be unique and canonical",
+            )
+        for name in files:
+            if (
+                len(name) > 128
+                or not name.startswith(("LICENSE", "NOTICE"))
+                or any(not (c.isascii() and (c.isalnum() or c in "._-")) for c in name)
+            ):
+                fail(
+                    "StandardNodeSDKCommandProfile.legal_files",
+                    "must name root license/notice files",
+                )
+
+    @property
+    def identity(self) -> ContentIdentity:
+        return contract_identity(self)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "schema": self.SCHEMA,
+            "target": self.target,
+            "toolchain": self.toolchain,
+            "compiler": self.compiler,
+            "source_root": self.source_root,
+            "legal_files": list(self.legal_files),
+            "formats": ["commonjs", "module"],
+            "declaration_policy": "independent-node16-nodenext",
+            "pack_policy": "offline-ignore-scripts",
+        }
+
+    @classmethod
+    def from_dict(
+        cls, value: Any, *, path: str = "StandardNodeSDKCommandProfile"
+    ) -> StandardNodeSDKCommandProfile:
+        data = contract_fields(
+            value,
+            path=path,
+            schema_uri=cls.SCHEMA,
+            required=frozenset(
+                {
+                    "target",
+                    "toolchain",
+                    "compiler",
+                    "source_root",
+                    "legal_files",
+                    "formats",
+                    "declaration_policy",
+                    "pack_policy",
+                }
+            ),
+        )
+        if (
+            data["formats"] != ["commonjs", "module"]
+            or data["declaration_policy"] != "independent-node16-nodenext"
+            or data["pack_policy"] != "offline-ignore-scripts"
+            or not isinstance(data["legal_files"], list)
+        ):
+            fail(
+                path,
+                "must preserve the fixed dual-format, declaration and packing policy",
+            )
+        return cls(
+            data["target"],
+            data["toolchain"],
+            data["compiler"],
+            data["source_root"],
+            tuple(data["legal_files"]),
         )
 
 
@@ -947,6 +1087,7 @@ StandardCommandProfile = (
     | StandardCargoCommandProfile
     | StandardMixCommandProfile
     | StandardNpmCommandProfile
+    | StandardNodeSDKCommandProfile
     | StandardPythonWheelCommandProfile
     | StandardPlatformCommandProfile
     | StandardAcceleratorCommandProfile
@@ -968,8 +1109,12 @@ def parse_standard_command_profile(
         StandardMakeCommandProfile.SCHEMA: StandardMakeCommandProfile.from_dict,
         StandardCMakeCommandProfile.SCHEMA: StandardCMakeCommandProfile.from_dict,
         StandardCargoCommandProfile.SCHEMA: StandardCargoCommandProfile.from_dict,
+        StandardCargoCommandProfile.SHARED_SCHEMA: (
+            StandardCargoCommandProfile.from_dict
+        ),
         StandardMixCommandProfile.SCHEMA: StandardMixCommandProfile.from_dict,
         StandardNpmCommandProfile.SCHEMA: StandardNpmCommandProfile.from_dict,
+        StandardNodeSDKCommandProfile.SCHEMA: StandardNodeSDKCommandProfile.from_dict,
         StandardPythonWheelCommandProfile.SCHEMA: (
             StandardPythonWheelCommandProfile.from_dict
         ),
@@ -996,6 +1141,7 @@ __all__ = [
     "STANDARD_LANGUAGE_COMMAND_PROFILE_SCHEMA",
     "STANDARD_MAKE_COMMAND_PROFILE_SCHEMA",
     "STANDARD_NPM_COMMAND_PROFILE_SCHEMA",
+    "STANDARD_NODE_SDK_COMMAND_PROFILE_SCHEMA",
     "STANDARD_PYTHON_WHEEL_COMMAND_PROFILE_SCHEMA",
     "STANDARD_PLATFORM_COMMAND_PROFILE_SCHEMA",
     "StandardArtifactLayout",
@@ -1011,6 +1157,7 @@ __all__ = [
     "StandardLanguageRuntimeStrategy",
     "StandardMakeCommandProfile",
     "StandardNpmCommandProfile",
+    "StandardNodeSDKCommandProfile",
     "StandardPythonWheelCommandProfile",
     "StandardPlatformCommandProfile",
     "parse_standard_command_profile",

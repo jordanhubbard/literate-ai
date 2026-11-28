@@ -14,11 +14,23 @@ from pathlib import Path
 
 from literate_ai._filesystem import path_is_link_or_reparse
 from literate_ai.adapters.builders.python import PythonToolchain
+from literate_ai.adapters.dependencies.python_archive import WheelPayload
 from literate_ai.adapters.dependencies.python_install import (
     PIP_INSTALLER,
     InstalledPythonWheels,
 )
-from literate_ai.adapters.dependencies.python_installed import _snapshot
+from literate_ai.adapters.dependencies.python_installed import (
+    _MAX_FILE_BYTES as _MAX_PAYLOAD_FILE_BYTES,
+)
+from literate_ai.adapters.dependencies.python_installed import (
+    _MAX_FILES as _MAX_PAYLOAD_FILES,
+)
+from literate_ai.adapters.dependencies.python_installed import (
+    _MAX_TREE_BYTES as _MAX_PAYLOAD_TREE_BYTES,
+)
+from literate_ai.adapters.dependencies.python_installed import (
+    _snapshot,
+)
 from literate_ai.adapters.dependencies.python_lock import _strict_object
 from literate_ai.adapters.dependencies.python_resolution import PythonDependencyEvidence
 from literate_ai.adapters.dependencies.python_source import PythonSourceAuthority
@@ -35,6 +47,7 @@ from literate_ai.contracts import (
     StandardPythonWheelCommandProfile,
     canonical_identity,
 )
+from literate_ai.contracts.paths import canonical_relative_posix_paths
 from literate_ai.storage import canonical_json_bytes
 
 _PAYLOAD = "python-runtime"
@@ -148,6 +161,23 @@ class StandardPythonDependencyEvidence:
 
 
 @dataclass(frozen=True)
+class StandardPythonDependencyRecords:
+    """Inert dependency projection; never live payload custody or import permission.
+
+    The enclosing current qualification reader must independently authenticate
+    the complete artifact records and original evidence identity. Filesystem
+    consumers additionally retain their own root, byte, mode and currency checks.
+    """
+
+    identity: ContentIdentity
+    observation: HostDependencyObservation
+    installed_tree_identity: ContentIdentity
+    target_identity: ContentIdentity
+    installer_identity: ContentIdentity
+    install_process_identity: ContentIdentity
+
+
+@dataclass(frozen=True)
 class StandardPythonDependencyObserver:
     """Fresh resolver callback bound to sealed artifact and build authority.
 
@@ -162,15 +192,16 @@ class StandardPythonDependencyObserver:
     toolchain: PythonToolchain
 
     def __call__(self) -> PythonDependencyEvidence:
+        target = observe_python_wheel_target(self.toolchain)
         verified = verify_standard_python_dependencies(
             self.artifact_root,
             expected_identity=self.expected_identity,
             binding=self.binding,
             source=self.source,
-            target=observe_python_wheel_target(self.toolchain),
+            target=target,
         )
         return PythonDependencyEvidence(
-            self.source, verified.identity, verified.observation
+            self.source, verified.identity, verified.observation, target
         )
 
 
@@ -299,6 +330,162 @@ def retain_standard_python_dependencies(
         raise
 
 
+def _require_dependency_document(
+    document, *, expected_identity, binding, source, target
+):
+    target.require_lock(source.lock)
+    if binding.python_toolchain_identity.uri != target.toolchain_identity:
+        _fail("Python artifact binding names another selected toolchain")
+    if canonical_identity(document) != expected_identity:
+        _fail("Python dependency evidence differs from the sealed artifact identity")
+    if (
+        not isinstance(document, dict)
+        or set(document)
+        != {
+            "schema",
+            "binding",
+            "source",
+            "target_identity",
+            "installer_identity",
+            "install_process_identity",
+            "installed_tree_identity",
+            "package_schemes",
+            "projector_identities",
+            "components",
+            "edges",
+            "files",
+            "executable_paths",
+        }
+        or document["schema"] != _SCHEMA
+    ):
+        _fail("Python dependency evidence has an unsupported shape")
+    if (document["binding"], document["source"], document["target_identity"]) != (
+        binding.to_dict(),
+        _source_document(source),
+        target.identity.uri,
+    ):
+        _fail("Python dependency evidence belongs to another build, source or target")
+
+
+def reopen_standard_python_dependency_records(
+    content: bytes,
+    *,
+    expected_identity: ContentIdentity,
+    binding: StandardPythonBuildBinding,
+    source: PythonSourceAuthority,
+    target: PythonWheelTarget,
+    files: tuple[WheelPayload, ...],
+    executable_paths: tuple[str, ...],
+) -> StandardPythonDependencyRecords:
+    """Check recorded payload joins without reading paths or executing code.
+
+    Content is bounded before strict JSON decoding. Inputs must come from
+    independently reopened current authority and complete qualified inventories,
+    rather than the candidate's own success assertions.
+    This verifies the existing dependency evidence semantics only. It does not
+    grant provider qualification, original wheel installation, filesystem custody,
+    namespace ownership, importer trust or permission to execute any package.
+    """
+    if not isinstance(expected_identity, ContentIdentity):
+        raise TypeError(
+            "Python record reopening requires an external expected identity"
+        )
+    try:
+        if not isinstance(content, bytes) or len(content) > _MAX_MANIFEST:
+            _fail("Python dependency metadata must contain bounded bytes")
+        document = json.loads(content, object_pairs_hook=_strict_object)
+        if (
+            type(binding) is not StandardPythonBuildBinding
+            or type(source) is not PythonSourceAuthority
+            or type(target) is not PythonWheelTarget
+        ):
+            _fail("Python record reopening requires current typed inputs")
+        _require_dependency_document(
+            document,
+            expected_identity=expected_identity,
+            binding=binding,
+            source=source,
+            target=target,
+        )
+        # Match the existing filesystem snapshot limits before allocating any
+        # additional path inventory. These records describe bytes, not handles.
+        if not isinstance(files, tuple) or len(files) > _MAX_PAYLOAD_FILES:
+            _fail("Python dependency records require a bounded complete inventory")
+        total = 0
+        for item in files:
+            if (
+                type(item) is not WheelPayload
+                or not isinstance(item.path, str)
+                or len(item.path) > 4096
+                or type(item.size) is not int
+                or not 0 <= item.size <= _MAX_PAYLOAD_FILE_BYTES
+            ):
+                _fail("Python dependency file record is invalid")
+            ContentIdentity.parse_uri("sha256:" + item.sha256)
+            total += item.size
+            if total > _MAX_PAYLOAD_TREE_BYTES:
+                _fail("Python dependency records exceed their byte bound")
+        paths = tuple(item.path for item in files)
+        if paths != tuple(sorted(paths)):
+            _fail("Python dependency file records require canonical path order")
+        canonical_relative_posix_paths(paths, label="Python dependency record")
+        prefixes = {}
+        for path in paths:
+            parts = path.split("/")
+            for depth in range(1, len(parts) + 1):
+                prefix = "/".join(parts[:depth])
+                alias = prefix.casefold()
+                if alias not in prefixes and len(prefixes) >= _MAX_PAYLOAD_FILES:
+                    _fail("Python dependency directory inventory exceeds its bound")
+                if prefixes.setdefault(alias, prefix) != prefix:
+                    _fail("Python dependency records contain aliased directories")
+        if (
+            not isinstance(executable_paths, tuple)
+            or any(not isinstance(path, str) for path in executable_paths)
+            or executable_paths != tuple(sorted(set(executable_paths)))
+            or not set(executable_paths) <= set(paths)
+        ):
+            _fail("Python executable records must name distinct observed files")
+        actual_files = [[item.path, item.size, item.sha256] for item in files]
+        if document["files"] != actual_files:
+            _fail("Retained Python dependency payload changed")
+        if document["executable_paths"] != list(executable_paths):
+            _fail("Retained Python executable permissions changed")
+        packages = {p.name: p.version for p in source.lock.packages}
+        components = document["components"]
+        if not isinstance(components, list) or any(
+            not isinstance(item, dict) for item in components
+        ):
+            _fail("Retained Python dependency graph is malformed")
+        if (
+            len(components) != len(packages)
+            or {item.get("name"): item.get("version") for item in components}
+            != packages
+        ):
+            _fail("Retained Python graph differs from the locked closure")
+        edges = [
+            [parent if parent == "@root" else "pkg:pypi/" + parent, "pkg:pypi/" + child]
+            for parent, child in source.lock.edges
+        ]
+        if document["edges"] != edges:
+            _fail("Retained Python dependency edges differ from the lock")
+        return StandardPythonDependencyRecords(
+            expected_identity,
+            HostDependencyObservation(
+                tuple(components), tuple(tuple(e) for e in edges)
+            ),
+            ContentIdentity.parse_uri(document["installed_tree_identity"]),
+            target.identity,
+            ContentIdentity.parse_uri(document["installer_identity"]),
+            ContentIdentity.parse_uri(document["install_process_identity"]),
+        )
+    except (ValueError, KeyError, TypeError, RecursionError) as exc:
+        raise DependencyObservationError(
+            "dependencies.python-artifact-invalid",
+            "Retained Python dependency records are unavailable or invalid",
+        ) from exc
+
+
 def verify_standard_python_dependencies(
     artifact_root: Path,
     *,
@@ -325,83 +512,40 @@ def verify_standard_python_dependencies(
         manifest = artifact_root / _MANIFEST
         content = _read_manifest(manifest)
         document = json.loads(content, object_pairs_hook=_strict_object)
-        if canonical_identity(document) != expected_identity:
-            _fail(
-                "Python dependency evidence differs from the sealed artifact identity"
-            )
-        if (
-            not isinstance(document, dict)
-            or set(document)
-            != {
-                "schema",
-                "binding",
-                "source",
-                "target_identity",
-                "installer_identity",
-                "install_process_identity",
-                "installed_tree_identity",
-                "package_schemes",
-                "projector_identities",
-                "components",
-                "edges",
-                "files",
-                "executable_paths",
-            }
-            or document["schema"] != _SCHEMA
-        ):
-            _fail("Python dependency evidence has an unsupported shape")
-        if (document["binding"], document["source"], document["target_identity"]) != (
-            binding.to_dict(),
-            _source_document(source),
-            target.identity.uri,
-        ):
-            _fail(
-                "Python dependency evidence belongs to another build, source or target"
-            )
+        _require_dependency_document(
+            document,
+            expected_identity=expected_identity,
+            binding=binding,
+            source=source,
+            target=target,
+        )
         payload = artifact_root / _PAYLOAD
         observed = _snapshot(payload)
-        actual_files = [[item.path, item.size, item.sha256] for item in observed]
-        if document["files"] != actual_files:
-            _fail("Retained Python dependency payload changed")
-        if document["executable_paths"] != _executable_paths(
-            payload, [item.path for item in observed]
-        ):
-            _fail("Retained Python executable permissions changed")
-        packages = {p.name: p.version for p in source.lock.packages}
-        components = document["components"]
-        if not isinstance(components, list) or any(
-            not isinstance(item, dict) for item in components
-        ):
-            _fail("Retained Python dependency graph is malformed")
-        if (
-            len(components) != len(packages)
-            or {item.get("name"): item.get("version") for item in components}
-            != packages
-        ):
-            _fail("Retained Python graph differs from the locked closure")
-        edges = [
-            [parent if parent == "@root" else "pkg:pypi/" + parent, "pkg:pypi/" + child]
-            for parent, child in source.lock.edges
-        ]
-        if document["edges"] != edges:
-            _fail("Retained Python dependency edges differ from the lock")
+        executable_paths = tuple(_executable_paths(payload, [x.path for x in observed]))
+        records = reopen_standard_python_dependency_records(
+            content,
+            expected_identity=expected_identity,
+            binding=binding,
+            source=source,
+            target=target,
+            files=observed,
+            executable_paths=executable_paths,
+        )
         if (
             _snapshot(payload) != observed
             or _read_manifest(manifest) != content
-            or document["executable_paths"]
+            or list(executable_paths)
             != _executable_paths(payload, [item.path for item in observed])
         ):
             _fail("Retained Python evidence changed during revalidation")
         return StandardPythonDependencyEvidence(
-            expected_identity,
+            records.identity,
             payload,
-            HostDependencyObservation(
-                tuple(components), tuple(tuple(edge) for edge in edges)
-            ),
-            ContentIdentity.parse_uri(document["installed_tree_identity"]),
-            target.identity,
-            ContentIdentity.parse_uri(document["installer_identity"]),
-            ContentIdentity.parse_uri(document["install_process_identity"]),
+            records.observation,
+            records.installed_tree_identity,
+            records.target_identity,
+            records.installer_identity,
+            records.install_process_identity,
         )
     except (OSError, ValueError, KeyError, TypeError, RecursionError) as exc:
         raise DependencyObservationError(

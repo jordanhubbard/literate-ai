@@ -67,7 +67,9 @@ def fixture_snapshot(project: Path) -> dict:
 def selected_shim_status(project: Path, invoke) -> dict:
     """Configure our fixture, then observe public status without writes."""
     selector = "+flavor://legacy-adoption/build-legacy-shim"
-    shim = project / "flavors/legacy-project-shim/flavor.md"
+    shim = ProjectConfigurationStore.context(project).framework_path(
+        "flavors/legacy-project-shim/flavor.md"
+    )
     definition = load_project(project)
     matches = [
         item
@@ -158,12 +160,15 @@ def selected_shim_status(project: Path, invoke) -> dict:
 
 def adoption_evidence(project: Path, initialized: dict) -> dict:
     documents = {}
+    context = ProjectConfigurationStore.context(project)
     for name, schema in (
         ("legacy-harness-baseline.json", HARNESS_BASELINE_SCHEMA),
         ("legacy-wrapper-parity.json", HARNESS_PARITY_SCHEMA),
         ("legacy-lift-shift.json", "literate-ai/legacy-lift-shift@1"),
     ):
-        relative = f".literate/{name}"
+        relative = (
+            context.framework_path(f".literate/{name}").relative_to(project).as_posix()
+        )
         if relative not in initialized["created"]:
             raise RuntimeError("public adoption did not create its evidence record")
         content = (project / relative).read_bytes()
@@ -190,7 +195,11 @@ def adoption_evidence(project: Path, initialized: dict) -> dict:
     parity_identity = identity(parity)
     if shifted["phase_11_parity_identity"] != parity_identity:
         raise RuntimeError("lift-shift does not identify the saved wrapper parity")
-    adr_path = "docs/decisions/0001-legacy-project-lift-and-shift.md"
+    adr_path = (
+        context.framework_path("docs/decisions/0001-legacy-project-lift-and-shift.md")
+        .relative_to(project)
+        .as_posix()
+    )
     if shifted["adr"] != adr_path:
         raise RuntimeError("lift-shift did not retain its expected authority record")
     adr = (project / adr_path).read_text(encoding="utf-8")
@@ -390,7 +399,7 @@ def main() -> int:
             raise RuntimeError("installed adoption changed a retained dependency")
     validated = invoke("project", "validate", str(project))
     manifests = component_catalog_manifest_paths(
-        (project / "components", project / "samples"), boundary=project
+        load_project(project).roots("component"), boundary=project
     )
     if not manifests or any(path.is_relative_to(retained) for path in manifests):
         raise RuntimeError(

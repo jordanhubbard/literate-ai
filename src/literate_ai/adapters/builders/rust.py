@@ -624,134 +624,138 @@ class GuardedRustBuilder:
         destination_root = artifact_store.resolve()
         destination_root.mkdir(parents=True, exist_ok=True)
         staging = Path(tempfile.mkdtemp(prefix="rust-build-", dir=destination_root))
-        compiler_output = Path(tempfile.mkdtemp(prefix="literate-rustc-"))
-        executable_name = "sample.exe" if os.name == "nt" else "sample"
-        compiled_executable = compiler_output / executable_name
-        executable = staging / executable_name
-        dependency_file = compiler_output / "sample.d"
-        command = [
-            *self.toolchain.command,
-            "--edition=2021",
-            "--crate-name",
-            "sample",
-            "--emit=link,dep-info",
-            "--out-dir",
-            str(compiler_output),
-            "-C",
-            "opt-level=2",
-            "source/main.rs",
-        ]
-        try:
+        from ..project_runtime import project_compiler_workspace
+
+        with project_compiler_workspace(
+            destination_root, resolved_source, prefix="literate-rustc-"
+        ) as compiler_output:
+            executable_name = "sample.exe" if os.name == "nt" else "sample"
+            compiled_executable = compiler_output / executable_name
+            executable = staging / executable_name
+            dependency_file = compiler_output / "sample.d"
+            command = [
+                *self.toolchain.command,
+                "--edition=2021",
+                "--crate-name",
+                "sample",
+                "--emit=link,dep-info",
+                "--out-dir",
+                str(compiler_output),
+                "-C",
+                "opt-level=2",
+                "source/main.rs",
+            ]
             try:
-                completed = _run_bounded_process(
-                    command,
-                    cwd=resolved_source,
-                    environment=dict(os.environ),
-                    timeout_seconds=self.timeout_seconds,
-                    stdout_limit_bytes=self.stdout_limit_bytes,
-                    stderr_limit_bytes=self.stderr_limit_bytes,
-                    error_prefix="builder.rust_compile",
+                try:
+                    completed = _run_bounded_process(
+                        command,
+                        cwd=resolved_source,
+                        environment=dict(os.environ),
+                        timeout_seconds=self.timeout_seconds,
+                        stdout_limit_bytes=self.stdout_limit_bytes,
+                        stderr_limit_bytes=self.stderr_limit_bytes,
+                        error_prefix="builder.rust_compile",
+                    )
+                finally:
+                    self.toolchain.require_unchanged()
+                    _require_source_tree_unchanged(
+                        resolved_source, actual_source_digest
+                    )
+                if (
+                    completed.returncode != 0
+                    or not compiled_executable.is_file()
+                    or not dependency_file.is_file()
+                ):
+                    detail = (completed.stdout + completed.stderr)[-4000:].decode(
+                        "utf-8", errors="replace"
+                    )
+                    raise BuildError(
+                        "builder.rust_compile_failed",
+                        "Rust compilation failed: " + detail,
+                    )
+
+                consumed_source_files = _rustc_consumed_source_files(
+                    resolved_source,
+                    dependency_file,
+                    allowed_source_root=crate_root.parent,
                 )
-            finally:
-                self.toolchain.require_unchanged()
+                shutil.copy2(compiled_executable, executable)
+                _require_generated_files_covered(
+                    resolved_source,
+                    consumed_source_files,
+                    lifecycle_consumed_files,
+                    build_system_consumed_files,
+                )
                 _require_source_tree_unchanged(resolved_source, actual_source_digest)
-            if (
-                completed.returncode != 0
-                or not compiled_executable.is_file()
-                or not dependency_file.is_file()
-            ):
-                detail = (completed.stdout + completed.stderr)[-4000:].decode(
-                    "utf-8", errors="replace"
-                )
-                raise BuildError(
-                    "builder.rust_compile_failed", "Rust compilation failed: " + detail
-                )
 
-            consumed_source_files = _rustc_consumed_source_files(
-                resolved_source,
-                dependency_file,
-                allowed_source_root=crate_root.parent,
-            )
-            dependency_file.unlink()
-            shutil.copy2(compiled_executable, executable)
-            _require_generated_files_covered(
-                resolved_source,
-                consumed_source_files,
-                lifecycle_consumed_files,
-                build_system_consumed_files,
-            )
-            _require_source_tree_unchanged(resolved_source, actual_source_digest)
-
-            executable_digest = (
-                f"sha256:{hashlib.sha256(executable.read_bytes()).hexdigest()}"
-            )
-            manifest = {
-                "authorization_id": authorization.authorization_id,
-                "builder_id": self.builder_id,
-                "compiler_identity": self.toolchain.identity,
-                "consumed_source_files": list(consumed_source_files),
-                "lifecycle_consumed_files": list(lifecycle_consumed_files),
-                "build_system_consumed_files": list(build_system_consumed_files),
-                "build_input_consumption_identity": (
-                    build_input_consumption.identity
-                    if build_input_consumption is not None
-                    else None
-                ),
-                "executable_digest": executable_digest,
-                "executable_file": executable_name,
-                "source_bundle_digest": actual_source_digest,
-            }
-            manifest_bytes = json.dumps(
-                manifest, sort_keys=True, separators=(",", ":")
-            ).encode("utf-8")
-            artifact_digest = f"sha256:{hashlib.sha256(manifest_bytes).hexdigest()}"
-            (staging / "build-manifest.json").write_bytes(manifest_bytes)
-            if not _cached_rust_artifact_matches(
-                staging,
-                executable_name=executable_name,
-                executable_digest=executable_digest,
-                manifest_bytes=manifest_bytes,
-            ):
-                raise BuildError(
-                    "builder.artifact_invalid",
-                    "Built artifact differs from its exact manifest",
+                executable_digest = (
+                    f"sha256:{hashlib.sha256(executable.read_bytes()).hexdigest()}"
                 )
-            final = destination_root / artifact_digest.removeprefix("sha256:")
-            if final.exists():
+                manifest = {
+                    "authorization_id": authorization.authorization_id,
+                    "builder_id": self.builder_id,
+                    "compiler_identity": self.toolchain.identity,
+                    "consumed_source_files": list(consumed_source_files),
+                    "lifecycle_consumed_files": list(lifecycle_consumed_files),
+                    "build_system_consumed_files": list(build_system_consumed_files),
+                    "build_input_consumption_identity": (
+                        build_input_consumption.identity
+                        if build_input_consumption is not None
+                        else None
+                    ),
+                    "executable_digest": executable_digest,
+                    "executable_file": executable_name,
+                    "source_bundle_digest": actual_source_digest,
+                }
+                manifest_bytes = json.dumps(
+                    manifest, sort_keys=True, separators=(",", ":")
+                ).encode("utf-8")
+                artifact_digest = f"sha256:{hashlib.sha256(manifest_bytes).hexdigest()}"
+                (staging / "build-manifest.json").write_bytes(manifest_bytes)
                 if not _cached_rust_artifact_matches(
-                    final,
+                    staging,
                     executable_name=executable_name,
                     executable_digest=executable_digest,
                     manifest_bytes=manifest_bytes,
                 ):
                     raise BuildError(
-                        "builder.artifact_collision", "Existing artifact differs"
+                        "builder.artifact_invalid",
+                        "Built artifact differs from its exact manifest",
                     )
-                shutil.rmtree(staging)
-            else:
-                os.replace(staging, final)
-            return RustBuildArtifact(
-                artifact_digest=artifact_digest,
-                artifact_path=final,
-                source_bundle_digest=actual_source_digest,
-                authorization_id=authorization.authorization_id,
-                executable_file=executable_name,
-                compiler_identity=self.toolchain.identity,
-                consumed_source_files=consumed_source_files,
-                lifecycle_consumed_files=lifecycle_consumed_files,
-                build_system_consumed_files=build_system_consumed_files,
-                build_input_consumption_identity=(
-                    build_input_consumption.identity
-                    if build_input_consumption is not None
-                    else None
-                ),
-            )
-        except Exception:
-            if staging.exists():
-                shutil.rmtree(staging)
-            raise
-        finally:
-            shutil.rmtree(compiler_output, ignore_errors=True)
+                final = destination_root / artifact_digest.removeprefix("sha256:")
+                if final.exists():
+                    if not _cached_rust_artifact_matches(
+                        final,
+                        executable_name=executable_name,
+                        executable_digest=executable_digest,
+                        manifest_bytes=manifest_bytes,
+                    ):
+                        raise BuildError(
+                            "builder.artifact_collision", "Existing artifact differs"
+                        )
+                    shutil.rmtree(staging)
+                else:
+                    os.replace(staging, final)
+                return RustBuildArtifact(
+                    artifact_digest=artifact_digest,
+                    artifact_path=final,
+                    source_bundle_digest=actual_source_digest,
+                    authorization_id=authorization.authorization_id,
+                    executable_file=executable_name,
+                    compiler_identity=self.toolchain.identity,
+                    consumed_source_files=consumed_source_files,
+                    lifecycle_consumed_files=lifecycle_consumed_files,
+                    build_system_consumed_files=build_system_consumed_files,
+                    build_input_consumption_identity=(
+                        build_input_consumption.identity
+                        if build_input_consumption is not None
+                        else None
+                    ),
+                )
+            except Exception:
+                if staging.exists():
+                    shutil.rmtree(staging)
+                raise
 
 
 def _cached_rust_artifact_matches(

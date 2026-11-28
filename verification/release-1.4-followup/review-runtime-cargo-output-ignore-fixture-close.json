@@ -1,0 +1,27 @@
+{
+  "status": "source-fixture-closing-review-complete",
+  "worktree": "/home/jkh/Src/literate-ai/.worktrees/release-maintained-followup-20261126",
+  "head": "ac2e88417a58fe0c2a1f4d318e3f7fb14811b1a1",
+  "file": "tests/support/fixtures_retained_cargo_scratch.py",
+  "sha256": "808e03f32b05afabf94a47ddec9561f6074c38f0b4fb1c802eb14b41342bb1be",
+  "diff_sha256": "69ca32e435e51e886921ac065d8a98286c85140dcdc87fb81ec73c13904c42e8",
+  "unchanged_control_file": {
+    "file": "tests/critical/test_retained_cargo_build_output_v2.py",
+    "sha256": "376e9e1400559c100e273d2306608477cd4c237760471cb6957e7bf006fc4f8a",
+    "git_diff_empty": true
+  },
+  "review": "Exact fixture delta only substitutes empty prior content when application-root .gitignore is absent after canonical conversion; existing file content is retained verbatim when present and exact original **/<build-output>/ patterns are appended. The ignore remains application-root rather than framework metadata. Original scratch roots, workspace/custody policy, native environment and build-output ownership/refusal assertions are unchanged.",
+  "original_assertions_preserved": [
+    "role roundtrip and unknown kind refusal",
+    "secondary output cannot hide manifest or target source",
+    "nested build output does not relabel Cargo output",
+    "existing output refusal and foreign bytes retained",
+    "owned output updates distinct from source input drift and ended lifetime",
+    "replacement/symlink/portable alias refusal with foreign contents retained"
+  ],
+  "findings": [],
+  "validation_limits": [
+    "Read-only exact fixture diff/source review; did not duplicate root-owned full test_retained_cargo_build_output_v2.py run while cargo-output-fixture-r1 is running.",
+    "No production implementation or pin changes in this fixture repair; no actual native release/installed acceptance claim."
+  ]
+}

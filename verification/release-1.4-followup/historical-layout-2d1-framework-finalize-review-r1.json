@@ -1,0 +1,111 @@
+{
+  "schema": "literate-ai/independent-historical-framework-finalization-review@1",
+  "status": "Readback closed; eligible next catalog finalization with explicit framework successor",
+  "public_execution": {
+    "argv": [
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r16/environment/bin/python",
+      "-I",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-candidate-r16/environment/bin/litai",
+      "--json",
+      "project",
+      "layout",
+      "finalize",
+      "--place-framework-authority",
+      "--acknowledge",
+      "--plan-identity",
+      "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+      "--project",
+      "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+    ],
+    "exit": 0,
+    "seconds": 48.72605529098655,
+    "timeout_seconds": 1800
+  },
+  "public_result": {
+    "closed_components": [
+      "components/legacy-project-wrapper"
+    ],
+    "components_finalized": true,
+    "full_containment": false,
+    "normal_producers": [
+      {
+        "catalog_audit": {
+          "current_identity": "sha256:22776eb08c58958b8b9b6d9b768241ce65e2ce0e095a409a97c8d3ce1f66fa6f",
+          "expected_identity": "sha256:22776eb08c58958b8b9b6d9b768241ce65e2ce0e095a409a97c8d3ce1f66fa6f",
+          "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/components/legacy-project-wrapper/component.resolution-audit.host.json",
+          "schema": "literate-ai/component-resolution-audit-check@1",
+          "state": "current"
+        },
+        "catalog_audit_identity": "sha256:22776eb08c58958b8b9b6d9b768241ce65e2ce0e095a409a97c8d3ce1f66fa6f",
+        "component": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/components/legacy-project-wrapper",
+        "component_lock_identity": "sha256:9230e436933513ab6ac075ddef29fb59d2e3914a52eaa9aa2dfa8832aa145cd8",
+        "current": true,
+        "lock": {
+          "current_identity": "sha256:9230e436933513ab6ac075ddef29fb59d2e3914a52eaa9aa2dfa8832aa145cd8",
+          "current_semantically_verified": true,
+          "differences": [],
+          "expected_identity": "sha256:9230e436933513ab6ac075ddef29fb59d2e3914a52eaa9aa2dfa8832aa145cd8",
+          "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native/litai/components/legacy-project-wrapper/component.lock.json",
+          "schema": "literate-ai/component-lock-check@1",
+          "state": "current"
+        },
+        "mode": "check",
+        "provider_resolutions": [],
+        "resolution_plan_identity": "sha256:2ccd63b3c77d7ae70689cebfa159f120c8700c5e61ee6dbd7239a725ea4c20aa",
+        "schema": "literate-ai/component-lock-command@1",
+        "target": "host"
+      }
+    ],
+    "operation": "finalize",
+    "plan_identity": "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+    "project": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native",
+    "qualification": false,
+    "schema": "literate-ai/project-layout-source-finalization-result@1",
+    "scope": "framework",
+    "successor_plan_identity": null
+  },
+  "controls_archived": [
+    {
+      "source": "components/legacy-project-wrapper/.component.lock.write.lock",
+      "archived": "litai/.literate/framework-source-controls-8904163fc285ff005c819f96d6ccbdcdec0b5b931c61506249512b52fb02fb93/controls/00000"
+    },
+    {
+      "source": "components/legacy-project-wrapper/.component.operation.write.lock",
+      "archived": "litai/.literate/framework-source-controls-8904163fc285ff005c819f96d6ccbdcdec0b5b931c61506249512b52fb02fb93/controls/00001"
+    },
+    {
+      "source": "components/legacy-project-wrapper/.component.resolution-audit.host.json.write.lock",
+      "archived": "litai/.literate/framework-source-controls-8904163fc285ff005c819f96d6ccbdcdec0b5b931c61506249512b52fb02fb93/controls/00002"
+    }
+  ],
+  "control_archive_framework_intent_join": true,
+  "control_archive_plan_join": true,
+  "control_archive_source_node_join": true,
+  "remaining_original574files_plus3archivedcontrols_andGit_exact": true,
+  "all37published_outputs_exact": true,
+  "native6_and_receipt_and_policy_andGit_preserved": true,
+  "original_retained_implementation_stays_at_original_native_path": true,
+  "next_argv": [
+    "project",
+    "layout",
+    "finalize",
+    "--place-imported-catalogs",
+    "--acknowledge",
+    "--plan-identity",
+    "sha256:0a083149cd38189d11b86dbb7a8e72248cc779498e76752287a1e548ecfec915",
+    "--successor-plan-identity",
+    "sha256:febac496b44145dff8df207e527571b7ea51628074534903ae50de2327055f3a",
+    "--project",
+    "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/historical-layout-r2/native"
+  ],
+  "limits": [
+    "Readback only, no reviewer mutation/finalization/newplan.",
+    "Framework source-control closure does not remove retained application implementation.",
+    "Qualification/full_containment false retained; no full release/nativegeneration acceptance."
+  ],
+  "evidence_sha256": {
+    "2d1-framework-finalize.stdout": "94ba6c6f6f2cc44c6f1cf221cee443e27d27b3ebd8f7ec6a9d69c9e5fc8009cf",
+    "2d1-framework-finalize.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "2d1-framework-finalize.json": "758229281a47110e3682cbc7317a7624caf4ffd5b8b6a49da3e4c06af40f573b"
+  }
+}

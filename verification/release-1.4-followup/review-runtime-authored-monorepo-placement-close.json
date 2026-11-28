@@ -1,0 +1,26 @@
+{
+  "status": "closed",
+  "worktree": "/home/jkh/Src/literate-ai/.worktrees/release-maintained-followup-20261126",
+  "head": "ac2e88417a58fe0c2a1f4d318e3f7fb14811b1a1",
+  "file": "src/literate_ai/adapters/authored_retained_cargo_monorepo_observation.py",
+  "sha256": "e5d5d4c8f33d9e42484a51efb2c4744fbfee6b6a149949803bbdb22c40ea9d4e",
+  "delta_sha256": "bc57cab1212a82095d6db5abe20f0eb0268a9ea2f3a87d371ad5ec98ced92ab6",
+  "findings": [],
+  "review": [
+    "Same retained_scaffold_coordinate helper as install_monorepo_components and check_installed_monorepo_components supplies metadata and component prefixes.",
+    "Coordinates frozen before checker callback and reused for gate, installation, bundle, receipts and component metadata reads.",
+    "Legacy unchanged; mixed retains root component reads and contained metadata; contained-only captures both under litai.",
+    "Installed source_root left untouched; input currentness, root/framework native nodes, exact supplemental file commitments, residual budgets and final checker callback closure preserved."
+  ],
+  "limits": [
+    "Source repair reviewed and two actual maintained observation/callback controls passed; not full native installed release acceptance.",
+    "Same producer helper legacy/mixed branch semantics source-reviewed; no separate legacy/mixed monorepo fixture rerun.",
+    "Authored provider admission in fixture remains modeled; no native execution, model generation or full final release qualification asserted."
+  ],
+  "independent_validation": {
+    "command": "PYTHONPATH=src:. /home/jkh/Src/literate-ai/.venv/bin/python -m unittest tests.critical.test_authored_monorepo_completion.AuthoredMonorepoCompletionTests.test_actual_installed_check_refreshes_after_close_and_raw_never_runs_commands tests.critical.test_authored_monorepo_completion.AuthoredMonorepoCompletionTests.test_final_actual_checker_callback_source_mutation_refuses_and_preserves",
+    "result": "PASS",
+    "tests": 2,
+    "seconds": 292.483
+  }
+}

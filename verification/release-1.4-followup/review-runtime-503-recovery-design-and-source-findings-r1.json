@@ -1,0 +1,76 @@
+{
+  "schema": "literate-ai/503-source-review-and-recovery-design@1",
+  "status": "Review remains OPEN: forward integration implemented; full recovery and late helper closing checks need completion. No source closure claim.",
+  "findings": [
+    {
+      "severity": "P1",
+      "finding": "Closure-private raw census gained unguarded mutable default/member authority",
+      "status": "Entry/default bypass repaired in current source",
+      "evidence": "Initial raw _guard_directories(...members=()) could have __defaults__ changed to arbitrarymembers; parent removeddefault, passesexplicitemptytuple and sealsrawcode/default/kwdefaults."
+    },
+    {
+      "severity": "P1",
+      "finding": "New closure members/require_census code could bypass fresh successor authentication",
+      "status": "Entrytime helper seal repaired; latecallback closing gap still identified",
+      "remaining": "Current guarded inlinefinitefunctions check executes only at entry. Firstmemberproof orrawnativecensus callback canmutate members/require_census code; later helper is invoked without fullfiniteclosure recheck. Check samecapturedfunctionstates immediatelyaftercallbacks BEFOREnexthelper, includingdefaultpostcensus path; add latecodecut assertingforeignhelpernotcalled."
+    },
+    {
+      "severity": "P1 integration blocker",
+      "finding": "Full forward finalize +ordered original recovery fails on legitimate retained framework coordination scaffolds",
+      "status": "Confirmed retained r19c failure; requires phase-aware finite recovery extension",
+      "evidence": "r19c actual framework+catalog finalize succeeded, later recover_legacy_layout_migration->_load->_guard_journal defaultstrictcensus rejected unrelatedcontent. Frameworkrollback intentionally retains destinationcontrolinodes andrequiredancestors. Initialdesignemptyrecoverymembers was incomplete."
+    }
+  ],
+  "public_recovery_surface": {
+    "existing_parser": "dispatch.py:operation loop onlyrenew/finalize has --successor-plan-identity; recover currentlydoesNOTaccept it. Reuse optionname byaddingonlyrecover support, no newgenericpathgrants.",
+    "scope_validation": "Reject successorwithframeworkrecover and noncataloglegacyrecovery ratherthanignoreit. Keep ordinaryrecover(noarg) behavior unchanged. Validate optionalidentitybeforeunsafeI/O.",
+    "callchain": "cli.project.recover -> recover_legacy_layout_migration(..., successor_plan_identity=None) -> onlyrecognizedcatalogcontinuation recover_catalog_continuation(...samekw). Decodeoriginalcatalogintent then derive originalsamelease recoverybinding using explicitsuccessor. Validate BEFORE _restore_source_namespaces effects and beforefirst_load/strictcensus.",
+    "observer": "Existingobserve_catalog_successor needs optionalrecovering=False orseparaterecoveryentrypoint; chooseactualrollbackproof notcurrentpublishedproof. Wirebinding remainsexact2identities; no implicit scanforjournals.",
+    "thread_all": "Forward originalsamescopelease/binding/recovering through initial_load, every_current/_guard_journal, producerhistoryundo andfinaldirectorypruning/terminalguards. No earlycallmaydropcontext."
+  },
+  "recovery_custody_proof": {
+    "framework_terminal": "Require exactselectedframeworkjournalactualrolled-back marker, sameRoot/physicalnodes/Git/lease, canonicalintent/privatejournalnodes/sourcecontrolhistory. Allnonjoinedframeworkpayloadrows remainoriginal via original_state. Keep normalrenewal rollbackterminal originalslot proof.",
+    "shared_preimage_join": "For eachcatalogrowC whose destination isframeworkrowF source: require F.node/from/mode == C.after_node/to/mode. F.before mustempty and F.after exactoriginalacknowledgedframeworkpostimage. Use native._entry_state(C) tovalidate published/backed-up/original catalogcustody, ratherthanfullframework._state(F) whichfails duringintentionalmetadatahandback.",
+    "location_by_catalog_state": {
+      "published": "Originalcatalogpostimage/Foriginalpreimage at root/C.destination; catalogbeforecontainsCoriginal, catalogafterempty.",
+      "backed-up": "Fpreimage at catalogjournal/after/C.slot; Coriginal stillcatalogbefore; liveold/dest absent.",
+      "original": "Fpreimage stillcatalogjournal/after/C.slot; Coriginalrestored at root/C.source; catalogbeforeempty."
+    },
+    "close": "Run originalstructuralframework_current before/after jointview proof wherephysicalanchors remain. Everycandidate slot/node/hash/mode and presenceexclusive state mustmatch; allowonly exacthandedoff rows, notarbitrarysharedmetadata. Snapshot/copybindingidentitystrings beforecallbacks; latechanges refuse."
+  },
+  "rolledback_live_members_and_retention": {
+    "members": "Only actualpublished exactframeworkcoordinationpaths (_coordination_states native-kind/node/identity/mode custody) plus exactsuccessor_new_directory scaffolds from _scaffolding neededbythosecontrols. Neverliveframeworkpayload grants afterrollback.",
+    "additional_anchor_issue": "framework._guard_intent checksallfi.original_directories atroot. ActualR2fi originalparents include catalog-createdlitai/flavors,routing,skills,workflows evenwithoutComponentcontrols. Catalogrollback wouldotherwiseprune these andbreak unchangedframework_current.",
+    "minimal_preserve_original_guard": "Retain exact cat.new_directories intersect fi.original_directories where storednative nodes equal, plusnecessary ancestors inside cat.newdirs for genuine successorcontrols/scaffolds. These are bounded explicitsuccessor history anchors, notlivefilesystemdiscovery orarbitrarynames. Report retainedpaths honestly. Alternativephase-aware directorylocationresolver isbroader; do not silentlyskiporiginaldirectorychecks.",
+    "pruning": "Union thisvalidatedretention setwithold own_scaffolding setbeforemovingemptycatalogdirs. Use samevalidatedcontext at eachcheck; no raw callerretainedlist. Retainedemptyanchors stillunder originalstrictchildcensus; unknowncontent refuses.",
+    "metadata_progress": "Sharedmetadata restoration doesnotgrant permissions to otherframeworkentries,removeoriginalbackup/historyor changequalifications. Keep exactcatalogsourceoriginalinoderestoration assertions."
+  },
+  "tests_needed": [
+    "Positivefullcatalog-createdcommonparent ->frameworksibling ->actualnormalproducers ->bothfinalizers ->frameworkrollback ->explicitsuccessorcatalogrollback ->alloriginalbytes/inodes.",
+    "Separatecommonparent/directfilewithNOComponentcontrols (e.g.routing/flavor) exercises fi.original_directory anchorretention; component-onlyfixturemissesthis.",
+    "No-write/no-target catalogcase mustworkwithexplicitrecoveryidentity and nohistorybinding; defaultstrictcase staysrefusal.",
+    "Wrongframeworkrecoveryorder, unknownsibling/descendant, equalbyteforeigninode, sharedmetadatainwrongslot, duplicatepostimage orinvalidphase mustrefuse/preserveforeignstate.",
+    "Interruptrestart atcatalogmetadata published->backedup->original phases; exactoriginalnativehandback atallthree.",
+    "Freshnormalproducerwritehistory +orderedundo; bothoriginalv1/no-successorcontrolsunchanged.",
+    "Lateproof/rawcensus callback mutateslocalhelpercode/default orlink; refusebeforeforeigncallbackinvocation. Specialfunctionattributes__code__/__defaults__ tests use explicitsave/set/try/finallyrestore, notmock.patch deletion."
+  ],
+  "observed_runs": {
+    "r19c": "Realforwardfinalization reached; failslateroriginalrecovery. Retainedlogpreserved.",
+    "r19d": "Parentreportsfirstcodecutmock.patch restorationTypeError; testharnessfailure, notproductbypass. No rerunbyreviewer.",
+    "current_originalcohorts": "Parentownedlive; no resultsclaimedhere."
+  },
+  "source_sha256_observed": {
+    "src/literate_ai/adapters/project_layout_catalog_successor.py": "aad22c36de961885b813d42ef5210ff25722f88bd5f9aa480784a8bd1ca38fa9",
+    "src/literate_ai/adapters/project_layout_continuation.py": "3cbff614e767a04503daefd7ef81da7cbc882bca93b84e337371fde373ca7247",
+    "src/literate_ai/adapters/project_layout_catalog_renewal.py": "c0bd386df669109e2f2249a81137a30986fc51656bc8702d50746bee530da047",
+    "src/literate_ai/cli/dispatch.py": "f947a9b219e9ae881219668f0a3400083c46b3b9a2ffeef1698a8985951e4fd3",
+    "src/literate_ai/cli/project.py": "6ed12824ba3acfe68b005c7b668b857e75a7c8199dbfb0c07c7b51cf19b7a24b",
+    "src/literate_ai/adapters/project_layout_migration.py": "ac5e2375a5e99715eeec5d29d6c3b44872014a39ceb9953943bd81ae87614e71",
+    "tests/critical/test_catalog_successor_membership.py": "f3797fa629270bfaa8bb349e0168f6373625fc5cfa84f1d27a5d47b212e13eb1"
+  },
+  "limits": [
+    "No source/test edits,jobs,reruns,nativeapply,posts orhistoricalmutations byreviewer.",
+    "Initialreviewfindings documented; currentpatchinflight andnotclosed.",
+    "Cancommitexplicitlyincompleteforwardstepifrootchooses, but retainfailedjourney/open503 and no originalrecovery/fullreleaseacceptance claim."
+  ]
+}

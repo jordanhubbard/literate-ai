@@ -67,6 +67,16 @@ def _existing(path: Path) -> WorkerHardwareObservationCatalog:
 
 
 def worker_from_args(args: Any) -> tuple[dict[str, object], int]:
+    if args.worker_command in {
+        "telemetry",
+        "telemetry-initialize",
+        "telemetry-native-initialize",
+        "telemetry-native-plan",
+        "telemetry-native-provision",
+    }:
+        from .worker_telemetry import worker_telemetry_from_args
+
+        return worker_telemetry_from_args(args)
     if args.worker_command in {"provisioner", "provision"}:
         from .worker_provisioning import provisioning_from_args
 
@@ -439,6 +449,7 @@ def _read_contract(path: str, *, label: str) -> object:
 
 
 def _execute_from_args(args: Any) -> tuple[dict[str, object], int]:
+    from literate_ai.adapters.project_runtime import project_runtime_scope
     from literate_ai.adapters.remote_execution import (
         RemoteExecutionError,
         RemoteLifecycleCustody,
@@ -446,6 +457,7 @@ def _execute_from_args(args: Any) -> tuple[dict[str, object], int]:
         remote_control_summary,
     )
     from literate_ai.cli.rebuild import rebuild_from_args
+    from literate_ai.projects import load_project
 
     def rebuild_remote_lifecycle(
         *,
@@ -461,29 +473,37 @@ def _execute_from_args(args: Any) -> tuple[dict[str, object], int]:
         jobs: int,
         source_cache_entry_identities: tuple[ContentIdentity, ...] = (),
     ) -> dict[str, object]:
-        return rebuild_from_args(
-            Namespace(
-                specification=component_path,
-                project=str(project_root),
-                runtime_root=str(custody.runtime_root),
-                candidate_receipt=str(custody.candidate_receipt),
-                update_receipt=False,
-                keep_runtime=True,
-                jobs=jobs,
-                flavor=list(flavor_selectors),
-                target=target_profile,
-                execution_worker=None,
-                force_regeneration=False,
-                model=model_selector,
-                source_cache_entry=[item.uri for item in source_cache_entry_identities],
-                source_cache_root=[],
-                allow_host_execution=True,
-                from_accepted_source=accepted_source_only,
-                accepted_source_provider_id=accepted_source_provider_id,
-                accepted_source_provider_identity=(accepted_source_provider_identity),
-            ),
-            cache_directories=custody.cache_directories,
-        )
+        with project_runtime_scope(
+            custody.project_runtime,
+            None if custody.project_runtime is None else load_project(project_root),
+        ):
+            return rebuild_from_args(
+                Namespace(
+                    specification=component_path,
+                    project=str(project_root),
+                    runtime_root=str(custody.runtime_root),
+                    candidate_receipt=str(custody.candidate_receipt),
+                    update_receipt=False,
+                    keep_runtime=True,
+                    jobs=jobs,
+                    flavor=list(flavor_selectors),
+                    target=target_profile,
+                    execution_worker=None,
+                    force_regeneration=False,
+                    model=model_selector,
+                    source_cache_entry=[
+                        item.uri for item in source_cache_entry_identities
+                    ],
+                    source_cache_root=[],
+                    allow_host_execution=True,
+                    from_accepted_source=accepted_source_only,
+                    accepted_source_provider_id=accepted_source_provider_id,
+                    accepted_source_provider_identity=(
+                        accepted_source_provider_identity
+                    ),
+                ),
+                cache_directories=custody.cache_directories,
+            )
 
     try:
         worker = ExecutionWorker.from_dict(

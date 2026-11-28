@@ -67,6 +67,7 @@ from literate_ai.projects import (
     PinnedInputClosure,
     ProjectConfigurationStore,
     ProjectError,
+    configured_catalog_path,
     discover_project,
     project_boundary,
     specification_to_source_skill_paths,
@@ -158,6 +159,23 @@ class FlavorGraphMetadata:
     revision_digest: str
 
 
+def _metadata_values(metadata):
+    if type(metadata) is not tuple or any(
+        type(item) is not FlavorGraphMetadata
+        or (item.source_identity is not None and type(item.source_identity) is not str)
+        or type(item.flavor_id) is not str
+        or type(item.revision_digest) is not str
+        for item in metadata
+    ):
+        raise CliFailure(
+            "generate.input_capture_drift", "Flavor graph metadata changed"
+        )
+    return tuple(
+        (item.source_identity, item.flavor_id, item.revision_digest)
+        for item in metadata
+    )
+
+
 def flavor_graph_metadata(
     catalog: Sequence[_LoadedFlavor],
 ) -> tuple[FlavorGraphMetadata, ...]:
@@ -194,17 +212,30 @@ def _project_discovery_inputs(
     return tuple(sorted(markers.items()))
 
 
-@dataclass(frozen=True, slots=True, init=False)
-class LegacyFlavorGraphObservation:
-    """Owned by one read-only operation, never a cache of currentness."""
+def _owned_flavor_field(index):
+    def read(owner):
+        return tuple.__getitem__(owner, index)
 
-    roots: tuple[Path, ...]
-    _paths: tuple[Path, ...]
-    _project_inputs: tuple[tuple[Path, bytes | None], ...]
-    _closures: tuple[PinnedInputClosure, ...]
-    _metadata: tuple[FlavorGraphMetadata, ...]
+    def refuse(owner, value):
+        raise CliFailure(
+            "generate.input_capture_drift", "Original Flavor owner cannot be replaced"
+        )
 
-    def __init__(self):
+    return property(read, refuse)
+
+
+class LegacyFlavorGraphObservation(tuple):
+    """Immutable constructor anchor; never a cache of currentness."""
+
+    __slots__ = ()
+    roots = _owned_flavor_field(0)
+    _paths = _owned_flavor_field(1)
+    _project_inputs = _owned_flavor_field(2)
+    _closures = _owned_flavor_field(3)
+    _metadata = _owned_flavor_field(4)
+    _integrity = _owned_flavor_field(5)
+
+    def __new__(cls):
         raise TypeError("Flavor graph observations require filesystem capture")
 
     def __reduce__(self):
@@ -216,19 +247,74 @@ class LegacyFlavorGraphObservation:
         paths = _flavor_definition_paths(roots)
         project_inputs = _project_discovery_inputs(paths)
         loaded = _load_legacy_flavor_entries(paths)
-        result = object.__new__(cls)
-        for name, value in (
-            ("roots", roots),
-            ("_paths", paths),
-            ("_project_inputs", project_inputs),
-            ("_closures", tuple(item.input_closure for item in loaded)),
-            ("_metadata", flavor_graph_metadata(loaded)),
-        ):
-            object.__setattr__(result, name, value)
+        originals = (
+            roots,
+            paths,
+            project_inputs,
+            tuple(item.input_closure for item in loaded),
+            flavor_graph_metadata(loaded),
+        )
+        root_values = tuple(str(path) for path in originals[0])
+        path_values = tuple(str(path) for path in originals[1])
+        project_values = tuple((str(path), content) for path, content in originals[2])
+        metadata = originals[4]
+        values = _metadata_values(metadata)
+        closure_fences = tuple(
+            (
+                closure,
+                PinnedInputClosure._capture_entry_values(closure)[1],
+                (
+                    closure.maximum_files,
+                    closure.maximum_file_bytes,
+                    closure.maximum_total_bytes,
+                ),
+            )
+            for closure in originals[3]
+        )
+
+        def integrity():
+            actual = (
+                result.roots,
+                result._paths,
+                result._project_inputs,
+                result._closures,
+                result._metadata,
+            )
+            if (
+                result._integrity is not integrity
+                or any(a is not b for a, b in zip(actual, originals, strict=True))
+                or tuple(str(path) for path in result.roots) != root_values
+                or tuple(str(path) for path in result._paths) != path_values
+                or tuple(
+                    (str(path), content) for path, content in result._project_inputs
+                )
+                != project_values
+                or _metadata_values(result._metadata) != values
+            ):
+                raise CliFailure(
+                    "generate.input_capture_drift",
+                    "Original Flavor observation changed",
+                )
+            for closure, require_entries, limits in closure_fences:
+                require_entries()
+                if (
+                    closure.maximum_files,
+                    closure.maximum_file_bytes,
+                    closure.maximum_total_bytes,
+                ) != limits:
+                    raise CliFailure(
+                        "generate.input_capture_drift", "Flavor closure limits changed"
+                    )
+            return metadata
+
+        result = tuple.__new__(cls, (*originals, integrity))
         result.require_current(roots)
         return result
 
     def require_current(self, roots: Sequence[Path]) -> tuple[FlavorGraphMetadata, ...]:
+        integrity = _retained_flavor_integrity(self)
+        metadata = integrity()
+
         def membership() -> None:
             if (
                 tuple(roots) != self.roots
@@ -244,43 +330,142 @@ class LegacyFlavorGraphObservation:
         for closure in self._closures:
             closure.require_unchanged()
         membership()
-        return self._metadata
+        if integrity() is not metadata:
+            raise CliFailure(
+                "generate.input_capture_drift", "Flavor metadata owner changed"
+            )
+        return metadata
 
 
-_READ_ONLY_FLAVOR_OBSERVATIONS: ContextVar[
-    dict[tuple[str, ...], LegacyFlavorGraphObservation] | None
-] = ContextVar("read_only_flavor_graph_observations", default=None)
+class _FlavorGraphObservationFrame(tuple):
+    """Immutable scope anchor; the exposed index is only a checked projection."""
+
+    __slots__ = ()
+    allowed_roots = _owned_flavor_field(0)
+    observations = _owned_flavor_field(1)
+    _lookup = _owned_flavor_field(2)
+    _integrity = _owned_flavor_field(3)
+    _close = _owned_flavor_field(4)
+    _retire = _owned_flavor_field(5)
+
+    @property
+    def active(self):
+        return tuple.__getitem__(self, 6)()[0]
+
+    @property
+    def closing(self):
+        return tuple.__getitem__(self, 6)()[1]
+
+    def __new__(cls, allowed_roots):
+        index = {}
+        owned = {}
+        active = True
+        closing = False
+
+        def integrity():
+            if (
+                not active
+                or _READ_ONLY_FLAVOR_OBSERVATIONS.get() is not frame
+                or len(index) != len(owned)
+                or any(index.get(key) is not entry for key, entry in owned.items())
+            ):
+                raise CliFailure(
+                    "generate.input_capture_drift", "Flavor observation index changed"
+                )
+            return tuple(owned.values())
+
+        def lookup(roots):
+            if not active:
+                return None
+            integrity()
+            key = tuple(str(root) for root in roots)
+            if allowed_roots is not None and key != allowed_roots:
+                return None
+            if key not in owned:
+                if closing:
+                    return None
+                observation = LegacyFlavorGraphObservation.capture(tuple(roots))
+                integrity()
+                if not active or closing:
+                    return None
+                entry = (observation, observation._integrity)
+                owned[key] = entry
+                index[key] = entry
+            observation, check = owned[key]
+            check()
+            return observation
+
+        def close():
+            nonlocal closing
+            closing = True
+            return integrity()
+
+        def retire():
+            nonlocal active
+            active = False
+            index.clear()
+            owned.clear()
+
+        frame = tuple.__new__(
+            cls,
+            (
+                allowed_roots,
+                index,
+                lookup,
+                integrity,
+                close,
+                retire,
+                lambda: (active, closing),
+            ),
+        )
+        return frame
+
+    def __reduce__(self):
+        raise TypeError("Flavor observation frames cannot be transported")
+
+
+_READ_ONLY_FLAVOR_OBSERVATIONS: ContextVar[_FlavorGraphObservationFrame | None] = (
+    ContextVar("read_only_flavor_graph_observations", default=None)
+)
+
+
+def _retained_flavor_integrity(observation):
+    frame = _READ_ONLY_FLAVOR_OBSERVATIONS.get()
+    if frame is not None and frame.active:
+        frame._integrity()
+    # Constructor-owned tuple storage cannot be replaced with object.__setattr__.
+    return observation._integrity
 
 
 @contextmanager
-def read_only_flavor_graph_observations() -> Iterator[None]:
-    """Share parsed metadata within one verification, including final revalidation.
-
-    Nested verifications get independent observations. The map is cleared on every
-    exit; writers and callers outside this scope keep the ordinary fresh loader.
-    """
-    observations: dict[tuple[str, ...], LegacyFlavorGraphObservation] = {}
-    token = _READ_ONLY_FLAVOR_OBSERVATIONS.set(observations)
+def read_only_flavor_graph_observations(
+    *,
+    allowed_roots: Sequence[Path] | None = None,
+) -> Iterator[None]:
+    """Share parsed metadata with fresh bytes/membership and an owned final close."""
+    frame = _FlavorGraphObservationFrame(
+        None if allowed_roots is None else tuple(str(root) for root in allowed_roots)
+    )
+    token = _READ_ONLY_FLAVOR_OBSERVATIONS.set(frame)
     try:
         yield
-        for observation in tuple(observations.values()):
+        for observation, integrity in frame._close():
+            integrity()
             observation.require_current(observation.roots)
+            integrity()
+        frame._integrity()
     finally:
-        observations.clear()
+        frame._retire()
         _READ_ONLY_FLAVOR_OBSERVATIONS.reset(token)
 
 
 def scoped_flavor_graph_observation(
     roots: Sequence[Path],
 ) -> LegacyFlavorGraphObservation | None:
-    observations = _READ_ONLY_FLAVOR_OBSERVATIONS.get()
-    if observations is None:
+    frame = _READ_ONLY_FLAVOR_OBSERVATIONS.get()
+    if frame is None:
         return None
-    # Do not collapse differently spelled Windows paths through Path equality.
-    key = tuple(str(root) for root in roots)
-    if key not in observations:
-        observations[key] = LegacyFlavorGraphObservation.capture(tuple(roots))
-    return observations[key]
+    return frame._lookup(roots)
 
 
 def _flavor_catalog_audit_identity(
@@ -332,7 +517,9 @@ def _pinned_reference_content(
     boundary: Path,
     label: str,
 ) -> bytes:
-    configured = component_root / reference.uri
+    configured = configured_catalog_path(
+        boundary, component_root, reference.uri, kind=reference.kind
+    )
     try:
         path = configured.resolve(strict=True)
     except OSError as exc:
@@ -359,9 +546,9 @@ def _pinned_reference_content(
 
 
 def _authored_flavor_reference_content(
-    flavor_root: Path, uri: str, *, boundary: Path
+    flavor_root: Path, uri: str, *, boundary: Path, kind: str
 ) -> bytes:
-    configured = flavor_root.joinpath(*PurePosixPath(uri).parts)
+    configured = configured_catalog_path(boundary, flavor_root, uri, kind=kind)
     try:
         path = configured.resolve(strict=True)
     except OSError as exc:
@@ -474,7 +661,7 @@ def _pin_definition_references(
             label=role.replace("-", "_"),
         )
         closure.pin(
-            root / reference.uri,
+            configured_catalog_path(boundary, root, reference.uri, kind=reference.kind),
             boundary=boundary,
             label=f"{label_prefix}:{role}:{reference.kind}",
             expected_content=content,
@@ -1304,7 +1491,9 @@ def _referenced_skills(
             if catalog_cache is not None:
                 catalog_cache[project.root] = catalog_paths
     for reference in references:
-        configured_path = root / reference.uri
+        configured_path = configured_catalog_path(
+            boundary, root, reference.uri, kind=reference.kind
+        )
         path = configured_path.resolve()
         if (
             not path.is_relative_to(resolved_boundary)
@@ -1464,10 +1653,10 @@ def _load_legacy_flavor_entries(
                 authoring = parse_flavor_markdown(
                     manifest_content, source=definition_path.as_posix()
                 )
-                definition = authoring.resolve(
-                    lambda uri, flavor_root=root, project_root=boundary: (
+                definition = authoring.resolve_typed(
+                    lambda kind, uri, flavor_root=root, project_root=boundary: (
                         _authored_flavor_reference_content(
-                            flavor_root, uri, boundary=project_root
+                            flavor_root, uri, boundary=project_root, kind=kind
                         )
                     )
                 )

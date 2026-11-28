@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import os
 import stat
 import struct
 import unicodedata
@@ -12,7 +13,13 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
-from literate_ai._filesystem import path_is_link_or_reparse
+from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
+    capture_directory_ancestries,
+    path_is_link_or_reparse,
+    require_safe_directory,
+)
+from literate_ai.adapters.process_liveness import _close_preserving_primary_failure
 from literate_ai.contracts.blobs import BlobRef
 from literate_ai.contracts.library_products import LibraryArtifactProduct
 from literate_ai.contracts.paths import canonical_relative_posix_paths
@@ -25,6 +32,30 @@ class DirectoryExportFile:
     path: str
     content: bytes
     mode: int
+
+
+def snapshot_directory_file(item: DirectoryExportFile) -> DirectoryExportFile:
+    """Detach exact primitive DATA from a caller-visible frozen record.
+
+    Inventory owners still impose their own count, byte and namespace bounds.
+    A frozen DTO alone cannot fence object.__setattr__ in an owner callback.
+    """
+    try:
+        if type(item) is not DirectoryExportFile:
+            raise TypeError(
+                "directory snapshot requires an exact immutable file record"
+            )
+        path, content, mode = item.path, item.content, item.mode
+        if (
+            type(path) is not str
+            or type(content) is not bytes
+            or type(mode) is not int
+            or not 0 <= mode <= 0o777
+        ):
+            raise ValueError("directory snapshot requires primitive path/bytes/mode")
+        return DirectoryExportFile(path, content, mode)
+    finally:
+        item = path = content = mode = None
 
 
 def read_directory_export(
@@ -291,3 +322,357 @@ def require_transported_library_package(
                 raise ValueError(
                     "library package member differs from transported artifact"
                 )
+
+
+def require_materialized_files(
+    root: Path, files: tuple[DirectoryExportFile, ...]
+) -> None:
+    """Check immediate bytes; persistent original custody uses capture below."""
+    try:
+        _capture_materialized_files(root, files)
+    finally:
+        root = files = None
+
+
+def capture_materialized_files(
+    root: Path, files: tuple[DirectoryExportFile, ...], *, _with_release=False
+):
+    """Read exact bytes once and return a finite original-namespace stamp guard.
+
+    The guard is DATA observation only, with no admission or execution authority.
+    It closes the same stamps after caller/authority checks without retrying or
+    adopting a changed tree. Existing require_materialized_files returns None.
+    Long-lived custody requires POSIX metadata-change timestamps; Windows ctime
+    is creation time and cannot fence same-size writes with restored mtime.
+    Exact-bool opt-in returns (guard, release) and retires failed guards. Releasing
+    observers reject owned moves until descendant release/accounting is supported.
+    """
+    try:
+        if type(_with_release) is not bool:
+            raise TypeError("materialized release selection requires exact bool")
+        if os.name != "posix":
+            raise ValueError("live file custody requires POSIX change timestamps")
+        return _capture_materialized_files(root, files, _with_release=_with_release)
+    finally:
+        root = files = None
+
+
+def capture_materialized_file_stamps(
+    root: Path, files: tuple[DirectoryExportFile, ...]
+):
+    """Observe selected original files, allowing unrelated siblings.
+
+    The caller bounds its inventory and retains admission/write authority. This
+    POSIX DATA guard performs no writes and does not assert a complete namespace.
+    """
+    try:
+        if os.name != "posix":
+            raise ValueError("live file custody requires POSIX change timestamps")
+        return _capture_materialized_files(root, files, complete=False)
+    finally:
+        root = files = None
+
+
+def _materialized_file_stamp(value):
+    if not stat.S_ISREG(value.st_mode):
+        raise ValueError("materialized file changed before inventory close")
+    return (
+        value.st_dev,
+        value.st_ino,
+        value.st_mode,
+        value.st_nlink,
+        value.st_size,
+        value.st_mtime_ns,
+        value.st_ctime_ns,
+    )
+
+
+def _materialized_directory_stamp(value):
+    if not stat.S_ISDIR(value.st_mode):
+        raise ValueError("materialized directory changed before inventory close")
+    return (
+        value.st_dev,
+        value.st_ino,
+        value.st_mode,
+        value.st_nlink,
+        value.st_mtime_ns,
+        value.st_ctime_ns,
+    )
+
+
+def _read_materialized_file(path, item):
+    try:
+        fd = os.open(
+            path,
+            os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0),
+        )
+        with os.fdopen(fd, "rb") as stream:
+            before = os.fstat(stream.fileno())
+            if (
+                not stat.S_ISREG(before.st_mode)
+                or before.st_nlink != 1
+                or before.st_size != len(item.content)
+                or stat.S_IMODE(before.st_mode) != item.mode
+                or stream.read(len(item.content) + 1) != item.content
+            ):
+                raise ValueError("materialized JavaScript provider bytes differ")
+            after = os.fstat(stream.fileno())
+            if _materialized_file_stamp(before) != _materialized_file_stamp(after):
+                raise ValueError("materialized JavaScript provider changed during read")
+            return _materialized_file_stamp(after)
+    finally:
+        path = item = stream = before = after = None
+
+
+def _materialized_snapshot_guard(
+    root,
+    stamps,
+    directory_stamps,
+    ancestors_current,
+    *,
+    transferable,
+    _with_release=False,
+    ancestry_release=None,
+):
+    retired = failed = False
+    transfer_token = top_names = None
+
+    def release():
+        nonlocal retired, root, stamps, directory_stamps, ancestors_current
+        nonlocal ancestry_release, transfer_token, top_names
+        retired = True
+        root = stamps = directory_stamps = ancestors_current = None
+        transfer_token = top_names = None
+        if ancestry_release is not None:
+            ancestry_release()
+        ancestry_release = None
+
+    try:
+
+        def require_snapshot():
+            nonlocal failed
+            try:
+                if retired or failed:
+                    raise ValueError("materialized observation retired")
+                try:
+                    if ancestors_current is not None:
+                        ancestors_current()
+                except (OSError, UnsafeFilesystemPathError) as error:
+                    raise ValueError(
+                        "materialized directory changed before inventory close: "
+                        "ancestry"
+                    ) from error
+                for directory, expected in directory_stamps.items():
+                    if (
+                        path_is_link_or_reparse(directory)
+                        or _materialized_directory_stamp(directory.lstat()) != expected
+                    ):
+                        raise ValueError(
+                            "materialized directory changed before inventory close"
+                        )
+                for path, expected in stamps.items():
+                    if (
+                        path_is_link_or_reparse(path)
+                        or _materialized_file_stamp(path.lstat()) != expected
+                    ):
+                        raise ValueError(
+                            "materialized file changed before inventory close"
+                        )
+
+                if retired:
+                    raise ValueError("materialized observation retired")
+            except BaseException:
+                if _with_release:
+                    failed = True
+                raise
+            finally:
+                directory = path = expected = None
+
+        if transferable:
+            transfer_token = {True}
+            top_names = frozenset(
+                path.relative_to(root).parts[0]
+                for path in (*directory_stamps, *stamps)
+                if path != root
+            )
+
+            def after_owned_move(destination, *, expected_parent):
+                """Continue once after a caller-owned exclusive move.
+
+                This performs no rename, admits no new subject and grants no permission.
+                The owner must pin both parents, move without intervening callbacks,
+                and retain its execution/registration authority independently.
+                """
+                if retired or _with_release:
+                    raise ValueError("releasing materialized observations cannot move")
+                try:
+                    transfer_token.pop()
+                except KeyError:
+                    raise ValueError(
+                        "original materialization transfer already consumed"
+                    ) from None
+                destination = Path(str(destination))
+                if (
+                    type(expected_parent) is not tuple
+                    or len(expected_parent) != 3
+                    or any(type(v) is not int for v in expected_parent)
+                ):
+                    raise ValueError(
+                        "original materialization transfer lacks its pinned parent"
+                    )
+                if not destination.is_absolute() or ".." in destination.parts:
+                    raise ValueError("original materialization transfer path is unsafe")
+                try:
+                    root.lstat()
+                except FileNotFoundError:
+                    pass
+                else:
+                    raise ValueError("original materialization source still exists")
+                if ancestors_current is not None:
+                    ancestors_current()
+                new_ancestors = capture_directory_ancestries((destination.parent,))
+                parent = destination.parent.lstat()
+                if (parent.st_dev, parent.st_ino, parent.st_mode) != expected_parent:
+                    raise ValueError(
+                        "original materialization destination parent changed"
+                    )
+                require_safe_directory(destination)
+                actual_root = _materialized_directory_stamp(destination.lstat())
+                if actual_root[:-1] != directory_stamps[root][:-1]:
+                    raise ValueError(
+                        "original materialization root changed during move"
+                    )
+                # Only the owned rename may update root ctime. Enumerate its bounded
+                # immediate namespace so that accepting that change cannot hide a peer.
+                seen = set()
+                with os.scandir(destination) as entries:
+                    for entry in entries:
+                        if entry.name in seen or entry.name not in top_names:
+                            raise ValueError(
+                                "original materialization gained a foreign child"
+                            )
+                        seen.add(entry.name)
+                if seen != top_names:
+                    raise ValueError("original materialization lost an original child")
+                moved_directories = {
+                    destination / path.relative_to(root): actual_root
+                    if path == root
+                    else value
+                    for path, value in directory_stamps.items()
+                }
+                moved_files = {
+                    destination / path.relative_to(root): value
+                    for path, value in stamps.items()
+                }
+                return _materialized_snapshot_guard(
+                    destination,
+                    moved_files,
+                    moved_directories,
+                    new_ancestors,
+                    transferable=False,
+                )
+
+            require_snapshot.after_owned_move = after_owned_move
+        require_snapshot()
+        return (require_snapshot, release) if _with_release else require_snapshot
+    except BaseException as error:
+        _close_preserving_primary_failure(release, error)
+        raise
+
+
+def _capture_materialized_files(root, files, *, complete=True, _with_release=False):
+    ancestry_release = None
+    try:
+        # Exact bounded row DATA is detached before filesystem work. Complete views
+        # enumerate only the original namespace; selected-file views never walk peers.
+        root = Path(str(root))
+        snapshots = []
+        for item in files:
+            snapshots.append(snapshot_directory_file(item))
+        files = tuple(snapshots)
+        snapshots = None
+        expected = {}
+        for item in files:
+            expected[item.path] = item
+        directories = set()
+        for name in expected:
+            directories.update(
+                p.as_posix() for p in Path(name).parents if str(p) != "."
+            )
+        ancestor_paths = (
+            (root.parent,)
+            if complete
+            else tuple(
+                root.joinpath(*path.parts).parent
+                for path in canonical_relative_posix_paths(
+                    tuple(expected), label="materialized file"
+                )
+            )
+        )
+        # Legacy immediate readback is portable; the persistent public APIs above
+        # require POSIX timestamps before returning any original-stamp observation.
+        ancestors_current = None
+        if os.name == "posix":
+            if _with_release:
+                ancestors_current, ancestry_release = capture_directory_ancestries(
+                    ancestor_paths, _with_release=True
+                )
+            else:
+                ancestors_current = capture_directory_ancestries(ancestor_paths)
+        seen, stamps, directory_stamps = set(), {}, {}
+        if complete:
+            pending = [root]
+            while pending:
+                directory = pending.pop()
+                require_safe_directory(directory)
+                directory_stamps[directory] = _materialized_directory_stamp(
+                    directory.lstat()
+                )
+                with os.scandir(directory) as entries:
+                    for entry in entries:
+                        path = Path(entry.path)
+                        name = path.relative_to(root).as_posix()
+                        if name in seen or path_is_link_or_reparse(path):
+                            raise ValueError(
+                                "materialized JavaScript provider has a foreign node"
+                            )
+                        seen.add(name)
+                        if name in directories:
+                            if not entry.is_dir(follow_symlinks=False):
+                                raise ValueError(
+                                    "materialized JavaScript directory differs"
+                                )
+                            pending.append(path)
+                            continue
+                        item = expected.get(name)
+                        if item is None or not entry.is_file(follow_symlinks=False):
+                            raise ValueError(
+                                "materialized JavaScript provider has a foreign file"
+                            )
+                        stamps[path] = _read_materialized_file(path, item)
+            if seen != set(expected) | directories:
+                raise ValueError("materialized JavaScript provider namespace differs")
+        else:
+            require_safe_directory(root)
+            for item in files:
+                path = root.joinpath(*Path(item.path).parts)
+                require_safe_directory(path.parent)
+                stamps[path] = _read_materialized_file(path, item)
+        return _materialized_snapshot_guard(
+            root,
+            stamps,
+            directory_stamps,
+            ancestors_current,
+            transferable=complete and os.name == "posix",
+            _with_release=_with_release,
+            ancestry_release=ancestry_release,
+        )
+    except BaseException as error:
+        if ancestry_release is not None:
+            _close_preserving_primary_failure(ancestry_release, error)
+        raise
+    finally:
+        root = files = snapshots = expected = item = None
+        ancestry_release = ancestors_current = ancestor_paths = None
+        stamps = directory_stamps = directories = seen = pending = None
+        directory = path = name = entry = None

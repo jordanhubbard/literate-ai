@@ -1,0 +1,196 @@
+{
+  "schema": "literate-ai/development-qualification@1",
+  "requirement": "AUTHORED-GRAPH-QUALIFICATION-001 / issues #516 and #517",
+  "status": "Canonical managed Python import projection and portable validation source controls pass; complete native library publication still fails at provider import",
+  "release_evidence": false,
+  "platform": {
+    "system": "Linux",
+    "machine": "aarch64"
+  },
+  "source_sha256": {
+    "src/literate_ai/adapters/dependencies/managed_python.py": "d863631906186bf28062791f98ce6272bb92a8f44ddd181bad60d3aaaa6638db",
+    "src/literate_ai/adapters/dependencies/cyclonedx.py": "488738ba5b387c9e62657c5c846b3e388537e415f0ba47b4248e242d8b265c1d",
+    "src/literate_ai/adapters/dependencies/admission.py": "5a3548a5022701782ac8a88352d4b732cfeac6a25c5a24e82e19f7cf8b8f69e0",
+    "src/literate_ai/adapters/dependencies/resolution.py": "54b8c0fe8030dfc86ce85fbd50c3ea2a608af1c722992a1cf4ee2db1065a6255",
+    "src/literate_ai/adapters/models/coding_cli.py": "eb6a8930bf3b11614026e3a8c36da4798932dbed42cd0501b6f18fd4d751107d",
+    "src/literate_ai/adapters/source_evidence_validation.py": "442f4d3c3d8a38573afa70bd4c579f0457e4cf65733439db73fe38d17d907c3e",
+    "src/literate_ai/adapters/lifecycle/standard_local.py": "cce4756709bedc07cab34f3754ff177e7abee338f6673389efbce2a4315551b6",
+    "tests/critical/test_managed_python_import_authority.py": "48453b6e3f862ee3452e75c424654b766dcb191ea10ce496b4839142f9a52b64"
+  },
+  "summary": {
+    "executed": 35,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 35,
+    "selected": 35,
+    "skipped": 0
+  },
+  "unique_test_cases": 35,
+  "cohorts": [
+    {
+      "pattern": "test_managed_python_import_authority.py",
+      "report_sha256": "2de01b395ae7f985969bfe5bc4056256741076d153e284437bf537a177a3fbb5",
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      }
+    },
+    {
+      "pattern": "test_zero_argument_coverage_evidence.py",
+      "report_sha256": "4ec9f25d64e0180a1403f833d659438c6bce885460dd5ac4c9d231870bdfa466",
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      }
+    },
+    {
+      "pattern": "test_source_transfer_revocation.py",
+      "report_sha256": "475223fe975db4f7c9d0710ac6a0328c6d5de1f5c9cad584c3dcc1823c225740",
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      }
+    },
+    {
+      "pattern": "test_cyclonedx_sbom.py",
+      "report_sha256": "a25a5ec9f5224009114ddd84022659f77c441dd95a0c510604931baac68c473c",
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      }
+    },
+    {
+      "pattern": "test_python_dependency_record_reopening.py",
+      "report_sha256": "476a38c5251842f8b8d5581c1bbf814cd0dd3b8d2067e087a8adbf38cd2df807",
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      }
+    },
+    {
+      "pattern": "test_standard_python_lifecycle.py",
+      "report_sha256": "298d172b3a0c459af9969e1102a22353c1ee3854fd322b7df9bcc6adcc27ce90",
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      }
+    }
+  ],
+  "qualified": [
+    "Selected typed capability module roots bind exact direct managed Component revisions; distinct providers retain separate provenance even when aliases coincide",
+    "Canonical source reconciliation replaces model alias poison; current recipe and deserialized portable validation refuse missing, extra or moved managed aliases",
+    "Alias-bearing source-validation@3 supports coverage and canonical data identity; empty aliases preserve exact historical@1/@2 wire preimages and identities",
+    "Managed source/resolved import properties remain exact, including refusal of explicit builder additions and modified resolved documents",
+    "Existing independent Python payload metadata, topology, bounds, relocation, mutation and cache controls remain passing; new tests keep unobserved third-party imports refused"
+  ],
+  "production_source_review": {
+    "core": "Independent portable/core review found no remaining source finding",
+    "native_gate": "Separate independent source review found no concrete bypass in current-intent/binding/blob/target/interface joins; actual nonempty helper acceptance is not yet qualified"
+  },
+  "preserved_fixture_setup_failures": [
+    {
+      "report_sha256": "536c1295828454d81ae630c0f7198dbffcb693db0460767a34d13d17deafd916",
+      "cause": "New fixture omitted required preexisting metadata parent directory"
+    },
+    {
+      "report_sha256": "7b5972eb7b18124f8b48ef99f104d854dbef68f1365ca1fa3329db7fca900057",
+      "cause": "New order control attempted a recipe forbidden by the unchanged canonical dependency guard"
+    }
+  ],
+  "full_producer_attempt": {
+    "report_sha256": "aed3e44f58c254ac624a0261184dd9beff094dc66260604a4fa64f850753ad59",
+    "summary": {
+      "executed": 1,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 0,
+      "selected": 1,
+      "skipped": 0
+    },
+    "generated_nodes": 3,
+    "child_calls": 3,
+    "first_failure": "Original native consumer generated-test command: ModuleNotFoundError for selected provider module",
+    "secondary_failure": "Original unchanged-byte repair refuses competing source custody paths",
+    "disposition": "Issue #517 records absent native Python provider import materialization. No registry clearing, source salting, ambient import exemption or receipt relaxation. Complete producer fixture remains failing.",
+    "fixture_intent_limit_discovered_later": "This earlier fixture declared only generation/public-interface authority. Later source review established that actual native consumption also needs a separate build/artifact requirement; the fixture now declares both before planning. The Python Make materialization selector omission was independently confirmed from its original typed contract path. The earlier runtime failure alone does not prove behavior with complete BUILD authority."
+  },
+  "limits": [
+    "Source controls only; no installed or full-source-suite release qualification",
+    "Original v1/v2 encodings remain unchanged; expected alias validation inputs are still DATA bound by the enclosing original action/transfer authority, not independent native capability",
+    "Ordinary source/full-publication fixture uses deterministic Codex-shaped child and explicit fixture framework distribution; not genuine model/SDK or required Rust diamond acceptance",
+    "Existing standard Python lifecycle cohort is provider-free; it does not exercise nonempty new native alias helper or a real mixed managed-provider and pip closure",
+    "No complete successful all-run producer archive, accepted-provider reopening@3, dispatched native managed-import BUILD, model-free receiving, source retirement or release acceptance"
+  ],
+  "required_next": [
+    "Repair original native Python provider import closure under #517, preserving isolated import and payload custody",
+    "Qualify actual nonempty native alias helper and accepted-provider reopening with alias-bearing portable inputs and meaningful mutations",
+    "Complete unchanged full two-library publication and all clean-run replay; then genuine Rust graph, SDK, installed and all remaining release goals"
+  ],
+  "worker_source_materialization": {
+    "status": "Four new original-owner materialization/action/refusal controls pass; original legacy revocation control also passes after fixture projection update",
+    "reports": [
+      {
+        "report_sha256": "98a3c3022b3cac30bd435e73fc2e48fb00f4b0a01eccbe00bee0b99818679d7c",
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        }
+      },
+      {
+        "report_sha256": "475223fe975db4f7c9d0710ac6a0328c6d5de1f5c9cad584c3dcc1823c225740",
+        "summary": {
+          "executed": 1,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 1,
+          "selected": 1,
+          "skipped": 0
+        }
+      }
+    ],
+    "new_unique_cases": 4,
+    "combined_unique_cases_with_primary_cohorts": 39,
+    "source_sha256": {
+      "tests/support/standard_source_evidence_fixture.py": "ae85ad48686d7637dc53789bc5077f90dc99de099c77770a5c332e4baaeda621",
+      "tests/critical/test_managed_python_source_transfer.py": "348938532f2bedea6349623ae3bab68669332523c68da918467c8340714345cc"
+    },
+    "fixture_change": "After the primary35 cohorts, the strict source fixture writer now forwards the original recipe-derived alias map into canonical construction before candidate issuance. Empty declarations use the unchanged builder path. Production sources and primary new-test hashes remain unchanged; the four new cases and original revocation case ran against the updated writer.",
+    "qualified": [
+      "Actual typed service-to-storage library recipe issues alias-bearing source custody before transfer",
+      "Original CAS source materializer reconstructs exactly the original source custody, validation inputs and every byte; cleanup retires owned workspace and preserves controller files",
+      "Changing or stripping aliases with original candidate/source files/custody unchanged refuses before admission",
+      "Original BUILD record digest binds the alias-bearing portable inputs; mutation with original expected digest refuses",
+      "Fetch-time revocation refuses before registry yield under the unchanged original deadline"
+    ],
+    "limits": "Source materialization and BUILD input admission only; no dispatched native BUILD, accepted-provider reopening or native import acceptance"
+  },
+  "checkpoint_scope": "Issue516 source checkpoint before subsequent issue517 native implementation changes; recorded source hashes do not attest those later worktree edits."
+}

@@ -1,0 +1,136 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "created_utc": "2026-11-27T19:05:45.432403+00:00",
+  "issue": 509,
+  "reviewer": "review_runtime",
+  "status": "source-review-closed; original broad rerun and installed/platform acceptance pending",
+  "scope": [
+    {
+      "path": "src/literate_ai/adapters/project_layout_framework_observation.py",
+      "sha256": "f2c98a805a74f3104ef6506018c922a0c5af2ac0c608db0d5b91372dec322831",
+      "bytes": 26417,
+      "tracked_diff_sha256": "5611faf210b57c02cdc88e8b069cbbda7c23461cecf5b6ddb6b882f0b3a53687"
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_framework_ingress.py",
+      "sha256": "4053ebbc6dbf53c10cf3252808b58b033b7c9fb19d6ff985099b64f89a29f889",
+      "bytes": 65061,
+      "tracked_diff_sha256": "6aaefc33e0559f785e18a6d7a8b45222239ebbb1a84fcc04b277651875536343"
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_framework_selection.py",
+      "sha256": "7f0757642eab38bb8c909f8fa43f1182c16b1436a8ef496386e339013cd7c35a",
+      "bytes": 53889,
+      "tracked_diff_sha256": "4ec9cc5d99dd9e876f3bd57c122bf20ac0b9570af176f5960e99d0c5275263e7"
+    },
+    {
+      "path": "tests/critical/test_framework_reference_targets.py",
+      "sha256": "194b1706bae7886ee47cd8ac573e5442e5eeb17cd6886ef5112cc851ca3dcd88",
+      "bytes": 12604,
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/critical/test_catalog_successor_membership.py",
+      "sha256": "942bdd5de48cb715b4b8b15625fc593c2cdfd85b638e46311a7a485210591366",
+      "bytes": 23409,
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/critical/test_project_layout_initialized_component_capture.py",
+      "sha256": "5b5fbfef14034b2158b389e9446461cb476e3d708d76371ba2b7232d7b014636",
+      "bytes": 12648,
+      "tracked_diff_sha256": "c306b95504c15d70d3cd315ca0776661ecc685f48cddc89a5e238aa3f9f47e8a"
+    },
+    {
+      "path": "tests/critical/test_project_layout_mixed_component_channels.py",
+      "sha256": "b1912ac4c6100b05fb9d9e9824a3b5a4471690a862819a1ca69f43806085341e",
+      "bytes": 10378,
+      "tracked_diff_sha256": "21d2cad826908b8b67eee843eefb63e4716beb5953a3b6caf0e080d3a4763234"
+    },
+    {
+      "path": "docs/user/project-layout.md",
+      "sha256": "1a3d521b90c5bdbcb2de34ce96b7bf668a36577ccb5908ee30df2f7ef2a850e4",
+      "bytes": 41392,
+      "tracked_diff_sha256": "7c9a7be0d1ab8b7dc9ec4cc09803484827ba5610b2f1fd14e74d4379d434eb78"
+    }
+  ],
+  "prior_503_production_hashes": [
+    {
+      "path": "src/literate_ai/adapters/project_layout_catalog_successor.py",
+      "sha256": "75d04c51f32600a9d92de0690f7cfd058eccbf881ead147d51f588eae1510578",
+      "matches_503_source_closure": true
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_continuation.py",
+      "sha256": "472c7e2c59e49eb2cb07f64d89db64023a94cca8e4dcc595902f4324399df653",
+      "matches_503_source_closure": true
+    },
+    {
+      "path": "src/literate_ai/adapters/project_layout_catalog_renewal.py",
+      "sha256": "963c161904ff3b3b34c94e83b9c894eb1442dc8f2bf4b7b8a283ca3f64b1469f",
+      "matches_503_source_closure": true
+    }
+  ],
+  "actual_review": "Full actual new source/test diff and original native/parser/ingress/custody/currentness/selection call paths read independently over prototype and final passes. New test module fully read, including encoded import path and all late source corrections.",
+  "actionable_remaining_findings": [],
+  "resolved_findings": [
+    "New nested target derivation/fact helpers and actual Markdown/URL Python delegates now retain original code/default/keyword identities and values; fact calls pass original before/after _invoke checks.",
+    "Actual inherited URL result constructor and scheme/netloc/path/query/fragment descriptor owners are sealed with original class namespaces/MRO and Python method code.",
+    "Original live URL percent table is initialized using constant nonproject data before owner callbacks then kept pointer- and exact primitive-key/value bound. Mutable actual URL grammar list retains exact primitive contents and refuses changes before parsing.",
+    "Native helper closes actual used reparse mask/predicate and portable grammar aliases/constants in addition to native helper code/defaults and original module pointers.",
+    "Metadata-only reference scope derives from original proved Markdown subjects intersected with typed import file membership/ancestors, not caller grants or heuristic catalog ownership. Private/output/unsupported references remain excluded before root entry.",
+    "Safe target existence/native/ancestor facts remain private with original ingress source owner and are reobserved at final currentness boundary; imported target has no payload read, candidate observation, source proof or writer grant."
+  ],
+  "canonical_evidence": [
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/reference-catalog_successor_membership-r21d-report.json",
+      "sha256": "696093f617a8f265f4248e5af9c54a98be892ff80feeab8483e7066ceaf1515d",
+      "summary": {
+        "executed": 12,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 12,
+        "selected": 12,
+        "skipped": 0
+      },
+      "outcome_count": 12
+    },
+    {
+      "path": "/home/jkh/.local/share/fleet-migration/puck-volume/tmp/litai-release-20261126/reference-framework_reference_targets-r21d-report.json",
+      "sha256": "c2c7caad54a58874dbf060881e71cfe283c7b2e6cab8cbc67a5dfe3a2f5c9bae",
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "outcome_count": 11
+    }
+  ],
+  "canonical_total": {
+    "executed": 23,
+    "passed": 23,
+    "failed": 0,
+    "skipped": 0
+  },
+  "evidence_meaning": "Root-run canonical reports independently parsed; 11 metadata/reference controls plus all12 catalog composition controls. No tests/jobs executed by reviewer.",
+  "preserved_semantics": [
+    "Original pure missing-reference applicability refusal retained; new read-only frozenset only augments semantic presence condition.",
+    "Original protected/imported ownership issuer refusals, initialized baselines, import metadata semantics, destination/lease/journal/rollback/native and source fences remain separate.",
+    "Actual plain and percent-encoded contained import references resolve without reading imported bytes; real equal-byte target replacement is stale and foreign inode preserved.",
+    "Moved-handback fixture uses canonical SKILL template, actual original POST base/local PRE edit, explicit catalog rewrite, real framework rollback, occupied distinct destination refusal and original PRE bytes/inodes recovery.",
+    "Existing public explicit successor recovery sequence docs preserved and actual no-history/empty-anchor/cold import/late helper controls included full12."
+  ],
+  "checks": {
+    "git_diff_check": "passed with no output"
+  },
+  "limits": [
+    "This is source review and exact canonical control evidence, not full issue/release acceptance.",
+    "Original177 controls passed on earlier #503 source; they must rerun on final #509 source and are not counted as current acceptance.",
+    "Native Windows implementation/source path read but no native Windows runtime qualification executed here.",
+    "Authentic installed historical project retry/new artifact, whole wheel gate and full release acceptance remain pending.",
+    "No source/project/prefix mutation, builds, tests, workers, jobs, posts or pin changes by reviewer."
+  ]
+}
