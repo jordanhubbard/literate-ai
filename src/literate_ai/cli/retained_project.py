@@ -160,18 +160,22 @@ def _current_authority_factory(project: Any, binding: Any, args: Any):
 
 
 def retained_project_from_args(
-    project: Any, binding: Any, args: Any
+    project: Any, binding: Any, args: Any, *, consume_admission=None
 ) -> dict[str, object]:
     if getattr(args, "retained_project_plan", False):
         from literate_ai.adapters.readonly_authority import strict_readonly_authority
 
         with strict_readonly_authority():
-            return _retained_project_from_args(project, binding, args)
-    return _retained_project_from_args(project, binding, args)
+            return _retained_project_from_args(
+                project, binding, args, consume_admission=consume_admission
+            )
+    return _retained_project_from_args(
+        project, binding, args, consume_admission=consume_admission
+    )
 
 
 def _retained_project_from_args(
-    project: Any, binding: Any, args: Any
+    project: Any, binding: Any, args: Any, *, consume_admission=None
 ) -> dict[str, object]:
     from literate_ai.adapters.project_validation import ProjectValidationError
 
@@ -249,6 +253,11 @@ def _retained_project_from_args(
                     operator_environment=dict(os.environ),
                     sdk_project=project,
                     sdk_binding=binding,
+                    **(
+                        {"consume_admission": consume_admission}
+                        if consume_admission is not None
+                        else {}
+                    ),
                     capture_promotion_evidence=getattr(
                         args, "retain_promotion_evidence", False
                     ),

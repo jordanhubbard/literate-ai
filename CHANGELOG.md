@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add `litai package retained-project` to construct and verify the selected ZIP
+  from live complete retained admission, preserving original source authority
+  and separate project receipt and release qualification.
+
 - Resolve relocated retained-harness metadata through its initialization
   provenance so documentation review and receipt renewal follow contained layout.
 

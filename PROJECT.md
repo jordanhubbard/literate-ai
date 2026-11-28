@@ -589,7 +589,10 @@ not build or release admission.
 RETAINED-PROJECT-001 (issue #22) also makes ordinary `build` and `test` delegate
 explicit original-source selections to the same retained lifecycle as
 `rebuild`, preserving reviewed plan/host authorization and distinct receipts.
-Installed original-source compilation, package consumption and full native
+The public `package retained-project` command delegates to the same live
+admission and selected ZIP provider, preserving retained provenance, read-only
+intent and separate project receipt and release authority. Integration and
+installed original-source compilation, package consumption and full native
 qualification remain separate open requirements.
 RETAINED-SSH-001 keeps those long, otherwise-silent remote lifecycles alive at
 the shared SSH transport layer so successful native work can return its exact

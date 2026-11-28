@@ -112,7 +112,9 @@ def _invoke(invoke, arguments):
     return result["result"]
 
 
-def author_public_retained_project(root, invoke, *, driver=None, receipt=None):
+def author_public_retained_project(
+    root, invoke, *, driver=None, receipt=None, package_zip=False
+):
     """Author intent first; only the actual public run issues retained evidence."""
     if (driver is None) != (receipt is None):
         raise TypeError("source framework observations must be paired")
@@ -130,7 +132,11 @@ def author_public_retained_project(root, invoke, *, driver=None, receipt=None):
     project = root / "project"
     FilesystemProjectInitializationAdapter(**observations).initialize(
         project,
-        flavor_selectors=("+python", host_platform_selector()),
+        flavor_selectors=(
+            "+python",
+            host_platform_selector(),
+            *(("+package-zip",) if package_zip else ()),
+        ),
         parent_selection=RepositoryParentSelection.root(),
         bootstrap_tools=False,
         default_branch="main",
@@ -270,6 +276,13 @@ def author_public_retained_project(root, invoke, *, driver=None, receipt=None):
         .relative_to(project)
         .as_posix(): "release-policy",
     }
+    if package_zip:
+        roots.update(
+            {
+                path: "specification"
+                for path in load_project(project).definition.component_roots
+            }
+        )
     limits = RetainedProjectLimits(100, 8 * 1024**2, 16 * 1024**2)
     profile_path = project / "build/profile.json"
     profile_path.write_text("{}")

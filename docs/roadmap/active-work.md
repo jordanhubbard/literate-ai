@@ -18954,6 +18954,7 @@ Upstream: [issue #22](https://github.com/jordanhubbard/literate-ai/issues/22), r
       host PATH. Preserve default profile identities; reject undeclared,
       redirected or non-directory selections and qualify actual subprocess lookup.
   - [ ] Bind package and release custody to retained origin without conversion advancement
+    - [ ] Integrate [PR #513](https://github.com/jordanhubbard/literate-ai/pull/513) through the current guarded public retained lifecycle and exact ZIP provider. Preserve newer promotion handling, read-only planning and separate project receipt/release authority. Qualify source controls and the noneditable installed command; genuine adopted native compiler/SDK and stronger configured-policy acceptance remain required.
 - **Evidence:**
   - [ ] Public installed CLI mixed source and binary fixture passes complete build, test, docs and deterministic package lifecycle with repeat, invalidation and relocation checks
   - [ ] Adversarial stale inputs, unsafe custody, missing stages, substituted artifacts, worker identity drift and authority transfer fail closed; existing modes remain green
@@ -24426,6 +24427,8 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 <a id="release-integration-005"></a>
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
+
+- **Public retained ZIP composition (included; qualification open):** [PR #513](https://github.com/jordanhubbard/literate-ai/pull/513) implements part of included [issue #22](https://github.com/jordanhubbard/literate-ai/issues/22) and accepted ADR 0048. The command is integrated locally through the candidate’s guarded retained owner without replacing newer promotion handling. Independent production and installed-roster reviews find no blocking issue; five frontend controls pass through `make python-check` with no skips. The actual live ZIP journey, package regressions and noneditable installed execution remain unqualified. RETAINED-PROJECT-001 retains its broader acceptance checklist; this subtask preserves all original 83 release goals and grants no deferral or release acceptance.
 
 - **Canonical ancestry retention (open qualification repair):**
   [GitHub issue #512](https://github.com/jordanhubbard/literate-ai/issues/512).

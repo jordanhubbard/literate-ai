@@ -9,11 +9,36 @@ import importlib
 import importlib.metadata
 import json
 import os
+import shutil
 import sys
 import unittest
 from pathlib import Path
 
 _CASE_SETS = {
+    "retained-package-public": [
+        {
+            "fixture": "tests/critical/test_retained_package_public.py",
+            "module": "tests.critical.test_retained_package_public",
+            "class": "RetainedPackagePublicTests",
+            "methods": [
+                "test_public_package_retains_exact_payload_and_refuses_stale_source",
+            ],
+        }
+    ],
+    "retained-package-frontend": [
+        {
+            "fixture": "tests/smoke/test_retained_package_frontend.py",
+            "module": "tests.smoke.test_retained_package_frontend",
+            "class": "RetainedPackageFrontendTests",
+            "methods": [
+                "test_decoded_admission_assertion_cannot_substitute_for_live_consumer",
+                "test_failed_lifecycle_does_not_grant_packaging",
+                "test_provider_is_reopened_before_live_consumption",
+                "test_read_only_intent_does_not_construct_or_claim_admission",
+                "test_read_only_intent_refuses_an_unexpected_live_consumer_call",
+            ],
+        }
+    ],
     "bootstrap": [
         {
             "fixture": "tests/smoke/test_bootstrap_litai.py",
@@ -441,6 +466,17 @@ _CASE_SETS = {
 }
 
 _SUBJECTS = {
+    "retained-package-public": (
+        "literate_ai.cli.package",
+        "literate_ai.cli.retained_project_package",
+        "literate_ai.cli.retained_project",
+        "literate_ai.adapters.retained_project_runtime",
+        "literate_ai.adapters.retained_project_package",
+    ),
+    "retained-package-frontend": (
+        "literate_ai.cli.package",
+        "literate_ai.cli.retained_project_package",
+    ),
     "bootstrap": (
         "literate_ai.adapters._processes",
         "literate_ai.adapters.project_initialization",
@@ -508,6 +544,10 @@ _SUBJECTS = {
 
 
 def unavailable_reason(scope: str) -> str | None:
+    if scope == "retained-package-public" and (
+        os.name != "posix" or not shutil.which("cc")
+    ):
+        return "requires actual native POSIX C compiler and custody"
     if scope in {"coding-cli-posix", "bootstrap-posix"} and os.name != "posix":
         return "requires actual POSIX process groups and native file limits"
     if scope == "telemetry-linux-processes" and sys.platform != "linux":
