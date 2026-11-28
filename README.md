@@ -159,7 +159,7 @@ changes cost, not meaning or reconstructability.
 
 Browse the [complete skill catalog](docs/user/skills.md) for development, portable
 code generation, source analysis, documents and presentations, instructional videos,
-OS preparation, testing, packaging and releases. It maps user tasks to all 88
+OS preparation, testing, packaging and releases. It maps user tasks to all 90
 canonical skills and explains which capabilities require selected Flavors or
 separate qualification. The [Google skills assessment](docs/architecture/google-skills-assessment.md)
 compares discovery, composition and useful adaptations.
@@ -470,10 +470,12 @@ LitAI release commands enforce these rules. Forge branch protection should mirro
 but this repository does not claim protection is live unless the forge is configured and
 verified separately.
 
-Every `litai` invocation records how long it took, and every worker in a `--target
-local` fan-out records its own timing, as JSON-Lines spans under the disposable build
-root (`OBJ_DIR/.litai/perf/`) — schema, stage, target, coding CLI, model, duration, and
-outcome. Inspect that history with:
+`litai` records command timing as JSON-Lines spans under the disposable build
+root (`OBJ_DIR/.litai/perf/`): schema, stage, target, coding CLI, model, duration,
+and outcome. Commands that suppress performance writes omit these spans; examples
+include help, rendering, verification, and read-only onboarding or retained-project
+plans. Workers in a `--target local` fan-out also record their own timing. Inspect
+that history with:
 
 ```bash
 litai perf show                              # aggregate table, grouped by stage
