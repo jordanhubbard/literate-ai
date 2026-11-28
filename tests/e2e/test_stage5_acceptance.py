@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import select
 import signal
 import subprocess
 import sys
@@ -161,14 +162,22 @@ class Stage5AcceptanceTests(unittest.TestCase):
                 text=True,
             )
             transcript = run.root / "n0001" / "stdout.log"
+            # Console tee stays live, while persisted transcripts stay empty until
+            # complete-stream redaction at finalization (record_subprocess).
+            assert child.stdout is not None
+            descriptor = child.stdout.fileno()
+            live = b""
             deadline = time.monotonic() + 5
-            while time.monotonic() < deadline and (
-                not transcript.is_file()
-                or "partial gate output" not in transcript.read_text(encoding="utf-8")
-            ):
-                time.sleep(0.02)
+            while time.monotonic() < deadline and b"partial gate output" not in live:
+                ready, _, _ = select.select([descriptor], [], [], 0.05)
+                if ready:
+                    chunk = os.read(descriptor, 65536)
+                    if not chunk:
+                        break
+                    live += chunk
+            self.assertIn(b"partial gate output", live)
             self.assertTrue(transcript.is_file())
-            self.assertIn("partial gate output", transcript.read_text(encoding="utf-8"))
+            self.assertEqual(transcript.read_bytes(), b"")
             self.assertIsNone(child.poll())
             child.send_signal(signal.SIGKILL)
             child.wait(timeout=10)
@@ -220,4 +229,5 @@ class Stage5AcceptanceTests(unittest.TestCase):
             self.assertEqual(shown.returncode, 0, shown.stderr)
             node = json.loads(shown.stdout)["result"]
             self.assertIn(node["state"], {"running", "unavailable"})
-            self.assertIn("partial gate output", transcript.read_text(encoding="utf-8"))
+            # The killed gate never finalized, so no unredacted bytes persist.
+            self.assertEqual(transcript.read_text(encoding="utf-8"), "")

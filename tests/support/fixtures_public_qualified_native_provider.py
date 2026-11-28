@@ -27,6 +27,7 @@ from literate_ai.adapters.retained_provider_authority import (
 from literate_ai.application.generation_preparation import GenerationPreparationRequest
 from literate_ai.application.library_artifacts import project_library_import_surface
 from literate_ai.contracts.native_root_continuation import NativeRootRunPolicy
+from literate_ai.projects import ProjectConfigurationStore
 from literate_ai.source_to_specification.host_qualification import (
     LocalQualificationCase,
     LocalQualificationProfile,
@@ -345,7 +346,10 @@ def prepare_public_qualified_native_provider(
     oracle_authoring = root / "independent-oracle"
     oracle_authoring.mkdir()
     oracle = NativeRustVerifierFixture(oracle_authoring, seed, cargo, rustc)
-    destination = project / "verification/acceptance"
+    destination = (
+        ProjectConfigurationStore.context(project).framework_root
+        / "verification/acceptance"
+    )
     destination.mkdir(parents=True, exist_ok=True)
     for name in ("vendor", "cargo-home", "workspace"):
         shutil.copytree(oracle.authority / name, destination / name)

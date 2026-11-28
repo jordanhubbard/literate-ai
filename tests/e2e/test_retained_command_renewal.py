@@ -266,7 +266,13 @@ class RetainedCommandRenewalTests(unittest.TestCase):
         self.assertEqual(
             caught.exception.code, "retained_harness.command_selection_stale"
         )
-        self.assertEqual(inventory_reads, 2)
+        # The edit lands during the second (final metadata) read. The third
+        # call resolves the stable authority output coordinate and reads no
+        # payload, so it must not mask the refusal.
+        self.assertEqual(inventory_reads, 3)
+        self.assertEqual(
+            (self.source / "app.py").read_text(), "print('late metadata edit')\n"
+        )
 
     def test_same_byte_source_replacement_during_metadata_read_refuses(self):
         original = readmission._safe_path
