@@ -1,5 +1,6 @@
 """Whole public retained packaging uses authored intent and real native custody."""
 
+import hashlib
 import io
 import json
 import os
@@ -7,18 +8,31 @@ import shutil
 import tempfile
 import unittest
 import zipfile
+from contextlib import nullcontext
 from pathlib import Path
 from unittest.mock import patch
 
+import literate_ai
 from literate_ai.adapters.component_lock_application import (
     current_project_component_locks,
 )
+from literate_ai.adapters.standard_lifecycle_binding import (
+    InstalledFrameworkDistribution,
+    InstalledFrameworkDistributionMember,
+    resolve_standard_project_lifecycle_driver,
+)
 from literate_ai.cli import main
+from literate_ai.contracts import (
+    ProjectTestReceiptPolicy,
+    StandardProjectLifecycleDriver,
+    load_current_standard_lifecycle_policy,
+)
 from literate_ai.contracts.executable_components.packages import PackageResult
 from literate_ai.contracts.flavors import FlavorAxis
 from literate_ai.contracts.retained_project_package import RetainedProjectPackageResult
 from literate_ai.projects import load_project
 from literate_ai.storage.cas import FileSystemCAS
+from literate_ai.version import DISTRIBUTION_VERSION
 from tests.critical.test_retained_receipt_promotion import snapshot
 from tests.support.fixtures_public_retained_promotion import (
     author_public_retained_project,
@@ -28,14 +42,58 @@ from tests.support.fixtures_public_retained_promotion import (
 @unittest.skipUnless(os.name != "nt" and shutil.which("cc"), "native POSIX C required")
 class RetainedPackagePublicTests(unittest.TestCase):
     def test_public_package_retains_exact_payload_and_refuses_stale_source(self):
+        # Editable/source suites must explicitly supply framework observations,
+        # as in the existing public promotion fixture. Installed runs use the
+        # actual noneditable defaults. Neither mode mocks project discovery,
+        # command execution, live admission or archive verification.
+        library = Path(literate_ai.__file__).resolve()
+        repository = Path(__file__).resolve().parents[2]
+        observations = {}
+        binding_context = nullcontext()
+        if library.is_relative_to(repository / "src"):
+            content = library.read_bytes()
+            distribution = InstalledFrameworkDistribution(
+                "literate-ai",
+                DISTRIBUTION_VERSION,
+                (
+                    InstalledFrameworkDistributionMember(
+                        "literate_ai/__init__.py",
+                        len(content),
+                        "sha256:" + hashlib.sha256(content).hexdigest(),
+                    ),
+                ),
+            )
+            policy = load_current_standard_lifecycle_policy()
+            driver = StandardProjectLifecycleDriver(
+                distribution.identity, policy.identity
+            )
+            observations = {
+                "driver": driver,
+                "receipt": ProjectTestReceiptPolicy(
+                    policy.policy_id,
+                    policy.policy_version,
+                    driver.identity,
+                    policy.required_evidence_kinds,
+                    policy.minimum_test_count,
+                ),
+            }
+            binding_context = patch(
+                "literate_ai.cli.rebuild.resolve_standard_project_lifecycle_driver",
+                lambda value: resolve_standard_project_lifecycle_driver(
+                    value, distribution_observer=lambda: distribution
+                ),
+            )
         with tempfile.TemporaryDirectory(prefix="retained zip public ") as temporary:
             root = Path(temporary).resolve()
-            with patch.dict(
-                os.environ,
-                {
-                    "LITAI_CONFIG_DIR": str(root / "operator"),
-                    "LITAI_STATE_DIR": str(root / "state"),
-                },
+            with (
+                binding_context,
+                patch.dict(
+                    os.environ,
+                    {
+                        "LITAI_CONFIG_DIR": str(root / "operator"),
+                        "LITAI_STATE_DIR": str(root / "state"),
+                    },
+                ),
             ):
 
                 def invoke(arguments):
@@ -44,7 +102,7 @@ class RetainedPackagePublicTests(unittest.TestCase):
                     return status, json.loads(output.getvalue() or errors.getvalue())
 
                 project, _policy = author_public_retained_project(
-                    root, invoke, package_zip=True
+                    root, invoke, package_zip=True, **observations
                 )
                 selected = []
                 for lock in current_project_component_locks(load_project(project)):
