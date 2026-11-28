@@ -37,6 +37,7 @@ from literate_ai.contracts import (
     ProjectInitializationOrigin,
     RepositoryLineage,
 )
+from literate_ai.projects import load_project
 from tests.support.fixtures_test_repository_lineage import fixture, identity
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -86,6 +87,13 @@ def skill_item(node, name: str, source_name: str) -> InheritedCatalogItem:
     )
 
 
+def placed(target: Path, logical: str) -> str:
+    """Return the project-root coordinate of a framework-relative catalog path."""
+
+    framework_root = load_project(target).framework_root
+    return (framework_root / logical).relative_to(target).as_posix()
+
+
 class RepositoryLineageUpdateTests(unittest.TestCase):
     def test_unchanged_apply_preserves_import_bytes_and_timestamp(self) -> None:
         selection, _root_node, child_node, lineage = fixture()
@@ -109,7 +117,7 @@ class RepositoryLineageUpdateTests(unittest.TestCase):
                 lineage_resolver=lambda _selection: lineage,
                 catalog_planner=lambda _lineage: catalogs,
             )
-            imports_path = target / CatalogImportsFile.PATH
+            imports_path = load_project(target).framework_root / CatalogImportsFile.PATH
             before = imports_path.read_bytes(), imports_path.stat().st_mtime_ns
             finalized = []
             with patch(
@@ -175,12 +183,15 @@ class RepositoryLineageUpdateTests(unittest.TestCase):
                 empty=True,
                 parent_selection=selection,
             )
-            mcp_path = target / mcp.files[0].destination
-            rust_path = target / rust.files[0].destination
+            mcp_coordinate = placed(target, mcp.files[0].destination)
+            rust_coordinate = placed(target, rust.files[0].destination)
+            mcp_path = target / mcp_coordinate
+            rust_path = target / rust_coordinate
+            imports_path = load_project(target).framework_root / CatalogImportsFile.PATH
             mcp_path.write_bytes(mcp_path.read_bytes() + b"\nlocal staged parent\n")
             local_mcp = mcp_path.read_bytes()
             rust_path.unlink()
-            imports_before = (target / CatalogImportsFile.PATH).read_bytes()
+            imports_before = imports_path.read_bytes()
 
             real_framework_adapter = FilesystemProjectUpdateAdapter
 
@@ -190,7 +201,7 @@ class RepositoryLineageUpdateTests(unittest.TestCase):
             def dependency_validation(root: Path, **_kwargs):
                 documents = {
                     item.files[0].destination: (
-                        root / item.files[0].destination
+                        root / placed(root, item.files[0].destination)
                     ).read_bytes()
                     for item in (backend, mcp, rust)
                 }
@@ -261,16 +272,14 @@ class RepositoryLineageUpdateTests(unittest.TestCase):
             )
             self.assertEqual(mcp_path.read_bytes(), local_mcp)
             self.assertFalse(rust_path.exists())
-            self.assertEqual(
-                (target / CatalogImportsFile.PATH).read_bytes(), imports_before
-            )
+            self.assertEqual(imports_path.read_bytes(), imports_before)
             self.assertEqual(
                 FilesystemRepositoryLineageStore(target).load(),
                 (selection, previous),
             )
 
             with self.assertRaises(CliFailure) as invalid:
-                invoke([rust.files[0].destination])
+                invoke([rust_coordinate])
             self.assertEqual(
                 invalid.exception.code,
                 "repository_update.take_upstream_not_conflict",
@@ -278,14 +287,14 @@ class RepositoryLineageUpdateTests(unittest.TestCase):
             self.assertEqual(mcp_path.read_bytes(), local_mcp)
             self.assertFalse(rust_path.exists())
 
-            result = invoke([mcp.files[0].destination])
+            result = invoke([mcp_coordinate])
 
             self.assertEqual(result["mode"], "applied")
             self.assertEqual(mcp_path.read_bytes(), mcp.files[0].content)
             self.assertEqual(rust_path.read_bytes(), rust.files[0].content)
             self.assertEqual(
                 result["repository_lineage"]["applied"]["taken_upstream"],
-                [mcp.files[0].destination],
+                [mcp_coordinate],
             )
             self.assertEqual(
                 FilesystemRepositoryLineageStore(target).load()[1], prospective
@@ -324,10 +333,12 @@ class RepositoryLineageUpdateTests(unittest.TestCase):
                 parent_selection=selection,
             )
             retired_content = {
-                file.destination: (target / file.destination).read_bytes()
-                for file in retired.files
+                coordinate: (target / coordinate).read_bytes()
+                for coordinate in (
+                    placed(target, file.destination) for file in retired.files
+                )
             }
-            imports_path = target / CatalogImportsFile.PATH
+            imports_path = load_project(target).framework_root / CatalogImportsFile.PATH
             imports_content = imports_path.read_bytes()
             adapter = FilesystemRepositoryUpdateAdapter(
                 lineage_resolver=lambda _selection: prospective,

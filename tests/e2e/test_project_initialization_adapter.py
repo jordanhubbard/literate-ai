@@ -31,6 +31,7 @@ from literate_ai.contracts import (
     RepositoryParentSelection,
     StandardLanguageCommandProfile,
 )
+from literate_ai.projects import ProjectConfigurationStore, load_project
 from tests.support.root_parent_adapter import (
     RootParentProjectInitializationAdapter as FilesystemProjectInitializationAdapter,
 )
@@ -68,14 +69,11 @@ class FilesystemProjectInitializationAdapterTests(unittest.TestCase):
                 flavor_selectors=("+freebsd", "+python", "+make"),
                 source_intelligence_provider="none",
             )
-            profile = json.loads(
-                (
-                    target / "flavors/os-freebsd/standard-command-profile.json"
-                ).read_text()
-            )
+            flavor = load_project(target).framework_root / "flavors/os-freebsd"
+            profile = json.loads((flavor / "standard-command-profile.json").read_text())
             self.assertEqual(profile["target"], "freebsd")
             self.assertEqual(profile["executable_suffix"], "")
-            self.assertTrue((target / "flavors/os-freebsd/openspec/spec.md").is_file())
+            self.assertTrue((flavor / "openspec/spec.md").is_file())
 
     @staticmethod
     def _origin() -> ProjectInitializationOrigin:
@@ -109,17 +107,18 @@ class FilesystemProjectInitializationAdapterTests(unittest.TestCase):
                 flavor_selectors=DEFAULT_TEST_FLAVORS,
                 source_intelligence_provider="none",
             )
+            context = ProjectConfigurationStore(target).context(target)
             baseline = ProjectInitializationBaseline.from_dict(
                 json.loads(
-                    (target / ".literate/initialization-baseline.json").read_text(
-                        encoding="utf-8"
-                    )
+                    context.framework_path(
+                        ".literate/initialization-baseline.json"
+                    ).read_text(encoding="utf-8")
                 )
             )
 
             self.assertEqual((target / "README.md").read_bytes(), readme)
             self.assertEqual(git_sentinel.read_bytes(), b"repository metadata\n")
-            self.assertTrue((target / "literate.project.json").is_file())
+            self.assertTrue(context.manifest_path.is_file())
             self.assertNotIn("README.md", result["created"])
             self.assertNotIn("README.md", {item.path for item in baseline.files})
 
@@ -231,6 +230,7 @@ class FilesystemProjectInitializationAdapterTests(unittest.TestCase):
                 synchronize_source_intelligence=False,
             )
 
+            framework_root = load_project(target).framework_root
             for language, (
                 skill_id,
                 toolchain,
@@ -238,7 +238,9 @@ class FilesystemProjectInitializationAdapterTests(unittest.TestCase):
                 _flavor_dir,
             ) in expected.items():
                 with self.subTest(language=language):
-                    flavor_path = target / "flavors" / f"lang-{language}" / "flavor.md"
+                    flavor_path = (
+                        framework_root / "flavors" / f"lang-{language}" / "flavor.md"
+                    )
                     flavor = parse_flavor_markdown(
                         flavor_path.read_bytes(), source=flavor_path.as_posix()
                     )
@@ -279,7 +281,7 @@ class FilesystemProjectInitializationAdapterTests(unittest.TestCase):
                     )
                     self.assertTrue(
                         (
-                            target
+                            framework_root
                             / "skills"
                             / "specification-to-source"
                             / skill_id
@@ -468,12 +470,16 @@ class ConvertModeTests(unittest.TestCase):
                     (implementation / relative).read_text(encoding="utf-8"), content
                 )
             # Operator-owned entries must not reappear at the root; scaffold-managed
-            # names (AGENTS.md, .gitignore, CHANGELOG.md, skills/, docs/) are freshly
-            # stamped from the template.
+            # names are freshly stamped from the template. The contained layout
+            # stamps root agent adapters (AGENTS.md) and CHANGELOG.md at the root and
+            # framework files (.gitignore, skills/, docs/) under the framework root.
+            context = ProjectConfigurationStore(target).context(target)
+            framework_root = context.framework_root
             for relative in ("src", "skills/config.yaml", "docs/notes/design.md"):
                 self.assertFalse((target / relative).exists())
-            self.assertTrue((target / ".gitignore").is_file())
-            stamped = (target / ".gitignore").read_text()
+                self.assertFalse((framework_root / relative).exists())
+            self.assertTrue((framework_root / ".gitignore").is_file())
+            stamped = (framework_root / ".gitignore").read_text()
             self.assertNotIn("build/", stamped.replace("_build/", ""))
             self.assertNotIn("*.pyc", stamped)
             self.assertNotEqual(
@@ -498,9 +504,10 @@ class ConvertModeTests(unittest.TestCase):
             self.assertTrue(renamed)
 
             # The scaffold stamped a clean tree: no operator content remains at root.
-            self.assertTrue((target / "literate.project.json").is_file())
-            self.assertTrue((target / "SKILL.md").is_file())
+            self.assertTrue(context.manifest_path.is_file())
+            self.assertTrue((framework_root / "SKILL.md").is_file())
             self.assertFalse((target / "samples" / "hello-component").exists())
+            self.assertFalse((framework_root / "samples" / "hello-component").exists())
             self.assertNotIn(".git", moved_names)
             self.assertTrue((target / ".git").is_dir())
             self.assertEqual(result["detected_languages"], ["python"])
@@ -526,7 +533,8 @@ class ConvertModeTests(unittest.TestCase):
                 source_intelligence_provider="none",
                 convert=True,
             )
-            self.assertTrue((target / "literate.project.json").is_file())
+            context = ProjectConfigurationStore(target).context(target)
+            self.assertTrue(context.manifest_path.is_file())
             self.assertTrue(leftover.is_file())
             self.assertFalse((target / "_legacy").exists())
 

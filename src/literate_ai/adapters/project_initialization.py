@@ -240,11 +240,17 @@ def _derived_flavor_tables() -> tuple[dict[str, str], dict[str, str], dict[str, 
             if hasattr(authoring.primary_axis, "value")
             else str(authoring.primary_axis)
         )
-        for alias in (entry.name, authoring.name, authoring.target):
-            if not alias:
-                continue
-            alias_axes[alias] = axis
-            canonical_by_alias[alias] = coordinate
+        for alias in (entry.name, authoring.name):
+            if alias:
+                alias_axes[alias] = axis
+                canonical_by_alias[alias] = coordinate
+        # A shared target (lang-typescript and the opt-in lang-typescript-library
+        # both target typescript) keeps its first, primary Flavor; an opt-in
+        # variant is selected by its own name.
+        target = authoring.target
+        if target and target not in canonical_by_alias:
+            alias_axes[target] = axis
+            canonical_by_alias[target] = coordinate
     return alias_axes, canonical_by_directory, canonical_by_alias
 
 

@@ -2462,8 +2462,17 @@ def configured_catalog_path(boundary: Path, base: Path, uri: str, *, kind: str) 
         relative.startswith("litai/skills/")
         and f"{relative_base}/flavor.md" in coordinates.values()
     ):
-        relative = relative.removeprefix("litai/")
-        destination = coordinates.get(relative, relative)
+        original = relative.removeprefix("litai/")
+        destination = coordinates.get(original)
+        if destination is None:
+            # A template-installed skill already sits beside the contained
+            # Flavor; only an absent one falls back to its old-root coordinate.
+            contained = boundary / relative
+            destination = (
+                relative
+                if contained.is_file() and not contained.is_symlink()
+                else original
+            )
     else:
         destination = coordinates.get(relative)
     if destination is None:

@@ -29,6 +29,7 @@ from literate_ai.contracts import (
     RepositoryReparentPlan,
 )
 from literate_ai.projects import (
+    CATALOG_PLACEMENT_ROOTS,
     CATALOG_SOURCE_ROOTS,
     PROJECT_FILENAME,
     ProjectConfigurationStore,
@@ -164,17 +165,40 @@ def _previous_inherited_files(
     return result
 
 
+def _fully_contained_roots(root: Path) -> frozenset[str]:
+    """Return catalog roots a contained project declares only under litai/."""
+
+    store = ProjectConfigurationStore(root)
+    if store.context(root).framework_root == root:
+        return frozenset()
+    definition = store.read().definition
+    if definition.framework_directory != "litai":
+        return frozenset()
+    contained = set()
+    for kind, primary in CATALOG_PLACEMENT_ROOTS.items():
+        declared = getattr(definition, f"{kind}_roots")
+        for name in (primary, "samples") if kind == "component" else (primary,):
+            if f"litai/{name}" in declared and name not in declared:
+                contained.add(name)
+    return frozenset(contained)
+
+
 def _place_imported_catalogs(
     project, plan: InheritedCatalogPlan
 ) -> InheritedCatalogPlan:
     coordinates = contained_catalog_coordinates(project.root)
-    if not coordinates:
+    contained = _fully_contained_roots(project.root)
+    if not coordinates and not contained:
         return plan
 
-    recorded = {
-        (item.kind, item.name): item.files
-        for item in _required_imports(project.root).imports
-    }
+    recorded = (
+        {
+            (item.kind, item.name): item.files
+            for item in _required_imports(project.root).imports
+        }
+        if coordinates
+        else {}
+    )
 
     def scope(root, name):
         return root if root != "skills" else f"{root}/{name.split('/')[0]}"
@@ -188,7 +212,9 @@ def _place_imported_catalogs(
 
     def place(item: InheritedCatalogItem) -> InheritedCatalogItem:
         name = catalog_placement_root(item.kind, item.files[0].destination)
-        if name is None or scope(name, item.name) not in active:
+        if name is None or (
+            scope(name, item.name) not in active and name not in contained
+        ):
             return item
         owned = recorded.get((item.kind, item.name), ())
         if owned and not any(row.path.startswith("litai/") for row in owned):
