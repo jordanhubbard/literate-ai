@@ -6,6 +6,8 @@ No migration writer, source retirement, execution or installed qualification.
 from __future__ import annotations
 
 import copy
+import os
+import sys
 import unittest
 from unittest.mock import patch
 
@@ -16,6 +18,22 @@ from literate_ai.adapters.locked_generation_authority import (
 )
 from literate_ai.adapters.project_layout_planning import ProjectLayoutPlanError
 from tests.critical import test_project_layout_recorded_wrapper_source as support
+
+# Observe opens without patching os.open: retained metadata readers refuse a
+# replaced os.open before any capture, which would mask the private refusal.
+_OPEN_WATCH: list = []
+
+
+def _record_open(event, arguments):
+    if event == "open" and _OPEN_WATCH and arguments:
+        watched, opened = _OPEN_WATCH[-1]
+        path = arguments[0]
+        if isinstance(path, (str, bytes, os.PathLike)):
+            if os.fsdecode(path) in watched:
+                opened.append(path)
+
+
+sys.addaudithook(_record_open)
 
 
 class RecordedComponentTransitionTests(unittest.TestCase):
@@ -81,18 +99,13 @@ class RecordedComponentTransitionTests(unittest.TestCase):
         project, owner, kwargs = self.fixture()
         private = project.root / kwargs["source_root"] / ".env"
         private.write_bytes(b"private synthetic fixture, never credentials\n")
-        real = production.os.open
         opened = []
-
-        def guarded(path, *args, **options):
-            if str(path) in (str(private), private.name):
-                opened.append(path)
-                raise AssertionError("private residual opened")
-            return real(path, *args, **options)
-
-        with patch.object(production.os, "open", guarded):
+        _OPEN_WATCH.append(({str(private), private.name}, opened))
+        try:
             with self.assertRaises(ProjectLayoutPlanError):
                 self.observe(project, owner, kwargs)
+        finally:
+            _OPEN_WATCH.pop()
         self.assertEqual(opened, [])
 
     def test_admitted_source_expires_when_any_wrapper_output_changes(self):

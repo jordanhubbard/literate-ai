@@ -124,8 +124,11 @@ litai project native-child recover
 litai project layout plan
 litai project layout apply
 litai project layout recover
+litai project layout finalize
+litai project layout renew
 litai project retained-scope refresh
-litai project retained-harness readmit | recover
+litai project retained-harness readmit
+litai project retained-harness recover
 litai project retained-cargo check
 litai project retained-cargo materialize
 litai project retained-cargo admit
@@ -236,6 +239,8 @@ litai spec refresh
 litai spec conformance
 litai spec coverage
 litai spec diff
+litai spec intake plan
+litai spec intake approve
 ```
 
 `litai run COMPONENT --entrypoint NAME` selects one surface of a previously built

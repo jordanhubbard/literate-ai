@@ -2224,12 +2224,9 @@ def _pin_catalog_reference(
                 if component
                 else root
             )
-            selected = (
-                configured_catalog_path(
-                    boundary, base, reference.uri, kind=reference.kind
-                )
-                if component
-                else base / reference.uri
+            # Flavor content resolves through the same recorded catalog placement.
+            selected = configured_catalog_path(
+                boundary, base, reference.uri, kind=reference.kind
             )
             configured = _configured_content_path(selected.parent, selected.name)
             expected_uri = reference.identity.uri
