@@ -20339,6 +20339,12 @@ hosted CI and canonical tree worker/live SDK integration remain open.
         during repository refresh; its control environment's Git 2.34 explicitly
         rejects the required `worktree list --porcelain -z` operation. Preserve
         that failed qualification and use a capable declared environment.
+        At `daa0de2f`, the full unit suite passes 2,867 tests with 113 reported
+        skips in 1,398.314 seconds; CI then refuses its stale lifecycle-driver
+        review pin. An independent reviewer accepts the exact adapter hash before
+        the supported re-pin. The fresh non-editable exact-source wheel also
+        passes the seven-kind retained ZIP journey; this is scoped package
+        admission, with full wheel smoke, KSE eleven-kind and release gates pending.
 
 - **GitHub issue:** [#22](https://github.com/jordanhubbard/literate-ai/issues/22)
 

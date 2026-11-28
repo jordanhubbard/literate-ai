@@ -88,5 +88,33 @@
     "raw_wheel_log_sha256": "558719a056997b382f6e1fe63940d51ba01bb8a0bcfe02a636b58fa746a47770",
     "raw_git_control_log_sha256": "270f9fd32b48529e2fa71a03a641ff99cb93845f604baf648a13962004ac3c6c",
     "guards_or_assertions_relaxed": false
+  },
+  "full_regression_observation_latest": {
+    "run": "https://github.com/jordanhubbard/literate-ai/actions/runs/46110789918",
+    "source": "daa0de2f548f1018bc6f8e65f524306d951b0a10",
+    "unit_tests": 2867,
+    "reported_skips": 113,
+    "unit_result": "passed",
+    "seconds": 1398.314,
+    "subsequent_ci_failure": "Required lifecycle-driver review pin was stale; independently reviewed exact candidate hash before supported re-pin",
+    "whole_ci_qualified": false
+  },
+  "independent_tcb_review": {
+    "reviewer_thread": "01a21ddf-1cc4-7413-829e-5fad13774984",
+    "sha256": "a14a3112b521f1a508e76d65859a2719fb715fc803195803072231c47d5104b1",
+    "decision": "accepted exact source hash",
+    "scope": "source review only; no release or installed-matrix claim"
+  },
+  "installed_candidate_control_latest": {
+    "source": "daa0de2f548f1018bc6f8e65f524306d951b0a10",
+    "wheel_sha256": "a74d698e6c65264f0958069c9916ba1cd8e7b6ee777b3ac83c6a263178a9130d",
+    "wheel_bytes": 4296140,
+    "kind_count": 7,
+    "fresh_noneditable": true,
+    "actual_retained_zip_journey": "passed",
+    "package_admitted": true,
+    "release_qualified": false,
+    "full_wheel_smoke_qualified": false,
+    "kse_eleven_kind_qualified": false
   }
 }
