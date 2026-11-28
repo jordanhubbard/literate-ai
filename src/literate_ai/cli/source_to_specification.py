@@ -2568,7 +2568,9 @@ def _authority_status_from_args(args: Namespace) -> dict[str, object]:
     revisions: dict[str, ContentIdentity] = {}
     authoring_identities: dict[str, ContentIdentity] = {}
     locked_snapshots = []
-    components_root = project.root / "components"
+    # Promotion scaffolds authored Components beneath the framework root; a
+    # contained project declares that as ``litai/`` rather than the project root.
+    components_root = project.framework_root / "components"
     for lock_path in sorted(components_root.rglob("component.lock.json")):
         if lock_path.is_symlink() or not lock_path.is_file():
             raise CliFailure(

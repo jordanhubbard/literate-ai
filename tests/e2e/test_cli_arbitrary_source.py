@@ -239,14 +239,14 @@ class ArbitrarySourceCliTests(unittest.TestCase):
                 self.assertEqual((status, errors.getvalue()), (0, ""))
                 self.assertEqual(default_parent.call_count, 1)
             selection = json.loads(
-                (promoted / ".literate/repository-parent.json").read_text()
+                (promoted / "litai/.literate/repository-parent.json").read_text()
             )
             self.assertEqual(selection["mode"], "root")
             self.assertEqual(selection["parents"], [])
             result = json.loads(output.getvalue())["result"]["promoted_project"]
             self.assertTrue((promoted / result["component"]).is_file())
             self.assertTrue(
-                list((promoted / "components").glob("*/component.lock.json"))
+                list((promoted / "litai/components").glob("*/component.lock.json"))
             )
             self.assertGreater(result["generation_input_audit_count"], 0)
             self.assertEqual(result["authority_state"], "derived-source-retained")
@@ -527,8 +527,12 @@ class ArbitrarySourceCliTests(unittest.TestCase):
 
             self.assertEqual((status, errors), (0, ""), acceptance)
             result = json.loads(acceptance)["result"]["promoted_project"]
+            # Graph identity is the typed draft's semantic digest. Wire import
+            # records omit absent optional native fields, so bind the promotion to
+            # the exact reviewed wire graph through its strict decoding.
             self.assertEqual(
-                result["component_graph_identity"], canonical_identity(graph_value).uri
+                result["component_graph_identity"],
+                component_graph_from_wire(graph_value).identity,
             )
             self.assertEqual(result["authority_state"], "derived-source-retained")
             self.assertEqual(result["authority_projection_count"], 3)
@@ -647,9 +651,13 @@ class ArbitrarySourceCliTests(unittest.TestCase):
             child = Path(integrated["project_target"])
             self.assertEqual(integrated["integrated_project"], str(adopted.resolve()))
             self.assertTrue(
-                child.is_relative_to((adopted / ".literate/native-projects").resolve())
+                child.is_relative_to(
+                    (adopted / "litai/.literate/native-projects").resolve()
+                )
             )
-            self.assertTrue((adopted / ".literate/native-projects.json").is_file())
+            self.assertTrue(
+                (adopted / "litai/.literate/native-projects.json").is_file()
+            )
 
             status, drafted, errors = invoke(
                 "project",
@@ -665,7 +673,7 @@ class ArbitrarySourceCliTests(unittest.TestCase):
                 json.loads(drafted)["result"]["stage"],
                 "drafted",
             )
-            child_manifest = child / "literate.project.json"
+            child_manifest = child / "litai/literate.project.json"
             original_manifest = child_manifest.read_bytes()
             changed_manifest = json.loads(original_manifest)
             changed_manifest["version"] = "1.0.1"
@@ -906,7 +914,9 @@ class ArbitrarySourceCliTests(unittest.TestCase):
             promoted = accepted_result["promoted_project"]
             platform_flavor = host_os_family()
             platform_coordinate = f"flavor://literate-ai/os-{platform_flavor}"
-            self.assertEqual(promoted["component"], "components/source/component.md")
+            self.assertEqual(
+                promoted["component"], "litai/components/source/component.md"
+            )
             self.assertTrue((project_target / promoted["component"]).is_file())
             promoted_authoring = parse_component_markdown(
                 project_target / promoted["component"],
@@ -924,14 +934,18 @@ class ArbitrarySourceCliTests(unittest.TestCase):
             self.assertEqual(
                 {
                     path.relative_to(project_target).as_posix()
-                    for path in (project_target / "components").glob("*/component.md")
+                    for path in (project_target / "litai/components").glob(
+                        "*/component.md"
+                    )
                 },
-                {"components/source/component.md"},
+                {"litai/components/source/component.md"},
             )
             self.assertFalse(
-                tuple((project_target / "components").rglob("component.json"))
+                tuple((project_target / "litai/components").rglob("component.json"))
             )
-            component_lock = project_target / "components/source/component.lock.json"
+            component_lock = (
+                project_target / "litai/components/source/component.lock.json"
+            )
             self.assertTrue(component_lock.is_file())
             self.assertEqual(
                 promoted["component_lock_identity"],
@@ -945,11 +959,11 @@ class ArbitrarySourceCliTests(unittest.TestCase):
                     f"+{platform_coordinate}",
                 ],
             )
-            self.assertTrue((project_target / "literate.project.json").is_file())
+            self.assertTrue((project_target / "litai/literate.project.json").is_file())
             self.assertEqual(
-                json.loads((project_target / "literate.project.json").read_text())[
-                    "default_flavor_selectors"
-                ],
+                json.loads(
+                    (project_target / "litai/literate.project.json").read_text()
+                )["default_flavor_selectors"],
                 sorted(
                     [
                         "+flavor://literate-ai/build-bazel",
@@ -959,15 +973,15 @@ class ArbitrarySourceCliTests(unittest.TestCase):
                 ),
             )
             self.assertEqual(
-                json.loads((project_target / "literate.project.json").read_text())[
-                    "source_intelligence"
-                ]["provider_id"],
+                json.loads(
+                    (project_target / "litai/literate.project.json").read_text()
+                )["source_intelligence"]["provider_id"],
                 "none",
             )
             self.assertFalse((project_target / ".codegraph").exists())
             self.assertIn("python", promoted["proposed_flavors"])
             python_flavor = (
-                project_target / "flavors/lang-python/flavor.md"
+                project_target / "litai/flavors/lang-python/flavor.md"
             ).read_text(encoding="utf-8")
             self.assertIn("python-standard-command-profile", python_flavor)
             self.assertIn("python-toolchain-constraint", python_flavor)
@@ -975,22 +989,28 @@ class ArbitrarySourceCliTests(unittest.TestCase):
             self.assertEqual(promoted["authority_projection_count"], 3)
             self.assertEqual(promoted["generation_input_audit_count"], 1)
             self.assertFalse(
-                (project_target / "components" / "source" / ".literate").exists()
+                (
+                    project_target / "litai" / "components" / "source" / ".literate"
+                ).exists()
             )
             self.assertFalse(
                 (
-                    project_target / "components" / "source" / "specification-set.json"
+                    project_target
+                    / "litai"
+                    / "components"
+                    / "source"
+                    / "specification-set.json"
                 ).exists()
             )
             self.assertTrue(
                 any(
-                    (project_target / "provenance" / "source-promotion").glob(
+                    (project_target / "litai" / "provenance" / "source-promotion").glob(
                         "*/source-translation.json"
                     )
                 )
             )
             promotion_root = next(
-                (project_target / "provenance" / "source-promotion").iterdir()
+                (project_target / "litai" / "provenance" / "source-promotion").iterdir()
             )
             promotion_record = json.loads(
                 (promotion_root / "reference.json").read_text()
@@ -1010,23 +1030,27 @@ class ArbitrarySourceCliTests(unittest.TestCase):
             audited = {
                 entry["target_path"]: entry["kind"] for entry in audit["entries"]
             }
-            self.assertEqual(audited["literate.project.json"], "project-configuration")
             self.assertEqual(
-                audited["components/source/component.md"], "component-intent"
+                audited["litai/literate.project.json"], "project-configuration"
             )
-            self.assertNotIn("components/source/component.json", audited)
             self.assertEqual(
-                audited["skills/specification-to-source/portable-application/SKILL.md"],
+                audited["litai/components/source/component.md"], "component-intent"
+            )
+            self.assertNotIn("litai/components/source/component.json", audited)
+            self.assertEqual(
+                audited[
+                    "litai/skills/specification-to-source/portable-application/SKILL.md"
+                ],
                 "forward-skill",
             )
             self.assertEqual(
-                audited["flavors/lang-python/flavor.md"], "reviewed-flavor"
+                audited["litai/flavors/lang-python/flavor.md"], "reviewed-flavor"
             )
             for relative in (
-                "flavors/build-bazel/standard-command-profile.json",
-                f"flavors/os-{platform_flavor}/standard-command-profile.json",
-                "flavors/lang-python/standard-command-profile.json",
-                "flavors/lang-python/toolchain.json",
+                "litai/flavors/build-bazel/standard-command-profile.json",
+                f"litai/flavors/os-{platform_flavor}/standard-command-profile.json",
+                "litai/flavors/lang-python/standard-command-profile.json",
+                "litai/flavors/lang-python/toolchain.json",
             ):
                 self.assertEqual(audited[relative], "reviewed-flavor")
             status, authority, errors = invoke(
@@ -1117,7 +1141,7 @@ class ArbitrarySourceCliTests(unittest.TestCase):
             )
             self.assertEqual(tree_digest(source), before)
 
-            component_root = project_target / "components" / "source"
+            component_root = project_target / "litai" / "components" / "source"
             promoted_profile = component_root / "qualification" / "profile.json"
             for overlapping_output in (
                 source / "qualification.json",
