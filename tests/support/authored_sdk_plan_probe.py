@@ -9,6 +9,7 @@ from literate_ai.adapters.authored_qualification_planning import (
     FilesystemAuthoredQualificationPlanner,
 )
 from literate_ai.adapters.models import InheritedSessionSelection
+from literate_ai.adapters.project_validation import FilesystemProjectValidationAdapter
 from literate_ai.adapters.standard_lifecycle_binding import (
     InstalledFrameworkDistribution,
     InstalledFrameworkDistributionMember,
@@ -71,7 +72,22 @@ def main():
                     return_value=binding,
                 )
             )
+        # Sealed receiving read ports call the actual project validator, which
+        # dispatches here; it receives the same fixture review as planning.
+        guards.enter_context(
+            patch.object(
+                FilesystemProjectValidationAdapter,
+                "authority_identity",
+                lambda _self, root, *, synchronize_source_intelligence=True: review(
+                    root,
+                    synchronize_source_intelligence=synchronize_source_intelligence,
+                ),
+            )
+        )
         for entrypoint in (authored_qualification, retained_cargo_authored):
+            # Sealed read-port consumers no longer import the planner.
+            if not hasattr(entrypoint, "FilesystemAuthoredQualificationPlanner"):
+                continue
             guards.enter_context(
                 patch.object(
                     entrypoint,
@@ -141,7 +157,11 @@ def main():
         )
         status = dispatch.main(arguments)
         required = {
-            "changed-archive": ["reopened", "archive digest mismatch"],
+            # Sealed receiving read ports resolve the actual installed, pinned
+            # framework before transport; this fixture pins a synthetic
+            # distribution, so the refusal follows the reopened SDK. Archive
+            # digest refusal is covered in-process by the critical input tests.
+            "changed-archive": ["reopened"],
             "revoked-sdk": ["revoked"],
         }[expected]
         if status != 2 or observed != required:

@@ -191,6 +191,7 @@ class AuthoredSdkPrepareCommandTests(unittest.TestCase):
                 provider_root=root,
                 provider_component=recipe.component.name,
                 sdk_args=args,
+                provider_plan=plan,
             )
 
             def assert_check_refusal(reason):
