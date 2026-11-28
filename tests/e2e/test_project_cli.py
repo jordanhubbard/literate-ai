@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 
 from literate_ai.cli import main
+from literate_ai.projects import ProjectConfigurationStore
 from tests.support.root_parent_adapter import root_parent_for_fixture_project
 from tests.support.symlinks import skip_unless_symlinks_followable
 
@@ -48,6 +49,11 @@ def invoke(*arguments: str) -> tuple[int, dict[str, object]]:
         return status, json.loads(content)
     except json.JSONDecodeError as exc:
         raise AssertionError(f"non-JSON CLI output ({status=}): {content!r}") from exc
+
+
+def framework_root(target: Path) -> Path:
+    """Return the directory holding the project's framework-owned files."""
+    return ProjectConfigurationStore.context(target).framework_root
 
 
 def copy_generation_catalogs(target: Path) -> None:
@@ -102,7 +108,7 @@ class ProjectCliTests(unittest.TestCase):
                 )[0],
                 0,
             )
-            guide = target / "docs" / "user" / "getting-started.md"
+            guide = framework_root(target) / "docs" / "user" / "getting-started.md"
             guide.write_text(
                 guide.read_text(encoding="utf-8") + "\nRun `litai obsolete-command`.\n",
                 encoding="utf-8",
@@ -143,7 +149,8 @@ class ProjectCliTests(unittest.TestCase):
                 )[0],
                 0,
             )
-            guide = target / "docs" / "user" / "framework-flow.md"
+            framework = framework_root(target)
+            guide = framework / "docs" / "user" / "framework-flow.md"
             guide.write_text(
                 guide.read_text(encoding="utf-8") + "\nReviewed autonomous change.\n",
                 encoding="utf-8",
@@ -166,7 +173,7 @@ class ProjectCliTests(unittest.TestCase):
             self.assertEqual(envelope["result"]["state"], "current")
             self.assertIn(
                 envelope["result"]["expected_marker"],
-                (target / "docs/architecture/design-traceability.md").read_text(),
+                (framework / "docs/architecture/design-traceability.md").read_text(),
             )
             self.assertEqual(invoke("project", "validate", str(target))[0], 0)
             self.assertEqual(
@@ -236,10 +243,16 @@ class ProjectCliTests(unittest.TestCase):
             result = envelope["result"]
             assert isinstance(result, dict)
             self.assertEqual(result["project_id"], "demo-app")
-            self.assertFalse((target / "components" / "source").exists())
-            manifest = json.loads((target / "literate.project.json").read_text())
-            self.assertEqual(manifest["agent_skill"], "SKILL.md")
-            self.assertEqual(manifest["test_receipt"], "verification/current.json")
+            framework = framework_root(target)
+            prefix = framework.relative_to(target).as_posix()
+            self.assertFalse((framework / "components" / "source").exists())
+            manifest = json.loads(
+                ProjectConfigurationStore.manifest_path(target).read_text()
+            )
+            self.assertEqual(manifest["agent_skill"], f"{prefix}/SKILL.md")
+            self.assertEqual(
+                manifest["test_receipt"], f"{prefix}/verification/current.json"
+            )
             self.assertNotIn("test_receipt_policy", manifest)
             self.assertEqual(
                 manifest["default_flavor_selectors"],
@@ -251,9 +264,9 @@ class ProjectCliTests(unittest.TestCase):
                 ],
             )
             self.assertTrue(
-                (target / "samples" / "hello-component" / "component.md").is_file()
+                (framework / "samples" / "hello-component" / "component.md").is_file()
             )
-            project_ignore = (target / ".gitignore").read_text(encoding="utf-8")
+            project_ignore = (framework / ".gitignore").read_text(encoding="utf-8")
             ignore_lines = project_ignore.splitlines()
             # Derivation caches stay ignored, but the project-relative source-cache
             # target is deliberately committable.
@@ -265,22 +278,26 @@ class ProjectCliTests(unittest.TestCase):
             self.assertIn(
                 "/literate.worker-observations.json", project_ignore.splitlines()
             )
-            self.assertTrue((target / "literate.workers.example.json").is_file())
-            self.assertIn(".gitignore", result["created"])
+            self.assertTrue((framework / "literate.workers.example.json").is_file())
+            self.assertIn(f"{prefix}/.gitignore", result["created"])
             test_matrix = result["test_matrix"]
             self.assertEqual(test_matrix["state"], "optional-user-configured")
             self.assertEqual(Path(test_matrix["configuration"]).name, "test.json")
             self.assertEqual(
                 Path(test_matrix["worker_configuration"]).name, "workers.json"
             )
-            self.assertEqual(test_matrix["example"], "literate.test.example.json")
             self.assertEqual(
-                test_matrix["worker_example"], "literate.workers.example.json"
+                test_matrix["example"], f"{prefix}/literate.test.example.json"
             )
-            self.assertEqual(test_matrix["documentation"], "docs/user/test-matrix.md")
+            self.assertEqual(
+                test_matrix["worker_example"], f"{prefix}/literate.workers.example.json"
+            )
+            self.assertEqual(
+                test_matrix["documentation"], f"{prefix}/docs/user/test-matrix.md"
+            )
             self.assertEqual(test_matrix["version_control"], "outside-project")
-            self.assertTrue((target / "docs/user/test-matrix.md").is_file())
-            self.assertTrue((target / "docs/roadmap/active-work.md").is_file())
+            self.assertTrue((framework / "docs/user/test-matrix.md").is_file())
+            self.assertTrue((framework / "docs/roadmap/active-work.md").is_file())
             self.assertEqual(
                 manifest["source_intelligence"],
                 {
@@ -303,17 +320,24 @@ class ProjectCliTests(unittest.TestCase):
                 },
             )
             self.assertFalse((target / ".codegraph" / "codegraph.db").is_file())
+            self.assertFalse((framework / ".codegraph" / "codegraph.db").is_file())
             self.assertEqual(result["source_intelligence"]["status"]["state"], "off")
             self.assertTrue(all(manifest[field] for field in PROJECT_ROOT_FIELDS))
             self.assertTrue(
                 all((target / relative).is_file() for relative in OPTIONAL_AGENT_SHIMS)
             )
             self.assertTrue(
-                all((target / relative).is_file() for relative in BAZEL_TEMPLATE_ASSETS)
+                all(
+                    (framework / relative).is_file()
+                    for relative in BAZEL_TEMPLATE_ASSETS
+                )
             )
-            self.assertTrue(set(BAZEL_TEMPLATE_ASSETS) <= set(result["created"]))
+            self.assertTrue(
+                {f"{prefix}/{relative}" for relative in BAZEL_TEMPLATE_ASSETS}
+                <= set(result["created"])
+            )
             specification_guide = (
-                target / "docs" / "user" / "specifications.md"
+                framework / "docs" / "user" / "specifications.md"
             ).read_text(encoding="utf-8")
             self.assertIn("Start every normal Component", specification_guide)
             self.assertIn("one `component.md`", specification_guide)
@@ -323,7 +347,9 @@ class ProjectCliTests(unittest.TestCase):
                 "first declared artifact must be the root `spec.md`",
                 specification_guide,
             )
-            status, envelope = invoke("project", "validate", str(target / "components"))
+            status, envelope = invoke(
+                "project", "validate", str(framework / "components")
+            )
             self.assertEqual(status, 0)
             validation = envelope["result"]
             assert isinstance(validation, dict)
@@ -363,10 +389,12 @@ class ProjectCliTests(unittest.TestCase):
             status, lock_envelope = invoke("lock", str(target), "--check")
             self.assertEqual(status, 0, lock_envelope)
             self.assertTrue(lock_envelope["result"]["current"])
-            starter_guide = (target / "docs" / "user" / "getting-started.md").read_text(
-                encoding="utf-8"
+            starter_guide = (
+                framework / "docs" / "user" / "getting-started.md"
+            ).read_text(encoding="utf-8")
+            self.assertIn(
+                f"litai rebuild {prefix}/samples/hello-component", starter_guide
             )
-            self.assertIn("litai rebuild samples/hello-component", starter_guide)
             self.assertIn("DOC-IDENTITY", starter_guide)
             self.assertIn("What is this project?", starter_guide)
             self.assertIn("Installation", starter_guide)
@@ -382,8 +410,8 @@ class ProjectCliTests(unittest.TestCase):
                 for a in advisories
                 if a["code"] == "project.doc_identity_placeholder"
             ]
-            self.assertIn("docs/user/getting-started.md", placeholder_paths)
-            self.assertIn("docs/README.md", placeholder_paths)
+            self.assertIn(f"{prefix}/docs/user/getting-started.md", placeholder_paths)
+            self.assertIn(f"{prefix}/docs/README.md", placeholder_paths)
 
     def test_init_refuses_to_merge_into_a_nonempty_directory(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -431,7 +459,7 @@ class ProjectCliTests(unittest.TestCase):
             self.assertTrue(envelope["ok"])
             self.assertEqual((target / "README.md").read_bytes(), readme)
             self.assertTrue((target / ".git").is_dir())
-            self.assertTrue((target / "literate.project.json").is_file())
+            self.assertTrue(ProjectConfigurationStore.manifest_path(target).is_file())
 
     def test_skill_catalog_subroot_cannot_be_a_symlink_outside_project(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -450,7 +478,7 @@ class ProjectCliTests(unittest.TestCase):
             self.assertEqual(status, 0)
             external = root / "external-skills" / "specification-to-source"
             shutil.copytree(REPO_ROOT / "skills" / "specification-to-source", external)
-            subroot = target / "skills" / "specification-to-source"
+            subroot = framework_root(target) / "skills" / "specification-to-source"
             if subroot.exists():
                 shutil.rmtree(subroot)
             skip_unless_symlinks_followable(self, root)
@@ -483,11 +511,12 @@ class ProjectCliTests(unittest.TestCase):
                 )[0],
                 0,
             )
-            copy_generation_catalogs(target)
+            framework = framework_root(target)
+            copy_generation_catalogs(framework)
             shutil.copytree(
-                REPO_ROOT / "flavors", target / "flavors", dirs_exist_ok=True
+                REPO_ROOT / "flavors", framework / "flavors", dirs_exist_ok=True
             )
-            component = copy_hello_component(target)
+            component = copy_hello_component(framework)
             self.assertEqual(
                 invoke(
                     "lock",

@@ -9,6 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
+from literate_ai.adapters.project_initialization import initialize_project
 from literate_ai.application.standard_test_receipts import (
     combine_standard_project_test_receipts,
 )
@@ -19,11 +20,13 @@ from literate_ai.contracts import (
     ProjectTestReceiptPolicy,
     ProjectTestReceiptProvisional,
     ProjectTestSummary,
+    RepositoryParentSelection,
     VersionedContentRef,
     canonical_identity,
     load_current_standard_lifecycle_policy,
     rebuild_project_authority_identity,
 )
+from literate_ai.projects import ProjectConfigurationStore
 from tests.support import fixtures_test_cli_rebuild as cli_fixture
 
 POLICY = load_current_standard_lifecycle_policy()
@@ -36,7 +39,9 @@ RECEIPT_POLICY = ProjectTestReceiptPolicy(
     tuple(sorted(POLICY.required_evidence_kinds)),
     1,
 )
-LABELS = ("components/alpha", "components/beta")
+# Standard Component labels are application-root paths inside the contained
+# framework directory's declared component root.
+LABELS = ("litai/components/alpha", "litai/components/beta")
 LOCKS = tuple(
     sorted((canonical_identity(label) for label in LABELS), key=lambda i: i.uri)
 )
@@ -76,6 +81,30 @@ def candidate(label, *, base=BASE, runner=RUNNER):
     )
 
 
+def standard_project(root):
+    """Initialize a default-layout project bound to the Standard driver."""
+    project = root / "project"
+    initialize_project(
+        project,
+        parent_selection=RepositoryParentSelection.root(),
+        source_intelligence_provider="none",
+        flavor_selectors=("+python", "+bazel", "+macos"),
+    )
+    manifest_path = ProjectConfigurationStore.manifest_path(project)
+    manifest = json.loads(manifest_path.read_text())
+    manifest["project_id"] = "fixture"
+    manifest["lifecycle_driver"] = {
+        "schema": "urn:literate-ai:schema:v2:project-lifecycle-driver",
+        "binding": "standard",
+        "framework_distribution_identity": canonical_identity(
+            {"fixture": "installed-framework"}
+        ).to_dict(),
+        "policy_identity": canonical_identity({"fixture": "standard-policy"}).to_dict(),
+    }
+    manifest_path.write_text(json.dumps(manifest))
+    return project, manifest_path
+
+
 def combine(members, *, locks=LOCKS):
     return combine_standard_project_test_receipts(
         tuple(members),
@@ -93,12 +122,10 @@ class StandardRootReceiptTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
             fixture = cli_fixture.RebuildCliTests()
-            project = fixture._project(root)
-            fixture._configure_standard_driver(project)
+            project, manifest_path = standard_project(root)
             fixture._clear_component_locks(project)
             for label in reversed(LABELS):
                 fixture._add_locked_component(project, label)
-            manifest_path = project / "literate.project.json"
             manifest = json.loads(manifest_path.read_text())
             manifest["test_receipt_policy"] = RECEIPT_POLICY.to_dict()
             manifest_path.write_text(json.dumps(manifest))

@@ -15,6 +15,7 @@ from literate_ai.adapters.lifecycle_lock import (
 from literate_ai.adapters.project_update_apply import apply_project_update
 from literate_ai.adapters.project_updates import FilesystemProjectUpdateAdapter
 from literate_ai.adapters.update_merge import UpdateBases
+from literate_ai.projects import ProjectConfigurationStore
 from tests.support.fixtures_test_project_update_adapter import _origin
 from tests.support.root_parent_adapter import RootParentProjectInitializationAdapter
 
@@ -51,7 +52,7 @@ class ProjectRuntimeIgnoreTests(unittest.TestCase):
                 "--porcelain",
                 "--untracked-files=all",
                 "--",
-                ".litai-locks",
+                lock.parents[1].relative_to(self.root.resolve()).as_posix(),
             ],
             cwd=self.root,
             capture_output=True,
@@ -72,23 +73,31 @@ class ProjectRuntimeIgnoreTests(unittest.TestCase):
         self.assert_runtime_files_ignored()
 
     def test_legacy_update_adds_rule_and_preserves_local_ignore_overlay(self):
-        target = self.root / ".gitignore"
+        framework = ProjectConfigurationStore.context(self.root).framework_root
+        target = framework / ".gitignore"
+        coordinate = target.relative_to(self.root).as_posix()
+        lock_rule = (
+            project_lifecycle_lock_path(self.root)
+            .parents[1]
+            .relative_to(framework.resolve())
+            .as_posix()
+        )
         upstream = target.read_bytes()
-        legacy = upstream.replace(b"/.litai-locks/\n", b"")
+        legacy = upstream.replace(f"{lock_rule}/\n".encode(), b"")
         self.assertNotEqual(legacy, upstream)
         overlay = b"\n# Local policy\nprivate-local-output/\n"
         target.write_bytes(legacy + overlay)
         bases = UpdateBases(self.root)
-        bases.advance("framework", ".gitignore", legacy)
+        bases.advance("framework", coordinate, legacy)
         bases.write()
         with (
             patch(
                 "literate_ai.adapters.project_updates._upstream_template",
-                return_value={".gitignore": upstream},
+                return_value={coordinate: upstream},
             ),
             patch(
                 "literate_ai.adapters.project_update_apply._upstream_template",
-                return_value={".gitignore": upstream},
+                return_value={coordinate: upstream},
             ),
         ):
             adapter = FilesystemProjectUpdateAdapter(
@@ -96,6 +105,6 @@ class ProjectRuntimeIgnoreTests(unittest.TestCase):
             )
             plan = adapter.plan(self.root)
             applied = apply_project_update(plan, self.root)
-        self.assertIn(".gitignore", applied.merged)
+        self.assertIn(coordinate, applied.merged)
         self.assertEqual(target.read_bytes(), upstream + overlay)
         self.assert_runtime_files_ignored()

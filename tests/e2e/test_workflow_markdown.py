@@ -12,6 +12,7 @@ from literate_ai.contracts import ProjectSourceGenerationCustody
 from literate_ai.contracts.authoring_markdown import (
     parse_authoring_markdown,
 )
+from literate_ai.projects import ProjectConfigurationStore
 from tests.support.fixtures_test_project_cli import copy_generation_catalogs, invoke
 
 REPOSITORY = Path(__file__).resolve().parents[2]
@@ -31,14 +32,17 @@ class NamedWorkflowCatalogTests(unittest.TestCase):
             "init", str(project), "--empty", "--flavor", "python", "--flavor", "macos"
         )
         self.assertEqual(status, 0, result)
-        copy_generation_catalogs(project)
+        framework = ProjectConfigurationStore.context(project).framework_root
+        copy_generation_catalogs(framework)
         for relative in (
             "workflows/production/staging/dev/workflow.md",
             "routing/production/staging/dev/routing.json",
         ):
-            shutil.copy2(REPOSITORY / relative, project / relative)
-        shutil.copytree(REPOSITORY / "flavors", project / "flavors", dirs_exist_ok=True)
-        component = project / "samples" / "model-routing"
+            shutil.copy2(REPOSITORY / relative, framework / relative)
+        shutil.copytree(
+            REPOSITORY / "flavors", framework / "flavors", dirs_exist_ok=True
+        )
+        component = framework / "samples" / "model-routing"
         shutil.copytree(REPOSITORY / "samples" / "model-routing", component)
         metadata, _body = parse_authoring_markdown(
             (component / "component.md").read_bytes(), source="model-routing"
@@ -84,7 +88,8 @@ class NamedWorkflowCatalogTests(unittest.TestCase):
             project = Path(directory) / "project"
             component = self._prepare_model_routing_sample(project)
             self._assert_nested_plan(component)
-            workflow = project / "workflows/production/staging/dev/workflow.md"
+            framework = ProjectConfigurationStore.context(project).framework_root
+            workflow = framework / "workflows/production/staging/dev/workflow.md"
             workflow.write_bytes(
                 workflow.read_bytes() + b"\nChanged workflow authority.\n"
             )
