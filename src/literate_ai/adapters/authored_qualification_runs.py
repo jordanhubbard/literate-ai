@@ -6,6 +6,10 @@ from literate_ai.adapters.authored_qualification_comparison import (
 from literate_ai.adapters.authored_qualification_planning import (
     CurrentAuthoredQualificationPlan,
 )
+from literate_ai.adapters.authored_qualification_receiving import (
+    ReviewedAuthoredQualificationInputs,
+    _bind_authored_qualification_read_ports,
+)
 from literate_ai.contracts.authored_qualification_requests import (
     AuthoredQualificationLifecycleRequest,
 )
@@ -18,6 +22,9 @@ from literate_ai.source_to_specification.qualification_lifecycle import (
     QualificationLifecycleRunner,
 )
 
+_read_ports = _bind_authored_qualification_read_ports()
+del _bind_authored_qualification_read_ports
+
 
 def observe_authored_qualification_run(current, *, request, execution, reader):
     """Capture a completed run without asserting permission or publication.
@@ -28,12 +35,15 @@ def observe_authored_qualification_run(current, *, request, execution, reader):
     """
 
     if (
-        not isinstance(current, CurrentAuthoredQualificationPlan)
+        (
+            not isinstance(current, CurrentAuthoredQualificationPlan)
+            and type(current) is not ReviewedAuthoredQualificationInputs
+        )
         or not isinstance(request, AuthoredQualificationLifecycleRequest)
         or not isinstance(execution, QualificationLifecycleExecution)
     ):
         raise TypeError("original authored owner, request and Standard run required")
-    current.require_unchanged()
+    _read_ports("current", current)
     with current.oracles.capture_current():
         if (
             request.origin != current.plan.origin
@@ -100,5 +110,5 @@ def observe_authored_qualification_run(current, *, request, execution, reader):
                 for node in sorted(nodes, key=lambda n: n.component_revision.uri)
             ),
         )
-    current.require_unchanged()
+    _read_ports("current", current)
     return result

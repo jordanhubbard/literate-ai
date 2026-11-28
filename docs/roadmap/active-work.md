@@ -31166,6 +31166,23 @@ Source partial: converted framework-resource observation now includes the origin
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Real receiving run-observer defect (source repaired):** The installed public
+  retained-Cargo check reaches complete provider replay, then its shared run
+  observer rejects the authenticated read-only receiving owner with `TypeError`.
+  The observer still accepts only the generation owner even though its caller
+  supports the separately issued receiving owner. Extend this semantic read seam
+  through the existing authenticated read ports; retain complete run membership,
+  original requests, Standard/cache/receipt checks and both oracle/currentness
+  fences. Require live, expired and unissued owner regressions, unchanged producer
+  controls, independent source review and fresh installed receiving proof. Preserve
+  both refused public checks and the isolated exception diagnostic; no package
+  placement or admission has occurred. This does not close the broader goal.
+  The [bounded source record](../../verification/authored-run-observer-development.json)
+  retains the failing regression, then 20 receiving controls and 22 unchanged
+  producer controls passing without skips. Independent review verifies all
+  original test bodies and substantive run checks remain unchanged. Fresh
+  installed receiving remains open; historical framework evidence is preserved.
+
 - **Managed Python provider import intent (source partial):** **GitHub issue:** [#516](https://github.com/jordanhubbard/literate-ai/issues/516).
   Canonical source aliases now derive only from selected typed capability modules
   and bind the original direct managed provider revisions. Resolved metadata

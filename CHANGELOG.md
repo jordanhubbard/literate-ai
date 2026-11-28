@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Let complete authored run replay use an authenticated read-only receiving
+  owner while preserving the original graph, receipt and oracle checks.
+  Fresh installed receiving qualification remains open.
+
 - Keep retained packaging plans free of implicit host writes and preserve typed
   current-lock failures in CLI error responses.
 

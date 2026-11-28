@@ -432,3 +432,74 @@ class AuthoredQualificationReceivingTests(unittest.TestCase):
                 finally:
                     if function is not None:
                         setattr(function, attribute, original)
+
+
+class AuthoredReceivingRunObservationTests(unittest.TestCase):
+    """Real issued read-owner guards with explicit simulated Standard records."""
+
+    setUpClass = classmethod(AuthoredQualificationReceivingTests.setUpClass.__func__)
+    setUp = AuthoredQualificationReceivingTests.setUp
+    open = AuthoredQualificationReceivingTests.open
+
+    def test_live_read_owner_reaches_exact_run_checks_and_expires(self):
+        from literate_ai.adapters.authored_qualification_runs import (
+            observe_authored_qualification_run,
+        )
+        from tests.critical import test_authored_qualification_runs as records
+
+        f = records.AuthoredQualificationRunTests("runTest")
+        f.setUp()
+        self.addCleanup(f.doCleanups)
+        run = f.runs[0]
+        execution = f.executions["one"]
+        with patch(
+            "literate_ai.adapters.authored_qualification_runs.compare_authored_qualification"
+        ) as compare:
+            with self.open() as current:
+                with self.assertRaisesRegex(ValueError, "run_plan_mismatch"):
+                    observe_authored_qualification_run(
+                        current, request=run.request, execution=execution, reader=None
+                    )
+                request = replace(
+                    run.request,
+                    origin=current.plan.origin,
+                    plan_identity=current.plan.identity,
+                    oracle_set_identity=current.plan.oracle_set_identity,
+                )
+                observed = replace(
+                    execution,
+                    driver_identity=current.plan.driver_identity,
+                    lifecycle_policy_identity=current.plan.lifecycle_policy_identity,
+                    framework_distribution_identity=current.plan.framework_distribution_identity,
+                )
+                with self.assertRaisesRegex(ValueError, "run_membership_mismatch"):
+                    observe_authored_qualification_run(
+                        current, request=request, execution=observed, reader=None
+                    )
+            with self.assertRaisesRegex(ValueError, "expired"):
+                observe_authored_qualification_run(
+                    current, request=request, execution=observed, reader=None
+                )
+            compare.assert_not_called()
+
+    def test_unissued_read_owner_refuses_before_oracle_or_comparison_access(self):
+        from literate_ai.adapters.authored_qualification_runs import (
+            observe_authored_qualification_run,
+        )
+        from tests.critical import test_authored_qualification_runs as records
+
+        f = records.AuthoredQualificationRunTests("runTest")
+        f.setUp()
+        self.addCleanup(f.doCleanups)
+        fake = object.__new__(receiving.ReviewedAuthoredQualificationInputs)
+        with patch(
+            "literate_ai.adapters.authored_qualification_runs.compare_authored_qualification"
+        ) as compare:
+            with self.assertRaisesRegex(ValueError, "expired"):
+                observe_authored_qualification_run(
+                    fake,
+                    request=f.runs[0].request,
+                    execution=f.executions["one"],
+                    reader=None,
+                )
+            compare.assert_not_called()
