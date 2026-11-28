@@ -24427,6 +24427,84 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Canonical ancestry retention (open qualification repair):**
+  [GitHub issue #512](https://github.com/jordanhubbard/literate-ai/issues/512).
+  The original parallel metadata-preflight control leaves only 74 entries before
+  its intentional reservation; its unchanged assertion requires more than 512.
+  Read-only profiling reproduces that failure and accounts for the entire
+  3,796-record difference from the serial case, primarily through repeated
+  ancestry retention under deeper worker paths. Serial success is not acceptance.
+  Share genuinely identical immutable lineage DATA within the original owner,
+  fund new references and temporary storage, and retain every fresh native
+  traversal, comparison, closure and controlled namespace transition. Do not
+  shorten worker paths or change the original 131,072-entry/8 GiB policies,
+  assertions or deadlines. Require the unchanged parallel control, complete
+  source cohort and installed/native acceptance. This included 1.4.0 subtask
+  preserves all original 83 goals with no deferral.
+  Sharing now passes six representation/native-probe controls and all 58
+  bounded-reader controls; the unchanged profiled parallel preflight case gains
+  exactly 15,920 retained records and passes. A fresh source cohort exposes a
+  lower-budget refusal that reaches a derived per-file ceiling before mandatory
+  destination storage is funded. Prepay that existing, unchanged reservation
+  before initializer discovery; preserve its one charge, all quotas and original
+  error assertions, then qualify both refusal and funded paths again.
+  The original small 69,632-entry discovery workload now fits honestly at
+  67,416 records, 3,112 files, 25,241,671 payload bytes and 4,612,828,224 metadata
+  bytes. Its 4,817 lineage-row references share 422 immutable native rows.
+  Preserve that workload as a preparation-only positive with no effects; keep
+  every original rejection assertion and numeric limit while adding real native
+  inputs before either producer so the negative workload remains underfunded.
+  Do not add product charges or invent a minimum budget to restore an obsolete
+  footprint assumption.
+  The separate 65,536-entry source-movement fixture also now fits before the
+  native move: 61,491 records, 950 files, 14,446,414 payload bytes and
+  3,175,714,624 metadata bytes, within its original four-GiB policy. Fifty real
+  source files restore a genuinely underfunded negative without changing any
+  original assertion, limit or deadline; the complete original rejection and
+  durable-state checks pass, including preservation of the added files. A
+  separate positive retains the original small workload and actually moves its
+  source with the same directory inode and complete file bytes. It returns
+  `source-moved-metadata-pending` with `relocation_complete: false`, retains the
+  pending control, and leaves metadata publication and retirement untouched.
+  Its success does not claim that this policy funds later metadata publication
+  or complete relocation. Both movement-boundary controls pass locally.
+  Tests that formerly replaced sealed reader or loader methods now observe the
+  original call or successful return instead, preserving the original timing
+  and equal-byte namespace-replacement assertions. Their focused suites pass;
+  production integrity guards remain unchanged. Related local regressions total
+  297 passes and four skips requiring an actual case-insensitive filesystem.
+  The fresh 199-case retained-source cohort completes with 197 passes and two
+  further case-insensitive-filesystem skips, with all original budgets and
+  deadlines retained. Earlier failures remain preserved. These development
+  checks do not establish complete source, immutable installed-candidate or
+  supported-platform qualification, which remain open.
+
+- **Provider scratch accounting (source-qualified repair; integration open):**
+  [GitHub issue #511](https://github.com/jordanhubbard/literate-ai/issues/511).
+  The original eight-GiB source-provider composition stopped during metadata
+  publication before commit. Cached failure facts prove metadata is the limiting
+  allowance: a 196,601-byte cached object is reduced to an 11,593-byte stdout
+  ceiling, with 8,588,930,496 metadata bytes charged against 8,589,934,592.
+  File and total-input capacity remain available. The ledger already prepays a
+  maximum-file reread buffer; repeated provider verification accumulated
+  its stdout as newly retained input instead. The repair uses that reserved
+  scratch only for an exact original bound-cache request, freshly reads native
+  bytes, compares them exactly, separately funds stderr/work, and returns the
+  same original bytes object. New/unbound and smaller-ceiling requests retain
+  the original funded path. Original budgets, deadlines, guards, poisoning,
+  publication and acceptance assertions are unchanged.
+  Thirteen focused controls pass, covering genuine owned-reader success,
+  low metadata headroom, native faults, cache replacement and callback-bearing
+  output refusal. Independent source review closed that repair. All 20 original
+  provider tests then passed in 870.861 seconds, including the eight-GiB outcome
+  and real update/catalog composition (local report
+  `provider-cached-buffer-original-r25y-report.json`). These source checks do not
+  qualify an installed wheel or complete the platform matrix. The repaired
+  metadata constructor separately passes 47 controls. Helper graph, complete
+  source/platform and installed qualification remain open.
+  This is an included 1.4.0 integration subtask; all original 83 goals
+  remain, with no deferral or release-completion claim.
+
 - **Verified integration follow-ups (open; original 83-goal scope retained):**
   [#503](https://github.com/jordanhubbard/literate-ai/issues/503) owns catalog
   finalization with an explicitly proved framework successor's exact directory
@@ -24504,7 +24582,17 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   declared. The tree is preserved after successful finalization. A reviewed
   design uses the existing paired initialization provenance for finite wrapper
   metadata selection, preserving original transitional behavior and implementation
-  coordinates. Implementation and fresh lifecycle receipt remain open.
+  coordinates. Implementation is partial: the original loader's exact snapshot
+  now reaches the metadata adapter, which retains a fresh manifest comparison
+  and immutable bindings. The finite loader publication boundary authenticates
+  the existing Store/schema front doors, isolates the ambient parsed-definition
+  cache for this acquisition, and restores its frame on success or failure.
+  Fifty-eight bounded-reader controls pass, including joint forged loader DATA,
+  callback-time substitution, immutable binding/reinitialization refusal and
+  cache restoration. This does not claim new transitive sealing of existing
+  Store, schema, JSON or filesystem internals. The original role identity format
+  is retained. Initialization-provenance helper completion, original full source
+  qualification and a fresh installed lifecycle receipt remain open.
   Next: integrate these repairs with original guards and deadlines, obtain native
   evidence, then repeat exact-candidate qualification. Full `df6` CI is terminal
   (33 success, 22 failure, one cancellation). All failed jobs and 1,751 original

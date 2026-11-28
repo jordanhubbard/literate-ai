@@ -73,9 +73,11 @@ authority-graph view, not a general source-code browser.
 ### I have an existing source tree
 
 1. [Install Literate AI](installation.md).
-2. Run `litai doctor`, then inspect `litai onboard adopt PATH`. Re-run it with
-   `--apply --acknowledge` when the catalog can wrap the tree. Follow
-   `skills/agent/convert-project/SKILL.md` after the harness stamps the taxonomy.
+2. Run `litai doctor`, then inspect `litai onboard adopt PATH`. Its default native
+   profile preserves the existing source, build tools and CI. Review the plan,
+   then re-run with `--apply --acknowledge` and follow `litai/SKILL.md` and the
+   project's native checks. Select `--profile convert` explicitly when conversion
+   is intended, and follow `skills/agent/convert-project/SKILL.md` for that path.
    See [Getting started](getting-started.md).
 3. Inverse [source to specification](source-to-specification.md) remains a later
    authority-transfer tool for promoting original source to spec-led release

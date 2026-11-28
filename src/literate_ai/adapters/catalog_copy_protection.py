@@ -8,18 +8,24 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from literate_ai.contracts.native_sdk_trees import NativeSdkTree, _ResolutionBudget
-from literate_ai.projects import load_project
+from literate_ai.projects import PROJECT_FILENAME, load_project
 
 from . import catalog_import
 from .bounded_role_observation import bounded_role_observation
 from .catalog_copy_staging import _CatalogCopyStages
 from .conversion_authority import _native_project_roots
 from .exclusive_entry import _from_stat
+from .harness_inventory import HARNESS_WRAPPER_FILENAME
 from .repository_locks import MAXIMUM_LOCK_BYTES
 from .retained_layout_control_roles import _require_acquired_control_roles
 from .retained_layout_journal import _RECORD_LIMIT, _require_live_layout_journal
 from .retained_layout_partition import _lineage, _project_manifest_candidates
-from .retained_layout_transaction import _close_tree, _inputs, _native_tree
+from .retained_layout_transaction import (
+    _bind_original_source_metadata_ports,
+    _close_tree,
+    _inputs,
+    _native_tree,
+)
 from .update_merge import safe_path
 
 _LIVE = {}
@@ -30,11 +36,47 @@ def _fail(message):
 
 
 class _ProjectReads:
-    def __init__(self, stages, scope):
+    def __init__(self, stages, scope, project, *, _metadata_constructor):
         self.root, self.scope = stages.plan.root, scope
         self.tree = stages.plan._censuses[0].tree
+        self._project = project
+        self._metadata = _metadata_constructor(
+            self.root,
+            scope,
+            manifest=project.manifest,
+            root_node=project.lineage[-1][1:4],
+            snapshot=project._snapshot,
+            context=project._context,
+        )
+
+    def _metadata_reader(self, *, _validate_metadata):
+        _validate_metadata(self._metadata)
+        if (
+            self._project.root != self.root
+            or self._metadata.root != self.root
+            or self._metadata.owner is not self.scope
+            or self._metadata.manifest is not self._project.manifest
+            or self._metadata._snapshot is not self._project._snapshot
+            or self._metadata._context is not self._project._context
+        ):
+            _fail("same original catalog metadata reader required")
+        return self._metadata
+
+    def project_context(self):
+        return self._metadata_reader().project_context()
+
+    def read_coordinate(self, relative, *, optional=False):
+        return self._metadata_reader().read_coordinate(relative, optional=optional)
+
+    def require_metadata_current(self):
+        self._metadata_reader().require_current()
 
     def read(self, relative, *, optional=False):
+        if relative.startswith(".literate/") or relative in {
+            PROJECT_FILENAME,
+            HARNESS_WRAPPER_FILENAME,
+        }:
+            return self._metadata_reader().read(relative, optional=optional)
         return self.scope.file(
             safe_path(self.root, relative),
             optional=optional,
@@ -52,6 +94,43 @@ class _ProjectReads:
                 yield path
 
 
+def _bind_original_project_reads(reads_type):
+    construct, validate = _bind_original_source_metadata_ports()
+    original_init, original_reader = reads_type.__init__, reads_type._metadata_reader
+    init_code, reader_code = original_init.__code__, original_reader.__code__
+    init_keywords, reader_keywords = (
+        original_init.__kwdefaults__,
+        original_reader.__kwdefaults__,
+    )
+    failure = ValueError
+
+    def initialize(self, stages, scope, project):
+        if (
+            original_init.__code__ is not init_code
+            or original_init.__defaults__ is not None
+            or original_init.__kwdefaults__ is not init_keywords
+        ):
+            raise failure("original catalog metadata constructor boundary changed")
+        validate()
+        original_init(self, stages, scope, project, _metadata_constructor=construct)
+
+    def metadata_reader(self):
+        if (
+            original_reader.__code__ is not reader_code
+            or original_reader.__defaults__ is not None
+            or original_reader.__kwdefaults__ is not reader_keywords
+        ):
+            raise failure("original catalog metadata validator boundary changed")
+        validate()
+        return original_reader(self, _validate_metadata=validate)
+
+    reads_type.__init__, reads_type._metadata_reader = initialize, metadata_reader
+
+
+_bind_original_project_reads(_ProjectReads)
+del _bind_original_project_reads
+
+
 class _CatalogProtection:
     def _live(self):
         original = _LIVE.get(self)
@@ -66,6 +145,11 @@ class _CatalogProtection:
             self._children,
             self._private,
             self._targets,
+            self._reads.root,
+            self._reads.scope,
+            self._reads.tree,
+            self._reads._project,
+            self._reads._metadata,
         )
         if any(a is not b for a, b in zip(original, actual, strict=True)):
             raise TypeError("actual live catalog protection context required")
@@ -115,6 +199,7 @@ class _CatalogProtection:
                         _fail("original private control facts changed")
             stages._plan._close_known_inputs()
             self._live()
+            self._reads.require_metadata_current()
         except BaseException:
             self._scope._poisoned = True
             raise
@@ -279,7 +364,7 @@ def protected_catalog_copies(stages, controls, *, control_journal_root):
             census = stages._ledger.capture(path, _known_names=known)
             censuses.append((census, _native_tree(census.tree)))
         scope.file(Path(__file__), maximum_bytes=stages.budget.maximum_file_bytes)
-        reads = _ProjectReads(stages, scope)
+        reads = _ProjectReads(stages, scope, controls._seed)
         owner = _CatalogProtection()
         owner._stages, owner._controls, owner._scope, owner._reads = (
             stages,
@@ -300,6 +385,11 @@ def protected_catalog_copies(stages, controls, *, control_journal_root):
             owner._children,
             owner._private,
             owner._targets,
+            reads.root,
+            reads.scope,
+            reads.tree,
+            reads._project,
+            reads._metadata,
         )
         try:
             owner.require_current()

@@ -185,6 +185,81 @@ def _read_record(owner, *, reading=False, role=False):
     return value
 
 
+def _bind_provider_run_failure_notes(implementation):
+    """Attach cached numeric evidence without changing a native read or failure."""
+    attach, base_error = BaseException.add_note, BaseException
+    exact, integer, size, pair, text, some = type, int, len, zip, str, any
+    labels = (
+        "requested_stdout",
+        "remaining_stdout",
+        "chosen_stdout",
+        "stderr_limit",
+        "input_bytes_before",
+        "input_reserve",
+        "metadata_charged_before",
+        "metadata_limit",
+        "file_limit",
+        "total_input_limit",
+        "scratch_stdout",
+    )
+
+    def note(error, values):
+        try:
+            if size(values) != size(labels) or some(
+                exact(value) is not integer or value.bit_length() > 128
+                for value in values
+            ):
+                return
+            message = "source-provider cached native allowance: " + ", ".join(
+                label + "=" + text(value)
+                for label, value in pair(labels, values, strict=True)
+            )
+            if size(message) <= 1024:
+                attach(error, message)
+        except base_error:
+            pass
+
+    note_code, note_defaults, note_keywords = (
+        note.__code__,
+        note.__defaults__,
+        note.__kwdefaults__,
+    )
+
+    def checked_note(error, values):
+        if (
+            note.__code__ is note_code
+            and note.__defaults__ is note_defaults
+            and note.__kwdefaults__ is note_keywords
+        ):
+            note(error, values)
+
+    descriptor = (
+        checked_note,
+        checked_note.__code__,
+        checked_note.__defaults__,
+        checked_note.__kwdefaults__,
+    )
+    original_code = implementation.__code__
+    original_defaults, original_keywords = (
+        implementation.__defaults__,
+        implementation.__kwdefaults__,
+    )
+    failure = ValueError
+
+    def run(self, objects, arguments, maximum):
+        if (
+            implementation.__code__ is not original_code
+            or implementation.__defaults__ is not original_defaults
+            or implementation.__kwdefaults__ is not original_keywords
+        ):
+            raise failure("original provider native read implementation changed")
+        return implementation(
+            self, objects, arguments, maximum, _failure_note=descriptor
+        )
+
+    return run
+
+
 class _Provider:
     __slots__ = ()
 
@@ -257,7 +332,8 @@ class _Provider:
             65536 + 8 * sum(len(str(path).encode()) for path in objects.snapshots),
         )
 
-    def run(self, objects, arguments, maximum):
+    @_bind_provider_run_failure_notes
+    def run(self, objects, arguments, maximum, *, _failure_note):
         value = _record(self, reading=True)
         if objects is not value.objects:
             _fail("foreign provider native reader")
@@ -267,7 +343,42 @@ class _Provider:
             _fail("foreign provider read round")
         timeout = min(30, deadline - time.monotonic())
         objects.calls += 1
-        maximum = min(maximum, self.remaining())
+        requested_maximum, remaining_maximum = maximum, self.remaining()
+        maximum = min(requested_maximum, remaining_maximum)
+        reader, ledger = value.original.reader, value.original.ledger
+        cached = None
+        if (
+            value.binding is not None
+            and type(arguments) is tuple
+            and len(arguments) == 3
+            and all(type(part) is str for part in arguments)
+            and arguments[0] == "cat-file"
+            and arguments[1] in {"commit", "tree", "blob"}
+            and type(requested_maximum) is int
+            and remaining_maximum >= 1
+        ):
+            key = arguments[1:]
+            for name, mapping, entries in value.binding.mappings:
+                if name == "cache" and mapping is objects.cache:
+                    for original_key, original_bytes in entries:
+                        if (
+                            type(original_key) is tuple
+                            and len(original_key) == 2
+                            and all(type(part) is str for part in original_key)
+                            and original_key == key
+                            and type(original_bytes) is bytes
+                            and requested_maximum == max(1, len(original_bytes))
+                            and requested_maximum
+                            <= min(
+                                ledger.reserve,
+                                ledger.budget.maximum_file_bytes,
+                                objects.scratch_size,
+                            )
+                        ):
+                            cached = original_bytes
+                            maximum = requested_maximum
+                            break
+                    break
         if (
             timeout <= 0
             or maximum < 1
@@ -275,33 +386,78 @@ class _Provider:
             > objects.budget.maximum_entries + objects.budget.maximum_files + 8
         ):
             _fail("original provider read allowance exhausted")
-        reader, ledger = value.original.reader, value.original.ledger
         reader._begin_io()
-        ledger.bytes += maximum + 4096
-        ledger.charged += 64 * (maximum + 4096)
+        diagnostic_values = (
+            requested_maximum,
+            remaining_maximum,
+            maximum,
+            4096,
+            ledger.bytes,
+            ledger.reserve,
+            ledger.charged,
+            ledger.metadata,
+            ledger.budget.maximum_file_bytes,
+            ledger.budget.maximum_total_bytes,
+            maximum if cached is not None else 0,
+        )
+        # Exact bound-cache revalidation retains no new stdout: the original
+        # ledger already funds its one nonreentrant maximum-file scratch buffer.
+        # Stderr and work still use the original shared allowance.
+        retained_stdout = maximum if cached is None else 0
+        ledger.bytes += retained_stdout + 4096
+        ledger.charged += 64 * (retained_stdout + 4096)
         ledger.require_capacity()
         try:
-            result = run_bounded_process(
-                (
-                    "git",
-                    "--no-pager",
-                    "-c",
-                    "core.fsmonitor=false",
-                    "-c",
-                    "core.hooksPath=" + os.devnull,
-                    *arguments,
-                ),
-                cwd=objects.root,
-                environment=objects.environment,
-                timeout_seconds=timeout,
-                stdout_limit_bytes=maximum,
-                stderr_limit_bytes=4096,
-                poll_interval_seconds=0.01,
-                error_prefix="layout.source-provider",
-            )
+            try:
+                result = run_bounded_process(
+                    (
+                        "git",
+                        "--no-pager",
+                        "-c",
+                        "core.fsmonitor=false",
+                        "-c",
+                        "core.hooksPath=" + os.devnull,
+                        *arguments,
+                    ),
+                    cwd=objects.root,
+                    environment=objects.environment,
+                    timeout_seconds=timeout,
+                    stdout_limit_bytes=maximum,
+                    stderr_limit_bytes=4096,
+                    poll_interval_seconds=0.01,
+                    error_prefix="layout.source-provider",
+                )
+            except BaseException as error:
+                try:
+                    callback, code, defaults, keywords = _failure_note
+                    if (
+                        callback.__code__ is code
+                        and callback.__defaults__ is defaults
+                        and callback.__kwdefaults__ is keywords
+                    ):
+                        callback(error, diagnostic_values)
+                except BaseException:
+                    pass
+                raise
             if result.returncode or time.monotonic() >= deadline:
                 _fail("original provider objects unavailable during bounded read")
-            unused = maximum - len(result.stdout) + 4096 - len(result.stderr)
+            scratch_stderr = None
+            if cached is not None:
+                scratch_stdout, scratch_stderr = result.stdout, result.stderr
+                if (
+                    type(scratch_stdout) is not bytes
+                    or type(scratch_stderr) is not bytes
+                ):
+                    _fail("original provider reread requires exact byte streams")
+                ledger.charge_records(1)
+                _record(self, reading=True)
+                if scratch_stdout != cached:
+                    _fail("original provider object bytes changed")
+            unused = (
+                (maximum - len(result.stdout) if cached is None else 0)
+                + 4096
+                - len(result.stderr if cached is None else scratch_stderr)
+            )
             ledger.bytes -= unused
             ledger.charged -= 64 * unused
             # Binary object revalidation compares original bytes directly.
@@ -310,9 +466,10 @@ class _Provider:
             records = 1
             if arguments[0] == "config":
                 records += result.stdout.count(b"\0") + result.stdout.count(b"\n")
-            ledger.charge_records(records)
+            if cached is None:
+                ledger.charge_records(records)
             _record(self, reading=True)
-            return result.stdout
+            return result.stdout if cached is None else cached
         except BaseException:
             reader._poisoned = True
             raise
@@ -353,6 +510,9 @@ class _Provider:
     def close_native(self):
         value = _record(self)
         _native(value)
+
+
+del _bind_provider_run_failure_notes
 
 
 def _payload(value):

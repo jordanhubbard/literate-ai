@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import os
+import sys
 import threading
 import unittest
+from contextlib import ExitStack
 from contextvars import copy_context
 from dataclasses import replace
 from pathlib import Path
@@ -15,7 +18,10 @@ from literate_ai.adapters import project_identity_migration as migration
 from literate_ai.adapters import repository_orchestration as orchestration
 from literate_ai.adapters import repository_refresh as refresh
 from literate_ai.adapters import retained_layout_transaction as transaction
-from literate_ai.adapters.builders._process import BoundedProcessResult
+from literate_ai.adapters.builders._process import (
+    BoundedProcessResult,
+    run_bounded_process,
+)
 from literate_ai.adapters.conversion_authority import (
     FilesystemConversionAuthorityStore,
     _native_project_roots,
@@ -27,11 +33,52 @@ from literate_ai.adapters.retained_layout_git_controls import (
 )
 from literate_ai.contracts.identity import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
-from literate_ai.projects import ProjectConfigurationStore, load_project
+from literate_ai.projects import LoadedProject, ProjectConfigurationStore, load_project
 from tests.support.fixtures_test_project_agent_development_workflow import _definition
 
 
 class BoundedRoleReadTests(unittest.TestCase):
+    def test_original_reader_providers_support_all_cold_import_start_orders(self):
+        modules = (
+            "literate_ai.adapters.bounded_role_observation",
+            "literate_ai.adapters.catalog_copy_plan",
+            "literate_ai.adapters.retained_layout_transaction",
+            "literate_ai.adapters.catalog_copy_protection",
+            "literate_ai.adapters.retained_layout_source_metadata",
+        )
+        source = str(Path(transaction.__file__).parents[2])
+        for first in modules:
+            with self.subTest(first=first):
+                order = (first,) + tuple(name for name in modules if name != first)
+                program = (
+                    "import importlib,sys\n"
+                    f"sys.path.insert(0, {source!r})\n"
+                    f"for name in {order!r}: importlib.import_module(name)\n"
+                    "from literate_ai.adapters.bounded_role_observation import "
+                    "bounded_role_observation,_original_role_metadata_guard\n"
+                    "from literate_ai.contracts.retained_cargo_custody import "
+                    "RetainedCargoInputBudget\n"
+                    "with bounded_role_observation(budget=RetainedCargoInputBudget"
+                    "(32,4096,1024,32*1024),"
+                    "maximum_metadata_bytes=64*1024**2) as owner:\n"
+                    " _original_role_metadata_guard(owner)\n"
+                    "print('original Role/ledger issuance ok')\n"
+                )
+                result = run_bounded_process(
+                    (sys.executable, "-I", "-c", program),
+                    cwd=self.root,
+                    environment=dict(os.environ),
+                    timeout_seconds=30,
+                    stdout_limit_bytes=8192,
+                    stderr_limit_bytes=8192,
+                    error_prefix="cold_role_provider_import",
+                    trace=False,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(
+                    result.stdout.strip(), b"original Role/ledger issuance ok"
+                )
+
     git = fixtures.RetainedLayoutControlRoleTests.git
     init_git = fixtures.RetainedLayoutControlRoleTests.init_git
 
@@ -222,22 +269,440 @@ class BoundedRoleReadTests(unittest.TestCase):
         self.assertEqual(limits, [transaction._MAX_LAYOUT_BYTES])
 
     def test_source_resolver_adapter_cannot_escape_its_actual_read_scope(self):
+        original = self.adapter_inputs(self.project)
         with self.scope() as scope:
-            adapter = transaction._SourceMetadataObservation(self.project, scope)
+            adapter = transaction._SourceMetadataObservation(
+                self.project, scope, **original
+            )
             self.assertIsNotNone(adapter.read("literate.project.json"))
         with self.assertRaises(TypeError):
             adapter.read("literate.project.json")
 
+    def test_adapter_refuses_changed_ledger_method_before_foreign_charge(self):
+        from literate_ai.adapters import catalog_copy_plan as accounting
+
+        inputs = self.adapter_inputs(self.project)
+        function = accounting._Observation.charge_records
+        original = function.__code__
+        with self.scope() as scope:
+            try:
+                function.__code__ = original.replace(co_name="changed")
+                with self.assertRaisesRegex(ValueError, "accounting method changed"):
+                    transaction._source_metadata_observation(
+                        self.project, scope, **inputs
+                    )
+            finally:
+                function.__code__ = original
+
+    def test_original_callers_refuse_replaced_constructor_before_dispatch(self):
+        from literate_ai.adapters import catalog_copy_protection as catalog
+        from literate_ai.adapters import retained_layout_source_metadata as published
+
+        with mock.patch.object(
+            transaction,
+            "_source_metadata_observation",
+            side_effect=AssertionError("foreign constructor"),
+        ) as foreign:
+            for invoke in (
+                lambda: transaction._inputs(self.project),
+                lambda: published._published_layout(None),
+                lambda: catalog._ProjectReads(None, None, None),
+            ):
+                with self.subTest(caller=invoke):
+                    with self.assertRaisesRegex(
+                        ValueError, "constructor provider changed"
+                    ):
+                        invoke()
+            foreign.assert_not_called()
+
+    def test_original_input_caller_refuses_same_constructor_object_code_change(self):
+        function = transaction._source_metadata_observation
+        original = function.__code__
+        try:
+            function.__code__ = original.replace(co_name="changed")
+            with self.assertRaisesRegex(ValueError, "constructor provider changed"):
+                transaction._inputs(self.project)
+        finally:
+            function.__code__ = original
+
+    def test_original_binder_cannot_bless_changed_constructor(self):
+        with mock.patch.object(
+            transaction,
+            "_source_metadata_observation",
+            side_effect=AssertionError("foreign constructor"),
+        ) as foreign:
+            with self.assertRaisesRegex(ValueError, "constructor provider changed"):
+                transaction._bind_original_source_metadata_ports()
+            foreign.assert_not_called()
+
+    def test_catalog_validator_refuses_replaced_guard_before_dispatch(self):
+        from literate_ai.adapters import catalog_copy_protection as catalog
+
+        # This negative cut refuses before reading any uninitialized fields.
+        reader = catalog._ProjectReads.__new__(catalog._ProjectReads)
+        with mock.patch.object(
+            transaction,
+            "_original_source_metadata_guard",
+            side_effect=AssertionError("foreign guard"),
+        ) as foreign:
+            with self.assertRaisesRegex(ValueError, "source metadata adapter changed"):
+                reader._metadata_reader()
+            foreign.assert_not_called()
+
+    def test_normal_input_call_cannot_override_private_constructor_ports(self):
+        foreign = mock.Mock(side_effect=AssertionError("foreign constructor"))
+        with self.assertRaisesRegex(ValueError, "constructor boundary changed"):
+            transaction._inputs(self.project, _metadata_ports=(foreign, foreign))
+        foreign.assert_not_called()
+
+    def test_adapter_refuses_shadowed_issued_reader_method(self):
+        inputs = self.adapter_inputs(self.project)
+        with self.scope() as scope:
+            with mock.patch.object(
+                scope, "_begin_io", side_effect=AssertionError("foreign")
+            ) as foreign:
+                with self.assertRaisesRegex(ValueError, "issued Role metadata methods"):
+                    transaction._source_metadata_observation(
+                        self.project, scope, **inputs
+                    )
+                foreign.assert_not_called()
+
+    def test_adapter_refuses_shadowed_issued_ledger_method(self):
+        inputs = self.adapter_inputs(self.project)
+        with self.scope() as scope:
+            with mock.patch.object(
+                scope._ledger, "charge_records", side_effect=AssertionError("foreign")
+            ) as foreign:
+                with self.assertRaisesRegex(
+                    ValueError, "issued metadata accounting methods"
+                ):
+                    transaction._source_metadata_observation(
+                        self.project, scope, **inputs
+                    )
+                foreign.assert_not_called()
+
+    def test_adapter_factory_refuses_changed_constructor_code(self):
+        inputs = self.adapter_inputs(self.project)
+        function = transaction._SourceMetadataObservation.__init__
+        original = function.__code__
+        with self.scope() as scope:
+            try:
+                function.__code__ = original.replace(co_name="changed")
+                with self.assertRaisesRegex(
+                    ValueError, "source metadata adapter changed"
+                ):
+                    transaction._source_metadata_observation(
+                        self.project, scope, **inputs
+                    )
+            finally:
+                function.__code__ = original
+
+    def test_adapter_refuses_changed_original_reader_closing_method(self):
+        inputs = self.adapter_inputs(self.project)
+        function = reads._RoleObservation.require_current
+        original = function.__code__
+        with self.scope() as scope:
+            try:
+                function.__code__ = original.replace(co_name="changed")
+                with self.assertRaisesRegex(
+                    ValueError, "Role metadata methods changed"
+                ):
+                    transaction._source_metadata_observation(
+                        self.project, scope, **inputs
+                    )
+            finally:
+                function.__code__ = original
+
+    def test_adapter_refuses_shadowed_original_reader_closing_method(self):
+        inputs = self.adapter_inputs(self.project)
+        with self.scope() as scope:
+            with mock.patch.object(
+                scope, "require_current", side_effect=AssertionError("foreign")
+            ) as foreign:
+                with self.assertRaisesRegex(ValueError, "issued Role metadata methods"):
+                    transaction._source_metadata_observation(
+                        self.project, scope, **inputs
+                    )
+                foreign.assert_not_called()
+
+    def test_adapter_factory_checks_its_guard_before_dispatch(self):
+        inputs = self.adapter_inputs(self.project)
+        function = transaction._original_source_metadata_guard
+        original = function.__code__
+        with self.scope() as scope:
+            try:
+                function.__code__ = original.replace(co_name="changed")
+                with self.assertRaisesRegex(ValueError, "adapter guard changed"):
+                    transaction._source_metadata_observation(
+                        self.project, scope, **inputs
+                    )
+            finally:
+                function.__code__ = original
+
+    def test_original_guards_do_not_dispatch_late_vars_shadows(self):
+        from literate_ai.adapters import catalog_copy_plan as accounting
+        from literate_ai.adapters import project_layout_finite_creations as absences
+
+        inputs = self.adapter_inputs(self.project)
+        with self.scope() as scope:
+            with ExitStack() as patches:
+                foreign = [
+                    patches.enter_context(
+                        mock.patch.object(
+                            module,
+                            "vars",
+                            side_effect=AssertionError("foreign"),
+                            create=True,
+                        )
+                    )
+                    for module in (reads, accounting, transaction, absences)
+                ]
+                transaction._source_metadata_observation(self.project, scope, **inputs)
+                for callback in foreign:
+                    callback.assert_not_called()
+
+    def test_metadata_adapter_instance_cannot_shadow_its_read_methods(self):
+        inputs = self.adapter_inputs(self.project)
+        with self.scope() as scope:
+            adapter = transaction._source_metadata_observation(
+                self.project, scope, **inputs
+            )
+            for name in ("read", "read_coordinate", "project_context", "_live"):
+                with self.subTest(method=name):
+                    with self.assertRaises(AttributeError):
+                        setattr(
+                            adapter, name, lambda *args: self.fail("foreign method")
+                        )
+
     def test_source_resolver_adapter_requires_present_actual_owner(self):
         with self.assertRaises(TypeError):
-            transaction._SourceMetadataObservation(self.project, None)
+            transaction._SourceMetadataObservation(
+                self.project, None, **self.adapter_inputs(self.project)
+            )
+
+    def adapter_inputs(self, root):
+        context = ProjectConfigurationStore.context(root)
+        node = root.stat()
+        return {
+            "manifest": refresh._file(context.manifest_path),
+            "root_node": (node.st_dev, node.st_ino, node.st_mode),
+            "snapshot": ProjectConfigurationStore(root).read(),
+            "context": context,
+        }
+
+    def test_loader_retains_snapshot_without_changing_positional_value_behavior(self):
+        loaded = load_project(self.project)
+        legacy = LoadedProject(loaded.root, loaded.definition)
+        self.assertIs(loaded._snapshot.definition, loaded.definition)
+        self.assertEqual(loaded, legacy)
+        self.assertEqual(repr(loaded), repr(legacy))
+        self.assertEqual(LoadedProject.__match_args__, ("root", "definition"))
+        self.assertIsNone(legacy._snapshot)
+
+    def test_source_roles_refuse_missing_or_stale_loader_snapshot(self):
+        from literate_ai.adapters import retained_layout_control_roles as roles
+
+        loaded = load_project(self.project)
+        forged_definition = replace(loaded.definition, component_roots=("foreign",))
+        for foreign in (
+            LoadedProject(loaded.root, loaded.definition),
+            replace(loaded, definition=replace(loaded.definition)),
+            replace(loaded, _snapshot=replace(loaded._snapshot, content=b"{}")),
+            replace(
+                loaded,
+                definition=forged_definition,
+                _snapshot=replace(
+                    loaded._snapshot,
+                    definition=forged_definition,
+                ),
+            ),
+        ):
+            with self.subTest(snapshot=foreign._snapshot is None):
+                with mock.patch.object(
+                    roles, "load_project", return_value=foreign
+                ) as loader:
+                    with self.assertRaisesRegex(ValueError, "original project loader"):
+                        roles._project_roles(self.project)
+                    loader.assert_not_called()
+
+    def test_source_loader_ignores_ambient_templates_and_restores_frame(self):
+        import literate_ai.projects as projects
+
+        loaded = load_project(self.project)
+        ambient = projects._ProjectConfigurationParses()
+        ambient.templates[loaded._snapshot.content] = replace(
+            loaded.definition, component_roots=("foreign",)
+        )
+        token = projects._PROJECT_CONFIGURATION_PARSES.set(ambient)
+        try:
+            project = _project_roles(self.project)
+            self.assertEqual(project._snapshot.definition, loaded.definition)
+            self.assertIs(projects._PROJECT_CONFIGURATION_PARSES.get(), ambient)
+            self.assertEqual(
+                ambient.templates[loaded._snapshot.content].component_roots,
+                ("foreign",),
+            )
+        finally:
+            projects._PROJECT_CONFIGURATION_PARSES.reset(token)
+
+    def test_source_loader_restores_frame_after_original_store_failure(self):
+        import inspect
+
+        import literate_ai.projects as projects
+        from literate_ai.adapters import retained_layout_control_roles as roles
+
+        # Inspect only the test-owned port closure to exercise its failure path
+        # directly. This does not issue project/source roles or a read lease.
+        loader = inspect.getclosurevars(roles._project_roles).nonlocals["original_load"]
+        ambient = projects._ProjectConfigurationParses()
+        token = projects._PROJECT_CONFIGURATION_PARSES.set(ambient)
+        try:
+            with self.assertRaises(projects.ProjectError):
+                loader(self.state / "missing-project")
+            self.assertIs(projects._PROJECT_CONFIGURATION_PARSES.get(), ambient)
+        finally:
+            projects._PROJECT_CONFIGURATION_PARSES.reset(token)
+
+    def test_source_loader_refuses_changed_original_read_code_before_native_io(self):
+        from literate_ai.adapters import retained_layout_control_roles as roles
+
+        function = ProjectConfigurationStore.read
+        original = function.__code__
+        try:
+            function.__code__ = original.replace(co_name="foreign_read")
+            with mock.patch.object(
+                roles, "_lineage", side_effect=AssertionError("native discovery")
+            ) as native:
+                with self.assertRaisesRegex(ValueError, "original project loader"):
+                    roles._project_roles(self.project)
+                native.assert_not_called()
+        finally:
+            function.__code__ = original
+
+    def test_source_loader_refuses_foreign_error_exports_before_dispatch(self):
+        import literate_ai.projects as projects
+        from literate_ai.adapters import retained_layout_control_roles as roles
+
+        for module, name in (
+            (projects, "ProjectError"),
+            (projects.json, "JSONDecodeError"),
+        ):
+            with self.subTest(error=name):
+                foreign = mock.Mock(side_effect=AssertionError("foreign error"))
+                with mock.patch.object(module, name, foreign):
+                    with self.assertRaisesRegex(ValueError, "original project loader"):
+                        roles._project_roles(self.project)
+                    foreign.assert_not_called()
+
+    def test_source_loader_closes_port_after_final_control_read_callback(self):
+        from literate_ai.adapters import retained_layout_control_roles as roles
+
+        original_loader, original_file = roles.load_project, roles._file
+        conversion = self.project / roles.CONVERSION_AUTHORITY_FILE
+        calls = 0
+        foreign = mock.Mock(side_effect=AssertionError("foreign loader"))
+
+        def read(path, **kwargs):
+            nonlocal calls
+            value = original_file(path, **kwargs)
+            if path == conversion:
+                calls += 1
+                if calls == 2:
+                    roles.load_project = foreign
+            return value
+
+        with (
+            mock.patch.object(roles, "load_project", original_loader),
+            mock.patch.object(roles, "_file", read),
+        ):
+            with self.assertRaisesRegex(ValueError, "original project loader"):
+                roles._project_roles(self.project)
+            self.assertEqual(calls, 2)
+            foreign.assert_not_called()
+
+    def test_source_metadata_returns_original_snapshot_without_second_parse(self):
+        from literate_ai.contracts import ProjectDefinition
+
+        inputs = self.adapter_inputs(self.project)
+        with self.scope() as scope:
+            adapter = transaction._source_metadata_observation(
+                self.project, scope, **inputs
+            )
+            parser = ProjectDefinition.from_dict.__func__
+            original = parser.__code__
+
+            def second_parser(*args, **kwargs):
+                raise AssertionError("second project parser")
+
+            try:
+                parser.__code__ = second_parser.__code__
+                snapshot, context = adapter.project_context()
+                self.assertIs(snapshot, inputs["snapshot"])
+                self.assertIs(context, inputs["context"])
+            finally:
+                parser.__code__ = original
+
+    def test_source_metadata_retained_bindings_cannot_be_reassigned_or_deleted(self):
+        inputs = self.adapter_inputs(self.project)
+        with self.scope() as scope:
+            adapter = transaction._source_metadata_observation(
+                self.project, scope, **inputs
+            )
+            for name, value in (
+                ("_snapshot", replace(inputs["snapshot"], content=b"{}")),
+                ("_context", replace(inputs["context"], root=self.state)),
+                ("manifest", replace(inputs["manifest"], content=b"{}")),
+                ("root", self.state),
+                ("owner", None),
+            ):
+                with self.subTest(binding=name):
+                    with self.assertRaises(AttributeError):
+                        setattr(adapter, name, value)
+                    with self.assertRaises(AttributeError):
+                        delattr(adapter, name)
+            self.assertIs(adapter.project_context()[0], inputs["snapshot"])
+            with self.assertRaisesRegex(TypeError, "reinitialized"):
+                adapter.__init__(self.project, scope, **inputs)
+            self.assertIs(adapter.project_context()[0], inputs["snapshot"])
+
+    def test_source_metadata_refuses_foreign_context_property_before_dispatch(self):
+        from literate_ai.projects import ProjectContext
+
+        inputs = self.adapter_inputs(self.project)
+        foreign = mock.Mock(side_effect=AssertionError("foreign manifest property"))
+        with self.scope() as scope:
+            with mock.patch.object(ProjectContext, "manifest_path", property(foreign)):
+                with self.assertRaisesRegex(ValueError, "metadata adapter changed"):
+                    transaction._source_metadata_observation(
+                        self.project, scope, **inputs
+                    )
+                foreign.assert_not_called()
+
+    def test_source_metadata_snapshot_does_not_replace_fresh_manifest_check(self):
+        inputs = self.adapter_inputs(self.project)
+        with self.assertRaisesRegex(ValueError, "manifest changed"):
+            with self.scope() as scope:
+                adapter = transaction._source_metadata_observation(
+                    self.project, scope, **inputs
+                )
+                inputs["manifest"].path.write_bytes(inputs["manifest"].content + b"\n")
+                adapter.project_context()
 
     def test_source_json_accounting_cannot_be_shared_between_project_roots(self):
         budget = RetainedCargoInputBudget(2, 5, 1024, 2048)
+        first_inputs = self.adapter_inputs(self.project)
+        (self.state / "literate.project.json").write_bytes(
+            first_inputs["manifest"].content
+        )
+        second_inputs = self.adapter_inputs(self.state)
         with self.assertRaisesRegex(ValueError, "decoded canonical metadata"):
             with self.scope(budget) as scope:
-                first = transaction._SourceMetadataObservation(self.project, scope)
-                second = transaction._SourceMetadataObservation(self.state, scope)
+                first = transaction._SourceMetadataObservation(
+                    self.project, scope, **first_inputs
+                )
+                second = transaction._SourceMetadataObservation(
+                    self.state, scope, **second_inputs
+                )
                 self.assertEqual(
                     first.json_value(b'{"state":"wrapped"}', "input.json"),
                     {"state": "wrapped"},

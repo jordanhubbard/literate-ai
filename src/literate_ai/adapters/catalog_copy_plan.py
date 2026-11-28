@@ -21,7 +21,6 @@ from .retained_layout_partition import (
     _physical_wire,
     capture_retained_layout_partition,
 )
-from .retained_layout_transaction import _close_tree, _native_tree
 from .update_merge import safe_path
 
 
@@ -322,6 +321,80 @@ class _Observation:
         return value
 
 
+def _bind_original_metadata_accounting():
+    """Record original accounting methods before the transaction import edge."""
+    import builtins
+
+    namespace, ledger_type = globals(), _Observation
+    class_items = tuple(vars(ledger_type).items())
+    bases, mro = ledger_type.__bases__, ledger_type.__mro__
+    methods = ("__init__", "charge_records", "require_capacity")
+    functions = tuple(vars(ledger_type)[name] for name in methods) + (_fail,)
+    codes = tuple(
+        (
+            fn,
+            fn.__code__,
+            fn.__defaults__,
+            fn.__kwdefaults__,
+            tuple((fn.__kwdefaults__ or {}).items()),
+        )
+        for fn in functions
+    )
+    slots = {}
+    for function in functions:
+        scope = function.__globals__
+        for name in function.__code__.co_names:
+            if name in scope or hasattr(builtins, name):
+                slots[id(scope), name] = (scope, name, name in scope, scope.get(name))
+                if name not in scope and name in function.__builtins__:
+                    inherited = function.__builtins__
+                    slots[id(inherited), name] = (
+                        inherited,
+                        name,
+                        True,
+                        inherited[name],
+                    )
+    slot_rows = tuple(slots.values())
+    exact, size, some, text, failure, mapping = type, len, any, str, ValueError, vars
+
+    def guard(ledger=None):
+        actual_class = mapping(ledger_type)
+        if (
+            namespace.get("_Observation") is not ledger_type
+            or namespace.get("_original_metadata_accounting_guard") is not guard
+            or ledger_type.__bases__ is not bases
+            or ledger_type.__mro__ is not mro
+            or size(actual_class) != size(class_items)
+            or some(actual_class.get(name) is not value for name, value in class_items)
+        ):
+            raise failure("original metadata accounting class changed")
+        for scope, name, present, value in slot_rows:
+            if (name in scope) is not present or scope.get(name) is not value:
+                raise failure("original metadata accounting dependency changed")
+        for function, code, defaults, keywords, items in codes:
+            actual = function.__kwdefaults__
+            if (
+                function.__code__ is not code
+                or function.__defaults__ is not defaults
+                or actual is not keywords
+                or size(actual or {}) != size(items)
+                or some(exact(key) is not text for key in (actual or {}))
+                or some((actual or {}).get(key) is not value for key, value in items)
+            ):
+                raise failure("original metadata accounting method changed")
+        if ledger is not None and (
+            exact(ledger) is not ledger_type
+            or some(name in mapping(ledger) for name in methods)
+        ):
+            raise failure("original issued metadata accounting methods required")
+
+    return guard
+
+
+_original_metadata_accounting_guard = _bind_original_metadata_accounting()
+del _bind_original_metadata_accounting
+
+
 def plan_catalog_copy(
     root,
     source_root,
@@ -515,3 +588,8 @@ def plan_catalog_copy(
 
         _register_catalog_plan(observation, plan)
     return plan
+
+
+# The accounting class and its original guard must exist before this edge:
+# transaction -> bounded_role_observation may reenter this module during import.
+from .retained_layout_transaction import _close_tree, _native_tree  # noqa: E402

@@ -15,6 +15,7 @@ from pathlib import Path
 from .exclusive_entry import _from_stat, layout_entry_node
 from .repository_refresh import RefreshFileObservation, _file, _raw_file, _signature
 from .retained_layout_source_admission import _control_reads, _fail, _phase_record
+from .retained_layout_transaction import _bind_original_source_metadata_ports
 from .retained_scaffold_coordinates import retained_scaffold_path
 
 _METADATA = {}
@@ -739,9 +740,9 @@ def _close_consumed_input(owner, item):
     return False
 
 
-def _published_layout(phase):
+def _published_layout(phase, *, _metadata_constructor):
     from .retained_layout import resolve_structural_layout
-    from .retained_layout_transaction import _LIFT, _SourceMetadataObservation
+    from .retained_layout_transaction import _LIFT
 
     value = _record(phase)
     if value is None:
@@ -752,9 +753,24 @@ def _published_layout(phase):
             json.loads(_file(retained_scaffold_path(phase.plan.root, _LIFT)).content),
         )
     reader = value.admission.original.reader
+    project = value.admission.original.authored.project
+    manifests = tuple(
+        item for item in value.inputs if item.path == project.manifest.path
+    )
+    if len(manifests) != 1 or manifests[0] != project.manifest:
+        _fail("same original current manifest observation required")
+    observation = _metadata_constructor(
+        phase.plan.root,
+        reader,
+        manifest=manifests[0],
+        root_node=project.lineage[-1][1:4],
+        snapshot=project._snapshot,
+        context=project._context,
+    )
+    lift_path = retained_scaffold_path(phase.plan.root, _LIFT, _observation=observation)
     lift = reader.json_value(
-        _file(retained_scaffold_path(phase.plan.root, _LIFT)).content,
-        str(retained_scaffold_path(phase.plan.root, _LIFT)),
+        _file(lift_path).content,
+        str(lift_path),
     )
     if phase.plan.source_forest is not None:
         from .retained_layout import _layout_coordinates
@@ -775,7 +791,7 @@ def _published_layout(phase):
         layout, _declaration = _layout_coordinates(
             phase.plan.root,
             lift,
-            _observation=_SourceMetadataObservation(phase.plan.root, reader),
+            _observation=observation,
         )
         _require_movement_current(value.admission)
         if (
@@ -783,12 +799,41 @@ def _published_layout(phase):
             or _record(phase) is not value
         ):
             _fail("original forest metadata changed during coordinate validation")
+        observation.require_current()
         return layout
-    return resolve_structural_layout(
+    layout = resolve_structural_layout(
         phase.plan.root,
         lift,
-        _observation=_SourceMetadataObservation(phase.plan.root, reader),
+        _observation=observation,
     )
+    observation.require_current()
+    return layout
+
+
+def _bind_original_published_layout(implementation):
+    construct, validate = _bind_original_source_metadata_ports()
+    code, defaults, keywords = (
+        implementation.__code__,
+        implementation.__defaults__,
+        implementation.__kwdefaults__,
+    )
+    failure = ValueError
+
+    def published_layout(phase):
+        if (
+            implementation.__code__ is not code
+            or implementation.__defaults__ is not defaults
+            or implementation.__kwdefaults__ is not keywords
+        ):
+            raise failure("original published layout constructor boundary changed")
+        validate()
+        return implementation(phase, _metadata_constructor=construct)
+
+    return published_layout
+
+
+_published_layout = _bind_original_published_layout(_published_layout)
+del _bind_original_published_layout
 
 
 def _mark_metadata_observed(phase):

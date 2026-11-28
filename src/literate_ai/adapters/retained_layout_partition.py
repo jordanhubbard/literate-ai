@@ -78,7 +78,7 @@ def _lineage(root: Path) -> tuple:
             )
         value = tuple(nodes)
         if observation is not None:
-            observation.remember_lineage(root, value)
+            value = observation.remember_lineage(root, value)
         return value
     except (OSError, UnsafeFilesystemPathError) as exc:
         raise RetainedLayoutError("layout physical ancestry is unavailable") from exc

@@ -24,12 +24,17 @@ from literate_ai.adapters.harness_tree import (
 from literate_ai.adapters.project_layout_converter_coordinates import (
     original_converter_input_addresses,
 )
+from literate_ai.adapters.project_layout_finite_creations import (
+    retained_metadata_absence,
+    retained_metadata_absence_guard,
+)
 from literate_ai.adapters.project_layout_framework_observation import (
     _capture_bound_source_scope,
     _close_bound_source_nodes,
 )
 from literate_ai.adapters.project_layout_framework_resources import (
     _producer_namespace,
+    original_framework_initialization,
     require_current_framework_resources,
     require_original_framework_resources,
 )
@@ -70,6 +75,10 @@ def _bind_original_retained_source(imported_originals):
     _capture_bound_source_scope = imported_originals["_capture_bound_source_scope"]
     _close_bound_source_nodes = imported_originals["_close_bound_source_nodes"]
     _producer_namespace = imported_originals["_producer_namespace"]
+    retained_metadata_absence = imported_originals["retained_metadata_absence"]
+    original_framework_initialization = imported_originals[
+        "original_framework_initialization"
+    ]
     require_current_framework_resources = imported_originals[
         "require_current_framework_resources"
     ]
@@ -85,6 +94,11 @@ def _bind_original_retained_source(imported_originals):
     resolve_structural_layout = imported_originals["resolve_structural_layout"]
     retained_scaffold_coordinate = imported_originals["retained_scaffold_coordinate"]
     canonical_json_bytes = imported_originals["canonical_json_bytes"]
+    original_read_guard = retained_metadata_absence_guard
+    original_read_boundaries = tuple(
+        (function, function.__code__, function.__defaults__, function.__kwdefaults__)
+        for function in (retained_metadata_absence, original_read_guard)
+    )
 
     original_add_note = BaseException.add_note
     error_type = ProjectLayoutPlanError
@@ -101,6 +115,17 @@ def _bind_original_retained_source(imported_originals):
     bindings = {}
 
     def _check():
+        for function, code, defaults, keywords in original_read_boundaries:
+            if (
+                function.__code__ is not code
+                or function.__defaults__ is not defaults
+                or function.__kwdefaults__ is not keywords
+            ):
+                raise error_type(
+                    "retained_source_custody_changed",
+                    "original retained metadata read port changed",
+                )
+        original_read_guard()
         if any(namespace.get(name) is not value for name, value in bindings.items()):
             raise error_type(
                 "retained_source_custody_changed",
@@ -183,6 +208,17 @@ def _bind_original_retained_source(imported_originals):
     _MRO = OriginalBoundedRetainedSource.__mro__
 
     def _class_current():
+        for function, code, defaults, keywords, items in metadata_method_codes:
+            actual = function.__kwdefaults__
+            if (
+                function.__code__ is not code
+                or function.__defaults__ is not defaults
+                or actual is not keywords
+                or len(actual or {}) != len(items)
+                or any(type(key) is not str for key in (actual or {}))
+                or any((actual or {}).get(key) is not value for key, value in items)
+            ):
+                _fail("original retained metadata method changed")
         for cls, namespace, bases, mro in _METADATA_CLASSES:
             actual = vars(cls)
             if (
@@ -350,8 +386,9 @@ def _bind_original_retained_source(imported_originals):
         }
 
     class _Metadata:
-        def __init__(self, snapshot, context, contents):
+        def __init__(self, snapshot, context, contents, absences):
             self.snapshot, self.context, self.contents = (snapshot, context, contents)
+            self.absences = absences
 
         def _coordinate(self, path):
             if path.startswith(".literate/"):
@@ -367,6 +404,14 @@ def _bind_original_retained_source(imported_originals):
             if value is None and (not optional):
                 _fail("original retained layout requires an uncaptured producer input")
             return value
+
+        def read_coordinate(self, path, *, optional=False):
+            if optional and path in self.absences:
+                return None
+            _fail("metadata shadow lacks an original absent frontier")
+
+        def project_context(self):
+            return self.snapshot, self.context
 
         def json_value(self, content, _path):
             return _invoke(json.loads, content)
@@ -389,6 +434,20 @@ def _bind_original_retained_source(imported_originals):
             ResolvedRetainedLayout,
             RetainedLayoutDeclaration,
             ProjectLayoutObservation,
+        )
+    )
+    metadata_method_codes = tuple(
+        (
+            function,
+            function.__code__,
+            function.__defaults__,
+            function.__kwdefaults__,
+            tuple((function.__kwdefaults__ or {}).items()),
+        )
+        for function in (
+            _Metadata.__init__,
+            _Metadata.read_coordinate,
+            _Metadata.project_context,
         )
     )
 
@@ -445,8 +504,14 @@ def _bind_original_retained_source(imported_originals):
             )
             actual_wrapper = declaration.wrapper_component
         else:
+            origin, baseline, _origin_bytes, _baseline_bytes = _invoke(
+                original_framework_initialization, resources
+            )
             actual_wrapper = _invoke(
-                retained_scaffold_coordinate, snapshot.root, LEGACY_WRAPPER_COMPONENT
+                retained_scaffold_coordinate,
+                snapshot.root,
+                LEGACY_WRAPPER_COMPONENT,
+                _initialization=(snapshot, context, origin, baseline),
             )
         addresses, converter_paths, converter_ambiguities = _invoke(
             original_converter_input_addresses,
@@ -454,6 +519,46 @@ def _bind_original_retained_source(imported_originals):
             resources,
             wrapper_component=actual_wrapper,
         )
+        shadow_coordinates = ()
+        if actual_wrapper == "litai/components/legacy-project-wrapper":
+            origin, baseline, _origin_bytes, _baseline_bytes = _invoke(
+                original_framework_initialization, resources
+            )
+            shadow_coordinates = tuple(
+                sorted(
+                    {"litai.harness.mk"}
+                    | {
+                        row.path.removeprefix("litai/")
+                        for row in baseline.files
+                        if row.path.startswith(
+                            "litai/components/legacy-project-wrapper/"
+                        )
+                        and row.path
+                        != "litai/components/legacy-project-wrapper/implementation"
+                        and not row.path.startswith(
+                            "litai/components/legacy-project-wrapper/implementation/"
+                        )
+                    }
+                )
+            )
+        if len(shadow_coordinates) > 8192:
+            _fail("retained metadata shadow inventory exceeds original bound")
+
+        def shadow_frontiers():
+            return tuple(
+                (
+                    name,
+                    _invoke(
+                        retained_metadata_absence,
+                        snapshot.root,
+                        context.directory_binding[0][:3],
+                        name,
+                    ),
+                )
+                for name in shadow_coordinates
+            )
+
+        absent = shadow_frontiers()
         all_paths = tuple(dict.fromkeys((*producer_paths, *converter_paths)))
         nodes, contents = _invoke(_capture, snapshot.root, selected_scopes=all_paths)
         selected_first_nodes = {
@@ -469,7 +574,7 @@ def _bind_original_retained_source(imported_originals):
             _invoke(json.loads, contents[lift_path]),
             _invoke(json.loads, contents[inventory_path]),
         )
-        reader = _Metadata(snapshot, context, contents)
+        reader = _Metadata(snapshot, context, contents, shadow_coordinates)
         layout = _invoke(
             resolve_structural_layout, snapshot.root, lift, _observation=reader
         )
@@ -541,6 +646,8 @@ def _bind_original_retained_source(imported_originals):
                 metadata_directories=True,
             )
             _invoke(_close_bound_source_nodes, root, expected_root, source_nodes)
+            if shadow_frontiers() != absent:
+                _fail("original retained metadata absent frontier changed")
 
         values = (
             snapshot,
@@ -599,6 +706,8 @@ def _bind_original_retained_source(imported_originals):
             "_producer_namespace",
             "require_current_framework_resources",
             "require_original_framework_resources",
+            "original_framework_initialization",
+            "retained_metadata_absence",
             "ProjectLayoutObservation",
             "ProjectLayoutPlanError",
             "_capture",
@@ -655,6 +764,8 @@ def _bind_original_retained_source(imported_originals):
                 "_producer_namespace",
                 "require_current_framework_resources",
                 "require_original_framework_resources",
+                "original_framework_initialization",
+                "retained_metadata_absence",
                 "ProjectLayoutObservation",
                 "ProjectLayoutPlanError",
                 "_capture",
@@ -754,6 +865,8 @@ globals().update(
                     "_producer_namespace",
                     "require_current_framework_resources",
                     "require_original_framework_resources",
+                    "original_framework_initialization",
+                    "retained_metadata_absence",
                     "ProjectLayoutObservation",
                     "ProjectLayoutPlanError",
                     "_capture",
@@ -783,6 +896,8 @@ globals().update(
                     _producer_namespace,
                     require_current_framework_resources,
                     require_original_framework_resources,
+                    original_framework_initialization,
+                    retained_metadata_absence,
                     ProjectLayoutObservation,
                     ProjectLayoutPlanError,
                     _capture,

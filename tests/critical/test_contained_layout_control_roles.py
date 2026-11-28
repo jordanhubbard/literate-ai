@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -14,6 +15,7 @@ from literate_ai.adapters import retained_layout_control_roles as roles
 from literate_ai.adapters.conversion_authority import CONVERSION_AUTHORITY_FILE
 from literate_ai.projects import (
     PROJECT_FILENAME,
+    LoadedProject,
     ProjectConfigurationStore,
     ProjectError,
 )
@@ -114,15 +116,36 @@ class ContainedLayoutControlRoleTests(unittest.TestCase):
         framework = self.project / "litai"
         displaced = self.state / "original-framework"
 
-        def replace(*args, **kwargs):
-            result = actual(*args, **kwargs)
-            framework.rename(displaced)
-            shutil.copytree(displaced, framework, symlinks=True)
-            return result
+        replaced = []
+        previous_profile = sys.getprofile()
 
-        with mock.patch.object(roles, "load_project", side_effect=replace):
+        def replace(frame, event, result):
+            if (
+                event == "return"
+                and frame.f_code is actual.__code__
+                and type(result) is LoadedProject
+                and frame.f_locals["root"] == self.project
+                and not replaced
+            ):
+                framework.rename(displaced)
+                shutil.copytree(displaced, framework, symlinks=True)
+                replaced.append(True)
+            if previous_profile is not None:
+                previous_profile(frame, event, result)
+
+        # Change the namespace after the original loader returns its snapshot.
+        sys.setprofile(replace)
+        try:
             with self.assertRaisesRegex(ValueError, "role discovery"):
                 roles._project_roles(self.project)
+        finally:
+            sys.setprofile(previous_profile)
+        self.assertEqual(replaced, [True])
+        self.assertEqual(
+            (framework / PROJECT_FILENAME).read_bytes(),
+            (displaced / PROJECT_FILENAME).read_bytes(),
+        )
+        self.assertNotEqual(framework.stat().st_ino, displaced.stat().st_ino)
 
     def test_redirected_framework_refuses_before_metadata_reads(self):
         framework = self.project / "litai"

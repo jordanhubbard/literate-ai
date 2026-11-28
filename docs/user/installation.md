@@ -635,22 +635,24 @@ cd path/to/project
 litai project validate
 ```
 
-The generated root `SKILL.md` is the provider-neutral onboarding entrypoint for agents.
+The generated `litai/SKILL.md` is the provider-neutral onboarding entrypoint for
+agents in a new derived project; its manifest declares the exact path.
 Initialization never writes a partial project when scaffolding or preflight fails.
 The scaffold includes a linked documentation spine and one current authority-review
-marker. It also installs a content-pinned Bazel Flavor/specification and build skill,
-then records `+flavor://literate-ai/build-bazel` as a removable generation-prompt
-preference. Explicit Component
-requirements, selected Flavors, an alternative build-system selector, and `-bazel`
+marker. Full-profile initialization defaults to content-pinned Make, Python and pip
+Flavors plus the host OS selector. These are removable generation-prompt
+preferences. Explicit Component
+requirements, selected Flavors and alternative selectors
 remain authoritative over that default; it is not runtime enforcement. Later authority
 or documentation changes require human review and an updated
 marker calculated with `litai project documentation-review .`. The scaffold contains
-no generated application source. It configures
-`verification/current.json` as the one replaceable test-receipt path but does not create
-a receipt policy, receipt, or claim that tests passed. `litai project validate`
-reports that initial state as `policy-unconfigured`. Before accepting evidence, add an
-explicit policy for the suite ID/version, runner content identity, required evidence,
-and minimum test count. Continue with the
+no generated application source. Installed full-profile initialization binds the
+exact installed Standard lifecycle driver and its test-receipt policy. It configures
+`litai/verification/current.json` as the one replaceable receipt path but creates no
+passing receipt. Use the configured lifecycle to produce and admit current evidence.
+An explicitly unbound source-checkout scaffold can instead report
+`policy-unconfigured`; it needs a reviewed driver and receipt policy before evidence
+can be accepted. Continue with the
 [project layout](project-layout.md), then add a Component and use `litai plan` before
 generation.
 

@@ -12,13 +12,16 @@ import os
 import sys
 import threading
 from contextlib import ExitStack, contextmanager, nullcontext
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.projects import (
     DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
+    LoadedProject,
+    ProjectConfigurationSnapshot,
     ProjectConfigurationStore,
+    ProjectContext,
     load_project,
 )
 
@@ -172,6 +175,12 @@ class _ProjectRoles:
     conversion_identity: str
     lineage: tuple
     framework_lineage: tuple = ()
+    _snapshot: ProjectConfigurationSnapshot | None = field(
+        default=None, repr=False, compare=False, kw_only=True
+    )
+    _context: ProjectContext | None = field(
+        default=None, repr=False, compare=False, kw_only=True
+    )
 
     def targets(self):
         anchor = self.lineage[-1][1:4]
@@ -227,7 +236,7 @@ class _ProjectRoles:
         return current
 
 
-def _project_roles(root):
+def _project_roles(root, *, _load_project):
     lineage = _lineage(root)
     context = ProjectConfigurationStore.context(root)
     if context.root != root:
@@ -241,8 +250,20 @@ def _project_roles(root):
         context.manifest_path,
         maximum_bytes=DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
     )
-    project = load_project(root)
-    if project.root != root or project.framework_root != context.framework_root:
+    project = _load_project(root)
+    if type(project) is not LoadedProject:
+        _fail("original loaded project required")
+    snapshot = project._snapshot
+    if (
+        type(snapshot) is not ProjectConfigurationSnapshot
+        or snapshot.definition is not project.definition
+        or snapshot.root != root
+        or snapshot.content != manifest.content
+        or snapshot.manifest_path != manifest.path
+        or snapshot.directory_binding != context.directory_binding
+        or project.root != root
+        or project.framework_root != context.framework_root
+    ):
         _fail("project loader resolved a different root")
     conversion_path = context.framework_path(CONVERSION_AUTHORITY_FILE)
     conversion = _file(conversion_path, maximum_bytes=256 * 1024)
@@ -269,7 +290,180 @@ def _project_roles(root):
         state.identity.uri,
         lineage,
         framework_lineage,
+        _snapshot=snapshot,
+        _context=context,
     )
+
+
+def _bind_original_project_loader(implementation):
+    """Keep snapshot DATA at the existing full-schema loader owner boundary.
+
+    This authenticates that finite port, not every transitive implementation
+    detail of the existing filesystem, schema and JSON owners.
+    """
+    namespace, loader = globals(), load_project
+    project_namespace = loader.__globals__
+    store, loaded, snapshot = (
+        ProjectConfigurationStore,
+        LoadedProject,
+        ProjectConfigurationSnapshot,
+    )
+    parser = project_namespace["parse_project_configuration"]
+    definition = project_namespace["ProjectDefinition"]
+    context = project_namespace["ProjectContext"]
+    json_module = project_namespace["json"]
+    json_loads = json_module.loads
+    json_error = json_module.JSONDecodeError
+    project_error = project_namespace["ProjectError"]
+    parses = project_namespace["_PROJECT_CONFIGURATION_PARSES"]
+    set_parses, reset_parses = parses.set, parses.reset
+    exact, size, some, mapping, failure, text = type, len, any, vars, ValueError, str
+
+    def row(function):
+        return (
+            function,
+            function.__code__,
+            function.__defaults__,
+            function.__kwdefaults__,
+            tuple((function.__kwdefaults__ or {}).items()),
+        )
+
+    def same(function, code, defaults, keywords, items):
+        actual = function.__kwdefaults__
+        return (
+            function.__code__ is code
+            and function.__defaults__ is defaults
+            and actual is keywords
+            and size(actual or {}) == size(items)
+            and not some(exact(key) is not text for key in (actual or {}))
+            and not some((actual or {}).get(key) is not value for key, value in items)
+        )
+
+    functions = [implementation, loader, parser, json_loads]
+    functions += [
+        store.__dict__[name].__func__
+        if exact(store.__dict__[name]) is staticmethod
+        else store.__dict__[name]
+        for name in (
+            "__init__",
+            "read",
+            "_root",
+            "context",
+            "_read_manifest",
+            "_require_layout",
+        )
+    ]
+    functions += [
+        loaded.__init__,
+        snapshot.__init__,
+        loaded.context.fget,
+        loaded.framework_root.fget,
+        definition.from_dict.__func__,
+        context.__init__,
+        context.manifest_path.fget,
+        json_error.__init__,
+        project_error.__init__,
+    ]
+    codes = tuple(row(fn) for fn in functions)
+    classes = tuple(
+        (cls, cls.__bases__, cls.__mro__, tuple(mapping(cls).items()))
+        for cls in (
+            store,
+            loaded,
+            snapshot,
+            definition,
+            context,
+            json_error,
+            project_error,
+        )
+    )
+    aliases = tuple(
+        (owner, name, name in owner, owner.get(name, loader.__builtins__.get(name)))
+        for owner, names in (
+            (
+                namespace,
+                (
+                    "load_project",
+                    "LoadedProject",
+                    "ProjectConfigurationSnapshot",
+                    "ProjectConfigurationStore",
+                    "ProjectContext",
+                    "type",
+                ),
+            ),
+            (
+                project_namespace,
+                (
+                    "load_project",
+                    "LoadedProject",
+                    "ProjectConfigurationSnapshot",
+                    "ProjectConfigurationStore",
+                    "ProjectDefinition",
+                    "ProjectContext",
+                    "ProjectError",
+                    "parse_project_configuration",
+                    "_PROJECT_CONFIGURATION_PARSES",
+                    "json",
+                ),
+            ),
+        )
+        for name in names
+    )
+
+    def current():
+        if (
+            namespace.get("_project_roles") is not project_roles
+            or json_module.loads is not json_loads
+            or json_module.JSONDecodeError is not json_error
+            or some(not same(*entry) for entry in codes)
+            or some(
+                (name in owner) != present
+                or owner.get(name, loader.__builtins__.get(name)) is not value
+                for owner, name, present, value in aliases
+            )
+            or some(
+                cls.__bases__ is not bases
+                or cls.__mro__ is not mro
+                or size(mapping(cls)) != size(items)
+                or some(mapping(cls).get(name) is not value for name, value in items)
+                for cls, bases, mro, items in classes
+            )
+        ):
+            raise failure("layout.control-roles: original project loader changed")
+
+    def original_load(root):
+        checked()
+        # Templates belong to their ambient optimization frame. They are not
+        # issuance of the exact snapshot this source owner is acquiring now.
+        token = set_parses(None)
+        try:
+            result = loader(root)
+            checked()
+            return result
+        finally:
+            reset_parses(token)
+
+    def checked():
+        if some(not same(*entry) for entry in boundary_codes):
+            raise failure(
+                "layout.control-roles: original project loader boundary changed"
+            )
+        current()
+
+    def project_roles(root):
+        checked()
+        result = implementation(root, _load_project=original_load)
+        checked()
+        return result
+
+    boundary_codes = tuple(
+        row(fn) for fn in (same, current, original_load, checked, project_roles)
+    )
+    return project_roles
+
+
+_project_roles = _bind_original_project_loader(_project_roles)
+del _bind_original_project_loader
 
 
 class _ControlRolesLease:
@@ -293,7 +487,20 @@ class _ControlRolesLease:
     @property
     def identity(self):
         self.require_current()
-        project = _custody_wire(self._seed)
+        # These original wire fields remain stable when private read DATA is
+        # retained alongside them. Do not serialize the loader snapshot.
+        project = {
+            name: _custody_wire(getattr(self._seed, name))
+            for name in (
+                "root",
+                "project_id",
+                "manifest",
+                "conversion",
+                "conversion_identity",
+                "lineage",
+                "framework_lineage",
+            )
+        }
         version = 2 if self._seed.framework_lineage else 1
         if version == 1:
             # Preserve the legacy role wire contract; contained namespace binding

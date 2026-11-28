@@ -357,7 +357,9 @@ def resolve_legacy_layout(
     from .retained_scaffold_coordinates import retained_scaffold_coordinate
 
     wrapper_component = retained_scaffold_coordinate(
-        Path(project_root).absolute(), LEGACY_WRAPPER_COMPONENT
+        Path(project_root).absolute(),
+        LEGACY_WRAPPER_COMPONENT,
+        **({"_observation": _observation} if _observation is not None else {}),
     )
     wrapper_root = Path(project_root).absolute().joinpath(*wrapper_component.split("/"))
     try:
@@ -526,7 +528,15 @@ def resolve_structural_layout(
     return layout
 
 
-def _original_layout_coordinates(preparation, project_root, lift_shift):
+def _original_layout_coordinates(
+    preparation,
+    project_root,
+    lift_shift,
+    *,
+    project,
+    _observation,
+    _validate_observation,
+):
     """Coordinates for actual original discovery; ownership is checked afterward.
 
     A description from this function cannot replace the registered original
@@ -534,7 +544,6 @@ def _original_layout_coordinates(preparation, project_root, lift_shift):
     """
     from .bounded_role_observation import current_role_observation
     from .retained_layout_source_preparation import _state
-    from .retained_layout_transaction import _SourceMetadataObservation
 
     original = _state(preparation, ready=False)
     if (
@@ -543,11 +552,22 @@ def _original_layout_coordinates(preparation, project_root, lift_shift):
     ):
         raise TypeError("actual original preparation coordinate reader required")
     original.ledger.charge_records(4, 512 + 4 * len(str(project_root).encode()))
+    _validate_observation(_observation)
+    if (
+        _observation.root != project_root
+        or _observation.owner is not original.reader
+        or _observation.manifest is not project.manifest
+        or _observation._snapshot is not project._snapshot
+        or _observation._context is not project._context
+    ):
+        raise TypeError("same original preparation metadata observation required")
     layout, declaration = _layout_coordinates(
         project_root,
         lift_shift,
-        _observation=_SourceMetadataObservation(project_root, original.reader),
+        _observation=_observation,
     )
     if declaration is None or declaration.implementation_directory != ".":
         raise ValueError("actual original declared root coordinates required")
+    _validate_observation(_observation)
+    _observation.require_current()
     return layout

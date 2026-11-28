@@ -19,6 +19,8 @@ from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudge
 from literate_ai.projects import (
     PROJECT_FILENAME,
     LoadedProject,
+    ProjectConfigurationSnapshot,
+    ProjectContext,
     parse_project_configuration,
 )
 
@@ -453,6 +455,24 @@ class _FrameworkUpdateRoles:
         content = self.read(PROJECT_FILENAME)
         self.json_value(content, PROJECT_FILENAME)
         return LoadedProject(self.root, parse_project_configuration(content))
+
+    def project_context(self):
+        """Use this owner's existing exact manifest; never rediscover placement."""
+        content = self.read(PROJECT_FILENAME)
+        self.json_value(content, PROJECT_FILENAME)
+        definition = parse_project_configuration(content)
+        framework = (
+            self.root / "litai"
+            if definition.framework_directory == "litai"
+            else self.root
+        )
+        context = ProjectContext(self.root, framework)
+        manifest = self.root / PROJECT_FILENAME
+        if context.manifest_path != manifest:
+            _fail("framework update requires its actual observed manifest coordinate")
+        return ProjectConfigurationSnapshot(
+            self.root, definition, content, manifest, None
+        ), context
 
     def json_value(self, content, label):
         value = json.loads(content)

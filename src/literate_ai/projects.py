@@ -16,7 +16,7 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import deepcopy
-from dataclasses import dataclass, fields, is_dataclass
+from dataclasses import dataclass, field, fields, is_dataclass
 from enum import Enum
 from pathlib import Path
 
@@ -37,6 +37,10 @@ from literate_ai._filesystem import (
     require_safe_directory,
     stat_is_link_or_reparse,
 )
+from literate_ai.adapters.initialized_records import (
+    ProjectUpdateError as _InitializedRecordError,
+)
+from literate_ai.adapters.initialized_records import _initialization_record_ports
 from literate_ai.application.agent_skill_catalog import (
     AgentSkillCatalog,
     AgentSkillCatalogError,
@@ -46,6 +50,8 @@ from literate_ai.contracts import (
     CANONICAL_PROJECT_PROFILE,
     ContentIdentity,
     ProjectDefinition,
+    ProjectInitializationBaseline,
+    ProjectInitializationOrigin,
     SourceCacheRootKind,
     canonical_identity,
 )
@@ -2002,6 +2008,9 @@ def _read_pinned_descriptor(descriptor, maximum):
 class LoadedProject:
     root: Path
     definition: ProjectDefinition
+    _snapshot: ProjectConfigurationSnapshot | None = field(
+        default=None, repr=False, compare=False, kw_only=True
+    )
 
     @property
     def context(self) -> ProjectContext:
@@ -2066,14 +2075,14 @@ class LoadedProject:
 
 def load_project(root: Path) -> LoadedProject:
     snapshot = ProjectConfigurationStore(root).read()
-    return LoadedProject(snapshot.root, snapshot.definition)
+    return LoadedProject(snapshot.root, snapshot.definition, _snapshot=snapshot)
 
 
 def discover_project(start: Path) -> LoadedProject | None:
     snapshot = ProjectConfigurationStore.discover(start)
     if snapshot is None:
         return None
-    return LoadedProject(snapshot.root, snapshot.definition)
+    return LoadedProject(snapshot.root, snapshot.definition, _snapshot=snapshot)
 
 
 def project_boundary(start: Path, *, legacy: Path) -> Path:
@@ -2097,6 +2106,201 @@ def catalog_placement_root(kind: str, coordinate: str) -> str | None:
     if kind == "component" and coordinate.startswith(("samples/", "litai/samples/")):
         return "samples"
     return CATALOG_PLACEMENT_ROOTS.get(kind)
+
+
+def initialization_coordinate_baseline(
+    root: Path,
+    *,
+    _observation=None,
+    _initialization=None,
+    _record_ports,
+    _record_check,
+    _normal,
+):
+    """Read existing paired coordinate provenance; never issue a live owner."""
+    project_path, read_at, parse_bytes, pair, record_error, project_error = (
+        _record_ports
+    )
+    _record_check(_normal)
+
+    if _observation is not None and _initialization is not None:
+        raise project_error(
+            "project.skill_placement_conflict",
+            "one initialization read source required",
+        )
+    try:
+        if _initialization is not None:
+            if type(_initialization) is not tuple or len(_initialization) != 2:
+                raise ValueError("exact initialization pair required")
+            origin, baseline = _initialization
+        else:
+            names = (
+                ".literate/initialization-origin.json",
+                ".literate/initialization-baseline.json",
+            )
+            if _observation is not None:
+                payloads = []
+                for name in names:
+                    _record_check(_normal)
+                    payloads.append(_observation.read(name, optional=True))
+                _record_check(_normal)
+                present = tuple(payload is not None for payload in payloads)
+            else:
+                _record_check(_normal)
+                context = ProjectConfigurationStore.context(root)
+                present = []
+                for name in names:
+                    _record_check(_normal)
+                    present.append(project_path(context.framework_root, name).exists())
+                _record_check(_normal)
+            if not any(present):
+                return None
+            if not all(present):
+                raise ValueError("initialization provenance pair is incomplete")
+            if _observation is not None:
+                _record_check(_normal)
+                origin = parse_bytes(
+                    payloads[0], names[0], ProjectInitializationOrigin, _observation
+                )
+                _record_check(_normal)
+                baseline = parse_bytes(
+                    payloads[1], names[1], ProjectInitializationBaseline, _observation
+                )
+            else:
+                # Preserve the original independent selection before EACH read,
+                # in addition to the original presence-selection above.
+                _record_check(_normal)
+                origin = read_at(
+                    ProjectConfigurationStore.context(root).framework_root,
+                    names[0],
+                    ProjectInitializationOrigin,
+                )
+                _record_check(_normal)
+                baseline = read_at(
+                    ProjectConfigurationStore.context(root).framework_root,
+                    names[1],
+                    ProjectInitializationBaseline,
+                )
+        _record_check(_normal)
+        return pair(origin, baseline)
+    except (record_error, OSError, TypeError, ValueError) as error:
+        _record_check(_normal)
+        raise project_error(
+            "project.skill_placement_conflict",
+            "initialized coordinate provenance is unavailable or invalid",
+        ) from error
+
+
+def _bind_initialization_coordinate_baseline(implementation):
+    path, read_at, parse, pair, record_guard = _initialization_record_ports()
+    namespace, exact, size, some, text, mapping, failure = (
+        globals(),
+        type,
+        len,
+        any,
+        str,
+        vars,
+        ValueError,
+    )
+    error, store = ProjectError, ProjectConfigurationStore
+    context = mapping(store)["context"].__func__
+    ports = (path, read_at, parse, pair, _InitializedRecordError, error)
+    aliases = tuple(
+        (
+            name,
+            name in namespace,
+            namespace.get(name, implementation.__builtins__.get(name)),
+        )
+        for name in (
+            "ProjectInitializationOrigin",
+            "ProjectInitializationBaseline",
+            "ProjectError",
+            "_InitializedRecordError",
+            "type",
+            "tuple",
+            "len",
+            "any",
+            "all",
+            "ValueError",
+            "OSError",
+            "TypeError",
+        )
+    )
+    builtins = implementation.__builtins__
+    context_descriptor = mapping(store)["context"]
+    error_items = tuple(mapping(error).items())
+
+    def row(function):
+        return (
+            function,
+            function.__code__,
+            function.__defaults__,
+            function.__kwdefaults__,
+            tuple((function.__kwdefaults__ or {}).items()),
+        )
+
+    def same(function, code, defaults, keywords, items):
+        actual = function.__kwdefaults__
+        return (
+            function.__code__ is code
+            and function.__defaults__ is defaults
+            and actual is keywords
+            and size(actual or {}) == size(items)
+            and not some(exact(key) is not text for key in (actual or {}))
+            and not some((actual or {}).get(key) is not value for key, value in items)
+        )
+
+    codes = tuple(row(fn) for fn in (implementation, record_guard, error.__init__))
+    context_code = row(context)
+
+    def checked(normal):
+        if (
+            namespace.get("initialization_coordinate_baseline") is not baseline
+            or (
+                normal
+                and (
+                    namespace.get("ProjectConfigurationStore") is not store
+                    or mapping(store).get("context") is not context_descriptor
+                    or not same(*context_code)
+                )
+            )
+            or size(mapping(error)) != size(error_items)
+            or some(
+                mapping(error).get(name) is not value for name, value in error_items
+            )
+            or some(not same(*entry) for entry in codes)
+            or some(not same(*entry) for entry in boundary_codes)
+            or some(
+                (name in namespace) != present
+                or namespace.get(name, builtins.get(name)) is not value
+                for name, present, value in aliases
+            )
+        ):
+            raise failure("original initialization coordinate port changed")
+        record_guard()
+
+    def baseline(root: Path, *, _observation=None, _initialization=None):
+        normal = _observation is None and _initialization is None
+        checked(normal)
+        result = implementation(
+            root,
+            _observation=_observation,
+            _initialization=_initialization,
+            _record_ports=ports,
+            _record_check=checked,
+            _normal=normal,
+        )
+        checked(normal)
+        return result
+
+    boundary_codes = tuple(row(fn) for fn in (same, checked, baseline))
+    return baseline
+
+
+initialization_coordinate_baseline = _bind_initialization_coordinate_baseline(
+    initialization_coordinate_baseline
+)
+del _bind_initialization_coordinate_baseline
 
 
 def contained_catalog_coordinates(root: Path) -> dict[str, str]:
@@ -2142,37 +2346,17 @@ def contained_catalog_coordinates(root: Path) -> dict[str, str]:
         from literate_ai.adapters.project_updates import (
             ProjectUpdateError,
             _project_path,
-            _read_contract,
-        )
-        from literate_ai.contracts import (
-            ProjectInitializationBaseline,
-            ProjectInitializationOrigin,
         )
 
         baseline_path = _project_path(
             store.context(root).framework_root, ".literate/initialization-baseline.json"
         )
         if baseline_path.exists():
-            try:
-                baseline = _read_contract(
-                    root,
-                    ".literate/initialization-baseline.json",
-                    ProjectInitializationBaseline,
-                )
-                origin = _read_contract(
-                    root,
-                    ".literate/initialization-origin.json",
-                    ProjectInitializationOrigin,
-                )
-            except ProjectUpdateError as exc:
+            baseline = initialization_coordinate_baseline(root)
+            if baseline is None:
                 raise ProjectError(
                     "project.skill_placement_conflict",
-                    "initialized catalog evidence is unavailable or invalid",
-                ) from exc
-            if baseline.origin_identity != origin.identity:
-                raise ProjectError(
-                    "project.skill_placement_conflict",
-                    "initialized catalog origin and baseline differ",
+                    "initialized catalog evidence disappeared during coordinate read",
                 )
             for item in baseline.files:
                 # Initialization may snapshot inherited files. Their current

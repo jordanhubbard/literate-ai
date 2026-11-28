@@ -171,6 +171,30 @@ class RetainedLayoutControlRoleTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "context ended"):
                 lease.require_current()
 
+    def test_loader_snapshot_does_not_change_original_control_role_identity(self):
+        from literate_ai.contracts.identity import canonical_identity
+
+        with self.pool() as (pool, _):
+            with roles.acquire_retained_layout_control_roles(
+                self.project, pool
+            ) as lease:
+                seed = lease._seed
+                self.assertEqual(seed._snapshot.content, seed.manifest.content)
+                original_wire = roles._custody_wire(seed)
+                del original_wire["_snapshot"]
+                del original_wire["_context"]
+                del original_wire["framework_lineage"]
+                self.assertEqual(
+                    lease.identity,
+                    canonical_identity(
+                        {
+                            "schema": "literate-ai/retained-layout-control-roles@1",
+                            "project": original_wire,
+                            "git": lease.git.identity.to_dict(),
+                        }
+                    ),
+                )
+
     def test_unborn_repository_and_absent_index_are_real_control_roles(self):
         self.init_git()
         observed = observe_layout_git_controls(self.project)

@@ -17,6 +17,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 from literate_ai.contracts import (
+    ProjectDefinition,
     ProjectInitializationBaseline,
     ProjectInitializationOrigin,
 )
@@ -25,6 +26,8 @@ from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudge
 from literate_ai.projects import (
     DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
     PROJECT_FILENAME,
+    ProjectConfigurationSnapshot,
+    ProjectContext,
 )
 
 from .component_markdown import parse_component_markdown
@@ -92,9 +95,79 @@ class _SourceMetadataObservation:
     placement into a source partition by walking the metadata directory.
     """
 
-    def __init__(self, root, owner):
-        self.root, self.owner = root, owner
+    __slots__ = (
+        "root",
+        "owner",
+        "manifest",
+        "root_node",
+        "_absences",
+        "_snapshot",
+        "_context",
+    )
+
+    def __init__(
+        self,
+        root,
+        owner,
+        *,
+        manifest,
+        root_node,
+        snapshot,
+        context,
+        _set,
+        _get,
+        _missing,
+    ):
+        try:
+            _get(self, "root")
+        except _missing:
+            pass
+        else:
+            raise TypeError("original source metadata cannot be reinitialized")
+        _set(self, "root", root)
+        _set(self, "owner", owner)
         self._live()
+        if (
+            type(manifest) is not RefreshFileObservation
+            or manifest.path
+            not in (root / PROJECT_FILENAME, root / "litai" / PROJECT_FILENAME)
+            or manifest.content is None
+            or manifest.signature is None
+            or type(root_node) is not tuple
+            or len(root_node) != 3
+            or any(type(part) is not int for part in root_node)
+        ):
+            raise TypeError("exact original manifest and root observation required")
+        if (
+            type(snapshot) is not ProjectConfigurationSnapshot
+            or type(context) is not ProjectContext
+            or type(snapshot.definition) is not ProjectDefinition
+            or snapshot.definition.framework_directory not in (None, "litai")
+            or snapshot.root != root
+            or context.root != root
+            or snapshot.content != manifest.content
+            or snapshot.manifest_path != manifest.path
+            or context.manifest_path != manifest.path
+            or snapshot.directory_binding != context.directory_binding
+            or context.framework_root
+            != (
+                root / "litai"
+                if snapshot.definition.framework_directory == "litai"
+                else root
+            )
+        ):
+            raise TypeError("same original loader snapshot and context required")
+        _set(self, "manifest", manifest)
+        _set(self, "root_node", root_node)
+        _set(self, "_snapshot", snapshot)
+        _set(self, "_context", context)
+        _set(self, "_absences", {})
+
+    def __setattr__(self, name, value):
+        raise AttributeError("original source metadata bindings are immutable")
+
+    def __delattr__(self, name):
+        raise AttributeError("original source metadata bindings are immutable")
 
     def _live(self):
         from .bounded_role_observation import current_role_observation
@@ -111,7 +184,11 @@ class _SourceMetadataObservation:
             PROJECT_FILENAME,
             HARNESS_WRAPPER_FILENAME,
         }:
-            coordinate = retained_scaffold_coordinate(self.root, relative)
+            coordinate = retained_scaffold_coordinate(
+                self.root,
+                relative,
+                _observation=self,
+            )
         # Component and declared source coordinates already name application-
         # relative paths. The original bounded reader still owns their inputs.
         return self.owner.file(
@@ -119,6 +196,64 @@ class _SourceMetadataObservation:
             optional=optional,
             maximum_bytes=_input_limit(relative),
         ).content
+
+    def read_coordinate(self, relative, *, optional=False):
+        from .project_layout_finite_creations import retained_metadata_absence
+
+        self._live()
+        if not optional:
+            raise TypeError("only original metadata shadow absence is available")
+        self.owner._begin_io()
+        try:
+            frontier = retained_metadata_absence(
+                self.root,
+                self.root_node,
+                relative,
+                charge=self.owner._ledger.charge_records,
+            )
+            if relative in self._absences and self._absences[relative] != frontier:
+                _fail("original retained metadata shadow frontier changed")
+            self._absences[relative] = frontier
+            return None
+        except BaseException:
+            self.owner._poisoned = True
+            raise
+        finally:
+            self.owner._io_active = False
+
+    def require_current(self):
+        from .project_layout_finite_creations import retained_metadata_absences
+
+        self._live()
+        names = tuple(self._absences)
+        if not names:
+            return
+        self.owner._begin_io()
+        try:
+            frontiers = retained_metadata_absences(
+                self.root,
+                self.root_node,
+                names,
+                charge=self.owner._ledger.charge_records,
+            )
+            if frontiers != tuple(self._absences[name] for name in names):
+                _fail("original retained metadata shadow frontier changed")
+        except BaseException:
+            self.owner._poisoned = True
+            raise
+        finally:
+            self.owner._io_active = False
+
+    def project_context(self):
+        self._live()
+        observed = self.owner.file(
+            self.manifest.path,
+            maximum_bytes=DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
+        )
+        if observed != self.manifest:
+            _fail("original manifest changed during coordinate resolution")
+        self._live()
+        return self._snapshot, self._context
 
     def json_value(self, content, label):
         self._live()
@@ -156,19 +291,32 @@ def _inputs(
     _authored_lock=None,
     _authored_storage=None,
     _root_preparation=None,
+    _metadata_ports=None,
 ):
+    if type(_metadata_ports) is not tuple or len(_metadata_ports) != 2:
+        raise TypeError("original metadata constructor ports required")
+    construct_metadata, validate_metadata = _metadata_ports
+    project = _project_roles(root)
     if _observation is None:
         from .bounded_role_observation import current_role_observation
 
         owner = current_role_observation()
         if owner is not None:
-            _observation = _SourceMetadataObservation(root, owner)
-    project = _project_roles(root)
+            _observation = construct_metadata(
+                root,
+                owner,
+                manifest=project.manifest,
+                root_node=project.lineage[-1][1:4],
+                snapshot=project._snapshot,
+                context=project._context,
+            )
+    coordinate_options = {} if _observation is None else {"_observation": _observation}
+    metadata_directory = retained_scaffold_path(root, ".literate", **coordinate_options)
     lineages = [
         (root, _lineage(root)),
         (
-            retained_scaffold_path(root, ".literate"),
-            _lineage(retained_scaffold_path(root, ".literate")),
+            metadata_directory,
+            _lineage(metadata_directory),
         ),
     ]
     names = (
@@ -182,7 +330,7 @@ def _inputs(
     )
     observations = tuple(
         _file(
-            retained_scaffold_path(root, name),
+            retained_scaffold_path(root, name, **coordinate_options),
             optional=name == RETAINED_LAYOUT_PATH,
             maximum_bytes=_input_limit(name),
         )
@@ -194,7 +342,7 @@ def _inputs(
 
         observations += (
             _file(
-                retained_scaffold_path(root, CHECKPOINT),
+                retained_scaffold_path(root, CHECKPOINT, **coordinate_options),
                 maximum_bytes=maximum_checkpoint_bytes,
             ),
         )
@@ -230,7 +378,14 @@ def _inputs(
                 _fail("root source phase requires the complete mixed-partition owner")
             from .retained_layout import _original_layout_coordinates
 
-            layout = _original_layout_coordinates(_root_preparation, root, lift)
+            layout = _original_layout_coordinates(
+                _root_preparation,
+                root,
+                lift,
+                project=project,
+                _observation=_observation,
+                _validate_observation=validate_metadata,
+            )
             original_root = True
     if not original_root:
         layout = resolve_structural_layout(root, lift, _observation=_observation)
@@ -275,6 +430,9 @@ def _inputs(
         if type(_authored_capture) is not _Capture:
             raise TypeError("actual source authored witness capture required")
         _authored_capture.observe(project, layout, observations, lineages, authoring)
+    if type(_observation) is _SourceMetadataObservation:
+        validate_metadata(_observation)
+        _observation.require_current()
     return layout, observations, lineages
 
 
@@ -1982,3 +2140,291 @@ def _require_source_phase_resources(plan, pool):
     ):
         _fail("private journal/stages overlap retained source")
     _require_prepared(plan)
+
+
+def _bind_original_source_metadata_observation():
+    """Bind adapter methods to the already published original Role provider."""
+    from .bounded_role_observation import _original_role_metadata_guard
+    from .project_layout_finite_creations import (
+        retained_metadata_absence,
+        retained_metadata_absence_guard,
+        retained_metadata_absences,
+    )
+
+    namespace, adapter_type = globals(), _SourceMetadataObservation
+    role_guard = _original_role_metadata_guard
+    read_guard = retained_metadata_absence_guard
+    read_codes = tuple(
+        (
+            fn,
+            fn.__code__,
+            fn.__defaults__,
+            fn.__kwdefaults__,
+            tuple((fn.__kwdefaults__ or {}).items()),
+        )
+        for fn in (
+            retained_metadata_absence,
+            retained_metadata_absences,
+            read_guard,
+            retained_scaffold_coordinate,
+            retained_scaffold_path,
+        )
+    )
+    role_seal = (
+        role_guard.__code__,
+        role_guard.__defaults__,
+        role_guard.__kwdefaults__,
+        tuple((role_guard.__kwdefaults__ or {}).items()),
+    )
+    original_live = adapter_type._live
+    exact, size, some, text, failure, mapping = type, len, any, str, ValueError, vars
+    raw_attribute = object.__getattribute__
+    # Only the original DATA projection's actual aliases and descriptor are
+    # needed here; project parsing remains the loader's existing responsibility.
+    projection_globals = tuple(
+        (
+            name,
+            name in namespace,
+            namespace.get(name, original_live.__builtins__.get(name)),
+        )
+        for name in (
+            "ProjectConfigurationSnapshot",
+            "ProjectContext",
+            "ProjectDefinition",
+            "RefreshFileObservation",
+            "PROJECT_FILENAME",
+            "DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES",
+            "retained_scaffold_coordinate",
+            "retained_scaffold_path",
+            "type",
+            "tuple",
+            "len",
+            "any",
+            "int",
+            "TypeError",
+            "AttributeError",
+        )
+    )
+    projection_classes = tuple(
+        (cls, cls.__bases__, cls.__mro__, tuple(mapping(cls).items()))
+        for cls in (ProjectConfigurationSnapshot, ProjectContext, ProjectDefinition)
+    )
+    manifest_property = ProjectContext.manifest_path
+    manifest_getter = manifest_property.fget
+    manifest_getter_seal = (
+        manifest_getter.__code__,
+        manifest_getter.__defaults__,
+        manifest_getter.__kwdefaults__,
+        tuple((manifest_getter.__kwdefaults__ or {}).items()),
+    )
+    project_namespace = manifest_getter.__globals__
+    project_filename = project_namespace["PROJECT_FILENAME"]
+
+    def same(function, code, defaults, keywords, items):
+        actual = function.__kwdefaults__
+        return (
+            function.__code__ is code
+            and function.__defaults__ is defaults
+            and actual is keywords
+            and size(actual or {}) == size(items)
+            and not some(exact(key) is not text for key in (actual or {}))
+            and not some((actual or {}).get(key) is not value for key, value in items)
+        )
+
+    def current(adapter=None):
+        actual_class = mapping(adapter_type)
+        if (
+            namespace.get("_SourceMetadataObservation") is not adapter_type
+            or namespace.get("_original_source_metadata_guard") is not current
+            or adapter_type.__bases__ is not bases
+            or adapter_type.__mro__ is not mro
+            or size(actual_class) != size(class_items)
+            or some(actual_class.get(name) is not value for name, value in class_items)
+            or some(not same(*row) for row in codes)
+            or some(not same(*row) for row in read_codes)
+            or not same(role_guard, *role_seal)
+            or some(
+                (name in namespace) != present
+                or namespace.get(name, original_live.__builtins__.get(name))
+                is not value
+                for name, present, value in projection_globals
+            )
+            or some(
+                cls.__bases__ is not original_bases
+                or cls.__mro__ is not original_mro
+                or size(mapping(cls)) != size(items)
+                or some(mapping(cls).get(name) is not value for name, value in items)
+                for cls, original_bases, original_mro, items in projection_classes
+            )
+            or not same(manifest_getter, *manifest_getter_seal)
+            or project_namespace.get("PROJECT_FILENAME") is not project_filename
+        ):
+            raise failure("original source metadata adapter changed")
+        read_guard()
+        if adapter is None:
+            role_guard()
+            return
+        if exact(adapter) is not adapter_type:
+            raise failure("original source metadata adapter methods required")
+        owner = raw_attribute(adapter, "owner")
+        role_guard(owner)
+
+    current_code = current.__code__
+
+    def checked(adapter=None):
+        if (
+            current.__code__ is not current_code
+            or current.__defaults__ is not current_defaults
+            or current.__kwdefaults__ is not None
+        ):
+            raise failure("original source metadata adapter guard changed")
+        current(adapter)
+
+    current_defaults = current.__defaults__
+
+    def live(self):
+        checked(self)
+        original_live(self)
+        checked(self)
+
+    adapter_type._live = live
+    original_init = adapter_type.__init__
+    raw_setter, missing_attribute = object.__setattr__, AttributeError
+
+    def initialize(self, root, owner, *, manifest, root_node, snapshot, context):
+        checked()
+        original_init(
+            self,
+            root,
+            owner,
+            manifest=manifest,
+            root_node=root_node,
+            snapshot=snapshot,
+            context=context,
+            _set=raw_setter,
+            _get=raw_attribute,
+            _missing=missing_attribute,
+        )
+        checked(self)
+
+    adapter_type.__init__ = initialize
+    class_items = tuple(vars(adapter_type).items())
+    bases, mro = adapter_type.__bases__, adapter_type.__mro__
+    methods = (
+        "__init__",
+        "__setattr__",
+        "__delattr__",
+        "_live",
+        "read",
+        "read_coordinate",
+        "project_context",
+        "require_current",
+        "json_value",
+        "paths_beneath",
+    )
+    functions = tuple(vars(adapter_type)[name] for name in methods) + (
+        original_live,
+        original_init,
+    )
+    codes = tuple(
+        (
+            fn,
+            fn.__code__,
+            fn.__defaults__,
+            fn.__kwdefaults__,
+            tuple((fn.__kwdefaults__ or {}).items()),
+        )
+        for fn in functions
+    )
+
+    def create(*args, **kwargs):
+        checked()
+        result = adapter_type(*args, **kwargs)
+        checked(result)
+        return result
+
+    create_seal = (
+        create.__code__,
+        create.__defaults__,
+        create.__kwdefaults__,
+        tuple((create.__kwdefaults__ or {}).items()),
+    )
+    checked_seal = (
+        checked.__code__,
+        checked.__defaults__,
+        checked.__kwdefaults__,
+        tuple((checked.__kwdefaults__ or {}).items()),
+    )
+
+    def provider_current():
+        if (
+            namespace.get("_source_metadata_observation") is not create
+            or namespace.get("_bind_original_source_metadata_ports") is not bind_ports
+            or not same(create, *create_seal)
+            or not same(checked, *checked_seal)
+            or bind_ports.__code__ is not binder_code
+            or bind_ports.__defaults__ is not None
+            or bind_ports.__kwdefaults__ is not None
+        ):
+            raise failure("original source metadata constructor provider changed")
+        checked()
+
+    def bind_ports():
+        """Bind private calls to this provider's original facts, never new ones."""
+        provider_current()
+
+        def construct(*args, **kwargs):
+            provider_current()
+            result = create(*args, **kwargs)
+            provider_current()
+            checked(result)
+            return result
+
+        def validate(adapter=None):
+            provider_current()
+            checked(adapter)
+
+        return construct, validate
+
+    binder_code = bind_ports.__code__
+    return current, create, bind_ports
+
+
+(
+    _original_source_metadata_guard,
+    _source_metadata_observation,
+    _bind_original_source_metadata_ports,
+) = _bind_original_source_metadata_observation()
+del _bind_original_source_metadata_observation
+
+
+def _bind_original_input_metadata_constructor(implementation):
+    ports = _bind_original_source_metadata_ports()
+    code, defaults, keywords = (
+        implementation.__code__,
+        implementation.__defaults__,
+        implementation.__kwdefaults__,
+    )
+    items = tuple((keywords or {}).items())
+    size, some, exact, text, failure = len, any, type, str, ValueError
+
+    def inputs(*args, **kwargs):
+        actual = implementation.__kwdefaults__
+        if (
+            implementation.__code__ is not code
+            or implementation.__defaults__ is not defaults
+            or actual is not keywords
+            or size(actual or {}) != size(items)
+            or some(exact(key) is not text for key in (actual or {}))
+            or some((actual or {}).get(key) is not value for key, value in items)
+            or "_metadata_ports" in kwargs
+        ):
+            raise failure("original input metadata constructor boundary changed")
+        ports[1]()
+        return implementation(*args, **kwargs, _metadata_ports=ports)
+
+    return inputs
+
+
+_inputs = _bind_original_input_metadata_constructor(_inputs)
+del _bind_original_input_metadata_constructor

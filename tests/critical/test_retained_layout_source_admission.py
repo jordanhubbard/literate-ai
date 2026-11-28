@@ -7,6 +7,7 @@ import errno
 import json
 import os
 import stat
+import sys
 import unittest
 from contextlib import contextmanager
 from dataclasses import replace
@@ -321,6 +322,10 @@ class SourceAdmissionTests(unittest.TestCase):
         )
 
         self.assertEqual(self.input_budget.maximum_entries, 65536)
+        for index in range(50):
+            (self.source / f"entry-budget-{index:04d}.txt").write_bytes(
+                f"native source entry {index}\n".encode()
+            )
         before = (self.source / "app.py").read_bytes()
         source_inode = self.source.stat().st_ino
         source_error, controls, descriptors = [], [], []
@@ -397,6 +402,51 @@ class SourceAdmissionTests(unittest.TestCase):
                 maximum_metadata_bytes=self.metadata_limit,
             )
             self.assertEqual(saved.document["source_phase_identity"], phase_identity)
+        for index in range(50):
+            self.assertEqual(
+                (self.source / f"entry-budget-{index:04d}.txt").read_bytes(),
+                f"native source entry {index}\n".encode(),
+            )
+
+    def test_shared_lineages_admit_original_small_source_move(self):
+        self.assertEqual(self.input_budget.maximum_entries, 65536)
+        self.assertEqual(self.metadata_limit, 4 * 1024**3)
+        source_inode = self.source.stat().st_ino
+        before = {
+            path.relative_to(self.source): path.read_bytes()
+            for path in self.source.rglob("*")
+            if path.is_file()
+        }
+        with self.inspecting() as (owner, phase, _pool, _journal):
+            with phase.complete_partition(
+                budget=self.input_budget,
+                maximum_metadata_bytes=self.metadata_limit,
+            ):
+                result = phase.move_source()
+                usage = owner.usage
+            self.assertEqual(result["state"], "source-moved-metadata-pending")
+            self.assertFalse(result["relocation_complete"])
+            self.assertLessEqual(usage["entries"], self.input_budget.maximum_entries)
+            self.assertLessEqual(usage["files"], self.input_budget.maximum_files)
+            self.assertLessEqual(usage["metadata_bytes"], self.metadata_limit)
+            self.assertLessEqual(
+                usage["payload_bytes"] + usage["reread_reserve_bytes"],
+                self.input_budget.maximum_total_bytes,
+            )
+            owner.require_current()
+        self.assertFalse(self.source.exists())
+        self.assertEqual(self.destination.stat().st_ino, source_inode)
+        self.assertEqual(
+            {
+                path.relative_to(self.destination): path.read_bytes()
+                for path in self.destination.rglob("*")
+                if path.is_file()
+            },
+            before,
+        )
+        self.assertEqual(list(self.metadata.iterdir()), [])
+        self.assertEqual(list(self.retired.iterdir()), [])
+        self.assertTrue((self.project / "litai/layout.pending").is_file())
 
     def test_changed_retained_metadata_backup_refuses_without_erasure(self):
         self.input_budget = replace(self.input_budget, maximum_entries=131072)
@@ -597,25 +647,32 @@ class SourceAdmissionTests(unittest.TestCase):
         reserve = reads._RoleObservation.reserve_lineage
         with self.inspecting() as (owner, phase, _pool, _journal):
             reader = preparation._state(owner).reader
+            observed = []
+            previous_profile = sys.getprofile()
 
-            def check(actual, path):
-                if (
-                    actual is reader
-                    and path.is_relative_to(self.destination)
-                    and path not in reader._lineage_allowances
-                ):
-                    self.assertFalse(
-                        phase._attempted, "fresh lineage debit after movement intent"
-                    )
-                return reserve(actual, path)
+            def check(frame, event, argument):
+                if event == "call" and frame.f_code is reserve.__code__:
+                    actual, path = frame.f_locals["self"], frame.f_locals["path"]
+                    if actual is reader and path.is_relative_to(self.destination):
+                        observed.append(path)
+                        if path not in reader._lineage_allowances:
+                            self.assertFalse(
+                                phase._attempted,
+                                "fresh lineage debit after movement intent",
+                            )
+                if previous_profile is not None:
+                    previous_profile(frame, event, argument)
 
             with phase.complete_partition(
                 budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
             ):
-                with mock.patch.object(
-                    reads._RoleObservation, "reserve_lineage", check
-                ):
+                # Observe original method calls without replacing a sealed port.
+                sys.setprofile(check)
+                try:
                     phase.move_source()
+                finally:
+                    sys.setprofile(previous_profile)
+            self.assertTrue(observed, "original destination lineage calls not observed")
 
     def test_preparation_end_during_last_native_callback_revokes_currentness(self):
         self.input_budget = replace(self.input_budget, maximum_entries=131072)
@@ -1137,6 +1194,13 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
         class InspectionComplete(Exception):
             pass
 
+        # Shared lineage DATA makes the old small workload fit this same quota.
+        # Retain every original rejection/preservation assertion against real
+        # extra inputs, observed by both producers from their first capture.
+        for number in range(50):
+            (self.source / f"allowance-{number:03d}.txt").write_bytes(
+                b"actual retained input\n"
+            )
         self.copy_budget = replace(self.copy_budget, maximum_entries=69632)
         self.copy_metadata = 8 * 1024**3
         self.update_budget, self.update_sequence = self.copy_budget, 0
@@ -1204,6 +1268,88 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
                 update.require_current()
                 catalog.require_current()
                 # This refusal does not claim a consuming source transaction.
+                raise InspectionComplete()
+
+        for number in range(50):
+            self.assertEqual(
+                (self.source / f"allowance-{number:03d}.txt").read_bytes(),
+                b"actual retained input\n",
+            )
+
+    def test_shared_lineages_fund_original_small_discovery_without_effects(self):
+        class InspectionComplete(Exception):
+            pass
+
+        self.copy_budget = replace(self.copy_budget, maximum_entries=69632)
+        self.copy_metadata = 8 * 1024**3
+        self.update_budget, self.update_sequence = self.copy_budget, 0
+        with (
+            self.assertRaises(InspectionComplete),
+            self.updated(adopt_added=True) as update,
+        ):
+            with self.copying(framework_update=update) as catalog:
+                catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                usage = preparation._predecessor_usage(update, catalog)
+                names = sorted(self.project.rglob("*"))
+                source = (
+                    self.source.stat().st_ino,
+                    (self.source / "app.py").read_bytes(),
+                )
+                before = {
+                    self.project / name: (
+                        (self.project / name).read_bytes()
+                        if (self.project / name).exists()
+                        else None
+                    )
+                    for name in (
+                        transaction.RETAINED_LAYOUT_PATH,
+                        transaction._LIFT,
+                        transaction.HARNESS_WRAPPER_FILENAME,
+                    )
+                }
+                with mock.patch.object(
+                    transaction,
+                    "move_layout_entry_exclusive",
+                    side_effect=AssertionError("source effect during preparation"),
+                ) as effect:
+                    with preparation.prepared_retained_layout_source_move(
+                        self.project,
+                        "retained",
+                        budget=self.copy_budget,
+                        maximum_metadata_bytes=self.copy_metadata,
+                        framework_update=update,
+                        catalog_copy=catalog,
+                    ) as owner:
+                        owner.require_current()
+                        self.assertLessEqual(owner.usage["entries"], 69632)
+                        self.assertLessEqual(
+                            owner.usage["files"], self.copy_budget.maximum_files
+                        )
+                        self.assertLessEqual(
+                            owner.usage["payload_bytes"]
+                            + owner.usage["reread_reserve_bytes"],
+                            self.copy_budget.maximum_total_bytes,
+                        )
+                        self.assertLessEqual(
+                            owner.usage["metadata_bytes"], self.copy_metadata
+                        )
+                effect.assert_not_called()
+                self.assertEqual(sorted(self.project.rglob("*")), names)
+                self.assertEqual(
+                    (self.source.stat().st_ino, (self.source / "app.py").read_bytes()),
+                    source,
+                )
+                self.assertFalse(self.destination.exists())
+                self.assertFalse((self.project / "litai/layout.pending").exists())
+                self.assertEqual(list(self.metadata.iterdir()), [])
+                self.assertEqual(list(self.retired.iterdir()), [])
+                for path, content in before.items():
+                    self.assertEqual(
+                        path.read_bytes() if path.exists() else None, content
+                    )
+                self.assertEqual(preparation._predecessor_usage(update, catalog), usage)
+                update.require_current()
+                catalog.require_current()
                 raise InspectionComplete()
 
     def test_metadata_preflight_refuses_after_original_allowance_is_reserved(self):

@@ -132,13 +132,15 @@ Mermaid diagrams make its behavior, boundaries, and examples legible in the
 literate-programming tradition.
 
 Run `litai project validate` from anywhere below the root. The command discovers
-`literate.project.json`, requires the declared root `SKILL.md`, checks every declared
+the project manifest, requires its declared onboarding skill, checks every declared
 catalog boundary, validates each provider shim that is present, checks the configured
-source-intelligence evidence without mutation, and requires a supported runtime, regular non-symlink
-database, exact project-root binding, and zero pending/worktree drift. It then validates
+source-intelligence evidence without mutation. For enabled CodeGraph stages, it
+checks the supported runtime, regular non-symlink database, exact project-root
+binding and zero pending/worktree drift. Default provider `none` with stages `off`
+requires no source-intelligence database. It then validates
 Components and Flavors, verifies all content pins, checks exact skill dependencies and
 cycles in the forward and inverse catalogs, enumerates every declared Markdown document
-with a content identity, and rejects retained generated Component source. `SKILL.md`
+with a content identity, and rejects retained generated Component source. The onboarding skill
 must link into declared documentation; a local link to an undeclared ambient document
 fails validation. Exactly one declared document must contain a current
 `literate-ai:authority-reviewed` marker bound to the whole authority and documentation
@@ -494,18 +496,19 @@ must be an existing directory inside the project. This lets a narrowly scoped pr
 avoid manufacturing unused catalogs while keeping its narrative discoverable.
 
 `test_receipt` is different from a catalog root. It is an optional normalized relative
-file path outside every catalog, `SKILL.md`, and `literate.project.json`. The canonical
-initializer sets it to `verification/current.json` but does not invent a receipt. Only
+file path outside every catalog, the onboarding skill and the project manifest. The
+initializer sets it to `litai/verification/current.json` in a fresh contained project
+(`verification/current.json` with root placement), but does not invent a receipt. Only
 an exact passing test result admitted by `test_receipt_policy` may create or replace
 that file. The policy pins the suite ID/version, exact runner identity, required
 evidence kinds, and minimum passing-test count. Without it, no receipt is current.
 
 `default_flavor_selectors` is also optional. It is an ordered list of `+flavor` and
 `-flavor` preference operations applied only when a Component declares the Flavor's
-axis; explicit request selectors run afterward. This repository and every initialized
-project record `+flavor://literate-ai/build-bazel` and include the exact pinned
-Flavor/specification and build
-skill. An explicit alternative or `-bazel` wins before prompt assembly. Components
+axis; explicit request selectors run afterward. Fresh full-profile initialization
+defaults to Make, Python, pip and the host OS, with content-pinned Flavors and their
+skills. Conversion derives defaults from the existing repository. Bazel remains an
+explicit alternative. Explicit selectors win before prompt assembly. Components
 without a `build.system` slot—including the current samples—remain unchanged, and a
 selected preference is not evidence of the build system that actually ran.
 
@@ -528,8 +531,8 @@ rebuilds and independently verifies it.
 Every Markdown file and local asset beneath `documentation_roots` is declared project
 content. Local links must resolve without symlinks or path escapes, fragment anchors
 must exist, remote images are rejected, every declared document must be reachable from
-the root `SKILL.md`, and every declared asset must be referenced. Ambient Markdown
-outside those roots does not join the graph.
+the manifest-declared onboarding skill, and every declared asset must be referenced.
+Ambient Markdown outside those roots does not join the graph.
 
 Standard `.pyc` and `.pyo` bytecode beneath a `__pycache__` directory, including
 CPython numeric temporary suffixes during atomic writes, is generated cache data
@@ -654,12 +657,11 @@ Component output, and is therefore a separate taxonomy.
 
 ## Create a project
 
-`litai init PATH` intentionally creates the complete canonical taxonomy plus the
-root onboarding skill, thin Codex, Claude, Cursor, and generic agent entrypoints (the
+`litai init PATH` intentionally creates the complete canonical taxonomy under
+`litai/`, its onboarding skill, and thin Codex, Claude, Cursor and generic agent entrypoints (the
 generic `AGENTS.md` is also consumed by OpenCode), and the
-pinned `bazel` Flavor/specification with its exact build skill. Its manifest selects
-`+flavor://literate-ai/build-bazel` as a removable generation-prompt preference, not
-runtime enforcement. Those
+pinned Make, Python, pip and host OS Flavors with their skills. Its manifest records
+those defaults as removable generation-prompt preferences. Those
 defaults provide an obvious starting point, while hand-authored manifests may leave
 unused catalog lists empty and omit every provider shim. Initialization creates no
 generated application source and no synthetic passing receipt. Add only the catalogs the

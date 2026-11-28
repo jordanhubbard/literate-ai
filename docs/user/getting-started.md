@@ -412,7 +412,9 @@ The repository lock binds reviewed root authority, its graph and declared child
 pins. A changed Git index or `.gitmodules` refuses locking instead of silently
 refreshing those declarations. Plans keep local checkout observations separate from
 the portable lock identity. Neither a current lock nor a plan establishes child
-acceptance, publication, or execution order. Reviewed refresh/re-pin remains pending.
+acceptance, publication, or execution order. Use the reviewed refresh plan/check/apply
+flow above to change pins; a successful refresh still requires current child and
+full-stack lifecycle qualification.
 
 Pass model, recipe, large-review and matrix-cell options to an individual Component,
 not an orchestration root. Flavor/target selectors at a root require root-owned
@@ -813,6 +815,7 @@ flowchart TD
 - [Project release protocol](../architecture/project-releases.md) separates version
   preparation, gate evidence, and explicitly authorized publication.
 
-When in doubt, return to the project root `SKILL.md`. It is deliberately the one file
+When in doubt, return to the manifest-declared onboarding skill, normally
+`litai/SKILL.md` in a new derived project. It is deliberately the one file
 an unfamiliar agent needs to discover the taxonomy, prerequisites, safety boundaries,
 and linked project documentation.

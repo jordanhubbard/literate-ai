@@ -360,7 +360,8 @@ to the enclosing selection. `litai plan` reports every resolved binding and trac
 model egress. `run` deliberately has no model option because it launches an already-built
 artifact.
 
-`litai` is the only installed CLI. A complete project lifecycle can be driven with:
+`litai` is the primary operator CLI; the package also installs the `litai-mcp`
+server entry point. A complete project lifecycle can be driven with:
 
 ```bash
 litai build samples/hello-component --target host

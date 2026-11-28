@@ -76,13 +76,17 @@ def _bootstrap_current(proof, resources):
 
 
 def _absence(resources, coordinate):
+    return _absence_at(
+        resources.snapshot.root, resources.context.directory_binding[0][:3], coordinate
+    )
+
+
+def _absence_at(root, expected, coordinate, *, _costs=False, _limits=None):
     """Observe missing frontier via original no-follow directory descriptors.
 
     No target-following exists/stat/open, private payload or missing descendant
     probe occurs. Existing parents and portable names are checked outer first.
     """
-    root = resources.snapshot.root
-    expected = resources.context.directory_binding[0][:3]
     parts = coordinate.split("/")
     witness = []
     charged_entries = charged_bytes = 0
@@ -93,7 +97,11 @@ def _absence(resources, coordinate):
         with os.scandir(cursor) as entries:
             for entry in entries:
                 charged_entries += 1
+                if _limits is not None and charged_entries > _limits[0]:
+                    _fail("shadow closing census exceeds its funded entry bound")
                 charged_bytes += len(os.fsencode(entry.name))
+                if _limits is not None and charged_bytes > _limits[1]:
+                    _fail("shadow closing census exceeds its funded name-byte bound")
                 if charged_entries > _MAX_ENTRIES or charged_bytes > _MAX_TOTAL_BYTES:
                     _fail("creation absence observation exceeds its census bound")
                 names.append(entry.name)
@@ -122,7 +130,69 @@ def _absence(resources, coordinate):
 
     with _root_cursor(root, expected) as cursor:
         visit(cursor, 0)
-    return tuple(witness)
+    result = tuple(witness)
+    return (result, charged_entries, charged_bytes) if _costs else result
+
+
+def _retained_metadata_absence(root, expected, coordinate, *, charge=None):
+    return _retained_metadata_absences(root, expected, (coordinate,), charge=charge)[0]
+
+
+def _retained_metadata_absences(root, expected, coordinates, *, charge=None):
+    """Finite read-only shadow frontier, without opening a leaf or granting effects."""
+    if type(coordinates) is not tuple or len(coordinates) > 8192:
+        _fail("finite original retained metadata coordinates required")
+    for coordinate in coordinates:
+        _retained_metadata_coordinate(coordinate)
+    if charge is None:
+        return tuple(_absence_at(root, expected, name) for name in coordinates)
+    before, entries, name_bytes = [], 0, 0
+    for name in coordinates:
+        row = _absence_at(
+            root,
+            expected,
+            name,
+            _costs=True,
+            _limits=(_MAX_ENTRIES - entries, _MAX_TOTAL_BYTES - name_bytes),
+        )
+        before.append(row)
+        entries += row[1]
+        name_bytes += row[2]
+    before = tuple(before)
+    # Reserve both censuses and one detection entry per closing scan. The final
+    # native pass invokes no callback and refuses a larger unfunded census.
+    charge(
+        2 * entries + len(before), 2 * (128 * entries + name_bytes) + 128 * len(before)
+    )
+    after = tuple(
+        _absence_at(root, expected, name, _limits=(row[1], row[2]))
+        for name, row in zip(coordinates, before, strict=True)
+    )
+    if after != tuple(row[0] for row in before):
+        _fail("retained metadata shadow frontier changed during accounting")
+    return after
+
+
+def _retained_metadata_coordinate(coordinate):
+    if type(coordinate) is not str or len(coordinate.encode("utf-8")) > 4096:
+        _fail("bounded retained metadata shadow coordinate required")
+    canonical_relative_posix_path(coordinate, label="retained metadata shadow")
+    parts = coordinate.split("/")
+    if (
+        len(parts) > 64
+        or not (
+            coordinate == "litai.harness.mk"
+            or coordinate.startswith("components/legacy-project-wrapper/")
+        )
+        or coordinate == "components/legacy-project-wrapper/implementation"
+        or coordinate.startswith("components/legacy-project-wrapper/implementation/")
+        or any(
+            part.casefold()
+            in {".git", ".ssh", ".aws", ".azure", ".env", "credentials.json"}
+            for part in parts
+        )
+    ):
+        _fail("shadow observation is outside retained metadata")
 
 
 @dataclass(frozen=True, slots=True, weakref_slot=True)
@@ -149,6 +219,7 @@ _FUNCTIONS = tuple(
         "_child_cursor",
         "_named",
         "_absence",
+        "_absence_at",
         "_alias",
         "_bootstrap_current",
         "_capture",
@@ -158,6 +229,16 @@ _FUNCTIONS = tuple(
         "_PROOF_ORIGINAL",
         "_TRANSITION",
     )
+)
+_ABSENCE_CODES = tuple(
+    (
+        function,
+        function.__code__,
+        function.__defaults__,
+        function.__kwdefaults__,
+        tuple((function.__kwdefaults__ or {}).items()),
+    )
+    for function in (_absence, _absence_at)
 )
 
 
@@ -169,6 +250,17 @@ def _implementation_current():
         or set(vars(_CLASS)) != {name for name, _value in _NAMESPACE}
         or any(vars(_CLASS)[name] is not value for name, value in _NAMESPACE)
         or any(globals().get(name) is not value for name, value in _FUNCTIONS)
+        or any(
+            function.__code__ is not code
+            or function.__defaults__ is not defaults
+            or function.__kwdefaults__ is not keywords
+            or len(function.__kwdefaults__ or {}) != len(items)
+            or any(
+                (function.__kwdefaults__ or {}).get(key) is not value
+                for key, value in items
+            )
+            for function, code, defaults, keywords, items in _ABSENCE_CODES
+        )
         or any(globals().get(name) is not value for name, value in _CONSTANTS)
         or scaffold._FRAMEWORK_IGNORE is not _IGNORE
     ):
@@ -400,3 +492,178 @@ def _bind_original_destination_absence(
 observe_original_framework_destination_absence = _bind_original_destination_absence(
     _absence, _implementation_current, _RESOURCE_ORIGINAL, canonical_relative_posix_path
 )
+
+
+def _bind_retained_metadata_reader():
+    """Seal this finite read graph once, independently of creation admission."""
+    import builtins
+    from types import CodeType, FunctionType, ModuleType
+
+    from literate_ai import _cache_lock as windows
+    from literate_ai.adapters import project_layout_framework_observation as cursors
+
+    namespace = globals()
+    roots = {
+        "retained_metadata_absence": _retained_metadata_absence,
+        "retained_metadata_absences": _retained_metadata_absences,
+    }
+    pending = [
+        *roots.values(),
+        _retained_metadata_coordinate,
+        _absence_at,
+        _alias,
+        _fail,
+        canonical_relative_posix_path,
+        stat_is_link_or_reparse,
+        _root_cursor,
+        _child_cursor,
+        _named,
+        cursors._identity,
+        cursors._fail,
+    ]
+    if os.name == "nt":
+        pending.extend(
+            (
+                cursors._windows_directory,
+                windows._default_windows_kernel32,
+                windows._Kernel32Windows.__init__,
+                windows._Kernel32Windows.open_reparse_aware,
+                windows._Kernel32Windows.close,
+            )
+        )
+    functions, slots = {}, {}
+
+    def slot(scope, name):
+        slots[id(scope), name] = (scope, name, name in scope, scope.get(name))
+
+    def names(code):
+        result = set(code.co_names)
+        for constant in code.co_consts:
+            if type(constant) is CodeType:
+                result.update(names(constant))
+        return result
+
+    while pending:
+        function = pending.pop()
+        if function in functions:
+            continue
+        if type(function) is not FunctionType:
+            raise ValueError(
+                "original retained metadata Python implementation required"
+            )
+        wrapped = vars(function).get("__wrapped__")
+        functions[function] = (
+            function.__code__,
+            function.__defaults__,
+            function.__kwdefaults__,
+            tuple((function.__kwdefaults__ or {}).items()),
+            wrapped,
+        )
+        if wrapped is not None:
+            pending.append(wrapped)
+        scope, used = function.__globals__, names(function.__code__)
+        # Both the defining export and imported aliases remain original.
+        if scope.get(function.__name__) is function:
+            slot(scope, function.__name__)
+        for name in used:
+            if name in scope or hasattr(builtins, name):
+                slot(scope, name)
+                if name not in scope and name in function.__builtins__:
+                    slot(function.__builtins__, name)
+            value = scope.get(name)
+            if type(value) is FunctionType:
+                pending.append(value)
+            if type(value) is ModuleType:
+                for attribute in used:
+                    if attribute in vars(value):
+                        slot(vars(value), attribute)
+                        delegate = vars(value)[attribute]
+                        if type(delegate) is FunctionType:
+                            pending.append(delegate)
+    for name in ("_MAX_ENTRIES", "_MAX_TOTAL_BYTES"):
+        slot(namespace, name)
+    for name in ("O_RDONLY", "O_DIRECTORY", "O_NOFOLLOW", "O_CLOEXEC"):
+        slot(vars(os), name)
+    if os.name == "nt":
+        slot(vars(windows), "_default_windows_kernel32")
+        for name in ("__init__", "open_reparse_aware", "close"):
+            slot(vars(windows._Kernel32Windows), name)
+    function_rows = tuple((fn, *row) for fn, row in functions.items())
+    slot_rows, exports = tuple(slots.values()), {}
+    size, some, exact, text, failure, mapping = len, any, type, str, ValueError, vars
+
+    def check():
+        for scope, name, present, value in slot_rows:
+            if (name in scope) is not present or scope.get(name) is not value:
+                raise failure("original retained metadata read dependency changed")
+        for fn, code, defaults, keywords, items, wrapped in function_rows:
+            actual = fn.__kwdefaults__
+            if (
+                fn.__code__ is not code
+                or fn.__defaults__ is not defaults
+                or actual is not keywords
+                or size(actual or {}) != size(items)
+                or some(exact(key) is not text for key in (actual or {}))
+                or some((actual or {}).get(key) is not value for key, value in items)
+                or mapping(fn).get("__wrapped__") is not wrapped
+            ):
+                raise failure("original retained metadata read implementation changed")
+        for name, (function, code) in exports.items():
+            if (
+                namespace.get(name) is not function
+                or function.__code__ is not code
+                or function.__defaults__ is not None
+                or function.__kwdefaults__ is not None
+            ):
+                raise failure("original retained metadata read boundary changed")
+
+    check_code = check.__code__
+
+    def current():
+        if (
+            check.__code__ is not check_code
+            or check.__defaults__ is not None
+            or check.__kwdefaults__ is not None
+        ):
+            raise failure("original retained metadata read checker changed")
+        check()
+
+    current_code = current.__code__
+
+    def checked():
+        if (
+            current.__code__ is not current_code
+            or current.__defaults__ is not None
+            or current.__kwdefaults__ is not None
+        ):
+            raise failure("original retained metadata read guard changed")
+        current()
+
+    def bind(function):
+        def call(*args, **kwargs):
+            checked()
+            charge = kwargs.get("charge")
+            if charge is not None:
+
+                def accounting(*values):
+                    checked()
+                    result = charge(*values)
+                    checked()
+                    return result
+
+                kwargs["charge"] = accounting
+            result = function(*args, **kwargs)
+            checked()
+            return result
+
+        return call
+
+    for name, function in roots.items():
+        port = bind(function)
+        exports[name] = (port, port.__code__)
+    exports["retained_metadata_absence_guard"] = (current, current.__code__)
+    return {name: function for name, (function, _code) in exports.items()}
+
+
+globals().update(_bind_retained_metadata_reader())
+del _bind_retained_metadata_reader

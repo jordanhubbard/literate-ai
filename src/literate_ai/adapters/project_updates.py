@@ -10,11 +10,21 @@ from dataclasses import replace
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-from literate_ai._filesystem import path_is_link_or_reparse
 from literate_ai.adapters.component_markdown import (
     ComponentMarkdownError,
     parse_component_markdown,
 )
+from literate_ai.adapters.initialized_records import (
+    _MAXIMUM_UPDATE_INPUT_BYTES,
+    _read_contract_at,
+)
+from literate_ai.adapters.initialized_records import (
+    ProjectUpdateError as ProjectUpdateError,
+)
+from literate_ai.adapters.initialized_records import (
+    _parse_contract_bytes as _parse_contract_bytes,
+)
+from literate_ai.adapters.initialized_records import _project_path as _project_path
 from literate_ai.adapters.project_initialization import (
     _STARTER_DOCS,
     _STARTER_TEMPLATE_FILES,
@@ -45,7 +55,6 @@ from literate_ai.contracts import (
     ProjectUpdateClassification,
     ProjectUpdateFile,
     ProjectUpdatePlan,
-    canonical_json_bytes,
 )
 from literate_ai.documentation import (
     DocumentationError,
@@ -66,74 +75,18 @@ from literate_ai.projects import (
 )
 from literate_ai.repository_urls import repository_origin_continues
 
-_MAXIMUM_UPDATE_INPUT_BYTES = 16 * 1024 * 1024
-
-
-class ProjectUpdateError(ValueError):
-    def __init__(self, code: str, message: str) -> None:
-        self.code = code
-        self.message = message
-        super().__init__(message)
-
 
 def _identity(content: bytes) -> ContentIdentity:
     return ContentIdentity(HashAlgorithm.SHA256, hashlib.sha256(content).hexdigest())
 
 
-def _project_path(root: Path, relative: str) -> Path:
-    path = root
-    for part in Path(relative).parts:
-        path /= part
-        if path_is_link_or_reparse(path):
-            raise ProjectUpdateError(
-                "project.update_path_unsafe",
-                "initialized framework path crosses a link or reparse point: "
-                f"{relative}",
-            )
-    return path
-
-
 def _read_contract(root: Path, relative: str, contract_type, observation=None):
-    path = _project_path(
-        ProjectConfigurationStore.context(root).framework_root, relative
+    return _read_contract_at(
+        ProjectConfigurationStore.context(root).framework_root,
+        relative,
+        contract_type,
+        observation,
     )
-    if not path.is_file():
-        raise ProjectUpdateError(
-            "project.update_evidence_unavailable",
-            f"initialized-project evidence is unavailable: {relative}",
-        )
-    try:
-        content = (
-            path.read_bytes() if observation is None else observation.read(relative)
-        )
-    except OSError as exc:
-        raise ProjectUpdateError(
-            "project.update_evidence_unavailable",
-            f"initialized-project evidence is unreadable: {relative}",
-        ) from exc
-    if len(content) > _MAXIMUM_UPDATE_INPUT_BYTES:
-        raise ProjectUpdateError(
-            "project.update_evidence_oversized",
-            f"initialized-project evidence exceeds the size limit: {relative}",
-        )
-    try:
-        value = (
-            json.loads(content)
-            if observation is None
-            else observation.json_value(content, relative)
-        )
-        contract = contract_type.from_dict(value)
-    except (TypeError, ValueError, UnicodeError) as exc:
-        raise ProjectUpdateError(
-            "project.update_evidence_invalid",
-            f"initialized-project evidence is invalid: {relative}",
-        ) from exc
-    if content != canonical_json_bytes(contract.to_dict()) + b"\n":
-        raise ProjectUpdateError(
-            "project.update_evidence_noncanonical",
-            f"initialized-project evidence is not canonical: {relative}",
-        )
-    return contract
 
 
 def _local_bytes(root: Path, relative: str, observation=None) -> bytes | None:

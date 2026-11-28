@@ -480,6 +480,15 @@ def _observe(capture, tree, git, namespace, destination, *, provider_checkout):
         for producer in (original.framework, original.catalog):
             if producer is not None:
                 producer.require_current()
+        from .retained_layout_source_destination import (
+            _allowance as destination_allowance,
+        )
+
+        coordinate = destination.relative_to(context.root).as_posix()
+        # This retained destination description is compulsory. Reserve its
+        # existing exact allowance before deriving the discovery sub-budget,
+        # rather than letting discovery spend capacity needed immediately after.
+        original.ledger.charge_records(*destination_allowance(ns.census, coordinate))
         remaining, metadata = _remaining(original.ledger)
         with ExitStack() as providers:
             framework, children, role_inputs, origin, provider = (
@@ -578,14 +587,9 @@ def _observe(capture, tree, git, namespace, destination, *, provider_checkout):
         )
         _require_original_destination_occupancy(context, directories)
         from .retained_layout_source_destination import (
-            _allowance as destination_allowance,
-        )
-        from .retained_layout_source_destination import (
             _from_original as original_destination,
         )
 
-        coordinate = destination.relative_to(context.root).as_posix()
-        original.ledger.charge_records(*destination_allowance(ns.census, coordinate))
         destination_state = original_destination(ns.census, ns.native, coordinate)
         graph = _source_effect_graph(
             ns.census.tree,

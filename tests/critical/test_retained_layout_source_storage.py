@@ -294,7 +294,7 @@ class SourceStorageTests(unittest.TestCase):
 
         self.external(present=True)
         revoked = []
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as caught:
             with self.prepare() as owner:
                 with self.pool(owner.plan) as (pool, _journal):
                     with owner.source_phase(
@@ -321,7 +321,11 @@ class SourceStorageTests(unittest.TestCase):
 
                             with mock.patch.object(transaction, "_close_tree", revoke):
                                 owner.require_current()
-        self.assertEqual(revoked, [True])
+        self.assertEqual(
+            revoked,
+            [True],
+            [str(error) for error in self.causes(caught.exception)],
+        )
         self.assertTrue(self.source.is_dir())
         self.assertFalse(self.destination.exists())
 

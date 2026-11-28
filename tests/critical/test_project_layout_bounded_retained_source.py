@@ -35,6 +35,41 @@ from tests.critical import test_project_layout_framework_resources as support
 
 
 class BoundedRetainedSourceTests(unittest.TestCase):
+    def test_read_port_and_guard_code_are_checked_by_original_source_caller(self):
+        _project, owner = self.fixture()
+        for function in (
+            production.retained_metadata_absence,
+            production.retained_metadata_absence_guard,
+        ):
+            with self.subTest(boundary=function.__name__):
+                original = function.__code__
+                try:
+                    function.__code__ = original.replace(co_name="changed")
+                    with self.assertRaisesRegex(ValueError, "read port changed"):
+                        production.require_original_bounded_retained_source(owner)
+                finally:
+                    function.__code__ = original
+
+    def test_new_metadata_methods_reject_same_object_code_mutation(self):
+        _project, owner = self.fixture()
+        for name in ("__init__", "read_coordinate", "project_context"):
+            with self.subTest(method=name):
+                function = getattr(production._Metadata, name)
+                original_code = function.__code__
+                try:
+                    function.__code__ = original_code.replace(co_name="changed")
+                    with self.assertRaisesRegex(ValueError, "metadata method changed"):
+                        production.require_original_bounded_retained_source(owner)
+                finally:
+                    function.__code__ = original_code
+
+    def test_new_metadata_optional_default_rejects_in_place_mutation(self):
+        _project, owner = self.fixture()
+        keywords = production._Metadata.read_coordinate.__kwdefaults__
+        with patch.dict(keywords, optional=True):
+            with self.assertRaisesRegex(ValueError, "metadata method changed"):
+                production.require_original_bounded_retained_source(owner)
+
     def fixture(self):
         project, _observed, origin = support.framework_fixture(self)
         implementation = "components/legacy-project-wrapper/implementation"

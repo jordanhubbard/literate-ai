@@ -38,6 +38,9 @@ class _RoleObservation:
         self._pid, self._active, self._poisoned = os.getpid(), True, False
         self._thread, self._io_active = threading.get_ident(), False
         self._lineage_allowances, self._lineages = set(), {}
+        # None is a prepaid slot, not a currentness observation. Completed
+        # slots retain immutable native rows shared by endpoint tuples.
+        self._lineage_rows = {}
         self._presences = {}
 
     @property
@@ -59,6 +62,8 @@ class _RoleObservation:
             or original[3] is not self._ledger.budget
             or original[4] != self._ledger.metadata
             or original[5] != self._ledger.reserve
+            or original[9] is not self._lineage_rows
+            or type(self._lineage_rows) is not dict
         ):
             self._poisoned = True
             _fail("original canonical read policy changed")
@@ -78,16 +83,26 @@ class _RoleObservation:
         if path in self._lineage_allowances:
             return
         try:
-            count = len(path.parts)
-            self._ledger.charge_records(2 * count)
+            # Fund endpoint/reference containers separately from unique rows.
+            # Reservations also precede controlled creation and source moves.
+            self._ledger.charge_records(2)
             size = 0
+            missing = 0
             for parent in path.parents:
                 size += len(str(parent).encode("utf-8"))
                 if 128 * size > self._ledger.metadata - self._ledger.charged:
                     _fail("ancestry exceeds shared metadata allowance")
+                missing += str(parent) not in self._lineage_rows
             size += len(str(path).encode("utf-8"))
+            missing += str(path) not in self._lineage_rows
+            self._ledger.charge_records(2 * missing)
+            # Keep the full original byte prepayment for endpoint reference
+            # arrays and freshly acquired transient native observations.
             self._ledger.charged += 128 * size
             self._ledger.require_capacity()
+            for parent in path.parents:
+                self._lineage_rows.setdefault(str(parent), None)
+            self._lineage_rows.setdefault(str(path), None)
             self._lineage_allowances.add(path)
         except BaseException:
             self._poisoned = True
@@ -95,11 +110,48 @@ class _RoleObservation:
 
     def remember_lineage(self, path, value):
         self._live()
-        if path in self._lineages and self._lineages[path] != value:
+        try:
+            if (
+                path not in self._lineage_allowances
+                or type(value) is not tuple
+                or len(value) != len(path.parents) + 1
+                or any(
+                    type(row) is not tuple
+                    or len(row) != 6
+                    or type(row[0]) is not str
+                    or any(type(part) is not int for part in row[1:])
+                    for row in value
+                )
+            ):
+                _fail("actual funded original ancestry rows required")
+            if path in self._lineages and self._lineages[path] != value:
+                _fail("original role ancestry changed")
+            # Validate every fresh row before retaining any. A prepaid None
+            # never provides native facts or skips the original fresh walk.
+            for row in value:
+                if row[0] not in self._lineage_rows:
+                    _fail("original ancestry row lacks its reservation")
+                previous = self._lineage_rows[row[0]]
+                if previous is not None and (
+                    type(previous) is not tuple
+                    or len(previous) != 6
+                    or type(previous[0]) is not str
+                    or any(type(part) is not int for part in previous[1:])
+                    or previous != row
+                ):
+                    _fail("original role ancestry changed")
+            if path in self._lineages:
+                self._live()
+                return self._lineages[path]
+            for row in value:
+                if self._lineage_rows[row[0]] is None:
+                    self._lineage_rows[row[0]] = row
+            self._lineages[path] = tuple(self._lineage_rows[row[0]] for row in value)
+            self._live()
+            return self._lineages[path]
+        except BaseException:
             self._poisoned = True
-            _fail("original role ancestry changed")
-        self._lineages[path] = value
-        self._live()
+            raise
 
     def remember_presence(self, path, value):
         self._live()
@@ -264,16 +316,20 @@ class _RoleObservation:
 
 
 @contextmanager
-def _role_observation_operation(*, budget, maximum_metadata_bytes, _ledger=None):
+def _role_observation_operation(
+    *, budget, maximum_metadata_bytes, _ledger=None, _accounting=None
+):
     """Retain one read owner without installing it across a caller yield."""
-    from .catalog_copy_plan import _Observation
+    if type(_accounting) is not tuple or len(_accounting) != 3:
+        raise TypeError("original accounting issuer required")
+    ledger_type, accounting_guard, accounting_seal = _accounting
 
     if _CURRENT.get() is not None:
         _fail("nested role read scopes are ambiguous")
     if _ledger is None:
-        _ledger = _Observation(budget, maximum_metadata_bytes, ())
+        _ledger = ledger_type(budget, maximum_metadata_bytes, ())
     elif (
-        type(_ledger) is not _Observation
+        type(_ledger) is not ledger_type
         or _ledger.budget != budget
         or _ledger.metadata != maximum_metadata_bytes
     ):
@@ -286,6 +342,10 @@ def _role_observation_operation(*, budget, maximum_metadata_bytes, _ledger=None)
         _ledger.budget,
         maximum_metadata_bytes,
         _ledger.reserve,
+        accounting_guard,
+        accounting_seal,
+        ledger_type,
+        owner._lineage_rows,
     )
     try:
         yield owner
@@ -345,3 +405,192 @@ def bounded_role_observation(*, budget, maximum_metadata_bytes, _ledger=None):
     ) as owner:
         with _activate_role_observation(owner):
             yield owner
+
+
+def _bind_original_role_metadata_guard():
+    """Publish Role method facts before importing the accounting provider."""
+    import builtins
+
+    namespace, owner_type = globals(), _RoleObservation
+    class_items = tuple(vars(owner_type).items())
+    bases, mro = owner_type.__bases__, owner_type.__mro__
+    methods = (
+        "__init__",
+        "_live",
+        "_begin_io",
+        "file",
+        "json_value",
+        "reserve_lineage",
+        "remember_lineage",
+        "require_current",
+    )
+    functions = tuple(vars(owner_type)[name] for name in methods) + (
+        current_role_observation,
+        _fail,
+    )
+    codes = tuple(
+        (
+            fn,
+            fn.__code__,
+            fn.__defaults__,
+            fn.__kwdefaults__,
+            tuple((fn.__kwdefaults__ or {}).items()),
+        )
+        for fn in functions
+    )
+    slots = [
+        (namespace, name, True, namespace[name])
+        for name in (
+            "_RoleObservation",
+            "_OPERATIONS",
+            "_CURRENT",
+            "_ACTIVATION",
+            "_ACTIVE",
+            "current_role_observation",
+            "_fail",
+        )
+    ]
+    for function in functions:
+        scope = function.__globals__
+        for name in function.__code__.co_names:
+            if name in scope or hasattr(builtins, name):
+                slots.append((scope, name, name in scope, scope.get(name)))
+                if name not in scope and name in function.__builtins__:
+                    inherited = function.__builtins__
+                    slots.append((inherited, name, True, inherited[name]))
+    slots = tuple(slots)
+    native = (
+        (vars(os), "getpid", os.getpid),
+        (vars(threading), "get_ident", threading.get_ident),
+    )
+    exact, size, some, text, failure, mapping = type, len, any, str, ValueError, vars
+    raw_attribute, missing_owner = object.__getattribute__, TypeError
+
+    def implementation(function, code, defaults, keywords, items):
+        actual = function.__kwdefaults__
+        return (
+            function.__code__ is code
+            and function.__defaults__ is defaults
+            and actual is keywords
+            and size(actual or {}) == size(items)
+            and not some(exact(key) is not text for key in (actual or {}))
+            and not some((actual or {}).get(key) is not value for key, value in items)
+        )
+
+    def guard(owner=None):
+        actual_class = mapping(owner_type)
+        if (
+            namespace.get("_original_role_metadata_guard") is not guard
+            or owner_type.__bases__ is not bases
+            or owner_type.__mro__ is not mro
+            or size(actual_class) != size(class_items)
+            or some(actual_class.get(name) is not value for name, value in class_items)
+            or some(
+                (name in scope) is not present or scope.get(name) is not value
+                for scope, name, present, value in slots
+            )
+            or some(scope.get(name) is not value for scope, name, value in native)
+            or some(not implementation(*row) for row in codes)
+        ):
+            raise failure("original Role metadata methods changed")
+        if owner is None:
+            return
+        if exact(owner) is not owner_type or some(
+            name in mapping(owner) for name in methods
+        ):
+            raise failure("actual issued Role metadata methods required")
+        original = namespace["_OPERATIONS"].get(owner)
+        if original is None:
+            raise missing_owner("actual live canonical read operation required")
+        if (
+            size(original) != 10
+            or original[0] is not raw_attribute(owner, "_ledger")
+            or exact(original[0]) is not original[8]
+            or not implementation(original[6], *original[7])
+            or original[9] is not raw_attribute(owner, "_lineage_rows")
+        ):
+            raise failure("original issued Role accounting guard required")
+        original[6](original[0])
+
+    return guard
+
+
+_original_role_metadata_guard = _bind_original_role_metadata_guard()
+del _bind_original_role_metadata_guard
+
+
+# Publish the independent Role guard first. A catalog-first or Role-first import
+# may enter transaction while this module is still importing its ledger provider.
+from .catalog_copy_plan import (  # noqa: E402
+    _Observation as _ORIGINAL_METADATA_LEDGER,
+)
+from .catalog_copy_plan import (  # noqa: E402
+    _original_metadata_accounting_guard as _ORIGINAL_ACCOUNTING_GUARD,
+)
+
+
+def _bind_original_accounted_role_operation(
+    original, role_guard, ledger_type, ledger_guard
+):
+    size, some, exact, text, failure = len, any, type, str, ValueError
+
+    def seal(function):
+        return (
+            function.__code__,
+            function.__defaults__,
+            function.__kwdefaults__,
+            tuple((function.__kwdefaults__ or {}).items()),
+        )
+
+    role_seal, ledger_seal = seal(role_guard), seal(ledger_guard)
+    code_rows = tuple((fn, seal(fn)) for fn in (original, original.__wrapped__))
+    accounting = ledger_type, ledger_guard, ledger_seal
+
+    def current():
+        for function, before in (
+            (role_guard, role_seal),
+            (ledger_guard, ledger_seal),
+            *code_rows,
+        ):
+            code, defaults, keywords, items = before
+            actual_keywords = function.__kwdefaults__
+            if (
+                function.__code__ is not code
+                or function.__defaults__ is not defaults
+                or actual_keywords is not keywords
+                or size(actual_keywords or {}) != size(items)
+                or some(exact(key) is not text for key in (actual_keywords or {}))
+                or some(
+                    (actual_keywords or {}).get(key) is not value
+                    for key, value in items
+                )
+            ):
+                raise failure("original Role accounting issuer changed")
+        role_guard()
+        ledger_guard()
+
+    @contextmanager
+    def operation(*, budget, maximum_metadata_bytes, _ledger=None):
+        current()
+        with original(
+            budget=budget,
+            maximum_metadata_bytes=maximum_metadata_bytes,
+            _ledger=_ledger,
+            _accounting=accounting,
+        ) as owner:
+            role_guard(owner)
+            yield owner
+            current()
+            role_guard(owner)
+        current()
+
+    return operation
+
+
+_role_observation_operation = _bind_original_accounted_role_operation(
+    _role_observation_operation,
+    _original_role_metadata_guard,
+    _ORIGINAL_METADATA_LEDGER,
+    _ORIGINAL_ACCOUNTING_GUARD,
+)
+del _bind_original_accounted_role_operation

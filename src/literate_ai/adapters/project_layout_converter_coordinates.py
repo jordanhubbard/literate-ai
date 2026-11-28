@@ -82,7 +82,11 @@ def _converter_input_addresses(snapshot, resources, *, wrapper_component, _check
     canonical_relative_posix_path(wrapper_component, label="actual converter wrapper")
     component = wrapper_component + "/component.md"
     logical_component = component.removeprefix("litai/")
-    make = retained_scaffold_coordinate(snapshot.root, "litai.harness.mk")
+    make = retained_scaffold_coordinate(
+        snapshot.root,
+        "litai.harness.mk",
+        _initialization=(snapshot, resources.context, _origin, baseline),
+    )
     _check()
     require_original_framework_resources(resources)
     if snapshot is not resources.snapshot:
