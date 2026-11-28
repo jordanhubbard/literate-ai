@@ -122,21 +122,36 @@ not a repair input.
 ## A generated candidate is replaced automatically
 
 The repository sample driver has a deliberately narrow automatic replacement policy.
-It recognizes exactly four versioned rejection kinds:
+It recognizes six versioned rejection kinds:
 
-- `generated-source-validation-rejected` requires an exact terminal failed `validate`
-  event and a `DependencyObservationError` cause carrying the same code. The generation
+- `generated-source-contract-rejected` and `generated-test-contract-rejected`
+  require a terminal failed generation stage, a typed allowlisted `CodingCliError`,
+  and no admitted lifecycle step. The source codes cover generated C++ Bazel
+  output/header/include contracts, missing JavaScript bundle modules and ambiguous
+  Rust Bazel crate roots. The test codes cover missing acceptance signatures,
+  duplicate arguments and expected-result shape mismatches. An arbitrary model
+  failure is not eligible.
+
+- `generated-source-validation-rejected` has two admission branches. The dependency
+  observation branch requires an exact terminal failed `validate` event and a
+  `DependencyObservationError` cause carrying the same code. The generation
   output must bind the candidate tree, source bundle, and generated suite, and no
   lifecycle step may have an admitted result. The closed allowlist is
-  `dependencies.bzlmod-authority-unsupported`,
+  `dependencies.import-bom-mismatch`, `dependencies.bzlmod-authority-unsupported`,
   `dependencies.bzlmod-dependency-duplicate`,
   `dependencies.bzlmod-generated-lock-forbidden`,
   `dependencies.bzlmod-literal-invalid`, `dependencies.bzlmod-module-ambiguous`,
   `dependencies.bzlmod-module-invalid`,
   `dependencies.bzlmod-module-location-invalid`,
   `dependencies.bzlmod-module-name-invalid`,
-  `dependencies.bzlmod-source-intent-invalid`, and
+  `dependencies.bzlmod-source-intent-invalid`,
+  `dependencies.bzlmod-source-composition-invalid`, and
   `dependencies.bzlmod-workspace-unsupported`.
+  The same rejection kind also admits a terminal typed static-validation failure
+  whose error findings are all among `validation.cpp_companion_header_missing`,
+  `validation.cpp_nonowning_text_member` and
+  `validation.cpp_translation_unit_included`, with exact candidate identities
+  and no downstream lifecycle result.
 - `generated-test-behavior-mismatch` requires an exact terminal `test-generated`
   mismatch whose failed run binds the generation output, source bundle, built artifact,
   generated suite, and expected/observed result identities.
@@ -146,11 +161,14 @@ It recognizes exactly four versioned rejection kinds:
   full-stack `backend`, carry a nonzero integer return code, and bind exact stdout and
   stderr SHA-256 digests. The rejection also binds the case and expected-result identity;
   absent or malformed process evidence fails closed.
-- `generated-source-build-rejected` requires an exact terminal C++ `build` failure after
+- `generated-source-build-rejected` requires an exact terminal `build` failure after
   validation, classification, and authorization completed. The actual `BuildError` and
-  failed event must both carry `builder.cpp_generated_source_rejected`, the generation
+  failed event must carry the same allowlisted code:
+  `builder.bazel_analyze_failed`, `builder.cpp_generated_source_rejected`,
+  `builder.rust_compile_failed`, `builder.rust_javascript_compile_failed` or
+  `builder.swift_generated_source_rejected`. The generation
   output must produce exact candidate-tree, source-bundle, and suite identities, and
-  neither a build result nor any downstream step may exist. The C++ builder emits that
+  neither a build result nor any downstream step may exist. The C++ builder emits its
   candidate-specific code only after its generated-source compile/link fails and a
   second compile-and-link canary succeeds with the same pinned compiler and linker.
 
@@ -163,17 +181,22 @@ attempts.
 
 If the canary also fails, the toolchain or environment remains a plausible cause and the
 builder returns terminal `builder.cpp_compile_failed`. Authentication, missing-tool,
-policy, other dependency, toolchain, build authorization, malformed-suite, and
+policy, other dependency, toolchain and build authorization failures, malformed-suite
+failures outside the three explicit generated-test contract codes, and
 independent-verifier failures are not retryable. Execution timeouts, process launch or
 authorization failures, invalid output, and a verifier-side nonzero exit are terminal.
-Python, Rust, JavaScript, generic native, and all Bazel build/resolution/analysis failures
-are also terminal. No category retries when its run, process, or terminal evidence is
+Build and analysis failures outside the exact allowlisted branches above are
+terminal, including generic Bazel full-build, resolution and dependency failures.
+No category retries when its run, process, or terminal evidence is
 missing or inconsistent. Do not weaken these checks to make a run retry. Fix the owning
 specification, Flavor, skill, host prerequisite, or adapter and start a new clean run.
 
 Bzlmod resolver, dependency-evidence, toolchain, framework, and unknown-code failures are
-not static generated-source admission evidence. A failure after `validate` or any later
-lifecycle result has been admitted is likewise terminal. For example,
+not static generated-source admission evidence. Each branch permits only its
+specified prior lifecycle results: the build branch requires completed validation,
+classification and authorization, while a source-admission failure permits no
+downstream result. A failure outside those exact stage and membership conditions
+is terminal. For example,
 `dependencies.bzlmod-evidence-missing` must never be added to the static allowlist.
 
 When Bazel is selected, resolution, analysis, source queries, the complete Bazel build,
@@ -332,7 +355,9 @@ litai project test-receipt require-current --project .
 ```
 
 A failure or skipped test cannot be represented by the passing-only receipt and must
-leave `verification/current.json` unchanged. A project mismatch, noncanonical existing
+leave the manifest-declared `test_receipt` unchanged (normally
+`litai/verification/current.json` in a fresh contained project; existing layouts
+retain their declared path). A project mismatch, noncanonical existing
 receipt, symlink, or concurrent replacement also fails closed. Do not edit the receipt
 by hand or append logs to it; replace it through the command after a passing run, then
 commit that single file so Git records history.
@@ -464,8 +489,11 @@ for the contexts in which their failures were observed.
 ## OpenSpec validation tools are missing
 
 Node.js is needed for repository contributor validation, including the locally pinned
-OpenSpec/documentation tree. Install it with `make tools-install`, then run
-`make openspec-check`. Normal Python import does not require Node.js. Canonical project
+OpenSpec/documentation tree. Install supported Node.js and npm through your
+platform's approved runtime setup first. Then run `make tools-install` to install
+the pinned contributor packages, followed by `make openspec-check`.
+`make tools-install` requires npm and does not install Node.js itself.
+Normal Python import does not require Node.js. Canonical project
 users install documentation tooling through npm so Literate AI can verify package ownership and
 bypass the package's launcher scripts; standalone shell or `.cmd` wrappers are not an
 admitted runtime.

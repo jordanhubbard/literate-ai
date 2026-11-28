@@ -23,6 +23,9 @@ _FILE_LIMIT = 16 * 1024**2
 _SOURCE_V2 = "literate-ai/retained-cargo-binding@2"
 _LEGACY_FIELDS = ("gates", "reviewed_gates", "gate_size", "provider_id")
 _AUTHORED_FIELDS = (
+    "producer_review",
+    "reviewed_producer_review",
+    "producer_review_size",
     "gate_policy",
     "provider_output_root",
     "provider_flavor",
@@ -122,6 +125,17 @@ def _validate_arguments(args, *, authored):
                 args.reviewed_exclusion_authority,
                 args.exclusion_authority_size,
                 maximum=4 * 1024**2,
+            )
+        producer_options = (
+            "producer_review",
+            "reviewed_producer_review",
+            "producer_review_size",
+        )
+        if any(getattr(args, key, None) is not None for key in producer_options):
+            _require_args(args, producer_options)
+            reviewed_json(args.reviewed_producer_review, args.producer_review_size)
+            canonical_relative_posix_path(
+                args.producer_review, label="independent producer review"
             )
         sdk_options = (
             "sdk_cache",

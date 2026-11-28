@@ -648,6 +648,13 @@ class LocalSourceTreeRegistry:
                 )
             validation_inputs = SourceEvidenceValidationInputs.from_recipe(recipe)
         if validation_inputs is not None:
+            if (
+                ContentIdentity.parse_uri(validation_inputs.recipe_identity)
+                != candidate.recipe_identity
+            ):
+                raise LocalStandardLifecycleError(
+                    "source validation recipe differs from the original candidate"
+                )
             managed_graph = validation_inputs.managed_graph
             source_bom_path = path.joinpath(*Path(CYCLONEDX_SOURCE_SBOM_PATH).parts)
             suite_path = path.joinpath(*Path(GENERATED_TEST_SUITE_PATH).parts)
@@ -1754,10 +1761,64 @@ class LocalStandardLifecyclePorts:
                 "consumer build intent has no retained library bindings"
             ) from exc
 
+    def _observed_managed_python_imports(self, plan):
+        """Declare native imports only from current intent and held provider bytes."""
+
+        from literate_ai.adapters.dependencies.managed_python import (
+            managed_python_import_map,
+        )
+
+        inputs = self._plan_inputs_by_revision.get(plan.component_revision.uri)
+        if inputs is None:
+            return ()
+        providers = self._intent_artifacts[inputs.intent.identity.uri]
+        self._provider_materials(providers, consumer_plan=plan)
+        artifacts = {item.identity: item for item in providers}
+        declarations = set()
+        for binding in self.library_consumer_bindings(inputs.intent):
+            provider = self._provider_contract(binding.provider_component_revision)
+            surface = provider.library_import_surface
+            if surface is None or surface.language != "python":
+                continue
+            artifact = artifacts.get(binding.artifact_identity)
+            capability = surface.capability(binding.capability)
+            if (
+                artifact is None
+                or binding.consumer_component_revision != plan.component_revision
+                or artifact.component_revision != binding.provider_component_revision
+                or binding.import_surface_identity != surface.identity
+                or binding.interface_identity != capability.interface_identity
+                or binding.target_identity != artifact.target_identity
+                or artifact.target_identity
+                != self._contract(
+                    plan.component_revision
+                ).artifact_export.target_identity
+                or binding.dependency_artifact_identities
+                != artifact.dependency_artifact_identities
+            ):
+                raise LocalStandardLifecycleError(
+                    "managed Python imports differ from accepted provider bindings"
+                )
+            self.read_artifact_blob(artifact.blob)
+            declarations.add(
+                (artifact.component_revision, capability.module.split(".")[0])
+            )
+        result = tuple(sorted(declarations, key=lambda item: (item[0].uri, item[1])))
+        source = self.source_trees.evidence(plan.request.source_tree_identity)
+        managed_python_import_map(source.managed_graph, result)
+        return result
+
     def index(
         self, component_revision: ContentIdentity, source: ContentIdentity
     ) -> ContentIdentity:
         root = self.source_trees.resolve(source)
+        validation = self.source_trees._validation_inputs.get(source.uri)
+        if validation is not None and validation.recipe_document is not None:
+            identity = self._record_evidence(json.loads(validation.recipe_document))
+            if identity.uri != validation.recipe_identity:
+                raise LocalStandardLifecycleError(
+                    "original recipe evidence identity changed"
+                )
         return self._record_evidence(
             {
                 "indexer": "local-tree@1",
@@ -2296,6 +2357,7 @@ class LocalStandardLifecyclePorts:
         phase: str,
         plan_identity: ContentIdentity,
         execution_authority: StandardExecutionAuthority | None = None,
+        python_build_inputs: ContentIdentity | None = None,
     ) -> ContentIdentity:
         """Record bounded process facts without embedding host-specific paths."""
 
@@ -2307,6 +2369,12 @@ class LocalStandardLifecyclePorts:
             "stdout_identity": self._record_evidence(result.stdout).uri,
             "stderr_identity": self._record_evidence(result.stderr).uri,
         }
+        if python_build_inputs is not None:
+            if phase != "build" or type(python_build_inputs) is not ContentIdentity:
+                raise ValueError(
+                    "Python build inputs require original build observation"
+                )
+            document["python_build_inputs_identity"] = python_build_inputs.uri
         if execution_authority is not None:
             document["execution_authority_identity"] = execution_authority.identity.uri
         sdk_execution = getattr(result, "native_sdk_execution_identity", None)
@@ -2806,6 +2874,16 @@ class LocalStandardLifecyclePorts:
                     + ", ".join(sorted(reserved))
                 )
             build.update(additional_build_evidence)
+
+        def observe_python_dependencies():
+            evidence = python_observer()
+            if evidence.target is not None:
+                self._record_evidence(evidence.target.identity_document())
+                self._record_evidence(
+                    self.python_targets[plan.component_revision.uri].identity_document()
+                )
+            return evidence
+
         resolver = CycloneDxLifecycleResolver(
             managed_graph=source.managed_graph,
             observer=_RecordedHostDependencyObserver(dependency_inventory),
@@ -2823,7 +2901,14 @@ class LocalStandardLifecyclePorts:
             python_source_authority=(
                 None if python_observer is None else python_observer.source
             ),
-            python_dependency_observer=python_observer,
+            python_dependency_observer=(
+                None if python_observer is None else observe_python_dependencies
+            ),
+            observed_managed_python_imports=(
+                ()
+                if python_observer is None
+                else self._observed_managed_python_imports(plan)
+            ),
             mix_source_authority=(
                 None if mix_observer is None else mix_observer.source
             ),
@@ -3651,12 +3736,16 @@ class LocalStandardLifecyclePorts:
         provider_materials = self._provider_materials(
             provider_artifacts, consumer_plan=plan
         )
+        python_imports = self._python_library_imports(
+            plan, provider_artifacts, contract
+        )
         cache_identity = canonical_identity(
             {
                 "schema": "literate-ai/local-standard-python-cache-key@1",
                 "binding": binding.to_dict(),
                 "target": target.identity.uri,
                 "provider_materials": provider_materials,
+                "python_library_imports": python_imports.identity.uri,
             }
         )
         artifact = self.object_root / cache_identity.digest
@@ -3765,6 +3854,25 @@ class LocalStandardLifecyclePorts:
                 export_path=workspace / shape.export_id,
                 providers=provider_artifacts,
             )
+            from .python_libraries import (
+                capture_python_library_runtime,
+                materialize_python_library_imports,
+            )
+
+            observer = self._python_observers[str(workspace.resolve())]
+            observer()
+            runtime = (
+                capture_python_library_runtime(workspace / "python-runtime")
+                if contract.is_library
+                else ()
+            )
+            observer()
+            materialize_python_library_imports(
+                python_imports,
+                workspace / shape.export_id,
+                runtime=runtime,
+                runtime_identity=evidence.identity if runtime else None,
+            )
             _require_generated_export(workspace / shape.export_id)
             if local_generated_source_tree_identity(source) != source_identity:
                 raise LocalStandardLifecycleError(
@@ -3780,7 +3888,12 @@ class LocalStandardLifecyclePorts:
                 workspace,
                 provider_materials,
                 self._process_observation(
-                    result, phase="build", plan_identity=plan.identity
+                    result,
+                    phase="build",
+                    plan_identity=plan.identity,
+                    python_build_inputs=self._python_build_inputs_identity(
+                        plan, python_imports, workspace
+                    ),
                 ),
             )
             self._install_sealed_artifact(
@@ -4310,6 +4423,183 @@ class LocalStandardLifecyclePorts:
                 "JavaScript library import authority unavailable"
             ) from exc
 
+    def _python_build_inputs_identity(self, plan, imports, artifact):
+        """Retain original build-input DATA, never grant provider acceptance."""
+        if imports is None:
+            return None
+        from .python_libraries import capture_python_library_runtime
+
+        source = self.source_trees.evidence(plan.request.source_tree_identity)
+        source_root = self.source_trees.resolve(plan.request.source_tree_identity)
+        source_files = tuple(
+            item
+            for item in capture_python_library_runtime(source_root)
+            if ".codegraph" not in Path(item.path).parts
+        )
+        source_document = [
+            {
+                "path": item.path,
+                "size": len(item.content),
+                "digest": "sha256:" + hashlib.sha256(item.content).hexdigest(),
+            }
+            for item in source_files
+        ]
+        if canonical_identity(source_document) != source.candidate.tree_identity:
+            raise LocalStandardLifecycleError("Python source input capture differs")
+        if self._evidence_recorder is not None:
+            for item in source_files:
+                self._evidence_recorder.remember_bytes(item.content)
+            self._record_evidence(source_document)
+        if self.source_trees.resolve(plan.request.source_tree_identity) != source_root:
+            raise LocalStandardLifecycleError(
+                "Python source custody changed during capture"
+            )
+        inputs = self._plan_inputs_by_revision.get(plan.component_revision.uri)
+        if inputs is None:
+            if plan.provider_artifact_identities:
+                raise LocalStandardLifecycleError(
+                    "Python build lost original provider inputs"
+                )
+            providers = ()
+        else:
+            providers = inputs.intent.provider_artifact_identities
+            if providers != plan.provider_artifact_identities:
+                raise LocalStandardLifecycleError(
+                    "Python build provider identity changed"
+                )
+        pending, known = list(providers), {}
+        while pending:
+            identity = pending.pop()
+            if identity in known:
+                continue
+            if len(known) >= 16384:
+                raise LocalStandardLifecycleError(
+                    "Python build provider graph exceeds bound"
+                )
+            export = self._exports_by_identity[identity.uri]
+            provider_build = next(
+                (
+                    item
+                    for item in self._build_evidence.values()
+                    if export in item.exports
+                ),
+                None,
+            )
+            if provider_build is None:
+                raise LocalStandardLifecycleError(
+                    "Python provider lost original build proof"
+                )
+            command = self._provider_contract(export.component_revision)
+            known[identity] = {
+                "export": export.to_dict(),
+                "build_evidence_identity": self._record_evidence(
+                    provider_build.to_dict()
+                ).uri,
+                "command_contract_identity": self._record_evidence(
+                    command.to_dict()
+                ).uri,
+            }
+            if self._evidence_recorder is not None:
+                raw = self.read_artifact_blob(export.blob)
+                if (
+                    self._evidence_recorder.remember_bytes(raw).uri
+                    != export.blob.identity
+                ):
+                    raise LocalStandardLifecycleError(
+                        "Python provider blob identity changed"
+                    )
+            pending.extend(export.dependency_artifact_identities)
+        runtime, runtime_identity = (), None
+        if plan.component_revision.uri in self.python_targets:
+            observer = self._python_observers.get(str(artifact.resolve()))
+            if observer is None:
+                raise LocalStandardLifecycleError(
+                    "Python build lost original runtime observer"
+                )
+            observer()
+            runtime = capture_python_library_runtime(artifact / "python-runtime")
+            observer()
+            runtime_identity = observer.expected_identity.uri
+            if self._evidence_recorder is not None:
+                for item in runtime:
+                    self._evidence_recorder.remember_bytes(item.content)
+        return self._record_evidence(
+            {
+                "schema": "literate-ai/python-build-inputs@1",
+                "command_contract_identity": self._record_evidence(
+                    self._contract(plan.component_revision).to_dict()
+                ).uri,
+                "recipe_identity": source.candidate.recipe_identity.uri,
+                "providers": [
+                    known[identity]
+                    for identity in sorted(known, key=lambda item: item.uri)
+                ],
+                "runtime_evidence_identity": runtime_identity,
+                "runtime_files": [
+                    {
+                        "path": item.path,
+                        "sha256": hashlib.sha256(item.content).hexdigest(),
+                        "size": len(item.content),
+                        "mode": item.mode,
+                    }
+                    for item in runtime
+                ],
+            }
+        )
+
+    def _python_library_imports(self, plan, providers, contract):
+        from .python_libraries import (
+            is_python_import_contract,
+            prepare_python_library_imports,
+        )
+
+        if not is_python_import_contract(contract):
+            return None
+        self._provider_materials(providers, consumer_plan=plan)
+        inputs = self._plan_inputs_by_revision.get(plan.component_revision.uri)
+        bindings = (
+            () if inputs is None else self.library_consumer_bindings(inputs.intent)
+        )
+        contracts = dict(self.contracts)
+        known = {item.identity: item for item in self._exports_by_identity.values()}
+        known.update((item.identity, item) for item in providers)
+        pending, seen, runtimes = list(providers), set(), {}
+        while pending:
+            provider = pending.pop()
+            if provider.identity in seen:
+                continue
+            seen.add(provider.identity)
+            contracts[provider.component_revision.uri] = self._provider_contract(
+                provider.component_revision
+            )
+            if provider.component_revision.uri in self.python_targets:
+                path = self._artifact_paths.get(provider.identity.uri)
+                observer = (
+                    None if path is None else self._python_observers.get(str(path))
+                )
+                if observer is None:
+                    raise LocalStandardLifecycleError(
+                        "Python provider lacks original runtime evidence custody"
+                    )
+                runtimes[provider.identity] = observer.expected_identity
+            for identity in provider.dependency_artifact_identities:
+                if identity not in known:
+                    raise LocalStandardLifecycleError(
+                        "Python library dependency lacks original artifact custody"
+                    )
+                pending.append(known[identity])
+        result = prepare_python_library_imports(
+            contract,
+            providers,
+            bindings,
+            contracts,
+            self.read_artifact_blob,
+            dependency_exports=known,
+            runtime_identities=runtimes,
+        )
+        self._provider_materials(providers, consumer_plan=plan)
+        return result
+
     def _build_locked(
         self,
         plan: StandardComponentBuildPlan,
@@ -4353,6 +4643,9 @@ class LocalStandardLifecyclePorts:
         javascript_imports = self._javascript_library_imports(
             plan, provider_artifacts, contract
         )
+        python_imports = self._python_library_imports(
+            plan, provider_artifacts, contract
+        )
         cache_key: dict[str, object] = {
             "schema": "literate-ai/local-standard-build-cache-key@2",
             "command_contract_identity": contract.identity.uri,
@@ -4361,6 +4654,8 @@ class LocalStandardLifecyclePorts:
         }
         if javascript_imports is not None:
             cache_key["javascript_library_imports"] = javascript_imports.identity.uri
+        if python_imports is not None:
+            cache_key["python_library_imports"] = python_imports.identity.uri
         if (
             self.shared_cache is not None
             and self.shared_cache.compiler_tool is not None
@@ -4434,6 +4729,13 @@ class LocalStandardLifecyclePorts:
                         raise LocalStandardLifecycleError(
                             "JavaScript library materialization refused"
                         ) from exc
+                if python_imports is not None:
+                    from .python_libraries import materialize_python_library_imports
+
+                    for declaration in plan.manifest.export_declarations:
+                        materialize_python_library_imports(
+                            python_imports, artifact_workspace / declaration.export_id
+                        )
                 for declaration in plan.manifest.export_declarations:
                     _require_generated_export(
                         artifact_workspace / declaration.export_id
@@ -4449,7 +4751,12 @@ class LocalStandardLifecyclePorts:
                 artifact_workspace,
                 provider_materials,
                 self._process_observation(
-                    build_result, phase="build", plan_identity=plan.identity
+                    build_result,
+                    phase="build",
+                    plan_identity=plan.identity,
+                    python_build_inputs=self._python_build_inputs_identity(
+                        plan, python_imports, artifact_workspace
+                    ),
                 ),
             )
             if plan.materialization.native_sdk_input_identities:
@@ -4823,7 +5130,9 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "transferred build evidence record differs"
             )
-        verify_qualification_build(evidence_reader, plan=plan, build=evidence)
+        verify_qualification_build(
+            evidence_reader, plan=plan, build=evidence, python_command=inputs.contract
+        )
         if not isinstance(artifact, Path) or not artifact.is_absolute():
             raise LocalStandardLifecycleError(
                 "transferred artifact root must be absolute"
@@ -4976,6 +5285,17 @@ class LocalStandardLifecyclePorts:
                 blob_paths[export.blob.identity] = export_path
             else:
                 blob_bytes[export.blob.identity] = export_bytes
+            if self._evidence_recorder is not None:
+                from .python_libraries import is_python_import_contract
+
+                if is_python_import_contract(self._contract(plan.component_revision)):
+                    if (
+                        self._evidence_recorder.remember_bytes(export_bytes).uri
+                        != export.blob.identity
+                    ):
+                        raise LocalStandardLifecycleError(
+                            "Python export capture identity changed"
+                        )
             exports.append(export)
         export_tuple = tuple(exports)
         planned_export = next(
@@ -5028,11 +5348,7 @@ class LocalStandardLifecyclePorts:
                 "transferred build differs from exact expected evidence"
             )
         if self._evidence_recorder is not None:
-            if (
-                plan.component_revision.uri in self.python_targets
-                and self._contract(plan.component_revision).library_import_surface
-                is not None
-            ):
+            if plan.component_revision.uri in self.python_targets:
                 from .standard_python_capture import (
                     capture_standard_python_artifact_records,
                 )
@@ -5070,6 +5386,17 @@ class LocalStandardLifecyclePorts:
                 evidence.to_dict(),
             ):
                 self._record_evidence(document)
+            validation = self.source_trees._validation_inputs.get(
+                plan.request.source_tree_identity.uri
+            )
+            if validation is not None and validation.recipe_document is not None:
+                if (
+                    self._record_evidence(json.loads(validation.recipe_document)).uri
+                    != validation.recipe_identity
+                ):
+                    raise LocalStandardLifecycleError(
+                        "original recipe evidence identity changed"
+                    )
         output = StandardBuildOutput(export_tuple, evidence.identity, evidence)
         if before_register is not None:
             before_register()
@@ -7965,7 +8292,8 @@ class LocalStandardLifecyclePorts:
                 )
             if library_oracle is not None:
                 from literate_ai.adapters.lifecycle.standard_runtime import (
-                    STANDARD_PYTHON_SDK_RUNTIME_DRIVER,
+                    STANDARD_PYTHON_SDK_HARNESS_DRIVER,
+                    STANDARD_PYTHON_SDK_SUPPORT,
                 )
 
                 argv = (
@@ -7973,7 +8301,8 @@ class LocalStandardLifecyclePorts:
                     "-I",
                     "-B",
                     "-c",
-                    STANDARD_PYTHON_SDK_RUNTIME_DRIVER,
+                    STANDARD_PYTHON_SDK_HARNESS_DRIVER,
+                    STANDARD_PYTHON_SDK_SUPPORT,
                     str(inputs.manifest),
                     str(custody.root),
                     str(harness),
@@ -10479,6 +10808,24 @@ class LocalStandardLifecyclePorts:
             else:
                 command = (
                     *binding.command,
+                    str(harness),
+                    str(export),
+                    surface_document,
+                    cases_document,
+                )
+            if (
+                oracle.language == "python"
+                and contract.component_revision.uri not in self.python_targets
+            ):
+                from .standard_runtime import STANDARD_PYTHON_LIBRARY_HARNESS_DRIVER
+
+                command = (
+                    *binding.command,
+                    "-I",
+                    "-S",
+                    "-B",
+                    "-c",
+                    STANDARD_PYTHON_LIBRARY_HARNESS_DRIVER,
                     str(harness),
                     str(export),
                     surface_document,

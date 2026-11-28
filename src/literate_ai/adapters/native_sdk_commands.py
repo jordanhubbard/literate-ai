@@ -9,6 +9,7 @@ from literate_ai.adapters.lifecycle.standard_runtime import (
     STANDARD_PYTHON_RUNTIME_DRIVER,
     STANDARD_PYTHON_SDK_LIBRARY_IMPORT_DRIVER,
     STANDARD_PYTHON_SDK_RUNTIME_DRIVER,
+    STANDARD_PYTHON_SDK_SUPPORT,
 )
 from literate_ai.contracts.executable_components import (
     ComponentCommandContract,
@@ -61,17 +62,29 @@ def project_native_sdk_commands(
             )
         else:
             argv = original.argv
-            if len(argv) != 8 or argv[:3] != (
+            if len(argv) != 11 or argv[:6] != (
                 "{tool}",
+                "-I",
+                "-S",
+                "-B",
                 "-c",
                 STANDARD_PYTHON_RUNTIME_DRIVER,
             ):
                 raise ValueError("SDK application commands require Standard Python")
             driver = STANDARD_PYTHON_SDK_RUNTIME_DRIVER
-            arguments = argv[3:]
+            arguments = argv[6:]
         return ComponentLifecycleCommand(
             original.phase,
-            ("{tool}", "-I", "-B", "-c", driver, "{native_sdk_inputs}", *arguments),
+            (
+                "{tool}",
+                "-I",
+                "-B",
+                "-c",
+                driver,
+                STANDARD_PYTHON_SDK_SUPPORT,
+                "{native_sdk_inputs}",
+                *arguments,
+            ),
         )
 
     entrypoints = None

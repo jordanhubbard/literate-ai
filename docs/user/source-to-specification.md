@@ -6,7 +6,7 @@ authority.
 
 ## Safety model
 
-Both derivation modes inventory source without importing or executing it.
+Static derivation inventories source without importing or executing it.
 Instruction-like text found in source remains untrusted evidence and cannot select
 skills, grant review authority, or enable execution. Unsigned source may be analyzed,
 but its result is quarantined and cannot be accepted.
@@ -15,11 +15,11 @@ The default `static` translator is deterministic, local, and deliberately shallo
 is useful for safe inventory, trust-envelope, review, and conformance exercises. The
 `coding-cli` translator is unavailable. Model-backed inverse translation that
 required graph evidence is not part of the product; use the static translator.
-The static translator inventories an inert
-temporary mirror of only admitted UTF-8 source, test, configuration, and documentation
-files.
-It requires explicit source-egress consent. Sensitive, binary, generated, minified, and
-oversized content never enters that mirror or prompt.
+The static translator operates locally on admitted inert UTF-8 source, test,
+configuration and documentation inventory under its classification, exclusion and
+size limits. It performs no model egress and prepares no coding-agent prompt or
+temporary model mirror. Reviewed sensitive intake still requires its separate
+signed policy authorization; model-egress flags do not grant that authority.
 
 The built-in reviewed skill set covers architecture, public API, behavior and state,
 operations, security, and tests. Inert inventory also selects separate, exact Python,
@@ -41,16 +41,11 @@ is supplied.
 
 ```mermaid
 flowchart LR
-    S[Exact source snapshot] --> C[Classify and redact]
-    C --> M[Inert temporary mirror]
-    M --> G[Source inventory and symbol queries]
-    G --> P{Canonical byte-bounded batches per language}
-    K[Exact reviewed common + language skill pins] --> P
-    P --> A[Selected coding CLI]
-    A --> J[Complete prompt and response journal]
-    A --> O[Evidence-bound observations]
+    S[Exact source snapshot] --> C[Classify and admit bounded inert files]
+    C --> G[Local static inventory]
+    K[Exact reviewed common + language skill pins] --> G
+    G --> O[Evidence-bound observations]
     O --> B[Base OpenSpec + Flavor drafts]
-    J --> B
     B --> R[Human review and signed acceptance]
 ```
 
@@ -134,33 +129,12 @@ litai spec derive path/to/source \
 litai spec coverage bundle.json
 ```
 
-To perform semantic translation through the selected coding agent:
-
-```console
-litai spec derive path/to/source \
-  --translator coding-cli \
-  --allow-model-egress \
-  --attestation attestation.json \
-  --trust-key local-source.key > bundle.json
-```
-
-`CODING_CLI` may select `codex`, `claude`, `cursor-agent`, or `opencode`; otherwise the first
-available command in that order is used. `--model MODEL` pins a model for every inverse
-language call.
-Before an OpenCode inverse call, the exact executable must pass LitAI's bounded,
-prompt-free `run --help` capability probe for the v1 pure or v2 standalone interface;
-v2 also confirms its isolated configuration before prompting. Incompatible releases fail before
-source evidence or a prompt can leave the process.
-`--model-evidence-byte-budget N` sets the positive UTF-8 evidence-byte ceiling for each
-call; it defaults to 262,144. An individual evidence record above the ceiling is an
-explicit error, not a truncation.
-For an npm installation, the command is only a package locator: Literate AI bypasses its
-scripts and executes the bundled native Node as
-the configured runtime. Index evidence binds those direct
-inputs; complete reachable package-graph evidence belongs to dependency/SBOM observation,
-not to the index executable identity alone. Omit
-`--model` to use the selected CLI's configured default. Missing or expired login state
-is reported as an explicit authentication prerequisite.
+Live semantic translation through a coding agent is currently unavailable.
+Selecting `--translator coding-cli` refuses with
+`model_translation.source_intelligence_disabled`; model-egress, model-selection
+and evidence-budget flags do not enable that route. Use the static translator
+shown above. This refusal does not establish model-backed inverse qualification
+or a working bidirectional generation cycle.
 
 The inert source inventory recognizes JavaScript files with `.js`, `.mjs`, `.cjs`
 and `.jsx` extensions, and TypeScript files with `.ts`, `.mts`, `.cts` and `.tsx`
@@ -171,11 +145,12 @@ derivation never execute these files.
 
 The bundle includes the exact source inventory, attributed observations, provider-valid
 draft artifacts, a coverage map, an uncertainty ledger, skill-stage provenance, proposed
-Flavor drafts, and security metadata. Model mode additionally records runtime,
+Flavor drafts, and security metadata. Historical model-derived bundles additionally retain runtime,
 executable and frozen-database identities, exact counts and queries, plus the complete
 coding-CLI command, prompt, response, stdout/stderr, isolation claims, selected skills,
 model, egress policy, batch plan, and exact batch membership for every language call.
-Acceptance keeps that versioned translation record in a content-addressed
+These retained records do not make the current model-backed inverse route available.
+Where a promotion includes that versioned translation record, acceptance keeps it in a content-addressed
 `provenance/source-promotion/` directory; it does not keep generated application source.
 For semantic promotion it also retains a compact inverse-custody document containing
 the exact source inventory, behavioral inventory, path dispositions, and byte-bounded
@@ -296,7 +271,8 @@ semantics block project promotion instead of becoming a fabricated
 
 For incremental conversion of an existing retained adopted project, use
 `--integrate-project path/to/adopted-root` instead of `--project-target`. Acceptance
-creates the same source-free project beneath `.literate/native-projects/` and atomically
+creates the same source-free project beneath the selected framework root's
+`.literate/native-projects/` directory (normally `litai/.literate/native-projects/`) and atomically
 registers its exact path, project identifier, and project-definition identity in the
 adopted root. The conversion-stage gate reopens every registered child, rejects registry
 drift and duplicate Component coordinates, and verifies each projection in the child
@@ -321,7 +297,8 @@ Repeat any qualification-profile, target and Flavor options in both commands. Pl
 changes neither the child nor the accepted specification set. Apply rechecks the signed
 source, review, parent registration and complete prior child tree. It preserves the
 project identifier, retains the old promotion and registration beneath the parent's
-`.literate/native-updates/` directory, and restores both on failure. Concurrent edits
+framework root's `.literate/native-updates/` directory (normally
+`litai/.literate/native-updates/`), and restores both on failure. Concurrent edits
 are preserved and reported as a rollback conflict. Retention is bounded to 4,096 nodes,
 64 MiB per file and 256 MiB total; unsafe or oversized trees refuse before replacement.
 
@@ -413,12 +390,14 @@ persisting the record.
 See [source promotion and regenerative qualification](../architecture/source-promotion.md)
 for the complete flow, public wire records, trust boundary, and language-skill matrix.
 The framework exposes the pure decision rule, `run_regenerative_qualification`, concrete
-local-host providers, and a safe CLI integration:
+local-host providers, and a safe CLI integration. These examples use the fresh
+contained layout; existing projects use their selected Component and profile
+coordinates rather than adding a global `litai/` prefix:
 
 ```console
-litai spec qualify path/to/new-project/components/APP \
+litai spec qualify path/to/new-project/litai/components/APP \
   --source path/to/exact-source-baseline \
-  --profile path/to/new-project/components/APP/qualification/profile.json \
+  --profile path/to/new-project/litai/components/APP/qualification/profile.json \
   --target host \
   --output /tmp/literate-ai-qualification.json \
   --key local-source.key \
@@ -437,9 +416,9 @@ capture, repeat the same command with an immutable evidence store and explicit
 current-authority mode:
 
 ```console
-litai spec qualify path/to/new-project/components/LIBRARY \
+litai spec qualify path/to/new-project/litai/components/LIBRARY \
   --source path/to/exact-source-baseline \
-  --profile path/to/new-project/components/LIBRARY/qualification/profile.json \
+  --profile path/to/new-project/litai/components/LIBRARY/qualification/profile.json \
   --target host \
   --output /tmp/literate-ai-qualification-capture.json \
   --retained-evidence-store path/to/evidence-store \
@@ -502,36 +481,39 @@ checkpoints.
 
 ## How this path is tested
 
-The test ladder keeps network variability out of the mandatory gate while still making
-the real integration reproducible:
+The maintained test ladder separates fixture and static coverage from unavailable
+live inverse paths. The commands below identify test entrypoints, not fresh passing
+results for the current candidate:
 
-| Layer | What it proves | Normal command |
+| Layer | Scope | Entry point |
 | --- | --- | --- |
 | Strict adapter tests | Four language partitions, exact skills, evidence admission, model-output parsing, complete journals, tamper rejection, and pre-egress pin checks | `make validate` |
-| Installed source-inventory test | A real temporary mirror is inventoried and content-bound | `make validate` |
+| Installed source-inventory test | Inert source inventory and content identities | `make validate` |
 | Regenerative parity | Two empty, cache-bypassed source generations per language compile/run through Python, C++, Rust, and JavaScript and match independently observed baseline output, including invalid input | `make validate` |
 | Live model integration | Unavailable; coding-cli inverse translation fails closed | n/a |
-| Live bidirectional promotion | One stable application spec generates, builds, tests, and runs in Python, C++, Rust, JavaScript, and Elixir; every generated tree is translated back and compared against the complete normalized requirement graph; every inverse spec is promoted and completes two new spec-only build/test/parity runs to reach fungible authority | `LITERATE_AI_RUN_LIVE_ROUNDTRIP=1 CODING_CLI=codex PYTHONPATH=src python -m unittest tests.conformance.test_live_bidirectional_roundtrip` |
-| Live composed promotion | The invoice sample generates, reverses into three evidence-bound Components and two capability edges, promotes the full graph, composes it normally, regenerates, builds, tests, and matches known output | `LITERATE_AI_RUN_LIVE_COMPOSED_ROUNDTRIP=1 CODING_CLI=codex PYTHONPATH=src python -m unittest tests.conformance.test_live_composed_roundtrip` |
+| Live bidirectional promotion | Unavailable: retained test requests the disabled coding-CLI inverse translator | No working current command |
+| Live composed promotion | Unavailable: retained composed test also requests the disabled inverse translator | No working current command |
 
-The live commands spend coding-agent calls and require the selected CLI to be installed
-and authenticated, so they are explicit rather than part of credential-free CI.
-`CODING_CLI` may instead name `claude`, `cursor-agent`, or `opencode`; set
-`LITERATE_AI_LIVE_MODEL` only when the integration must pin a particular model.
+Authentication or a model selector cannot enable the disabled inverse route.
+Forward generation and regenerative qualification remain separate supported
+operations with their own execution authorization and acceptance requirements.
 
 These tests are deliberately host-scoped. Literate AI does not require every application
 to implement both directions or repeat inverse translation on every OS/Flavor. The
 separate `make samples-platform-regression` target fans one representative forward sample,
 or a configured glob, across macOS, Linux, and Windows.
 
-### What the four-language round trip established
+### Historical four-language round-trip development
+
+This retained account describes earlier development of the model-backed route,
+which is currently unavailable. It is not current release or inverse-translation
+acceptance evidence.
 
 The `regenerative-roundtrip` application is intentionally richer than a symbol
 inventory. Its contract includes bounds, whitespace normalization, aggregation,
 integer discount arithmetic, stable ordering, tie-breaking, exact output fields, and
-invalid-input behavior. The inverse translator performs an exhaustive contract-coverage
-audit over those facets before it may claim a draft is complete. Semantic comparison is
-therefore based on separately attributable behavioral anchors, not prose similarity or
+invalid-input behavior. At that historical checkpoint, inverse translation performed a contract-coverage
+audit over those facets. Its semantic comparison used separately attributable behavioral anchors, not prose similarity or
 byte equality with the original specification.
 
 OpenSpec emission preserves that structure mechanically: every recovered statement has
@@ -546,7 +528,7 @@ application argument; language launchers decode that array and call the generate
 application contract. This avoids shell-specific quoting and gives the forward generator,
 baseline runner, promoted project, and independent verifier one cross-platform ABI.
 
-The live test also exposed conversion technique that belongs in skills, not product
+That historical test also exposed conversion technique that belongs in skills, not product
 intent. The Bazel skill now pins known-compatible rule-set baselines, requires explicit
 Bazel 9 rule loads, requires the root `MODULE.bazel` to begin with one keyword-only
 literal `module(name = "<valid_module_name>", version =

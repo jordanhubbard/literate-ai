@@ -35,8 +35,9 @@ coverage or authorize consumer execution.
 
 Select the current provider project, Component, qualification profile and target.
 The configured installed framework, provider lock, recipes, oracle and native tools
-must still match its qualification. `--provider-id` and optional `--model` select
-that existing generation authority; neither command generates or requalifies code.
+must still match its qualification. For source-v1 bindings, `--provider-id` and
+optional `--model` select that existing generation authority; neither command
+generates or requalifies code.
 Native tool measurement can invoke installed tools.
 
 Supply the exact qualification archive as a local file with `--archive`, or choose
@@ -239,6 +240,37 @@ operations. The source-v1 `--gates`, `--reviewed-gates`, `--gate-size`,
 The independently supplied binding digest and size remain required; a file's own
 identity fields cannot approve its contents.
 
+Authored receiving also requires a canonical
+`literate-ai/authored-retained-cargo-producer-review@1` document. Supply its
+application-relative path with `--producer-review` and independently approved
+content identity and exact byte count with `--reviewed-producer-review` and
+`--producer-review-size`. All three operations require these operands before
+provider discovery, SDK reopening or transport. Missing review does not select a
+coding CLI as a fallback.
+
+The review contains `importer_project_id`, the complete `binding_identity`,
+`evidence_store_id`, `provider_reference_identity`, the exact versioned
+`provider_plan`, historical `coding_provider` and `pipeline_model` (or JSON
+`null`), and `profile_path`. Use the original typed identity and plan objects,
+without changing their versions or qualified bytes. The profile is an
+application-relative path beneath `litai/`; it must match `--provider-profile`.
+The reviewed plan's output root must match `--provider-output-root`, whose default
+is `litai/qualification`. A supplied `--model` must match the reviewed historical
+intent; it never selects a receiving model. The review is a sixth file in the
+same bounded input set as the manifest, binding, workspace plan, gate policy and
+inventory. Changing a selected file, review path or importer context invalidates
+an in-flight check and evidence bound to the earlier complete input identity.
+Changed declarations must still match independently approved binding and review
+bytes.
+
+These authored operations reopen the current graph, private oracles, configured
+Standard binding and actual SDK/tool owners without selecting or probing a coding
+CLI. They still require the exact published reference, complete transported
+archive, every clean run and all current importer gates. Native tool measurement
+may invoke installed tools. Parsed review or archive data grants no generation,
+publication or consumer admission authority. Source-v1 keeps its existing input
+format and receiving path.
+
 For example, after independently reviewing the real qualification and consumer
 files, select the current provider and bounded old output observation:
 
@@ -246,6 +278,9 @@ files, select the current provider and bounded old output observation:
 litai project retained-cargo check \
   --project ./consumer \
   --binding authored-binding.json --plan authored-plan.json \
+  --producer-review producer-review.json \
+  --reviewed-producer-review "$REVIEWED_PRODUCER_REVIEW_ID" \
+  --producer-review-size "$PRODUCER_REVIEW_BYTES" \
   --gate-policy authored-policy.json --tests authored-tests.json \
   --reviewed-binding "$REVIEWED_BINDING_ID" --binding-size "$BINDING_BYTES" \
   --provider-project ./provider --provider-component components/library \

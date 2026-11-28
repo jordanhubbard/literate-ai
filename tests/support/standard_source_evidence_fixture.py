@@ -13,6 +13,7 @@ from literate_ai.adapters.lifecycle import (
     LocalSourceTreeRegistry,
     local_generated_source_tree_identity,
 )
+from literate_ai.adapters.models.coding_cli import _recipe_managed_python_imports
 from literate_ai.contracts import (
     CYCLONEDX_SOURCE_SBOM_PATH,
     CycloneDxLifecycle,
@@ -130,6 +131,7 @@ def write_strict_source_evidence(
             for reference in root_dependency_refs
         )
         + tuple(additional_edges),
+        managed_python_imports=_recipe_managed_python_imports(recipe),
     )
     source_bom_path = source.joinpath(*Path(CYCLONEDX_SOURCE_SBOM_PATH).parts)
     source_bom_path.parent.mkdir(parents=True, exist_ok=True)

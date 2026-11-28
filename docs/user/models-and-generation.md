@@ -167,13 +167,13 @@ acquire evidence, generate, validate, authorize, build, package, and accept. Mod
 request and response identities, templates, decoding parameters, tool parameters,
 usage, and fallback decisions are provenance.
 
-There are currently two callable lifecycle surfaces. The installed `litai generate`
-and `litai rebuild` commands use the established generation orchestrator and the
-project's content-pinned host driver. Separately, the implemented Standard lifecycle
-core consumes an exact Component execution plan and schedules one prepared node at a
-time (concurrently where dependencies permit). It is a provider-neutral application
-service today; making it the default CLI and sample implementation is still adoption
-work.
+For generation projects, `litai generate` stops at source, while `litai rebuild`
+dispatches through the manifest's lifecycle binding. A Standard binding selects
+the implemented Standard lifecycle; a content-pinned host driver selects that
+driver. The Standard core consumes an exact Component execution plan and schedules
+prepared nodes concurrently where dependencies permit. Its application service
+and CLI dispatch share that implementation; a source-level dispatch path does
+not establish qualification of a particular generated application.
 
 ### Authenticated inherited IDE sessions
 
@@ -601,12 +601,12 @@ their file-operation progress there. For a larger Component, set
 `LITERATE_AI_CODING_CLI_GENERATION_STDERR_LIMIT_BYTES` to an explicit byte allowance up
 to 256 MiB. This setting does not change the generated-source-tree limit. Invalid or
 excessive values fail closed before generation. Crossing the applicable stream bound
-terminates the process instead of buffering unbounded output. Those buffers are a
-private adapter input used only to classify recognizable authentication failures. They
-are never copied into a `CodingCliError`, CLI JSON, generation report, or lifecycle
-event because a provider can echo forwarded credentials. A non-authentication failure
-reports only the selected provider and numeric exit status and directs the operator to
-that agent's local diagnostics.
+terminates the process instead of buffering unbounded output. Failure output is
+classified for authentication and quota errors. Public errors may include a bounded
+excerpt after secret redaction; an attached run may retain a redacted failure
+transcript. Non-authentication errors also report the selected provider and exit
+status. Treat these diagnostics as sensitive provider output: bounded excerpts and
+redaction do not establish that every possible secret encoding has been removed.
 
 Before an OpenCode prompt can leave the workspace, the adapter runs a separate bounded
 `opencode run --help` probe against the exact pinned executable. V1 retains

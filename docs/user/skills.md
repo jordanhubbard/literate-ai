@@ -42,7 +42,7 @@ after review. `litai project validate` checks the catalog graph.
 
 These are repository capabilities, separate from skills installed in a particular
 coding assistant. Installing a presentation plugin does not add it to this catalog.
-The root onboarding skill is an additional entry point outside the 89. Packaged
+The root onboarding skill is an additional entry point outside the 90. Packaged
 initialization templates are distribution copies, not extra capabilities; Flavors,
 Components, workflows and routing policies are separate catalog kinds. A derived
 project may inherit a different effective inventory through its declared parents.

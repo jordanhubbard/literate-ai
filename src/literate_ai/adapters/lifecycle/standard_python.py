@@ -192,15 +192,16 @@ class StandardPythonDependencyObserver:
     toolchain: PythonToolchain
 
     def __call__(self) -> PythonDependencyEvidence:
+        target = observe_python_wheel_target(self.toolchain)
         verified = verify_standard_python_dependencies(
             self.artifact_root,
             expected_identity=self.expected_identity,
             binding=self.binding,
             source=self.source,
-            target=observe_python_wheel_target(self.toolchain),
+            target=target,
         )
         return PythonDependencyEvidence(
-            self.source, verified.identity, verified.observation
+            self.source, verified.identity, verified.observation, target
         )
 
 

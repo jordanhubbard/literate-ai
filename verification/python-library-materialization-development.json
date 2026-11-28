@@ -1,0 +1,131 @@
+{
+  "schema": "literate-ai/development-qualification@1",
+  "requirement": "AUTHORED-GRAPH-QUALIFICATION-001 / issues #516 and #517",
+  "status": "Original Python two-library publication and closed archive replay pass with deterministic coding fixture; broader release qualification remains open",
+  "release_evidence": false,
+  "platform": {
+    "system": "Linux",
+    "machine": "aarch64"
+  },
+  "source_sha256": {
+    "src/literate_ai/adapters/action_build_result.py": "9b1169baab6ae4c858c79e40d07dd3331034a29eb702ace114a3ef6dccb30cf9",
+    "src/literate_ai/adapters/action_provider_build.py": "0820731bd63ffb07ccd005c96578775e3831db33f877391551ec326d33162db2",
+    "src/literate_ai/adapters/qualification_capture.py": "b1b5c6e427bd06acd8fc1d5aaa1b08767b5accdfee043af1162ff22aaceebede",
+    "src/literate_ai/adapters/qualification_python.py": "e8a2311e89c8cbc7bdd57254fb74bd0bf3d222a58fa6b3bb802195fe2e478249",
+    "src/literate_ai/adapters/dependencies/managed_python.py": "f745dd64ad5f69dfada95a1d51f4f6fab5e641cc75a5dfe5514b7b0ccda487c5",
+    "src/literate_ai/adapters/dependencies/python_resolution.py": "e387f8387045ef72208a53f4d060d284960a2151b7eb3d5be717f14f8863c2ae",
+    "src/literate_ai/adapters/dependencies/python_target.py": "5be93101593b5a86536de0fa4e2b2db792bec5453b935c6dd806e4885fad9a23",
+    "src/literate_ai/adapters/lifecycle/python_libraries.py": "84ec68493858eaf70f64f26bf093189ba2e3a5169f0f503948291cda8086abfc",
+    "src/literate_ai/adapters/lifecycle/standard_local.py": "baa8507ee7b3ad5c1723853cc370529b28762ae927f852e163268e10779f46b8",
+    "src/literate_ai/adapters/lifecycle/standard_python.py": "5284a5470da3e03326a41796fd6f561a3321f3cc99e2a2de31af1ee8e379308d",
+    "src/literate_ai/adapters/lifecycle/standard_runtime.py": "c6d5414eac9b274721e7d7d4d78bf5d8e489394c03dbe1b85c89030f82ea6144",
+    "src/literate_ai/adapters/models/coding_cli.py": "93db8f94f8baed78de3b193834929bc9eccf2c3e917595ba0922f5f650ffde41",
+    "src/literate_ai/adapters/native_sdk_commands.py": "596527615640b83702bcf9925df98c369965f64b5df88acfefdea2b300c01848",
+    "src/literate_ai/adapters/native_sdk_library.py": "830cf7a8095e1a47a307b7df9951368c9ce263003e04ef0267f21c94775f5a5b",
+    "src/literate_ai/adapters/source_evidence_validation.py": "936700d3bc50a1beb8f0507b6451768276e28440ecf6dd7a28c8f504528c85cc",
+    "src/literate_ai/adapters/standard_project.py": "665672708ef67dfaa95a95500f0a528809b64d7392c01c888afb3e4ad85ce2a5",
+    "src/literate_ai/adapters/standard_receiver_runtime.py": "29d2ce923cafb7b586058c040e429137f5410bf9b833c9ef2ff5be5b1fe68802",
+    "tests/critical/test_authored_receiving_complete_replay.py": "80b3ff338b39cdb3312d15da49546dd9f9f60761ade5c922b85fec33ac4c0c9c",
+    "tests/critical/test_qualification_python_inputs.py": "24c7117ef4e1a405c253bc6d374ebe287e82c077e6beea0ce7d797ed76b8129a",
+    "tests/smoke/test_python_build_semantic_replay.py": "23fc6f30e20ba6155db87afc04079392a35d274633440512178a382aef5199ab",
+    "tests/smoke/test_python_library_materialization.py": "54452ac080af8496ce70b51adce1fe2ef866b6d4ef9f2dc34408af75670261fa",
+    "src/literate_ai/application/component_generation_context.py": "4803d7d079de1417291ff9ca28073325fe6697fd87d7d6671e2db6020d040fdd"
+  },
+  "current_source_receipts": [
+    {
+      "report_sha256": "11e7e604efba60d0f9c72fd49fc0d89c3c2c63939cd444615c7da013c9b26e76",
+      "scope": "Actual offline wheel BUILD and inert original-input replay/refusals; native provider-free file BUILD/EXECUTE and coherent rehashed missing-context refusal",
+      "selected": 2,
+      "passed": 2,
+      "skipped": 0,
+      "failed": 0
+    },
+    {
+      "report_sha256": "20c71e32920e2020395ea97c415e4068d547f7de25ccc0a5c4d1fdc54fe0cf7a",
+      "scope": "Original public authored-qualification apply with two complete clean two-library runs, native BUILD/TEST/EXECUTE, private oracle acceptance, complete archive/current replay, publication and canonical owned retirement",
+      "selected": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0
+    }
+  ],
+  "current_source_summary": {
+    "selected": 3,
+    "passed": 3,
+    "skipped": 0,
+    "failed": 0,
+    "source_and_fixture_files_frozen": 1378,
+    "all_frozen_hashes_unchanged": true,
+    "complete_producer_elapsed_seconds": 586.499,
+    "generated_nodes_asserted": 4,
+    "coding_fixture_children_asserted": 4,
+    "frozen_source_manifest_sha256": "7acd18bbaf7e900a6eaba1149ce2a3d14cd815698128fd9b58e028a59190a80d"
+  },
+  "fixture_boundary": "The coding child is deterministic Codex-shaped test DATA, not a genuine model. Framework distribution observation is explicit fixture DATA. Actual original project authority/review, native lifecycle, private oracles and publication/archive owners execute. This is not SDK/installed/native Windows or whole-release acceptance.",
+  "qualified_source_behavior": [
+    "Exact original typed bindings select held Python provider snapshots for directory exports; relocatable private imports apply to every declared export.",
+    "Original Python process proof pins candidate recipe, complete original source and provider DAG build/export/command records. Replay derives expected bindings from original recipe plus BUILD inputs; GEN-only mappings do not grant artifacts.",
+    "Native original observer retains complete wheel runtime bytes/modes and measured target. Inert replay reconstructs original source/target/build binding against top-level dependency commitment and current command/recipe authority where required; no native probe/import/pip or filesystem access occurs during decoding.",
+    "Private namespace comparison includes missing/foreign files, modes, complete coverage and portable reserved aliases. File/tree layout follows the original runtime command; provider-free file exports preserve native bytes.",
+    "Modern missing proof refuses even with no private subtree. Historical provider transfer preserves the original pinned worker-input and accepted receipt digest; this proof grants no provider acceptance or new current host observation.",
+    "Original isolated Python argv and numeric archive/record/deadline guards remain. Wheel runtime argument adaptation now preserves original role positions after isolated startup flags."
+  ],
+  "supporting_checkpoint_receipts": [
+    {
+      "report_sha256": "9ed313b2a4b996b509fdc7d060c0b19d7f9b49c865c7e166083be1622296097f",
+      "scope": "Six typed target/current-vs-legacy/multiple-entrypoint selector controls; earlier integration source checkpoint",
+      "selected": 6,
+      "passed": 6,
+      "skipped": 0,
+      "failed": 0
+    },
+    {
+      "report_sha256": "97ba2d0f19450bf192f861400e42e0dc876b7cc4d1fb7b3aad4f1b17f740c794",
+      "scope": "Configured provider-transfer integration; earlier integration source checkpoint",
+      "selected": 1,
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0
+    },
+    {
+      "report_sha256": "2c87e629abd7efa638574f71f334a1add04e8183b4f58fc10103d52a9e090c20",
+      "scope": "Eight maintained native Python lifecycle/package/cache tests after wheel argv fix; earlier integration source checkpoint",
+      "selected": 8,
+      "passed": 8,
+      "skipped": 0,
+      "failed": 0
+    },
+    {
+      "report_sha256": "41fdab0bc885db19307bdc19041c30c94bfed980d976095320a6427af2fc32c9",
+      "scope": "Thirteen materialization/relocation/transitive/original bounds/reserved alias/file-preservation controls; earlier integration source checkpoint",
+      "selected": 13,
+      "passed": 13,
+      "skipped": 0,
+      "failed": 0
+    }
+  ],
+  "checkpoint_counting": "Supporting checkpoints do not attest the complete final worktree and are not added to current_source_summary. Earlier native replay and materialization cohorts overlap newer cases.",
+  "independent_source_reviews": {
+    "review-contracts-python-build-context-integration-r43g-r1.json": "b1b13625216c96e3ad87ecb94c37a01023e004bb7c970caab57f6605265bda1f",
+    "review-contracts-python-build-context-delta-r43i-r1.json": "285b6394b0fa80a65c6f2ea8afa7276fe9fba4e8173adcd5b8618a290393737c",
+    "review-contracts-python-build-layout-delta-r44a-r1.json": "79760bdf19fa53c838e79d9f59aa140440eef04ff2a67461004379024f68e0a4",
+    "review-authority-python-provider-history-boundary-r41e-r1.json": "4506febbe5df43b15a87b8b5b8f0fc62ffef1b69f884a594ba23c6659a997d4d",
+    "review-contracts-python-generic-chain-evidence-r44b-r1.json": "bd1317336f79ae52aede43ba79a96ef3895eee60bde1caf50c8476a9a35cd31e"
+  },
+  "preserved_failures": [
+    "Initial generator fixture declared GEN/public-interface only; later fixture explicitly declares separate GEN and BUILD before lock/review/plan. No GEN-to-BUILD auto-promotion.",
+    "Earlier full fixture reached publication but failed its new incorrect scratch-parent assertion. Correction follows canonical retirement: owned run absent, original empty diagnostic container retained; production cleanup unchanged.",
+    "First semantic runtime exercise rejected byte-valued manifest source; decoder now supplies exact UTF-8 text while preserving full source inventory.",
+    "Maintained native Python TEST exposed old argv slicing after isolated flags; adapter repaired against exact original prefix without relaxing assertions or deadline."
+  ],
+  "remaining_requirements": [
+    "Complete consolidated local suite, current driver/documentation authority, exact integrated CI/resulting-main and installed/public package acceptance.",
+    "Genuine authored Rust shared nominal diamond with two models and complete run/SDK/consumer proof; deterministic Python fixture does not replace it.",
+    "Actual nonempty Python library BUILD/TEST/EXECUTE/ACCEPT/LINK worker transfers and a newly opened public receiving owner; source/static transfer wiring and legacy transfer controls do not replace these.",
+    "Actual combined provider/consumer pip closures and verified identical payload overlap, SDK support/operand refusal, service sibling imports, full receiver/path/platform controls.",
+    "Python dependency-bearing single-file companion representation/packaging; currently such inputs explicitly refuse rather than silently losing dependencies.",
+    "Full supported export-size composition: original per-proof-record transport bound remains; raw export/source records above that bound must refuse unless bounded chunked transport is supplied. Current small fixtures do not prove the archive byte ceiling.",
+    "Windows shallow path budget, actual native Windows/macOS/FreeBSD coverage, retained bridge and separate wheel-dependency qualification.",
+    "All original release goals and included contributions remain in scope; no release or issue closure follows this development record."
+  ]
+}

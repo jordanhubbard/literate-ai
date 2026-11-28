@@ -1,0 +1,311 @@
+{
+  "schema": "literate-ai/development-qualification@1",
+  "requirement": "AUTHORED-GRAPH-QUALIFICATION-001 / accepted ADR 0072 / issues #345 and #393",
+  "status": "Finite model-free read seams and CLI controls qualified; unchanged original compatibility cohorts completed",
+  "platform": {
+    "system": "Linux",
+    "machine": "aarch64"
+  },
+  "release_evidence": false,
+  "source_sha256": {
+    "src/literate_ai/adapters/authored_publication_files.py": "11696b3166387982acb298e0a434a8e293ea9399200f4ddb6712c18f1e239c18",
+    "src/literate_ai/adapters/authored_qualification_comparison.py": "067610acf2707f21d8f2ae1eb5a497fc2baf7d528619856ab4a254bb2332a192",
+    "src/literate_ai/adapters/authored_qualification_projection.py": "1c60c7dba8b9cc1d220516495f3be09c33d5aa42b16458d00b4f307c6168316c",
+    "src/literate_ai/adapters/authored_qualification_receiving.py": "08775758df418c59ca324c0e601990f6afe0130109071e5ca5a983d08e93d5e9",
+    "src/literate_ai/adapters/authored_qualification_reopening.py": "277510c4fdde74c8789f3f59a930bd17bdb234ccbad56bff69a51754ce0227a5",
+    "src/literate_ai/adapters/authored_retained_cargo_admission.py": "ffb177ef63214931fa6b7a3c18b024793a7998ce6740453dcdf44e8822a00d99",
+    "src/literate_ai/adapters/authored_retained_cargo_inputs.py": "759eb620fbb2f078569a7a2a850ea7f21e824a848995cdb4799ca46efcd9d920",
+    "src/literate_ai/adapters/authored_retained_cargo_products.py": "c9005baafcf349098279dd978d304361543e03b36a002de8633301ce6fa87d21",
+    "src/literate_ai/adapters/authored_retained_cargo_provisioning.py": "179d017ea2c77e6372aeb3dffacf2dd4583398427b767abd657d9ec5b14aa833",
+    "src/literate_ai/cli/dispatch.py": "1d53ff80b8b9298ab43c9985226776706fd57735f67acc581ea8ff7f5252659b",
+    "src/literate_ai/cli/retained_cargo_authored.py": "326de52b55aed07c5eb3b4104a89d21f692cac1915800a61a5f565c615fe6b0a",
+    "src/literate_ai/cli/retained_cargo_routing.py": "c57b611eed704fbded8c8a27c877ef455c20ea835d685521024cf72ec2b1d95a",
+    "tests/critical/test_authored_receiving_read_seams.py": "ca757513eedeb07df2749977ea8e0a1f4018f3993249f715c9bbf6f1aa5e0b7f",
+    "tests/critical/test_cli_authored_receiving_review.py": "f36af1a65fa4e359c6bd28576ea45a930c6a75aaa61899062dbb9bd9dc058148",
+    "tests/critical/test_authored_receiving_projection.py": "84a55790a3150bc771bedf2f9dec9faf8febcb9064ca28deb146a45d132acea4"
+  },
+  "command": "make python-check PYTHON_TEST_WORKERS=1 PYTHON_TEST_START_DIRECTORY=tests/critical PYTHON_TEST_PATTERN=test_*authored_receiving*.py",
+  "report_sha256": "0252d7264524ba06311f37aba6b8c61f40a7c44f9409265c25d6a11eb229c044",
+  "summary": {
+    "executed": 19,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 19,
+    "selected": 19,
+    "skipped": 0
+  },
+  "qualified": [
+    "Original read-only owner is admitted at finite publication, Cargo products, projection/completion, comparison and reopening source seams through authenticated private dispatch",
+    "Public helper replacement, same-object code changes, hostile method descriptor and callback-time publication changes refuse before foreign dispatch",
+    "Pure closing authenticates original active issuance and fields without native refresh, planning or clock observations",
+    "Writes and non-Cargo shared selections refuse; complete original binding and fresh reviewed identity are required before product use",
+    "Actual authored handler requires independently reviewed producer path, digest and size before provider, SDK or transport discovery; coding-planner import and fallback are removed",
+    "CLI positive holds actual original read factory through mocked provisioning and retires it on exit",
+    "Original private projection/completion accepts actual read owner and controller Python tools under the existing explicitly modeled platform fixture"
+  ],
+  "source_review_repairs": [
+    {
+      "finding": "Full dispatch could invoke changed private pure closer before seal validation",
+      "repair": "Authenticate captured closer before both direct calls"
+    },
+    {
+      "finding": "New public helper aliases allowed foreign replacement or implementation mutation",
+      "repair": "Import-time private binder captures finite publications and implementations and checks before and after calls"
+    },
+    {
+      "finding": "Absent independent review retained consumer coding-planner fallback",
+      "repair": "Require complete proof at handler ingress and remove planner import and fallback"
+    }
+  ],
+  "prior_development_reports": [
+    {
+      "report_sha256": "9a480a58a34e49df41142c0252c328c56bc86fd513873a820eae867c95f307a9",
+      "summary": {
+        "executed": 7,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 7,
+        "selected": 7,
+        "skipped": 0
+      },
+      "scope": "Earlier cohort predates final ingress and projection controls; preserved, not current acceptance"
+    },
+    {
+      "report_sha256": "93bc849bd7c527f28dbfdee15b52388a8f0aa576ed9324404388fb26ae48f16a",
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "scope": "Earlier cohort predates final ingress and projection controls; preserved, not current acceptance"
+    },
+    {
+      "report_sha256": "011ab7632f0365cc9c9d839a0c76c41818d4a48698257b794cdd7c16089dd4b7",
+      "summary": {
+        "executed": 17,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 17,
+        "selected": 17,
+        "skipped": 0
+      },
+      "scope": "Earlier cohort predates final ingress and projection controls; preserved, not current acceptance"
+    }
+  ],
+  "compatibility": {
+    "status": "Completed all thirteen original cohorts without failures or skips",
+    "summary": {
+      "executed": 99,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 99,
+      "selected": 99,
+      "skipped": 0
+    },
+    "unique_test_cases": 99,
+    "report_sha256": "84ef5fd76e8b85203fdb309e4cc6f36b9d910ac96de0390d68f939e8ca9a8579",
+    "source_and_unchanged_test_sha256": {
+      "src/literate_ai/adapters/authored_publication_files.py": "11696b3166387982acb298e0a434a8e293ea9399200f4ddb6712c18f1e239c18",
+      "src/literate_ai/adapters/authored_qualification_comparison.py": "067610acf2707f21d8f2ae1eb5a497fc2baf7d528619856ab4a254bb2332a192",
+      "src/literate_ai/adapters/authored_qualification_projection.py": "1c60c7dba8b9cc1d220516495f3be09c33d5aa42b16458d00b4f307c6168316c",
+      "src/literate_ai/adapters/authored_qualification_receiving.py": "08775758df418c59ca324c0e601990f6afe0130109071e5ca5a983d08e93d5e9",
+      "src/literate_ai/adapters/authored_qualification_reopening.py": "277510c4fdde74c8789f3f59a930bd17bdb234ccbad56bff69a51754ce0227a5",
+      "src/literate_ai/adapters/authored_retained_cargo_admission.py": "ffb177ef63214931fa6b7a3c18b024793a7998ce6740453dcdf44e8822a00d99",
+      "src/literate_ai/adapters/authored_retained_cargo_inputs.py": "759eb620fbb2f078569a7a2a850ea7f21e824a848995cdb4799ca46efcd9d920",
+      "src/literate_ai/adapters/authored_retained_cargo_products.py": "c9005baafcf349098279dd978d304361543e03b36a002de8633301ce6fa87d21",
+      "src/literate_ai/adapters/authored_retained_cargo_provisioning.py": "179d017ea2c77e6372aeb3dffacf2dd4583398427b767abd657d9ec5b14aa833",
+      "src/literate_ai/cli/dispatch.py": "1d53ff80b8b9298ab43c9985226776706fd57735f67acc581ea8ff7f5252659b",
+      "src/literate_ai/cli/retained_cargo_authored.py": "326de52b55aed07c5eb3b4104a89d21f692cac1915800a61a5f565c615fe6b0a",
+      "src/literate_ai/cli/retained_cargo_routing.py": "c57b611eed704fbded8c8a27c877ef455c20ea835d685521024cf72ec2b1d95a",
+      "tests/critical/test_authored_qualification_projection.py": "6affc67a74d9765c83e51d69d734fd5c2816a37e330125035b98a41ea23634e7",
+      "tests/critical/test_authored_qualification_reopening.py": "f5a9ca3a80e030e8f5b3b623f21f7c27a1a753a306dcc026bcfdc8234a6f50ab",
+      "tests/critical/test_authored_retained_cargo_admission_receipt.py": "a2b38873de4715b160e8e61a4069bab51cc4f427a07bdce5120ad88cd3ec4fe2",
+      "tests/critical/test_authored_retained_cargo_inputs.py": "b6f9336b45631b734a09ae3af8eca4c0a592f1575e4e5b01264f6d47088c80a9",
+      "tests/critical/test_authored_retained_cargo_products.py": "e1159f6f5127fc17db720284afd1fe9fba9e907f628abdd80b1528ae560bdd75",
+      "tests/critical/test_authored_retained_cargo_replay.py": "befe01a535396af21cb8084b95d4a07a6434dab3e561b016eb0c32eeebaf809a",
+      "tests/critical/test_authored_retained_cargo_review.py": "118b508102944ec2287835830c66e5d65419c7b33403e3ae2d91624b167b5825",
+      "tests/smoke/test_authored_retained_cargo_native_completion.py": "b0c7a07d31ae9e1b07d39459335cac7ae62a11dc5dc8cb1f2e16b809a09bdbe5",
+      "tests/smoke/test_authored_retained_cargo_native_execution.py": "52c68cb1d58c5ea9a32a0fefd99f1a583bb5f4cd69d3d1af93c2897a86bcdb04",
+      "tests/smoke/test_authored_retained_cargo_native_forwarding.py": "c41865bbfc1852f6cd67771a3758f957fd705999bb43b36288001d406b716f7e",
+      "tests/critical/test_authored_qualification_comparison.py": "deb207be00fdc286a2a1db96ec48cdd8a837cccfa89bd7f7eb20bb567717a237",
+      "tests/critical/test_cli_retained_cargo_dispatch.py": "b37491c443520b4f08dd523dd7eaca719fb81b23f3823fd08cb672b887d6027b",
+      "tests/critical/test_authored_receiving_read_seams.py": "ca757513eedeb07df2749977ea8e0a1f4018f3993249f715c9bbf6f1aa5e0b7f",
+      "tests/critical/test_cli_authored_receiving_review.py": "f36af1a65fa4e359c6bd28576ea45a930c6a75aaa61899062dbb9bd9dc058148",
+      "tests/critical/test_authored_receiving_projection.py": "84a55790a3150bc771bedf2f9dec9faf8febcb9064ca28deb146a45d132acea4"
+    },
+    "cohorts": [
+      {
+        "pattern": "test_authored_qualification_receiving*.py",
+        "report_sha256": "8dd268fecaf794b7f0d05af954a5487cd97c7a7d7d1ce9a46bbb0aae7453f0c1",
+        "summary": {
+          "executed": 20,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 20,
+          "selected": 20,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_authored_qualification_projection.py",
+        "report_sha256": "bc3afa14e89fc09a6ec77666f983499a32bdf05b0ca7a0d5b4165914c2b2ce00",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_authored_qualification_reopening.py",
+        "report_sha256": "70af1e460945337d8a7fc5e793414b9259f66c798d4cdd66018d065137da650a",
+        "summary": {
+          "executed": 11,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 11,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_authored_retained_cargo_admission_receipt.py",
+        "report_sha256": "ecc7b1b5054ec3dfbd8507195c9fb327dc800f476a2934affe2741340cc4127d",
+        "summary": {
+          "executed": 7,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 7,
+          "selected": 7,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_authored_retained_cargo_inputs.py",
+        "report_sha256": "d62ccad24d6391dd6e5d251b40c6f04212e9ce742f08b37482cacc2d10e25579",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_authored_retained_cargo_products.py",
+        "report_sha256": "ee6877a2bbbceaed25d8e1e627c178b26c9c51524ceafd2d2f54a0fa087461b3",
+        "summary": {
+          "executed": 8,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 8,
+          "selected": 8,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_authored_retained_cargo_replay.py",
+        "report_sha256": "262db28286bb334c4cc703f04008a45ee1a3a9ce4fcaa0afc5243e22d22b40a8",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_authored_retained_cargo_review.py",
+        "report_sha256": "356f7f6507034f681e8521b7be73bffdccbc4c7a22e7b8282a613679ad8831ac",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_authored_retained_cargo_native_completion.py",
+        "report_sha256": "a366948d126c3f4d52a2a937034638c88b17e07136c7258a43d2e1524fd17c9f",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_authored_retained_cargo_native_execution.py",
+        "report_sha256": "6ebb50fe33347c75d4da9095ca2541f4805c71ce72f8e53ffb9c8134b4d9d6da",
+        "summary": {
+          "executed": 3,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_authored_retained_cargo_native_forwarding.py",
+        "report_sha256": "52aab3af34d4eedcdf0237f34e491eb64cc41070081f11602579ec5f5534b89d",
+        "summary": {
+          "executed": 2,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 2,
+          "selected": 2,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_authored_qualification_comparison.py",
+        "report_sha256": "daff872ecc15c80615385b1883b4c388b9682ef96b3fc87c6dc629f5ff60d0c5",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        }
+      },
+      {
+        "pattern": "test_cli_retained_cargo_dispatch.py",
+        "report_sha256": "ffef97ad16fdcc446af07a0cd5a25d06ebca2b8c0688d54bf2fa485a7c9080a6",
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        }
+      }
+    ],
+    "limits": "Original fixtures include native Cargo execution; no genuine authored SDK/archive or full-suite release claim"
+  },
+  "limits": [
+    "Finite public-port attestation retains private binder/dispatcher/registry/module globals and original native/interpreter roots as trusted; no recursive tamper-hardening claim",
+    "CLI positive uses fixture reviewer/framework ports and mocked provisioning, archive and tool discovery",
+    "Projection positive models macOS selection as the existing fixture does; actual tools are controller Python, not native macOS or genuine SDK qualification",
+    "No complete positive new-owner published archive, all-clean-run semantic replay, actual provisioning/admission or source-retirement journey",
+    "No genuine model-generated provider, current SDK completion, installed candidate, full source, cross-platform or release acceptance"
+  ],
+  "required_next": [
+    "Qualify actual current published archive and every clean run, private oracles, SDK/tool/reference/driver joins and original absolute deadline through complete receiving",
+    "Complete fresh noneditable public check/materialize/admit with coding CLI unavailable, genuine SDK and native tool evidence, original importer gates and source retirement",
+    "Complete all original release goals and installed/platform qualification"
+  ]
+}

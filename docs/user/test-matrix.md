@@ -95,10 +95,12 @@ fails closed unless both a coding CLI and a model are explicit. Put durable defa
 project-scoped user `test.json` as `coding_cli` and `model` (see
 `literate.test.example.json` for inert placeholders). Precedence is `--coding-cli` /
 `--model`, then `CODING_CLI` / `LITAI_LIVE_MODEL`, then that file. PATH first-available
-search is not a live-test default. Remote SSH workers require `opencode` on `PATH`,
-configured with credentials for the pinned model's provider; opencode resolves them
-from its own configuration or auth store, so Literate AI requires no specific key. Do
-not put keys in `workers.json`.
+search is not a live-test default. SSH sample fan-out defaults to `opencode` on
+the worker's `PATH`; an explicit `--coding-cli` / `--model` pair can override
+that default for one run. The selected CLI must be installed on the worker and
+configured for the pinned model's provider. Opencode resolves credentials from
+its own configuration or auth store, so Literate AI requires no specific key.
+Do not put keys in `workers.json`.
 A one-shot `--coding-cli` / `--model` override does not rewrite the JSON file.
 
 ```console

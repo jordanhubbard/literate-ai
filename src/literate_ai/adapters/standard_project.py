@@ -70,6 +70,7 @@ from literate_ai.adapters.generation_preparation import (
 )
 from literate_ai.adapters.lifecycle.commonjs_import import commonjs_import_driver_source
 from literate_ai.adapters.lifecycle.cpp_acceptance import cpp_compile_driver_source
+from literate_ai.adapters.lifecycle.python_libraries import PYTHON_LIBRARY_BOOTSTRAP
 from literate_ai.adapters.lifecycle.standard_bazel import (
     StandardBazelLifecyclePorts,
     StandardBazelTarget,
@@ -678,6 +679,7 @@ def _inline_python_driver(source: str) -> str:
 
 _STANDARD_LIBRARY_TEST_DRIVER = _inline_python_driver(
     """import json
+import hashlib
 import pathlib
 import shutil
 import subprocess
@@ -689,7 +691,13 @@ tool = json.loads(tool_json)
 export = pathlib.Path(export_value).resolve(strict=True)
 temporary = None
 if language == "python":
-    command = [*tool, str(export / "source" / "main.py"), "--litai-test"]
+    runtime=sys.argv[7]
+    digest=hashlib.sha256(runtime.encode('utf-8')).hexdigest()
+    if digest!='__PYTHON_RUNTIME_DIGEST__':
+        raise RuntimeError('Python library test driver support changed')
+    command = [*tool, "-I", "-S", "-B", "-c", runtime,
+               str(export.parent), str(export), "tree", "source/main.py",
+               "--litai-test"]
 elif language == "javascript":
     command = [*tool, str(export / "source" / "main.js"), "--litai-test"]
 elif language == "elixir":
@@ -727,13 +735,18 @@ try:
 finally:
     if temporary is not None:
         shutil.rmtree(temporary, ignore_errors=True)
-"""
+    """.replace(
+        "__PYTHON_RUNTIME_DIGEST__",
+        hashlib.sha256(_STANDARD_PYTHON_RUNTIME_DRIVER.encode("utf-8")).hexdigest(),
+    )
 )
 
 
 _STANDARD_COMMONJS_IMPORT_DRIVER = _inline_python_driver(
     commonjs_import_driver_source()
 )
+
+_STANDARD_PYTHON_IMPORT_SUPPORT = _inline_python_driver(PYTHON_LIBRARY_BOOTSTRAP)
 
 
 _STANDARD_LIBRARY_IMPORT_DRIVER = _inline_python_driver(
@@ -851,6 +864,12 @@ IO.puts(JSON.encode!(%{schema: "literate-ai/library-import-observation@1",
     sys.stderr.buffer.write(completed.stderr)
     raise SystemExit(completed.returncode)
 elif language == "python":
+    support=sys.argv[7]
+    digest=hashlib.sha256(support.encode('utf-8')).hexdigest()
+    if digest!='__PYTHON_IMPORT_SUPPORT_DIGEST__':
+        raise RuntimeError('Python library import driver support changed')
+    exec(support)
+    _litai_python_imports(export)
     sys.path.insert(0, str(source))
     for capability in surface["capabilities"]:
         module = importlib.import_module(capability["module"])
@@ -908,6 +927,9 @@ if language != "javascript":
 """.replace(
         "__COMMONJS_DRIVER_DIGEST__",
         hashlib.sha256(_STANDARD_COMMONJS_IMPORT_DRIVER.encode("utf-8")).hexdigest(),
+    ).replace(
+        "__PYTHON_IMPORT_SUPPORT_DIGEST__",
+        hashlib.sha256(_STANDARD_PYTHON_IMPORT_SUPPORT.encode("utf-8")).hexdigest(),
     )
 )
 
@@ -1460,6 +1482,9 @@ def _runtime_command(
     if profile.runtime_strategy is StandardLanguageRuntimeStrategy.PYTHON:
         return (
             "{tool}",
+            "-I",
+            "-S",
+            "-B",
             "-c",
             _STANDARD_PYTHON_RUNTIME_DRIVER,
             *common,
@@ -2073,6 +2098,11 @@ def _command_contract(
             manifest,
             binary,
             "{artifact_root}",
+            *(
+                (_STANDARD_PYTHON_RUNTIME_DRIVER,)
+                if language.target == "python"
+                else ()
+            ),
         )
         execute_argv = (
             "{tool}",
@@ -2089,6 +2119,8 @@ def _command_contract(
             *(
                 (_STANDARD_COMMONJS_IMPORT_DRIVER,)
                 if language.target == "javascript"
+                else (_STANDARD_PYTHON_IMPORT_SUPPORT,)
+                if language.target == "python"
                 else ()
             ),
         )
@@ -2106,15 +2138,12 @@ def _command_contract(
     if python_profile is not None:
 
         def wheel_argv(argv):
-            return (
-                argv[0],
-                "-I",
-                "-S",
-                "-B",
-                "-c",
-                STANDARD_PYTHON_WHEEL_RUNTIME_DRIVER,
-                *argv[3:],
-            )
+            if argv[1:6] != ("-I", "-S", "-B", "-c", _STANDARD_PYTHON_RUNTIME_DRIVER):
+                raise StandardCommandProjectionError(
+                    "standard_command.python_runtime_invalid",
+                    "wheel runtime requires the original isolated Python command",
+                )
+            return (*argv[:5], STANDARD_PYTHON_WHEEL_RUNTIME_DRIVER, *argv[6:])
 
         if library_surface is not None:
             test_argv = (

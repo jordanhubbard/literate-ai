@@ -243,6 +243,14 @@ def _canonical_inputs(
             ContextAuthorityKind.DIRECT_PUBLIC_INTERFACE,
         )
         for uri in orders[kind]
+        # Every selected role was authenticated above. Shared public bytes have
+        # one presentation; retain the direct representative so dependency
+        # visibility and its byte budget remain charged. The original plan and
+        # generation key still bind both roles and every dependency edge.
+        if not (
+            kind is ContextAuthorityKind.LOCAL_PUBLIC_INTERFACE
+            and (ContextAuthorityKind.DIRECT_PUBLIC_INTERFACE, uri) in seen
+        )
     )
 
 

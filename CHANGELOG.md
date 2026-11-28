@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Keep Python library dependencies in directory exports and verify their
+  original build inputs during qualification and worker-transfer replay.
+
+- Present identical local and direct public-interface bytes once after validating
+  both selected roles, preserving direct visibility, budgets and complete plan
+  provenance during Component preparation.
+
+- Require independent producer review for authored Cargo receiving, carry its
+  complete identity through read-only consumers, and remove receiver-side coding
+  CLI selection. Complete archive, SDK and installed qualification remains open.
+
 - Refuse authored read-input checks whose original scope retires during a review
   callback, while preserving the callback’s primary failure.
 
@@ -27,7 +38,9 @@
   verification, preserving original resource limits, native checks and errors.
 
 - Correct current onboarding, build defaults, receipt-policy and framework-root
-  documentation.
+  documentation, including cache paths, finalized receipts and explicit SSH
+  sample coding-CLI overrides. Clarify the unavailable live inverse route,
+  selected sample matrix, diagnostic excerpts and typed candidate replacement.
 
 - Preserve wide native IDs in catalog plans and stored migration state while
   retaining native integer comparisons and original ownership checks.

@@ -19294,6 +19294,14 @@ does not establish those boundaries; public retained execution remains closed.
 
 ### [ ] PACKAGE-ZIP-001 — Expose deterministic ZIP packaging through the standard lifecycle
 
+- **Native Cargo qualification dependency:** **GitHub issue:** [#515](https://github.com/jordanhubbard/literate-ai/issues/515)
+  reports an affected current compiler placing valid test artifacts outside the
+  assumed `debug/deps` layout. Retain original Cargo JSON, complete declared
+  targets, current native bytes/namespace custody and all existing limits; qualify
+  affected actual tools before claiming native compatibility. Coordinate ownership
+  with public packaging work before entering any peer checkout. This remains
+  included in 1.4.0 and is not closed by earlier source ZIP controls.
+
 Upstream: [issue #17](https://github.com/jordanhubbard/literate-ai/issues/17).
 
 - **Priority:** P0
@@ -25068,6 +25076,17 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   tracked documentation/media candidates. Front-door copy truthfully identifies
   published 1.3.1 and development 1.4 with historical conference labels; every
   final-candidate, rendered and publication-dependent review remains pending.
+
+- **Operator-guide source review:** The [33-guide ledger](../../verification/current-user-guide-source-inventory.json)
+  records 27 guides reviewed against current source and six earlier-reviewed
+  narratives with unchanged bytes. Three additional bounded audits closed 22
+  findings, including the [first ten-guide group](../../verification/user-guide-source-review-development.json).
+  Corrections cover contained paths, finalized receipts, onboarding, SSH sample
+  overrides, matching wheels, actual Standard/Bazel dispatch, diagnostic output,
+  sample selection, typed candidate replacement and the unavailable live inverse
+  route. The reviewed commands have not been executed as part of these audits.
+  Final-candidate source and command checks, rendered documentation, media, links
+  and the full collateral inventory remain required; no goal checkbox changes.
 
 - **Recovered design execution owners:** The directing user's release-resumption
   instruction accepts the already-recorded designs in reviews #381, #382, #409
@@ -31137,6 +31156,59 @@ Source partial: converted framework-resource observation now includes the origin
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Managed Python provider import intent (source partial):** **GitHub issue:** [#516](https://github.com/jordanhubbard/literate-ai/issues/516).
+  Canonical source aliases now derive only from selected typed capability modules
+  and bind the original direct managed provider revisions. Resolved metadata
+  preserves those exact declarations. Alias-bearing portable validation has an
+  explicit third-schema checkpoint; current alias-bearing transfers also retain
+  a fourth-schema original recipe preimage bound to its candidate hash for replay.
+  No-alias first/second encodings remain unchanged. Earlier checkpoints passed
+  thirty-five source controls without skips, including original installed
+  Python payload refusal fixtures. Four additional actual worker source controls
+  pass, preserving exact custody, bytes, original action digest and fetch-time
+  revocation; the original legacy revocation control also passes after canonical
+  fixture projection. Independent source review found no remaining finding.
+  The later generic Python source/archive proof appears below. Actual nonempty
+  worker/wheel helper and installed release acceptance remain open; this is a
+  consolidated development checkpoint.
+
+- **Native Python provider materialization:** **GitHub issue:** [#517](https://github.com/jordanhubbard/literate-ai/issues/517).
+  The initial full-publication fixture passed managed BOM admission, then
+  could not import its provider. Source review separated an underdeclared fixture
+  from the native implementation defect: generation/public-interface authority
+  does not supply a build artifact. The fixture now declares both edge kinds
+  before planning, retaining its original oracle, assertions and deadlines.
+  Independently, the Python import hook missed the canonical Python Make route;
+  the isolated repair now selects the original typed Python contract instead.
+  Materialize exact held provider artifacts from current typed consumer bindings
+  through generated tests, import execution, independent acceptance and replay;
+  retain isolated startup, target/interface/blob custody, relocation and original
+  receipts. This is separate from retained Python bridge and wheel-dependency
+  work. The [bounded development record](../../verification/python-library-materialization-development.json)
+  now binds a passing original publication/archive-reopening exercise: two clean
+  two-library runs, four generated nodes and coding-fixture children, native
+  lifecycle and private oracles, publication and canonical scratch retirement.
+  The coding child and distribution observation are explicit fixture data; this
+  does not qualify genuine models, SDK or installed consumers, all platforms or
+  the release. Preserve earlier failed attempts. Combined pip closures, file
+  companions, Windows path budgets, proof-record capacity and complete integrated
+  acceptance remain open; the reviewed repair is now in the integration checkout.
+
+- **Shared public-context defect:** **GitHub issue:** [#514](https://github.com/jordanhubbard/literate-ai/issues/514).
+  Original node preparation rejects an admitted graph when its local public
+  interface bytes equal a direct provider's interface. The new coherent source
+  control fails at the unchanged manifest uniqueness guard before generation.
+  Validate every selected role, byte identity, source and completeness condition,
+  then present these shared public bytes once using the direct representative so
+  dependency visibility and direct-interface budgets remain charged. Keep the
+  complete plan and all edges, same-role/unselected/drift refusals, original
+  journal guard and all numeric limits. The [narrow source correction](../../verification/shared-public-context-development.json)
+  now passes 17 controls without skips, including the unchanged physical
+  preparation assertion that originally failed and 12 maintained shared-interface,
+  scaling and scheduling cases. The original failed report is preserved; no
+  fixture contract or manifest uniqueness guard was weakened. Broader shared-provider journal
+  qualification, complete run records/archive and receiving acceptance stay open.
+
 - **Model-free receiving (implementation in progress):** Accepted ADR 0072 and
   issues #345/#393 require ordinary authored Cargo receiving without a coding
   provider selection, probe or execution. Pin the importing maintainer's
@@ -31170,10 +31242,18 @@ Source partial: converted framework-resource observation now includes the origin
   A parsed or
   replaced passive record is not issuance. The positive fixture has no native
   SDK, and this owner does not reopen published metadata or all clean runs.
-  Next: connect only the finite read-only receiving/replay seams through the
-  trusted authenticated helper, joining the complete original reviewed identity
-  to every fresh consumer read and receipt. Keep public receiving integration
-  and genuine SDK/provider/archive acceptance open. Existing genuine
+  The [finite receiving read seams](../../verification/authored-model-free-receiving-development.json)
+  now connect through authenticated private dispatch and join the complete
+  original reviewed identity to fresh consumer reads and receipts. All 19 new
+  source controls pass without skips. Actual authored CLI ingress requires
+  independent producer review before provider, SDK or transport discovery and
+  has no coding-planner fallback. The positive CLI backend remains mocked;
+  projection uses actual controller Python tools with a modeled platform.
+  All 99 unique original compatibility cases across thirteen cohorts now pass
+  without failures or skips, including original native Cargo completion, execution
+  and forwarding fixtures. The nineteen new controls remain a separate cohort.
+  Keep complete
+  public receiving and genuine SDK/provider/archive acceptance open. Existing genuine
   installed, native, source-retirement and release evidence remains required.
 
 - **Observation-frame fixtures (source partial):** Full source qualification now

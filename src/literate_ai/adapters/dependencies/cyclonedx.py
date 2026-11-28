@@ -42,6 +42,13 @@ from literate_ai.contracts.sbom import (
     ManagedComponentKind,
 )
 
+from .managed_python import (
+    PYTHON_IMPORT_PROPERTY,
+    ManagedPythonImports,
+    managed_python_import_map,
+    source_managed_python_imports,
+)
+
 MAX_CYCLONEDX_BYTES = 16 * 1024 * 1024
 MAX_CYCLONEDX_COMPONENTS = 100_000
 MAX_CYCLONEDX_EDGES = 1_000_000
@@ -378,6 +385,7 @@ def build_cyclonedx_bom(
     source_managed_graph: CycloneDxManagedGraph | None = None,
     repository_resolutions: Sequence[CycloneDxRepositorySourceResolution] = (),
     composition_aggregate: str = "complete",
+    managed_python_imports: ManagedPythonImports | None = None,
 ) -> tuple[bytes, CycloneDxBomBinding]:
     """Build deterministic standard JSON from caller-supplied exact observations."""
 
@@ -413,6 +421,22 @@ def build_cyclonedx_bom(
             managed_graph=source_graph,
         )
 
+    if managed_python_imports is None:
+        managed_python_imports = (
+            ()
+            if source_bom is None
+            else source_managed_python_imports(json.loads(source_bom), source_graph)
+        )
+    python_imports = managed_python_import_map(managed_graph, managed_python_imports)
+    if (
+        source_bom is not None
+        and managed_python_imports
+        != source_managed_python_imports(json.loads(source_bom), source_graph)
+    ):
+        raise CycloneDxBomError(
+            "sbom.transition-component-changed",
+            "resolved managed Python imports differ from the exact source declarations",
+        )
     resolution_by_identity = _repository_resolution_map(
         managed_graph,
         repository_resolutions,
@@ -447,6 +471,10 @@ def build_cyclonedx_bom(
             ),
         ]
         resolution = resolution_by_identity.get(item.identity)
+        properties.extend(
+            {"name": PYTHON_IMPORT_PROPERTY, "value": alias}
+            for alias in python_imports.get(item.bom_ref, ())
+        )
         if resolution is not None:
             properties.extend(_repository_resolution_properties(resolution))
         component: dict[str, object] = {
@@ -971,6 +999,15 @@ def _require_lifecycle_transition(
             if key == "properties":
                 source_properties = _properties(source)
                 resolved_properties = _properties(resolved)
+                if (
+                    LITERATE_COMPONENT_REVISION_PROPERTY in source_properties
+                    and source_properties.get(PYTHON_IMPORT_PROPERTY, ())
+                    != resolved_properties.get(PYTHON_IMPORT_PROPERTY, ())
+                ):
+                    raise CycloneDxBomError(
+                        "sbom.transition-component-changed",
+                        "post-build inventory changed managed Python imports",
+                    )
                 if any(
                     resolved_properties.get(name, ())[: len(values)] != values
                     for name, values in source_properties.items()

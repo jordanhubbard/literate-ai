@@ -2568,6 +2568,17 @@ def _parser() -> JsonArgumentParser:
         retained.add_argument("--gate-size", type=int, help="source-v1 binding only")
         retained.add_argument("--gate-policy", help="authored binding policy path")
         retained.add_argument(
+            "--producer-review",
+            help="independently reviewed authored producer intent path",
+        )
+        retained.add_argument(
+            "--reviewed-producer-review",
+            help="independent producer review content identity",
+        )
+        retained.add_argument(
+            "--producer-review-size", type=int, help="exact producer review byte count"
+        )
+        retained.add_argument(
             "--tests", help="current binding-specific test inventory path"
         )
         retained.add_argument(

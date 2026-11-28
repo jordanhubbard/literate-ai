@@ -169,6 +169,9 @@ def _expected_commands(tools):
         return {
             (
                 "{tool}",
+                "-I",
+                "-S",
+                "-B",
                 "-c",
                 STANDARD_PYTHON_RUNTIME_DRIVER,
                 "{artifact_root}",

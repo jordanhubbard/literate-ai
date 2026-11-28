@@ -21,7 +21,12 @@ from literate_ai.adapters.dependencies.python_source import (
 from literate_ai.adapters.dependencies.python_target import observe_python_wheel_target
 from literate_ai.adapters.dependencies.types import DependencyObservationError
 from literate_ai.adapters.lifecycle import standard_python as owner
-from literate_ai.contracts import canonical_identity
+from literate_ai.adapters.lifecycle.python_libraries import (
+    capture_python_library_runtime,
+)
+from literate_ai.adapters.qualification_capture import QualificationEvidenceReader
+from literate_ai.adapters.qualification_python import reopen_python_runtime_records
+from literate_ai.contracts import canonical_identity, canonical_json_bytes
 from tests.support import fixtures_test_standard_python_evidence as fixtures
 
 
@@ -59,6 +64,69 @@ class PythonDependencyRecordReopeningTests(unittest.TestCase):
             json.dumps(self.document if document is None else document).encode(),
             **{**self.arguments, **overrides},
         )
+
+    def test_complete_original_runtime_reopens_from_pinned_cas_target(self):
+        self.prepare()
+        target = self.arguments["target"]
+        content = (self.fixture.root / "python-dependencies.json").read_bytes()
+        reader = QualificationEvidenceReader(
+            tuple(
+                sorted(
+                    (
+                        (self.evidence.identity, content),
+                        (
+                            target.identity,
+                            canonical_json_bytes(target.identity_document()),
+                        ),
+                    ),
+                    key=lambda entry: entry[0].uri,
+                )
+            ),
+            max_bytes=1000000,
+            max_records=10,
+        )
+        runtime = capture_python_library_runtime(self.evidence.payload_root)
+        arguments = dict(
+            evidence_identity=self.evidence.identity,
+            binding=self.fixture.binding,
+            source=self.fixture.source,
+        )
+        with (
+            patch("builtins.open", side_effect=AssertionError("file I/O")),
+            patch.object(Path, "open", side_effect=AssertionError("path I/O")),
+            patch.object(subprocess, "Popen", side_effect=AssertionError("execution")),
+        ):
+            result = reopen_python_runtime_records(
+                reader, runtime_files=runtime, **arguments
+            )
+            self.assertEqual(result.identity, self.evidence.identity)
+            for candidate in (
+                runtime[:-1],
+                (replace(runtime[0], content=b"changed"), *runtime[1:]),
+            ):
+                with (
+                    self.subTest(candidate=candidate[0].path),
+                    self.assertRaises(DependencyObservationError),
+                ):
+                    reopen_python_runtime_records(
+                        reader, runtime_files=candidate, **arguments
+                    )
+            if dict(target.environment)["os_name"] != "nt":
+                candidate = (
+                    replace(runtime[0], mode=runtime[0].mode ^ 0o111),
+                    *runtime[1:],
+                )
+                with self.assertRaises(DependencyObservationError):
+                    reopen_python_runtime_records(
+                        reader, runtime_files=candidate, **arguments
+                    )
+            missing = QualificationEvidenceReader(
+                ((self.evidence.identity, content),), max_bytes=1000000, max_records=10
+            )
+            with self.assertRaises(ValueError):
+                reopen_python_runtime_records(
+                    missing, runtime_files=runtime, **arguments
+                )
 
     def test_actual_payload_projection_needs_no_filesystem_or_process(self):
         self.prepare()

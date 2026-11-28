@@ -52,6 +52,11 @@ from .cyclonedx import (
     validate_cyclonedx_bom,
     validate_resolved_cyclonedx_bom,
 )
+from .managed_python import (
+    ManagedPythonImports,
+    managed_python_import_map,
+    require_managed_python_imports,
+)
 from .mix_resolution import (
     MixDependencyEvidence,
     project_mix_evidence,
@@ -153,12 +158,15 @@ class CycloneDxLifecycleResolver:
         python_source_authority: PythonSourceAuthority | None = None,
         python_dependency_observer: Callable[[], PythonDependencyEvidence]
         | None = None,
+        observed_managed_python_imports: ManagedPythonImports = (),
         mix_source_authority: MixSourceAuthority | None = None,
         mix_dependency_observer: Callable[[], MixDependencyEvidence] | None = None,
         native_cargo_graph: NativeCargoProviderGraph | None = None,
         native_cargo_manifest: str | None = None,
     ) -> None:
         self.managed_graph = managed_graph
+        managed_python_import_map(managed_graph, observed_managed_python_imports)
+        self.observed_managed_python_imports = observed_managed_python_imports
         self.observer = observer
         self.evidence_path = evidence_path
         self.write_evidence = write_evidence
@@ -323,6 +331,11 @@ class CycloneDxLifecycleResolver:
                     "payload verification",
                 )
             python_evidence = self.python_dependency_observer()
+            require_managed_python_imports(
+                json.loads(source_content),
+                self.managed_graph,
+                self.observed_managed_python_imports,
+            )
             python_observed = project_python_evidence(
                 source_content,
                 root_ref=self.managed_graph.root_ref,
@@ -348,6 +361,9 @@ class CycloneDxLifecycleResolver:
                     for alias in _dependency_property_values(component).get(
                         "literate-ai:python-top-level-import", ()
                     )
+                ),
+                observed_managed_python_imports=frozenset(
+                    alias for _provider, alias in self.observed_managed_python_imports
                 ),
                 python_source_authority=self.python_source_authority,
             )

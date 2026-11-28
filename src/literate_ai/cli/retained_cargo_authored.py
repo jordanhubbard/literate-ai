@@ -3,10 +3,11 @@
 import json
 import os
 import re
+from contextlib import ExitStack
 from pathlib import Path
 
-from literate_ai.adapters.authored_qualification_planning import (
-    FilesystemAuthoredQualificationPlanner,
+from literate_ai.adapters.authored_qualification_receiving import (
+    _bind_authored_qualification_read_ports,
 )
 from literate_ai.adapters.authored_retained_cargo_admission import (
     admit_authored_retained_cargo_consumer,
@@ -40,6 +41,9 @@ from literate_ai.security.evidence.storage import EvidenceReadLimits
 
 from .authored_sdk import reopen_authored_sdk_inputs
 from .retained_cargo_routing import reviewed_json, selected_limit
+
+_read_ports = _bind_authored_qualification_read_ports()
+del _bind_authored_qualification_read_ports
 
 _ARCHIVE_LIMIT = 64 * 1024**2
 
@@ -126,9 +130,33 @@ def _archive(args, reference):
 
 
 def run_authored_retained_cargo(args, *, binding_reference):
+    with ExitStack() as owners:
+        return _run_authored_retained_cargo(
+            args, binding_reference=binding_reference, owners=owners
+        )
+
+
+def _run_authored_retained_cargo(args, *, binding_reference, owners):
+    if any(
+        getattr(args, name, None) in (None, "")
+        for name in (
+            "producer_review",
+            "reviewed_producer_review",
+            "producer_review_size",
+        )
+    ):
+        raise ValueError("retained.cargo.independent-producer-review-required")
     root = Path(args.project).absolute()
     # Actual reviewed plan/policy/inventory pins precede provider discovery,
     # SDK acquisition, archive transport and all consumer output effects.
+    review_options = {}
+    if getattr(args, "producer_review", None) is not None:
+        review_options = dict(
+            producer_review_path=args.producer_review,
+            reviewed_producer=reviewed_json(
+                args.reviewed_producer_review, args.producer_review_size
+            ),
+        )
     reviewed = read_authored_retained_cargo_review(
         root,
         binding_path=args.binding,
@@ -136,11 +164,23 @@ def run_authored_retained_cargo(args, *, binding_reference):
         plan_path=args.plan,
         gate_policy_path=args.gate_policy,
         test_inventory_path=args.tests,
+        **review_options,
         maximum_file_bytes=16 * 1024**2,
         maximum_total_bytes=64 * 1024**2,
     )
     if reviewed.binding.evidence_store_id != args.store_id:
         raise ValueError("retained.cargo.archive-store-mismatch")
+    if review_options:
+        intent = reviewed.producer_review
+        if (
+            args.provider_profile != intent.profile_path
+            or selected_limit(args, "provider_output_root", "litai/qualification")
+            != intent.provider_plan.output_root
+            or (args.model is not None and args.model != intent.pipeline_model)
+        ):
+            raise ValueError(
+                "retained.cargo.authored-reviewed-producer-selection-mismatch"
+            )
     permission_reader, _permission_pins = (
         _exclusion_reader(args, reviewed)
         if args.retained_cargo_command == "admit"
@@ -161,15 +201,35 @@ def run_authored_retained_cargo(args, *, binding_reference):
         flavor_roots=provider.roots("flavor"),
     )
     sdk_inputs = reopen_authored_sdk_inputs(provider, selection, args)
-    current = FilesystemAuthoredQualificationPlanner().plan(
-        provider.root,
-        selection,
-        profile_path=args.provider_profile,
-        output_root=selected_limit(args, "provider_output_root", "litai/qualification"),
-        pipeline_model=args.model,
-        native_sdk_inputs=sdk_inputs,
+    current = owners.enter_context(
+        _read_ports(
+            "open",
+            root,
+            binding_path=args.binding,
+            reviewed_binding=binding_reference,
+            plan_path=args.plan,
+            gate_policy_path=args.gate_policy,
+            test_inventory_path=args.tests,
+            **review_options,
+            provider_root=provider.root,
+            selection=selection,
+            configured_store_id=args.store_id,
+            profile_path=args.provider_profile,
+            output_root=selected_limit(
+                args, "provider_output_root", "litai/qualification"
+            ),
+            native_sdk_inputs=sdk_inputs,
+            max_review_file_bytes=16 * 1024**2,
+            max_review_total_bytes=64 * 1024**2,
+        )
     )
-    current.require_unchanged()
+    _read_ports("full", current)
+    if (
+        reviewed.identity != current.reviewed.identity
+        or reviewed._context != current.reviewed._context
+        or reviewed.project.root != current.reviewed.project.root
+    ):
+        raise ValueError("retained.cargo.authored-original-reviewed-inputs-mismatch")
     payload, archive_pins = _archive(args, reviewed.binding.provider_reference.archive)
     environment = dict(os.environ)
     cargo = discover_cargo_toolchain(environment)
@@ -180,6 +240,7 @@ def run_authored_retained_cargo(args, *, binding_reference):
         plan_path=args.plan,
         gate_policy_path=args.gate_policy,
         test_inventory_path=args.tests,
+        **review_options,
         provider_current=current,
         configured_store_id=args.store_id,
         consumer_cargo=cargo,

@@ -122,16 +122,19 @@ run. Every fan-out target retains an equivalent cache outside its ephemeral,
 identity-verified run tree: Git targets use a sibling `<repo>.litai-cache` directory and
 working-tree targets use the configured matrix root's `cache/` directory.
 
-Use the host round-trip target only when the coding CLI is authenticated and Bazel plus
-all five implementation toolchains are available:
+The host round-trip target currently cannot complete because live coding-CLI inverse
+translation is disabled. Its intended flow requires an authenticated coding CLI,
+Bazel and the toolchains for the selected languages. Its entrypoint is:
 
 ```console
 make roundtrip-host
 ```
 
 That target does not require every application to be reversible. It uses the deliberately
-rich `regenerative-roundtrip` `literate-markdown` specification to generate, compile,
-run, and reverse Python, C++, Rust, JavaScript, and Elixir on this host. Its strict
+rich `regenerative-roundtrip` `literate-markdown` specification for an intended
+generate, compile, run and reverse cycle in Python, C++, Rust, JavaScript and Elixir.
+Those are the dedicated round-trip test's selections, distinct from the forward
+sample harness's four-language pin. Its strict
 frontmatter and canonical context graph exercise the readable provider on the forward path. The
 target first builds and installs the exact current wheel into an isolated environment;
 this binds every promoted project and clean qualification run to the framework and
@@ -341,40 +344,34 @@ profile is not an OS sandbox. Both steps are therefore recorded as explicit `yol
 profiles with the ambient host privileges they actually receive. Application stdout
 and stderr are each capped at 1 MiB; compiler diagnostics are bounded independently.
 
-The runner requires a C++17 compiler, a Rust compiler, Node.js 20 or newer, and an
+The runner requires the toolchains selected by the matrix: for example a C++17
+compiler for C++, Rust for Rust, and Node.js 20 or newer for JavaScript, plus an
 authenticated coding CLI. Live sample generation does not search `PATH` for the first
 available agent. Set `coding_cli` and `model` in project-scoped user `test.json`, or pass
 `--coding-cli` / `--model` (or `CODING_CLI` / `LITAI_LIVE_MODEL`) for a one-shot
-override. Remote fan-out requires `opencode` on each worker, configured with
-credentials for the pinned model's provider. `CXX`, `RUSTC`, and `NODE` can select
+override. SSH sample fan-out defaults to `opencode`; an explicit `--coding-cli` /
+`--model` pair can override it for one run. Each worker must have that CLI installed
+and configured for the pinned model's provider. `CXX`, `RUSTC`, and `NODE` can select
 explicit host commands.
 
-The topology is intentionally uneven because the samples test different things:
+The selected samples and their pinned harness declarations determine the topology:
 
 ```mermaid
 flowchart LR
-    A["15 specification-led apps"] --> B["11 dual-language portable apps"]
-    B --> P["11 Python recipes"]
-    B --> C["11 C++ recipes"]
-    A --> R["1 Rust recipe"]
-    A --> J["1 JavaScript recipe"]
-    A --> F["1 Rust + JavaScript recipe"]
-    A --> X["1 five-language round-trip app"]
-    X --> XP["Python + C++ + Rust + JavaScript + Elixir"]
-    P --> T["30 recipes × at least 6 cases ≥ 180 executions"]
-    C --> T
-    R --> T
-    J --> T
-    F --> T
-    XP --> T
+    A["Selected samples"] --> B["Pinned language and build-system choices"]
+    A --> C["Unpinned choices: Python and Make defaults"]
+    B --> D["Resolved host OS, Flavors and recipes"]
+    C --> D
+    D --> E["Generate, build, test and independently accept each selected recipe"]
 ```
 
-The eleven portable applications each become a Python and a C++ recipe. The standalone
-dependency planner adds Rust, the standalone ledger workbench adds JavaScript, and the
-release dashboard exercises a Rust backend and JavaScript frontend together. Every
-recipe set also includes the rich regenerative-roundtrip app in all five standalone
-languages; its generated trees are the stable source inputs for the credentialed
-semantic inverse test. Every
+Unpinned language and build choices default to Python and Make. The hello harness
+also pins pip packaging; the regenerative-roundtrip forward harness explicitly pins
+Python, C++, Rust and JavaScript with Bazel. Other sample declarations select their
+own standalone or composed languages, OS and packaging. Explicit matrix selectors
+can expand unpinned choices but do not override a sample's pinned authority. The
+generated trees are potential source inputs for inverse development, whose live
+coding-CLI route remains unavailable. Every selected
 recipe combines its language topology with the actual host OS Flavor and performs
 specification loading, Flavor resolution, exact skill resolution, compilation of the
 content-pinned workflow and routing policy, a deterministic in-process planning stage,
@@ -618,8 +615,9 @@ Linux, macOS, Windows, Python, C++, Rust, JavaScript, and CPU requirements are m
 as independently content-pinned Flavors in the repository's `flavors/` directory.
 Exact conversion guidance is in `skills/specification-to-source/`. The runner
 selects the actual host Flavor; portable base specifications do not embed OS- or
-language-specific requirements. Eleven Components expose one language slot and are
-expanded into separate Python and C++ recipes. The full-stack Component instead exposes
+language-specific requirements. A sample with one language slot produces recipes
+for its pinned or explicitly selected languages; unpinned choices default to Python.
+The full-stack Component instead exposes
 backend and frontend role slots on the same language axis, allowing Rust and JavaScript
 to be selected together without merging their responsibilities.
 

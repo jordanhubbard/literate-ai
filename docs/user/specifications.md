@@ -105,8 +105,8 @@ specification_roots:
   - decisions/risk-category.dmn
 ```
 
-The initial provider deliberately accepts only DMN 1.3 XML in the
-`https://www.omg.org/spec/DMN/20191111/MODEL/` namespace. Every `<decision>` must contain
+The provider accepts the `https://www.omg.org/spec/DMN/20191111/MODEL/` and
+`https://www.omg.org/spec/DMN/20230324/MODEL/` XML namespaces. Every `<decision>` must contain
 exactly one `UNIQUE` decision table. Inputs must have `typeRef="number"`; each input cell
 must be either one closed numeric interval such as `[18..25]` or `-` for don't care.
 Outputs may be `string`, `number`, or `boolean` literals matching their declared type.

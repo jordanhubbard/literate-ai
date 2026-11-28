@@ -3,6 +3,10 @@
 from literate_ai.adapters.authored_qualification_planning import (
     CurrentAuthoredQualificationPlan,
 )
+from literate_ai.adapters.authored_qualification_receiving import (
+    ReviewedAuthoredQualificationInputs,
+    _bind_authored_qualification_read_ports,
+)
 from literate_ai.adapters.qualification_capture import (
     QualificationCaptureError,
     QualificationEvidenceReader,
@@ -21,6 +25,9 @@ from literate_ai.contracts.standard_root_integration import (
     StandardRootIntegrationEvidence,
 )
 
+_read_ports = _bind_authored_qualification_read_ports()
+del _bind_authored_qualification_read_ports
+
 
 def compare_authored_qualification(
     current,
@@ -37,13 +44,16 @@ def compare_authored_qualification(
     """
 
     if (
-        not isinstance(current, CurrentAuthoredQualificationPlan)
+        (
+            not isinstance(current, CurrentAuthoredQualificationPlan)
+            and type(current) is not ReviewedAuthoredQualificationInputs
+        )
         or not isinstance(run_identity, ContentIdentity)
         or not isinstance(root, StandardRootIntegrationEvidence)
         or not isinstance(reader, QualificationEvidenceReader)
     ):
         raise TypeError("current authored owner and typed native evidence required")
-    current.require_unchanged()
+    _read_ports("current", current)
     with current.oracles.capture_current():
         lock = current.oracles.authority.locked.authority.lock
         graph = AuthoredGraphIndependentAcceptance.from_dict(
@@ -132,5 +142,5 @@ def compare_authored_qualification(
             root.independent_acceptance_identity,
             graph.nodes,
         )
-    current.require_unchanged()
+    _read_ports("current", current)
     return result

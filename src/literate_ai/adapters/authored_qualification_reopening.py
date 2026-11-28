@@ -17,6 +17,10 @@ from literate_ai.adapters.authored_qualification_capture import (
 from literate_ai.adapters.authored_qualification_planning import (
     CurrentAuthoredQualificationPlan,
 )
+from literate_ai.adapters.authored_qualification_receiving import (
+    ReviewedAuthoredQualificationInputs,
+    _bind_authored_qualification_read_ports,
+)
 from literate_ai.adapters.authored_qualification_runs import (
     observe_authored_qualification_run,
 )
@@ -40,6 +44,9 @@ from literate_ai.contracts.identity import ContentIdentity
 from literate_ai.source_to_specification.qualification_lifecycle import (
     QualificationLifecycleExecution,
 )
+
+_read_ports = _bind_authored_qualification_read_ports()
+del _bind_authored_qualification_read_ports
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,14 +72,17 @@ def reopen_authored_qualification(
     """
 
     if (
-        not isinstance(current, CurrentAuthoredQualificationPlan)
+        (
+            not isinstance(current, CurrentAuthoredQualificationPlan)
+            and type(current) is not ReviewedAuthoredQualificationInputs
+        )
         or not isinstance(reader, QualificationEvidenceReader)
         or not isinstance(products_identity, ContentIdentity)
     ):
         raise TypeError("original current authored plan and bounded reader required")
     if type(max_package_bytes) is not int or max_package_bytes <= 0:
         raise QualificationCaptureError("qualification.capture.limit-invalid")
-    current.require_unchanged()
+    _read_ports("current", current)
     with current.oracles.capture_current():
         lock = current.oracles.authority.locked.authority.lock
         revisions = {n.revision.identity for n in lock.nodes}
@@ -122,7 +132,7 @@ def reopen_authored_qualification(
             raise QualificationCaptureError("qualification.capture.byte-limit")
         executions = []
         for run in reopened.result.runs:
-            current.require_unchanged()
+            _read_ports("current", current)
             lifecycle = reopen_qualification_lifecycle(
                 reader, run.lifecycle_result_identity
             )
@@ -227,7 +237,7 @@ def reopen_authored_qualification(
                         "qualification.authored.reopen_surface_mismatch"
                     )
             executions.append((run.request.run_identity, execution))
-        current.require_unchanged()
+        _read_ports("current", current)
         # Refuse stage/authority failures in either run before any product read.
         for run in reopened.result.runs:
             exports = exports_by_run[run.request.run_identity]
@@ -240,6 +250,6 @@ def reopen_authored_qualification(
                 ),
                 max_bytes=max_package_bytes,
             )
-            current.require_unchanged()
-    current.require_unchanged()
+            _read_ports("current", current)
+    _read_ports("current", current)
     return ReopenedAuthoredQualification(reopened, tuple(executions))

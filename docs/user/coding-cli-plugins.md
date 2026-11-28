@@ -1,6 +1,6 @@
 # Coding CLI release plugins
 
-Literate AI 1.1 packages the canonical onboarding and agent skills for Codex and
+Literate AI packages the canonical onboarding and agent skills for Codex and
 Claude. The plugin is a distribution of framework instructions; the matching
 Literate AI wheel supplies the commands. Cursor and OpenCode generation adapters
 remain available, but their plugin distribution formats are not yet qualified.

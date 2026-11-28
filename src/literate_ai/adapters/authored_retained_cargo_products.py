@@ -29,6 +29,10 @@ from literate_ai.adapters.authored_qualification_publication import (
     METADATA_BYTES,
     _read_published_authored_metadata,
 )
+from literate_ai.adapters.authored_qualification_receiving import (
+    ReviewedAuthoredQualificationInputs,
+    _bind_authored_qualification_read_ports,
+)
 from literate_ai.adapters.authored_retained_products import (
     AuthoredRetainedProductSelection,
     CurrentAuthoredRetainedProducts,
@@ -43,6 +47,9 @@ from literate_ai.contracts.identity import ContentIdentity
 from literate_ai.contracts.retained_cargo_authored import AuthoredRetainedCargoBinding
 from literate_ai.contracts.retained_libraries import RetainedLibraryExportSet
 from literate_ai.projects import PinnedInputClosure
+
+_read_ports = _bind_authored_qualification_read_ports()
+del _bind_authored_qualification_read_ports
 
 
 class _PinnedPublicationMetadata:
@@ -261,9 +268,13 @@ def _open_authored_retained_cargo_products_session(
         raise TypeError("retained.cargo.authored-publication-retention-mode")
     if (
         type(current) is not CurrentAuthoredQualificationPlan
-        or type(binding) is not AuthoredRetainedCargoBinding
-    ):
+        and type(current) is not ReviewedAuthoredQualificationInputs
+    ) or type(binding) is not AuthoredRetainedCargoBinding:
         raise TypeError("current authored plan and exact authored binding required")
+    if type(current) is ReviewedAuthoredQualificationInputs:
+        _read_ports("current", current)
+        if binding.identity != current.reviewed.binding.identity:
+            raise ValueError("retained.cargo.authored-reviewed-binding-mismatch")
     selection = AuthoredRetainedProductSelection(
         binding.evidence_store_id,
         binding.provider_reference,
@@ -302,13 +313,26 @@ def _open_authored_retained_products_session(
     Neither entry point infers a provider origin from archive field presence.
     """
     if (
-        type(current) is not CurrentAuthoredQualificationPlan
+        (
+            type(current) is not CurrentAuthoredQualificationPlan
+            and type(current) is not ReviewedAuthoredQualificationInputs
+        )
         or type(selection) is not AuthoredRetainedProductSelection
         or type(_retain_publication) is not bool
         or type(_cargo_compat) is not bool
         or (_retain_publication and not _cargo_compat)
     ):
         raise TypeError("current authored plan and exact product selection required")
+    if type(current) is ReviewedAuthoredQualificationInputs:
+        _read_ports("current", current)
+        approved = current.reviewed.binding
+        if not _cargo_compat or selection != AuthoredRetainedProductSelection(
+            approved.evidence_store_id,
+            approved.provider_reference,
+            approved.selected_run_identity,
+            approved.exports,
+        ):
+            raise ValueError("retained.cargo.authored-reviewed-selection-mismatch")
     if (
         type(max_bytes) is not int
         or not 0 < max_bytes <= DEFAULT_BYTES
@@ -321,7 +345,7 @@ def _open_authored_retained_products_session(
     expected = selection.provider_reference
     selected_run_identity = selection.selected_run_identity
     selected_exports = selection.exports
-    current.require_unchanged()
+    _read_ports("current", current)
     active = True
     owner = None
     try:
@@ -417,7 +441,7 @@ def _open_authored_retained_products_session(
                             "retained.cargo.authored-product-owner-expired"
                         )
                     require_owner(candidate)
-                    current.require_unchanged()
+                    _read_ports("current", current)
                     projection.require_unchanged()
                     metadata.require_unchanged()
                     projection.require_unchanged()

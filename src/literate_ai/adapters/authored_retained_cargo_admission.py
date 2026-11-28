@@ -73,6 +73,8 @@ def admit_authored_retained_cargo_consumer(
     acknowledge_source_retirement,
     allow_host_execution,
     native_sdk_inputs=None,
+    producer_review_path=None,
+    reviewed_producer=None,
     archive_inputs=None,
     read_exclusion_permission=None,
     registry_sources=None,
@@ -136,6 +138,14 @@ def admit_authored_retained_cargo_consumer(
                 consumer_rustc=consumer_rustc,
                 archive_payload=archive_payload,
                 native_sdk_inputs=native_sdk_inputs,
+                **(
+                    {
+                        "producer_review_path": producer_review_path,
+                        "reviewed_producer": reviewed_producer,
+                    }
+                    if producer_review_path is not None or reviewed_producer is not None
+                    else {}
+                ),
             )
         )
         current = inputs_session.inputs

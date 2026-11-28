@@ -1,0 +1,147 @@
+{
+  "schema": "literate-ai/development-observation@1",
+  "scope": "Bounded source-text review of ten additional current user guides; six findings closed in five guides",
+  "release_evidence": false,
+  "independent_review_sha256": "60b84909bb10467cb70c7052a9666deb3e00026db7e532776b995619ba5d60c0",
+  "original_review_sha256": "fde8be1f0e3d969bbee7cc660e1e8b419f9c037ea152190d3c879a5c191406ef",
+  "files": [
+    {
+      "path": "docs/user/framework-flow.md",
+      "sha256": "1b1fd6fc2df7739467aeacff4e6d21344712b4d38be71dcf9c5604eb067d8cc5",
+      "finding_ids": [
+        "GUIDES-02",
+        "GUIDES-03",
+        "GUIDES-05"
+      ],
+      "disposition": "all source-text findings closed"
+    },
+    {
+      "path": "docs/user/caches-packages-publication.md",
+      "sha256": "cf19bc14909c7eaa4b63ede2d107abde20610bcf955a44d0469069517d0b2f5f",
+      "finding_ids": [
+        "GUIDES-01"
+      ],
+      "disposition": "all source-text findings closed"
+    },
+    {
+      "path": "docs/user/native-sdk-qualification.md",
+      "sha256": "3f7c8c9d7fe557c1188d48ac53fdb5f604f0f7e3ccecdb228991a28839351c29",
+      "finding_ids": [],
+      "disposition": "no actionable mismatch identified in original bounded review; bytes unchanged"
+    },
+    {
+      "path": "docs/user/retained-secondary-access.md",
+      "sha256": "6177a9fd4bdf53c481b6e163de205f7bb6ced41b25ef84f39f88c3ccf3fb97d8",
+      "finding_ids": [],
+      "disposition": "no actionable mismatch identified in original bounded review; bytes unchanged"
+    },
+    {
+      "path": "docs/user/target-matrices.md",
+      "sha256": "9a18ca3119b1e33c2eca5be0bc8b832d8c8570ac6d397702f1444d582d0b2a7d",
+      "finding_ids": [],
+      "disposition": "no actionable mismatch identified in original bounded review; bytes unchanged"
+    },
+    {
+      "path": "docs/user/coding-cli-plugins.md",
+      "sha256": "d40ee23491e610b5baa8707cbe2ca54389c7a323522b6ead9a29ed7cfd93f91e",
+      "finding_ids": [
+        "GUIDES-06"
+      ],
+      "disposition": "all source-text findings closed"
+    },
+    {
+      "path": "docs/user/test-matrix.md",
+      "sha256": "ab72eb1554b7cc9f9f995154ee8968f7a71db3050dfc575f4f19ef6ce560c914",
+      "finding_ids": [
+        "GUIDES-04"
+      ],
+      "disposition": "all source-text findings closed"
+    },
+    {
+      "path": "docs/user/reference-http-cache.md",
+      "sha256": "1c5289bd621a56a918f5a9f22af8f2a6fd4ccf9d80866c6eb4c5b171fca32b67",
+      "finding_ids": [],
+      "disposition": "no actionable mismatch identified in original bounded review; bytes unchanged"
+    },
+    {
+      "path": "docs/user/native-grpc-oracles.md",
+      "sha256": "0981bcd638fb966f0d604b8e0156aa2e06e90644422160f23b48030d19c0340b",
+      "finding_ids": [],
+      "disposition": "no actionable mismatch identified in original bounded review; bytes unchanged"
+    },
+    {
+      "path": "docs/user/security.md",
+      "sha256": "136e1dd70e109f989e84a76a7061b78e929c3b58012365865a076a1edbb35edc",
+      "finding_ids": [
+        "GUIDES-06"
+      ],
+      "disposition": "all source-text findings closed"
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "GUIDES-01",
+      "status": "closed at source-text scope",
+      "evidence": "Defaults and special disposable boundary now use framework_root; contained/legacy examples, lock location and force-add instructions agree with the original resolution/cleanup/lock owners. Relative override base remains project root."
+    },
+    {
+      "finding_id": "GUIDES-02",
+      "status": "closed at source-text scope",
+      "evidence": "Diagram now validates finalized candidate before committing current receipt; no raw-extraction instruction remains in the changed diagram."
+    },
+    {
+      "finding_id": "GUIDES-03",
+      "status": "closed at source-text scope",
+      "evidence": "Onboarding now follows manifest-declared skill with normal contained litai/SKILL.md and legacy root examples. Dangling source-graph sentence repaired without claiming indexer mandatory."
+    },
+    {
+      "finding_id": "GUIDES-04",
+      "status": "closed at source-text scope",
+      "evidence": "General SSH sample fan-out now distinguishes opencode default from explicit CLI/model override; selected worker must supply the chosen CLI. Stricter POSIX local release-fan-out requirement is unchanged."
+    },
+    {
+      "finding_id": "GUIDES-05",
+      "status": "closed at source-text scope",
+      "evidence": "Wheelhouse example uses quoted REVIEWED_MATCHING_FRAMEWORK_WHEEL with explicit reviewed installed-payload/project-pin join; version label alone expressly insufficient. It does not recommend an unqualified development wheel."
+    },
+    {
+      "finding_id": "GUIDES-06",
+      "status": "closed at source-text scope",
+      "evidence": "Plugin introduction no longer labels current distribution as1.1. Security heading/body are version-neutral, current mutation acknowledgement remains explicit, and no-OS/VM-containment and same-user-shell caveats are unchanged."
+    }
+  ],
+  "source_sha256": {
+    "src/literate_ai/cache_directories.py": "26f682ed00366e5324c6939816bbfb3293972931c3ac0586b72321842d2224d6",
+    "src/literate_ai/_cache_lock.py": "f08d314d70db68e87305a63825a78bcab44f1b9a8e49252e1cb967c8b12a7316",
+    "src/literate_ai/adapters/project_initialization.py": "8ec2a41f21b8d076a8103fed681686272344e92037ac9fcc66a1ad7ad432f413",
+    "src/literate_ai/adapters/project_scaffold_placement.py": "15795470a5c606786b7c41fff0e6c0686c37d7671a337fad0712ff98e00e6091",
+    "src/literate_ai/test_receipts.py": "7dcf7daf0ef8c414fd5fa85fca5f3ed23a1713e0e64d7a0a6a1bc2e31dfa3e08",
+    "scripts/fanout_samples.py": "0d575f7758ae3a1fbac57153a626cc6af3ac01b693574a732c282e15da0bec93",
+    "src/literate_ai/adapters/live_test_selection.py": "81e95a76ed22a65febbde4d73cf3f3b603cc9806427bed6992ee4f8b6d42dd1c",
+    "src/literate_ai/project_releases.py": "888e29f610e8e4286108b8ea3e39c262a58e884422de6580ba044afe2d21ad8b",
+    "src/literate_ai/version.py": "367472ca1cc8d22a4acba9aaecb8640d22a7648485147cd1cd83667bdf48d980",
+    "README.md": "8b818b8ab5e16efe74184d874f4f98af45fa8aa850a7a8c483847cd75909e536",
+    "Makefile": "8cd79baddf2f2dd807431ea2347c5c3aa1f3568cc0072badc1be9cf86e07e9b4",
+    "src/literate_ai/cli/target_matrix.py": "49fa34505f75a614f2c4f6f8e62d1a9e8661ecdadf35d8aae388d65469e3ffce",
+    "src/literate_ai/target_matrices.py": "9fb6130ca65684f2c9533c3855eff4a052064519f2bff165900eb1e7a53239e5",
+    "src/literate_ai/adapters/cache/http_reference.py": "0a3298c9fbea6a47c111e4c645377cb8dd903a3c7db606f522e9d883dad6388c",
+    "src/literate_ai/contracts/retained_secondary_access.py": "44b02375fc367137aa1df87b03bb9b8d6f6f98edda7b550909e5cd32e6a43cf2",
+    "src/literate_ai/adapters/_grpc_oracle.py": "2a2bba27d764e5911a478613a432bdde4c56878fe78e2c7b678fa8421a0eb1ad",
+    "pyproject.toml": "431749ca1b6749c8b39d0ba48fd7df7a8e1a1e052cd490b2ff41533baaabd9ea",
+    ".github/workflows/native-sdk-qualification.yml": "88a33d9eae000bdc013d901bc2c75cfecd581d6266f729cddc48f07819c15490",
+    ".github/qualifications/native_sdk/run_cell.py": "b92eaa4a37251c7946cdae87c77bbb3a7f9f77616d0f350ee8bf2e519d62f762",
+    "src/literate_ai/adapters/native_sdk_source_custody.py": "cece837f403dc52d24526f483dbc02a78c3d8fff5a6fb9fd187a52ffeae9f6ff"
+  },
+  "limits": [
+    "Source-text review only; commands and examples were compared with source definitions, not executed",
+    "No rendered documentation, anchor/remote-link, installed command, media, presentation or target-host validation",
+    "Ten guides are a bounded subset of the full current collateral inventory; all original release goals and acceptance requirements remain open where previously open",
+    "Version framing was checked against current tracked README/version authority; no provider release lookup performed",
+    "No native SDK, live provider, generation, complete receiving or release acceptance inferred"
+  ],
+  "required_next": [
+    "Revalidate against final qualified candidate and execute applicable installed commands/examples",
+    "Complete full collateral inventory with per-surface disposition, rendered documents, links, media and publication readback",
+    "Preserve release scope and complete all software and platform gates"
+  ]
+}

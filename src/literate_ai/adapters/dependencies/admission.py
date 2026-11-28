@@ -42,6 +42,7 @@ def reconcile_generated_dependencies(
     allow_missing_cargo_lock: bool = False,
     runtime_python_imports: frozenset[str] = frozenset(),
     observed_python_imports: frozenset[str] | None = None,
+    observed_managed_python_imports: frozenset[str] = frozenset(),
     python_source_authority: PythonSourceAuthority | None = None,
 ) -> None:
     """Fail when generated dependency declarations/imports vanish from the BOM."""
@@ -195,7 +196,9 @@ def reconcile_generated_dependencies(
             )
             if observed_python_imports is not None:
                 missing = python_imports - {
-                    _normalized_package_name(alias) for alias in observed_python_imports
+                    _normalized_package_name(alias)
+                    for alias in observed_python_imports
+                    | observed_managed_python_imports
                 }
                 if missing:
                     raise DependencyObservationError(

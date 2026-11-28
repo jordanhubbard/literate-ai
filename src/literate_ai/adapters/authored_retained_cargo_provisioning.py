@@ -70,6 +70,8 @@ def provision_authored_retained_cargo_consumer(
     archive_payload,
     old_output_budget,
     native_sdk_inputs=None,
+    producer_review_path=None,
+    reviewed_producer=None,
     archive_inputs=None,
     timeout_seconds=900,
     maximum_output_files=10000,
@@ -135,6 +137,14 @@ def provision_authored_retained_cargo_consumer(
                 consumer_rustc=consumer_rustc,
                 archive_payload=archive_payload,
                 native_sdk_inputs=native_sdk_inputs,
+                **(
+                    {
+                        "producer_review_path": producer_review_path,
+                        "reviewed_producer": reviewed_producer,
+                    }
+                    if producer_review_path is not None or reviewed_producer is not None
+                    else {}
+                ),
                 _operation_deadline=deadline,
             )
         )

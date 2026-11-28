@@ -15,6 +15,10 @@ from literate_ai._filesystem import require_safe_directory, stat_is_link_or_repa
 from literate_ai.adapters.authored_qualification_planning import (
     CurrentAuthoredQualificationPlan,
 )
+from literate_ai.adapters.authored_qualification_receiving import (
+    ReviewedAuthoredQualificationInputs,
+    _bind_authored_qualification_read_ports,
+)
 from literate_ai.adapters.qualification_workspace_namespace import (
     hold_qualification_workspace_namespace,
 )
@@ -22,16 +26,24 @@ from literate_ai.adapters.retained_project_inputs import _same_open_file
 from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.storage.cas import _native_cas_path
 
+_read_ports = _bind_authored_qualification_read_ports()
+del _bind_authored_qualification_read_ports
+
 
 class AuthoredPublicationFiles:
     def __init__(self, current, *, writable):
         if (
             not isinstance(current, CurrentAuthoredQualificationPlan)
-            or type(writable) is not bool
-        ):
+            and not (
+                type(current) is ReviewedAuthoredQualificationInputs
+                and writable is False
+            )
+        ) or type(writable) is not bool:
             raise TypeError(
                 "original current authored plan and explicit writer mode required"
             )
+        if type(current) is ReviewedAuthoredQualificationInputs:
+            _read_ports("pure", current)
         self.current = current
         self.root = current.oracles.authority.project.root
         self.writable = writable
@@ -42,7 +54,7 @@ class AuthoredPublicationFiles:
         self._original = (self, current, self.root, writable)
 
     def __enter__(self):
-        self.current.require_unchanged()
+        _read_ports("current", self.current)
         require_safe_directory(self.root)
         try:
             if os.name == "posix":
@@ -95,7 +107,7 @@ class AuthoredPublicationFiles:
 
     def require_current(self):
         self._require_original_owner()
-        self.current.require_unchanged()
+        _read_ports("current", self.current)
         self._require_namespace()
 
     @staticmethod

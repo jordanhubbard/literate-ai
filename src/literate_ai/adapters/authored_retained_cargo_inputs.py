@@ -13,6 +13,10 @@ from pathlib import Path
 from literate_ai.adapters.authored_qualification_planning import (
     CurrentAuthoredQualificationPlan,
 )
+from literate_ai.adapters.authored_qualification_receiving import (
+    ReviewedAuthoredQualificationInputs,
+    _bind_authored_qualification_read_ports,
+)
 from literate_ai.adapters.authored_retained_cargo_products import (
     CurrentAuthoredRetainedCargoProducts,
     _AuthoredRetainedCargoProductsSession,
@@ -34,6 +38,9 @@ from literate_ai.adapters.retained_cargo_test_execution import (
 )
 from literate_ai.contracts.blobs import BlobRef
 from literate_ai.contracts.identity import ContentIdentity, canonical_identity
+
+_read_ports = _bind_authored_qualification_read_ports()
+del _bind_authored_qualification_read_ports
 
 
 @dataclass(frozen=True, slots=True)
@@ -104,6 +111,8 @@ def open_authored_retained_cargo_inputs(
     consumer_rustc: RustToolchain,
     archive_payload: bytes,
     native_sdk_inputs=None,
+    producer_review_path=None,
+    reviewed_producer=None,
     max_review_file_bytes: int = 256 * 1024**2,
     max_review_total_bytes: int = 1024**3,
     max_archive_bytes: int = 256 * 1024**2,
@@ -132,6 +141,14 @@ def open_authored_retained_cargo_inputs(
         consumer_rustc=consumer_rustc,
         archive_payload=archive_payload,
         native_sdk_inputs=native_sdk_inputs,
+        **(
+            {
+                "producer_review_path": producer_review_path,
+                "reviewed_producer": reviewed_producer,
+            }
+            if producer_review_path is not None or reviewed_producer is not None
+            else {}
+        ),
         max_review_file_bytes=max_review_file_bytes,
         max_review_total_bytes=max_review_total_bytes,
         max_archive_bytes=max_archive_bytes,
@@ -157,6 +174,8 @@ def _open_authored_retained_cargo_inputs_session(
     consumer_rustc: RustToolchain,
     archive_payload: bytes,
     native_sdk_inputs=None,
+    producer_review_path=None,
+    reviewed_producer=None,
     max_review_file_bytes: int = 256 * 1024**2,
     max_review_total_bytes: int = 1024**3,
     max_archive_bytes: int = 256 * 1024**2,
@@ -177,7 +196,10 @@ def _open_authored_retained_cargo_inputs_session(
     if type(_retain_products) is not bool:
         raise TypeError("retained.cargo.authored-product-retention-mode-invalid")
     if (
-        type(provider_current) is not CurrentAuthoredQualificationPlan
+        (
+            type(provider_current) is not CurrentAuthoredQualificationPlan
+            and type(provider_current) is not ReviewedAuthoredQualificationInputs
+        )
         or type(consumer_cargo) is not CargoToolchain
         or type(consumer_rustc) is not RustToolchain
     ):
@@ -206,6 +228,10 @@ def _open_authored_retained_cargo_inputs_session(
             _require_native_completion_deadline(_operation_deadline)
 
     require_deadline()
+    if type(provider_current) is ReviewedAuthoredQualificationInputs:
+        if producer_review_path is None or reviewed_producer is None:
+            raise ValueError("retained.cargo.authored-producer-review-required")
+        _read_ports("current", provider_current)
     reviewed = read_authored_retained_cargo_review(
         project_root,
         binding_path=binding_path,
@@ -213,6 +239,14 @@ def _open_authored_retained_cargo_inputs_session(
         plan_path=plan_path,
         gate_policy_path=gate_policy_path,
         test_inventory_path=test_inventory_path,
+        **(
+            {
+                "producer_review_path": producer_review_path,
+                "reviewed_producer": reviewed_producer,
+            }
+            if producer_review_path is not None or reviewed_producer is not None
+            else {}
+        ),
         maximum_file_bytes=max_review_file_bytes,
         maximum_total_bytes=max_review_total_bytes,
     )
@@ -239,6 +273,20 @@ def _open_authored_retained_cargo_inputs_session(
         if reviewed.identity != reviewed_identity:
             raise ValueError("retained.cargo.authored-reviewed-inputs-changed")
         require_deadline()
+        if type(provider_current) is ReviewedAuthoredQualificationInputs:
+            _read_ports("pure", provider_current)
+            original = provider_current.reviewed
+            original.require_unchanged()
+            if (
+                reviewed.project.root != original.project.root
+                or reviewed._context != original._context
+                or reviewed._captured_identity() != original._captured_identity()
+            ):
+                raise ValueError(
+                    "retained.cargo.authored-original-reviewed-inputs-mismatch"
+                )
+            _read_ports("pure", provider_current)
+            require_deadline()
 
     consumer_current()
     try:

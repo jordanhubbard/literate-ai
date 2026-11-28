@@ -24,6 +24,11 @@ from literate_ai.adapters.dependencies import (
     build_cyclonedx_bom,
     validate_cyclonedx_bom,
 )
+from literate_ai.adapters.dependencies.managed_python import (
+    ManagedPythonImports,
+    managed_python_import_map,
+    require_managed_python_imports,
+)
 from literate_ai.adapters.intelligence import (
     SourceIntelligenceArtifact,
     SourceIntelligenceError,
@@ -940,6 +945,11 @@ class GenerationRecipe:
 
     @property
     def identity(self) -> str:
+        return canonical_identity(self.identity_document()).uri
+
+    def identity_document(self) -> dict[str, object]:
+        """Return the existing canonical preimage; no source paths or new authority."""
+
         value = {
             "recipe_id": self.recipe_id,
             "application_id": self.application_id,
@@ -1018,7 +1028,7 @@ class GenerationRecipe:
             value["generated_test_coverage"] = (
                 self.generated_test_coverage_authority.to_dict()
             )
-        return canonical_identity(value).uri
+        return value
 
     def model_for(self, coding_cli: str) -> str | None:
         if self.model_scope is not None:
@@ -1918,9 +1928,40 @@ def _recipe_authority_sbom(
     )
 
 
+def _recipe_managed_python_imports(recipe: GenerationRecipe) -> ManagedPythonImports:
+    declarations = tuple(
+        sorted(
+            {
+                (
+                    dependency.provider_component_revision,
+                    dependency.import_surface.capability(
+                        dependency.capability
+                    ).module.split(".")[0],
+                )
+                for dependency in recipe.library_dependencies
+                if dependency.import_surface.language == "python"
+            },
+            key=lambda item: (item[0].uri, item[1]),
+        )
+    )
+    if declarations:
+        if recipe.managed_sbom_graph is None:
+            raise ValueError(
+                "managed Python library imports require the selected graph"
+            )
+        managed_python_import_map(recipe.managed_sbom_graph, declarations)
+    return declarations
+
+
 def _require_recipe_authority_sbom(content: bytes, recipe: GenerationRecipe) -> None:
     """Reject generated BOMs that omit or rewrite selected Flavor/skill authority."""
 
+    if recipe.managed_sbom_graph is not None:
+        require_managed_python_imports(
+            json.loads(content),
+            recipe.managed_sbom_graph,
+            _recipe_managed_python_imports(recipe),
+        )
     components, edges = _recipe_authority_sbom(recipe)
     if not components:
         return
@@ -1964,6 +2005,7 @@ def _reconcile_authoritative_source_sbom(
         managed_graph=managed_graph,
         additional_components=authority_components,
         additional_edges=authority_edges,
+        managed_python_imports=_recipe_managed_python_imports(recipe),
         composition_aggregate="complete",
     )
     try:

@@ -1905,8 +1905,13 @@ def verify_qualification_build(
     current_commands: Mapping | None = None,
     current_recipe: object | None = None,
     current_provider_commands: Mapping | None = None,
+    python_current_recipes: Mapping | None = None,
+    python_command=None,
+    python_requires_inputs=False,
+    _python_stack=(),
+    _python_verified=None,
 ) -> None:
-    """Bind build processes and the artifact tree's metadata-only transition."""
+    """Bind native processes, artifact transitions and original Python inputs."""
 
     from literate_ai.adapters.lifecycle.standard_npm import (
         StandardNpmDependencyEvidence,
@@ -1949,6 +1954,15 @@ def verify_qualification_build(
                 "stdout_identity": stdout.uri,
                 "stderr_identity": stderr.uri,
                 **sdk_process_fields(reader, plan=plan, process=value, phase=phase),
+                **(
+                    {
+                        "python_build_inputs_identity": value[
+                            "python_build_inputs_identity"
+                        ]
+                    }
+                    if phase == "build" and "python_build_inputs_identity" in value
+                    else {}
+                ),
                 **(
                     {
                         "compiler_cache": validate_compiler_cache_observation(
@@ -2104,8 +2118,50 @@ def verify_qualification_build(
                     "qualification.capture.mix-build-mismatch"
                 )
         if value.get("schema") == "literate-ai/local-process-observation@1":
+            from literate_ai.adapters.lifecycle.python_libraries import (
+                DIRECTORY,
+                requires_python_build_inputs,
+            )
+            from literate_ai.adapters.qualification_python import (
+                verify_python_build_inputs,
+            )
+
             process(process_id, "build")
-            artifact_tree()
+            original_files = artifact_tree()
+            command = python_command or (current_commands or {}).get(
+                plan.component_revision
+            )
+            reserved = any(
+                part.casefold() == DIRECTORY
+                for item in original_files
+                for part in item["path"].split("/")
+            )
+            if "python_build_inputs_identity" in value:
+                commands = None if current_commands is None else dict(current_commands)
+                if current_provider_commands is not None:
+                    commands = {} if commands is None else commands
+                    commands.update(current_provider_commands)
+                verify_python_build_inputs(
+                    reader,
+                    plan=plan,
+                    build=build,
+                    process=value,
+                    artifact_files=original_files,
+                    current_commands=commands,
+                    expected_command=python_command,
+                    current_recipes=python_current_recipes,
+                    provider_exports=provider_exports,
+                    stack=_python_stack,
+                    verified=_python_verified,
+                )
+            elif (
+                reserved
+                or python_requires_inputs
+                or requires_python_build_inputs(command)
+            ):
+                raise QualificationCaptureError(
+                    "qualification.capture.python-inputs-missing"
+                )
             return
         if value.get("schema") == "literate-ai/local-cargo-build-observation@1":
             from literate_ai.adapters.qualification_cargo import (
@@ -3003,6 +3059,7 @@ def verify_qualification_standard_execution(
             provider_exports=provider_exports,
             current_commands=current_commands,
             current_recipe=(current_recipes or {}).get(node.component_revision),
+            python_current_recipes=current_recipes,
             **(
                 {"current_provider_commands": provider_commands}
                 if external is not None

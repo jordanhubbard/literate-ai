@@ -48,7 +48,8 @@ source is a replaceable result rather than a second behavioral authority.
 ## Literate documentation
 
 Every derived project has required declared documentation roots and a provider-neutral
-root `SKILL.md` that leads agents into their linked narrative. The project validator
+manifest-declared onboarding skill that leads agents into its linked narrative,
+normally `litai/SKILL.md` for a contained project or `SKILL.md` for a legacy root layout. The project validator
 checks that graph, including local targets, heading fragments, reachability, and
 content identities. Exactly one authority-review marker binds the current narrative to
 the current project, Component, Flavor, skill, workflow, and routing authority graph.

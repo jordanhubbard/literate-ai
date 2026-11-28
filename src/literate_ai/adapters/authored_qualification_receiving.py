@@ -140,7 +140,7 @@ class ReviewedAuthoredQualificationInputs:
             raise ValueError("qualification.authored.receiving-inputs-expired")
         if (
             type(self) is not ReviewedAuthoredQualificationInputs
-            or ReviewedAuthoredQualificationInputs.require_unchanged
+            or vars(ReviewedAuthoredQualificationInputs).get("require_unchanged")
             is not _ORIGINAL_REQUIRE
             or self._check is not record[1]
         ):
@@ -149,7 +149,7 @@ class ReviewedAuthoredQualificationInputs:
         record[1](self)
 
 
-_ORIGINAL_REQUIRE = ReviewedAuthoredQualificationInputs.require_unchanged
+_ORIGINAL_REQUIRE = vars(ReviewedAuthoredQualificationInputs).get("require_unchanged")
 _ORIGINAL_REQUIRE_SEAL = _function_seal(_ORIGINAL_REQUIRE)
 
 
@@ -163,6 +163,75 @@ def require_reviewed_authored_qualification_inputs(current):
         raise TypeError("qualification.authored.original-receiving-inputs-required")
     _require_function_seal(_ORIGINAL_REQUIRE, _ORIGINAL_REQUIRE_SEAL)
     _ORIGINAL_REQUIRE(current)
+
+
+def require_original_authored_receiving_fields(current):
+    """Close original read fields and seals only; this is NOT a currentness grant.
+
+    Full current/native refresh remains mandatory at its existing transaction
+    boundary. This fence performs no native read, planning, SDK refresh or clock.
+    """
+    if type(current) is not ReviewedAuthoredQualificationInputs:
+        raise TypeError("qualification.authored.original-receiving-inputs-required")
+    _require_function_seal(_ORIGINAL_REQUIRE, _ORIGINAL_REQUIRE_SEAL)
+    record = _ISSUED_CHECKS.get(id(current))
+    if record is None or record[0] is not current:
+        raise ValueError("qualification.authored.receiving-inputs-expired")
+    if current._check is not record[1]:
+        raise ValueError("qualification.authored.original-receiving-inputs-changed")
+    _require_function_seal(record[1], record[2])
+    _require_function_seal(record[3], record[4])
+    record[3]()
+
+
+def require_authored_qualification_read_inputs(current):
+    """Dispatch after the caller's existing closed owner-type gate.
+
+    Preserve the original producer path. New receiving owners always use the
+    authenticated entry, never a public method selected from mutable DATA.
+    """
+    if type(current) is ReviewedAuthoredQualificationInputs:
+        require_reviewed_authored_qualification_inputs(current)
+    else:
+        current.require_unchanged()
+
+
+def authored_qualification_read_intent(current):
+    if type(current) is ReviewedAuthoredQualificationInputs:
+        require_original_authored_receiving_fields(current)
+        return (
+            current.producer_review.coding_provider,
+            current.producer_review.pipeline_model,
+        )
+    return current.standard.coding_cli.name, current._pipeline_model
+
+
+def authored_qualification_read_field_names(current):
+    if type(current) is ReviewedAuthoredQualificationInputs:
+        require_original_authored_receiving_fields(current)
+        return (
+            "plan",
+            "oracles",
+            "binding",
+            "reviewed",
+            "producer_review",
+            "_reviewer",
+            "_native_sdk_inputs",
+            "_planned_sdk_inputs",
+            "_original_sdk_products",
+            "_check",
+        )
+    return (
+        "plan",
+        "oracles",
+        "standard",
+        "binding",
+        "_reviewer",
+        "_coding_selector",
+        "_pipeline_model",
+        "_native_sdk_inputs",
+        "_planned_sdk_inputs",
+    )
 
 
 @contextmanager
@@ -244,6 +313,7 @@ def open_reviewed_authored_qualification_inputs(
     owner = None
     original_fields = ()
     check_seal = None
+    close_seal = None
 
     def close_fields():
         # Pure closing comparisons after all callbacks and native parse-frame
@@ -251,15 +321,21 @@ def open_reviewed_authored_qualification_inputs(
         record = _ISSUED_CHECKS.get(id(owner))
         if not active or record is None or record[0] is not owner:
             raise ValueError("qualification.authored.receiving-inputs-expired")
-        if record[1] is not check or record[2] is not check_seal:
+        if (
+            record[1] is not check
+            or record[2] is not check_seal
+            or record[3] is not close_fields
+            or record[4] is not close_seal
+        ):
             raise ValueError("qualification.authored.original-receiving-inputs-changed")
         if (
-            ReviewedAuthoredQualificationInputs.require_unchanged
+            vars(ReviewedAuthoredQualificationInputs).get("require_unchanged")
             is not _ORIGINAL_REQUIRE
         ):
             raise ValueError("qualification.authored.original-receiving-inputs-changed")
         _require_function_seal(_ORIGINAL_REQUIRE, _ORIGINAL_REQUIRE_SEAL)
         _require_function_seal(check, check_seal)
+        _require_function_seal(close_fields, close_seal)
         if any(
             getattr(value, name) is not original
             for value, name, original in original_fields
@@ -275,6 +351,7 @@ def open_reviewed_authored_qualification_inputs(
             raise ValueError("qualification.authored.receiving-inputs-expired")
         if type(candidate) is not ReviewedAuthoredQualificationInputs:
             raise TypeError("qualification.authored.original-receiving-inputs-required")
+        _require_function_seal(close_fields, close_seal)
         close_fields()
         with (
             read_only_project_configuration_parses(isolated=True),
@@ -314,9 +391,11 @@ def open_reviewed_authored_qualification_inputs(
         # Reviewer and parse-frame callbacks have all returned. Reopen the
         # original framework binding before the final pure field fence.
         binding.require_unchanged()
+        _require_function_seal(close_fields, close_seal)
         close_fields()
 
     check_seal = _function_seal(check)
+    close_seal = _function_seal(close_fields)
     owner = ReviewedAuthoredQualificationInputs(
         reviewed,
         oracles,
@@ -328,7 +407,7 @@ def open_reviewed_authored_qualification_inputs(
         _KEY,
     )
     try:
-        _ISSUED_CHECKS[id(owner)] = (owner, check, check_seal)
+        _ISSUED_CHECKS[id(owner)] = (owner, check, check_seal, close_fields, close_seal)
         original_fields = tuple(
             (value, item.name, getattr(value, item.name))
             for value in (owner, reviewed, review, plan, oracles, authority, binding)
@@ -343,3 +422,94 @@ def open_reviewed_authored_qualification_inputs(
     finally:
         active = False
         _ISSUED_CHECKS.pop(id(owner), None)
+
+
+def _publish_authored_read_port_binder():
+    """Publish bounded consumer dispatch from original helper implementations.
+
+    Consumer-private dispatchers and the existing private module/native roots are
+    trusted framework code. Public helper publications are authenticated DATA
+    here; callers never store or accept their own guard callbacks on an owner.
+    """
+    namespace = globals()
+    ports = (
+        (
+            "current",
+            "require_authored_qualification_read_inputs",
+            require_authored_qualification_read_inputs,
+        ),
+        (
+            "full",
+            "require_reviewed_authored_qualification_inputs",
+            require_reviewed_authored_qualification_inputs,
+        ),
+        (
+            "pure",
+            "require_original_authored_receiving_fields",
+            require_original_authored_receiving_fields,
+        ),
+        (
+            "intent",
+            "authored_qualification_read_intent",
+            authored_qualification_read_intent,
+        ),
+        (
+            "fields",
+            "authored_qualification_read_field_names",
+            authored_qualification_read_field_names,
+        ),
+        (
+            "open",
+            "open_reviewed_authored_qualification_inputs",
+            open_reviewed_authored_qualification_inputs,
+        ),
+    )
+    original_type = ReviewedAuthoredQualificationInputs
+    functions = tuple((function, _function_seal(function)) for _, _, function in ports)
+    factory = open_reviewed_authored_qualification_inputs
+    wrapped = factory.__wrapped__
+    wrapped_seal = _function_seal(wrapped)
+    selected = {operation: function for operation, _, function in ports}
+
+    def guard():
+        if (
+            namespace.get("ReviewedAuthoredQualificationInputs") is not original_type
+            or any(namespace.get(name) is not function for _, name, function in ports)
+            or factory.__wrapped__ is not wrapped
+        ):
+            raise ValueError("qualification.authored.original-read-ports-changed")
+        for function, seal in (*functions, (wrapped, wrapped_seal)):
+            _require_function_seal(function, seal)
+        if vars(original_type).get("require_unchanged") is not _ORIGINAL_REQUIRE:
+            raise ValueError("qualification.authored.original-read-ports-changed")
+        _require_function_seal(_ORIGINAL_REQUIRE, _ORIGINAL_REQUIRE_SEAL)
+
+    @contextmanager
+    def opened(*args, **kwargs):
+        guard()
+        with selected["open"](*args, **kwargs) as current:
+            guard()
+            yield current
+            guard()
+        guard()
+
+    def bind():
+        guard()
+
+        def dispatch(operation, *args, **kwargs):
+            guard()
+            if operation == "open":
+                return opened(*args, **kwargs)
+            if operation not in selected:
+                raise TypeError("qualification.authored.read-operation-required")
+            result = selected[operation](*args, **kwargs)
+            guard()
+            return result
+
+        return dispatch
+
+    return bind
+
+
+_bind_authored_qualification_read_ports = _publish_authored_read_port_binder()
+del _publish_authored_read_port_binder

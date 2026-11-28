@@ -21,6 +21,10 @@ from literate_ai.adapters.authored_qualification_execution import (
 from literate_ai.adapters.authored_qualification_planning import (
     CurrentAuthoredQualificationPlan,
 )
+from literate_ai.adapters.authored_qualification_receiving import (
+    ReviewedAuthoredQualificationInputs,
+    _bind_authored_qualification_read_ports,
+)
 from literate_ai.adapters.authored_qualification_reopening import (
     reopen_authored_qualification,
 )
@@ -42,6 +46,9 @@ from literate_ai.contracts.authored_qualification_runs import (
 )
 from literate_ai.contracts.executable_components import ComponentCommandContract
 from literate_ai.contracts.identity import ContentIdentity
+
+_read_ports = _bind_authored_qualification_read_ports()
+del _bind_authored_qualification_read_ports
 
 
 @dataclass(frozen=True, slots=True)
@@ -157,6 +164,8 @@ class _OriginalAuthoredProjection(_UnsavableProjectionObservation):
             raise TypeError("qualification.authored.original-projection-required")
 
     def _require_records(self):
+        if type(self._current) is ReviewedAuthoredQualificationInputs:
+            _read_ports("pure", self._current)
         if any(
             getattr(owner, name) is not original for owner, name, original in self._refs
         ):
@@ -209,6 +218,9 @@ class _OriginalAuthoredProjection(_UnsavableProjectionObservation):
                 "qualification.authored.original-projection-records-changed"
             )
 
+        if type(self._current) is ReviewedAuthoredQualificationInputs:
+            _read_ports("pure", self._current)
+
     def require_original_files(self):
         """Original authority/oracle/tool/SDK files and sealed projection records.
 
@@ -232,11 +244,15 @@ class _OriginalAuthoredProjection(_UnsavableProjectionObservation):
         _require_projection_completion_deadline(deadline)
         self._require_records()
         for operation in (
-            self._current.require_unchanged,
+            (lambda: _read_ports("current", self._current))
+            if type(self._current) is ReviewedAuthoredQualificationInputs
+            else self._current.require_unchanged,
             self._snapshot.require_unchanged,
             lambda: self._projector.guard(self._snapshot),
             lambda: self._tool_completion.refresh_current(deadline=deadline),
-            self._current.require_unchanged,
+            (lambda: _read_ports("current", self._current))
+            if type(self._current) is ReviewedAuthoredQualificationInputs
+            else self._current.require_unchanged,
         ):
             _require_projection_completion_deadline(deadline)
             operation()
@@ -267,8 +283,12 @@ def _open_projection(
         raise TypeError("qualification.authored.projection-retention-mode-invalid")
     if _retain_completion and execution is not None:
         raise TypeError("qualification.authored.current-projection-session-required")
-    if not isinstance(current, CurrentAuthoredQualificationPlan):
+    if not isinstance(current, CurrentAuthoredQualificationPlan) and not (
+        type(current) is ReviewedAuthoredQualificationInputs and execution is None
+    ):
         raise TypeError("original current authored plan required")
+    if type(current) is ReviewedAuthoredQualificationInputs:
+        _read_ports("pure", current)
     if execution is not None and (
         not isinstance(execution, CurrentAuthoredQualificationExecution)
         or not isinstance(execution.result, AuthoredQualificationResult)
@@ -289,7 +309,7 @@ def _open_projection(
             raise ValueError(
                 "qualification.authored.original-planned-sdk-owner-changed"
             )
-        current.require_unchanged()
+        _read_ports("current", current)
         if current._native_sdk_inputs is not retained_sdk_inputs:
             raise ValueError(
                 "qualification.authored.original-planned-sdk-owner-changed"
@@ -305,11 +325,12 @@ def _open_projection(
     ) as original_oracles:
         snapshot = current.oracles.authority.locked
         plan = current.plan.execution_plan
+        coding_provider, pipeline_model = _read_ports("intent", current)
         projector = LockedComponentNodePreparationAdapter(
             model_selector=LockedComponentModelSelectionAdapter(
-                pipeline_model=current._pipeline_model
+                pipeline_model=pipeline_model
             ),
-            coding_cli=current.standard.coding_cli.name,
+            coding_cli=coding_provider,
             native_sdk_inputs=native_sdk_inputs,
         )
         projector.guard(snapshot)
@@ -415,17 +436,7 @@ def _open_projection(
                         for object_, names in (
                             (
                                 current,
-                                (
-                                    "plan",
-                                    "oracles",
-                                    "standard",
-                                    "binding",
-                                    "_reviewer",
-                                    "_coding_selector",
-                                    "_pipeline_model",
-                                    "_native_sdk_inputs",
-                                    "_planned_sdk_inputs",
-                                ),
+                                _read_ports("fields", current),
                             ),
                             (
                                 closure,

@@ -4,7 +4,7 @@ import hashlib
 
 from literate_ai.adapters.component_acceptance import LibraryAcceptance
 from literate_ai.adapters.lifecycle.standard_runtime import (
-    STANDARD_PYTHON_SDK_RUNTIME_DRIVER,
+    STANDARD_PYTHON_SDK_HARNESS_DRIVER,
 )
 from literate_ai.contracts.executable_components.commands import (
     ComponentCommandContract,
@@ -35,6 +35,6 @@ def library_acceptance_command(contract, oracle):
         "import_surface_identity": oracle.import_surface_identity.to_dict(),
         "toolchain_identity": contract.library_acceptance_toolchain_identity.to_dict(),
         "driver_identity": canonical_identity(
-            STANDARD_PYTHON_SDK_RUNTIME_DRIVER
+            STANDARD_PYTHON_SDK_HARNESS_DRIVER
         ).to_dict(),
     }

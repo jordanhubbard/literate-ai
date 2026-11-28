@@ -6,9 +6,9 @@ bytes is safe.
 
 ## Required decision chain
 
-### 1.1 execution support
+### Local execution support
 
-The 1.1 local generation/build/test path runs as the invoking user when explicitly
+The local generation/build/test path runs as the invoking user when explicitly
 authorized with `--allow-host-execution`. It has no production OS/VM containment
 backend. Process limits, content identities and passing acceptance do not establish
 filesystem, network or credential isolation. See the
@@ -21,8 +21,8 @@ resolved inside that root, including symlinks, and mutations require
 the startup option `--allow-operator-config`. Tool annotations describe risk; they
 are not authorization. These helper checks do not constrain an agent that separately
 has shell access as the same host user, nor do they sandbox generated code or paths
-referenced inside project metadata. Clients upgrading to 1.1 must send explicit
-mutation acknowledgement; read-only calls retain their existing input shape.
+referenced inside project metadata. Mutating client calls must send explicit
+acknowledgement; read-only calls do not require it.
 
 The facade uses the [MCP tool contract](https://modelcontextprotocol.io/specification/2025-03-26/server/tools).
 

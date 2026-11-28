@@ -314,5 +314,6 @@ Then inspect
 [`samples/flavor-matrix`](../../samples/flavor-matrix/) and the source-derived
 [`flavor-split` case](../../tests/fixtures/source_to_specification/flavor-split/). The full
 contract design is in [Composable Component Flavors](../architecture/component-flavors.md).
-The current sample runner deliberately uses its guarded native language builders and
-does not claim Bazel execution; samples do not declare a `build.system` slot yet.
+Samples declare their build-system slots. The runner uses guarded language builders
+and selects its Bazel build adapter when the chosen build-system Flavor is
+`build-bazel`; each matrix cell still requires its own execution evidence.
