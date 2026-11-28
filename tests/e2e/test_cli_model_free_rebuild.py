@@ -127,7 +127,7 @@ class ModelFreeRebuildTests(unittest.TestCase):
                 [
                     "--json",
                     "rebuild",
-                    "samples/hello-component",
+                    "litai/samples/hello-component",
                     "--project",
                     str(self.project),
                     "--allow-host-execution",
@@ -152,7 +152,7 @@ class ModelFreeRebuildTests(unittest.TestCase):
             arguments = [
                 "--json",
                 command,
-                "samples/hello-component",
+                "litai/samples/hello-component",
                 "--project",
                 str(self.project),
             ]
@@ -171,7 +171,9 @@ class ModelFreeRebuildTests(unittest.TestCase):
             envelope = json.loads(output.getvalue() or errors.getvalue())
             self.assertEqual(status, 0, envelope)
         oracle = json.loads(
-            (self.project / "verification/acceptance/hello-component.json").read_text()
+            (
+                self.project / "litai/verification/acceptance/hello-component.json"
+            ).read_text()
         )
         self.assertEqual(
             json.loads(envelope["result"]["stdout"]),
@@ -211,7 +213,7 @@ class ModelFreeRebuildTests(unittest.TestCase):
         self.assertEqual(
             refused["error"]["code"], "builder.python_toolchain_unavailable"
         )
-        self.assertFalse((self.project / "verification/current.json").exists())
+        self.assertFalse((self.project / "litai/verification/current.json").exists())
 
     def test_retained_without_agent_preserves_receipt_on_stale_or_failed_input(
         self,
@@ -242,7 +244,7 @@ class ModelFreeRebuildTests(unittest.TestCase):
             self.assertEqual(status, 0, accepted)
             self.assertTrue(accepted["result"]["passed"])
             self.assertTrue(accepted["result"]["receipt_committed"])
-            receipt = self.project / "verification/current.json"
+            receipt = self.project / "litai/verification/current.json"
             previous = receipt.read_bytes()
             program = source / "main.py"
             program.write_text(
@@ -503,7 +505,11 @@ class ModelFreeRebuildTests(unittest.TestCase):
         (private / "grants").mkdir(parents=True)
         oracle = private / "hello-component.json"
         shutil.copyfile(
-            self.project / "verification" / "acceptance" / "hello-component.json",
+            self.project
+            / "litai"
+            / "verification"
+            / "acceptance"
+            / "hello-component.json",
             oracle,
         )
         grant = private / "grants" / "finalize.json"

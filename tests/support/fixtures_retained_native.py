@@ -22,7 +22,7 @@ from literate_ai.projects import discover_project
 
 
 def author_retained_native_fixture(
-    project_root: Path, output: Path, *, component_path="samples/hello-component"
+    project_root: Path, output: Path, *, component_path="litai/samples/hello-component"
 ) -> None:
     project = discover_project(project_root)
     component = project_root / component_path
