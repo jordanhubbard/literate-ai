@@ -14,6 +14,9 @@ from pathlib import Path, PurePosixPath
 from literate_ai._filesystem import require_safe_directory
 from literate_ai.adapters.retained_cargo_files import _unique_object
 from literate_ai.adapters.retained_cargo_plan import _bound_cargo_package_exports
+from literate_ai.contracts.authored_retained_cargo_review import (
+    AuthoredRetainedCargoProducerReview,
+)
 from literate_ai.contracts.blobs import BlobRef
 from literate_ai.contracts.identity import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.paths import canonical_relative_posix_paths
@@ -41,6 +44,7 @@ class AuthoredRetainedCargoReviewedFiles:
     document_paths: tuple[str, ...]
     _inputs: PinnedInputClosure = field(repr=False, compare=False)
     _context: ProjectContext = field(repr=False, compare=False)
+    producer_review: AuthoredRetainedCargoProducerReview | None = None
 
     def require_unchanged(self):
         require_safe_directory(self.project.root)
@@ -81,6 +85,8 @@ def read_authored_retained_cargo_review(
     plan_path: str,
     gate_policy_path: str,
     test_inventory_path: str,
+    producer_review_path: str | None = None,
+    reviewed_producer: BlobRef | None = None,
     maximum_file_bytes: int = 256 * 1024 * 1024,
     maximum_total_bytes: int = 1024 * 1024 * 1024,
 ) -> AuthoredRetainedCargoReviewedFiles:
@@ -98,12 +104,16 @@ def read_authored_retained_cargo_review(
         or not maximum_file_bytes <= maximum_total_bytes <= 1024 * 1024 * 1024
     ):
         raise ValueError("retained.cargo.authored-review-limits-invalid")
+    if (producer_review_path is None) != (reviewed_producer is None):
+        raise ValueError("retained.cargo.authored-producer-review-pair-required")
     paths = (
         binding_path,
         plan_path,
         gate_policy_path,
         test_inventory_path,
     )
+    if producer_review_path is not None:
+        paths = (*paths, producer_review_path)
     canonical_relative_posix_paths(paths, label="reviewed authored Cargo documents")
     if any(len(path) > 128 for path in paths):
         raise ValueError("retained.cargo.authored-review-path-too-long")
@@ -112,7 +122,7 @@ def read_authored_retained_cargo_review(
         raise ValueError("retained.cargo.project-path-unsafe")
     require_safe_directory(root)
     inputs = PinnedInputClosure(
-        maximum_files=5,
+        maximum_files=6 if producer_review_path is not None else 5,
         maximum_file_bytes=maximum_file_bytes,
         maximum_total_bytes=maximum_total_bytes,
     )
@@ -179,6 +189,15 @@ def read_authored_retained_cargo_review(
         RetainedCargoTestInventoryV2.from_dict,
     )
     binding.require_declarations(plan, policy, inventory)
+    producer_review = None
+    if producer_review_path is not None:
+        producer_review = read(
+            producer_review_path,
+            reviewed_producer,
+            AuthoredRetainedCargoProducerReview.from_dict,
+            canonical=True,
+        )
+        producer_review.require_binding(binding)
     # Attribution is origin-neutral data validation, never provider authority.
     _bound_cargo_package_exports(plan.common, binding.exports, binding.destinations)
     output = str(
@@ -197,6 +216,7 @@ def read_authored_retained_cargo_review(
         paths,
         inputs,
         context,
+        producer_review,
     )
     result.require_unchanged()
     return result

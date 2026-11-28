@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained Cargo review can bind independently reviewed producer intent alongside
+  its exact consumer declarations. This passive foundation grants no execution
+  or admission authority; public model-free receiving remains in development.
+
 - Report bounded native identity and signature differences when a remote cleanup
   control changes during open, preserving the original refusal and custody guards.
 

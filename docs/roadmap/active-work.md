@@ -31137,6 +31137,32 @@ Source partial: converted framework-resource observation now includes the origin
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Model-free receiving (implementation in progress):** Accepted ADR 0072 and
+  issues #345/#393 require ordinary authored Cargo receiving without a coding
+  provider selection, probe or execution. Pin the importing maintainer's
+  independently reviewed producer intent as a sixth document in the original
+  reviewed-input owner, retaining the exact five-document identity when absent.
+  Bind the importer, complete binding, logical evidence store, exact published
+  reference and historical plan/provider/model/profile. Then issue a separate
+  read-only current owner using actual SDK/tool/oracle/driver/review facts and
+  extend only the finite receiving/replay read paths. Preserve all original
+  generation, execution and writable publication owners, native projection
+  formats, absolute deadlines, all clean runs and importer gates. The current
+  owner map includes both product-session type checks and original projection
+  completion fields; no pretend coding executable or archive-only authority is
+  permitted. The [passive review foundation](../../verification/authored-producer-review-development.json)
+  now passes all eight new and six unchanged original controls without skips.
+  Its five-file preimage remains exact when review is omitted; sixth-file DATA
+  retains the original fresh safe-reopen semantics and shared byte budgets.
+  The initial new inode-retirement expectation was incorrect and remains in
+  preserved failed-run evidence; only that new test changed, and no original
+  assertion or pin guard was weakened. Next: issue the live read owner from its
+  own original reviewed-file acquisition, retaining the exact review owner,
+  parsed pointer and captured identity. A parsed or replaced passive record is
+  not issuance. Complete the read owner and ordinary public receiving path
+  before claiming this requirement satisfied. Existing genuine
+  installed, native, source-retirement and release evidence remains required.
+
 - **Observation-frame fixtures (source partial):** Full source qualification now
   reaches 375 discovered executions before an ambient-frame assertion compares
   the constructor-owned Flavor frame to its former dictionary representation.
