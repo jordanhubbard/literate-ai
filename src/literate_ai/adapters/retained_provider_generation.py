@@ -24,6 +24,7 @@ from literate_ai.contracts import (
     ComponentGenerationClosure,
     ContentIdentity,
 )
+from literate_ai.projects import ProjectConfigurationStore
 from literate_ai.source_to_specification.promotion_materialization import (
     PromotionInputKind,
     VerifiedSourcePromotionEvidence,
@@ -119,8 +120,14 @@ class RetainedProviderGeneration:
         component = self.prepared.component_root.relative_to(root) / "component.md"
         audit = evidence.audit_containing(component.as_posix())
         audit.verify(root)
+        # The audit records Flavors at their placed (possibly contained) paths.
+        context = ProjectConfigurationStore(root).context(root)
         prefixes = tuple(
-            f"flavors/{flavor_selector_directory(f'+{flavor.flavor_id}')}"
+            context.framework_path(
+                f"flavors/{flavor_selector_directory(f'+{flavor.flavor_id}')}"
+            )
+            .relative_to(root)
+            .as_posix()
             for flavor in self.prepared.selected_flavors
         )
         kinds = frozenset({PromotionInputKind.REVIEWED_FLAVOR})

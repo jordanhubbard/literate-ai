@@ -201,7 +201,7 @@ def prepare_public_qualified_native_receiver(
     )
     loaded = load_project(importer)
     implementation = json.loads(
-        (importer / ".literate/legacy-lift-shift.json").read_bytes()
+        loaded.context.framework_path(".literate/legacy-lift-shift.json").read_bytes()
     )["implementation_directory"]
     workspace = importer / implementation
     before = {

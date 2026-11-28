@@ -21,6 +21,7 @@ from literate_ai.adapters.project_initialization import (
 )
 from literate_ai.application.library_artifacts import project_library_import_surface
 from literate_ai.contracts import ProjectInitializationOrigin, RepositoryParentSelection
+from literate_ai.projects import ProjectConfigurationStore
 from tests.support.fixtures_rust_library_harness import NativeRustVerifierFixture
 
 
@@ -55,7 +56,8 @@ def author_public_project(
         parent_selection=RepositoryParentSelection.root(),
         bootstrap_tools=False,
     )
-    component = project / "components/qualified-fixture"
+    framework = ProjectConfigurationStore(project).context(project).framework_root
+    component = framework / "components/qualified-fixture"
     (component / "interfaces").mkdir(parents=True)
     template = (
         Path(literate_ai.__file__).parent
@@ -128,7 +130,7 @@ def author_public_project(
     private = root / "verifier-authoring"
     private.mkdir()
     fixture = NativeRustVerifierFixture(private, seed, cargo, rustc)
-    acceptance = project / "verification/acceptance"
+    acceptance = framework / "verification/acceptance"
     acceptance.mkdir(parents=True, exist_ok=True)
     for name in ("vendor", "cargo-home", "workspace"):
         shutil.copytree(fixture.authority / name, acceptance / name)

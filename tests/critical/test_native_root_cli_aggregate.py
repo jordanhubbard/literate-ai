@@ -134,6 +134,8 @@ class NativeRootCliAggregateTests(unittest.TestCase):
             project_id="fixture",
             test_receipt_policy=receipts.RECEIPT_POLICY,
             test_receipt="aggregate-receipt.json",
+            # The shared receipt labels name contained Component coordinates.
+            component_roots=("litai/components",),
             native_root_run_policy=self.definition.native_root_run_policy
             if selected
             else None,

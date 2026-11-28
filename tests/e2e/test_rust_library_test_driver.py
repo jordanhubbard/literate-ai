@@ -13,6 +13,7 @@ import unittest
 from pathlib import Path
 
 from literate_ai.adapters.standard_project import _STANDARD_LIBRARY_TEST_DRIVER
+from literate_ai.projects import load_project
 
 
 class RustLibraryTestDriverTests(unittest.TestCase):
@@ -770,9 +771,10 @@ class RustVerifierDependencyExecutionTests(unittest.TestCase):
         self.assertTrue(result["ok"], result)
         self.assertTrue(result["result"]["passed"], result)
         self.assertTrue(result["result"]["receipt_committed"], result)
-        self.assertTrue((project / "verification/current.json").is_file())
+        current = load_project(project).framework_root / "verification/current.json"
+        self.assertTrue(current.is_file())
         self.assertEqual(fixture.oracle_path.read_bytes(), oracle_bytes)
-        receipt_bytes = (project / "verification/current.json").read_bytes()
+        receipt_bytes = current.read_bytes()
         for scenario, document, code, message in public_boundary_refusals(
             fixture, boundary
         ):
@@ -795,9 +797,7 @@ class RustVerifierDependencyExecutionTests(unittest.TestCase):
                 self.assertEqual(refused["error"]["code"], code, refused)
                 if message is not None:
                     self.assertIn(message, refused["error"]["message"])
-                self.assertEqual(
-                    (project / "verification/current.json").read_bytes(), receipt_bytes
-                )
+                self.assertEqual(current.read_bytes(), receipt_bytes)
         # The actual public oracle remains the source of authority. Restore its
         # bytes only after all failed invocations have retired; this grants no
         # owner or execution from the successful historical receipt.
@@ -822,9 +822,7 @@ class RustVerifierDependencyExecutionTests(unittest.TestCase):
             refused["error"]["message"],
         )
         self.assertFalse(missing.exists(), "missing inputs must not be fetched")
-        self.assertEqual(
-            (project / "verification/current.json").read_bytes(), receipt_bytes
-        )
+        self.assertEqual(current.read_bytes(), receipt_bytes)
         self.assertFalse(
             marker.exists(), "public rebuild selected the hostile Cargo wrapper"
         )
