@@ -186,7 +186,7 @@ class ReleaseAtomicWriterTests(unittest.TestCase):
     def test_private_after_actual_default_write_refuses_push_and_cleanup(self):
         with tempfile.TemporaryDirectory() as directory:
             fixture = release_fixture.ProjectReleaseTests("runTest")
-            root, remote = fixture.initialize(Path(directory))
+            root, remote = fixture.initialize(Path(directory).resolve())
             policy = replace(
                 release.ReleasePolicy.from_dict(
                     json.loads((root / "literate.release.json").read_text())
@@ -225,7 +225,7 @@ class ReleaseAtomicWriterTests(unittest.TestCase):
     def test_real_transaction_rollback_preserves_live_output_custody(self):
         with tempfile.TemporaryDirectory() as directory:
             fixture = release_fixture.ReleaseBackportTests("runTest")
-            root = fixture.initialize(Path(directory))
+            root = fixture.initialize(Path(directory).resolve())
             fixture.git(root, "branch", "release/1.0.x", "HEAD")
             native = release.os.fsync
             refused = OSError("actual owned transaction fsync failure")
@@ -261,7 +261,7 @@ class ReleaseAtomicWriterTests(unittest.TestCase):
     def test_original_strict_git_prefix_is_preserved_for_detached_creator(self):
         with tempfile.TemporaryDirectory() as directory:
             fixture = release_fixture.ReleaseBackportTests("runTest")
-            root = fixture.initialize(Path(directory))
+            root = fixture.initialize(Path(directory).resolve())
             token = release._STRICT_CI_GIT_READS.set(True)
             try:
                 with release._release_backport_worktree(
@@ -281,7 +281,7 @@ class ReleaseAtomicWriterTests(unittest.TestCase):
     def test_isolated_default_helper_skips_an_already_ahead_branch(self):
         with tempfile.TemporaryDirectory() as directory:
             fixture = release_fixture.ProjectReleaseTests("runTest")
-            root, remote = fixture.initialize(Path(directory))
+            root, remote = fixture.initialize(Path(directory).resolve())
             policy = replace(
                 release.ReleasePolicy.from_dict(
                     json.loads((root / "literate.release.json").read_text())
