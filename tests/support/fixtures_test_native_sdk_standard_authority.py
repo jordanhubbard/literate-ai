@@ -127,6 +127,8 @@ class NativeSdkStandardAuthorityTests(unittest.TestCase):
                 )
             ),
             all_documents=(),
+            # The native SDK fixture declares no managed library imports.
+            library_dependencies=(),
             # This explicit generation fixture keeps ordinary v1 diversity;
             # it supplies no authoritative zero-argument coverage exemption.
             generated_test_coverage_authority=None,
