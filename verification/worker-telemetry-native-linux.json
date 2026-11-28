@@ -1,0 +1,121 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "WORKER-TELEMETRY-001",
+  "issue": 280,
+  "source_revision": "77353a8d6ee0cdaa44f38b02ddf066261e835f03",
+  "scope": "Original-launch process probes and bounded polling foundation; no public live-worker-feed acceptance or release attestation",
+  "platform": {
+    "os": "linux",
+    "architecture": "aarch64",
+    "installed_python": "3.12.3"
+  },
+  "whole_wheel": {
+    "state": "passed",
+    "size_bytes": 4258234,
+    "wheel_sha256": "eb39d3f57b828a729e758fd22eaf4453a0a9c4b1c262dfd5e16dea9b5a9c3551",
+    "distribution_identity": "sha256:cac1c96d4464b13aba42f337989402c45f4894833ec4daff3e56ce162b30f353",
+    "installed_record_members": 1380,
+    "source_revision": "77353a8d6ee0cdaa44f38b02ddf066261e835f03"
+  },
+  "source_controls": {
+    "python315": {
+      "executed": 80,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 80,
+      "selected": 80,
+      "skipped": 0
+    },
+    "python312": {
+      "executed": 80,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 80,
+      "selected": 80,
+      "skipped": 0
+    },
+    "builder": {
+      "executed": 2,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2,
+      "selected": 2,
+      "skipped": 0
+    },
+    "process_tree": {
+      "executed": 2,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2,
+      "selected": 6,
+      "skipped": 4
+    }
+  },
+  "installed_native_controls": {
+    "wheel_sha256": "eb39d3f57b828a729e758fd22eaf4453a0a9c4b1c262dfd5e16dea9b5a9c3551",
+    "source_test_sha256": "bbcb9938d78c3365a719894451dbdc2118c97342f2da456df598ea1764f848ed",
+    "python": "3.12.3",
+    "selected": 11,
+    "passed": 11,
+    "skipped": 0,
+    "errors": 0,
+    "failures": 0,
+    "distribution_identity_before": "sha256:cac1c96d4464b13aba42f337989402c45f4894833ec4daff3e56ce162b30f353",
+    "distribution_identity_after": "sha256:cac1c96d4464b13aba42f337989402c45f4894833ec4daff3e56ce162b30f353",
+    "module_origin_count": 241,
+    "namespace_origin_count": 0,
+    "all_framework_modules_are_installed_and_match_source_and_archive": true
+  },
+  "module_origin_manifest_sha256": "e4f515c1d362b079cdaba3ddb10a8f166838958df2e8c7a47b4ef735430e7559",
+  "source_file_sha256": {
+    "src/literate_ai/adapters/builders/_process.py": "c82242a64abfbc5d6c29fead8dc26cfef0164051abdf62b951c596de01555a29",
+    "src/literate_ai/adapters/worker_telemetry_processes.py": "faf6f05e090ef0551ea7559985f5f0c0df299f7a345a6b2509c06157822c8c90",
+    "tests/critical/test_worker_telemetry_processes.py": "bbcb9938d78c3365a719894451dbdc2118c97342f2da456df598ea1764f848ed"
+  },
+  "actual_source_native_probe": {
+    "origin": "source, separately from the installed eleven-control run",
+    "sample": {
+      "launch_identity": "sha256:1252af60ff500d7f172a0af868e90225a85dc634a6fcf21c628a9a63d9f2ad6f",
+      "process_start_identity": "sha256:a8da394cc6b0156623ea4fce83f6054b22e3f9736484b52bd5d90be6ee9b35d8",
+      "observed_monotonic_ns": 40909267341047,
+      "user_cpu_time_ns": 60000000,
+      "system_cpu_time_ns": 0,
+      "rss_estimate_bytes": 14323712,
+      "storage_read_bytes": 0,
+      "storage_write_accounted_bytes": 4194304,
+      "storage_cancelled_write_bytes": 0
+    },
+    "observer_closed_while_original_job_live": true,
+    "job_exit_status": 0,
+    "stdout": "ready\ncomplete\n",
+    "payload_sha256_before": "d4a93aad1dd0434ec93f29f0493f2a546073304e43cd2583baeab2d20672f698",
+    "payload_sha256_after": "d4a93aad1dd0434ec93f29f0493f2a546073304e43cd2583baeab2d20672f698",
+    "descriptor_guards_released": true
+  },
+  "measurement_limits": [
+    "Counters measure one originally launched process, not a complete subtree, logical action or worker host.",
+    "RSS is a native estimate. Storage writes account page dirtying, with cancelled writes retained separately; this does not establish completed physical writeout.",
+    "Network I/O and CPU utilization percentage are not measured by this process probe.",
+    "This source probe observed zero storage-read bytes; do not claim a positive read-attribution experiment."
+  ],
+  "failed_predecessor": {
+    "python": "3.15.2",
+    "gate": "whole-wheel",
+    "code": "worker.wheelhouse_download_failed",
+    "diagnostic": "No matching binary distribution for PyYAML==6.0.3 in the selected Python3.15 environment",
+    "state": "retained terminal failure, separate from Python3.12 success"
+  },
+  "independent_source_review": "pending; lifecycle driver pin unchanged and stale",
+  "remaining_acceptance": [
+    "Production private policy/custody and original live action/reservation joins",
+    "Complete native subtree attribution and Windows/macOS collectors",
+    "Explicitly negotiated SSH and configured command-addressed telemetry routes",
+    "Actual live epoch/sequence/freshness and rate/coalescing/deadline enforcement",
+    "Native PID-reuse/foreign-process selection and counter-reset controls through the actual worker route",
+    "Slow-consumer and collector cancellation isolation at the real transport/action boundary",
+    "Genuine installed live-action and downstream-shaped consumer journeys",
+    "Independent review before driver renewal, whole source and exact review/resulting-main gates",
+    "Assess the retained Python3.15 binary dependency-closure failure against declared release support; Python3.12 success does not qualify that cell"
+  ],
+  "release_attestation": false
+}

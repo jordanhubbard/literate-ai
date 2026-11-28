@@ -10,13 +10,19 @@ from literate_ai.application.action_dag_scheduler import (
     LifecycleActionDispatchRequest,
     LifecycleActionTermination,
 )
+from literate_ai.application.worker_telemetry_reservations import (
+    _CAPACITY_ISSUER,
+    create_original_reservation_observer,
+    original_reservation_scope,
+)
 
 
 class ReservedAction:
-    def __init__(self, owner, worker, slot, operation):
+    def __init__(self, owner, worker, slot, operation, *, observation_owner=None):
         self.owner, self.worker, self.slot = owner, worker, slot
         self.operation = operation
         self.started = self.finished = self.released = False
+        self._observation_owner = observation_owner
 
     def run(self):
         with self.owner.condition:
@@ -24,7 +30,8 @@ class ReservedAction:
                 raise ValueError("action reservation is no longer executable")
             self.started = True
         try:
-            return self.operation(self.worker, self.slot)
+            with original_reservation_scope(self._observation_owner):
+                return self.operation(self.worker, self.slot)
         except BaseException as exc:
             request = getattr(exc, "unknown_ownership_request", None)
             if request is not None:
@@ -40,8 +47,12 @@ class ReservedAction:
             if self.started and not self.finished:
                 return
             if not self.released:
+                if self._observation_owner is not None:
+                    self._observation_owner.retire()
                 self.released = True
                 key = (self.worker.worker_id, self.slot)
+                if self._observation_owner is not None:
+                    self.owner._reservation_observations.pop(key, None)
                 self.owner._held.discard(key)
                 if not any(
                     (request.worker.worker_id, request.slot) == key
@@ -52,7 +63,17 @@ class ReservedAction:
 
 
 class CommandActionSlots:
-    def __init__(self, workers, deadline, *, loss_fencing_policy_identity=None):
+    def __init__(
+        self,
+        workers,
+        deadline,
+        *,
+        loss_fencing_policy_identity=None,
+        observe_reservations=False,
+    ):
+        if type(observe_reservations) is not bool:
+            raise TypeError("reservation observation must be explicitly enabled")
+        self._observe_reservations = observe_reservations
         self.workers = tuple(workers)
         self.deadline = deadline
         self.condition = threading.Condition()
@@ -60,6 +81,7 @@ class CommandActionSlots:
         self._unknown = {}
         # Slots a live reservation still holds; resolution never frees these.
         self._held = set()
+        self._reservation_observations = {}
         self.loss_fencing_policy_identity = loss_fencing_policy_identity
         self.started = False
         if (
@@ -90,6 +112,11 @@ class CommandActionSlots:
                     "unknown actuation differs from its reserved worker/slot",
                 )
             self._unknown[request.identity] = request
+            observer = self._reservation_observations.get(
+                (request.worker.worker_id, request.slot)
+            )
+            if observer is not None:
+                observer.quarantine()
             self.condition.notify_all()
 
     def require_held_unknown(self, request):
@@ -168,7 +195,18 @@ class CommandActionSlots:
                     if key not in self._occupied:
                         self._occupied.add(key)
                         self._held.add(key)
-                        return ReservedAction(self, worker, slot, operation)
+                        observer = (
+                            create_original_reservation_observer(
+                                worker, slot, self.deadline, _issuer=_CAPACITY_ISSUER
+                            )
+                            if self._observe_reservations
+                            else None
+                        )
+                        if observer is not None:
+                            self._reservation_observations[key] = observer
+                        return ReservedAction(
+                            self, worker, slot, operation, observation_owner=observer
+                        )
             return None
 
     @contextmanager
@@ -194,7 +232,8 @@ class CommandActionSlots:
                     )
                 self.condition.wait(timeout=min(0.1, self.deadline.remaining()))
         try:
-            yield reservation.worker, reservation.slot
+            with original_reservation_scope(reservation._observation_owner):
+                yield reservation.worker, reservation.slot
         except BaseException as exc:
             request = getattr(exc, "unknown_ownership_request", None)
             if request is not None:
