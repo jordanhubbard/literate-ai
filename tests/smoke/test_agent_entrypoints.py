@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from literate_ai.adapters.agent_entrypoints import audit_agent_entrypoints
+from literate_ai.adapters.project_scaffold_placement import ScaffoldLayout
 from literate_ai.cli import main
 from literate_ai.projects import load_project
 from tests.smoke.test_project_reparenting import initialize_root
@@ -21,7 +22,11 @@ def configure_custom_skill(root, *, repair_delegates=True):
 
     from literate_ai.projects import ProjectConfigurationStore
 
-    declared = "docs/onboarding.md"
+    project = load_project(root)
+    default = project.definition.agent_skill
+    declared = (
+        (project.framework_root / "docs/onboarding.md").relative_to(root).as_posix()
+    )
     target = root / declared
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(
@@ -32,7 +37,7 @@ def configure_custom_skill(root, *, repair_delegates=True):
     store = ProjectConfigurationStore(root)
     snapshot = store.read()
     store.update(snapshot, replace(snapshot.definition, agent_skill=declared))
-    (root / "SKILL.md").unlink()
+    project.agent_skill.unlink()
     if repair_delegates:
         for name in ["AGENTS.md", "CLAUDE.md"]:
             (root / name).write_text(
@@ -41,7 +46,7 @@ def configure_custom_skill(root, *, repair_delegates=True):
             )
         cursor = root / ".cursor/rules/literate-ai.mdc"
         cursor.write_text(
-            cursor.read_text().replace("../../SKILL.md", "../../" + declared)
+            cursor.read_text().replace("../../" + default, "../../" + declared)
         )
         metadata = root / "agents/openai.yaml"
         value = yaml.safe_load(metadata.read_text())
@@ -56,6 +61,10 @@ class AgentEntrypointTests(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name).resolve() / "project"
         initialize_root(self.root)
+        project = load_project(self.root)
+        self.framework_root = project.framework_root
+        self.skill = project.definition.agent_skill
+        self.skill_path = project.agent_skill
 
     def snapshot(self):
         return {
@@ -74,11 +83,13 @@ class AgentEntrypointTests(unittest.TestCase):
     def test_initialized_project_ships_current_optional_host_peer_guidance(self):
         relative = Path("skills/agent/use-connected-a2a-peers/SKILL.md")
         canonical = Path(__file__).resolve().parents[2] / relative
-        self.assertEqual((self.root / relative).read_bytes(), canonical.read_bytes())
-        self.assertIn(relative.as_posix(), (self.root / "SKILL.md").read_text())
+        self.assertEqual(
+            (self.framework_root / relative).read_bytes(), canonical.read_bytes()
+        )
+        self.assertIn(relative.as_posix(), self.skill_path.read_text())
         self.assertIn(
             "use-connected-a2a-peers/SKILL.md",
-            (self.root / "skills/agent/SKILL.md").read_text(),
+            (self.framework_root / "skills/agent/SKILL.md").read_text(),
         )
         self.assertTrue(self.audit()["ready"])
 
@@ -122,8 +133,9 @@ class AgentEntrypointTests(unittest.TestCase):
 
     def test_customized_current_instructions_preserve_exact_bytes(self):
         content = (
-            b"# Custom rules\r\n\r\nKeep our workflow. Read and follow `SKILL.md`.\r\n"
-        )
+            "# Custom rules\r\n\r\nKeep our workflow. "
+            f"Read and follow `{self.skill}`.\r\n"
+        ).encode()
         (self.root / "AGENTS.md").write_bytes(content)
         before = self.snapshot()
         self.assertTrue(self.audit()["ready"])
@@ -161,7 +173,8 @@ class AgentEntrypointTests(unittest.TestCase):
     def test_scalar_yaml_alias_remains_valid_without_writes(self):
         path = self.root / "agents/openai.yaml"
         path.write_text(
-            'prompt: &prompt "Use $literate-ai"\ninterface: {default_prompt: *prompt}\n'
+            f'prompt: &prompt "Read {self.skill} and use $literate-ai"\n'
+            "interface: {default_prompt: *prompt}\n"
         )
         before = self.snapshot()
         self.assertTrue(self.audit()["ready"])
@@ -171,7 +184,7 @@ class AgentEntrypointTests(unittest.TestCase):
         graph = "a0: &a0 {key: value}\n" + "".join(
             f"a{i}: &a{i} {{<<: [*a{i - 1}, *a{i - 1}]}}\n" for i in range(1, 13)
         )
-        for relative in ("agents/openai.yaml", "SKILL.md"):
+        for relative in ("agents/openai.yaml", self.skill):
             with self.subTest(relative=relative):
                 path = self.root / relative
                 original = path.read_bytes()
@@ -251,14 +264,14 @@ class AgentEntrypointTests(unittest.TestCase):
             self.assertEqual(path.read_bytes(), raw)
 
     def test_missing_or_invalid_onboarding_skill_is_not_ready(self):
-        path = self.root / "SKILL.md"
+        path = self.skill_path
         path.unlink()
         self.assertEqual(self.audit()["agent_skill"]["state"], "missing")
         path.write_text("No canonical onboarding frontmatter\n")
         self.assertEqual(self.audit()["agent_skill"]["state"], "invalid")
 
     def test_crlf_onboarding_frontmatter_remains_valid(self):
-        path = self.root / "SKILL.md"
+        path = self.skill_path
         path.write_bytes(path.read_bytes().replace(b"\n", b"\r\n"))
         self.assertTrue(self.audit()["ready"])
 
@@ -430,7 +443,7 @@ class AgentEntrypointTests(unittest.TestCase):
         self.assertTrue(report["ready"])
         self.assertEqual(report["agent_skill"]["path"], declared)
         self.assertEqual(self.snapshot(), before)
-        self.assertFalse((self.root / "SKILL.md").exists())
+        self.assertFalse(self.skill_path.exists())
 
     def test_custom_skill_reports_default_delegates_as_stale_before_authored_repair(
         self,
@@ -468,7 +481,9 @@ class AgentEntrypointTests(unittest.TestCase):
         from literate_ai.contracts import ProjectDefinition
         from tests.support.fixtures_test_schema_catalog import SchemaCatalog
 
-        current = load_project(self.root).definition.to_dict()
+        legacy_root = self.root.parent / "legacy"
+        initialize_root(legacy_root, _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE)
+        current = load_project(legacy_root).definition.to_dict()
         legacy = {
             k: current[k]
             for k in [
@@ -504,16 +519,17 @@ class AgentEntrypointTests(unittest.TestCase):
 
     def test_custom_skill_redirected_parent_refuses_on_native_filesystem(self):
         declared = configure_custom_skill(self.root)
+        docs = (self.root / declared).parent
         outside = self.root.parent / "redirected-docs"
-        (self.root / "docs").rename(outside)
+        docs.rename(outside)
         if os.name == "nt":
             from tests.support.fixtures_test_component_resolution_audit_store import (
                 create_windows_junction,
             )
 
-            create_windows_junction(self.root / "docs", outside)
+            create_windows_junction(docs, outside)
         else:
-            (self.root / "docs").symlink_to(outside, target_is_directory=True)
+            docs.symlink_to(outside, target_is_directory=True)
         original = (outside / "onboarding.md").read_bytes()
         report = self.audit()
         self.assertFalse(report["ready"])

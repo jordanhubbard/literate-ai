@@ -19,6 +19,7 @@ from literate_ai.adapters.original_project_adoption import (
 from literate_ai.contracts import canonical_json_bytes
 from literate_ai.contracts.operator_adoption import ConversionAuthorityStage
 from literate_ai.perf import read_performance_spans
+from literate_ai.projects import load_project
 from tests.smoke.test_operator_adoption import invoke
 from tests.smoke.test_project_reparenting import initialize_root
 from tests.support.fixtures_test_repository_orchestration import git as fixture_git
@@ -35,6 +36,9 @@ class OriginalProjectAdoptionTests(unittest.TestCase):
             mock.patch.dict(os.environ, {"OBJ_DIR": str(self.diagnostics)})
         )
         initialize_root(self.root)
+        project = load_project(self.root)
+        self.framework_root = project.framework_root
+        self.agent_skill = project.agent_skill
         self.source = self.root / "usr.bin" / "sample" / "sample.c"
         self.source.parent.mkdir(parents=True)
         self.source.write_bytes(b"int main(void) { return 0; }\n")
@@ -75,11 +79,7 @@ class OriginalProjectAdoptionTests(unittest.TestCase):
         self.assertFalse((self.root / "AGENTS.md").exists())
         self.assertLessEqual(
             set(after) - set(before),
-            {
-                ".literate/original-adoption.json",
-                ".literate/conversion-authority.json",
-                ".literate/conversion-authority.lock",
-            },
+            self.adoption_metadata(),
         )
 
     def test_custom_onboarding_skill_original_adoption_preserves_authored_delegates(
@@ -130,7 +130,7 @@ class OriginalProjectAdoptionTests(unittest.TestCase):
         self.assertFalse(applied["result"]["admitted"])
         after = self.snapshot()
         self.assertEqual({name: after[name] for name in before}, before)
-        self.assertFalse((self.root / "SKILL.md").exists())
+        self.assertFalse(self.agent_skill.exists())
 
     def test_fixture_git_does_not_detach_maintenance_during_cleanup(self):
         self.git("config", "maintenance.auto", "true")
@@ -148,6 +148,19 @@ class OriginalProjectAdoptionTests(unittest.TestCase):
         self.assertFalse(
             any("maintenance" in argv or "gc" in argv for argv in children), children
         )
+
+    def framework_path(self, relative):
+        return self.framework_root / relative
+
+    def adoption_metadata(self):
+        return {
+            self.framework_path(name).relative_to(self.root).as_posix()
+            for name in (
+                ".literate/original-adoption.json",
+                ".literate/conversion-authority.json",
+                ".literate/conversion-authority.lock",
+            )
+        }
 
     def commit(self):
         self.git(
@@ -188,14 +201,10 @@ class OriginalProjectAdoptionTests(unittest.TestCase):
         self.assertEqual({name: after[name] for name in before}, before)
         self.assertLessEqual(
             set(after) - set(before),
-            {
-                ".literate/original-adoption.json",
-                ".literate/conversion-authority.json",
-                ".literate/conversion-authority.lock",
-            },
+            self.adoption_metadata(),
         )
         self.assertEqual(
-            (self.root / ".literate/original-adoption.json").read_bytes(),
+            self.framework_path(".literate/original-adoption.json").read_bytes(),
             canonical_json_bytes(plan.to_dict()),
         )
         self.assertFalse(result["admitted"])
@@ -216,7 +225,9 @@ class OriginalProjectAdoptionTests(unittest.TestCase):
         self.commit()
         with self.assertRaisesRegex(OriginalProjectAdoptionError, "differs"):
             self.apply(plan)
-        self.assertFalse((self.root / ".literate/original-adoption.json").exists())
+        self.assertFalse(
+            self.framework_path(".literate/original-adoption.json").exists()
+        )
 
     def test_dirty_or_untracked_source_refuses_initial_binding(self):
         for name in ("tracked", "untracked"):
@@ -235,7 +246,7 @@ class OriginalProjectAdoptionTests(unittest.TestCase):
                     path.write_bytes(old)
 
     def test_existing_evidence_is_preserved(self):
-        evidence = self.root / ".literate/original-adoption.json"
+        evidence = self.framework_path(".literate/original-adoption.json")
         evidence.parent.mkdir(exist_ok=True)
         evidence.write_bytes(b"existing evidence\n")
         self.git("add", ".")
@@ -311,7 +322,9 @@ class OriginalProjectAdoptionTests(unittest.TestCase):
             with self.assertRaises(OriginalProjectAdoptionError):
                 self.apply(plan)
         self.assertIsNone(FilesystemConversionAuthorityStore(self.root).load_optional())
-        self.assertTrue((self.root / ".literate/original-adoption.json").exists())
+        self.assertTrue(
+            self.framework_path(".literate/original-adoption.json").exists()
+        )
         self.assertEqual(self.source.read_text(), "concurrent edit\n")
 
     def test_ordinary_rebuild_cannot_regenerate_original_source(self):
