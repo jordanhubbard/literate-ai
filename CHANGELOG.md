@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Report bounded native identity and signature differences when a remote cleanup
+  control changes during open, preserving the original refusal and custody guards.
+
 - Add `litai package retained-project` to construct and verify the selected ZIP
   from live complete retained admission, preserving original source authority
   and separate project receipt and release qualification.

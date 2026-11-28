@@ -212,10 +212,82 @@ def _control(path, limit=_LIMIT):
         )
         try:
             opened = os.fstat(descriptor)
-            if _descriptor_identity(access, descriptor) != native or _signature(
-                opened
-            ) != _signature(node):
-                _fail("control changed during open")
+            opened_native = _descriptor_identity(access, descriptor)
+            if (native_changed := opened_native != native) or (
+                opened_signature := _signature(opened)
+            ) != (named_signature := _signature(node)):
+                try:
+                    _fail("control changed during open")
+                except BaseException as original:
+                    try:
+                        # Optional failure evidence uses only already observed,
+                        # exact bounded primitives. It grants no cleanup rights.
+                        if type(native_changed) is bool:
+                            native_rows = (native, opened_native)
+                            signature_rows = (
+                                ()
+                                if native_changed
+                                else (named_signature, opened_signature)
+                            )
+                            if all(
+                                type(row) is tuple
+                                and len(row) in (2, 3)
+                                and all(
+                                    type(value) is int
+                                    and -(1 << 128) < value < 1 << 128
+                                    for value in row
+                                )
+                                for row in native_rows
+                            ) and all(
+                                type(row) is tuple
+                                and len(row) == 7
+                                and all(
+                                    type(value) is int
+                                    and -(1 << 128) < value < 1 << 128
+                                    for value in row
+                                )
+                                for row in signature_rows
+                            ):
+                                branch = (
+                                    "native-identity"
+                                    if native_changed
+                                    else "named/fd-signature"
+                                )
+                                note = (
+                                    f"remote cleanup open mismatch; branch={branch}; "
+                                    f"named_native={native}; "
+                                    f"opened_native={opened_native}"
+                                )
+                                if not native_changed:
+                                    fields = (
+                                        "mode",
+                                        "uid",
+                                        "gid",
+                                        "size",
+                                        "mtime_ns",
+                                        "ctime_ns",
+                                        "nlink",
+                                    )
+                                    changed = tuple(
+                                        name
+                                        for name, named, opened_value in zip(
+                                            fields,
+                                            named_signature,
+                                            opened_signature,
+                                            strict=True,
+                                        )
+                                        if named != opened_value
+                                    )
+                                    note += (
+                                        f"; fields={changed}; "
+                                        f"named_signature={named_signature}; "
+                                        f"opened_signature={opened_signature}"
+                                    )
+                                if len(note) <= 2048:
+                                    BaseException.add_note(original, note)
+                    except BaseException:
+                        pass
+                    raise
             content = bytearray()
             while True:
                 chunk = os.read(descriptor, min(_CHUNK, limit - len(content) + 1))

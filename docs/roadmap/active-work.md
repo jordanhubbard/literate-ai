@@ -24580,6 +24580,15 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   qualification. Actual Windows readback and full release acceptance remain open.
   [#508](https://github.com/jordanhubbard/literate-ai/issues/508) owns native
   Windows control observations; actual mismatched fields remain unproven.
+  Bounded notes now use only native IDs and signatures already observed by
+  the initial-open refusal. All 42 cleanup controls pass locally without skips,
+  including nine diagnostic controls for original success/refusal counts,
+  primary error identity, descriptor closure, file preservation, bounded exact
+  integers and rejected formatting/metaclass callbacks. See the
+  [development qualification](../../verification/remote-cleanup-open-diagnostics-development.json).
+  Windows-handle controls here use modeled data; actual Windows observations
+  remain required before diagnosing or repairing its native mismatch. No clock,
+  identity guard or cleanup authority is relaxed. Full release acceptance remains open.
   [#510](https://github.com/jordanhubbard/literate-ai/issues/510) records the next
   genuine historical upgrade failure: normal documentation review could not find
   the placed wrapper when both original and contained catalog roots remain
