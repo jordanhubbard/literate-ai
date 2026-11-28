@@ -248,6 +248,11 @@ def open_reviewed_authored_qualification_inputs(
     def close_fields():
         # Pure closing comparisons after all callbacks and native parse-frame
         # closing. Never manufacture fresh expectations from an archive or copy.
+        record = _ISSUED_CHECKS.get(id(owner))
+        if not active or record is None or record[0] is not owner:
+            raise ValueError("qualification.authored.receiving-inputs-expired")
+        if record[1] is not check or record[2] is not check_seal:
+            raise ValueError("qualification.authored.original-receiving-inputs-changed")
         if (
             ReviewedAuthoredQualificationInputs.require_unchanged
             is not _ORIGINAL_REQUIRE

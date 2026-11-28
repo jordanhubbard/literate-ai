@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Refuse authored read-input checks whose original scope retires during a review
+  callback, while preserving the callback’s primary failure.
+
 - Keep independently reviewed authored producer inputs current without launching
   a coding CLI. The read scope grants no execution or publication rights; public
   receiving integration remains in development.

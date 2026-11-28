@@ -31158,10 +31158,16 @@ Source partial: converted framework-resource observation now includes the origin
   preserved failed-run evidence; only that new test changed, and no original
   assertion or pin guard was weakened. The [current read-input scope](../../verification/authored-receiving-owner-development.json)
   now performs its own original reviewed-file acquisition and retains the exact
-  review owner, parsed pointer and captured identity. All 18 source controls pass
+  review owner, parsed pointer and captured identity. All 20 source controls pass
   without skips. Independent review repaired stored-callback, late-framework
   and same-function code substitution gaps; authenticated dispatch and finite
-  method seals now precede eligibility checks and final closing. A parsed or
+  method seals now precede eligibility checks and final closing. A later
+  callback-retirement control reproduced an expired scope returning from an
+  already in-flight check; its failed evidence is preserved. The final pure
+  fence now rechecks original active issuance without new native queries,
+  callbacks or clocks. The unchanged in-flight refusal assertion and a separate
+  exact primary-exception control pass; all original 18 controls remain unchanged.
+  A parsed or
   replaced passive record is not issuance. The positive fixture has no native
   SDK, and this owner does not reopen published metadata or all clean runs.
   Next: connect only the finite read-only receiving/replay seams through the
