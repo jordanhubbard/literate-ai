@@ -1,0 +1,150 @@
+{
+  "schema": "literate-ai/retained-layout-installed-development@1",
+  "source_commit": "52775ae754ce713a58242772b8165cca7c43a3a7",
+  "observed_utc": "2026-11-28T01:19:28.518997+00:00",
+  "release_qualification": false,
+  "issues": [
+    510,
+    511,
+    512
+  ],
+  "scope": "Authentic historical project continuation after framework and catalog placement; original-source retained-harness parity only.",
+  "historical_baseline": {
+    "published_initialization_version": "1.3.1",
+    "intermediate_development_candidates_used": true,
+    "direct_final_wheel_upgrade_claimed": false
+  },
+  "installed_framework": {
+    "non_editable_isolated_prefix": true,
+    "wheel_sha256": "58ca609f5900da70c758969299daabc080129f290b87a66842aaa50e1f4ddaa8",
+    "distribution_identity": "sha256:c3a8c843e0415a9e4d264160226920e3237b646fd4424e14e63bb8013f80563a",
+    "package_members_exact_before_and_after": 1640,
+    "full_wheel_gate_claimed": false
+  },
+  "source_verification": {
+    "selected": 500,
+    "passed": 494,
+    "skipped": 6,
+    "failed": 0,
+    "skip_reason": "Actual native case-insensitive filesystem checks remain unexecuted on this volume.",
+    "complete_source_suite_claimed": false
+  },
+  "ordinary_public_flow": [
+    "project documentation-review --record",
+    "project lifecycle rebind-standard --output PLAN",
+    "project lifecycle rebind-standard PLAN --apply --authorize-rebind",
+    "project documentation-review --record",
+    "project test-receipt run-retained CANDIDATE --evidence EVIDENCE",
+    "project test-receipt update CANDIDATE",
+    "project test-receipt require-current",
+    "project convert-stage advance --to retained",
+    "project test-receipt require-current",
+    "status"
+  ],
+  "coordinates": {
+    "manifest": "litai/literate.project.json",
+    "wrapper": "litai/litai.harness.mk",
+    "retained_implementation": "components/legacy-project-wrapper/implementation",
+    "receipt": "litai/verification/current.json",
+    "conversion_authority": "litai/.literate/conversion-authority.json"
+  },
+  "standard_rebind": {
+    "plan_identity": "sha256:4af8c9c858e8b93a2f740f2692b98daf7974c887b436658c4526c1c9c11e6dbd",
+    "only_changed_fields": [
+      "lifecycle_driver"
+    ],
+    "receipt_policy_unchanged": true,
+    "standard_policy_unchanged": true,
+    "current_distribution_identity": "sha256:c3a8c843e0415a9e4d264160226920e3237b646fd4424e14e63bb8013f80563a"
+  },
+  "retained_observation": {
+    "classification": "retained-legacy-parity",
+    "platform": {
+      "operating_system": "linux",
+      "machine": "aarch64",
+      "python_version": "3.15.2"
+    },
+    "phases": [
+      {
+        "phase": "build",
+        "command": "make -f Makefile",
+        "exit_code": 0,
+        "timeout_seconds": 1800,
+        "timed_out": false
+      },
+      {
+        "phase": "test",
+        "command": "make -f Makefile test",
+        "exit_code": 0,
+        "timeout_seconds": 1800,
+        "timed_out": false
+      },
+      {
+        "phase": "package",
+        "command": "make -f Makefile package",
+        "exit_code": 0,
+        "timeout_seconds": 1800,
+        "timed_out": false
+      }
+    ],
+    "tests": {
+      "failed": 0,
+      "passed": 2,
+      "skipped": 0,
+      "total": 2
+    },
+    "authored_source_files": 4,
+    "authored_source_bytes": 393,
+    "native_component_generation": false,
+    "native_component_acceptance": false
+  },
+  "post_stage_readback": {
+    "stage": "retained",
+    "release_authority": "original-source",
+    "receipt_state": "current",
+    "receipt_identity": "sha256:db740697a9522d6dd54e8d69664ee794c256949458e2ee1611728ad8b90d6b66",
+    "finalized_candidate_identity": "sha256:cfa81f7e15d32762c1265ad114452844071bb7aecf0866b6822068276cab822d",
+    "project_revision_identity": "sha256:17f1e296db618455725eb4ac5098bc9e81ca81cdabe9259d182fec41b2f25a79",
+    "result_identity": "sha256:72a212dcf845f228056cac1679e46bbaa48b3300b98d6c65c32d31a644485d79",
+    "authenticated": false,
+    "finalization_boundary": "supported-api-tcb",
+    "authority_state": "current",
+    "lock_state": "current"
+  },
+  "custody": {
+    "original_native_files_preserved": 6,
+    "original_native_parent_directories_preserved": 4,
+    "original_bytes_devices_inodes_sizes_mtimes_preserved": true,
+    "git_controls_match_post_conversion_baseline": true,
+    "release_policy_preserved": true
+  },
+  "artifacts": {
+    "retained-layout-installed-candidate.json": {
+      "sha256": "8b306c46addcf0e5ce7ec3a361d6a04f0834fdce5a7d41453682110f5ec19907",
+      "canonical_identity": "sha256:cfa81f7e15d32762c1265ad114452844071bb7aecf0866b6822068276cab822d"
+    },
+    "retained-layout-installed-observation.json": {
+      "sha256": "956c2966c308ac8331eefa54d2427a44dd28018aded27f029ee4504838f0c598",
+      "canonical_identity": "sha256:72a212dcf845f228056cac1679e46bbaa48b3300b98d6c65c32d31a644485d79"
+    }
+  },
+  "independent_review": {
+    "non_author_agent": true,
+    "retained_report": "historical-layout-r32-installed-retained-continuation-review-r2.json",
+    "report_sha256": "328805b0f4736993fe2343a26ba4c2fa6726a954b6f430103a4661c496ea0903"
+  },
+  "preserved_refusals": [
+    {
+      "operation": "generic rebuild of wrapped original-source project",
+      "error_code": "rebuild.conversion_authority_not_qualified",
+      "interpretation": "Correct refusal; no source-to-specification authority transfer attempted."
+    }
+  ],
+  "remaining_gates": [
+    "Complete source suite and the six skipped native filesystem checks.",
+    "Other original starter, migration, provider/consumer and source-retirement paths.",
+    "Native generated-component, SDK, supported-platform and full installed-wheel qualification.",
+    "Public retained-project ZIP composition is separate from the native Make package command.",
+    "All original release goals, included contributions, final collateral, landing and publication."
+  ]
+}

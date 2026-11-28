@@ -24534,9 +24534,10 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   historical catalog finalization within the original 1800-second deadline.
   Independent readback verifies eight exact source archives, all 249 catalog
   joins, 37 framework outputs and 613 original files, including native source,
-  Git, receipt and policy preservation. This does not complete lifecycle renewal:
-  the next normal documentation review reaches the mixed-root wrapper lookup
-  defect tracked in [#510](https://github.com/jordanhubbard/literate-ai/issues/510).
+  Git, receipt and policy preservation. At that checkpoint, lifecycle renewal
+  remained open: the next normal documentation review reached the mixed-root
+  wrapper lookup defect tracked in
+  [#510](https://github.com/jordanhubbard/literate-ai/issues/510).
   All 83 goals remain;
   #509 is included in the existing 1.4.0 integration scope, with no deferral.
   [#504](https://github.com/jordanhubbard/literate-ai/issues/504) owns the missing
@@ -24576,14 +24577,14 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   qualification. Actual Windows readback and full release acceptance remain open.
   [#508](https://github.com/jordanhubbard/literate-ai/issues/508) owns native
   Windows control observations; actual mismatched fields remain unproven.
-  [#510](https://github.com/jordanhubbard/literate-ai/issues/510) owns the next
-  genuine historical upgrade failure: normal documentation review cannot find
+  [#510](https://github.com/jordanhubbard/literate-ai/issues/510) records the next
+  genuine historical upgrade failure: normal documentation review could not find
   the placed wrapper when both original and contained catalog roots remain
-  declared. The tree is preserved after successful finalization. A reviewed
-  design uses the existing paired initialization provenance for finite wrapper
+  declared. The tree was preserved after successful finalization. The repair
+  uses the existing paired initialization provenance for finite wrapper
   metadata selection, preserving original transitional behavior and implementation
-  coordinates. Implementation is partial: the original loader's exact snapshot
-  now reaches the metadata adapter, which retains a fresh manifest comparison
+  coordinates. The reviewed repair carries the original loader's exact snapshot
+  into the metadata adapter, which retains a fresh manifest comparison
   and immutable bindings. The finite loader publication boundary authenticates
   the existing Store/schema front doors, isolates the ambient parsed-definition
   cache for this acquisition, and restores its frame on success or failure.
@@ -24591,10 +24592,23 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   callback-time substitution, immutable binding/reinitialization refusal and
   cache restoration. This does not claim new transitive sealing of existing
   Store, schema, JSON or filesystem internals. The original role identity format
-  is retained. Initialization-provenance helper completion, original full source
-  qualification and a fresh installed lifecycle receipt remain open.
-  Next: integrate these repairs with original guards and deadlines, obtain native
-  evidence, then repeat exact-candidate qualification. Full `df6` CI is terminal
+  is retained. The completed helper and source repairs are committed at
+  `52775ae754ce713a58242772b8165cca7c43a3a7`. The
+  [installed historical continuation](../../verification/retained-layout-installed-development.json)
+  retains its [finalized candidate](../../verification/retained-layout-installed-candidate.json)
+  and [phase observations](../../verification/retained-layout-installed-observation.json).
+  It now passes through a fresh isolated wheel: normal documentation review,
+  reviewed Standard rebind with unchanged receipt policy, original native
+  build/two tests/package, receipt publication and currentness readback.
+  Advancing to `retained` preserves original-source release authority, and a
+  subsequent public readback confirms the same receipt remains current. Original
+  native files, Git controls and installed wheel bytes remain exact. This is
+  retained-harness parity, not generated Component acceptance or a direct clean
+  final-wheel upgrade certification. Full source, other installed journeys,
+  supported-platform, SDK and release acceptance remain open.
+  Next: preserve original guards and deadlines while integrating remaining
+  contributions and qualifying other native/platform paths, then repeat final
+  exact-candidate qualification. Full `df6` CI is terminal
   (33 success, 22 failure, one cancellation). All failed jobs and 1,751 original
   Windows skip events are inventoried in the r17 source-review evidence; neither
   passing printed cases inside failed modules nor historical host passes qualify

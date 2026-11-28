@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Resolve relocated retained-harness metadata through its initialization
+  provenance so documentation review and receipt renewal follow contained layout.
+
+- Share retained ancestry records and honor reserved Git scratch during fresh
+  verification, preserving original resource limits, native checks and errors.
+
+- Correct current onboarding, build defaults, receipt-policy and framework-root
+  documentation.
+
 - Preserve wide native IDs in catalog plans and stored migration state while
   retaining native integer comparisons and original ownership checks.
 
