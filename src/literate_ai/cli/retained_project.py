@@ -163,7 +163,7 @@ def _promotion_read_policy(args):
 
 
 def retained_project_from_args(
-    project: Any, binding: Any, args: Any
+    project: Any, binding: Any, args: Any, *, consume_admission=None
 ) -> dict[str, object]:
     try:
         current_authority = current_retained_project_authority(project, binding, args)
@@ -212,6 +212,11 @@ def retained_project_from_args(
                     operator_environment=dict(os.environ),
                     sdk_project=project,
                     sdk_binding=binding,
+                    **(
+                        {"consume_admission": consume_admission}
+                        if consume_admission is not None
+                        else {}
+                    ),
                     promotion_evidence_consumer=(
                         promotion_references.append if retain_promotion else None
                     ),

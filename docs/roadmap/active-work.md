@@ -16411,6 +16411,13 @@ Upstream: [issue #22](https://github.com/jordanhubbard/literate-ai/issues/22), r
       host PATH. Preserve default profile identities; reject undeclared,
       redirected or non-directory selections and qualify actual subprocess lookup.
   - [ ] Bind package and release custody to retained origin without conversion advancement
+    - [ ] Expose the existing exact ZIP provider through the public package CLI,
+      consuming the live complete Standard retained admission in its existing
+      callback. The selected provider must belong to a current Component lock;
+      read-only intent grants no package admission. Preserve original authority,
+      full original tests/docs, stale-input rejection and separate release consent.
+      Qualify real deterministic archives plus public dispatch and failure controls
+      before claiming this missing composition under accepted ADR 0048 / issue #22.
 - **Evidence:**
   - [ ] Public installed CLI mixed source and binary fixture passes complete build, test, docs and deterministic package lifecycle with repeat, invalidation and relocation checks
   - [ ] Adversarial stale inputs, unsafe custody, missing stages, substituted artifacts, worker identity drift and authority transfer fail closed; existing modes remain green

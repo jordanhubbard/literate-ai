@@ -321,8 +321,11 @@ not build or release admission.
 RETAINED-PROJECT-001 (issue #22) also makes ordinary `build` and `test` delegate
 explicit original-source selections to the same retained lifecycle as
 `rebuild`, preserving reviewed plan/host authorization and distinct receipts.
-Installed original-source compilation, package consumption and full native
-qualification remain separate open requirements.
+The public `package retained-project` composition now delegates to that same live
+admission and the existing exact ZIP provider, preserving selected locks, retained
+provenance, read-only intent and separate release authority. Handler boundary checks
+and real deterministic archive consumption pass; installed original-source
+compilation, package consumption and full native qualification remain open.
 RETAINED-SSH-001 keeps those long, otherwise-silent remote lifecycles alive at
 the shared SSH transport layer so successful native work can return its exact
 bounded result. The exact KSE direct lifecycle now returns a passing build,

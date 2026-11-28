@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Expose complete retained-project ZIP packaging through the public CLI using
+  the existing Standard admission and selected ZIP provider. Preserve original
+  authority, exact retained provenance and independent archive verification;
+  read-only intent and parsed receipts grant no package or release authority.
+  Installed native-project qualification remains open under issue #22.
+
 - Existing repositories default to a contained native adoption profile under
   `litai/`, preserving source, build tools, CI and custom instructions. Explicit
   `--profile convert` retains conversion. Native policy updates use three-way

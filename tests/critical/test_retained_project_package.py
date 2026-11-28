@@ -1139,6 +1139,74 @@ class RetainedProjectPackageTests(unittest.TestCase):
             )
             self.assertEqual(self.store.get_manifest(reference), value.to_dict())
 
+    def test_public_package_handler_consumes_live_admission_and_real_zip_provider(self):
+        """Use fixture discovery with real live custody and archive verification."""
+        from types import SimpleNamespace
+
+        from literate_ai.cli import retained_project_package as frontend
+        from literate_ai.cli.dispatch import _parser
+        from literate_ai.cli.package import package_from_args
+        from literate_ai.contracts import StandardProjectLifecycleDriver
+
+        workspace = self.finish()
+        f = self.fixture.fixture
+        project = SimpleNamespace(
+            definition=SimpleNamespace(
+                lifecycle_driver=StandardProjectLifecycleDriver(
+                    f.plan.profile.toolchain_identity, f.configured_test_policy.identity
+                )
+            )
+        )
+        args = _parser().parse_args(
+            [
+                "package",
+                "retained-project",
+                "--retained-project",
+                "manifest.json",
+                "--retained-project-profile",
+                "profile.json",
+                "--provider-lock",
+                self.lock.identity.uri,
+                "--authorize-retained-project",
+                f.plan.identity.uri,
+                "--allow-host-execution",
+            ]
+        )
+
+        def lifecycle(_project, _binding, _args, *, consume_admission):
+            self.admission.require_current()
+            consume_admission(self.admission, workspace)
+            return {
+                "admitted": True,
+                "source_authority": "original",
+                "release_authorized": False,
+                "conversion_advanced": False,
+            }
+
+        with (
+            patch.object(frontend, "discover_project", return_value=project),
+            patch(
+                "literate_ai.cli.rebuild._resolve_standard_binding",
+                return_value=object(),
+            ),
+            patch.object(
+                frontend, "current_project_component_locks", return_value=(self.lock,)
+            ),
+            patch.object(frontend, "retained_project_from_args", side_effect=lifecycle),
+        ):
+            first, status = package_from_args(args)
+            second, repeat_status = package_from_args(args)
+        self.assertEqual((status, repeat_status), (0, 0))
+        self.assertTrue(first["package_qualified"])
+        self.assertFalse(first["release_authorized"])
+        self.assertFalse(first["conversion_advanced"])
+        self.assertEqual(first["source_authority"], "original")
+        self.assertEqual(first["retained_package"], second["retained_package"])
+        result = RetainedProjectPackageResult.from_dict(
+            first["retained_package"]["result"]
+        )
+        self.provider().verify(result)
+
     def test_linked_payload_cannot_be_silently_flattened(self):
         self.finish()
         manifest = self.admission.payload_manifest

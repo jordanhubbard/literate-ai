@@ -786,6 +786,10 @@ def _verify_packages(
 
 
 def package_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+    if args.package_command == "retained-project":
+        from .retained_project_package import retained_project_package_from_args
+
+        return retained_project_package_from_args(args), 0
     if args.package_command == "retained-units":
         from .retained_unit_package import retained_unit_package_from_args
 
@@ -833,6 +837,9 @@ def add_package_parser(commands: argparse._SubParsersAction) -> None:
     from .retained_unit_package import add_retained_unit_package_parser
 
     add_retained_unit_package_parser(package_commands)
+    from .retained_project_package import add_retained_project_package_parser
+
+    add_retained_project_package_parser(package_commands)
     plan = package_commands.add_parser(
         "plan", help="create a read-only multi-provider package declaration"
     )
