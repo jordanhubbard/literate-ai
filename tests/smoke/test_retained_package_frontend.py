@@ -64,6 +64,7 @@ class RetainedPackageFrontendTests(unittest.TestCase):
         document, status = result
         self.assertEqual(status, 0)
         self.assertFalse(document["package_qualified"])
+        self.assertFalse(document["project_receipt_qualified"])
         self.assertFalse(document["admitted"])
         self.assertEqual(document["package_intent"]["provider_lock"], self.lock.uri)
         owner.assert_not_called()

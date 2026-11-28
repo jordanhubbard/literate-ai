@@ -16418,6 +16418,14 @@ Upstream: [issue #22](https://github.com/jordanhubbard/literate-ai/issues/22), r
       full original tests/docs, stale-input rejection and separate release consent.
       Qualify real deterministic archives plus public dispatch and failure controls
       before claiming this missing composition under accepted ADR 0048 / issue #22.
+      The public noneditable fixture now passes the full authored profile and exact
+      ZIP at `d768237c`, using its existing seven-kind policy. Read-only source
+      identity, complete Component specifications and stale-source refusal are
+      covered without mocking discovery or admission. Eight handler boundary
+      checks and five real archive checks also pass. See
+      [the scoped evidence](../../verification/retained-zip-public-cli-20261128.json).
+      Real adopted-project compiler/SDK producers, stronger initialized receipt
+      policy consumption and full program repeat/relocation acceptance stay open.
 - **Evidence:**
   - [ ] Public installed CLI mixed source and binary fixture passes complete build, test, docs and deterministic package lifecycle with repeat, invalidation and relocation checks
   - [ ] Adversarial stale inputs, unsafe custody, missing stages, substituted artifacts, worker identity drift and authority transfer fail closed; existing modes remain green

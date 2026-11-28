@@ -1,0 +1,45 @@
+{
+  "scope": "Public retained-project ZIP composition using existing live admission and exact archive provider; issue22 remains open.",
+  "sdk_commit": "d768237c9ee0695a29286f6e3d7aa3d77fe03197",
+  "noneditable_wheel_sha256": "81a9a65b7143da02df38ee63cc248292a52d6179bce45a8562ab3625a4d9197e",
+  "framework_distribution_identity": "sha256:33424020b3185b444425211ac8116e3fcc49d6ed65b4ab1e7fca4886fb189a30",
+  "platform": "linux-aarch64",
+  "installed_public_cli": true,
+  "mocked_project_discovery": false,
+  "mocked_lifecycle_or_admission": false,
+  "original_fixture_profile": [
+    "build: export sealed original native runner",
+    "test: original byte equality suite",
+    "docs: exact original documentation command",
+    "accept: independent withheld binary stream oracle"
+  ],
+  "original_fixture_evidence_kinds": [
+    "acceptance-result",
+    "build-result",
+    "resolved-sbom",
+    "source-sbom",
+    "test-report",
+    "test-runner",
+    "workspace-admission"
+  ],
+  "receipt_identity": "sha256:c0a341e7dbde56ca5df9e6dcb152310a234dd4d8520dad4c329a68b133e4df57",
+  "zip_artifact": {
+    "algorithm": "sha256",
+    "digest": "0f2e80fcf404c984527abd9906dc1a5f26b391b0065b467d01b9673ca4f382af",
+    "media_type": "application/zip",
+    "size": 32236
+  },
+  "public_regression": "tests.critical.test_retained_package_public",
+  "new_public_regression_passed": true,
+  "handler_smoke_passed": 8,
+  "live_handler_and_existing_archive_boundary_checks_passed": 5,
+  "source_authority": "original",
+  "conversion_advanced": false,
+  "release_authorized": false,
+  "limitations": [
+    "Fixture build exports its declared original native binary; native SDK/compiler producer dispatch is not qualified by this fixture.",
+    "The fixture retains its existing seven-kind authored policy; this is not qualification of other projects or their stronger initialized receipt requirements.",
+    "Per-unit runtime packaging, real adopted native-project qualification and full issue22 repeat/invalidation/relocation acceptance remain separate."
+  ],
+  "initial_refusal": "Installed CLI refused a fixture omitting authored specifications before packaging. Package-mode fixture now captures its complete Component roots."
+}

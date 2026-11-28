@@ -323,9 +323,10 @@ explicit original-source selections to the same retained lifecycle as
 `rebuild`, preserving reviewed plan/host authorization and distinct receipts.
 The public `package retained-project` composition now delegates to that same live
 admission and the existing exact ZIP provider, preserving selected locks, retained
-provenance, read-only intent and separate release authority. Handler boundary checks
-and real deterministic archive consumption pass; installed original-source
-compilation, package consumption and full native qualification remain open.
+provenance, read-only intent and separate release authority. A noneditable installed CLI fixture now completes its original profile and exact
+ZIP, including stale-input rejection without another execution. The fixture build
+exports its declared original native binary; real adopted-project native compiler/SDK
+producers and stronger configured receipt policies remain open.
 RETAINED-SSH-001 keeps those long, otherwise-silent remote lifecycles alive at
 the shared SSH transport layer so successful native work can return its exact
 bounded result. The exact KSE direct lifecycle now returns a passing build,

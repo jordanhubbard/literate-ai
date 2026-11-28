@@ -550,8 +550,11 @@ A parsed receipt or package result cannot grant live admission. The complete
 accepted payload and retained evidence are archived; this is not per-unit package
 projection or an ABI-portability claim. Original source authority is preserved,
 conversion does not advance, and publication still requires separate release
-qualification and authorization. Installed native-project qualification remains
-open under RETAINED-PROJECT-001.
+qualification and authorization. Packaging does not promote the retained receipt
+into a project receipt or discharge other configured evidence requirements. A
+noneditable installed fixture passes the public path with its existing authored
+policy; real adopted native-project qualification remains open under
+RETAINED-PROJECT-001.
 
 ## FreeBSD pkg development integration
 

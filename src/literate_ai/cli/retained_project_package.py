@@ -72,6 +72,7 @@ def retained_project_package_from_args(args):
             return {
                 **result,
                 "package_qualified": False,
+                "project_receipt_qualified": False,
                 "package_intent": {
                     "provider": "zip",
                     "provider_lock": lock.uri,
@@ -84,7 +85,12 @@ def retained_project_package_from_args(args):
             }
         if len(packages) != 1 or result.get("admitted") is not True:
             raise ValueError("retained.package.live-consumer-required")
-        return {**result, "package_qualified": True, "retained_package": packages[0]}
+        return {
+            **result,
+            "package_qualified": True,
+            "project_receipt_qualified": False,
+            "retained_package": packages[0],
+        }
     except CliFailure:
         raise
     except (ValueError, TypeError, OSError) as exc:
