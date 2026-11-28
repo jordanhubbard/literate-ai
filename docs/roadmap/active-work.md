@@ -31156,11 +31156,18 @@ Source partial: converted framework-resource observation now includes the origin
   retains the original fresh safe-reopen semantics and shared byte budgets.
   The initial new inode-retirement expectation was incorrect and remains in
   preserved failed-run evidence; only that new test changed, and no original
-  assertion or pin guard was weakened. Next: issue the live read owner from its
-  own original reviewed-file acquisition, retaining the exact review owner,
-  parsed pointer and captured identity. A parsed or replaced passive record is
-  not issuance. Complete the read owner and ordinary public receiving path
-  before claiming this requirement satisfied. Existing genuine
+  assertion or pin guard was weakened. The [current read-input scope](../../verification/authored-receiving-owner-development.json)
+  now performs its own original reviewed-file acquisition and retains the exact
+  review owner, parsed pointer and captured identity. All 18 source controls pass
+  without skips. Independent review repaired stored-callback, late-framework
+  and same-function code substitution gaps; authenticated dispatch and finite
+  method seals now precede eligibility checks and final closing. A parsed or
+  replaced passive record is not issuance. The positive fixture has no native
+  SDK, and this owner does not reopen published metadata or all clean runs.
+  Next: connect only the finite read-only receiving/replay seams through the
+  trusted authenticated helper, joining the complete original reviewed identity
+  to every fresh consumer read and receipt. Keep public receiving integration
+  and genuine SDK/provider/archive acceptance open. Existing genuine
   installed, native, source-retirement and release evidence remains required.
 
 - **Observation-frame fixtures (source partial):** Full source qualification now

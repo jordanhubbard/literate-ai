@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Keep independently reviewed authored producer inputs current without launching
+  a coding CLI. The read scope grants no execution or publication rights; public
+  receiving integration remains in development.
+
 - Retained Cargo review can bind independently reviewed producer intent alongside
   its exact consumer declarations. This passive foundation grants no execution
   or admission authority; public model-free receiving remains in development.
