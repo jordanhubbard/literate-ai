@@ -20311,6 +20311,15 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 
 ### [ ] RETAINED-SDK-PUBLIC-001 — Connect public retained execution to live native SDK producers
 
+- **Public retained ZIP review follow-up:** Independent source review finds the
+  package planner omitted from the actual CLI's deferred read-only dispatch and
+  typed current-lock errors escaping JSON handling. The corrected frontdoor
+  defers host side effects until canonical parsing identifies full or abbreviated
+  planning flags, refuses discovery/debug-file options in that scope, and
+  preserves typed lock-owner error codes. Eleven focused frontend checks, full
+  formatting and lint pass. Renew exact-source review, complete CI and installed
+  CLI qualification; prior package journey evidence does not cover these fixes.
+
 - **Cargo layout follow-up:** [GitHub issue #515](https://github.com/jordanhubbard/literate-ai/issues/515).
   The unchanged native standard-harness fixture fails on Cargo 1.100.1 after
   successful no-run compilation because `debug/deps` no longer exists. A separate

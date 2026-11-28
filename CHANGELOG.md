@@ -12,6 +12,8 @@
   the existing Standard admission and selected ZIP provider. Preserve original
   authority, exact retained provenance and independent archive verification;
   read-only intent and parsed receipts grant no package or release authority.
+  Public read-only plans avoid implicit host configuration and telemetry;
+  invalid current locks retain bounded typed CLI errors.
   Installed native-project qualification remains open under issue #22.
 
 - Existing repositories default to a contained native adoption profile under

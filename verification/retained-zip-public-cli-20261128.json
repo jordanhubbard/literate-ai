@@ -41,5 +41,25 @@
     "The fixture retains its existing seven-kind authored policy; this is not qualification of other projects or their stronger initialized receipt requirements.",
     "Per-unit runtime packaging, real adopted native-project qualification and full issue22 repeat/invalidation/relocation acceptance remain separate."
   ],
-  "initial_refusal": "Installed CLI refused a fixture omitting authored specifications before packaging. Package-mode fixture now captures its complete Component roots."
+  "initial_refusal": "Installed CLI refused a fixture omitting authored specifications before packaging. Package-mode fixture now captures its complete Component roots.",
+  "main_dispatch_followup": {
+    "reviewed_base": "647213a8e565aecebc100d6e0630c2b5fa596d0f",
+    "findings": [
+      "retained package plan omitted from deferred read-only dispatch, exposing implicit host writers before parse",
+      "typed current Component lock errors escaped bounded JSON handling"
+    ],
+    "repairs": [
+      "include package.retained-project in deferred dispatch before any self-update; identify accepted plan abbreviations through canonical parser",
+      "translate ProjectComponentLockSetError without broad RuntimeError catch, preserving typed owner code/message"
+    ],
+    "controls": {
+      "focused_frontend_tests": 11,
+      "result": "passed",
+      "actual_main": "full and abbreviated plans reject implicit host update/catalog/discovery/performance/journal/fanout calls; debug-file and discovery options refused before writers; missing/stale current locks return JSON error envelopes",
+      "format": "1917 files already formatted",
+      "lint": "passed"
+    },
+    "fresh_full_ci_required": true,
+    "fresh_installed_cli_required": true
+  }
 }
