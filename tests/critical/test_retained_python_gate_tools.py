@@ -134,3 +134,24 @@ class OriginalPythonGateToolTests(unittest.TestCase):
         finally:
             self.directory.unlink()
             backup.rename(self.directory)
+
+    def test_missing_directory_ancestor_refuses_before_native_byte_reads(self):
+        backup = self.base / "original-tools"
+        self.directory.rename(backup)
+        try:
+            with (
+                mock.patch.object(
+                    Path, "resolve", side_effect=AssertionError("resolve")
+                ),
+                mock.patch(
+                    "literate_ai.adapters.retained_native_file_custody.native_file_digest",
+                    side_effect=AssertionError("native byte read"),
+                ) as read,
+            ):
+                with self.assertRaisesRegex(ValueError, "native_ancestry_changed"):
+                    subject.require_original_python_gate_tool(
+                        self.selection, self.expected
+                    )
+                read.assert_not_called()
+        finally:
+            backup.rename(self.directory)

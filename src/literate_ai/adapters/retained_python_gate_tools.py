@@ -12,6 +12,7 @@ import stat
 from dataclasses import dataclass
 from pathlib import Path
 
+from literate_ai._filesystem import UnsafeFilesystemPathError
 from literate_ai.adapters.exclusive_directory import directory_node
 from literate_ai.adapters.retained_native_file_custody import (
     NativeFileClosure,
@@ -251,7 +252,13 @@ def require_original_python_gate_tool(selection, expected_identity):
         for path in visits:
             witness = nodes[path]
             if stat.S_ISDIR(witness[2]):
-                _require(directory_node(path) == witness, "native_ancestry_changed")
+                try:
+                    observed = directory_node(path)
+                except (OSError, UnsafeFilesystemPathError) as exc:
+                    raise ValueError(
+                        "retained.python.original-tools.native_ancestry_changed"
+                    ) from exc
+                _require(observed == witness, "native_ancestry_changed")
             else:
                 _require(_signature(path.lstat()) == witness, "native_ancestry_changed")
                 if path in links:

@@ -11,9 +11,7 @@ from literate_ai.adapters import retained_python_original_gates as subject
 from literate_ai.adapters.retained_python_wrapper import (
     observed_retained_python_wrapper,
 )
-from tests.critical.test_retained_python_original_gates import (
-    ActualOriginalPythonGatesTests,
-)
+from tests.critical import test_retained_python_original_gates as original_gates
 
 
 class _ForeignDescriptor:
@@ -32,15 +30,19 @@ class _ForeignDescriptor:
 
 
 @skipUnless(
-    not getattr(ActualOriginalPythonGatesTests, "__unittest_skip__", False),
+    not getattr(
+        original_gates.ActualOriginalPythonGatesTests, "__unittest_skip__", False
+    ),
     "same original POSIX Make source fixture",
 )
 class OriginalPythonGateDescriptorCustodyTests(TestCase):
-    # Reuse provisioning without inheriting/discovering the original six tests.
-    setUpClass = classmethod(ActualOriginalPythonGatesTests.setUpClass.__func__)
-    setUp = ActualOriginalPythonGatesTests.setUp
-    interpreter = ActualOriginalPythonGatesTests.interpreter
-    run_original = ActualOriginalPythonGatesTests.run_original
+    # Reuse provisioning without inheriting/discovering the original native tests.
+    setUpClass = classmethod(
+        original_gates.ActualOriginalPythonGatesTests.setUpClass.__func__
+    )
+    setUp = original_gates.ActualOriginalPythonGatesTests.setUp
+    interpreter = original_gates.ActualOriginalPythonGatesTests.interpreter
+    run_original = original_gates.ActualOriginalPythonGatesTests.run_original
 
     def test_before_first_descriptor_getter_is_never_invoked_or_adopted_later(self):
         original = subject._OriginalPythonGateObserver.__dict__["require_current"]
