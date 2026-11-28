@@ -13,6 +13,7 @@ import unittest
 from pathlib import Path
 
 from literate_ai.adapters.builders.make import discover_make_toolchain
+from literate_ai.projects import load_project
 from tests.support.fixtures_test_project_cli import invoke
 
 
@@ -125,7 +126,8 @@ class AdoptionNodeDependencyTests(unittest.TestCase):
         self.assertTrue(
             (self.root / "node_modules/@fixture/retained-helper/index.js").is_file()
         )
-        self.assertFalse((self.root / "literate.project.json").exists())
+        for framework in (self.root, self.root / "litai"):
+            self.assertFalse((framework / "literate.project.json").exists())
 
     def test_explicit_external_binding_passes_real_import_and_keeps_portable_evidence(
         self,
@@ -140,9 +142,10 @@ class AdoptionNodeDependencyTests(unittest.TestCase):
         )
         self.assertEqual(status, 0, result)
         # The generated wrapper still refuses a direct, unprojected invocation.
+        framework = load_project(self.root).framework_root
         make = discover_make_toolchain()
         unbound = subprocess.run(
-            (*make.command, "-f", str(self.root / "litai.harness.mk"), "build"),
+            (*make.command, "-f", str(framework / "litai.harness.mk"), "build"),
             cwd=self.root,
             capture_output=True,
             text=True,
@@ -154,7 +157,7 @@ class AdoptionNodeDependencyTests(unittest.TestCase):
         self.assertEqual(
             (implementation / "scripts/helper.mjs").read_bytes(), self.source
         )
-        inventory_bytes = (self.root / ".literate/harness-inventory.json").read_bytes()
+        inventory_bytes = (framework / ".literate/harness-inventory.json").read_bytes()
         inventory = json.loads(inventory_bytes)
         self.assertEqual(inventory["workspace_links"]["destinations"], ["node_modules"])
         self.assertNotIn(str(self.external).encode(), inventory_bytes)

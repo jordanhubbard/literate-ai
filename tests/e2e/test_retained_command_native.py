@@ -13,6 +13,7 @@ from pathlib import Path
 
 from literate_ai.adapters import retained_harness_readmission as readmission
 from literate_ai.adapters.monorepo_adoption import SELECTION_SCHEMA
+from literate_ai.adapters.retained_scaffold_coordinates import retained_scaffold_path
 from literate_ai.contracts import canonical_json_bytes
 from tests.support.fixtures_test_retained_harness_receipts import (
     _adapter,
@@ -62,7 +63,7 @@ class RetainedNativeCommandRenewalTests(unittest.TestCase):
                 run_baseline=True,
             )
             source = root / "components/legacy-project-wrapper/implementation"
-            old_bytes = (root / readmission.BASELINE).read_bytes()
+            old_bytes = retained_scaffold_path(root, readmission.BASELINE).read_bytes()
             old = json.loads(old_bytes)
             old_build = next(p for p in old["phases"] if p["phase"] == "build")
             self.assertEqual(old_build["exit_code"], 0)
@@ -128,8 +129,12 @@ class RetainedNativeCommandRenewalTests(unittest.TestCase):
             )
             self.assertEqual(status, 0, envelope)
             result = envelope["result"]
-            baseline = json.loads((root / readmission.BASELINE).read_bytes())
-            parity = json.loads((root / readmission.PARITY).read_bytes())
+            baseline = json.loads(
+                retained_scaffold_path(root, readmission.BASELINE).read_bytes()
+            )
+            parity = json.loads(
+                retained_scaffold_path(root, readmission.PARITY).read_bytes()
+            )
             for report in (baseline, parity):
                 self.assertEqual(report["state"], "passed")
                 built = next(p for p in report["phases"] if p["phase"] == "build")

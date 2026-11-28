@@ -149,7 +149,14 @@ def main():
     cli(*adopt, "--apply", "--acknowledge", "--expect-plan", plan["plan_identity"])
     source = project / "components/legacy-project-wrapper/implementation"
     original = {name: (source / name).read_bytes() for name in authored}
-    manifest = project / "literate.project.json"
+    # Contained projects place framework metadata under litai/; the retained
+    # implementation stays at its application-relative coordinate.
+    framework = (
+        project / "litai"
+        if (project / "litai/literate.project.json").is_file()
+        else project
+    )
+    manifest = framework / "literate.project.json"
     runs = []
 
     def receipt(name):
@@ -219,19 +226,19 @@ def main():
         str(project),
     )
     historical = {
-        p: p.read_bytes() for p in (project / ".literate").glob("legacy-*.json")
+        p: p.read_bytes() for p in (framework / ".literate").glob("legacy-*.json")
     }
     require(len(historical) == 3, "three immutable adoption records required")
 
     def authority_snapshot():
-        paths = [manifest, project / "verification/current.json"]
-        paths.extend(p for p in (project / ".literate").rglob("*") if p.is_file())
+        paths = [manifest, framework / "verification/current.json"]
+        paths.extend(p for p in (framework / ".literate").rglob("*") if p.is_file())
         paths.extend(source / name for name in authored)
         return {p.relative_to(project).as_posix(): p.read_bytes() for p in paths}
 
     records = []
     for previous, name in (("alpha", "beta"), ("beta", "gamma")):
-        old_receipt = (project / "verification/current.json").read_bytes()
+        old_receipt = (framework / "verification/current.json").read_bytes()
         definition = json.loads(manifest.read_bytes())
         require(
             definition["project_id"] == previous, "unexpected current project identity"
@@ -295,7 +302,7 @@ def main():
         history = project / applied["history"]
         records.append((history, history.read_bytes()))
         require(
-            (project / "verification/current.json").read_bytes() == old_receipt,
+            (framework / "verification/current.json").read_bytes() == old_receipt,
             "old receipt rewritten",
         )
         cli(
