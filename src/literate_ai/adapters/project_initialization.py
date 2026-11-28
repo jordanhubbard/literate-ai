@@ -1674,6 +1674,10 @@ _TEMPLATE_FILES = {
     "skills/specification-to-source/typescript-portable-application/SKILL.md": (
         "skills/specification-to-source/typescript-portable-application/SKILL.md"
     ),
+    # Referenced by the lang-typescript-library and package-node-sdk Flavors.
+    "skills/specification-to-source/typescript-node-sdk/SKILL.md": (
+        "skills/specification-to-source/typescript-node-sdk/SKILL.md"
+    ),
     "skills/specification-to-source/elixir-portable-application/SKILL.md": (
         "skills/specification-to-source/elixir-portable-application/SKILL.md"
     ),
