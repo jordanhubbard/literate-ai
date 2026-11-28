@@ -33,6 +33,9 @@ _CASE_SETS = {
             "methods": [
                 "test_decoded_admission_assertion_cannot_substitute_for_live_consumer",
                 "test_failed_lifecycle_does_not_grant_packaging",
+                "test_main_missing_and_stale_current_locks_return_json_failure",
+                "test_main_plan_refuses_discovery_and_debug_files_before_writers",
+                "test_main_read_only_plan_never_enters_implicit_host_writers",
                 "test_provider_is_reopened_before_live_consumption",
                 "test_read_only_intent_does_not_construct_or_claim_admission",
                 "test_read_only_intent_refuses_an_unexpected_live_consumer_call",
