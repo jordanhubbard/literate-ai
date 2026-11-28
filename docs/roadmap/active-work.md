@@ -23026,6 +23026,16 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 
 ### [ ] RETAINED-SDK-PUBLIC-001 — Connect public retained execution to live native SDK producers
 
+- **Upstream integration follow-up:** PR #513 landed at `307b0f0b7`. Its
+  read-only package dispatch, typed current-lock errors and bounded advertised
+  Cargo-artifact checks are integrated with the newer shared native owners,
+  streamed custody and original runtime-root ordering preserved. The upstream
+  [scoped Cargo evidence](../../verification/retained-cargo-layout-compatibility.json)
+  describes its own source identities; it does not qualify this integration.
+  Current combined-source native, installed and complete release qualification
+  remain pending. No parent goal or original acceptance requirement is closed
+  by this integration.
+
 - **Exact-candidate FreeBSD evidence:** [Retained readback](../../verification/freebsd-sdk-aa191c4f-observation.json)
   binds `aa191c4f9` to hosted run `44968092203`, its immutable artifact and a native
   FreeBSD 15.1 amd64 guest. The installed public SDK microfixture reaches its real

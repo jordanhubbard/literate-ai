@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Keep retained packaging plans free of implicit host writes and preserve typed
+  current-lock failures in CLI error responses.
+
+- Hold compiler-advertised Cargo artifacts through native runtime capture while
+  preserving compiler-reported loader order across intermediate layouts.
+
 - Keep Python library dependencies in directory exports and verify their
   original build inputs during qualification and worker-transfer replay.
 

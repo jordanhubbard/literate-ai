@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import stat
 import sys
 import tempfile
 import time
@@ -16,7 +17,11 @@ from collections.abc import Callable
 from dataclasses import InitVar, dataclass, field
 from pathlib import Path
 
-from literate_ai._filesystem import ensure_safe_directory, require_safe_directory
+from literate_ai._filesystem import (
+    ensure_safe_directory,
+    require_safe_directory,
+    stat_is_link_or_reparse,
+)
 from literate_ai.adapters.exclusive_directory import directory_node
 from literate_ai.adapters.lifecycle.standard_local import LocalComponentToolBinding
 from literate_ai.adapters.retained_cargo_build_environment import (
@@ -40,6 +45,54 @@ from literate_ai.adapters.streamed_file_custody import StreamedFileCustody
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.contracts.repositories import RepositoryBuildCommand
 from literate_ai.projects import PinnedInputClosure
+
+
+def _cargo_artifact_runtime_roots(records, metadata, output_root):
+    """Use checked compiler outputs rather than Cargo's internal directory layout.
+
+    Keep every advertised artifact present through directory capture. The caller
+    subsequently holds those complete directory namespaces and bytes current.
+    """
+    packages = {package["id"] for package in metadata["packages"]}
+    roots = {}
+    nodes = {}
+    count = 0
+    for record in records:
+        if record.get("reason") != "compiler-artifact":
+            continue
+        files = record.get("filenames")
+        if (
+            not isinstance(record.get("package_id"), str)
+            or record["package_id"] not in packages
+            or not isinstance(files, list)
+            or not files
+        ):
+            raise ValueError("retained.runtime.artifact-record-invalid")
+        for value in files:
+            count += 1
+            if count > 10000:
+                raise ValueError("retained.runtime.artifact-limit")
+            if not isinstance(value, str) or not value or "\x00" in value:
+                raise ValueError("retained.runtime.artifact-path-invalid")
+            path = Path(value)
+            if (
+                not path.is_absolute()
+                or ".." in path.parts
+                or path == output_root
+                or not path.is_relative_to(output_root)
+            ):
+                raise ValueError("retained.runtime.artifact-path-invalid")
+            require_safe_directory(path.parent)
+            node = path.lstat()
+            if stat_is_link_or_reparse(node) or not (
+                stat.S_ISREG(node.st_mode) or stat.S_ISDIR(node.st_mode)
+            ):
+                raise ValueError("retained.runtime.artifact-entry-unsafe")
+            nodes[path] = _signature(node)
+            roots[path.parent] = None
+    if not nodes:
+        raise ValueError("retained.runtime.artifact-record-invalid")
+    return tuple(roots), tuple(nodes.items())
 
 
 def observe_retained_cargo_tests(
@@ -364,6 +417,7 @@ def _prepare_retained_native_session(
         output_root=fresh,
         custody=None if native_custody is None else native_custody.build_outputs,
     )
+    _, artifact_nodes = _cargo_artifact_runtime_roots(records, metadata, fresh)
     runtime_roots = []
     known_packages = {package["id"] for package in metadata["packages"]}
     for record in records:
@@ -420,6 +474,9 @@ def _prepare_retained_native_session(
         maximum_file_bytes=256 * 1024 * 1024,
         custody=None if native_custody is None else native_custody.runtime,
     )
+    if any(_signature(path.lstat()) != node for path, node in artifact_nodes):
+        raise ValueError("retained.runtime.artifact-changed")
+    runtime.require_unchanged()
     compiler_runtime.require_unchanged()
     compiler_runtime = None
     closure = (

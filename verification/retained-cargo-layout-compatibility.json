@@ -1,0 +1,120 @@
+{
+  "schema": "literate-ai/retained-cargo-layout-compatibility@1",
+  "issue": "https://github.com/jordanhubbard/literate-ai/issues/515",
+  "source_base": "3e65502a8cb3ee3c58854a0ad39e11fcd4d85ef1",
+  "original_native_test_sha256": "2136760bb67a71279eae6223dc2ecc85abda561e9d98a5ecab8057faa55f8d21",
+  "candidate_adapter_sha256": "a14a3112b521f1a508e76d65859a2719fb715fc803195803072231c47d5104b1",
+  "new_custody_tests_sha256": "0d17c555ac038d35885533dd4eee3f2bbae6d0f0648b397f35166f158b1e54ff",
+  "diagnosis": {
+    "compiler": "Rust/Cargo1.100.1",
+    "original_test": "Unchanged standard-harness test fails because debug/deps is absent after successful compiler JSON output",
+    "observed_artifacts": "Package-specific build/hash/out directories",
+    "contract": "https://doc.rust-lang.org/cargo/reference/build-cache.html"
+  },
+  "implementation": "Validate every compiler artifact package/path/node; derive actual parent directories and retain advertised-node signatures through complete existing runtime capture. Preserve explicit build-script link paths, compiler runtime aliases and all original limits.",
+  "native_controls": [
+    {
+      "python": "3.11.18",
+      "rust_cargo": "1.100.1",
+      "canonical_fresh_tests": 12,
+      "passed": 12,
+      "skipped": 0,
+      "seconds": 74.842,
+      "raw_controller_log_sha256": "84cce870a737abce6e40b84d1e66e0dc084980b965090aacc82164d71cc7d691"
+    },
+    {
+      "python": "3.11.18",
+      "rust_cargo": "1.99.0",
+      "canonical_fresh_tests": 12,
+      "passed": 12,
+      "skipped": 0,
+      "seconds": 74.637,
+      "raw_controller_log_sha256": "1ea0db377367413cb81815884318d52c3ee5f6e0ee2834380d94dad8bde09b67"
+    }
+  ],
+  "environment_reconciliation": "Discard only inherited task-local Make jobserver hints whose descriptors are not passed across the bounded subprocess boundary; retain original compiler commands and strict stderr check. Prior failure and repaired checkpoint preserved separately.",
+  "assertions_deadlines_and_budgets_changed": false,
+  "full_regression_qualified": false,
+  "installed_wheel_qualified": false,
+  "release_qualified": false,
+  "static_checks": {
+    "canonical_make_lint": "passed",
+    "canonical_make_format_check": "passed,1917 files already formatted",
+    "project_validate": "passed, acyclic authority graph",
+    "existing_project_test_receipt": "stale; not readmitted",
+    "raw_static_log_sha256": "c738ab601a88c3484e0a4222ee159e8e0fcc382f4f68a55cc86aea8c4bb82427",
+    "latest_fixture_static_log_sha256": "c738ab601a88c3484e0a4222ee159e8e0fcc382f4f68a55cc86aea8c4bb82427"
+  },
+  "native_incremental_cache_fixture": {
+    "source_base": "b9064ba8daa6744f070b4e0dff7ed0f5500ee066",
+    "original_sha256": "c716a1c6960ffa8ea3249f842ae086262915a9c42987a1c21de8479ecc93dd14",
+    "candidate_sha256": "3872da421d746770269631be141be79b39f1c534212cfced24020b4db529a4a6",
+    "change": "Find exactly one fixture rlib beneath the fresh dedicated Cargo target; internal directory and hashed-name spellings are not assumed. All preexisting byte and timestamp assertions unchanged; unique-library assertion added.",
+    "controls": [
+      {
+        "rust_cargo": "1.100.1",
+        "fresh_canonical_tests": 28,
+        "passed": 28,
+        "skipped": 0,
+        "seconds": 83.969,
+        "raw_log_sha256": "0e2059ca3ca847def41ab12984f3af0ae1684895ffc7895ffcb831e96df0f63a"
+      },
+      {
+        "rust_cargo": "1.99.0",
+        "fresh_canonical_tests": 28,
+        "passed": 28,
+        "skipped": 0,
+        "seconds": 142.544,
+        "raw_log_sha256": "330677a4e3e649f0088b77a294de4cfe67e34f90c9635cfb857385384becae30"
+      }
+    ]
+  },
+  "full_regression_observation": {
+    "run": "https://github.com/jordanhubbard/literate-ai/actions/runs/46108046693",
+    "source": "b9064ba8daa6744f070b4e0dff7ed0f5500ee066",
+    "tests": 2708,
+    "skipped": 110,
+    "errors": 1,
+    "error_case": "StandardCargoLifecycleTests.test_native_cargo_reuses_target_and_rebuilds_edited_source",
+    "failure": "StopIteration selecting library at historical debug/deps",
+    "retained_cargo_repaired_harness_passed": true,
+    "subsequent_full_regression_qualified": false
+  },
+  "installed_wheel_control": {
+    "source": "b9064ba8daa6744f070b4e0dff7ed0f5500ee066",
+    "qualified": false,
+    "failure": "Repository refresh Git inspection",
+    "environment_control": "Git2.34.1 rejects worktree list --porcelain -z with exit129; source observer requires this operation",
+    "raw_wheel_log_sha256": "558719a056997b382f6e1fe63940d51ba01bb8a0bcfe02a636b58fa746a47770",
+    "raw_git_control_log_sha256": "270f9fd32b48529e2fa71a03a641ff99cb93845f604baf648a13962004ac3c6c",
+    "guards_or_assertions_relaxed": false
+  },
+  "full_regression_observation_latest": {
+    "run": "https://github.com/jordanhubbard/literate-ai/actions/runs/46110789918",
+    "source": "daa0de2f548f1018bc6f8e65f524306d951b0a10",
+    "unit_tests": 2867,
+    "reported_skips": 113,
+    "unit_result": "passed",
+    "seconds": 1398.314,
+    "subsequent_ci_failure": "Required lifecycle-driver review pin was stale; independently reviewed exact candidate hash before supported re-pin",
+    "whole_ci_qualified": false
+  },
+  "independent_tcb_review": {
+    "reviewer_thread": "01a21ddf-1cc4-7413-829e-5fad13774984",
+    "sha256": "a14a3112b521f1a508e76d65859a2719fb715fc803195803072231c47d5104b1",
+    "decision": "accepted exact source hash",
+    "scope": "source review only; no release or installed-matrix claim"
+  },
+  "installed_candidate_control_latest": {
+    "source": "daa0de2f548f1018bc6f8e65f524306d951b0a10",
+    "wheel_sha256": "a74d698e6c65264f0958069c9916ba1cd8e7b6ee777b3ac83c6a263178a9130d",
+    "wheel_bytes": 4296140,
+    "kind_count": 7,
+    "fresh_noneditable": true,
+    "actual_retained_zip_journey": "passed",
+    "package_admitted": true,
+    "release_qualified": false,
+    "full_wheel_smoke_qualified": false,
+    "kse_eleven_kind_qualified": false
+  }
+}

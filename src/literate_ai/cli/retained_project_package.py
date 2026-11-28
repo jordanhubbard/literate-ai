@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from literate_ai.adapters.component_lock_application import (
+    ProjectComponentLockSetError,
     current_project_component_locks,
 )
 from literate_ai.adapters.retained_project_package import RetainedProjectZipPackage
@@ -93,6 +94,8 @@ def retained_project_package_from_args(args):
         }
     except CliFailure:
         raise
+    except ProjectComponentLockSetError as exc:
+        raise CliFailure(exc.code, exc.message) from exc
     except (ValueError, TypeError, OSError) as exc:
         raise CliFailure("retained.package.execution_failed", str(exc)) from exc
 

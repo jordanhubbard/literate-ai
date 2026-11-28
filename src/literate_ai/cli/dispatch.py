@@ -3747,7 +3747,12 @@ def main(
         and "test-receipt" in arguments
         and "promote-retained" in arguments
     )
-    deferred_retained_frontdoor = command in {"build", "test", "rebuild"}
+    deferred_retained_frontdoor = command in {
+        "build",
+        "test",
+        "rebuild",
+        "package.retained-project",
+    }
     scoped_retained_cargo = command == "project.retained-cargo"
     deferred_retained_harness = command == "project.retained-harness"
     scoped_worker_health = command == "worker.health"
